@@ -1,15 +1,15 @@
 import { messages } from '../../../../../../../../../../../../../../shared/gettext';
-import { Button } from '../../../../../../../../../../../../../lib/components';
+import { Dialog } from '../../../../../../../../../../../../../lib/components/dialog';
 import { useDisabled } from '../../../../hooks';
-import { useHideWarningDialog } from '../../hooks';
 
 export function CancelButton() {
   const disabled = useDisabled();
-  const hideWarningDialog = useHideWarningDialog();
 
   return (
-    <Button key="cancel" onClick={hideWarningDialog}>
-      <Button.Text>{disabled ? messages.gettext('Back') : messages.gettext('Cancel')}</Button.Text>
-    </Button>
+    <Dialog.CloseButton>
+      <Dialog.CloseButton.Text>
+        {disabled ? messages.gettext('Back') : messages.gettext('Cancel')}
+      </Dialog.CloseButton.Text>
+    </Dialog.CloseButton>
   );
 }

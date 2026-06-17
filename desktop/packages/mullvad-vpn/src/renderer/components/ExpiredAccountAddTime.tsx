@@ -10,7 +10,7 @@ import { messages } from '../../shared/gettext';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Button, Flex } from '../lib/components';
+import { Button, Flex, LabelTinySemiBold, TitleBig } from '../lib/components';
 import { FlexColumn } from '../lib/components/flex-column';
 import { View } from '../lib/components/view';
 import { colors } from '../lib/foundations';
@@ -75,11 +75,17 @@ export function VoucherInput() {
             margin={{ top: 'large' }}
             flexGrow={1}>
             <RedeemVoucherContainer onSuccess={onSuccess}>
-              <FlexColumn>
-                <StyledTitle>{messages.pgettext('connect-view', 'Redeem voucher')}</StyledTitle>
-                <StyledLabel>{messages.pgettext('connect-view', 'Enter voucher code')}</StyledLabel>
-                <StyledRedeemVoucherInput />
-                <RedeemVoucherResponse />
+              <FlexColumn gap="medium">
+                <TitleBig>{messages.pgettext('connect-view', 'Redeem voucher')}</TitleBig>
+                <FlexColumn gap="tiny">
+                  <LabelTinySemiBold>
+                    {messages.pgettext('connect-view', 'Enter voucher code')}
+                  </LabelTinySemiBold>
+                  <FlexColumn gap="small">
+                    <StyledRedeemVoucherInput />
+                    <RedeemVoucherResponse />
+                  </FlexColumn>
+                </FlexColumn>
               </FlexColumn>
 
               <FlexColumn gap="medium">

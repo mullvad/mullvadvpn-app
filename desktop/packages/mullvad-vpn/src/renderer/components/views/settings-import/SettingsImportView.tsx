@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -12,15 +12,15 @@ import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { colors, spacings } from '../../../lib/foundations';
 import { TransitionType, useHistory } from '../../../lib/history';
-import { useBoolean, useEffectEvent } from '../../../lib/utility-hooks';
+import { useEffectEvent } from '../../../lib/utility-hooks';
 import settingsImportActions from '../../../redux/settings-import/actions';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import { ButtonGroup } from '../../ButtonGroup';
 import { normalText } from '../../common-styles';
 import { BackAction } from '../../keyboard-navigation';
-import { ModalAlert, ModalAlertType } from '../../Modal';
 import { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { StatusDialog } from '../../status-dialog';
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
 
@@ -42,7 +42,7 @@ export function SettingsImportView() {
   // "Clear" button will be disabled if there are no imported overrides.
   const activeOverrides = useSelector((state) => state.settings.relayOverrides.length > 0);
 
-  const [clearDialogVisible, showClearDialog, hideClearDialog] = useBoolean();
+  const [clearDialogOpen, setClearDialogOpen] = React.useState(false);
 
   // Keeps the status of the last import and is cleared 10 seconds after being set.
   const [importStatus, setImportStatusImpl] = useState<ImportStatus>();
@@ -63,10 +63,14 @@ export function SettingsImportView() {
   );
 
   const confirmClear = useCallback(() => {
-    hideClearDialog();
+    setClearDialogOpen(false);
     void clearAllRelayOverrides();
     setImportStatus(undefined);
-  }, [clearAllRelayOverrides, hideClearDialog, setImportStatus]);
+  }, [clearAllRelayOverrides, setImportStatus]);
+
+  const handleClickClearAllOverrides = useCallback(() => {
+    setClearDialogOpen(true);
+  }, []);
 
   const navigateTextImport = useCallback(() => {
     history.push(RoutePath.settingsTextImport, { transition: TransitionType.show });
@@ -178,29 +182,38 @@ export function SettingsImportView() {
                 <SettingsImportStatus status={importStatus} />
               </View.Container>
             </FlexColumn>
-            <Button variant="destructive" onClick={showClearDialog} disabled={!activeOverrides}>
+            <Button
+              variant="destructive"
+              onClick={handleClickClearAllOverrides}
+              disabled={!activeOverrides}>
               <Button.Text>
                 {messages.pgettext('settings-import', 'Clear all overrides')}
               </Button.Text>
             </Button>
-            <ModalAlert
-              isOpen={clearDialogVisible}
-              type={ModalAlertType.warning}
-              gridButtons={[
-                <Button key="cancel" onClick={hideClearDialog}>
-                  <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-                </Button>,
-                <Button key="confirm" onClick={confirmClear} variant="destructive">
-                  <Button.Text>{messages.gettext('Clear')}</Button.Text>
-                </Button>,
-              ]}
-              close={hideClearDialog}
-              title={messages.pgettext('settings-import', 'Clear all overrides?')}
-              message={messages.pgettext(
-                'settings-import',
-                'Clearing the imported overrides changes the server IPs, in the Select location view, back to default.',
-              )}
-            />
+            <StatusDialog
+              variant="warning"
+              open={clearDialogOpen}
+              onOpenChange={setClearDialogOpen}>
+              <StatusDialog.Title>
+                {messages.pgettext('settings-import', 'Clear all overrides?')}
+              </StatusDialog.Title>
+              <StatusDialog.Text>
+                {messages.pgettext(
+                  'settings-import',
+                  'Clearing the imported overrides changes the server IPs, in the Select location view, back to default.',
+                )}
+              </StatusDialog.Text>
+              <StatusDialog.ButtonGroup>
+                <StatusDialog.Button onClick={confirmClear} variant="destructive">
+                  <StatusDialog.Button.Text>{messages.gettext('Clear')}</StatusDialog.Button.Text>
+                </StatusDialog.Button>
+                <StatusDialog.CloseButton>
+                  <StatusDialog.CloseButton.Text>
+                    {messages.gettext('Cancel')}
+                  </StatusDialog.CloseButton.Text>
+                </StatusDialog.CloseButton>
+              </StatusDialog.ButtonGroup>
+            </StatusDialog>
           </View.Container>
         </View.Content>
       </BackAction>

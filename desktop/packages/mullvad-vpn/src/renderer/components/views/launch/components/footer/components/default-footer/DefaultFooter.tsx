@@ -1,12 +1,14 @@
+import React from 'react';
+
 import { messages } from '../../../../../../../../shared/gettext';
 import { Button } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
-import { useBoolean } from '../../../../../../../lib/utility-hooks';
 import { TroubleshootingModal } from '../../../troubleshooting-modal';
 import { FooterText } from '../footer-text';
 
 export function DefaultLaunchFooter() {
-  const [dialogOpen, showDialog, hideDialog] = useBoolean();
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const showDialog = React.useCallback(() => setDialogOpen(true), []);
 
   return (
     <>
@@ -24,7 +26,7 @@ export function DefaultLaunchFooter() {
           <Button.Text>{messages.gettext('Learn more')}</Button.Text>
         </Button>
       </FlexColumn>
-      <TroubleshootingModal isOpen={dialogOpen} onClose={hideDialog} />
+      <TroubleshootingModal open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }

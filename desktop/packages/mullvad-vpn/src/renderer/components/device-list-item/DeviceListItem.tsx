@@ -50,8 +50,8 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
           </ListItem.Item.ActionGroup>
         </ListItem.Item>
       </ListItem>
-      <ConfirmDialog isOpen={confirmDialogVisible} />
-      <ErrorDialog isOpen={error} />
+      <ConfirmDialog open={confirmDialogVisible} />
+      <ErrorDialog open={error} />
     </>
   );
 }
