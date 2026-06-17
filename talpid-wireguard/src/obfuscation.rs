@@ -4,25 +4,11 @@ use super::{Error, Result};
 use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
-use std::{
-    iter,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::mpsc as sync_mpsc,
-};
+use std::{net::SocketAddr, sync::mpsc as sync_mpsc};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::{
-    ErrorExt,
-    net::{
-        obfuscation::{ObfuscatorConfig, Obfuscators},
-        wireguard::TunnelParameters,
-    },
-};
-
-use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_local_socket_obfuscator, lwo, multiplexer, quic,
-    shadowsocks, udp2tcp,
-};
+use talpid_types::ErrorExt;
+use tunnel_obfuscation::create_local_socket_obfuscator;
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost.
@@ -31,41 +17,15 @@ use tunnel_obfuscation::{
 ///
 /// * obfuscation_mtu - "MTU" including obfuscation overhead
 /// * is_gotatun - `true` when the userspace GotaTun implementation is in use
-pub async fn apply_obfuscation_config(
+pub async fn run_local_socket_obfuscator(
     config: &mut Config,
-    obfuscation_mtu: u16,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
-    let Some(ref obfuscator_config) = config.obfuscator_config else {
+    let Some(ref obfuscation_settings) = config.obfuscation_settings else {
         return Ok(None);
     };
-
-    // If the obfuscation can be applied in user space (see MaybeObfuscatingTransportFactory),
-    // then we do not modify the endpoint.
-    if is_gotatun
-        && matches!(
-            obfuscator_config,
-            Obfuscators::Single(ObfuscatorConfig::Quic { .. })
-                | Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
-        )
-    {
-        log::debug!("GotaTun + LWO/QUIC: skipping proxy, obfuscation will be applied inline");
-        return Ok(None);
-    }
-
-    let settings = settings_from_config(
-        config,
-        obfuscator_config,
-        obfuscation_mtu,
-        #[cfg(target_os = "linux")]
-        config.fwmark,
-    );
-
-    log::trace!("Obfuscation settings: {settings:?}");
-
-    let obfuscator = create_local_socket_obfuscator(&settings)
+    let obfuscator = create_local_socket_obfuscator(obfuscation_settings)
         .await
         .map_err(Error::ObfuscationError)?;
 
@@ -115,101 +75,6 @@ pub fn userspace_transport_available(
 fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
     log::trace!("Patching first WireGuard peer to become {endpoint}");
     config.entry_peer.endpoint = endpoint;
-}
-
-fn settings_from_config(
-    config: &Config,
-    obfuscation_config: &Obfuscators,
-    mtu: u16,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
-) -> ObfuscationSettings {
-    match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
-            config,
-            obfuscation_config,
-            mtu,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        ),
-        Obfuscators::Multiplexer {
-            direct,
-            configs: (first_obfs, remaining_obfs),
-        } => {
-            let mut transports = vec![];
-            if let Some(direct) = direct {
-                transports.push(multiplexer::Transport::Direct(*direct));
-            }
-            for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
-                let settings = settings_from_single_config(
-                    config,
-                    obfs_config,
-                    mtu,
-                    #[cfg(target_os = "linux")]
-                    fwmark,
-                );
-                transports.push(multiplexer::Transport::Obfuscated(settings));
-            }
-            ObfuscationSettings::Multiplexer(multiplexer::Settings {
-                transports,
-                #[cfg(target_os = "linux")]
-                fwmark,
-            })
-        }
-    }
-}
-
-fn settings_from_single_config(
-    config: &Config,
-    obfuscation_config: &ObfuscatorConfig,
-    mtu: u16,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
-) -> ObfuscationSettings {
-    match obfuscation_config {
-        ObfuscatorConfig::Udp2Tcp { endpoint } => ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
-            peer: *endpoint,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        }),
-        ObfuscatorConfig::Shadowsocks { endpoint } => {
-            ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
-                shadowsocks_endpoint: *endpoint,
-                wireguard_endpoint: if endpoint.is_ipv4() {
-                    SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
-                } else {
-                    SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
-                },
-                #[cfg(target_os = "linux")]
-                fwmark,
-            })
-        }
-        ObfuscatorConfig::Quic {
-            hostname,
-            endpoint,
-            auth_token,
-        } => {
-            let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
-            let mut settings = quic::Settings::new(
-                *endpoint,
-                hostname.to_owned(),
-                auth_token.parse().unwrap(),
-                wireguard_endpoint,
-            )
-            .mtu(mtu);
-            #[cfg(target_os = "linux")]
-            if let Some(fwmark) = fwmark {
-                settings.set_fwmark(fwmark);
-                return ObfuscationSettings::Quic(settings);
-            }
-            ObfuscationSettings::Quic(settings)
-        }
-        ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
-            server_addr: *endpoint,
-            client_public_key: config.tunnel.private_key.public_key(),
-            server_public_key: config.entry_peer.public_key.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark,
-        }),
-    }
 }
 
 /// Route socket outside of the VPN on Android
