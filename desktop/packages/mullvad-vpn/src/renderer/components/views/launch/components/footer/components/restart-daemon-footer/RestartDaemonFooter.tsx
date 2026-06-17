@@ -4,14 +4,15 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../../../context';
 import { Button } from '../../../../../../../lib/components';
 import { FlexColumn } from '../../../../../../../lib/components/flex-column';
-import { useBoolean } from '../../../../../../../lib/utility-hooks';
 import { useUserInterfaceDaemonStatus } from '../../../../../../../redux/hooks';
 import { TroubleshootingModal } from '../../../troubleshooting-modal';
 
 export function RestartDaemonFooter() {
   const { tryStartDaemon } = useAppContext();
   const { daemonStatus } = useUserInterfaceDaemonStatus();
-  const [dialogOpen, showDialog, hideDialog] = useBoolean();
+
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const showDialog = React.useCallback(() => setDialogOpen(true), []);
 
   const handleTryAgain = React.useCallback(() => {
     tryStartDaemon();
@@ -37,7 +38,7 @@ export function RestartDaemonFooter() {
           </Button.Text>
         </Button>
       </FlexColumn>
-      <TroubleshootingModal isOpen={dialogOpen} onClose={hideDialog} />
+      <TroubleshootingModal open={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 }

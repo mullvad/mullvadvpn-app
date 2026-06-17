@@ -1,6 +1,5 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { urls } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
@@ -11,13 +10,13 @@ import { LockdownModeSwitch } from '../../../features/tunnel/components';
 import { Button, Flex } from '../../../lib/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
-import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useExclusiveTask } from '../../../lib/hooks/use-exclusive-task';
 import { IconBadge } from '../../../lib/icon-badge';
 import { formatDeviceName } from '../../../lib/utils';
 import { useSelector } from '../../../redux/store';
 import { AppMainHeader } from '../../app-main-header';
+import { CautionDialog } from '../../caution-dialog';
 import DeviceInfoButton from '../../DeviceInfoButton';
 import {
   StyledAccountNumberContainer,
@@ -28,7 +27,6 @@ import {
   StyledMessage,
   StyledTitle,
 } from '../../ExpiredAccountErrorViewStyles';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
 import { SettingsListItem } from '../../settings-list-item';
 
 enum RecoveryAction {
@@ -36,10 +34,6 @@ enum RecoveryAction {
   disconnect,
   disableLockdownMode,
 }
-
-const StyledSettingsToggleListItem = styled(SettingsListItem)`
-  margin-top: ${spacings.medium};
-`;
 
 export function ExpiredAccountErrorView() {
   return (
@@ -232,28 +226,20 @@ function LockdownModeAlert() {
   }, [setShowLockdownModeAlert]);
 
   return (
-    <ModalAlert
-      isOpen={showLockdownModeAlert}
-      type={ModalAlertType.caution}
-      buttons={[
-        <Button key="cancel" onClick={onCloseLockdownModeInstructions}>
-          <Button.Text>{messages.gettext('Close')}</Button.Text>
-        </Button>,
-      ]}
-      close={onCloseLockdownModeInstructions}>
-      <ModalMessage>
+    <CautionDialog open={showLockdownModeAlert} onOpenChange={setShowLockdownModeAlert}>
+      <CautionDialog.Text>
         {messages.pgettext(
           'connect-view',
           'You need to disable "Lockdown mode" in order to access the Internet to add time.',
         )}
-      </ModalMessage>
-      <ModalMessage>
+      </CautionDialog.Text>
+      <CautionDialog.Text>
         {messages.pgettext(
           'connect-view',
           'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
         )}
-      </ModalMessage>
-      <StyledSettingsToggleListItem>
+      </CautionDialog.Text>
+      <SettingsListItem>
         <SettingsListItem.Item>
           <LockdownModeSwitch>
             <LockdownModeSwitch.Label variant="titleMedium">
@@ -264,8 +250,11 @@ function LockdownModeAlert() {
             </SettingsListItem.Item.ActionGroup>
           </LockdownModeSwitch>
         </SettingsListItem.Item>
-      </StyledSettingsToggleListItem>
-    </ModalAlert>
+      </SettingsListItem>
+      <CautionDialog.Button onClick={onCloseLockdownModeInstructions}>
+        <CautionDialog.Button.Text>{messages.gettext('Close')}</CautionDialog.Button.Text>
+      </CautionDialog.Button>
+    </CautionDialog>
   );
 }
 

@@ -39,7 +39,7 @@ import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
-import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
+import { InfoDialog } from './info-dialog';
 import {
   NotificationActions,
   NotificationBanner,
@@ -339,24 +339,21 @@ function NotificationActionWrapper({
   return (
     <>
       <NotificationActions>{actionComponent}</NotificationActions>
-      <ModalAlert
-        isOpen={isModalOpen}
-        type={ModalAlertType.info}
-        buttons={buttons}
-        close={closeTroubleshootModal}>
-        <ModalMessage>{action.troubleshoot?.details}</ModalMessage>
-        <ModalMessage>
-          <ModalMessageList>
+      <InfoDialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <InfoDialog.Text>{action.troubleshoot?.details}</InfoDialog.Text>
+        <InfoDialog.Text>
+          <InfoDialog.List>
             {action.troubleshoot?.steps.map((step) => <li key={step}>{step}</li>)}
-          </ModalMessageList>
-        </ModalMessage>
-        <ModalMessage>
+          </InfoDialog.List>
+        </InfoDialog.Text>
+        <InfoDialog.Text>
           {messages.pgettext(
             'troubleshoot',
             'If these steps do not work please send a problem report.',
           )}
-        </ModalMessage>
-      </ModalAlert>
+        </InfoDialog.Text>
+        <InfoDialog.ButtonGroup>{buttons}</InfoDialog.ButtonGroup>
+      </InfoDialog>
     </>
   );
 }

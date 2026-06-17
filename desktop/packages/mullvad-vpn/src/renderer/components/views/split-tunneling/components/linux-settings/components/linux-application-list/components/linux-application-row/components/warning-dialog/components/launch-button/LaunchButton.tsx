@@ -1,18 +1,18 @@
 import { messages } from '../../../../../../../../../../../../../../shared/gettext';
-import { Button } from '../../../../../../../../../../../../../lib/components';
+import { Dialog } from '../../../../../../../../../../../../../lib/components/dialog';
 import { useHandleClick } from './hooks';
 
 export function LaunchButton() {
   const handleClick = useHandleClick();
 
   return (
-    <Button onClick={handleClick}>
-      <Button.Text>
+    <Dialog.Button onClick={handleClick}>
+      <Dialog.Button.Text>
         {
           // TRANSLATORS: Button label for launching an application with split tunneling.
           messages.pgettext('split-tunneling-view', 'Launch')
         }
-      </Button.Text>
-    </Button>
+      </Dialog.Button.Text>
+    </Dialog.Button>
   );
 }

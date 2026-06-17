@@ -1,33 +1,16 @@
 import { messages } from '../../../../shared/gettext';
-import { Button } from '../../../lib/components';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
+import { CautionDialog } from '../../caution-dialog';
 
 interface Props {
-  visible: boolean;
+  open: boolean;
   onConfirm: () => void;
-  onHide: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
-export default function ClearAccountHistoryDialog(props: Props) {
+export default function ClearAccountHistoryDialog({ open, onOpenChange, onConfirm }: Props) {
   return (
-    <ModalAlert
-      isOpen={props.visible}
-      type={ModalAlertType.caution}
-      buttons={[
-        <Button variant="destructive" key="confirm" onClick={props.onConfirm}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button label in confirmation dialog that confirms a remove action.
-              messages.gettext('Remove')
-            }
-          </Button.Text>
-        </Button>,
-        <Button key="back" onClick={props.onHide}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.onHide}>
-      <ModalMessage>
+    <CautionDialog open={open} onOpenChange={onOpenChange}>
+      <CautionDialog.Text>
         {
           // TRANSLATORS: Text that informs the user about the consequences of clearing the saved
           // TRANSLATORS: account number.
@@ -36,13 +19,28 @@ export default function ClearAccountHistoryDialog(props: Props) {
             'Removing the saved account number from this device cannot be undone.',
           )
         }
-      </ModalMessage>
-      <ModalMessage>
+      </CautionDialog.Text>
+      <CautionDialog.Text>
         {
           // TRANSLATORS: Text that asks the user if they really want to remove the saved account.
           messages.pgettext('login-view', 'Do you want to remove the saved account number?')
         }
-      </ModalMessage>
-    </ModalAlert>
+      </CautionDialog.Text>
+      <CautionDialog.ButtonGroup>
+        <CautionDialog.Button onClick={onConfirm} variant="destructive">
+          <CautionDialog.Button.Text>
+            {
+              // TRANSLATORS: Button label in confirmation dialog that confirms a remove action.
+              messages.gettext('Remove')
+            }
+          </CautionDialog.Button.Text>
+        </CautionDialog.Button>
+        <CautionDialog.CloseButton>
+          <CautionDialog.CloseButton.Text>
+            {messages.gettext('Cancel')}
+          </CautionDialog.CloseButton.Text>
+        </CautionDialog.CloseButton>
+      </CautionDialog.ButtonGroup>
+    </CautionDialog>
   );
 }

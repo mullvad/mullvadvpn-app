@@ -7,19 +7,12 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { isAccountNumber } from '../../shared/utils';
 import { useAppContext } from '../context';
-import { Button, ButtonProps, Flex, Spinner } from '../lib/components';
-import { IconBadge } from '../lib/icon-badge';
+import { Button, ButtonProps, Flex, LabelTinySemiBold, Spinner } from '../lib/components';
+import { Dialog } from '../lib/components/dialog';
+import { FlexColumn } from '../lib/components/flex-column';
 import { useSelector } from '../redux/store';
-import { ModalAlert } from './Modal';
-import {
-  StyledAccountNumberInfo,
-  StyledEmptyResponse,
-  StyledErrorResponse,
-  StyledInput,
-  StyledLabel,
-  StyledProgressResponse,
-  StyledTitle,
-} from './RedeemVoucherStyles';
+import { StyledEmptyResponse, StyledInput } from './RedeemVoucherStyles';
+import { SuccessDialog } from './success-dialog';
 
 const MIN_VOUCHER_LENGTH = 16;
 
@@ -167,11 +160,11 @@ export function RedeemVoucherResponse() {
 
   if (submitting) {
     return (
-      <Flex alignItems="center" margin={{ top: 'small' }} gap="small">
-        <Spinner size="medium" />
-        <StyledProgressResponse>
+      <Flex alignItems="center" gap="small">
+        <Spinner size="small" />
+        <LabelTinySemiBold>
           {messages.pgettext('redeem-voucher-view', 'Verifying voucher...')}
-        </StyledProgressResponse>
+        </LabelTinySemiBold>
       </Flex>
     );
   }
@@ -182,31 +175,31 @@ export function RedeemVoucherResponse() {
         return <StyledEmptyResponse />;
       case 'invalid':
         return (
-          <>
-            <StyledErrorResponse>
+          <FlexColumn gap="medium">
+            <LabelTinySemiBold color="red">
               {messages.pgettext('redeem-voucher-view', 'Voucher code is invalid.')}
-            </StyledErrorResponse>
+            </LabelTinySemiBold>
             {isAccountNumber(submittedValue) ? (
-              <StyledAccountNumberInfo>
+              <LabelTinySemiBold>
                 {messages.pgettext(
                   'redeem-voucher-view',
                   'It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first.',
                 )}
-              </StyledAccountNumberInfo>
+              </LabelTinySemiBold>
             ) : null}
-          </>
+          </FlexColumn>
         );
       case 'already_used':
         return (
-          <StyledErrorResponse>
+          <LabelTinySemiBold color="red">
             {messages.pgettext('redeem-voucher-view', 'Voucher code has already been used.')}
-          </StyledErrorResponse>
+          </LabelTinySemiBold>
         );
       case 'error':
         return (
-          <StyledErrorResponse>
+          <LabelTinySemiBold color="red">
             {messages.pgettext('redeem-voucher-view', 'An error occurred.')}
-          </StyledErrorResponse>
+          </LabelTinySemiBold>
         );
     }
   }
@@ -230,12 +223,12 @@ export function RedeemVoucherSubmitButton() {
   );
 }
 
-interface IRedeemVoucherAlertProps {
-  show: boolean;
-  onClose?: () => void;
-}
+type RedeemVoucherAlertProps = {
+  open: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
 
-export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
+export function RedeemVoucherAlert({ open, onOpenChange }: RedeemVoucherAlertProps) {
   const { submitting, response } = useContext(RedeemVoucherContext);
   const locale = useSelector((state) => state.userInterface.locale);
 
@@ -247,53 +240,54 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
     const expiry = formatDate(response.newExpiry, locale);
 
     return (
-      <ModalAlert
-        isOpen={props.show}
-        buttons={[
-          <Button key="gotit" onClick={props.onClose}>
-            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
-          </Button>,
-        ]}
-        close={props.onClose}>
-        <Flex justifyContent="center" margin={{ top: 'large', bottom: 'medium' }}>
-          <IconBadge state="positive" />
-        </Flex>
-        <StyledTitle>
+      <SuccessDialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Subtitle>
           {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
-        </StyledTitle>
-        <StyledLabel>
+        </Dialog.Subtitle>
+        <Dialog.Text>
           {sprintf(messages.gettext('%(duration)s was added, account paid until %(expiry)s.'), {
             duration,
             expiry,
           })}
-        </StyledLabel>
-      </ModalAlert>
+        </Dialog.Text>
+        <Dialog.CloseButton>
+          <Dialog.CloseButton.Text>{messages.gettext('Got it!')}</Dialog.CloseButton.Text>
+        </Dialog.CloseButton>
+      </SuccessDialog>
     );
   } else {
     return (
-      <ModalAlert
-        isOpen={props.show}
-        buttons={[
-          <RedeemVoucherSubmitButton key="submit" />,
-          <Button key="cancel" disabled={submitting} onClick={props.onClose}>
-            <Button.Text>
-              {
-                // TRANSLATORS: Cancel button label for voucher redemption.
-                messages.pgettext('redeem-voucher-alert', 'Cancel')
-              }
-            </Button.Text>
-          </Button>,
-        ]}
-        close={props.onClose}>
-        <StyledLabel>
-          {
-            // TRANSLATORS: Input field label for voucher code.
-            messages.pgettext('redeem-voucher-alert', 'Enter voucher code')
-          }
-        </StyledLabel>
-        <RedeemVoucherInput />
-        <RedeemVoucherResponse />
-      </ModalAlert>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog.Portal>
+          <Dialog.Popup>
+            <Dialog.PopupContent>
+              <FlexColumn gap="tiny">
+                <LabelTinySemiBold>
+                  {
+                    // TRANSLATORS: Input field label for voucher code.
+                    messages.pgettext('redeem-voucher-alert', 'Enter voucher code')
+                  }
+                </LabelTinySemiBold>
+                <FlexColumn gap="small">
+                  <RedeemVoucherInput />
+                  <RedeemVoucherResponse />
+                </FlexColumn>
+              </FlexColumn>
+              <Dialog.ButtonGroup>
+                <RedeemVoucherSubmitButton />
+                <Dialog.CloseButton disabled={submitting}>
+                  <Dialog.CloseButton.Text>
+                    {
+                      // TRANSLATORS: Cancel button label for voucher redemption.
+                      messages.pgettext('redeem-voucher-alert', 'Cancel')
+                    }
+                  </Dialog.CloseButton.Text>
+                </Dialog.CloseButton>
+              </Dialog.ButtonGroup>
+            </Dialog.PopupContent>
+          </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog>
     );
   }
 }
@@ -304,7 +298,6 @@ export function RedeemVoucherButton(props: RedeemVoucherButtonProps) {
   const [showAlert, setShowAlert] = useState(false);
 
   const onClick = useCallback(() => setShowAlert(true), []);
-  const onClose = useCallback(() => setShowAlert(false), []);
 
   return (
     <>
@@ -317,7 +310,7 @@ export function RedeemVoucherButton(props: RedeemVoucherButtonProps) {
         </Button.Text>
       </Button>
       <RedeemVoucherContainer>
-        <RedeemVoucherAlert show={showAlert} onClose={onClose} />
+        <RedeemVoucherAlert open={showAlert} onOpenChange={setShowAlert} />
       </RedeemVoucherContainer>
     </>
   );

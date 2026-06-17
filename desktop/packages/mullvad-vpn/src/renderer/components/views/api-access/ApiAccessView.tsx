@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -14,7 +14,6 @@ import { View } from '../../../lib/components/view';
 import { colors, spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { generateRoutePath } from '../../../lib/routeHelpers';
-import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import * as Cell from '../../cell';
@@ -26,10 +25,10 @@ import {
 } from '../../ContextMenu';
 import { Info } from '../../info';
 import { BackAction } from '../../keyboard-navigation';
-import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { WarningDialog } from '../../warning-dialog';
 
 const StyledNameLabel = styled(Cell.Label)({
   display: 'block',
@@ -168,11 +167,13 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
   const [testing, testResult, testApiAccessMethod] = useApiAccessMethodTest();
 
   // State for delete confirmation dialog.
-  const [removeConfirmationVisible, showRemoveConfirmation, hideRemoveConfirmation] = useBoolean();
+  const [openDeleteMethodDialog, setOpenDeleteMethodDialog] = useState(false);
+  const showDeleteMethodDialog = useCallback(() => setOpenDeleteMethodDialog(true), []);
+
   const confirmRemove = useCallback(() => {
     void removeApiAccessMethod(props.method.id);
-    hideRemoveConfirmation();
-  }, [hideRemoveConfirmation, props.method.id, removeApiAccessMethod]);
+    setOpenDeleteMethodDialog(false);
+  }, [props.method.id, removeApiAccessMethod]);
 
   // Toggle on/off on an access method.
   const toggle = useCallback(
@@ -219,7 +220,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         {
           type: 'item' as const,
           label: messages.gettext('Delete'),
-          onClick: showRemoveConfirmation,
+          onClick: showDeleteMethodDialog,
         },
       );
     }
@@ -231,7 +232,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     props.method.id,
     setApiAccessMethod,
     testApiAccessMethod,
-    showRemoveConfirmation,
+    showDeleteMethodDialog,
     push,
   ]);
 
@@ -373,30 +374,31 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
       </Flex>
 
       {/* Confirmation dialog for method removal */}
-      <ModalAlert
-        isOpen={removeConfirmationVisible}
-        type={ModalAlertType.warning}
-        gridButtons={[
-          <Button key="cancel" onClick={hideRemoveConfirmation}>
-            <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-          </Button>,
-          <Button key="confirm" onClick={confirmRemove} variant="destructive">
-            <Button.Text>{messages.gettext('Delete')}</Button.Text>
-          </Button>,
-        ]}
-        close={hideRemoveConfirmation}
-        title={sprintf(messages.pgettext('api-access-methods-view', 'Delete %(name)s?'), {
-          name: props.method.name,
-        })}
-        message={
-          props.inUse
-            ? messages.pgettext(
-                'api-access-methods-view',
-                'The in use API access method will change.',
-              )
-            : undefined
-        }
-      />
+      <WarningDialog open={openDeleteMethodDialog} onOpenChange={setOpenDeleteMethodDialog}>
+        <WarningDialog.Subtitle>
+          {sprintf(messages.pgettext('api-access-methods-view', 'Delete %(name)s?'), {
+            name: props.method.name,
+          })}
+        </WarningDialog.Subtitle>
+        {props.inUse && (
+          <WarningDialog.Text>
+            {messages.pgettext(
+              'api-access-methods-view',
+              'The in use API access method will change.',
+            )}
+          </WarningDialog.Text>
+        )}
+        <WarningDialog.ButtonGroup>
+          <WarningDialog.Button onClick={confirmRemove} variant="destructive">
+            <WarningDialog.Button.Text>{messages.gettext('Delete')}</WarningDialog.Button.Text>
+          </WarningDialog.Button>
+          <WarningDialog.CloseButton>
+            <WarningDialog.CloseButton.Text>
+              {messages.gettext('Cancel')}
+            </WarningDialog.CloseButton.Text>
+          </WarningDialog.CloseButton>
+        </WarningDialog.ButtonGroup>
+      </WarningDialog>
     </Cell.Row>
   );
 }
