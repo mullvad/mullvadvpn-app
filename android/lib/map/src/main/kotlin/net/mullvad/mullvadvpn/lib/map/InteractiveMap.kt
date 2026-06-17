@@ -69,7 +69,6 @@ fun InteractiveMap(
         Marker(it, colors = LocationMarkerColors.default(alphaAnimation.value))
     }
 
-
     val zoomAnimatable = remember {
         Animatable(zoomRange.start).also {
             it.updateBounds(zoomRange.start, zoomRange.endInclusive)
@@ -97,7 +96,7 @@ fun InteractiveMap(
             latLngAnimatable.animateTo(currentLocation.toOffset(), animationSpec = tween(duration))
         }
         launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
-        launch { alphaAnimation.animateTo(0f, animationSpec = tween(duration)) }
+        launch { alphaAnimation.animateTo(0f, animationSpec = tween(300)) }
     }
 
     val tracker = remember { DiffVelocityTracker() }
@@ -107,7 +106,7 @@ fun InteractiveMap(
 
     val onGestureStart: () -> Unit = {
         scope.launch {
-            alphaAnimation.animateTo(1f, tween(1000))
+            alphaAnimation.animateTo(1f, tween(500))
         }
     }
 
@@ -175,7 +174,12 @@ fun InteractiveMap(
                 )
             }
             launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000, 2000)) }
-            launch { alphaAnimation.animateTo(0f, tween(1000, 2000)) }
+            launch {
+                // Ensure we animate to full alpha before starting next as animateTo will abort any
+                // existing animation.
+                alphaAnimation.animateTo(1f, tween(100))
+                alphaAnimation.animateTo(0f, tween(400, 1900))
+            }
         }
     }
 
