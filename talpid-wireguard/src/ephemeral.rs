@@ -27,10 +27,8 @@ pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
-    obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    is_gotatun: bool,
 ) -> std::result::Result<(), CloseMsg> {
     let iface_name = {
         let tunnel = tunnel.lock().await;
@@ -44,16 +42,8 @@ pub async fn config_ephemeral_peers(
     log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
     try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
 
-    config_ephemeral_peers_inner(
-        tunnel,
-        config,
-        retry_attempt,
-        obfuscation_mtu,
-        obfuscator,
-        close_obfs_sender,
-        is_gotatun,
-    )
-    .await?;
+    config_ephemeral_peers_inner(tunnel, config, retry_attempt, obfuscator, close_obfs_sender)
+        .await?;
 
     log::trace!("Resetting tunnel MTU");
     try_set_ipv4_mtu(&iface_name, config.mtu);
@@ -80,21 +70,16 @@ pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
-    obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(not(target_os = "android"))] is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
         tunnel,
         config,
         retry_attempt,
-        obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
-        #[cfg(not(target_os = "android"))]
-        is_gotatun,
         #[cfg(target_os = "android")]
         tun_provider,
     )
@@ -105,10 +90,8 @@ async fn config_ephemeral_peers_inner(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
-    obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(not(target_os = "android"))] is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
@@ -142,11 +125,8 @@ async fn config_ephemeral_peers_inner(
             tunnel,
             entry_tun_config,
             None,
-            obfuscation_mtu,
             obfuscator.clone(),
             close_obfs_sender,
-            #[cfg(not(target_os = "android"))]
-            is_gotatun,
             #[cfg(target_os = "android")]
             &tun_provider,
         )
@@ -179,11 +159,8 @@ async fn config_ephemeral_peers_inner(
         tunnel,
         config.clone(),
         daita,
-        obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
-        #[cfg(not(target_os = "android"))]
-        is_gotatun,
         #[cfg(target_os = "android")]
         &tun_provider,
     )
@@ -199,7 +176,6 @@ async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
     daita: Option<DaitaSettings>,
-    obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     tun_provider: &Arc<Mutex<TunProvider>>,
@@ -207,11 +183,9 @@ async fn reconfigure_tunnel(
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
-        *obfs_guard = super::obfuscation::apply_obfuscation_config(
+        *obfs_guard = super::obfuscation::run_local_socket_obfuscator(
             &mut config,
-            obfuscation_mtu,
             close_obfs_sender,
-            true, // is_gotatun: always true on Android
             tun_provider.clone(),
         )
         .await
@@ -239,22 +213,16 @@ async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
     daita: Option<DaitaSettings>,
-    obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    is_gotatun: bool,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
-        *obfs_guard = super::obfuscation::apply_obfuscation_config(
-            &mut config,
-            obfuscation_mtu,
-            close_obfs_sender,
-            is_gotatun,
-        )
-        .await
-        .map_err(CloseMsg::ObfuscatorFailed)?;
+        *obfs_guard =
+            super::obfuscation::run_local_socket_obfuscator(&mut config, close_obfs_sender)
+                .await
+                .map_err(CloseMsg::ObfuscatorFailed)?;
     }
 
     {
