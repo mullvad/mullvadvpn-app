@@ -5,3 +5,15 @@
 id = "CVE-2024-21528"  # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-08-16  # The vulnerability is ignored for 4 months as no patch for the affected library exists and we can not address the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
+
+# esbuild: Missing binary integrity verification in Deno module enables remote code execution via NPM_CONFIG_REGISTRY
+[[IgnoredVulns]]
+id = "GHSA-gv7w-rqvm-qjhr"  # GHSA-gv7w-rqvm-qjhr
+ignoreUntil = 2026-08-16  # The vulnerability is ignored for 2 months as we do not use Deno and as such are not affected. We can not upgrade esbuild until we have first upgraded vite from 7 to 8.
+reason = "We do not use Deno."
+
+# esbuild: esbuild allows arbitrary file read when running the development server on Windows
+[[IgnoredVulns]]
+id = " GHSA-g7r4-m6w7-qqqr "  # GHSA-g7r4-m6w7-qqqr
+ignoreUntil = 2026-08-16  # The vulnerability is ignored for 2 months as any files readable by the user account are available to read by a process invoked by the user, without using esbuild to achieve it. We can not upgrade esbuild until we have first upgraded vite from 7 to 8.
+reason = "The esbuild development server is run on developer systems where dependencies can already directly read all the files that the user account has access to. Using esbuild to achieve this is not necessary."
