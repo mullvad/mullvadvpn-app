@@ -162,8 +162,12 @@ impl WireguardMonitor {
             .block_on(get_route_mtu(params, &args.route_manager));
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
-        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
-            .map_err(Error::WireguardConfigError)?;
+        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
+        // For GotaTun + LWO, apply_obfuscation_config returns None and obfuscation is inline.
+        let obfuscation_mtu = route_mtu;
+        let mut config =
+            crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
+                .map_err(Error::WireguardConfigError)?;
 
         let endpoint_addrs: Vec<IpAddr> = params
             .get_next_hop_endpoints()
@@ -172,26 +176,40 @@ impl WireguardMonitor {
             .collect();
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
-        // For GotaTun + LWO, apply_obfuscation_config returns None and obfuscation is inline.
-        let obfuscation_mtu = route_mtu;
-        let obfuscator = args
-            .runtime
-            .block_on(obfuscation::apply_obfuscation_config(
-                &mut config,
-                obfuscation_mtu,
-                close_obfs_sender.clone(),
-                userspace_wireguard,
-            ))?;
-        // Adjust tunnel MTU again for obfuscation packet overhead
-        if params.options.mtu.is_none()
-            && let Some(obfuscator) = obfuscator.as_ref()
-        {
-            config.mtu = clamp_tunnel_mtu(
-                params,
-                config.mtu.saturating_sub(obfuscator.packet_overhead()),
-            );
-        }
+
+        let obfuscator = if let Some(ref settings) = config.obfuscation_settings {
+            log::trace!("Obfuscation settings: {settings:?}");
+
+            // If the obfuscation can be applied in user space (see MaybeObfuscatingTransportFactory),
+            // then we do not modify the endpoint.
+            if userspace_obfuscation {
+                log::debug!(
+                    "GotaTun + LWO/QUIC: skipping proxy, obfuscation will be applied inline"
+                );
+                None
+            } else {
+                let obfuscator =
+                    args.runtime
+                        .block_on(obfuscation::run_local_socket_obfuscator(
+                            &mut config,
+                            close_obfs_sender.clone(),
+                        ))?;
+
+                // Adjust tunnel MTU again for obfuscation packet overhead
+                // --- What, why not do this in apply_obfuscation_config? ---
+                if params.options.mtu.is_none()
+                    && let Some(obfuscator) = obfuscator.as_ref()
+                {
+                    config.mtu = clamp_tunnel_mtu(
+                        params,
+                        config.mtu.saturating_sub(obfuscator.packet_overhead()),
+                    );
+                }
+                obfuscator
+            }
+        } else {
+            None
+        };
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
@@ -275,10 +293,8 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
-                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    userspace_wireguard,
                 )
                 .await
                 {
@@ -416,18 +432,17 @@ impl WireguardMonitor {
         let userspace_multihop = true;
 
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
-        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
-            .map_err(Error::WireguardConfigError)?;
+        let obfuscation_mtu = route_mtu;
+        let mut config =
+            crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
+                .map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
-        let obfuscation_mtu = route_mtu;
         let obfuscator = args
             .runtime
-            .block_on(obfuscation::apply_obfuscation_config(
+            .block_on(obfuscation::run_local_socket_obfuscator(
                 &mut config,
-                obfuscation_mtu,
                 close_obfs_sender.clone(),
-                true, // is_gotatun
                 args.tun_provider.clone(),
             ))?;
         // Adjust MTU again for obfuscation packet overhead
@@ -513,7 +528,6 @@ impl WireguardMonitor {
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
-                    obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     args.tun_provider,

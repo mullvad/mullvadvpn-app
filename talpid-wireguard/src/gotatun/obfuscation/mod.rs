@@ -4,21 +4,15 @@
 mod lwo;
 mod quic;
 
-use std::{
-    io,
-    net::{Ipv4Addr, SocketAddr},
-};
+use std::{io, net::SocketAddr};
 
 use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
-use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
+use tunnel_obfuscation::Settings as ObfuscationSettings;
 
-use crate::{
-    config::Config,
-    gotatun::obfuscation::quic::{NoopRecv, NoopSend, QuicTransportFactory},
-};
+use crate::gotatun::obfuscation::quic::{NoopRecv, NoopSend, QuicTransportFactory};
 
 use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory};
 use quic::{QuicRecv, QuicSend};
@@ -140,38 +134,18 @@ pub enum MaybeObfuscatingTransportFactory<F: UdpTransportFactory> {
 
 impl<F: UdpTransportFactory> MaybeObfuscatingTransportFactory<F> {
     /// Create a transport factory from the tunnel config.
-    pub fn from_config(inner: F, config: &Config) -> Self {
-        match &config.obfuscator_config {
-            Some(Obfuscators::Single(ObfuscatorConfig::Lwo { endpoint })) => {
-                let tx_key = *config.entry_peer.public_key.as_bytes();
-                let rx_key = *config.tunnel.private_key.public_key().as_bytes();
-                Self::Lwo(LwoUdpTransportFactory {
-                    inner,
-                    tx_key,
-                    rx_key,
-                    endpoint: *endpoint,
-                })
-            }
-            Some(Obfuscators::Single(ObfuscatorConfig::Quic {
-                hostname,
-                endpoint,
-                auth_token,
-            })) => {
-                let wg_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
-
-                let settings = tunnel_obfuscation::quic::Settings::new(
-                    *endpoint,
-                    hostname.to_owned(),
-                    auth_token.parse().unwrap(),
-                    wg_endpoint,
-                );
-                let settings = dbg!(settings.mtu(dbg!(1480))); // TODO: Wrong MTU, should be route/obfuscator MTU
-
-                Self::Quic(QuicTransportFactory {
-                    settings,
-                    running_client: None,
-                })
-            }
+    pub fn from_settings(inner: F, settings: Option<&ObfuscationSettings>) -> Self {
+        match settings {
+            Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
+                inner,
+                tx_key: *settings.client_public_key.as_bytes(),
+                rx_key: *settings.server_public_key.as_bytes(),
+                endpoint: settings.server_addr,
+            }),
+            Some(ObfuscationSettings::Quic(settings)) => Self::Quic(QuicTransportFactory {
+                settings: settings.clone(),
+                running_client: None,
+            }),
 
             // Use `Self::Plain` for proxy socket obfuscation or no obfuscation
             _ => Self::Plain(inner),
