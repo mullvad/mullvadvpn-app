@@ -13,105 +13,97 @@ enum TextEmphasis {
     case bold
     case italic
     case boldItalic
-}
-
-enum TextStyle {
-    case headline(TextEmphasis, EdgeInsets)
-    case primary(TextEmphasis, EdgeInsets)
-    case secondary(TextEmphasis, EdgeInsets)
-
-    static func headline(
-        _ emphasis: TextEmphasis = .none,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        .headline(emphasis, padding)
-    }
-
-    static func primary(
-        _ emphasis: TextEmphasis = .none,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        .primary(emphasis, padding)
-    }
-
-    static func secondary(
-        _ emphasis: TextEmphasis = .none,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        .secondary(emphasis, padding)
-    }
-}
-
-extension TextStyle {
-    private var emphasis: TextEmphasis {
-        switch self {
-        case .headline(let emphasis, _),
-            .primary(let emphasis, _),
-            .secondary(let emphasis, _):
-            return emphasis
-        }
-    }
 
     fileprivate var isBold: Bool {
-        switch emphasis {
+        switch self {
         case .bold, .boldItalic:
-            return true
-
-        case .none, .italic:
-            return false
+            true
+        default:
+            false
         }
     }
 
     fileprivate var isItalic: Bool {
-        switch emphasis {
+        switch self {
         case .italic, .boldItalic:
-            return true
-
-        case .none, .bold:
-            return false
+            true
+        default:
+            false
         }
     }
+}
 
-    fileprivate var font: Font {
-        switch self {
-        case .headline:
-            return .mullvadLarge
+struct TextStyle {
+    let emphasis: TextEmphasis
+    let font: Font
+    let color: Color
+    let alignment: TextAlignment
+    let padding: EdgeInsets
 
-        case .primary,
-            .secondary:
-            return .mullvadSmall
-        }
+    init(
+        emphasis: TextEmphasis = .none,
+        font: Font,
+        color: Color,
+        alignment: TextAlignment = .leading,
+        padding: EdgeInsets = EdgeInsets(
+            top: 0,
+            leading: 0,
+            bottom: 16,
+            trailing: 0
+        )
+    ) {
+        self.emphasis = emphasis
+        self.font = font
+        self.color = color
+        self.alignment = alignment
+        self.padding = padding
+    }
+}
+
+extension TextStyle {
+    static func headline(
+        _ emphasis: TextEmphasis = .bold,
+        font: Font = .mullvadLarge,
+        alignment: TextAlignment = .center,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextPrimary,
+            alignment: alignment,
+            padding: padding
+        )
     }
 
-    fileprivate var color: Color {
-        switch self {
-        case .headline,
-            .primary:
-            return .mullvadTextPrimary
-
-        case .secondary:
-            return .mullvadTextSecondary
-        }
+    static func primary(
+        _ emphasis: TextEmphasis = .none,
+        font: Font = .mullvadSmall,
+        alignment: TextAlignment = .leading,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextPrimary,
+            alignment: alignment,
+            padding: padding
+        )
     }
 
-    fileprivate var alignment: TextAlignment {
-        switch self {
-        case .headline:
-            return .center
-
-        case .primary,
-            .secondary:
-            return .leading
-        }
-    }
-
-    fileprivate var padding: EdgeInsets {
-        switch self {
-        case .headline(_, let padding),
-            .primary(_, let padding),
-            .secondary(_, let padding):
-            return padding
-        }
+    static func secondary(
+        _ emphasis: TextEmphasis = .none,
+        font: Font = .mullvadSmall,
+        alignment: TextAlignment = .leading,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextSecondary,
+            alignment: alignment,
+            padding: padding
+        )
     }
 
     fileprivate static var defaultPadding: EdgeInsets {
@@ -164,7 +156,7 @@ final class StateViewModel: Identifiable, ObservableObject {
         style: MullvadStateView.Style,
         title: MullvadStateView.TextItem,
         banner: Image? = nil,
-        details: [MullvadStateView.TextItem],
+        details: [MullvadStateView.TextItem] = [],
         explanation: MullvadStateView.TextItem? = nil,
         actions: [MullvadStateView.ActionItem] = []
     ) {
@@ -182,56 +174,57 @@ struct MullvadStateView: View {
     @ObservedObject var viewModel: StateViewModel
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                VStack(spacing: 0) {
-                    StateView(state: viewModel.style)
-                        .padding(.bottom, Layout.sectionSpacing)
+        ScrollView {
+            VStack(spacing: 0) {
+                StateView(state: viewModel.style)
+                    .padding(.bottom, Layout.sectionSpacing)
 
-                    StyledTextView(item: viewModel.title)
+                StyledTextView(item: viewModel.title)
 
-                    if let banner = viewModel.banner {
-                        ResizableImageView(image: banner, dimension: .width(.infinity))
-                            .padding(.bottom, Layout.bannerSpacing)
-                    }
-
-                    ForEach(viewModel.details) { item in
-                        StyledTextView(item: item)
-                    }
-
-                    if let explanation = viewModel.explanation {
-                        StyledTextView(item: explanation)
-                    }
-
-                    VStack(spacing: 12) {
-                        ForEach(viewModel.actions) { action in
-                            ActionButton(action: action)
-                        }
-                    }
-                    .padding(.top, 8)
+                if let banner = viewModel.banner {
+                    ResizableImageView(image: banner, dimension: .width(.infinity))
+                        .padding(.bottom, Layout.bannerSpacing)
                 }
-                .padding(.top, Layout.topPadding)
-                .padding(.horizontal, Layout.horizontalPadding)
-                .padding(.bottom, Layout.bottomPadding)
-                .frame(
-                    maxWidth: .infinity,
-                    minHeight: geo.size.height,
-                    alignment: .top
-                )
+
+                ForEach(viewModel.details) { item in
+                    StyledTextView(item: item)
+                }
+
+                Spacer()
+
+                if let explanation = viewModel.explanation {
+                    StyledTextView(item: explanation)
+                }
+
+                VStack(spacing: 12) {
+                    ForEach(viewModel.actions) { action in
+                        ActionButton(action: action)
+                    }
+                }
+                .padding(.top, 8)
             }
+            .padding(.top, Layout.topPadding)
+            .padding(.horizontal, Layout.horizontalPadding)
+            .padding(.bottom, Layout.bottomPadding)
         }
     }
 }
 
 extension MullvadStateView {
 
+    struct CustomImage: Equatable {
+        let id: UUID = UUID()
+        let image: Image
+    }
+
     // MARK: - State Style
-    enum Style {
+    enum Style: Equatable {
         case idle
         case info
         case loading
         case error
         case success
+        case custom(CustomImage)
     }
 
     // MARK: - Text Item
@@ -290,7 +283,9 @@ struct ActionButton: View {
     var body: some View {
         MainButton(
             text: "\(action.displayedTitle)",
-            style: action.style
+            style: action.style,
+            image: action.state.kind.icon,
+            imagePosition: .leading
         ) {
             action.onTap()
         }
@@ -303,11 +298,6 @@ struct ActionButton: View {
                         MullvadProgressViewStyle(size: baseSize)
                     )
                     .padding(.leading, 16.0)
-                    .padding(.vertical, 4.0)
-            } else if let icon = action.state.kind.icon {
-                ResizableImageView(image: icon, dimension: .width(baseSize))
-                    .padding(.leading, 16.0)
-                    .foregroundStyle(Color.mullvadTextPrimary)
                     .padding(.vertical, 4.0)
             }
         }
@@ -378,15 +368,15 @@ private struct EmphasisModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         switch style {
-        case let style where style.isBold && style.isItalic:
+        case let style where style.emphasis.isBold && style.emphasis.isItalic:
             content
                 .bold()
                 .italic()
 
-        case let style where style.isBold:
+        case let style where style.emphasis.isBold:
             content.bold()
 
-        case let style where style.isItalic:
+        case let style where style.emphasis.isItalic:
             content.italic()
 
         default:
@@ -413,7 +403,7 @@ extension TextAlignment {
 private struct StateView: View {
     let state: MullvadStateView.Style
 
-    @ScaledMetric private var size = 48
+    private let size = 48.0
 
     var body: some View {
         content
@@ -447,6 +437,8 @@ private struct StateView: View {
                 image: Image.mullvadIconInfo,
                 dimension: .width(size)
             )
+        case .custom(let customImage):
+            ResizableImageView(image: customImage.image, dimension: .width(size))
         }
     }
 }
