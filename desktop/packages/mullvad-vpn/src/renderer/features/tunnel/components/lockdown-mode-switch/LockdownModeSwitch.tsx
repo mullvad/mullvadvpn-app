@@ -1,10 +1,8 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../../../components/Modal';
-import { Button } from '../../../../lib/components';
+import { StatusDialog } from '../../../../components/status-dialog';
 import { Switch, SwitchProps } from '../../../../lib/components/switch';
-import { useBoolean } from '../../../../lib/utility-hooks';
 import { useLockdownMode } from '../../hooks';
 
 export type LockdownModeSwitchProp = SwitchProps;
@@ -12,55 +10,53 @@ export type LockdownModeSwitchProp = SwitchProps;
 function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
   const { lockdownMode, setLockdownMode } = useLockdownMode();
 
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] =
-    useBoolean(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
 
   const handleOnCheckedChange = React.useCallback(
     async (newValue: boolean) => {
       if (newValue) {
-        showConfirmationDialog();
+        setConfirmDialogOpen(true);
       } else {
         await setLockdownMode(false);
       }
     },
-    [setLockdownMode, showConfirmationDialog],
+    [setLockdownMode],
   );
 
   const confirmLockdownMode = React.useCallback(async () => {
-    hideConfirmationDialog();
+    setConfirmDialogOpen(false);
     await setLockdownMode(true);
-  }, [hideConfirmationDialog, setLockdownMode]);
+  }, [setLockdownMode]);
 
   return (
     <>
       <Switch checked={lockdownMode} onCheckedChange={handleOnCheckedChange} {...props}>
         {children}
       </Switch>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        buttons={[
-          <Button variant="destructive" key="confirm" onClick={confirmLockdownMode}>
-            <Button.Text>{messages.gettext('Enable anyway')}</Button.Text>
-          </Button>,
-          <Button key="back" onClick={hideConfirmationDialog}>
-            <Button.Text>{messages.gettext('Back')}</Button.Text>
-          </Button>,
-        ]}
-        close={hideConfirmationDialog}>
-        <ModalMessage>
+      <StatusDialog variant="info" open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <StatusDialog.Text>
           {messages.pgettext(
             'vpn-settings-view',
             'Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet.',
           )}
-        </ModalMessage>
-        <ModalMessage>
+        </StatusDialog.Text>
+        <StatusDialog.Text>
           {messages.pgettext(
             'vpn-settings-view',
             'The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit.',
           )}
-        </ModalMessage>
-      </ModalAlert>
+        </StatusDialog.Text>
+        <StatusDialog.ButtonGroup>
+          <StatusDialog.Button variant="destructive" onClick={confirmLockdownMode}>
+            <StatusDialog.Button.Text>{messages.gettext('Enable anyway')}</StatusDialog.Button.Text>
+          </StatusDialog.Button>
+          <StatusDialog.CloseButton>
+            <StatusDialog.CloseButton.Text>
+              {messages.gettext('Back')}
+            </StatusDialog.CloseButton.Text>
+          </StatusDialog.CloseButton>
+        </StatusDialog.ButtonGroup>
+      </StatusDialog>
     </>
   );
 }

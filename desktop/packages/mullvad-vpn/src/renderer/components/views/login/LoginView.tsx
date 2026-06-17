@@ -355,6 +355,10 @@ class Login extends React.Component<IProps, IState> {
     this.setState({ createAccountDialogVisible: false });
   };
 
+  private setCreateAccountDialogVisible = (visible: boolean) => {
+    this.setState({ createAccountDialogVisible: visible });
+  };
+
   private createLoginForm() {
     const inputId = 'account-number-input';
     const allowInteraction = this.allowInteraction();
@@ -426,9 +430,9 @@ class Login extends React.Component<IProps, IState> {
         </Flex>
 
         <ClearAccountHistoryDialog
-          visible={this.state.clearAccountHistoryDialogVisible}
+          open={this.state.clearAccountHistoryDialogVisible}
+          onOpenChange={this.hideClearAccountHistoryDialog}
           onConfirm={this.onConfirmClearAccountHistory}
-          onHide={this.hideClearAccountHistoryDialog}
         />
       </>
     );
@@ -448,9 +452,9 @@ class Login extends React.Component<IProps, IState> {
           </Link>
         </Flex>
         <CreateAccountDialog
-          visible={this.state.createAccountDialogVisible}
+          open={this.state.createAccountDialogVisible}
+          onOpenChange={this.setCreateAccountDialogVisible}
           onConfirm={this.onConfirmCreateNewAccount}
-          onHide={this.hideCreateAccountDialog}
         />
       </>
     );

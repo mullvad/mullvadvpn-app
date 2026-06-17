@@ -52,7 +52,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { KeyboardNavigation } from './components/keyboard-navigation';
 import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
-import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
 import { Theme } from './lib/components';
 import { getNavigationBase } from './lib/functions/navigation-base';
@@ -389,14 +388,12 @@ export default class AppRenderer {
                 <Router history={this.history.asHistory}>
                   <Theme>
                     <ErrorBoundary>
-                      <ModalContainer>
-                        <KeyboardNavigation>
-                          <MotionConfig reducedMotion="user">
-                            <AppRouter />
-                          </MotionConfig>
-                        </KeyboardNavigation>
-                        {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-                      </ModalContainer>
+                      <KeyboardNavigation>
+                        <MotionConfig reducedMotion="user">
+                          <AppRouter />
+                        </MotionConfig>
+                      </KeyboardNavigation>
+                      {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ErrorBoundary>
                   </Theme>
                 </Router>

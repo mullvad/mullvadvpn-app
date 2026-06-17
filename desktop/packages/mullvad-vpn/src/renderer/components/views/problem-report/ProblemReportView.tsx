@@ -28,7 +28,6 @@ import support from '../../../redux/support/actions';
 import { isPlatform } from '../../../utils';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
-import { ModalAlert, ModalAlertType } from '../../Modal';
 import {
   StyledContent,
   StyledEmail,
@@ -43,6 +42,7 @@ import {
   StyledThanks,
 } from '../../ProblemReportStyles';
 import { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { StatusDialog } from '../../status-dialog';
 
 enum SendState {
   initial,
@@ -304,25 +304,22 @@ function NoEmailDialog() {
   }, [setSendState]);
 
   return (
-    <ModalAlert
-      isOpen={sendState === SendState.confirm}
-      type={ModalAlertType.warning}
-      message={message}
-      buttons={[
-        <Button variant="destructive" key="proceed" onClick={onSend}>
-          <Button.Text>
+    <StatusDialog variant="warning" open={sendState === SendState.confirm}>
+      <StatusDialog.Text>{message}</StatusDialog.Text>
+      <StatusDialog.ButtonGroup>
+        <StatusDialog.Button onClick={onSend} variant="destructive">
+          <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label for sending the problem report without an email address.
               messages.pgettext('support-view', 'Send anyway')
             }
-          </Button.Text>
-        </Button>,
-        <Button key="cancel" onClick={onCancelNoEmailDialog}>
-          <Button.Text>{messages.gettext('Back')}</Button.Text>
-        </Button>,
-      ]}
-      close={onCancelNoEmailDialog}
-    />
+          </StatusDialog.Button.Text>
+        </StatusDialog.Button>
+        <StatusDialog.Button onClick={onCancelNoEmailDialog}>
+          <StatusDialog.Button.Text>{messages.gettext('Back')}</StatusDialog.Button.Text>
+        </StatusDialog.Button>
+      </StatusDialog.ButtonGroup>
+    </StatusDialog>
   );
 }
 
@@ -346,10 +343,6 @@ function OutdatedVersionWarningDialog() {
     showOutdatedVersionWarningInitial,
   );
 
-  const acknowledgeOutdatedVersion = useCallback(() => {
-    setShowOutdatedVersionWarning(false);
-  }, []);
-
   const openDownloadLink = useCallback(async () => {
     await openUrl(getDownloadUrl(suggestedIsBeta));
   }, [openUrl, suggestedIsBeta]);
@@ -359,15 +352,15 @@ function OutdatedVersionWarningDialog() {
     if (isLinux) {
       await openDownloadLink();
     } else {
-      acknowledgeOutdatedVersion();
+      setShowOutdatedVersionWarning(false);
       pushAppUpgrade();
     }
-  }, [isLinux, openDownloadLink, pushAppUpgrade, acknowledgeOutdatedVersion]);
+  }, [isLinux, openDownloadLink, pushAppUpgrade]);
 
   const outdatedVersionCancel = useCallback(() => {
-    acknowledgeOutdatedVersion();
+    setShowOutdatedVersionWarning(false);
     pop();
-  }, [acknowledgeOutdatedVersion, pop]);
+  }, [pop]);
 
   const message = messages.pgettext(
     'support-view',
@@ -377,39 +370,38 @@ function OutdatedVersionWarningDialog() {
   const disabled = isLinux && isOffline;
 
   return (
-    <ModalAlert
-      isOpen={showOutdatedVersionWarning}
-      type={ModalAlertType.warning}
-      message={message}
-      buttons={[
-        <Button
-          key="upgrade"
+    <StatusDialog
+      variant="warning"
+      open={showOutdatedVersionWarning}
+      onOpenChange={setShowOutdatedVersionWarning}>
+      <StatusDialog.Text>{message}</StatusDialog.Text>
+      <StatusDialog.ButtonGroup>
+        <StatusDialog.Button
           variant="success"
           disabled={disabled}
           onClick={upgradeAction}
           aria-description={messages.pgettext('accessibility', 'Opens externally')}>
-          <Button.Text>
+          <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label for updating the app to the latest version.
               messages.pgettext('support-view', 'Update app')
             }
-          </Button.Text>
-          {isLinux && <Button.Icon icon="external" />}
-        </Button>,
-        <Button variant="destructive" key="proceed" onClick={acknowledgeOutdatedVersion}>
-          <Button.Text>
+          </StatusDialog.Button.Text>
+          {isLinux && <StatusDialog.Button.Icon icon="external" />}
+        </StatusDialog.Button>
+        <StatusDialog.CloseButton variant="destructive">
+          <StatusDialog.CloseButton.Text>
             {
               // TRANSLATORS: Button label for continuing problem report submission with an outdated app version.
               messages.pgettext('support-view', 'Continue anyway')
             }
-          </Button.Text>
-        </Button>,
-        <Button key="cancel" onClick={outdatedVersionCancel}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={pop}
-    />
+          </StatusDialog.CloseButton.Text>
+        </StatusDialog.CloseButton>
+        <StatusDialog.Button onClick={outdatedVersionCancel}>
+          <StatusDialog.Button.Text>{messages.gettext('Cancel')}</StatusDialog.Button.Text>
+        </StatusDialog.Button>
+      </StatusDialog.ButtonGroup>
+    </StatusDialog>
   );
 }
 

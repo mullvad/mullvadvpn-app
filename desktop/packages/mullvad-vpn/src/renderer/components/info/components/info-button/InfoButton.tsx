@@ -10,7 +10,7 @@ export function InfoButton(props: InfoButtonProps) {
   const { onOpenChange } = useInfoContext();
 
   const handleClick = React.useCallback(() => {
-    onOpenChange?.(true);
+    onOpenChange(true);
   }, [onOpenChange]);
 
   return (

@@ -2,7 +2,7 @@ import React from 'react';
 
 import type { InfoProps } from './Info';
 
-type InfoContextProps = Omit<InfoProviderProps, 'children'>;
+type InfoContextProps = Required<Omit<InfoProviderProps, 'children'>>;
 
 const InfoContext = React.createContext<InfoContextProps | undefined>(undefined);
 
