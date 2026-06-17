@@ -19,7 +19,6 @@ pub use mullvad_types::relay_list::Relay;
 use mullvad_types::relay_selector::{EntrySpecificConstraints, MultihopConstraints};
 use mullvad_types::{
     constraints::Constraint,
-    custom_list::CustomListsSettings,
     endpoint::MullvadEndpoint,
     location::Coordinates,
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
@@ -100,16 +99,6 @@ pub struct RelaySelector {
     // the same time.
     pub relays: Arc<RwLock<AnnotatedRelayList>>,
     pub bridges: Arc<RwLock<BridgeList>>,
-}
-
-pub trait CustomListProvider {
-    fn custom_lists(&self) -> CustomListsSettings;
-}
-
-impl CustomListProvider for () {
-    fn custom_lists(&self) -> CustomListsSettings {
-        CustomListsSettings::default()
-    }
 }
 
 /// The return type of [`RelaySelector::get_relay`].

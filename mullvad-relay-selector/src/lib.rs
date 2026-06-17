@@ -11,6 +11,6 @@ pub use mullvad_types::relay_selector::{
     Reason, RelayPartitions,
 };
 pub use relay_selector::{
-    CustomListProvider, GetRelay, RETRY_ORDER, Relay, RelaySelector, detailer, endpoint_set, query,
+    GetRelay, RETRY_ORDER, Relay, RelaySelector, detailer, endpoint_set, query,
     relays::WireguardConfig,
 };
