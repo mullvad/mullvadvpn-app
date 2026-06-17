@@ -579,7 +579,7 @@ export default class UserInterface implements WindowControllerDelegate {
           this.tray?.on('right-click', () =>
             this.popUpContextMenu(this.delegate.isLoggedIn(), this.delegate.getTunnelState()),
           );
-          this.tray?.on('click', () => this.windowController.show());
+          this.tray?.on('click', () => this.windowController.toggle());
         } else {
           this.tray?.on('right-click', () => this.windowController.hide());
           this.tray?.on('click', () => this.windowController.toggle());
@@ -605,7 +605,7 @@ export default class UserInterface implements WindowControllerDelegate {
         });
         break;
       case 'linux':
-        this.tray?.on('click', () => this.windowController.show());
+        this.tray?.on('click', () => this.windowController.toggle());
         break;
     }
   }
