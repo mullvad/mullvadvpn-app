@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.7] - 2026-06-17
+### Fixed
+- Fix an issue that would cause DAITA performance degradation when DAITA was used with multihop.
+
+
 ## [android/2026.6] - 2026-06-09
 Identical to `android/2026.6-beta2`.
 
