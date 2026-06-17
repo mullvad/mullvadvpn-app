@@ -2,7 +2,7 @@
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
 # publishes new version metadata to Mullvads API (including latest.json).
-# * This should be run after `4-make-release`.
+# * This should be run after `3-verify-build`.
 # * You need to put the private ed25519 signing key in the clipboard before running this script.
 
 set -eu
@@ -17,12 +17,11 @@ PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 $REPO_ROOT/scripts/utils/commit-verification
 "$SCRIPT_DIR/verify-version-is-release"
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 2 ]; then
     echo "Please provide the following arguments:"
     echo "    $(basename "$0") \\"
     echo "        <build server SSH destination> \\"
-    echo "        <metadata server SSH destination> \\"
-    echo "        <rollout (0-1)>"
+    echo "        <metadata server SSH destination>"
     echo ""
     echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
     exit 1
@@ -32,8 +31,10 @@ fi
 BUILDSERVER_HOST=$1
 # The server to upload the metadata to *from* the build server (argument above)
 METADATA_SERVER_HOST=$2
-# The rollout proportion to use
-ROLLOUT=$3
+# The rollout proportion to use.
+# Always use rollout=0 before publishing a GitHub release so that it's considered supported by the
+# API.
+ROLLOUT=0
 
 # shellcheck source=desktop/scripts/release/release-config.sh
 source "$SCRIPT_DIR/release-config.sh"
