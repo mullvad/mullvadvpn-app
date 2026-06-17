@@ -6,39 +6,41 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
     @State private var multihopWarningAlert: MullvadAlert?
 
     var body: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            Image.mullvadIconMultihopWhenNeeded
-                .resizable()
-                .frame(width: 48, height: 48)
-
-            Group {
-                Text(
-                    "The entry server is currently selected automatically to ensure your current settings "
-                        + "work with your selected location."
-                )
-                Text(
-                    "To manually select an entry server, please switch multihop mode to “\("Always")”."
-                )
-            }
-            .multilineTextAlignment(.center)
-            .foregroundStyle(Color.mullvadTextSecondary)
-            .font(.mullvadSmall)
-
-            Spacer()
-
-            MainButton(text: "Set multihop to “\("Always")“", style: .default) {
-                if viewModel.filtersWillBeOverridden(.always) {
-                    multihopWarningAlert = getMultihopFilterOverrideWarningAlert()
-                } else if viewModel.multihopStateIsIncompatible(.always) {
-                    multihopWarningAlert = getMultihopBlockedStateWarningAlert()
-                } else {
-                    viewModel.multihopState = .always
-                }
-            }
-        }
-        .padding()
+        MullvadStateView(
+            viewModel: StateViewModel(
+                style: .custom(.init(image: Image.mullvadIconMultihopWhenNeeded)),
+                title: .init(
+                    text: NSLocalizedString(
+                        "The entry server is currently selected automatically to ensure your current settings work with your selected location.",
+                        comment: ""),
+                    style: .secondary(alignment: .center)),
+                details: [
+                    .init(
+                        text: String(
+                            format: NSLocalizedString(
+                                "To manually select an entry server, please switch multihop mode to “\("%@")”.",
+                                comment: ""), MultihopStateV2.always.description), style: .secondary(alignment: .center)
+                    )
+                ],
+                actions: [
+                    MullvadStateView.ActionItem(
+                        style: .default,
+                        state: .init(
+                            kind: .idle,
+                            message: String(
+                                format: NSLocalizedString("Set multihop to “\("%@")“", comment: ""),
+                                MultihopStateV2.always.description)),
+                        onTap: {
+                            if viewModel.filtersWillBeOverridden(.always) {
+                                multihopWarningAlert = getMultihopFilterOverrideWarningAlert()
+                            } else if viewModel.multihopStateIsIncompatible(.always) {
+                                multihopWarningAlert = getMultihopBlockedStateWarningAlert()
+                            } else {
+                                viewModel.multihopState = .always
+                            }
+                        })
+                ])
+        )
         .mullvadAlert(item: $multihopWarningAlert)
     }
 
