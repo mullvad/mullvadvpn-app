@@ -83,14 +83,14 @@ struct FilterDescriptorTests {
             ),
             // DAITA on: exit needs DAITA description (no auto routing, no multihop)
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .on)),
+                LatestTunnelSettings(tunnelMultihopState: .never, daita: DAITASettings(daitaState: .on)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1]),
                 true,
                 [FilterDescription.daita],
                 MultihopContext.exit
             ),
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .off)),
+                LatestTunnelSettings(tunnelMultihopState: .never, daita: DAITASettings(daitaState: .off)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1, seSto6]),
                 true,
                 [FilterDescription.none],

@@ -78,7 +78,8 @@ class MultihopValidatorTests: XCTestCase {
 
     func testSelectRelayWithMultihopWhenNeededAndFiltersWillOverride() throws {
         let settings = LatestTunnelSettings(
-            relayConstraints: multihopWithFiltersConstraints
+            relayConstraints: multihopWithFiltersConstraints,
+            tunnelMultihopState: .never
         )
 
         let validator = MultihopValidator(tunnelSettings: settings, relaySelector: relaySelector)
@@ -90,7 +91,8 @@ class MultihopValidatorTests: XCTestCase {
         constraints.entryLocations = .any
 
         let settings = LatestTunnelSettings(
-            relayConstraints: constraints
+            relayConstraints: constraints,
+            tunnelMultihopState: .never
         )
 
         let validator = MultihopValidator(tunnelSettings: settings, relaySelector: relaySelector)
@@ -133,7 +135,8 @@ class MultihopValidatorTests: XCTestCase {
 
     func testSelectAutomaticEntryRelayWithFiltersWillOverride() throws {
         let settings = LatestTunnelSettings(
-            relayConstraints: multihopWithFiltersConstraints
+            relayConstraints: multihopWithFiltersConstraints,
+            tunnelMultihopState: .never
         )
 
         let validator = MultihopValidator(tunnelSettings: settings, relaySelector: relaySelector)
