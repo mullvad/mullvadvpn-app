@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add Ukrainian as a new language in the app.
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
+- Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
+  `debug` and `trace`.
 
 ### Changed
 - Clicking on the tray icon will toggle the window instead of just showing it
