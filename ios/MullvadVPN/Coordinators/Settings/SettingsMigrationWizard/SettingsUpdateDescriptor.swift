@@ -60,7 +60,7 @@ struct SettingsUpdateDescriptor: SettingsMigrationPresentable {
                     text: (change.after as? MultihopStateV2)?.description ?? "",
                     style: .primary(
                         .bold,
-                        EdgeInsets(
+                        padding: EdgeInsets(
                             top: 0,
                             leading: 0,
                             bottom: 0,
@@ -68,7 +68,7 @@ struct SettingsUpdateDescriptor: SettingsMigrationPresentable {
                 MullvadStateView.TextItem(
                     text: (change.after as? MultihopStateV2)?.comment ?? "",
                     symbols: (change.after as? MultihopStateV2)?.symbols ?? [],
-                    style: .secondary(.none)),
+                    style: .secondary()),
             ]
         case .uniqueFilter:
             [
