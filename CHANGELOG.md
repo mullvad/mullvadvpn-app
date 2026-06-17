@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 
 ### Changed
+- Document case where browsers auto-launched at startup by an excluded background service
+  inherit the excluded status.
+
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
