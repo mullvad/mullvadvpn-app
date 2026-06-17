@@ -61,9 +61,9 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
         // Translate marker to put it above the globe
         if (colors.perimeterColors != null) {
-            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.0003f)
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.00001f)
         } else {
-            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.000f)
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
@@ -170,7 +170,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             circleFanVertices(
                 16,
                 0.28f,
-                floatArrayOf(0.0f, -0.05f, 0.00001f),
+                floatArrayOf(0.0f, -0.05f, 0.00002f),
                 colors.shadowColor,
                 colors.shadowColor.copy(alpha = 0.0f),
             )
@@ -181,7 +181,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             circleFanVertices(
                 32,
                 0.185f,
-                floatArrayOf(0.0f, 0.0f, 0.00002f),
+                floatArrayOf(0.0f, 0.0f, 0.00006f),
                 colors.ringBorderColor,
                 colors.ringBorderColor,
             )
@@ -192,7 +192,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             circleFanVertices(
                 32,
                 0.15f,
-                floatArrayOf(0.0f, 0.0f, 0.00003f),
+                floatArrayOf(0.0f, 0.0f, 0.00007f),
                 colors.centerColor,
                 colors.centerColor,
             )
