@@ -59,7 +59,7 @@ struct FilterDescriptorTests {
                 [FilterDescription.none],
                 MultihopContext.exit
             ),
-            // DAITA on + automatic routing: entry needs "disabled" description
+            // DAITA on + automatic routing: no filter descriptions show
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .whenNeeded,
@@ -67,7 +67,7 @@ struct FilterDescriptorTests {
                 ),
                 RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
                 true,
-                [FilterDescription.disabled, FilterDescription.daita],
+                [FilterDescription.none],
                 MultihopContext.entry
             ),
             // DAITA on + automatic routing: exit doesn't need any description
