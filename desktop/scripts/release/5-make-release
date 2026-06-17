@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
-# creates a GitHub release. This should be run after `3-verify-build`. To create a draft release,
-# add the --draft flag.
+# creates a GitHub release. This should be run after `4-update-and-publish-metadata`. To skip
+# creating a draft release, add the --final flag.
 
 set -eu
 
@@ -10,14 +10,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 function usage {
-    echo "Usage: $0 [--draft] [-h|--help]"
-    echo "  --draft Creates the GitHub release as a draft"
+    echo "Usage: $0 [--final] [-h|--help]"
+    echo "  --final Publish GitHub release instead of creating a draft"
     exit 0
 }
 
-DRAFT="false"
+DRAFT="true"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
+        --final) DRAFT="false";;
         --draft) DRAFT="true";;
         -h|--help) usage ;;
     esac
