@@ -336,10 +336,7 @@ internal fun ExitConstraints.fromDomain(): RelaySelector.ExitConstraints =
         .build()
 
 internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
-    ManagementInterface.DaitaSettings.newBuilder()
-        .setEnabled(enabled)
-        .setDirectOnly(directOnly)
-        .build()
+    ManagementInterface.DaitaSettings.newBuilder().setEnabled(enabled).build()
 
 internal fun Constraint<Providers>.fromDomain1(): List<RelaySelector.Provider> =
     when (this) {
