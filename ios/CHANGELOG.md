@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Stop logging access method credentials in logs.
 - UI crash when interacting with the tunnel.
 
+### Changed
+- "When needed" is now the default multihop setting
+
 ## [2026.2 - 2026-04-21]
 ### Add
 - Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
