@@ -143,10 +143,6 @@ impl From<RelayQuery> for Config {
 }
 
 impl RelaySelectorIO {
-    pub fn create() -> Option<Self> {
-        todo!("implement")
-    }
-
     pub fn from_settings(
         settings: Settings,
         relays: RelayList,
