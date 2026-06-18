@@ -110,6 +110,5 @@ All user facing phrases and terms should be translated except for the following 
 names of technologies:
 * Mullvad VPN
 * WireGuard
-* OpenVPN
 * Split Tunneling
 * System Transparency
