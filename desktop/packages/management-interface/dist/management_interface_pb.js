@@ -17847,8 +17847,7 @@ proto.mullvad_daemon.management_interface.DaitaSettings.prototype.toObject = fun
  */
 proto.mullvad_daemon.management_interface.DaitaSettings.toObject = function(includeInstance, msg) {
   var f, obj = {
-    enabled: jspb.Message.getBooleanFieldWithDefault(msg, 1, false),
-    directOnly: jspb.Message.getBooleanFieldWithDefault(msg, 2, false)
+    enabled: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {
@@ -17889,10 +17888,6 @@ proto.mullvad_daemon.management_interface.DaitaSettings.deserializeBinaryFromRea
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setEnabled(value);
       break;
-    case 2:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setDirectOnly(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -17929,13 +17924,6 @@ proto.mullvad_daemon.management_interface.DaitaSettings.serializeBinaryToWriter 
       f
     );
   }
-  f = message.getDirectOnly();
-  if (f) {
-    writer.writeBool(
-      2,
-      f
-    );
-  }
 };
 
 
@@ -17954,24 +17942,6 @@ proto.mullvad_daemon.management_interface.DaitaSettings.prototype.getEnabled = f
  */
 proto.mullvad_daemon.management_interface.DaitaSettings.prototype.setEnabled = function(value) {
   return jspb.Message.setProto3BooleanField(this, 1, value);
-};
-
-
-/**
- * optional bool direct_only = 2;
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.DaitaSettings.prototype.getDirectOnly = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 2, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.mullvad_daemon.management_interface.DaitaSettings} returns this
- */
-proto.mullvad_daemon.management_interface.DaitaSettings.prototype.setDirectOnly = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
