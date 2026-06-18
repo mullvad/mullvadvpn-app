@@ -5,8 +5,8 @@ on:
     paths:
       - .github/workflows/translations.yml
       - android/translations-converter/**
-      - android/lib/resource/src/**/plurals.xml
-      - android/lib/resource/src/**/strings.xml
+      - android/lib/ui/resource/src/**/plurals.xml
+      - android/lib/ui/resource/src/**/strings.xml
       - desktop/packages/mullvad-vpn/**
       - ios/Assets/Localizable.xcstrings
       - scripts/check-apostrophe-style
