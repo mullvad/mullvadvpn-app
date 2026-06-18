@@ -790,17 +790,6 @@ resetSettings: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
-  setDaitaDirectOnly: {
-    path: '/mullvad_daemon.management_interface.ManagementService/SetDaitaDirectOnly',
-    requestStream: false,
-    responseStream: false,
-    requestType: google_protobuf_wrappers_pb.BoolValue,
-    responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_BoolValue,
-    requestDeserialize: deserialize_google_protobuf_BoolValue,
-    responseSerialize: serialize_google_protobuf_Empty,
-    responseDeserialize: deserialize_google_protobuf_Empty,
-  },
   setDaitaSettings: {
     path: '/mullvad_daemon.management_interface.ManagementService/SetDaitaSettings',
     requestStream: false,

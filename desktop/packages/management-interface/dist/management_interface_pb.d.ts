@@ -2289,8 +2289,6 @@ export namespace QuantumResistantState {
 export class DaitaSettings extends jspb.Message { 
     getEnabled(): boolean;
     setEnabled(value: boolean): DaitaSettings;
-    getDirectOnly(): boolean;
-    setDirectOnly(value: boolean): DaitaSettings;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): DaitaSettings.AsObject;
@@ -2305,7 +2303,6 @@ export class DaitaSettings extends jspb.Message {
 export namespace DaitaSettings {
     export type AsObject = {
         enabled: boolean,
-        directOnly: boolean,
     }
 }
 
