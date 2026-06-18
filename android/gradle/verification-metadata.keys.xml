@@ -45,6 +45,7 @@
             <trusting group="androidx.core"/>
             <trusting group="androidx.datastore"/>
             <trusting group="androidx.navigation3"/>
+            <trusting group="androidx.navigationevent"/>
             <trusting group="androidx.test.uiautomator"/>
             <trusting group="androidx.work"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
