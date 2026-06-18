@@ -11,216 +11,219 @@ import MullvadREST
 import MullvadTypes
 import UIKit
 
-final class RelayFilterDataSource: UITableViewDiffableDataSource<
-    RelayFilterDataSource.Section,
-    RelayFilterDataSourceItem
->
-{
-    private weak var tableView: UITableView?
-    private var viewModel: RelayFilterViewModel
-    private let relayFilterCellFactory: RelayFilterCellFactory
-    private var disposeBag = Set<Combine.AnyCancellable>()
+extension RelayFilterSelection {
+    final class DataSource: UITableViewDiffableDataSource<
+        DataSource.Section,
+        DataSourceItem
+    >
+    {
+        typealias Item = DataSourceItem
+        private weak var tableView: UITableView?
+        private var viewModel: ViewModel
+        private let relayFilterCellFactory: CellFactory
+        private var disposeBag = Set<Combine.AnyCancellable>()
 
-    init(tableView: UITableView, viewModel: RelayFilterViewModel) {
-        self.tableView = tableView
-        self.viewModel = viewModel
+        init(tableView: UITableView, viewModel: ViewModel) {
+            self.tableView = tableView
+            self.viewModel = viewModel
 
-        let relayFilterCellFactory = RelayFilterCellFactory(tableView: tableView)
-        self.relayFilterCellFactory = relayFilterCellFactory
+            let relayFilterCellFactory = CellFactory(tableView: tableView)
+            self.relayFilterCellFactory = relayFilterCellFactory
 
-        super.init(tableView: tableView) { _, indexPath, itemIdentifier in
-            relayFilterCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
-        }
-
-        registerCells()
-        createDataSnapshot()
-        tableView.delegate = self
-        setupBindings()
-        updateSelection(from: viewModel.relayFilter)
-    }
-
-    private func registerCells() {
-        CellReuseIdentifiers.allCases.forEach {
-            tableView?.register(
-                $0.reusableViewClass,
-                forCellReuseIdentifier: $0.rawValue
-            )
-        }
-        HeaderFooterReuseIdentifiers.allCases.forEach {
-            tableView?.register(
-                $0.reusableViewClass,
-                forHeaderFooterViewReuseIdentifier: $0.rawValue
-            )
-        }
-    }
-
-    private func setupBindings() {
-        viewModel
-            .$relayFilter
-            .dropFirst()
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] filter in
-                self?.updateDataSnapshot(filter: filter)
+            super.init(tableView: tableView) { _, indexPath, itemIdentifier in
+                relayFilterCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
             }
-            .store(in: &disposeBag)
-    }
 
-    private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [RelayFilterDataSourceItem] {
-        [RelayFilterDataSourceItem.allProviders]
-            + viewModel
-            .availableProviders(for: ownership)
-    }
-
-    private func createDataSnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>()
-        snapshot.appendSections(Section.allCases)
-        snapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
-        snapshot.appendItems(
-            availableProviders(givenOwnership: viewModel.relayFilter.ownership),
-            toSection: .providers
-        )
-        apply(snapshot, animatingDifferences: false)
-    }
-
-    private func updateDataSnapshot(filter: RelayFilter) {
-        let oldSnapshot = snapshot()
-        var newSnapshot = NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>()
-        newSnapshot.appendSections(Section.allCases)
-
-        Section.allCases.forEach { section in
-            switch section {
-            case .ownership:
-                if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                    newSnapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
-                }
-            case .providers:
-                if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                    newSnapshot.appendItems(
-                        availableProviders(givenOwnership: filter.ownership),
-                        toSection: .providers
-                    )
-                    applySnapshot(newSnapshot, animated: false)
-                }
-            }
-        }
-    }
-
-    private func applySnapshot(
-        _ snapshot: NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>,
-        animated: Bool,
-        completion: (() -> Void)? = nil
-    ) {
-        apply(snapshot, animatingDifferences: animated) { [weak self] in
-            guard let self else { return }
+            registerCells()
+            createDataSnapshot()
+            tableView.delegate = self
+            setupBindings()
             updateSelection(from: viewModel.relayFilter)
-            completion?()
-        }
-    }
-
-    private func updateSelection(from filter: RelayFilter) {
-        tableView?.indexPathsForSelectedRows?.forEach { selectRow(false, at: $0) }
-
-        if let ownership = viewModel.ownershipItem(for: filter.ownership),
-            let ownershipIndexPath = indexPath(for: ownership)
-        {
-            selectRow(true, at: ownershipIndexPath)
         }
 
-        switch filter.providers {
-        case .any:
-            selectAllProviders(true)
-        case let .only(providers):
-            selectAllProviders(false)
-            providers.forEach { providerName in
-                selectRow(true, at: indexPath(for: viewModel.providerItem(for: providerName)))
+        private func registerCells() {
+            CellReuseIdentifiers.allCases.forEach {
+                tableView?.register(
+                    $0.reusableViewClass,
+                    forCellReuseIdentifier: $0.rawValue
+                )
             }
-            updateAllProvidersSelection()
-        }
-    }
-
-    private func isItemSelected(_ item: RelayFilterDataSourceItem, for filter: RelayFilter) -> Bool {
-        switch item.type {
-        case .ownershipAny, .ownershipOwned, .ownershipRented:
-            return viewModel.ownership(for: item) == filter.ownership
-        case .allProviders:
-            return filter.providers == .any
-        case .provider:
-            return switch filter.providers {
-            case .any:
-                true
-            case let .only(providers):
-                providers.contains(item.name)
+            HeaderFooterReuseIdentifiers.allCases.forEach {
+                tableView?.register(
+                    $0.reusableViewClass,
+                    forHeaderFooterViewReuseIdentifier: $0.rawValue
+                )
             }
         }
-    }
 
-    private func updateAllProvidersSelection() {
-        let selectedCount = getSelectedIndexPaths(in: .providers).count
-        let providerCount = viewModel.availableProviders(for: viewModel.relayFilter.ownership).count
-        selectRow(selectedCount == providerCount, at: indexPath(for: .allProviders))
-    }
-
-    private func handleCollapseOwnership(isExpanded: Bool) {
-        var newSnapshot = snapshot()
-        if isExpanded {
-            newSnapshot.deleteItems(RelayFilterDataSourceItem.ownerships)
-        } else {
-            newSnapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
+        private func setupBindings() {
+            viewModel
+                .$relayFilter
+                .dropFirst()
+                .removeDuplicates()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] filter in
+                    self?.updateDataSnapshot(filter: filter)
+                }
+                .store(in: &disposeBag)
         }
-        applySnapshot(newSnapshot, animated: !isExpanded)
-    }
 
-    private func handleCollapseProviders(isExpanded: Bool) {
-        let currentSnapshot = snapshot()
-        var newSnapshot = currentSnapshot
+        private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [Item] {
+            [DataSource.Item.allProviders]
+                + viewModel
+                .availableProviders(for: ownership)
+        }
 
-        if isExpanded {
-            let items = newSnapshot.itemIdentifiers(inSection: .providers)
-            newSnapshot.deleteItems(items)
-        } else {
-            newSnapshot.appendItems(
+        private func createDataSnapshot() {
+            var snapshot = NSDiffableDataSourceSnapshot<Section, DataSource.Item>()
+            snapshot.appendSections(Section.allCases)
+            snapshot.appendItems(Item.ownerships, toSection: .ownership)
+            snapshot.appendItems(
                 availableProviders(givenOwnership: viewModel.relayFilter.ownership),
                 toSection: .providers
             )
+            apply(snapshot, animatingDifferences: false)
         }
-        applySnapshot(newSnapshot, animated: !isExpanded)
-    }
 
-    private func selectRow(_ select: Bool, at indexPath: IndexPath?) {
-        guard let indexPath else { return }
+        private func updateDataSnapshot(filter: RelayFilter) {
+            let oldSnapshot = snapshot()
+            var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+            newSnapshot.appendSections(Section.allCases)
 
-        if select {
-            tableView?.selectRow(at: indexPath, animated: false, scrollPosition: .none)
-        } else {
-            tableView?.deselectRow(at: indexPath, animated: false)
+            Section.allCases.forEach { section in
+                switch section {
+                case .ownership:
+                    if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
+                        newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
+                    }
+                case .providers:
+                    if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
+                        newSnapshot.appendItems(
+                            availableProviders(givenOwnership: filter.ownership),
+                            toSection: .providers
+                        )
+                        applySnapshot(newSnapshot, animated: false)
+                    }
+                }
+            }
         }
-    }
 
-    private func selectAllProviders(_ select: Bool) {
-        let providerItems = snapshot().itemIdentifiers(inSection: .providers)
-
-        providerItems.forEach { providerItem in
-            selectRow(select, at: indexPath(for: providerItem))
+        private func applySnapshot(
+            _ snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
+            animated: Bool,
+            completion: (() -> Void)? = nil
+        ) {
+            apply(snapshot, animatingDifferences: animated) { [weak self] in
+                guard let self else { return }
+                updateSelection(from: viewModel.relayFilter)
+                completion?()
+            }
         }
-    }
 
-    private func getSelectedIndexPaths(in section: Section) -> [IndexPath] {
-        let sectionIndex = snapshot().indexOfSection(section)
+        private func updateSelection(from filter: RelayFilter) {
+            tableView?.indexPathsForSelectedRows?.forEach { selectRow(false, at: $0) }
 
-        return tableView?.indexPathsForSelectedRows?.filter { indexPath in
-            indexPath.section == sectionIndex
-        } ?? []
-    }
+            if let ownership = viewModel.ownershipItem(for: filter.ownership),
+                let ownershipIndexPath = indexPath(for: ownership)
+            {
+                selectRow(true, at: ownershipIndexPath)
+            }
 
-    private func getSection(for indexPath: IndexPath) -> Section {
-        return snapshot().sectionIdentifiers[indexPath.section]
+            switch filter.providers {
+            case .any:
+                selectAllProviders(true)
+            case let .only(providers):
+                selectAllProviders(false)
+                providers.forEach { providerName in
+                    selectRow(true, at: indexPath(for: viewModel.providerItem(for: providerName)))
+                }
+                updateAllProvidersSelection()
+            }
+        }
+
+        private func isItemSelected(_ item: Item, for filter: RelayFilter) -> Bool {
+            switch item.type {
+            case .ownershipAny, .ownershipOwned, .ownershipRented:
+                return viewModel.ownership(for: item) == filter.ownership
+            case .allProviders:
+                return filter.providers == .any
+            case .provider:
+                return switch filter.providers {
+                case .any:
+                    true
+                case let .only(providers):
+                    providers.contains(item.name)
+                }
+            }
+        }
+
+        private func updateAllProvidersSelection() {
+            let selectedCount = getSelectedIndexPaths(in: .providers).count
+            let providerCount = viewModel.availableProviders(for: viewModel.relayFilter.ownership).count
+            selectRow(selectedCount == providerCount, at: indexPath(for: .allProviders))
+        }
+
+        private func handleCollapseOwnership(isExpanded: Bool) {
+            var newSnapshot = snapshot()
+            if isExpanded {
+                newSnapshot.deleteItems(Item.ownerships)
+            } else {
+                newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
+            }
+            applySnapshot(newSnapshot, animated: !isExpanded)
+        }
+
+        private func handleCollapseProviders(isExpanded: Bool) {
+            let currentSnapshot = snapshot()
+            var newSnapshot = currentSnapshot
+
+            if isExpanded {
+                let items = newSnapshot.itemIdentifiers(inSection: .providers)
+                newSnapshot.deleteItems(items)
+            } else {
+                newSnapshot.appendItems(
+                    availableProviders(givenOwnership: viewModel.relayFilter.ownership),
+                    toSection: .providers
+                )
+            }
+            applySnapshot(newSnapshot, animated: !isExpanded)
+        }
+
+        private func selectRow(_ select: Bool, at indexPath: IndexPath?) {
+            guard let indexPath else { return }
+
+            if select {
+                tableView?.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            } else {
+                tableView?.deselectRow(at: indexPath, animated: false)
+            }
+        }
+
+        private func selectAllProviders(_ select: Bool) {
+            let providerItems = snapshot().itemIdentifiers(inSection: .providers)
+
+            providerItems.forEach { providerItem in
+                selectRow(select, at: indexPath(for: providerItem))
+            }
+        }
+
+        private func getSelectedIndexPaths(in section: Section) -> [IndexPath] {
+            let sectionIndex = snapshot().indexOfSection(section)
+
+            return tableView?.indexPathsForSelectedRows?.filter { indexPath in
+                indexPath.section == sectionIndex
+            } ?? []
+        }
+
+        private func getSection(for indexPath: IndexPath) -> Section {
+            return snapshot().sectionIdentifiers[indexPath.section]
+        }
     }
 }
 
 // MARK: - UITableViewDelegate
 
-extension RelayFilterDataSource: UITableViewDelegate {
+extension RelayFilterSelection.DataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         switch getSection(for: indexPath) {
         case .ownership:
@@ -306,7 +309,7 @@ extension RelayFilterDataSource: UITableViewDelegate {
 
 // MARK: - Cell Identifiers
 
-extension RelayFilterDataSource {
+extension RelayFilterSelection.DataSource {
     enum Section: CaseIterable { case ownership, providers }
 
     enum CellReuseIdentifiers: String, CaseIterable {

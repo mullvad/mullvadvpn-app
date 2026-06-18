@@ -28,12 +28,6 @@ struct FilterDescriptor {
     var descriptions: [String] {
         var descriptions = [String]()
 
-        if shouldShowDisabledDescription {
-            descriptions.append(
-                NSLocalizedString("Filters are overridden when using the automatic location", comment: "")
-            )
-        }
-
         if shouldShowDaitaDescription {
             descriptions.append(
                 NSLocalizedString("When using DAITA, one provider with DAITA-enabled servers is required", comment: "")
@@ -43,21 +37,12 @@ struct FilterDescriptor {
         return descriptions
     }
 
-    var shouldShowDisabledDescription: Bool {
-        return switch multihopContext {
-        case .entry:
-            settings.automaticMultihopIsEnabled
-        case .exit:
-            false
-        }
-    }
-
     var shouldShowDaitaDescription: Bool {
         let isDaitaEnabled = settings.daita.isEnabled
 
         return switch multihopContext {
         case .entry:
-            isDaitaEnabled && !settings.tunnelMultihopState.isNever
+            isDaitaEnabled && !settings.tunnelMultihopState.isNever && !settings.automaticMultihopIsEnabled
         case .exit:
             isDaitaEnabled && settings.tunnelMultihopState.isNever
         }

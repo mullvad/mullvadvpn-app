@@ -32,8 +32,8 @@ struct RelayFilterViewModelTests {
         ]
     )
     func testRelayFiltering(_ settings: LatestTunnelSettings) {
-        let viewModel = RelayFilterViewModel(
-            settings: settings,
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: settings),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
@@ -51,8 +51,8 @@ struct RelayFilterViewModelTests {
         ]
     )
     func testAvailableProvidersByOwnership(_ ownership: RelayFilter.Ownership) {
-        let viewModel = RelayFilterViewModel(
-            settings: LatestTunnelSettings(),
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
@@ -64,14 +64,14 @@ struct RelayFilterViewModelTests {
     @Test(
         "Toggles relay providers filter items correctly",
         arguments: [
-            RelayFilterDataSourceItem(name: "DataPacket", type: .provider, isEnabled: true),
-            RelayFilterDataSourceItem(name: "All Providers", type: .allProviders, isEnabled: true),
-            RelayFilterDataSourceItem(name: "Blix", type: .provider, isEnabled: true),
+            RelayFilterSelection.DataSourceItem(name: "DataPacket", type: .provider, isEnabled: true),
+            RelayFilterSelection.DataSourceItem(name: "All Providers", type: .allProviders, isEnabled: true),
+            RelayFilterSelection.DataSourceItem(name: "Blix", type: .provider, isEnabled: true),
         ]
     )
-    func testToggleFilterItem(_ item: RelayFilterDataSourceItem) {
-        let viewModel = RelayFilterViewModel(
-            settings: LatestTunnelSettings(),
+    func testToggleFilterItem(_ item: RelayFilterSelection.DataSourceItem) {
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
@@ -90,13 +90,13 @@ struct RelayFilterViewModelTests {
     @Test(
         "Toggles relay provider filter items correctly",
         arguments: [
-            RelayFilterDataSourceItem.ownedOwnershipItem,
-            RelayFilterDataSourceItem.rentedOwnershipItem,
+            RelayFilterSelection.DataSourceItem.ownedOwnershipItem,
+            RelayFilterSelection.DataSourceItem.rentedOwnershipItem,
         ]
     )
-    func testToggleRelayProviderFilterItem(_ item: RelayFilterDataSourceItem) {
-        let viewModel = RelayFilterViewModel(
-            settings: LatestTunnelSettings(),
+    func testToggleRelayProviderFilterItem(_ item: RelayFilterSelection.DataSourceItem) {
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
@@ -115,17 +115,17 @@ struct RelayFilterViewModelTests {
     @Test(
         "Maps ownership filter to the correct ownership item",
         arguments: [
-            (RelayFilter.Ownership.any, RelayFilterDataSourceItem.anyOwnershipItem),
-            (RelayFilter.Ownership.owned, RelayFilterDataSourceItem.ownedOwnershipItem),
-            (RelayFilter.Ownership.rented, RelayFilterDataSourceItem.rentedOwnershipItem),
+            (RelayFilter.Ownership.any, RelayFilterSelection.DataSourceItem.anyOwnershipItem),
+            (RelayFilter.Ownership.owned, RelayFilterSelection.DataSourceItem.ownedOwnershipItem),
+            (RelayFilter.Ownership.rented, RelayFilterSelection.DataSourceItem.rentedOwnershipItem),
         ]
     )
     func testOwnershipItemForFilter(
         _ ownership: RelayFilter.Ownership,
-        expectedItem: RelayFilterDataSourceItem
+        expectedItem: RelayFilterSelection.DataSourceItem
     ) throws {
-        let viewModel = RelayFilterViewModel(
-            settings: LatestTunnelSettings(),
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
@@ -142,17 +142,17 @@ struct RelayFilterViewModelTests {
     @Test(
         "Maps ownership item to the correct ownership filter",
         arguments: [
-            (RelayFilterDataSourceItem.anyOwnershipItem, RelayFilter.Ownership.any),
-            (RelayFilterDataSourceItem.ownedOwnershipItem, RelayFilter.Ownership.owned),
-            (RelayFilterDataSourceItem.rentedOwnershipItem, RelayFilter.Ownership.rented),
+            (RelayFilterSelection.DataSourceItem.anyOwnershipItem, RelayFilter.Ownership.any),
+            (RelayFilterSelection.DataSourceItem.ownedOwnershipItem, RelayFilter.Ownership.owned),
+            (RelayFilterSelection.DataSourceItem.rentedOwnershipItem, RelayFilter.Ownership.rented),
         ]
     )
     func testFilterOwnershipForItem(
-        _ ownershipItem: RelayFilterDataSourceItem,
+        _ ownershipItem: RelayFilterSelection.DataSourceItem,
         expectedOwnership: RelayFilter.Ownership
     ) {
-        let viewModel = RelayFilterViewModel(
-            settings: LatestTunnelSettings(),
+        let viewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )

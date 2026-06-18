@@ -43,6 +43,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     if !context.filter.isEmpty {
                         ActiveFilterView(
                             activeFilter: context.filter,
+                            labelStyle: .general,
                             automaticLocationIsActive: context.isAutomaticLocation
                         ) { filter in
                             viewModel.onFilterTapped(filter)
