@@ -9,4 +9,6 @@ import net.mullvad.mullvadvpn.feature.account.impl.Account
 
 fun EntryProviderScope<NavKey2>.accountEntry(navigator: Navigator) {
     entry<AccountNavKey>(metadata = accountTransition()) { Account(navigator = navigator) }
+
+    logoutWithPurchaseInVerificationEntry(navigator)
 }
