@@ -106,6 +106,8 @@ fun InteractiveMap(
 
     val onGestureStart: () -> Unit = {
         scope.launch {
+            zoomAnimatable.stop()
+            latLngAnimatable.stop()
             alphaAnimation.animateTo(1f, tween(500))
         }
     }
