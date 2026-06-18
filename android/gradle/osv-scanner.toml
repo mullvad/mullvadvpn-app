@@ -204,3 +204,21 @@ reason = "The app does not use netty for unix socket communication"
 id = "CVE-2026-48043"  # GHSA-c2gf-v879-257j
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for external http communication"
+
+# Netty: HttpObjectDecoder skips arbitrary initial control characters when only initial CRLF characters are permitted
+[[IgnoredVulns]]
+id = "CVE-2026-50020"  # GHSA-hvcg-qmg6-jm4c
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty susceptible to HTTP/2 Reset Attack with different on-the-wire signature
+[[IgnoredVulns]]
+id = "CVE-2026-50560"  # GHSA-563q-j3cm-6jxm
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: Wrapping plain trust manager silently disables hostname verification
+[[IgnoredVulns]]
+id = "CVE-2026-50010"  # GHSA-c653-97m9-rcg9
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
