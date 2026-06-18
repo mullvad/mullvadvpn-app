@@ -77,12 +77,15 @@ class AccountViewModel(
             .onStart<AccountData?> { emit(accountRepository.accountData.value) }
             .distinctUntilChanged()
 
-    fun onLogoutClick(force: Boolean) {
+    fun onLogoutClick(skipPendingPaymentsVerification: Boolean) {
         if (isLoggingOut.value) return
         isLoggingOut.value = true
 
         viewModelScope.launch {
-            if (force || hasAnyPaymentInNeedOfVerification().not()) {
+            if (hasAnyPaymentInNeedOfVerification() && !skipPendingPaymentsVerification) {
+                isLoggingOut.value = false
+                _uiSideEffect.send(UiSideEffect.ShowLogoutPendingVerificationDialog)
+            } else {
                 accountRepository
                     .logout()
                     .also { isLoggingOut.value = false }
@@ -90,9 +93,6 @@ class AccountViewModel(
                         { _uiSideEffect.send(UiSideEffect.GenericError) },
                         { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
                     )
-            } else {
-                isLoggingOut.value = false
-                _uiSideEffect.send(UiSideEffect.ShowLogoutPendingVerificationDialog)
             }
         }
     }
@@ -119,7 +119,7 @@ class AccountViewModel(
 
     private suspend fun hasAnyPaymentInNeedOfVerification() =
         paymentUseCase.paymentAvailability.firstOrNull()?.status() ==
-            PaymentStatus.VERIFICATION_IN_PROGRESS
+            PaymentStatus.PURCHASED_UNVERIFIED
 
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
