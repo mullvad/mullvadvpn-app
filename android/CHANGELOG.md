@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [Unreleased]
+### Fixed
+- Added a workaround for DataStore becoming corrupt due to an upstream issue.
+
+
 ## [android/2026.7] - 2026-06-17
 ### Fixed
 - Fix DAITA performance degradation that occurred when combined with multihop.

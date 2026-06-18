@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
+import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -35,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.repository.UserPreferences
+import net.mullvad.mullvadvpn.repository.copy
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions
@@ -106,6 +109,19 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by
         fileName = APP_PREFERENCES_NAME,
         serializer = UserPreferencesSerializer,
         produceMigrations = { UserPreferencesMigration.migrations(it, APP_PREFERENCES_NAME) },
+        corruptionHandler =
+            ReplaceFileCorruptionHandler {
+                // HACK: https://issuetracker.google.com/issues/346197747
+                // Due to known issue in DataStore the settings file sometimes get corrupted, to
+                // avoid users getting stuck in a crash loop we reset the settings file.
+                Logger.e(throwable = it) {
+                    "Corruption of DataStore file occurred, restoring preferences file"
+                }
+                UserPreferences.getDefaultInstance().copy {
+                    // We need to mark this as accepted due to otherwise the VPN service won't start
+                    isPrivacyDisclosureAccepted = true
+                }
+            },
     )
 
 class ApplicationScope private constructor(private val cs: CoroutineScope) : CoroutineScope by cs {
