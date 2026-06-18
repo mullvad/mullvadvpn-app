@@ -38,7 +38,6 @@ interface IManagementServiceService extends grpc.ServiceDefinition<grpc.UntypedS
     setEnableIpv6: IManagementServiceService_ISetEnableIpv6;
     setQuantumResistantTunnel: IManagementServiceService_ISetQuantumResistantTunnel;
     setEnableDaita: IManagementServiceService_ISetEnableDaita;
-    setDaitaDirectOnly: IManagementServiceService_ISetDaitaDirectOnly;
     setDaitaSettings: IManagementServiceService_ISetDaitaSettings;
     setDnsOptions: IManagementServiceService_ISetDnsOptions;
     setRelayOverride: IManagementServiceService_ISetRelayOverride;
@@ -336,15 +335,6 @@ interface IManagementServiceService_ISetQuantumResistantTunnel extends grpc.Meth
 }
 interface IManagementServiceService_ISetEnableDaita extends grpc.MethodDefinition<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty> {
     path: "/mullvad_daemon.management_interface.ManagementService/SetEnableDaita";
-    requestStream: false;
-    responseStream: false;
-    requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.BoolValue>;
-    requestDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.BoolValue>;
-    responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
-    responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-}
-interface IManagementServiceService_ISetDaitaDirectOnly extends grpc.MethodDefinition<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/SetDaitaDirectOnly";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.BoolValue>;
@@ -994,7 +984,6 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     setEnableIpv6: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
     setQuantumResistantTunnel: grpc.handleUnaryCall<management_interface_pb.QuantumResistantState, google_protobuf_empty_pb.Empty>;
     setEnableDaita: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
-    setDaitaDirectOnly: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
     setDaitaSettings: grpc.handleUnaryCall<management_interface_pb.DaitaSettings, google_protobuf_empty_pb.Empty>;
     setDnsOptions: grpc.handleUnaryCall<management_interface_pb.DnsOptions, google_protobuf_empty_pb.Empty>;
     setRelayOverride: grpc.handleUnaryCall<management_interface_pb.RelayOverride, google_protobuf_empty_pb.Empty>;
@@ -1143,9 +1132,6 @@ export interface IManagementServiceClient {
     setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setDaitaSettings(request: management_interface_pb.DaitaSettings, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setDaitaSettings(request: management_interface_pb.DaitaSettings, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     setDaitaSettings(request: management_interface_pb.DaitaSettings, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
@@ -1428,9 +1414,6 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setEnableDaita(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setDaitaDirectOnly(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setDaitaSettings(request: management_interface_pb.DaitaSettings, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setDaitaSettings(request: management_interface_pb.DaitaSettings, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public setDaitaSettings(request: management_interface_pb.DaitaSettings, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
