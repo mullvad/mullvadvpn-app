@@ -82,7 +82,7 @@ class SettingsRepository(
 
     suspend fun setDaitaEnabled(enabled: Boolean) = managementService.setDaitaEnabled(enabled)
 
-    suspend fun setDaitaDirectOnly(enabled: Boolean) = managementService.setDaitaDirectOnly(enabled)
+    fun setDaitaDirectOnly(enabled: Boolean) = managementService.setDaitaDirectOnly(enabled)
 
     suspend fun setIpv6Enabled(enabled: Boolean) = managementService.setIpv6Enabled(enabled)
 

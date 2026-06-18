@@ -642,10 +642,16 @@ class ManagementService(
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
-    suspend fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.setDaitaDirectOnly(BoolValue.of(enabled)) }
+    // No-op
+    fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch {
+                if (enabled) {
+                    Unit
+                } else {
+                    Unit
+                }
+            }
             .mapLeft(SetDaitaSettingsError::Unknown)
-            .mapEmpty()
 
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =
         Either.catch {
