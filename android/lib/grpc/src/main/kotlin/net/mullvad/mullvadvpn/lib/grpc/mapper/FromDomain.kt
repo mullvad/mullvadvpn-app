@@ -152,7 +152,10 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
     ManagementInterface.WireguardConstraints.newBuilder()
-        .setUseMultihop(isMultihopEnabled)
+        .setMultihop(
+            if (isMultihopEnabled) ManagementInterface.WireguardConstraints.Multihop.Always
+            else ManagementInterface.WireguardConstraints.Multihop.Never
+        )
         .setEntryLocation(entryLocation.fromDomain())
         .let {
             when (val ipVersion = ipVersion) {
@@ -333,10 +336,7 @@ internal fun ExitConstraints.fromDomain(): RelaySelector.ExitConstraints =
         .build()
 
 internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
-    ManagementInterface.DaitaSettings.newBuilder()
-        .setEnabled(enabled)
-        .setDirectOnly(directOnly)
-        .build()
+    ManagementInterface.DaitaSettings.newBuilder().setEnabled(enabled).build()
 
 internal fun Constraint<Providers>.fromDomain1(): List<RelaySelector.Provider> =
     when (this) {
