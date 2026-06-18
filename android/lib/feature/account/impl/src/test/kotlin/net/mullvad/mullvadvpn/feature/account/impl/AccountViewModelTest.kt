@@ -120,7 +120,7 @@ class AccountViewModelTest {
         viewModel.uiState.test {
             val result = awaitItem()
             assertIs<Lc.Content<AccountUiState>>(result)
-            assertEquals(true, result.value.verificationPending)
+            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
         }
     }
 

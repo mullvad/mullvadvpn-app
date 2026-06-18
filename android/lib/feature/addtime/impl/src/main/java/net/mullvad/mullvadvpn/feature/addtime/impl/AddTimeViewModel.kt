@@ -87,6 +87,14 @@ class AddTimeViewModel(
         }
     }
 
+    fun retryVerifyPurchase() {
+        viewModelScope.launch {
+            if (paymentUseCase.retryVerifyPurchase().isSuccess()) {
+                updateAccountExpiry()
+            }
+        }
+    }
+
     private fun handlePurchaseResultTerminatingState() {
         viewModelScope.launch {
             paymentUseCase.purchaseResult
@@ -126,7 +134,10 @@ class AddTimeViewModel(
             PurchaseResult.VerificationStarted -> PurchaseState.VerificationStarted
             // Pending state
             is PurchaseResult.Completed.Pending,
-            is PurchaseResult.Error.VerificationError -> PurchaseState.VerifyingPurchase
+            is PurchaseResult.Error.VerificationError.VerificationFailed ->
+                PurchaseState.Error.VerificationError.Unrecoverable
+            is PurchaseResult.Error.VerificationError.Other ->
+                PurchaseState.Error.VerificationError.Recoverable
             // Success state
             is PurchaseResult.Completed.Success -> PurchaseState.Success(productId)
             // Error states

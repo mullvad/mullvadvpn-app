@@ -64,7 +64,7 @@ fun PlayPayment(
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
     onRetryFetchProducts: () -> Unit,
-    onInfoClick: () -> Unit,
+    onInfoClick: (PaymentStatus) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (billingPaymentState) {
@@ -125,18 +125,21 @@ private fun Loading(modifier: Modifier = Modifier) {
 private fun PaymentAvailable(
     billingPaymentState: PaymentState.PaymentAvailable,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
-    onInfoClick: () -> Unit,
+    onInfoClick: (PaymentStatus) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val statusMessage = billingPaymentState.products.status()?.message()
+    val status = billingPaymentState.products.status()
     Column(
         modifier =
             modifier
-                .clickable(enabled = statusMessage != null, onClick = onInfoClick)
+                .clickable(
+                    enabled = status != null,
+                    onClick = { onInfoClick(status ?: PaymentStatus.PENDING) },
+                )
                 .testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG)
     ) {
-        val enabled = statusMessage == null
-        statusMessage?.let {
+        val enabled = status == null
+        status?.let {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
@@ -151,7 +154,7 @@ private fun PaymentAvailable(
                 Text(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
-                    text = statusMessage,
+                    text = status.message(),
                     modifier = Modifier.padding(start = Dimens.miniPadding),
                 )
             }
@@ -221,6 +224,5 @@ private fun List<PaymentProduct>.status(): PaymentStatus? {
 private fun PaymentStatus.message(): String =
     when (this) {
         PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending_long)
-
-        PaymentStatus.VERIFICATION_IN_PROGRESS -> stringResource(id = R.string.verifying_purchase)
+        PaymentStatus.PURCHASED_UNVERIFIED -> stringResource(id = R.string.verifying_purchase_error)
     }

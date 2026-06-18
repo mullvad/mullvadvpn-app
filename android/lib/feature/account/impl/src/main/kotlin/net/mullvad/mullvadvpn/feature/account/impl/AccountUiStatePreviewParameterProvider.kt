@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 
 class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit, AccountUiState>> {
     override val values =
@@ -20,7 +21,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             DateTimeFormatter.ISO_ZONED_DATE_TIME,
                         ),
                     showLogoutLoading = false,
-                    verificationPending = true,
+                    paymentStatus = PaymentStatus.PENDING,
                 )
                 .toLc(),
             AccountUiState(
@@ -32,7 +33,7 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                             DateTimeFormatter.ISO_ZONED_DATE_TIME,
                         ),
                     showLogoutLoading = true,
-                    verificationPending = false,
+                    paymentStatus = null,
                 )
                 .toLc(),
         )

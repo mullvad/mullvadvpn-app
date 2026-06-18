@@ -53,8 +53,10 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -129,7 +131,10 @@ fun Welcome(navigator: Navigator) {
         navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
         onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
-        onPlayPaymentInfoClick = dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
+        onPlayPaymentInfoClick =
+            dropUnlessResumed { paymentStatus ->
+                navigator.navigate(VerificationPendingNavKey(paymentStatus))
+            },
     )
 }
 
@@ -141,7 +146,7 @@ fun WelcomeScreen(
     onAccountClick: () -> Unit,
     onAddMoreTimeClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -173,7 +178,7 @@ fun WelcomeScreen(
             if (state is Lc.Content) {
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
-                    verificationPending = state.value.verificationPending,
+                    paymentStatus = state.value.paymentStatus,
                     onAddMoreTimeClick = onAddMoreTimeClick,
                     onDisconnectClick = onDisconnectClick,
                     onInfoClick = onPlayPaymentInfoClick,
@@ -324,10 +329,10 @@ fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
 @Composable
 private fun ButtonPanel(
     showDisconnectButton: Boolean,
-    verificationPending: Boolean,
+    paymentStatus: PaymentStatus?,
     onAddMoreTimeClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onInfoClick: () -> Unit,
+    onInfoClick: (PaymentStatus) -> Unit,
 ) {
     Column(
         modifier =
@@ -346,10 +351,10 @@ private fun ButtonPanel(
                 modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
             )
         }
-        if (verificationPending) {
+        if (paymentStatus != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = onInfoClick,
+                    onClick = { onInfoClick(paymentStatus) },
                     modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
                 ) {
                     Icon(
@@ -361,7 +366,15 @@ private fun ButtonPanel(
                 Text(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
-                    text = stringResource(R.string.payment_status_pending_short),
+                    text =
+                        stringResource(
+                            id =
+                                when (paymentStatus) {
+                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
+                                    PaymentStatus.PURCHASED_UNVERIFIED ->
+                                        R.string.payment_status_verification_failed
+                                }
+                        ),
                 )
             }
         }

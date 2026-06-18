@@ -184,7 +184,7 @@ class WelcomeViewModelTest {
         viewModel.uiState.test {
             val result = awaitItem()
             assertIs<Lc.Content<WelcomeUiState>>(result)
-            assertEquals(true, result.value.verificationPending)
+            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
         }
     }
 }

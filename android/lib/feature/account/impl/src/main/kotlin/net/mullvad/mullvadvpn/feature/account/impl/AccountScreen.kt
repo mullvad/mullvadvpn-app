@@ -55,8 +55,10 @@ import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.lib.ui.component.InformationView
 import net.mullvad.mullvadvpn.lib.ui.component.MissingPolicy
@@ -132,7 +134,9 @@ fun Account(navigator: Navigator) {
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
+            dropUnlessResumed { paymentStatus ->
+                navigator.navigate(VerificationPendingNavKey(paymentStatus))
+            },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         navigateToDeleteAccount = dropUnlessResumed { navigator.navigate(DeleteAccountNavKey) },
         navigateToAddTime = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
@@ -147,7 +151,7 @@ fun AccountScreen(
     onCopyAccountNumber: (String) -> Unit,
     onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     onBackClick: () -> Unit,
     navigateToDeleteAccount: () -> Unit,
     navigateToAddTime: () -> Unit,
@@ -191,7 +195,7 @@ fun AccountScreen(
 
                 PaidUntilRow(
                     accountExpiry = state?.accountExpiry,
-                    verificationPending = state?.verificationPending == true,
+                    paymentStatus = state?.paymentStatus,
                     onOpenPaymentScreen = navigateToAddTime,
                     onInfoClick = onPlayPaymentInfoClick,
                 )
@@ -293,9 +297,9 @@ private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String
 @Composable
 private fun PaidUntilRow(
     accountExpiry: ZonedDateTime?,
-    verificationPending: Boolean,
+    paymentStatus: PaymentStatus?,
     onOpenPaymentScreen: () -> Unit,
-    onInfoClick: () -> Unit,
+    onInfoClick: (PaymentStatus) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -320,9 +324,9 @@ private fun PaidUntilRow(
             )
         }
 
-        if (verificationPending) {
+        if (paymentStatus != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onInfoClick) {
+                IconButton(onClick = { onInfoClick(paymentStatus) }) {
                     Icon(
                         imageVector = Icons.Rounded.Info,
                         contentDescription = null,
@@ -332,7 +336,15 @@ private fun PaidUntilRow(
                 Text(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
-                    text = stringResource(R.string.payment_status_pending_short),
+                    text =
+                        stringResource(
+                            id =
+                                when (paymentStatus) {
+                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
+                                    PaymentStatus.PURCHASED_UNVERIFIED ->
+                                        R.string.payment_status_verification_failed
+                                }
+                        ),
                 )
             }
         }
