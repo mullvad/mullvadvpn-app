@@ -3175,6 +3175,9 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
+msgid "Contact support"
+msgstr ""
+
 msgid "Continue"
 msgstr ""
 
@@ -3332,6 +3335,9 @@ msgid "Google Play payment pending"
 msgstr ""
 
 msgid "Google Play payment pending, this might take some time"
+msgstr ""
+
+msgid "Google Play payment verification failed"
 msgstr ""
 
 msgid "Google Play unavailable"
@@ -3724,6 +3730,9 @@ msgstr ""
 msgid "Unable to verify account number, please contact support"
 msgstr ""
 
+msgid "Unable to verify purchase"
+msgstr ""
+
 msgid "Unavailable"
 msgstr ""
 
@@ -3787,7 +3796,16 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
+msgid "We are not able to verify your latest purchase. Please check your network settings. If the issue persist please contact support"
+msgstr ""
+
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr ""
+
+msgid "We were not able to verify the purchase. Please check your network settings and try again."
+msgstr ""
+
+msgid "We were not able to verify the purchase. Please contact support to resolve the issue."
 msgstr ""
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
