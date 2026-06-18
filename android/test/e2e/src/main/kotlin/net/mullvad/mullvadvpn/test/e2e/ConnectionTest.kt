@@ -415,12 +415,28 @@ class ConnectionTest : EndToEndTest() {
     fun testConnectWithoutInTunnelIpv6() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        // This is to check for a regression when enabling local network sharing without IPv6 in the
+        // tunnel.
+        app.applySettings(localNetworkSharing = true)
 
         on<ConnectPage> { toggleInTunnelIpv6Story() }
         on<ConnectPage> { clickConnect() }
         device.acceptVpnPermissionDialog()
 
         on<ConnectPage> { waitForConnectedLabel() }
+
+        var outIpv4Address = ""
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            outIpv4Address = extractOutIpv4Address()
+            ensureNoOutIpv6Address()
+        }
+
+        val result = connCheckClient.connectionCheck()
+
+        // Check IPs match
+        assertEquals(result.ip, outIpv4Address)
+        assert(result.mullvadExitIp)
     }
 
     @Test

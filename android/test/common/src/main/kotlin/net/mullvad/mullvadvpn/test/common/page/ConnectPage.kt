@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.hasObjectWithTimeout
 
 class ConnectPage internal constructor() : Page() {
     private val disconnectSelector = By.text("Disconnect")
@@ -122,5 +123,20 @@ class ConnectPage internal constructor() : Page() {
                 VERY_LONG_TIMEOUT,
             )
             .text
+    }
+
+    /**
+     * Makes sure the conection card does not have an IPv6 out address. It is a prerequisite that
+     * the connection card is in an expanded state.
+     */
+    fun ensureNoOutIpv6Address() {
+        val hasObject =
+            uiDevice.hasObjectWithTimeout(
+                // Text exist and contains IPv6 address
+                By.res(LOCATION_INFO_CONNECTION_OUT_TEST_TAG).textContains(":")
+            )
+        if (hasObject) {
+            error("Expected to not find an out IPv6 address, but one was found.")
+        }
     }
 }
