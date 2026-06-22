@@ -1,9 +1,8 @@
-use futures::TryFutureExt;
 use mullvad_types::{
     access_method::Error as ApiAccessMethodError,
     custom_list::Error as CustomListError,
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
-    settings::{DnsState, Settings},
+    settings::{DnsState, Settings, SettingsKey, SettingsKeyList},
 };
 use std::{
     fmt::{self, Display},
@@ -259,23 +258,71 @@ impl SettingsPersister {
     }
 
     /// Resets to default settings
-    pub async fn reset(&mut self) -> Result<(), Error> {
-        self.settings = Self::default_settings();
-        let path = self.path.clone();
-        self.save()
-            .or_else(|e| async move {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Unable to save default settings")
-                );
-                log::info!("Will attempt to remove settings file");
-                match fs::remove_file(&path).await {
-                    Ok(()) => Ok(()),
-                    Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
-                    Err(e) => Err(Error::DeleteError(path.display().to_string(), e)),
+    /// `preserved` is a list of settings that will not be reset to their default value
+    /// during reset.
+    pub async fn reset(&mut self, preserved: SettingsKeyList) -> Result<(), Error> {
+        let old_settings = std::mem::replace(&mut self.settings, Self::default_settings());
+
+        for key in preserved.keys {
+            match key {
+                SettingsKey::RelaySettings => {
+                    self.settings.relay_settings = old_settings.relay_settings.clone()
                 }
-            })
-            .await?;
+                SettingsKey::ObfuscationSettings => {
+                    self.settings.obfuscation_settings = old_settings.obfuscation_settings.clone()
+                }
+                SettingsKey::CustomLists => {
+                    self.settings.custom_lists = old_settings.custom_lists.clone()
+                }
+                SettingsKey::ApiAccessMethods => {
+                    self.settings.api_access_methods = old_settings.api_access_methods.clone()
+                }
+                SettingsKey::UpdateDefaultLocation => {
+                    self.settings.update_default_location = old_settings.update_default_location
+                }
+                SettingsKey::AllowLan => self.settings.allow_lan = old_settings.allow_lan,
+                #[cfg(not(target_os = "android"))]
+                SettingsKey::LockdownMode => {
+                    self.settings.lockdown_mode = old_settings.lockdown_mode
+                }
+                SettingsKey::AutoConnect => self.settings.auto_connect = old_settings.auto_connect,
+                SettingsKey::TunnelOptions => {
+                    self.settings.tunnel_options = old_settings.tunnel_options.clone()
+                }
+                SettingsKey::RelayOverrides => {
+                    self.settings.relay_overrides = old_settings.relay_overrides.clone()
+                }
+                SettingsKey::ShowBetaReleases => {
+                    self.settings.show_beta_releases = old_settings.show_beta_releases
+                }
+                #[cfg(any(windows, target_os = "android", target_os = "macos"))]
+                SettingsKey::SplitTunnel => {
+                    self.settings.split_tunnel = old_settings.split_tunnel.clone()
+                }
+                SettingsKey::Recents => self.settings.recents = old_settings.recents.clone(),
+            }
+        }
+
+        #[cfg(not(test))]
+        {
+            use futures::TryFutureExt;
+
+            let path = self.path.clone();
+            self.save()
+                .or_else(|e| async move {
+                    log::error!(
+                        "{}",
+                        e.display_chain_with_msg("Unable to save default settings")
+                    );
+                    log::info!("Will attempt to remove settings file");
+                    match fs::remove_file(&path).await {
+                        Ok(()) => Ok(()),
+                        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
+                        Err(e) => Err(Error::DeleteError(path.display().to_string(), e)),
+                    }
+                })
+                .await?;
+        }
 
         self.notify_listeners().await;
 
@@ -561,7 +608,7 @@ impl SettingsSummary<'_> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use mullvad_types::settings::SettingsVersion;
+    use mullvad_types::{custom_list::CustomList, settings::SettingsVersion};
 
     #[test]
     #[should_panic]
@@ -748,5 +795,51 @@ mod test {
         let disabled: Settings =
             serde_json::from_str(r#"{"recents": null}"#).expect("Failed to deserialize");
         assert_eq!(disabled.recents, None);
+    }
+
+    #[tokio::test]
+    async fn test_full_reset() {
+        // TODO: Make Settings::default() deterministic so that we can fully compare against a freshly generated settings struct
+
+        let mut settings = SettingsPersister {
+            on_change_listeners: vec![],
+            path: PathBuf::new(),
+            settings: Settings::default(),
+        };
+        settings.settings.allow_lan = true;
+        settings
+            .settings
+            .custom_lists
+            .add(CustomList::new("testlist".to_string()).unwrap())
+            .unwrap();
+
+        settings.reset(SettingsKeyList::default()).await.unwrap();
+
+        assert!(!settings.settings.allow_lan);
+        assert!(settings.settings.custom_lists.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_preserve_reset() {
+        let custom_list = CustomList::new("testlist".to_string()).unwrap();
+        let mut settings = SettingsPersister {
+            on_change_listeners: vec![],
+            path: PathBuf::new(),
+            settings: Settings::default(),
+        };
+        settings.settings.allow_lan = true;
+        settings
+            .settings
+            .custom_lists
+            .add(custom_list.clone())
+            .unwrap();
+
+        let preserved = SettingsKeyList {
+            keys: vec![SettingsKey::CustomLists],
+        };
+        settings.reset(preserved).await.unwrap();
+
+        assert!(!settings.settings.allow_lan);
+        assert_eq!(settings.settings.custom_lists[0], custom_list);
     }
 }

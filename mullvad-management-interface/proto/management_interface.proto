@@ -38,7 +38,8 @@ service ManagementService {
 
   // Settings
   rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
-  rpc ResetSettings(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  // SettingsKeyList contains a list of settings to preserve during reset.
+  rpc ResetSettings(SettingsKeyList) returns (google.protobuf.Empty) {}
   rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetLockdownMode(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
@@ -550,6 +551,24 @@ message Settings {
   repeated RelayOverride relay_overrides = 12;
   optional Recents recents = 13;
   bool update_default_location = 14;
+}
+
+message SettingsKeyList { repeated SettingsKey keys = 1; }
+
+enum SettingsKey {
+  RELAY_SETTINGS = 0;
+  ALLOW_LAN = 1;
+  LOCKDOWN_MODE_KEY = 2;
+  AUTO_CONNECT = 3;
+  TUNNEL_OPTIONS = 4;
+  SHOW_BETA_RELEASES = 5;
+  SPLIT_TUNNEL = 6;
+  OBFUSCATION_SETTINGS = 7;
+  CUSTOM_LISTS = 8;
+  API_ACCESS_METHODS = 9;
+  RELAY_OVERRIDES = 10;
+  RECENTS = 11;
+  UPDATE_DEFAULT_LOCATION = 12;
 }
 
 message RelayOverride {

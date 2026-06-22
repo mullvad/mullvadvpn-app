@@ -21,7 +21,7 @@ use mullvad_types::{
     features::FeatureIndicators,
     relay_constraints::{AllowedIps, ObfuscationSettings, RelayOverride, RelaySettings},
     relay_list::BridgeList,
-    settings::DnsOptions,
+    settings::{DnsOptions, SettingsKeyList},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 use std::net::IpAddr;
@@ -250,8 +250,9 @@ impl MullvadProxyClient {
         Settings::try_from(settings).map_err(Error::InvalidResponse)
     }
 
-    pub async fn reset_settings(&mut self) -> Result<()> {
-        self.0.reset_settings(()).await?;
+    pub async fn reset_settings(&mut self, preserved: SettingsKeyList) -> Result<()> {
+        let preserved = types::SettingsKeyList::from(preserved);
+        self.0.reset_settings(preserved).await?;
         Ok(())
     }
 

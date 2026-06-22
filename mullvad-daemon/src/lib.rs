@@ -67,7 +67,7 @@ use mullvad_types::{
         ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
-    settings::{DnsOptions, Settings},
+    settings::{DnsOptions, Settings, SettingsKeyList},
     states::{Secured, TargetState, TargetStateStrict, TunnelState},
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
@@ -324,7 +324,7 @@ pub enum DaemonCommand {
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
     /// Reset all daemon settings to the defaults
-    ResetSettings(ResponseTx<(), settings::Error>),
+    ResetSettings(ResponseTx<(), settings::Error>, SettingsKeyList),
     /// Generate new wireguard key
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
@@ -1575,7 +1575,7 @@ impl Daemon {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
             GetSettings(tx) => self.on_get_settings(tx),
-            ResetSettings(tx) => self.on_reset_settings(tx).await,
+            ResetSettings(tx, preserved) => self.on_reset_settings(tx, preserved).await,
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             CreateCustomList(tx, name, locations) => {
@@ -2239,7 +2239,7 @@ impl Daemon {
             last_error = Some("Failed to clear account history");
         }
 
-        if let Err(e) = self.settings.reset().await {
+        if let Err(e) = self.settings.reset(SettingsKeyList::default()).await {
             log::error!("Failed to reset settings: {}", e);
             last_error = Some("Failed to reset settings");
         }
@@ -3252,8 +3252,12 @@ impl Daemon {
         Self::oneshot_send(tx, self.settings.to_settings(), "get_settings response");
     }
 
-    async fn on_reset_settings(&mut self, tx: ResponseTx<(), settings::Error>) {
-        let result = self.settings.reset().await;
+    async fn on_reset_settings(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        preserved: SettingsKeyList,
+    ) {
+        let result = self.settings.reset(preserved).await;
         Self::oneshot_send(tx, result, "reset_settings response");
 
         // TODO: All of the functions below should probably be handled by settings observers
