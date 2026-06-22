@@ -1,5 +1,7 @@
 use std::{env::args, net::SocketAddr};
-use tunnel_obfuscation::{Obfuscator, Settings, create_obfuscator, udp2tcp};
+use tunnel_obfuscation::{
+    LocalSocketObfuscator, Settings, create_local_socket_obfuscator, udp2tcp,
+};
 
 #[tokio::main]
 async fn main() {
@@ -16,7 +18,7 @@ async fn main() {
     }
 }
 
-async fn instantiate_requested(obfuscator_type: &str) -> Box<dyn Obfuscator> {
+async fn instantiate_requested(obfuscator_type: &str) -> Box<dyn LocalSocketObfuscator> {
     match obfuscator_type {
         "udp2tcp" => {
             let settings = udp2tcp::Settings {
@@ -25,7 +27,7 @@ async fn instantiate_requested(obfuscator_type: &str) -> Box<dyn Obfuscator> {
                 fwmark: Some(1337),
             };
 
-            create_obfuscator(&Settings::Udp2Tcp(settings))
+            create_local_socket_obfuscator(&Settings::Udp2Tcp(settings))
                 .await
                 .expect("Creating obfuscator failed")
         }

@@ -5,7 +5,7 @@
 
 use crate::socket::create_remote_socket;
 
-use super::Obfuscator;
+use super::LocalSocketObfuscator;
 use async_trait::async_trait;
 use shadowsocks::{
     ProxySocket,
@@ -260,7 +260,7 @@ async fn handle_incoming(
 }
 
 #[async_trait]
-impl Obfuscator for Shadowsocks {
+impl LocalSocketObfuscator for Shadowsocks {
     fn endpoint(&self) -> SocketAddr {
         self.udp_client_addr
     }

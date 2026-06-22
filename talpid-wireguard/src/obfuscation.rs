@@ -20,8 +20,8 @@ use talpid_types::{
 };
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, multiplexer, quic, shadowsocks,
-    udp2tcp,
+    Settings as ObfuscationSettings, create_local_socket_obfuscator, lwo, multiplexer, quic,
+    shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -65,7 +65,7 @@ pub async fn apply_obfuscation_config(
 
     log::trace!("Obfuscation settings: {settings:?}");
 
-    let obfuscator = create_obfuscator(&settings)
+    let obfuscator = create_local_socket_obfuscator(&settings)
         .await
         .map_err(Error::ObfuscationError)?;
 

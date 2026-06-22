@@ -48,7 +48,7 @@ pub enum Error {
 }
 
 #[async_trait]
-pub trait Obfuscator: Send {
+pub trait LocalSocketObfuscator: Send {
     /// NOTE(Android): Make sure to call bypass on the obfuscator socket _before_ invoking run.
     async fn run(self: Box<Self>) -> Result<()>;
 
@@ -74,7 +74,9 @@ pub enum Settings {
     Multiplexer(multiplexer::Settings),
 }
 
-pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
+pub async fn create_local_socket_obfuscator(
+    settings: &Settings,
+) -> Result<Box<dyn LocalSocketObfuscator>> {
     match settings {
         Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(s)
             .await
@@ -87,6 +89,6 @@ pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator
     }
 }
 
-fn box_obfuscator(obfs: impl Obfuscator + 'static) -> Box<dyn Obfuscator> {
-    Box::new(obfs) as Box<dyn Obfuscator>
+fn box_obfuscator(obfs: impl LocalSocketObfuscator + 'static) -> Box<dyn LocalSocketObfuscator> {
+    Box::new(obfs) as Box<dyn LocalSocketObfuscator>
 }
