@@ -156,8 +156,7 @@ extension IncludeAllNetworksSettingsView {
 extension IncludeAllNetworksSettingsView {
     private var dataViewModel: SettingsInfoViewModel {
         let blogUrl = URL(
-            string: "https://\(ApplicationConfiguration.hostName)/"
-                + "\(ApplicationLanguage.currentLanguage.id)"
+            string: "https://\(ApplicationConfiguration.hostName)"
                 + "/blog/why-we-still-dont-use-includeallnetworks"
         )!
 

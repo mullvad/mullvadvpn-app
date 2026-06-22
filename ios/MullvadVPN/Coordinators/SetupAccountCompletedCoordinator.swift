@@ -38,7 +38,7 @@ extension SetupAccountCompletedCoordinator: @preconcurrency SetupAccountComplete
     func didRequestToSeePrivacy(controller: SetupAccountCompletedController) {
         presentChild(
             SafariCoordinator(
-                url: ApplicationConfiguration.privacyGuidesURL(for: ApplicationLanguage.currentLanguage.id)),
+                url: ApplicationConfiguration.privacyGuidesURL()),
             animated: true)
     }
 

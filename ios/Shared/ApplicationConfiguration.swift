@@ -63,13 +63,13 @@ enum ApplicationConfiguration {
     static let logMaximumFileSize: UInt64 = 131_072  // 128 kB.
 
     /// Privacy policy URL.
-    static func privacyPolicyLink(for language: String) -> String {
-        "https://\(Self.hostName)/\(language)/help/privacy-policy/"
+    static func privacyPolicyLink() -> String {
+        "https://\(Self.hostName)/help/privacy-policy/"
     }
 
     /// Make a start regarding  policy URL.
-    static func privacyGuidesURL(for language: String) -> URL {
-        URL(string: "https://\(Self.hostName)/\(language)/help/first-steps-towards-online-privacy/")!
+    static func privacyGuidesURL() -> URL {
+        URL(string: "https://\(Self.hostName)/help/first-steps-towards-online-privacy/")!
     }
 
     /// FAQ & Guides URL.
