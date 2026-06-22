@@ -197,7 +197,7 @@ fun InteractiveMap(
         GlobeViewState(
             cameraPosition,
             markers + locationMarkers,
-            hops.map { it.copy(color = Color.White.copy(alpha = alphaAnimation.value)) },
+            hops.map { it.copy(color = Color.White.copy(alpha = alphaAnimation.value * 0.6f)) },
             globeColors,
         )
     AndroidView(
