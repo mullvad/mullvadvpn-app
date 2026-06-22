@@ -1,5 +1,15 @@
 #![cfg(any(target_os = "ios", target_os = "macos"))]
+// On macOS the iOS-only FFI exports are not compiled. We allow to build it on macOS to aid with
+// running unit tests.
+#![cfg_attr(target_os = "macos", allow(dead_code))]
+
 mod gotatun;
+mod tunnel_adapter;
+
+// uniffi scaffolding for the gotatun FFI. Gated to `ios` to match the gotatun FFI
+// module; the rest of the crate's FFI uses cbindgen and is unaffected.
+#[cfg(target_os = "ios")]
+uniffi::setup_scaffolding!("mullvad_gotatun");
 
 #[cfg(target_os = "ios")]
 mod api_client;

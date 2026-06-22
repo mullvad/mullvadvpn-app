@@ -1,0 +1,8 @@
+[bindings.swift]
+# Fold the generated FFI header into the existing private framework module
+# (MullvadRustRuntimeProxy) that already exposes the cbindgen header and links
+# libmullvad_ios — avoids a second Clang module linking the same staticlib.
+ffi_module_name = "MullvadRustRuntimeProxy"
+generate_module_map = false
+# Records as immutable `let` fields.
+generate_immutable_records = true
