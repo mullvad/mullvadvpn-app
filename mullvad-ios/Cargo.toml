@@ -10,6 +10,13 @@ license.workspace = true
 bench = false
 crate-type = ["staticlib"]
 
+# Host-side binary that generates the uniffi Swift bindings for the gotatun FFI.
+# Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
+# the normal iOS `--lib` build never compiles it.
+[[bin]]
+name = "uniffi-bindgen"
+path = "src/bin/uniffi-bindgen.rs"
+
 [target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
 bytes = { workspace = true }
 either = { workspace = true }
@@ -57,13 +64,6 @@ zerocopy = "0.8"
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
-
-# Host-side binary that generates the uniffi Swift bindings for the gotatun FFI.
-# Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
-# the normal iOS `--lib` build never compiles it.
-[[bin]]
-name = "uniffi-bindgen"
-path = "src/bin/uniffi-bindgen.rs"
 
 [features]
 # Allow the API server to be used
