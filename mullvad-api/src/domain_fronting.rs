@@ -2,19 +2,20 @@
 
 use crate::proxy::{ApiConnectionMode, DomainFrontingConfig, ProxyConfig};
 
-const FRONT: &str = "www.phpmyadmin.net";
-const PROXY_HOST: &str = "1105015943.rsc.cdn77.org";
-const SESSION_HEADER: &str = "X-Mullvad-Session";
+const FRONT: &str = "https://www.phpmyadmin.net";
+const PROXY_HOST: &str = "1239602656.rsc.cdn77.org";
+const AUTH: &str = "shared-secret";
 
 /// Resolve the built-in domain fronting configuration.
 ///
 /// Performs DNS resolution of the front domain and returns the
 /// corresponding [`ApiConnectionMode`].
 pub async fn resolve() -> Option<ApiConnectionMode> {
+    // TODO: DNS lookup can be slow/flaky
     match DomainFrontingConfig::resolve(
-        FRONT.to_string(),
+        FRONT.parse().unwrap(),
         PROXY_HOST.to_string(),
-        SESSION_HEADER.to_string(),
+        AUTH.to_string(),
     )
     .await
     {
