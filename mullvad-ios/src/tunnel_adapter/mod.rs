@@ -412,9 +412,13 @@ impl IosTunnelAdapter {
             }
         };
 
-        // Entry uses the phase-1 ephemeral key; exit uses the device key.
+        // Entry uses the phase-1 ephemeral key; exit uses the device key. Phase 2
+        // only reaches the exit relay's config service through the entry, so the exit
+        // peer is restricted to the config service and the entry keeps its
+        // exit-endpoint route (carried over in `first_peer`).
         let device_key = StaticSecret::from(config.private_key);
-        let exit_initial = Self::build_peer(&config.exit_peer);
+        let exit_initial =
+            Self::build_peer(&config.exit_peer).with_allowed_ips(Self::config_service_allowed_ips());
         let configured = tokio::try_join!(
             Self::configure_device(&pq2_entry, first_key.clone(), first_peer.clone()),
             Self::configure_device(&pq2_exit, device_key, exit_initial),
@@ -643,7 +647,11 @@ impl IosTunnelAdapter {
             .map_err(|e| PqExchangeError::Failed(format!("PQ device: {e}")))?;
 
         let private_key = StaticSecret::from(config.private_key);
-        let initial_peer = Self::build_peer(peer_config).with_endpoint(peer_endpoint);
+        // PQ negotiation only talks to the relay's config service, so restrict the
+        // peer's allowed IPs accordingly rather than routing the whole internet.
+        let initial_peer = Self::build_peer(peer_config)
+            .with_endpoint(peer_endpoint)
+            .with_allowed_ips(Self::config_service_allowed_ips());
 
         if let Err(e) = Self::configure_device(&pq_device, private_key, initial_peer).await {
             pq_device.stop().await;
@@ -901,6 +909,17 @@ impl IosTunnelAdapter {
         Peer::new(peer.public_key.into())
             .with_allowed_ips(peer.allowed_ips.clone())
             .with_endpoint(peer.endpoint)
+    }
+
+    /// Allowed IPs that restrict a PQ-negotiation device to just the relay's
+    /// in-tunnel config service ([`CONFIG_SERVICE_ADDR`]) — negotiation must not be
+    /// able to reach the wider internet.
+    fn config_service_allowed_ips() -> Vec<IpNetwork> {
+        let ip = CONFIG_SERVICE_ADDR
+            .parse::<SocketAddr>()
+            .expect("CONFIG_SERVICE_ADDR is a valid socket address")
+            .ip();
+        vec![IpNetwork::from(ip)]
     }
 
     /// Per-packet overhead the entry hop adds to the exit device's MTU budget.
