@@ -5,8 +5,13 @@ use mullvad_management_interface::MullvadProxyClient;
 
 #[derive(Subcommand, Debug)]
 pub enum Log {
-    /// Set the log level for the daemon
+    /// Set the log level for the daemon.
     SetLevel { level: Level },
+    /// Configure the `RUST_LOG` variable.
+    ///
+    /// Set custom log levels per crate or module. See `env_logger` for more information:
+    /// <https://docs.rs/env_logger/latest/env_logger/>
+    SetRustLog { filter: String },
     /// Follow live updates to the daemon log file. Analogue to running `tail -f` on the daemon log file.
     Listen,
 }
@@ -33,6 +38,7 @@ impl Log {
     pub async fn handle(self) -> Result<()> {
         match self {
             Log::SetLevel { level } => set_level(level).await,
+            Log::SetRustLog { filter } => set_filter(filter).await,
             Log::Listen => on_listen().await,
         }
     }
@@ -53,8 +59,12 @@ async fn on_listen() -> std::result::Result<(), anyhow::Error> {
 }
 
 async fn set_level(level: Level) -> std::result::Result<(), anyhow::Error> {
-    let mut rpc = MullvadProxyClient::new().await?;
     let level = (level as usize).to_string();
-    rpc.set_log_filter(level).await?;
+    set_filter(level).await
+}
+
+async fn set_filter(filter: String) -> std::result::Result<(), anyhow::Error> {
+    let mut rpc = MullvadProxyClient::new().await?;
+    rpc.set_log_filter(filter).await?;
     Ok(())
 }
