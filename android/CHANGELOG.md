@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
   where servers are located as well as displaying your connection path.
 - Added a new multihop design with a new "when needed" option that will automatically multihop
   when it is needed given the currently active settings (e.g. DAITA is on).
+- Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
+  proxies. The access method is enabled by default.
 
 ### Changed
 - Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable
