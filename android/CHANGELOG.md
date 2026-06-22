@@ -22,8 +22,17 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Highlight search phrase when searching in Split tunneling.
+
+### Changed
+- Improve error handling of Google play purchases.
+- Move Local network sharing setting into a separate screen.
+- Add check for unfinished purchases before logging out.
+
 ### Fixed
-- Added a workaround for DataStore becoming corrupt due to an upstream issue.
+- Fix a crash that occur if the system VPN dialog is missing from OS.
+- Add a workaround for DataStore becoming corrupt due to an upstream issue.
 
 
 ## [android/2026.7] - 2026-06-17
