@@ -49,6 +49,10 @@ pub enum Error {
     ParseMaybenotMachines {
         reason: String,
     },
+    InvalidDaitaFraction {
+        field: &'static str,
+        value: f64,
+    },
     #[cfg(target_os = "ios")]
     TcpConnectionOpen,
     #[cfg(target_os = "ios")]
@@ -75,6 +79,12 @@ impl std::fmt::Display for Error {
             }
             ParseMaybenotMachines { reason } => {
                 write!(f, "Failed to parse Maybenot machines: {reason}")
+            }
+            InvalidDaitaFraction { field, value } => {
+                write!(
+                    f,
+                    "Expected {field} to be a fraction between 0 and 1, got {value}"
+                )
             }
             MissingDaitaResponse => "Expected DAITA configuration in response".fmt(f),
             #[cfg(target_os = "ios")]
@@ -225,6 +235,9 @@ pub async fn request_ephemeral_peer_with(
 }
 
 fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, Error> {
+    let max_decoy_frac = parse_daita_fraction("max_padding_frac", daita.max_padding_frac)?;
+    let max_delay_frac = parse_daita_fraction("max_blocking_frac", daita.max_blocking_frac)?;
+
     let machines = daita
         .client_machines
         .into_iter()
@@ -242,9 +255,17 @@ fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, 
         })?;
     Ok(DaitaSettings {
         client_machines: machines,
-        max_decoy_frac: daita.max_padding_frac,
-        max_delay_frac: daita.max_blocking_frac,
+        max_decoy_frac,
+        max_delay_frac,
     })
+}
+
+fn parse_daita_fraction(field: &'static str, value: f64) -> Result<f64, Error> {
+    if (0.0..=1.0).contains(&value) {
+        Ok(value)
+    } else {
+        Err(Error::InvalidDaitaFraction { field, value })
+    }
 }
 
 const fn get_platform() -> proto::DaitaPlatform {
@@ -308,4 +329,85 @@ async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService,
         .map_err(Error::GrpcConnectError)?;
 
     Ok(RelayConfigService::new(connection))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn daita_response(max_padding_frac: f64, max_blocking_frac: f64) -> proto::DaitaResponseV2 {
+        proto::DaitaResponseV2 {
+            client_machines: vec![],
+            max_padding_frac,
+            max_blocking_frac,
+        }
+    }
+
+    fn parse_daita_response_error(daita: proto::DaitaResponseV2) -> Error {
+        match parse_daita_response(daita) {
+            Ok(_) => panic!("expected DAITA response parsing to fail"),
+            Err(error) => error,
+        }
+    }
+
+    #[test]
+    fn parse_daita_response_accepts_fraction_bounds() {
+        for (max_padding_frac, max_blocking_frac) in [(0.0, 0.0), (1.0, 1.0), (0.25, 0.75)] {
+            let settings =
+                parse_daita_response(daita_response(max_padding_frac, max_blocking_frac)).unwrap();
+
+            assert_eq!(settings.max_decoy_frac, max_padding_frac);
+            assert_eq!(settings.max_delay_frac, max_blocking_frac);
+        }
+    }
+
+    #[test]
+    fn parse_daita_response_rejects_invalid_padding_fraction() {
+        for invalid_fraction in [
+            -f64::EPSILON,
+            1.0 + f64::EPSILON,
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+        ] {
+            let error = parse_daita_response_error(daita_response(invalid_fraction, 0.5));
+
+            match error {
+                Error::InvalidDaitaFraction { field, value } => {
+                    assert_eq!(field, "max_padding_frac");
+                    if invalid_fraction.is_nan() {
+                        assert!(value.is_nan());
+                    } else {
+                        assert_eq!(value, invalid_fraction);
+                    }
+                }
+                error => panic!("unexpected error: {error:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn parse_daita_response_rejects_invalid_blocking_fraction() {
+        for invalid_fraction in [
+            -f64::EPSILON,
+            1.0 + f64::EPSILON,
+            f64::NAN,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+        ] {
+            let error = parse_daita_response_error(daita_response(0.5, invalid_fraction));
+
+            match error {
+                Error::InvalidDaitaFraction { field, value } => {
+                    assert_eq!(field, "max_blocking_frac");
+                    if invalid_fraction.is_nan() {
+                        assert!(value.is_nan());
+                    } else {
+                        assert_eq!(value, invalid_fraction);
+                    }
+                }
+                error => panic!("unexpected error: {error:?}"),
+            }
+        }
+    }
 }
