@@ -36,11 +36,7 @@ android {
 
             // Add all properties starting with "mullvad.test.baseline" to the
             // testInstrumentationRunnerArguments
-            properties.forEach {
-                if (it.key.startsWith("mullvad.test.baseline")) {
-                    put(it.key, it.value.toString())
-                }
-            }
+            putAll(providers.gradlePropertiesPrefixedBy("mullvad.test.baseline").get())
         }
     }
 

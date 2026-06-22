@@ -183,7 +183,6 @@ class ReportProblemViewModel(
     }
 
     override fun onCleared() {
-        super.onCleared()
         // Delete any logs if user leaves the screen
         mullvadProblemReporter.deleteLogs()
     }
