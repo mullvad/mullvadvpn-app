@@ -46,7 +46,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        var settings = LatestTunnelSettings()
+        var settings = LatestTunnelSettings(tunnelMultihopState: .always)
         settings.relayConstraints = constraints
 
         let picker = MultihopPicker(
@@ -67,7 +67,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        var settings = LatestTunnelSettings()
+        var settings = LatestTunnelSettings(tunnelMultihopState: .always)
         settings.relayConstraints = constraints
 
         let picker = MultihopPicker(
@@ -118,7 +118,7 @@ class RelayPickingTests: XCTestCase {
             exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se10-wireguard")]))
         )
 
-        var settings = LatestTunnelSettings()
+        var settings = LatestTunnelSettings(tunnelMultihopState: .never)
         settings.relayConstraints = constraints
         settings.daita = DAITASettings(daitaState: .on)
 

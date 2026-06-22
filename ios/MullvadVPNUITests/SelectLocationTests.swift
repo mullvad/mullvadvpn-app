@@ -56,7 +56,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihop(state: .never)
+            .verifyMultihop(state: .whenNeeded)
             .tapDoneButton()
 
         TunnelControlPage(app)
@@ -64,7 +64,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapMenuButton()
-            .verifyMultihopState(.never)
+            .verifyMultihopState(.whenNeeded)
             .setMultihopState(.always)
             .tapDoneButton()
 
@@ -72,7 +72,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihop(state: .never)
+            .verifyMultihop(state: .always)
             .tapDoneButton()
     }
 

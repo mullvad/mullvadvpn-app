@@ -51,7 +51,7 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .on,
-        tunnelMultihopState: MultihopStateV2 = .never,
+        tunnelMultihopState: MultihopStateV2 = .whenNeeded,
         daita: DAITASettings = DAITASettings(),
         includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings(),
         ipVersion: IPVersion = .automatic
