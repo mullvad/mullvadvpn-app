@@ -33,7 +33,7 @@ jobs:
 
   ui-test-build:
     name: Build for ui tests (staging)
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
@@ -52,13 +52,13 @@ jobs:
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
           -allowProvisioningUpdates \
-          -destination "platform=iOS Simulator,name=iPhone 16" \
+          -destination "platform=iOS Simulator,name=iPhone 17" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
   test:
     name: Unit tests
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
@@ -74,7 +74,7 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             -allowProvisioningUpdates \
