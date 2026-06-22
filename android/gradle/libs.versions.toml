@@ -20,11 +20,11 @@ android-gradle-plugin = "9.2.1"
 android-billingclient = "9.1.0"
 androidx-activitycompose = "1.13.0"
 androidx-appcompat = "1.7.1"
+androidx-core = "1.19.0"
 androidx-coresplashscreen = "1.2.0"
 androidx-credentials = "1.6.0"
 androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
-androidx-ktx = "1.19.0"
 androidx-lifecycle = "2.11.0"
 androidx-nav3 = "1.1.3"
 androidx-adaptive = "1.2.0"
@@ -87,6 +87,7 @@ androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jv
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptive" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
@@ -95,7 +96,6 @@ androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.r
 android-gradle-junit5 = { module = "de.mannodermaus.gradle.plugins:android-junit5", version.ref = "junit5-android-plugin" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit4" }
-androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
