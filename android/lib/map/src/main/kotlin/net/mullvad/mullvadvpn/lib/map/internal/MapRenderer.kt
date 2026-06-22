@@ -132,7 +132,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     private fun clear() {
         // Redraw background color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
+        val bg = viewState.globeColors.backgroundColor
+        GLES20.glClearColor(bg.red, bg.green, bg.blue, bg.alpha)
         GLES20.glClearDepthf(1.0f)
         GLES20.glEnable(GLES20.GL_DEPTH_TEST)
         GLES20.glDepthFunc(GLES20.GL_LEQUAL)
