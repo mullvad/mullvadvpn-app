@@ -1,3 +1,4 @@
+use http::Uri;
 use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -88,11 +89,11 @@ pub struct DomainFrontingConfig {
 impl DomainFrontingConfig {
     /// Resolve a domain fronting configuration by performing DNS lookup on the front domain.
     pub async fn resolve(
-        front: String,
+        front: Uri,
         proxy_host: String,
-        session_header_key: String,
+        auth: String,
     ) -> Result<Self, domain_fronting::Error> {
-        let df = domain_fronting::DomainFronting::new(front, proxy_host, session_header_key);
+        let df = domain_fronting::DomainFronting::new(front, proxy_host, auth);
         let proxy_config = df.proxy_config().await?;
         Ok(Self {
             addr: proxy_config.addr,
