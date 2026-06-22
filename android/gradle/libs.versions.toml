@@ -73,7 +73,7 @@ protobuf-gradle-plugin = "0.10.0"
 turbine = "1.2.1"
 annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
-material = "1.13.0"
+material = "1.14.0"
 rust-android = "0.10.1"
 
 [libraries]
