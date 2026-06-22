@@ -65,8 +65,8 @@ impl AnnotatedRelayList {
 pub struct RelaySelector {
     // Relays are updated very infrequently, but might conceivably be accessed by multiple readers at
     // the same time.
-    pub relays: Arc<RwLock<AnnotatedRelayList>>,
-    pub bridges: Arc<RwLock<BridgeList>>,
+    relays: Arc<RwLock<AnnotatedRelayList>>,
+    bridges: Arc<RwLock<BridgeList>>,
 }
 
 /// The return type of [`RelaySelector::get_relay_by_query`].
