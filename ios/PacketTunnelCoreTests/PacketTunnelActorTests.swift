@@ -26,7 +26,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
     /**
      Test a happy path start sequence.
-    
+
      As actor should transition through the following states: .initial → .connecting → .connected
      */
     func testStartGoesToConnectedInSequence() async throws {
