@@ -1,5 +1,6 @@
 framework module MullvadRustRuntimeProxy {
    header "mullvad_rust_runtime.h"
+   header "mullvad_gotatunFFI.h"
    link "libmullvad_ios"
    export *
 }
