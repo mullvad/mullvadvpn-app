@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.toRadians
 class Parabola(
     val from: LatLong,
     val to: LatLong,
-    val color: Color = Color.White,
+    val color: Color,
     private val segments: Int = 48,
 ) {
     private val shaderProgram: Int
@@ -29,7 +29,7 @@ class Parabola(
         val start = from.toWorldVector3()
         val end = to.toWorldVector3()
         val d = start.distanceTo(end)
-        val maxHeight = 0.07f * d // Adjust factor to look beautiful
+        val maxHeight = (0.07f * d).coerceAtLeast(0.01f) // Adjust factor to look beautiful
 
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
 
@@ -38,7 +38,7 @@ class Parabola(
             val p = start + (end - start) * t
             val u = p.normalize()
             val h = maxHeight * 4.0f * t * (1.0f - t)
-            val point = u * (Sphere.RADIUS + h) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
+            val point = u * (Sphere.RADIUS + h + 0.00015f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
 
             val index = i * VERTEX_COMPONENT_SIZE
             vertices[index] = point.x
