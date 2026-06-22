@@ -64,6 +64,8 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                             AccessibilityIdentifier.accessMethodBridgesCell
                         case AccessMethodRepository.encryptedDNSId:
                             AccessibilityIdentifier.accessMethodEncryptedDNSCell
+                        case AccessMethodRepository.domainFrontingId:
+                            AccessibilityIdentifier.accessMethodDomainFrontingCell
                         default:
                             nil
                         }
