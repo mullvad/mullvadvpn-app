@@ -32,7 +32,7 @@ Open Android Studio -> Tools -> SDK Manager, and install `Android SDK Command-li
 
 Install the necessary Android SDK tools
 ```bash
-~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;27.3.13750724"
+~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-37" "build-tools;37.0.0" "platform-tools" "ndk;27.3.13750724"
 ```
 
 Install Android targets
