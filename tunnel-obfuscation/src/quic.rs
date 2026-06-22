@@ -11,7 +11,7 @@ use tokio_util::sync::CancellationToken;
 
 pub use mullvad_masque_proxy::{HTTP_MASQUE_DATAGRAM_CONTEXT_ID, client::RunningClient};
 
-use crate::{Obfuscator, socket::create_remote_socket};
+use crate::{LocalSocketObfuscator, socket::create_remote_socket};
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -220,7 +220,7 @@ impl QuicLocalSocket {
 }
 
 #[async_trait]
-impl Obfuscator for QuicLocalSocket {
+impl LocalSocketObfuscator for QuicLocalSocket {
     fn endpoint(&self) -> SocketAddr {
         self.local_endpoint
     }

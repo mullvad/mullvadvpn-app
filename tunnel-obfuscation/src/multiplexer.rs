@@ -315,7 +315,8 @@ impl Multiplexer {
                 addr
             }
             Transport::Obfuscated(obfuscator_settings) => {
-                let obfuscator = crate::create_obfuscator(&obfuscator_settings).await?;
+                let obfuscator =
+                    crate::create_local_socket_obfuscator(&obfuscator_settings).await?;
                 let endpoint = obfuscator.endpoint();
                 self.running_endpoints
                     .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
@@ -365,7 +366,7 @@ pub enum Transport {
 }
 
 #[async_trait]
-impl crate::Obfuscator for Multiplexer {
+impl crate::LocalSocketObfuscator for Multiplexer {
     fn endpoint(&self) -> SocketAddr {
         self.client_socket_addr
     }
@@ -391,7 +392,7 @@ impl crate::Obfuscator for Multiplexer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Obfuscator;
+    use crate::LocalSocketObfuscator;
 
     /// Test whether the multiplexer works with a direct transports
     #[tokio::test(start_paused = true)]
