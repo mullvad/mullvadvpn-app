@@ -104,7 +104,7 @@ Linux distro:
   mkdir -p cmdline-tools
   unzip commandlinetools-linux-13114758_latest.zip -d cmdline-tools-latest
   mv cmdline-tools-latest/cmdline-tools cmdline-tools/latest && rm -d cmdline-tools-latest
-  ./cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" "ndk;27.3.13750724"
+  ./cmdline-tools/latest/bin/sdkmanager "platforms;android-37" "build-tools;37.0.0" "platform-tools" "ndk;27.3.13750724"
   ```
 
 #### 4. Install and configure Rust toolchain
