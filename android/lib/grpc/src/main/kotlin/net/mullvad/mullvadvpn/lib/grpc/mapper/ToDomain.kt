@@ -687,6 +687,7 @@ internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAcc
         add(direct.toDomain())
         add(mullvadBridges.toDomain())
         add(encryptedDnsProxy.toDomain())
+        add(domainFronting.toDomain())
         addAll(customList.map { it.toDomain() })
     }
 
@@ -704,6 +705,7 @@ internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethod =
         hasBridges() -> ApiAccessMethod.Bridges
         hasEncryptedDnsProxy() -> ApiAccessMethod.EncryptedDns
         hasCustom() -> custom.toDomain()
+        hasDomainFronting() -> ApiAccessMethod.DomainFronting
         else -> error("Type not found")
     }
 

@@ -19,6 +19,9 @@ public enum AccessMethodKind: Equatable, Hashable, CaseIterable {
     /// Communication over proxy address from a DNS.
     case encryptedDNS
 
+    /// Communication via domain fronting.
+    case domainFronting
+
     /// Communication over shadowsocks.
     case shadowsocks
 
@@ -30,7 +33,7 @@ public extension AccessMethodKind {
     /// Returns `true` if the method is permanent and cannot be deleted.
     var isPermanent: Bool {
         switch self {
-        case .direct, .bridges, .encryptedDNS:
+        case .direct, .bridges, .encryptedDNS, .domainFronting:
             true
         case .shadowsocks, .socks5:
             false
@@ -45,7 +48,7 @@ public extension AccessMethodKind {
     /// Returns localized description describing the access method.
     var localizedDescription: String {
         switch self {
-        case .direct, .bridges, .encryptedDNS:
+        case .direct, .bridges, .encryptedDNS, .domainFronting:
             ""
         case .shadowsocks:
             NSLocalizedString("Shadowsocks", comment: "")
@@ -58,7 +61,7 @@ public extension AccessMethodKind {
     /// Methods that aren't configurable do not offer any additional configuration.
     var hasProxyConfiguration: Bool {
         switch self {
-        case .direct, .bridges, .encryptedDNS:
+        case .direct, .bridges, .encryptedDNS, .domainFronting:
             false
         case .shadowsocks, .socks5:
             true
@@ -76,6 +79,8 @@ extension PersistentAccessMethod {
             .bridges
         case .encryptedDNS:
             .encryptedDNS
+        case .domainFronting:
+            .domainFronting
         case .shadowsocks:
             .shadowsocks
         case .socks5:

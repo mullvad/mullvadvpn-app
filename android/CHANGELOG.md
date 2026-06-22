@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [Unreleased]
+### Added
+- Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
+  proxies. The access method is enabled by default.
+
+
 ## [android/2026.6] - 2026-06-09
 Identical to `android/2026.6-beta2`.
 

@@ -88,7 +88,7 @@ enum MethodSettingsItemIdentifier: Hashable {
         selectedMethod: AccessMethodKind
     ) -> [MethodSettingsItemIdentifier] {
         switch selectedMethod {
-        case .direct, .bridges, .encryptedDNS:
+        case .direct, .bridges, .encryptedDNS, .domainFronting:
             []
         case .shadowsocks:
             errors.compactMap { error in

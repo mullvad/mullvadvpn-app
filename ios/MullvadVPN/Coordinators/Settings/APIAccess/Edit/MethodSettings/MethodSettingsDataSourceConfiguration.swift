@@ -51,7 +51,7 @@ class MethodSettingsDataSourceConfiguration {
         }
 
         switch newValue.method {
-        case .direct, .bridges, .encryptedDNS:
+        case .direct, .bridges, .encryptedDNS, .domainFronting:
             break
 
         case .shadowsocks:
@@ -109,7 +109,7 @@ class MethodSettingsDataSourceConfiguration {
 
         let itemsToReload: [MethodSettingsItemIdentifier] =
             switch viewModel.method {
-            case .direct, .bridges, .encryptedDNS:
+            case .direct, .bridges, .encryptedDNS, .domainFronting:
                 []
             case .shadowsocks:
                 MethodSettingsItemIdentifier.allShadowsocksItems

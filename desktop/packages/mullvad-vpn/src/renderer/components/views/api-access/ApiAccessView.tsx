@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { strings } from '../../../../shared/constants';
 import { AccessMethodSetting } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
@@ -115,12 +116,10 @@ export function ApiAccessView() {
                     method={methods.encryptedDnsProxy}
                     inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
                   />
-                  {/*
                   <ApiAccessMethod
                     method={methods.domainFronting}
                     inUse={methods.domainFronting.id === currentMethod?.id}
                   />
-                  */}
                   {methods.custom.map((method) => (
                     <ApiAccessMethod
                       key={method.id}
@@ -281,6 +280,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             ]}
           />
         )}
+
         {props.method.type === 'encrypted-dns-proxy' && (
           <InfoButton
             message={[
@@ -295,7 +295,6 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             ]}
           />
         )}
-        {/*
         {props.method.type === 'domain-fronting' && (
           <InfoButton
             message={[
@@ -340,7 +339,6 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             ]}
           />
         )}
-        */}
         <ContextMenuContainer>
           <ContextMenuTrigger />
           <ContextMenu items={menuItems} align="right" />
