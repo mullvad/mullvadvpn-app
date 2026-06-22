@@ -44,7 +44,7 @@ compose-constraintlayout = "1.1.1"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
 dependency-versions = "0.54.0"
-detekt = "2.0.0-alpha.3"
+detekt = "2.0.0-alpha.5"
 accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.81.0"
