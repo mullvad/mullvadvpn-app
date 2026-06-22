@@ -396,20 +396,6 @@ impl IosTunnelAdapter {
             }
         };
 
-        // Entry uses the phase-1 ephemeral key; exit uses the device key.
-        let device_key = StaticSecret::from(config.private_key);
-        let exit_initial = Self::build_peer(&config.exit_peer);
-        let configured = tokio::try_join!(
-            Self::configure_device(&pq2_entry, first_key.clone(), first_peer.clone()),
-            Self::configure_device(&pq2_exit, device_key, exit_initial),
-        );
-        if let Err(e) = configured {
-            pq2_entry.stop().await;
-            pq2_exit.stop().await;
-            Self::fire_error(stopped, callback, format!("Configure PQ phase 2: {e}"));
-            return None;
-        }
-
         // Now 10.64.0.1:1337 reaches the EXIT relay's config service.
         let exit_ephemeral_private = PrivateKey::new_from_random();
         let exit_ephemeral_pubkey = exit_ephemeral_private.public_key();
@@ -593,13 +579,8 @@ impl IosTunnelAdapter {
             .await
             .map_err(|e| TunnelError::error(format!("PQ device: {e}")))?;
 
-        let private_key = StaticSecret::from(config.private_key);
-        let initial_peer = Self::build_peer(peer_config).with_endpoint(peer_endpoint);
-
-        if let Err(e) = Self::configure_device(&pq_device, private_key, initial_peer).await {
-            pq_device.stop().await;
-            return Err(PqExchangeError::Failed(format!("PQ device configure: {e}")));
-        }
+        // PQ negotiation only talks to the relay's config service, so restrict the
+        // peer's allowed IPs accordingly rather than routing the whole internet.
 
         let ephemeral_private = PrivateKey::new_from_random();
         let ephemeral_pubkey = ephemeral_private.public_key();
@@ -828,6 +809,17 @@ impl IosTunnelAdapter {
         Peer::new(peer.public_key.into())
             .with_allowed_ips(peer.allowed_ips.clone())
             .with_endpoint(peer.endpoint)
+    }
+
+    /// Allowed IPs that restrict a PQ-negotiation device to just the relay's
+    /// in-tunnel config service ([`CONFIG_SERVICE_ADDR`]) - negotiation must not be
+    /// able to reach the wider internet.
+    fn config_service_allowed_ips() -> Vec<IpNetwork> {
+        let ip = CONFIG_SERVICE_ADDR
+            .parse::<SocketAddr>()
+            .expect("CONFIG_SERVICE_ADDR is a valid socket address")
+            .ip();
+        vec![IpNetwork::from(ip)]
     }
 
     /// Per-packet overhead the entry hop adds to the exit device's MTU budget.

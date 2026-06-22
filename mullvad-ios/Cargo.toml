@@ -52,14 +52,24 @@ tower = { workspace = true }
 tracing = "0.1"
 tracing-subscriber = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+uniffi = { workspace = true }
 zerocopy = "0.8"
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
 
+# Host-side binary that generates the uniffi Swift bindings for the gotatun FFI.
+# Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
+# the normal iOS `--lib` build never compiles it.
+[[bin]]
+name = "uniffi-bindgen"
+path = "src/bin/uniffi-bindgen.rs"
+
 [features]
 # Allow the API server to be used
 api-override = ["mullvad-api/api-override"]
+# Enable the uniffi-bindgen CLI (only needed by the `uniffi-bindgen` binary).
+uniffi-cli = ["uniffi/cli"]
 
 [lints]
 workspace = true
