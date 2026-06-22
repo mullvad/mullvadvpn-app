@@ -82,8 +82,21 @@ struct MullvadStateViewPreviewWrapper: View {
 
         let view4 = MullvadStateView(viewModel: loadingViewModel)
 
+        let view5 = MullvadStateView(
+            viewModel: StateViewModel(
+                style: .custom(.init(image: Image.mullvadIconMultihopWhenNeeded)),
+                title: MullvadStateView.TextItem(text: "Custom state", style: .secondary(alignment: .center)),
+                details: [
+                    MullvadStateView.TextItem(text: Self.p1, style: .secondary(alignment: .center))
+                ],
+                actions: [
+                    MullvadStateView.ActionItem(style: .default, state: .init(kind: .idle, message: "Action"))
+                ]
+            )
+        )
+
         return MullvadPaginationView(
-            pages: [view1, view2, view3, view4],
+            pages: [view1, view2, view3, view4, view5],
             currentPage: $currentPage
         )
         .background(Color.mullvadBackground)
