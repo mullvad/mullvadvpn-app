@@ -33,7 +33,7 @@ use talpid_types::net::{obfuscation::Obfuscators, proxy::Shadowsocks};
 /// A [`RelayList`] together with pre-computed [`endpoint_set::RelayEndpointSet`]s for every
 /// relay. Both are stored under the same [`RwLock`] in [`RelaySelector`] so that the cache
 /// is always consistent with the list.
-pub struct AnnotatedRelayList {
+struct AnnotatedRelayList {
     inner: RelayList,
     /// Maps relay hostname → pre-computed endpoint set.
     /// Relays whose WireGuard port ranges are empty are absent from this map.
