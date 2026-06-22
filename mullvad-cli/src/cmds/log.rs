@@ -11,6 +11,7 @@ pub enum Log {
     ///
     /// Set custom log levels per crate or module. See `env_logger` for more information:
     /// <https://docs.rs/env_logger/latest/env_logger/>
+    #[expect(clippy::enum_variant_names)]
     SetRustLog { filter: String },
     /// Follow live updates to the daemon log file. Analogue to running `tail -f` on the daemon log file.
     Listen,
