@@ -526,6 +526,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
+                backgroundColor = MaterialTheme.colorScheme.tertiary
             ),
     )
 }
