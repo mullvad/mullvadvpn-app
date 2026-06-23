@@ -13,6 +13,7 @@ use super::multihop::scenario::Scenario;
 
 use mullvad_types::settings::SettingsVersion;
 use serde_json::{Value, json};
+use std::path::Path;
 
 const SETTING: SettingsVersion = SettingsVersion::V18;
 const PREVIOUS_SETTING: SettingsVersion = SettingsVersion::V17;
@@ -20,17 +21,28 @@ const PREVIOUS_SETTING: SettingsVersion = SettingsVersion::V17;
 /// NOTE: This migration has been closed.
 ///
 /// If `Ok(none)` is returned, the migration has already run.
-pub fn migrate(settings: &mut Value) -> Result<Option<Scenario>> {
+pub fn migrate(
+    settings: &mut Value,
+    cache_dir: &Path,
+    resource_dir: &Path,
+) -> Result<Option<Scenario>> {
     if !version_matches(settings) {
         return Ok(None);
     }
     log::info!("Running Multihop/filter migration settings format to ");
     // Perform the migration
-    let scenario = migration(settings)?;
+    let scenario = migration::run(settings, cache_dir, resource_dir)?;
     // Done. propagate the scenario.
     log::info!("Successfully ran Multihop/filter migration. Enjoy!");
     settings["settings_version"] = json!(SETTING);
     Ok(Some(scenario))
+}
+
+/// Run the migration without access to the relay list (e.g. in tests).
+/// The relay selector will be initialized with an empty relay list, causing
+/// `check_magic_mulithop` to conservatively skip magic multihop detection.
+pub fn migrate_without_relay_selector(settings: &mut Value) -> Result<Option<Scenario>> {
+    migrate(settings, Path::new(""), Path::new(""))
 }
 
 pub(crate) fn version_matches(settings: &Value) -> bool {

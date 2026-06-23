@@ -6,6 +6,7 @@ use crate::migrations::multihop::settings::{v17, v18};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
+use std::path::Path;
 
 /// Perform the migration on a settings blob.
 pub(crate) fn run(
