@@ -22,22 +22,28 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
-### Add
+### Added
 - Add support for connecting over IPv6.
 - Add automatic entry location selection.
+- Add "When needed" multihop mode.
+
+### Fixed
+- Fix URLs to FAQ pages and blog posts when using some locales
 
 ### Removed
 - Remove “Direct only” from Daita
 
+### Changed
+- "When needed" is now the default multihop setting
+- Improve search behaviour in select location view
+
+## [2026.3]
 ### Fixed
 - Stop logging access method credentials in logs.
 - UI crash when interacting with the tunnel.
 
-### Changed
-- "When needed" is now the default multihop setting
-
 ## [2026.2 - 2026-04-21]
-### Add
+### Added
 - Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
 - Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
   This helps circumvent censorship.
