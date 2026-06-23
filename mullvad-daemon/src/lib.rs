@@ -724,15 +724,19 @@ impl Daemon {
             .inspect_err(|err| log::error!("{err}"))
             .ok();
 
-        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
-            .await
-            .inspect_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to migrate settings or cache")
-                );
-            })
-            .unwrap_or_default();
+        let migration_data = migrations::migrate_all(
+            &config.cache_dir,
+            &config.resource_dir,
+            &config.settings_dir,
+        )
+        .await
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate settings or cache")
+            );
+        })
+        .unwrap_or_default();
 
         // If split filter / multihop migration ran, cache the result to disk. The result will need
         // to be persisted until a client has acknowledged the migration, which could happen after a
