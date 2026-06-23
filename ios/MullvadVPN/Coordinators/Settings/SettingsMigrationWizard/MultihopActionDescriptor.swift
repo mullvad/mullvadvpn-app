@@ -105,7 +105,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    func makeState(for kind: ActionState.Kind) -> ActionState {
+    func makeState(for kind: MullvadStateView.ActionState.Kind) -> MullvadStateView.ActionState {
         switch kind {
         case .idle:
             idle
@@ -118,10 +118,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var idle: ActionState {
+    private var idle: MullvadStateView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .idle,
                 message: String(
                     format: NSLocalizedString(
@@ -137,7 +137,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .idle,
                 message: String(
                     format: NSLocalizedString(
@@ -154,10 +154,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var loading: ActionState {
+    private var loading: MullvadStateView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .loading,
                 message: NSLocalizedString(
                     "Changing mode...",
@@ -165,7 +165,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .loading,
                 message: NSLocalizedString(
                     "Setting entry...",
@@ -174,10 +174,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var success: ActionState {
+    private var success: MullvadStateView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .success,
                 message: NSLocalizedString(
                     "Multihop mode changed",
@@ -185,7 +185,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .success,
                 message: String(
                     format: NSLocalizedString(
@@ -194,10 +194,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var failure: ActionState {
+    private var failure: MullvadStateView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .success,
                 message: NSLocalizedString(
                     "Failed to change mode",
@@ -205,7 +205,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            ActionState(
+            MullvadStateView.ActionState(
                 kind: .success,
                 message: String(
                     format: NSLocalizedString(

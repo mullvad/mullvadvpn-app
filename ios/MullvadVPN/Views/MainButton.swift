@@ -21,7 +21,7 @@ struct MainButton: View {
     var imagePosition: MainButtonImagePosition = .leading
     var action: () -> Void
 
-    @State private var imageHeight: CGFloat = 24.0
+    private let imageHeight: CGFloat = 24.0
 
     var body: some View {
         Button(
@@ -40,31 +40,18 @@ struct MainButton: View {
                     // Image on Leading or Trailing
                     HStack {
                         if imagePosition == .leading, let image = image {
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: imageHeight)
-                                .padding(.leading, 8.0)
+                            ResizableImageView(image: image, dimension: .height(imageHeight))
                             Spacer()
                         }
                         Spacer()
                         if imagePosition == .trailing, let image = image {
                             Spacer()  // Push the text to center
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: imageHeight)
-                                .padding(.trailing, 8.0)
+                            ResizableImageView(image: image, dimension: .height(imageHeight))
                         }
                     }
                 }
             }
         )
-        .sizeOfView { size in
-            let actualHeight = size.height - 16.0
-            let baseHeight = max(actualHeight, 24.0)
-            imageHeight = baseHeight * 0.8
-        }
         .buttonStyle(MainButtonStyle(style))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
     }
