@@ -60,17 +60,17 @@ impl Deref for RelaySelectorIO {
 }
 
 impl RelaySelectorIO {
-    #[cfg(not(test))]
-    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
+    pub fn load(
+        custom_lists: CustomListsSettings,
+        cache_dir: &std::path::Path,
+        resource_dir: &std::path::Path,
+    ) -> io::Result<Self> {
         use crate::relay_list::parsed_relays::parse_relays_from_file;
 
-        let cache_dir = mullvad_paths::get_cache_dir()
-            .map_err(|_err| io::Error::other("Missing cache directory"))?;
-        let config_dir = mullvad_paths::get_resource_dir();
         // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
         // connections *and* for the split-filter / multihop migration of 2026. More info on that
         // may be found in [`migrations::multihop`].
-        let initial_relay_list = parse_relays_from_file(&cache_dir, &config_dir)
+        let initial_relay_list = parse_relays_from_file(cache_dir, resource_dir)
             .inspect_err(|err| log::error!("{err}"))
             .ok();
         let inner = {
@@ -78,21 +78,6 @@ impl RelaySelectorIO {
                 .clone()
                 .map(mullvad_api::CachedRelayList::into_internal_repr)
                 .unwrap_or_default();
-            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
-        };
-        Ok(RelaySelectorIO {
-            inner,
-            config: Config {
-                query: Default::default(),
-                custom_lists: Arc::new(Mutex::new(custom_lists)),
-            },
-        })
-    }
-    #[cfg(test)]
-    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
-        let inner = {
-            let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
-                Default::default();
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
         Ok(RelaySelectorIO {
