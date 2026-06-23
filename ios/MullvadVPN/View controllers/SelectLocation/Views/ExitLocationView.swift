@@ -40,18 +40,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         .onDisappear {
                             onScrollVisibilityChange(false)
                         }
-                    if !context.filter.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: context.filter,
-                            labelStyle: .general,
-                            automaticLocationIsActive: context.isAutomaticLocation
-                        ) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
-                        .padding(.bottom, 16)
-                    }
                     Group {
                         if viewModel.isRecentsEnabled {
                             recentsSection(isShowingHeader: isShowingRecentsSection)

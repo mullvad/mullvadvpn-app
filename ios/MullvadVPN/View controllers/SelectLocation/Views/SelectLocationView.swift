@@ -67,6 +67,17 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 )
                 .padding(.horizontal, 16)
+                if !viewModel.exitFilter.isEmpty {
+                    ActiveFilterView(
+                        activeFilter: viewModel.exitContext.filter,
+                        labelStyle: .general,
+                        automaticLocationIsActive: viewModel.exitContext.isAutomaticLocation
+                    ) { filter in
+                        viewModel.onFilterTapped(filter)
+                    } onRemove: { filter in
+                        viewModel.onFilterRemoved(filter)
+                    }
+                }
             }
             .padding(.vertical)
             .background(Color.mullvadDarkBackground)
