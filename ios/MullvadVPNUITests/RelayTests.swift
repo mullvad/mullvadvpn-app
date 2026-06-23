@@ -266,7 +266,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
 
         try assertCapturedProtocol(
-            .UDP,
+            .TCP,
             destinationAddress: destinationAddress,
             destinationPort: expectedPort,
             in: capturedData)
