@@ -133,6 +133,7 @@ impl MigrationComplete {
 /// Directories that may be passed to the migration logic.
 pub struct Directories<'path> {
     cache_dir: &'path Path,
+    resource_dir: &'path Path,
     settings_dir: &'path Path,
 }
 
@@ -143,7 +144,11 @@ pub struct MigrationData {
     pub(crate) multihop_split_filter_migration: Option<Scenario>,
 }
 
-pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<MigrationData> {
+pub async fn migrate_all(
+    cache_dir: &Path,
+    resource_dir: &Path,
+    settings_dir: &Path,
+) -> Result<MigrationData> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -163,6 +168,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Migrat
     let old_settings = settings.clone();
     let directories = Directories {
         cache_dir,
+        resource_dir,
         settings_dir,
     };
 
@@ -205,13 +211,9 @@ async fn migrate_settings(
     v3::migrate(settings)?;
     v4::migrate(settings)?;
 
-    if let Some(Directories {
-        cache_dir,
-        settings_dir,
-    }) = directories
-    {
-        account_history::migrate_location(cache_dir, settings_dir).await;
-        account_history::migrate_formats(settings_dir, settings).await?;
+    if let Some(dirs) = directories.as_ref() {
+        account_history::migrate_location(dirs.cache_dir, dirs.settings_dir).await;
+        account_history::migrate_formats(dirs.settings_dir, settings).await?;
     }
 
     let v5 = v5::migrate(settings)?;
@@ -222,8 +224,8 @@ async fn migrate_settings(
     v9::migrate(
         settings,
         #[cfg(target_os = "android")]
-        directories.map(|directories| v9::Directories {
-            settings: directories.settings_dir,
+        directories.as_ref().map(|dirs| v9::Directories {
+            settings: dirs.settings_dir,
         }),
     )?;
 
@@ -235,7 +237,14 @@ async fn migrate_settings(
     v15::migrate(settings)?;
     v16::migrate(settings)?;
 
-    let multihop_split_filter_migration = multihop::migrate(settings)?;
+    let multihop_split_filter_migration = if let Some(dirs) = directories.as_ref() {
+        multihop::migrate(settings, dirs.cache_dir, dirs.resource_dir)?
+    } else {
+        // Run the migration without access to the relay list (e.g. in tests).
+        // The relay selector will be initialized with an empty relay list, causing
+        // the migration to skip magic multihop detection.
+        multihop::migrate_without_relay_selector(settings)?
+    };
 
     Ok(MigrationData {
         v5,
