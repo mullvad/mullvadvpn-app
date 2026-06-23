@@ -40,7 +40,7 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
     ) {
         self.tunnelManager = tunnelManager
         self.settings = tunnelManager.settings
-        self.actionItem = MullvadStateView.ActionItem(style: .default, state: ActionState(kind: .idle, message: ""))
+        self.actionItem = MullvadStateView.ActionItem(style: .default, state: .init(kind: .idle, message: ""))
 
         let changeItems = output.changes.map { change in
             let descriptor = SettingsUpdateDescriptor(
