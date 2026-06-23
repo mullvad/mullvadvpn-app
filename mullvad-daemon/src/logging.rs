@@ -28,6 +28,15 @@ pub enum Error {
     RotateLog(#[from] talpid_core::logging::RotateLogError),
 }
 
+#[derive(thiserror::Error, Debug)]
+pub enum SetLogFilterError {
+    #[error("Invalid log filter: {0}")]
+    InvalidFilter(#[from] tracing_subscriber::filter::ParseError),
+
+    #[error("Failed to reconfigure log filter")]
+    Reload(#[from] tracing_subscriber::reload::Error),
+}
+
 /// A [`MakeWriter`] that wraps an [`OptionalWriter`].
 #[derive(Clone)]
 pub struct LogFileWriter(Option<non_blocking::NonBlocking>);
@@ -125,12 +134,11 @@ impl LogHandle {
     ///
     /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
     ///   <https://docs.rs/env_logger/latest/env_logger/>
-    pub fn set_log_filter(
-        &self,
-        level_filter: impl AsRef<str>,
-    ) -> Result<(), tracing_subscriber::reload::Error> {
-        let new = silence_crates(EnvFilter::new(level_filter));
-        self.env_filter.modify(|env_filter| *env_filter = new)
+    pub fn set_log_filter(&self, level_filter: impl AsRef<str>) -> Result<(), SetLogFilterError> {
+        let new = silence_crates(EnvFilter::try_new(level_filter.as_ref())?);
+        self.env_filter
+            .modify(|env_filter| *env_filter = new)
+            .map_err(SetLogFilterError::from)
     }
 
     /// Subscribe to new log events.
