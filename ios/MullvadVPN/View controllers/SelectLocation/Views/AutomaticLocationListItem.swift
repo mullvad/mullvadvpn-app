@@ -17,6 +17,8 @@ struct AutomaticLocationListItem: View {
     let onSelect: (LocationNode) -> Void
 
     var body: some View {
+        Color.clear.frame(height: 4)
+
         SegmentedListItem(
             accessibilityIdentifier: isRecent ? .recentListItem(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
