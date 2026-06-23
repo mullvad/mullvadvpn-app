@@ -13,7 +13,7 @@ use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::relay_selector::ResolvedLocationConstraint;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::HashSet;
+use std::path::Path;
 
 impl From<__CustomListsSettings> for mullvad_types::custom_list::CustomListsSettings {
     fn from(value: __CustomListsSettings) -> Self {
@@ -103,9 +103,14 @@ impl From<__Settings> for RelayQuery {
 
 impl __Settings {
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
-    pub fn check_magic_mulithop(mut self) -> anyhow::Result<Self> {
-        let relay_selector = RelaySelectorIO::load(self.custom_lists.clone().into())
-            .context("Failed to initialize relay selector. Skipping migration.")?;
+    pub fn check_magic_mulithop(
+        mut self,
+        cache_dir: &Path,
+        resource_dir: &Path,
+    ) -> anyhow::Result<Self> {
+        let relay_selector =
+            RelaySelectorIO::load(self.custom_lists.clone().into(), cache_dir, resource_dir)
+                .context("Failed to initialize relay selector. Skipping migration.")?;
         // Query the relay selector for entry relay
         // If an entry relay needs to be selected even though multihop is not explicitly enabled, the
         // entry might be needed to unblock the user post-migration.
