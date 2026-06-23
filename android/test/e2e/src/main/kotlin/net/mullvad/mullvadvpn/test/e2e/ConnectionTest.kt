@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
@@ -154,7 +155,7 @@ class ConnectionTest : EndToEndTest() {
     fun testWireGuardObfuscationOff() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(localNetworkSharing = true)
+            app.applySettings(localNetworkSharing = true, multihop = MultihopMode.NEVER)
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -197,13 +198,19 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getNonDaitaRelay()) }
+            on<SelectLocationPage> {
+                val relay = relayProvider.getNonDaitaRelay()
+                selectRelayUsingSearch(relay)
+            }
 
             device.acceptVpnPermissionDialog()
 
             on<ConnectPage> {
                 waitForConnectedLabel()
-                app.applySettings(daita = DaitaOption.DirectOnly(true))
+                app.applySettings(
+                    daita = DaitaOption.DirectOnly(true),
+                    multihop = MultihopMode.NEVER,
+                )
                 waitForBlockedLabel()
                 clickSelectLocation()
             }
@@ -331,7 +338,11 @@ class ConnectionTest : EndToEndTest() {
     fun testShadowsocks() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(localNetworkSharing = true, obfuscationMode = ObfuscationMode.Off)
+            app.applySettings(
+                localNetworkSharing = true,
+                obfuscationMode = ObfuscationMode.Off,
+                multihop = MultihopMode.NEVER,
+            )
 
             // Block all WireGuard traffic
             createFirewallRules { DropRule.blockWireGuardTrafficRule(ANY_IPV4_ADDRESS) }

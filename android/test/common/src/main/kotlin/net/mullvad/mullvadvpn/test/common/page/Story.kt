@@ -57,7 +57,7 @@ fun ConnectPage.enableDAITAStory() {
 fun ConnectPage.enableMultihopStory() {
     clickSettings()
     on<SettingsPage> { clickMultihop() }
-    on<MultihopSettingsPage> { clickEnableSwitch() }
+    on<MultihopSettingsPage> { clickEnableMultihopAlways() }
     uiDevice.pressBackTwice()
 }
 

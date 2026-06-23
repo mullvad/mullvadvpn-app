@@ -44,6 +44,7 @@ class RecentsMockApiTest : MockApiTest() {
     @Test
     fun testRecentsEnableDisable() = runTest {
         app.launchAndLogIn(validAccountNumber)
+        app.applySettings(multihop = MultihopMode.NEVER)
 
         on<ConnectPage> { clickSelectLocation() }
 
