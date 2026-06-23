@@ -20,9 +20,9 @@ use std::{collections::HashSet, net::IpAddr};
 /// An opaque connection-tracking event produced from a secondary *outbound*
 /// packet by [`outbound_event`] and applied to the reader-owned
 /// [`ConnectionTracker`] via [`ConnectionTracker::apply`].
-pub(crate) struct ConnectionTrackerEvent(Event);
+pub(crate) struct ConnectionTrackerEvent(ConnectionUpdate);
 
-enum Event {
+enum ConnectionUpdate {
     TrackTcp(FourTuple),
     UntrackTcp(FourTuple),
     TrackIcmp { dest: IpAddr, ident: u16 },
@@ -42,7 +42,7 @@ pub(crate) fn outbound_event(packet: &[u8]) -> Option<ConnectionTrackerEvent> {
     event.map(ConnectionTrackerEvent)
 }
 
-fn outbound_event_v4(ip: &Ipv4Packet<&[u8]>) -> Option<Event> {
+fn outbound_event_v4(ip: &Ipv4Packet<&[u8]>) -> Option<ConnectionUpdate> {
     let src_ip = IpAddr::from(ip.src_addr());
     let dst_ip = IpAddr::from(ip.dst_addr());
     let payload = ip.payload();
@@ -51,7 +51,7 @@ fn outbound_event_v4(ip: &Ipv4Packet<&[u8]>) -> Option<Event> {
         IpProtocol::Tcp => tcp_event(payload, src_ip, dst_ip),
         IpProtocol::Icmp => {
             let icmp = Icmpv4Packet::new_checked(payload).ok()?;
-            (icmp.msg_type() == Icmpv4Message::EchoRequest).then(|| Event::TrackIcmp {
+            (icmp.msg_type() == Icmpv4Message::EchoRequest).then(|| ConnectionUpdate::TrackIcmp {
                 dest: dst_ip,
                 ident: icmp.echo_ident(),
             })
@@ -60,7 +60,7 @@ fn outbound_event_v4(ip: &Ipv4Packet<&[u8]>) -> Option<Event> {
     }
 }
 
-fn outbound_event_v6(ip: &Ipv6Packet<&[u8]>) -> Option<Event> {
+fn outbound_event_v6(ip: &Ipv6Packet<&[u8]>) -> Option<ConnectionUpdate> {
     let src_ip = IpAddr::from(ip.src_addr());
     let dst_ip = IpAddr::from(ip.dst_addr());
     let payload = ip.payload();
@@ -69,7 +69,7 @@ fn outbound_event_v6(ip: &Ipv6Packet<&[u8]>) -> Option<Event> {
         IpProtocol::Tcp => tcp_event(payload, src_ip, dst_ip),
         IpProtocol::Icmpv6 => {
             let icmp = Icmpv6Packet::new_checked(payload).ok()?;
-            (icmp.msg_type() == Icmpv6Message::EchoRequest).then(|| Event::TrackIcmp {
+            (icmp.msg_type() == Icmpv6Message::EchoRequest).then(|| ConnectionUpdate::TrackIcmp {
                 dest: dst_ip,
                 ident: icmp.echo_ident(),
             })
@@ -80,7 +80,7 @@ fn outbound_event_v6(ip: &Ipv6Packet<&[u8]>) -> Option<Event> {
 
 /// A secondary outbound TCP packet tracks its 4-tuple on SYN and untracks it on
 /// FIN/RST; anything else (a mid-stream segment) implies no change.
-fn tcp_event(payload: &[u8], src_ip: IpAddr, dst_ip: IpAddr) -> Option<Event> {
+fn tcp_event(payload: &[u8], src_ip: IpAddr, dst_ip: IpAddr) -> Option<ConnectionUpdate> {
     let tcp = TcpPacket::new_checked(payload).ok()?;
     let tuple = FourTuple {
         src_ip,
@@ -90,9 +90,9 @@ fn tcp_event(payload: &[u8], src_ip: IpAddr, dst_ip: IpAddr) -> Option<Event> {
     };
 
     if tcp.syn() && !tcp.fin() && !tcp.rst() {
-        Some(Event::TrackTcp(tuple))
+        Some(ConnectionUpdate::TrackTcp(tuple))
     } else if tcp.fin() || tcp.rst() {
-        Some(Event::UntrackTcp(tuple))
+        Some(ConnectionUpdate::UntrackTcp(tuple))
     } else {
         None
     }
@@ -112,13 +112,13 @@ impl ConnectionTracker {
     /// Apply a tracking event produced by [`outbound_event`].
     pub(crate) fn apply(&mut self, event: ConnectionTrackerEvent) {
         match event.0 {
-            Event::TrackTcp(tuple) => {
+            ConnectionUpdate::TrackTcp(tuple) => {
                 self.tcp.insert(tuple);
             }
-            Event::UntrackTcp(tuple) => {
+            ConnectionUpdate::UntrackTcp(tuple) => {
                 self.tcp.remove(&tuple);
             }
-            Event::TrackIcmp { dest, ident } => {
+            ConnectionUpdate::TrackIcmp { dest, ident } => {
                 self.icmp.insert((dest, ident));
             }
         }
