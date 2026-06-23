@@ -141,7 +141,7 @@ impl From<RelayPartitions> for proto::RelayPartitions {
             .map(|(relay, _)| relay)
             .chain(matches)
             .map(|relay| relay.inner)
-            .map(proto::Relay::from)
+            .map(proto::MatchingRelay::from)
             .collect();
 
         let discards = true_discards
@@ -152,6 +152,14 @@ impl From<RelayPartitions> for proto::RelayPartitions {
             })
             .collect();
         Self { matches, discards }
+    }
+}
+
+impl From<Relay> for proto::MatchingRelay {
+    fn from(relay: Relay) -> Self {
+        let relay = Some(proto::Relay::from(relay));
+        let metadata = todo!();
+        Self { relay, metadata }
     }
 }
 
