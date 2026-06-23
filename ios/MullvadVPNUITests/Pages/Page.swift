@@ -24,7 +24,7 @@ class Page {
         if let pageElement {
             XCTAssertTrue(
                 pageElement.existsAfterWait(timeout: .extremelyLong),
-                "Page is shown"
+                "Page is not shown"
             )
         }
     }

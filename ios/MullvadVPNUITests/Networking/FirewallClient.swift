@@ -14,8 +14,12 @@ import XCTest
 class FirewallClient: TestRouterAPIClient {
     let testDeviceIdentifier = Bundle(for: FirewallClient.self).infoDictionary?["TestDeviceIdentifier"] as! String
 
-    lazy var sessionIdentifier = "urn:uuid:" + testDeviceIdentifier
-
+    lazy var sessionIdentifier = {
+        guard let uuid = UUID(uuidString: self.testDeviceIdentifier)?.uuidString else {
+            fatalError("Check your test device identifier in the Info.plist")
+        }
+        return "urn:uuid:" + uuid
+    }()
     /// Create a new rule associated to the device under test
     public func createRule(_ firewallRule: FirewallRule) {
         let createRuleURL = TestRouterAPIClient.baseURL.appendingPathComponent("rule")
