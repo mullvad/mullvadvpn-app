@@ -30,8 +30,8 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.compose.icons.extended)
-    implementation(libs.androidx.ktx)
     implementation(libs.androidx.animation)
+    implementation(libs.androidx.core)
 
     implementation(libs.accompanist.drawablepainter)
 }

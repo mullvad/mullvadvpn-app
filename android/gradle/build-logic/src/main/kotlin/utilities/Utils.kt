@@ -29,12 +29,12 @@ fun Project.getIntPropertyOrNull(name: String): Int? = findProperty(name)?.toStr
 fun Project.getBooleanPropertyOrNull(name: String): Boolean? =
     findProperty(name)?.toString()?.toBooleanStrict()
 
-fun Project.getStringProperty(name: String): String = properties[name].toString()
+fun Project.getStringProperty(name: String): String = providers.gradleProperty(name).get()
 
-fun Project.getIntProperty(name: String): Int = properties[name].toString().toInt()
+fun Project.getIntProperty(name: String): Int = providers.gradleProperty(name).get().toInt()
 
 fun Project.getBooleanProperty(name: String): Boolean =
-    properties[name].toString().toBooleanStrict()
+    providers.gradleProperty(name).get().toBooleanStrict()
 
 fun checkCleanWorkingDirectory(execOperations: ExecOperations) {
     val output = java.io.ByteArrayOutputStream()
@@ -128,4 +128,4 @@ fun Project.registerReleaseTask(
 const val STRING_LIST_SEPARATOR = ','
 
 fun Project.getStringListProperty(name: String): List<String> =
-    properties[name].toString().split(STRING_LIST_SEPARATOR)
+    providers.gradleProperty(name).get().split(STRING_LIST_SEPARATOR)

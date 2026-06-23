@@ -487,7 +487,7 @@ dependencies {
         // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
         exclude("androidx.biometric", "biometric")
     }
-    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.compose)

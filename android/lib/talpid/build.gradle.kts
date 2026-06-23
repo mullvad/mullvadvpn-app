@@ -9,7 +9,7 @@ dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.common)
 
-    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.arrow)
     implementation(libs.kermit)

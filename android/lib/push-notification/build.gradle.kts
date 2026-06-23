@@ -12,7 +12,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.ui.resource)
 
-    implementation(libs.androidx.ktx)
+    implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle.service)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.arrow)
