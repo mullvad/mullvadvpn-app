@@ -47,7 +47,7 @@ struct TermsOfServiceView: View {
                 Text(
                     LocalizedStringKey(
                         stringLiteral:
-                            "[\(privacyPolicyText)](\(ApplicationConfiguration.privacyPolicyLink(for :ApplicationLanguage.currentLanguage.id)))"
+                            "[\(privacyPolicyText)](\(ApplicationConfiguration.privacyPolicyLink()))"
                     )
                 )
                 .font(.mullvadSmall)
