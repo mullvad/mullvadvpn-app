@@ -6,9 +6,14 @@ use crate::migrations::multihop::settings::{v17, v18};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
+use std::path::Path;
 
 /// Perform the migration on a settings blob.
-pub(crate) fn migration(settings: &mut Value) -> Result<Scenario, Error> {
+pub(crate) fn migration(
+    settings: &mut Value,
+    cache_dir: &Path,
+    resource_dir: &Path,
+) -> Result<Scenario, Error> {
     // Parse the current settings blob to a structured format.
     let input = v17::Settings::deserialize(settings.clone())
         .map_err(Error::Deserialize)?
