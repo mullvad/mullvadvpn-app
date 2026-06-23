@@ -728,7 +728,11 @@ impl Daemon {
             .inspect_err(|err| log::error!("{err}"))
             .ok();
 
-        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
+        let migration_data = migrations::migrate_all(
+            &config.cache_dir,
+            &config.resource_dir,
+            &config.settings_dir,
+        )
             .await
             .inspect_err(|error| {
                 log::error!(
