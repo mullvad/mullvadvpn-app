@@ -525,7 +525,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihop(state: .never)
+            .verifyMultihop(state: .whenNeeded)
             .tapMultihopCell()
 
         MultihopPage(app)
@@ -560,7 +560,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihop(state: .never)
+            .verifyMultihop(state: .whenNeeded)
             .tapMultihopCell()
 
         MultihopPage(app)
