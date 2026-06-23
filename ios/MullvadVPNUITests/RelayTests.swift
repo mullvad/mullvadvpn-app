@@ -266,7 +266,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         }
 
         try assertCapturedProtocol(
-            .UDP,
+            .TCP,
             destinationAddress: destinationAddress,
             destinationPort: expectedPort,
             in: capturedData)
@@ -495,6 +495,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
             .verifyConnectingUsingDAITAThroughMultihop()
             .tapSelectLocationButton()
 
@@ -503,6 +504,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
     }
