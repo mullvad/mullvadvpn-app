@@ -1,7 +1,7 @@
 pub mod grpc_service;
 
-use std::io;
 use std::ops::Deref;
+use std::path::Path;
 use std::sync::{Arc, LazyLock, Mutex};
 
 use mullvad_relay_selector::query::RelayQuery;
@@ -10,6 +10,8 @@ use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use mullvad_types::settings::Settings;
 use talpid_types::net::{IpAvailability, IpVersion};
+
+use crate::relay_list;
 
 /// [`RETRY_ORDER`] defines an ordered set of entry-relay parameters which the relay selector
 /// should prioritize on successive connection attempts. Note that these will *never* override user
@@ -57,48 +59,42 @@ impl Deref for RelaySelectorIO {
 }
 
 impl RelaySelectorIO {
-    #[cfg(not(test))]
-    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
+    pub fn load(
+        custom_lists: CustomListsSettings,
+        cache_dir: impl AsRef<Path>,
+        resource_dir: impl AsRef<Path>,
+    ) -> Result<Self, relay_list::error::Error> {
         use crate::relay_list::parsed_relays::parse_relays_from_file;
-
-        let cache_dir = mullvad_paths::get_cache_dir()
-            .map_err(|_err| io::Error::other("Missing cache directory"))?;
-        let config_dir = mullvad_paths::get_resource_dir();
-        // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
-        // connections *and* for the split-filter / multihop migration of 2026. More info on that
-        // may be found in [`migrations::multihop`].
-        let initial_relay_list = parse_relays_from_file(&cache_dir, &config_dir)
-            .inspect_err(|err| log::error!("{err}"))
-            .ok();
+        let initial_relay_list = parse_relays_from_file(cache_dir, resource_dir)
+            .inspect_err(|err| log::error!("{err}"))?;
         let inner = {
-            let (initial_relay_list, initial_bridge_list) = initial_relay_list
-                .clone()
-                .map(mullvad_api::CachedRelayList::into_internal_repr)
-                .unwrap_or_default();
+            let (initial_relay_list, initial_bridge_list) = initial_relay_list.into_internal_repr();
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
-        Ok(RelaySelectorIO {
-            inner,
-            config: Config {
-                query: Default::default(),
-                custom_lists: Arc::new(Mutex::new(custom_lists)),
-            },
-        })
+        let config = Config::from(custom_lists);
+        Ok(RelaySelectorIO { inner, config })
     }
-    #[cfg(test)]
-    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
+
+    /// Try to initialize [RelaySelectorIO] from cached relay list. If that fails, fall back to
+    /// initializing a [RelaySelectorIO] with an empty relay list.
+    pub fn load_with_default(
+        custom_lists: CustomListsSettings,
+        cache_dir: impl AsRef<Path>,
+        resource_dir: impl AsRef<Path>,
+    ) -> Self {
+        Self::load(custom_lists.clone(), cache_dir, resource_dir)
+            .unwrap_or_else(|_| Self::new(custom_lists))
+    }
+
+    /// Create a new [RelaySelectorIO] with an empty relay list.
+    pub fn new(custom_lists: CustomListsSettings) -> Self {
         let inner = {
             let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
                 Default::default();
             RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
-        Ok(RelaySelectorIO {
-            inner,
-            config: Config {
-                query: Default::default(),
-                custom_lists: Arc::new(Mutex::new(custom_lists)),
-            },
-        })
+        let config = Config::from(custom_lists);
+        RelaySelectorIO { inner, config }
     }
 }
 
@@ -117,6 +113,15 @@ pub struct Config {
 impl Config {
     fn custom_lists(&self) -> CustomListsSettings {
         self.custom_lists.lock().unwrap().clone()
+    }
+}
+
+impl From<CustomListsSettings> for Config {
+    fn from(custom_lists: CustomListsSettings) -> Self {
+        Self {
+            query: Default::default(),
+            custom_lists: Arc::new(Mutex::new(custom_lists)),
+        }
     }
 }
 
