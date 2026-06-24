@@ -153,9 +153,9 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let userspace_obfuscation = obfuscation::userspace_transport_available(params);
-        let userspace_wireguard =
-            *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg() || userspace_obfuscation;
+        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg();
+        let userspace_obfuscation =
+            obfuscation::userspace_transport_available(params) && userspace_wireguard;
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
