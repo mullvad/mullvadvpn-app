@@ -85,7 +85,7 @@ class AddTimeViewModelTest {
             awaitItem() // Default state
 
             // Emit an error with a mock exception
-            paymentAvailability.emit(PaymentAvailability.Error.Other(mockk()))
+            paymentAvailability.emit(PaymentAvailability.Error.Other(errorCode = 0, mockk()))
 
             val result = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(result)
