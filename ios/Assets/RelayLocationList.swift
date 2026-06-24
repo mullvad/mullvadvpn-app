@@ -120,6 +120,7 @@ private let relayLocationList: [String: String] = [
     "Queretaro": NSLocalizedString("Queretaro", comment: ""),
     "Raleigh, NC": NSLocalizedString("Raleigh, NC", comment: ""),
     "Salt Lake City, UT": NSLocalizedString("Salt Lake City, UT", comment: ""),
+    "San Francisco, CA": NSLocalizedString("San Francisco, CA", comment: ""),
     "San Jose, CA": NSLocalizedString("San Jose, CA", comment: ""),
     "Santiago": NSLocalizedString("Santiago", comment: ""),
     "Sao Paulo": NSLocalizedString("Sao Paulo", comment: ""),
