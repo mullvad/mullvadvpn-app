@@ -1,13 +1,18 @@
 import SwiftUI
 
 struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedContent: View>: View {
-    @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
+    enum UserInteraction {
+        case enabled
+        case enabledWithoutHighlight
+        case disabled
+    }
 
+    @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
     @State private var segmentHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
 
     var level: Int = 0
     var isLastInList: Bool = true
-    var isDisabled: Bool = false
+    var userInteraction: UserInteraction = .enabled
     var accessibilityIdentifier: AccessibilityIdentifier?
     var accessibilityLabel: String = ""
     /// A `Leading` sub component. Intended to be used for leading elements, such as titles, status indicators etc.
@@ -34,7 +39,7 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
 
     var body: some View {
         HStack(spacing: 2) {
-            Button {
+            let button = Button {
                 withAnimation(.easeInOut(duration: 0.15)) {
                     onSelect?()
                 }
@@ -53,7 +58,21 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                     segmentHeight = $0.height
                 }
             }
-            .disabled(isDisabled)
+
+            switch userInteraction {
+            case .enabled:
+                button
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(false)
+            case .enabledWithoutHighlight:
+                button
+                    .buttonStyle(StaticButtonStyle())
+                    .disabled(false)
+            case .disabled:
+                button
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(true)
+            }
 
             segment()?
                 .frame(width: UIMetrics.LocationList.cellMinHeight, height: segmentHeight)

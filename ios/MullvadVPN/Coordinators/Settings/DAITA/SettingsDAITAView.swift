@@ -19,6 +19,7 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                 SettingsInfoView(viewModel: dataViewModel)
 
                 SegmentedListItem(
+                    userInteraction: .enabledWithoutHighlight,
                     accessibilityIdentifier: .daitaSwitch,
                     leading: {
                         itemFactory.leading(for: .generic(title: "Enable"))

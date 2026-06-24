@@ -586,6 +586,7 @@
 		7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7A6AA3AB2EC5C8FB00F1C80C /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2F41082EC38FC00013D3C5 /* StoreSubscription.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
+		7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */; };
 		7A6D6BA62F7D477A001EA05C /* AutomaticLocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6D6BA52F7D4773001EA05C /* AutomaticLocationListItem.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -2300,6 +2301,7 @@
 		7A6389F72B864CDF008E77E1 /* LocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNode.swift; sourceTree = "<group>"; };
 		7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDiffableDataSourceProtocol.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
+		7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticButtonStyle.swift; sourceTree = "<group>"; };
 		7A6D6BA52F7D4773001EA05C /* AutomaticLocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticLocationListItem.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -3613,9 +3615,9 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
+				F9394EF12DC21D7B009595EA /* List */,
 				F00C8C4E2FC9DBBA00B760BB /* Previews */,
-				F04908882F97AA3400DEB09C /* MullvadPaginationView.swift */,
+				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
 				7ABBE01B2F1E263100AD8176 /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
@@ -3634,13 +3636,13 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
-				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */,
 				F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */,
 				F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */,
+				F04908882F97AA3400DEB09C /* MullvadPaginationView.swift */,
 				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
@@ -3650,6 +3652,7 @@
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
+				7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
@@ -7061,6 +7064,7 @@
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
+				7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */,
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,

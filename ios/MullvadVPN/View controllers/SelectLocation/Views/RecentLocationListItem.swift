@@ -28,8 +28,10 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
 
     @ViewBuilder
     var recentLocationListItem: some View {
+        Color.clear.frame(height: 4)
+
         SegmentedListItem(
-            isDisabled: location.isExcluded,
+            userInteraction: location.isExcluded ? .disabled : .enabled,
             accessibilityIdentifier: .recentListItem(location.name),
             accessibilityLabel: location.name,
             leading: {
@@ -39,7 +41,6 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
                 onSelect(location)
             }
         )
-        .padding(.top, 4)
         .contextMenu {
             contextMenu(location)
         }
