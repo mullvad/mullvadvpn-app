@@ -57,7 +57,7 @@ struct ActiveFilterView: View {
                 UIImage.Buttons.info
                     .scaledIcon(fromBaseSize: 14, to: .footnote)
                     .foregroundStyle(Color.white)
-                Text("Filters are overridden when using the automatic location")
+                Text("Filters are overridden when using an automatic location")
                     .font(.mullvadMini)
                     .foregroundStyle(Color.MullvadText.onBackground)
             }
