@@ -383,6 +383,7 @@ impl ConnectingState {
         Self::reset_routes(shared_values);
 
         EventConsequence::NewState(DisconnectingState::enter(
+            shared_values,
             self.tunnel_close_tx,
             self.tunnel_close_event,
             after_disconnect,

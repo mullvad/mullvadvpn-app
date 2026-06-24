@@ -478,6 +478,8 @@ impl Firewall {
 
                 Ok(rules)
             }
+            // MacOS doesn't take any special actions when disconnecting. The existing firewall rules are sufficient to prevent leaks.
+            FirewallPolicy::Disconnecting { .. } => {}
         }
     }
 
