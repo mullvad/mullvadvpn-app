@@ -8719,7 +8719,9 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.toObject = function(incl
     longitude: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
     mullvadExitIp: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
     hostname: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    entryHostname: jspb.Message.getFieldWithDefault(msg, 10, "")
+    entryHostname: jspb.Message.getFieldWithDefault(msg, 10, ""),
+    entryCity: jspb.Message.getFieldWithDefault(msg, 11, ""),
+    entryCountry: jspb.Message.getFieldWithDefault(msg, 12, "")
   };
 
   if (includeInstance) {
@@ -8791,6 +8793,14 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.deserializeBinaryFromRea
     case 10:
       var value = /** @type {string} */ (reader.readString());
       msg.setEntryHostname(value);
+      break;
+    case 11:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEntryCity(value);
+      break;
+    case 12:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setEntryCountry(value);
       break;
     default:
       reader.skipField();
@@ -8881,6 +8891,20 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.serializeBinaryToWriter 
   if (f != null) {
     writer.writeString(
       10,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 11));
+  if (f != null) {
+    writer.writeString(
+      11,
+      f
+    );
+  }
+  f = /** @type {string} */ (jspb.Message.getField(message, 12));
+  if (f != null) {
+    writer.writeString(
+      12,
       f
     );
   }
@@ -9136,6 +9160,78 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearEntryHost
  */
 proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasEntryHostname = function() {
   return jspb.Message.getField(this, 10) != null;
+};
+
+
+/**
+ * optional string entry_city = 11;
+ * @return {string}
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getEntryCity = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setEntryCity = function(value) {
+  return jspb.Message.setField(this, 11, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearEntryCity = function() {
+  return jspb.Message.setField(this, 11, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasEntryCity = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * optional string entry_country = 12;
+ * @return {string}
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getEntryCountry = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 12, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setEntryCountry = function(value) {
+  return jspb.Message.setField(this, 12, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearEntryCountry = function() {
+  return jspb.Message.setField(this, 12, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasEntryCountry = function() {
+  return jspb.Message.getField(this, 12) != null;
 };
 
 
