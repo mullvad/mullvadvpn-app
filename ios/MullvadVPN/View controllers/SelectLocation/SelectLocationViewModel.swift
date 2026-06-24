@@ -526,8 +526,15 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 }
 
 extension SelectLocationViewModel {
-    var exitFilter: [SelectLocationFilter] {
-        multihopContext == .exit ? exitContext.filter : []
+    var currentLocationContext: LocationContext {
+        switch multihopContext {
+        case .entry: entryContext
+        case .exit: exitContext
+        }
+    }
+
+    var visibleFilterChips: [SelectLocationFilter] {
+        currentLocationContext.filter
     }
 }
 

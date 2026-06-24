@@ -67,11 +67,11 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 )
                 .padding(.horizontal, 16)
-                if !viewModel.exitFilter.isEmpty {
+                if !viewModel.visibleFilterChips.isEmpty {
                     ActiveFilterView(
-                        activeFilter: viewModel.exitContext.filter,
+                        activeFilter: viewModel.visibleFilterChips,
                         labelStyle: .general,
-                        automaticLocationIsActive: viewModel.exitContext.isAutomaticLocation
+                        automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
                     ) { filter in
                         viewModel.onFilterTapped(filter)
                     } onRemove: { filter in
