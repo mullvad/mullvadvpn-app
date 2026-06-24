@@ -105,6 +105,7 @@ This release is identical to 2026.3-beta3.
 #### macOS
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
+- Add setting to allow to unpin the app window from the menu bar.
 
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending

@@ -306,11 +306,12 @@ export default class UserInterface implements WindowControllerDelegate {
           closable: unpinnedWindow,
           transparent: !unpinnedWindow,
           hiddenInMissionControl: !unpinnedWindow,
+          backgroundColor: '#192e45', // colorTokens.darkBlue
         });
 
         // make the window visible on all workspaces and prevent the icon from showing in the dock
         // and app switcher.
-        if (unpinnedWindow) {
+        if (unpinnedWindow && process.env.NODE_ENV === 'development') {
           void app.dock?.show();
         } else {
           appWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
@@ -544,12 +545,14 @@ export default class UserInterface implements WindowControllerDelegate {
       'show',
       () => (nseventforwarderStop = nseventforwarder.start(() => this.windowController.hide())),
     );
+    this.windowController.window?.on('closed', () => nseventforwarderStop?.());
     this.windowController.window?.on('hide', () => nseventforwarderStop?.());
     this.windowController.window?.on('blur', () => {
-      // Make sure to hide the menubar window when other program captures the focus.
-      // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
+      // Make sure to hide the menubar window when other program captures the focus if the app is unpinned.
+      // But avoid hiding the window when dev tools capture the focus to make it possible to inspect the UI.
       if (
         this.windowController.window?.isVisible() &&
+        !this.delegate.isUnpinnedWindow() &&
         !this.windowController.window?.webContents.isDevToolsFocused()
       ) {
         this.windowController.hide();
@@ -586,7 +589,6 @@ export default class UserInterface implements WindowControllerDelegate {
         }
         break;
       case 'darwin':
-        this.tray?.on('right-click', () => this.windowController.hide());
         this.tray?.on('click', (event) => {
           if (event.metaKey) {
             setImmediate(() => this.windowController.updatePosition());
