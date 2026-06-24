@@ -252,4 +252,24 @@ class AddTimeViewModelTest {
             assertEquals(null, item.value.purchaseState)
         }
     }
+
+    @Test
+    fun `purchaseResult Pending should result in purchaseState VerifyingPurchase`() = runTest {
+        // Arrange
+        val productId = ProductId("one_month")
+        val paymentProduct =
+            PaymentProduct(productId = productId, price = ProductPrice("€5.00"), status = null)
+        val purchaseResultData = PurchaseResult.Completed.Pending(productId)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem() // Default state
+            paymentAvailability.emit(PaymentAvailability.ProductsAvailable(listOf(paymentProduct)))
+            awaitItem()
+            purchaseResult.emit(purchaseResultData)
+            val item = awaitItem()
+            assertIs<Lc.Content<AddTimeUiState>>(item)
+            assertEquals(PurchaseState.VerifyingPurchase, item.value.purchaseState)
+        }
+    }
 }
