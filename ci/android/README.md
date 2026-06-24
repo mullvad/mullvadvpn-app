@@ -30,6 +30,11 @@ Host android-runner-bender
 2. Get a shell with the `nixos-rebuild` command (if not already available): `nix-shell -p nixos-rebuild`
 3. From this directory, run: `nixos-rebuild -I nixos-config=$(pwd)/configuration.nix --build-host android-runner-bender --target-host android-runner-bender --sudo --ask-sudo-password --no-flake switch`
 
+### Upgrading to the latest Nix packages
+
+If using `nix-shell`, one way to do this is by specifying the channel to use with `-I nixpkgs`, for example:
+`nixos-rebuild switch -I nixos-config=$(pwd)/configuration.nix -I nixpkgs=https://nixos.org/channels/nixos-25.11/nixexprs.tar.xz --build-host android-runner-bender --target-host android-runner-bender --sudo --ask-sudo-password --no-flake`
+
 ## Configuring and deploying terminator
 
 **terminator** is configured as a Nix flake called `app-team-android-lab` in the [mullvadvpn-app/ci/ios/test-router/flake.nix](../ios/test-router/flake.nix)
