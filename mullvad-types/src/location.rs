@@ -159,7 +159,18 @@ pub struct GeoIpLocation {
     pub longitude: f64,
     pub mullvad_exit_ip: bool,
     pub hostname: Option<String>,
+    /// Hostname of the entry relay. e.g. `se-got-wg-101`.
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
     pub entry_hostname: Option<String>,
+    /// City code of the entry relay. e.g. `got` for "Gothenburg".
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_city: Option<String>,
+    ///  Country code of the entry relay. e.g. `se` for "Sweden".
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_country: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -179,6 +190,8 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
             entry_hostname: None,
+            entry_city: None,
+            entry_country: None,
         }
     }
 }
