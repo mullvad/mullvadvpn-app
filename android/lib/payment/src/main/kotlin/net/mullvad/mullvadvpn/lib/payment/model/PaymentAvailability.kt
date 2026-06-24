@@ -20,6 +20,6 @@ sealed interface PaymentAvailability {
 
         data object ItemUnavailable : Error
 
-        data class Other(val exception: Throwable) : Error
+        data class Other(val errorCode: Int, val exception: Throwable) : Error
     }
 }
