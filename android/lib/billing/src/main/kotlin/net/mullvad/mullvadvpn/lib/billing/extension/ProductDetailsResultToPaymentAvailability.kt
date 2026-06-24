@@ -32,9 +32,11 @@ fun ProductDetailsResult.toPaymentAvailability(
             PaymentAvailability.Error.ItemUnavailable
         else ->
             PaymentAvailability.Error.Other(
-                BillingException(
-                    responseCode = this.billingResult.responseCode,
-                    message = this.billingResult.debugMessage,
-                )
+                errorCode = this.billingResult.responseCode,
+                exception =
+                    BillingException(
+                        responseCode = this.billingResult.responseCode,
+                        message = this.billingResult.debugMessage,
+                    ),
             )
     }

@@ -156,7 +156,8 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                     PaymentAvailability.Error.DeveloperError -> Logger.e("DeveloperError")
                     PaymentAvailability.Error.FeatureNotSupported -> Logger.e("FeatureNotSupported")
                     PaymentAvailability.Error.ItemUnavailable -> Logger.e("ItemUnavailable")
-                    is PaymentAvailability.Error.Other -> Logger.e("Other")
+                    is PaymentAvailability.Error.Other ->
+                        Logger.e("Other errorCode=${paymentAvailability.errorCode}")
                     PaymentAvailability.Error.ServiceUnavailable -> Logger.e("ServiceUnavailable")
                 }
             }
