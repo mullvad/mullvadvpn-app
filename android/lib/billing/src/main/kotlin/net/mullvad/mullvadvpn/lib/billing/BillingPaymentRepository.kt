@@ -148,7 +148,10 @@ class BillingPaymentRepository(
     override suspend fun verifyPurchases(): Either<VerificationError, VerificationResult> = either {
         val purchasesResult = billingRepository.queryPurchases()
         ensure(purchasesResult.responseCode() == BillingResponseCode.OK) {
-            VerificationError.BillingError(purchasesResult.toBillingException())
+            VerificationError.BillingError(
+                errorCode = purchasesResult.responseCode(),
+                purchasesResult.toBillingException(),
+            )
         }
         val purchases = purchasesResult.nonPendingPurchases()
         if (purchases.isEmpty()) {
