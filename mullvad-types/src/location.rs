@@ -151,14 +151,14 @@ pub struct AmIMullvad {
 /// GeoIP information exposed from the daemon to frontends.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GeoIpLocation {
-    pub ipv4: Option<Ipv4Addr>,
-    pub ipv6: Option<Ipv6Addr>,
-    pub country: String,
-    pub city: Option<String>,
     pub latitude: f64,
     pub longitude: f64,
+    pub ipv4: Option<Ipv4Addr>,
+    pub ipv6: Option<Ipv6Addr>,
     pub mullvad_exit_ip: bool,
     pub hostname: Option<String>,
+    pub city: Option<String>,
+    pub country: String,
     /// Hostname of the entry relay. e.g. `se-got-wg-101`.
     ///
     /// This field is `Some` when traffic is routed through an entry relay.
@@ -181,14 +181,14 @@ impl From<AmIMullvad> for GeoIpLocation {
         };
 
         GeoIpLocation {
-            ipv4,
-            ipv6,
-            country: location.country,
-            city: location.city,
             latitude: location.latitude,
             longitude: location.longitude,
+            ipv4,
+            ipv6,
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
+            city: location.city,
+            country: location.country,
             entry_hostname: None,
             entry_city: None,
             entry_country: None,
