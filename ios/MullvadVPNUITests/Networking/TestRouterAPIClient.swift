@@ -33,7 +33,7 @@ class TestRouterAPIClient {
 
         dataTask.resume()
 
-        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 5)
         if waitResult != .completed {
             XCTFail("Failed to get device IP address - timeout")
         }

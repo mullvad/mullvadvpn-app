@@ -323,7 +323,7 @@ class PacketCaptureClient: TestRouterAPIClient {
 
         dataTask.resume()
 
-        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 5)
 
         if waitResult != .completed {
             XCTFail("Failed to send packet capture API request - timeout")
