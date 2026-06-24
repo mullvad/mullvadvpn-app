@@ -16,7 +16,7 @@ import Testing
 struct FilterDescriptorTests {
     enum FilterDescription: String {
         case daita = "When using DAITA, one provider with DAITA-enabled servers is required"
-        case disabled = "Filters are overridden when using the automatic location"
+        case disabled = "Filters are overridden when using an automatic location"
         case none = ""
 
         var shortDescription: String {
