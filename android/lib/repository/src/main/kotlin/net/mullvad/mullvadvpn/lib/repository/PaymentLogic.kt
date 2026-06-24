@@ -78,6 +78,7 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
             )
             .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS))
             .doWhile { error, _ ->
+                logVerificationError(error)
                 // If we have a verification error we should not retry as it will fail again.
                 error !is VerificationError.PlayVerificationError.VerificationFailed
             }
@@ -163,6 +164,16 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
             PaymentAvailability.NoProductsFound -> Logger.e("No products found")
             is PaymentAvailability.ProductsAvailable -> Logger.i("Products available")
             PaymentAvailability.ProductsUnavailable -> Logger.i("Products unavailable")
+        }
+    }
+
+    private fun logVerificationError(error: VerificationError) {
+        when (error) {
+            is VerificationError.BillingError ->
+                Logger.e("Verification Billing error code ${error.errorCode}")
+            VerificationError.PlayVerificationError.Other -> Logger.e("Verification Other Error")
+            VerificationError.PlayVerificationError.VerificationFailed ->
+                Logger.e("Verification Failed API Error")
         }
     }
 
