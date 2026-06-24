@@ -133,11 +133,7 @@ class AddTimeViewModel(
             // Verifying loading states
             PurchaseResult.VerificationStarted -> PurchaseState.VerificationStarted
             // Pending state
-            is PurchaseResult.Completed.Pending,
-            is PurchaseResult.Error.VerificationError.VerificationFailed ->
-                PurchaseState.Error.VerificationError.Unrecoverable
-            is PurchaseResult.Error.VerificationError.Other ->
-                PurchaseState.Error.VerificationError.Recoverable
+            is PurchaseResult.Completed.Pending -> PurchaseState.VerifyingPurchase
             // Success state
             is PurchaseResult.Completed.Success -> PurchaseState.Success(productId)
             // Error states
@@ -147,6 +143,10 @@ class AddTimeViewModel(
                 PurchaseState.Error.OtherError(productId = productId)
             is PurchaseResult.Error.NoProductFound ->
                 PurchaseState.Error.OtherError(productId = productId)
+            is PurchaseResult.Error.VerificationError.VerificationFailed ->
+                PurchaseState.Error.VerificationError.Unrecoverable
+            is PurchaseResult.Error.VerificationError.Other ->
+                PurchaseState.Error.VerificationError.Recoverable
         }
 }
 
