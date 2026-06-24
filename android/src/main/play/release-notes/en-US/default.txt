@@ -1,0 +1,4 @@
+- Searched text is now highlighted in Split tunneling.
+- Improved handling of Google Play purchases that fail to verify correctly.
+- Moved Local Network Sharing setting to a separate screen.
+- Instead of crashing will now reset ui settings if data is corrupt.

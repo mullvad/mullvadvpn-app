@@ -21,7 +21,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.8-beta1] - 2026-06-24
 ### Added
 - Highlight search phrase when searching in Split tunneling.
 
