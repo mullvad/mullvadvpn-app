@@ -3616,6 +3616,9 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr ""
+
 msgid "Submit"
 msgstr ""
 
@@ -3662,9 +3665,6 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "The selected %s port is not supported, please change it under"
-msgstr ""
-
-msgid "There is a purchase that is still trying to verify. Logging into another account will make it impossible for the app to verify the purchase. Are you sure that you want to log out?"
 msgstr ""
 
 msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
@@ -3799,16 +3799,13 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-msgid "We are not able to verify your latest purchase. Please check your network settings. If the issue persist please contact support"
-msgstr ""
-
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr ""
 
-msgid "We were not able to verify the purchase. Please check your network settings and try again."
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
 msgstr ""
 
-msgid "We were not able to verify the purchase. Please contact support to resolve the issue."
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
 msgstr ""
 
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
@@ -3848,6 +3845,9 @@ msgid "You will lose your remaining"
 msgstr ""
 
 msgid "Your device"
+msgstr ""
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr ""
 
 msgid "\"%s\" was created"
