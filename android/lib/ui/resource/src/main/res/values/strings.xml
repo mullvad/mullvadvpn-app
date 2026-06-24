@@ -541,10 +541,10 @@
     <string name="dns_settings_description_warning"><b>Attention: DNS settings might not go into effect immediately.</b></string>
     <string name="vpn_dialog_activity_not_found">Unable to open the VPN permission dialog, please check your OS configuration</string>
     <string name="verifying_purchase_error">Unable to verify purchase</string>
-    <string name="verifying_purchase_unrecoverable_error">We were not able to verify the purchase. Please contact support to resolve the issue.</string>
-    <string name="verifying_purchase_recoverable_error">We were not able to verify the purchase. Please check your network settings and try again.</string>
+    <string name="verifying_purchase_unrecoverable_error">Something went wrong while verifying your purchase. Please contact support.</string>
+    <string name="verifying_purchase_recoverable_error">We couldn’t verify your purchase. Please check your internet connection and try again.</string>
     <string name="contact_support">Contact support</string>
-    <string name="verification_failed_dialog_message">We are not able to verify your latest purchase. Please check your network settings. If the issue persist please contact support</string>
+    <string name="verification_failed_dialog_message">We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support.</string>
     <string name="payment_status_verification_failed">Google Play payment verification failed</string>
-    <string name="ongoing_verification_warning">There is a purchase that is still trying to verify. Logging into another account will make it impossible for the app to verify the purchase. Are you sure that you want to log out?</string>
+    <string name="ongoing_verification_warning">Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?</string>
 </resources>
