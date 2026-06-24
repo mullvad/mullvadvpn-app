@@ -712,6 +712,12 @@ impl<'a> PolicyBatch<'a> {
                 self.add_drop_dns_rule();
                 *allow_lan
             }
+            // Linux doesn't take any special actions when disconnecting. The existing firewall rules are sufficient to prevent leaks.
+            FirewallPolicy::Disconnecting { allow_lan } => {
+                // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
+                self.add_drop_dns_rule();
+                *allow_lan
+            }
         };
 
         if allow_lan {
