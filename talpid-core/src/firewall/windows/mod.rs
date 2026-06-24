@@ -123,7 +123,9 @@ impl Firewall {
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
         let should_block_hyperv = matches!(
             policy,
-            FirewallPolicy::Connecting { .. } | FirewallPolicy::Blocked { .. }
+            FirewallPolicy::Connecting { .. }
+                | FirewallPolicy::Blocked { .. }
+                | FirewallPolicy::Disconnecting { .. }
         );
 
         let apply_result = match policy {
@@ -171,6 +173,7 @@ impl Firewall {
                     allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
                 )
             }
+            FirewallPolicy::Disconnecting { .. } => Ok(()),
         };
 
         with_wmi_if_enabled(|wmi| {

@@ -1,3 +1,5 @@
+use crate::firewall::FirewallPolicy;
+
 use super::{
     ConnectingState, DisconnectedState, ErrorState, EventConsequence, EventResult,
     SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
@@ -19,6 +21,7 @@ pub struct DisconnectingState {
 
 impl DisconnectingState {
     pub(super) fn enter(
+        shared_values: &mut SharedTunnelStateValues,
         tunnel_close_tx: oneshot::Sender<()>,
         tunnel_close_event: TunnelCloseEvent,
         after_disconnect: AfterDisconnect,
@@ -26,6 +29,7 @@ impl DisconnectingState {
         let _ = tunnel_close_tx.send(());
         let action_after_disconnect = after_disconnect.action();
 
+        Self::set_firewall_policy(shared_values);
         (
             Box::new(DisconnectingState {
                 tunnel_close_event,
@@ -33,6 +37,18 @@ impl DisconnectingState {
             }),
             TunnelStateTransition::Disconnecting(action_after_disconnect),
         )
+    }
+
+    fn set_firewall_policy(shared_values: &mut SharedTunnelStateValues) {
+        let result = shared_values
+            .firewall
+            .apply_policy(FirewallPolicy::Disconnecting {
+                allow_lan: shared_values.allow_lan,
+            });
+
+        if let Err(err) = result {
+            log::error!("{err}")
+        }
     }
 
     fn handle_commands(
