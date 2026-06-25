@@ -15,6 +15,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -30,6 +31,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import co.touchlab.kermit.Logger
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
@@ -46,65 +50,62 @@ import net.mullvad.mullvadvpn.lib.model.Longitude
 val LAT_LOWER_BOUND = -40f
 val LAT_UPPER_BOUND = 65f
 
-@Composable
-fun InteractiveMap(
-    currentLocation: LatLong,
-    verticalBias: Float = .5f,
-    markers: List<Marker>,
-    locations: List<LatLong>,
-    hops: List<Hop>,
-    modifier: Modifier = Modifier,
-    onMarkerClick: ((Marker) -> Unit)? = null,
-    globeColors: GlobeColors = GlobeColors.default(),
+enum class MapInteractionMode {
+    Idle,
+    Interactive,
+}
+
+internal class MapCameraController(
+    private val scope: CoroutineScope,
+    private val zoomRange: ClosedFloatingPointRange<Float>,
+    initialLocation: LatLong,
 ) {
+    var interactionMode: MapInteractionMode by mutableStateOf(MapInteractionMode.Idle)
+        private set
 
-    // Range of zoom levels we can zoom to, so users don't get lost in space
-    val zoomRange = 1.2f..2.5f
+    var currentLocation: LatLong by mutableStateOf(initialLocation)
+        private set
 
-    val alphaAnimation = remember {
-        Animatable(0f)
+    val latLngAnimatable = Animatable(initialLocation.toOffset(), Offset.VectorConverter)
+    val zoomAnimatable = Animatable(zoomRange.start)
+    val alphaAnimation = Animatable(0f)
+
+    private val tracker = DiffVelocityTracker()
+    private var returnToIdleJob: Job? = null
+
+    init {
+        latLngAnimatable.updateBounds(
+            lowerBound = Offset(x = Float.NEGATIVE_INFINITY, y = LAT_LOWER_BOUND),
+            upperBound = Offset(x = Float.POSITIVE_INFINITY, y = LAT_UPPER_BOUND),
+        )
+        zoomAnimatable.updateBounds(zoomRange.start, zoomRange.endInclusive)
     }
 
-    val locationMarkers = locations.map {
-        Marker(it, colors = LocationMarkerColors.default(alphaAnimation.value))
-    }
-
-    val zoomAnimatable = remember {
-        Animatable(zoomRange.start).also {
-            it.updateBounds(zoomRange.start, zoomRange.endInclusive)
+    fun onCurrentLocationChanged(newLocation: LatLong) {
+        currentLocation = newLocation
+        if (interactionMode == MapInteractionMode.Idle) {
+            cancelReturnJob()
+            animateToLocation(newLocation)
         }
     }
-    val latLngAnimatable = remember {
-        Animatable(currentLocation.toOffset(), Offset.VectorConverter).also {
-            // Limit Latitude to -40 to 60 degrees. There are no servers on the north or south pole,
-            // yet.
-            it.updateBounds(
-                lowerBound = Offset(x = Float.NEGATIVE_INFINITY, y = LAT_LOWER_BOUND),
-                upperBound = Offset(x = Float.POSITIVE_INFINITY, y = LAT_UPPER_BOUND),
-            )
+
+    private fun animateToLocation(target: LatLong) {
+        scope.launch {
+            val distance = target.seppDistanceTo(latLngAnimatable.value.toLatLng())
+            val duration = distance.toAnimationDurationMillis()
+
+            launch {
+                latLngAnimatable.snapTo(latLngAnimatable.value.unwind())
+                latLngAnimatable.animateTo(target.toOffset(), animationSpec = tween(duration))
+            }
+            launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
+            launch { alphaAnimation.animateTo(0f, animationSpec = tween(300)) }
         }
     }
 
-    // New location selected, move camera to it
-    LaunchedEffect(currentLocation) {
-        // Decide duration of animation based on distance
-        val distance = currentLocation.seppDistanceTo(latLngAnimatable.value.toLatLng())
-        val duration = distance.toAnimationDurationMillis()
-
-        launch {
-            latLngAnimatable.snapTo(latLngAnimatable.value.unwind())
-            latLngAnimatable.animateTo(currentLocation.toOffset(), animationSpec = tween(duration))
-        }
-        launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
-        launch { alphaAnimation.animateTo(0f, animationSpec = tween(300)) }
-    }
-
-    val tracker = remember { DiffVelocityTracker() }
-    val scope = rememberCoroutineScope()
-
-    var view: MapSurfaceView? = remember { null }
-
-    val onGestureStart: () -> Unit = {
+    fun onGestureStart() {
+        cancelReturnJob()
+        interactionMode = MapInteractionMode.Interactive
         scope.launch {
             zoomAnimatable.stop()
             latLngAnimatable.stop()
@@ -112,47 +113,43 @@ fun InteractiveMap(
         }
     }
 
-    val onGesture: (Offset, Offset, Float) -> Unit =
-        onGesture@{ centroid: Offset, pan: Offset, zoomChange: Float ->
-            // Calculate new camera position & zoom
-            val currentPosition = latLngAnimatable.value
-            val zoom = zoomAnimatable.value
+    fun onGesture(centroid: Offset, pan: Offset, zoomChange: Float, view: MapSurfaceView?) {
+        val currentPosition = latLngAnimatable.value
+        val zoom = zoomAnimatable.value
 
-            val org = view?.getPosition(centroid) ?: return@onGesture
-            val new = view?.getPosition(centroid + pan) ?: return@onGesture
+        val org = view?.getPosition(centroid) ?: return
+        val new = view.getPosition(centroid + pan) ?: return
 
-            val latDiff = org - new
+        val latDiff = org - new
 
-            val newPosition =
-                (currentPosition + latDiff.toOffset()).coerceIn(
-                    yMin = LAT_LOWER_BOUND,
-                    yMax = LAT_UPPER_BOUND,
-                )
-            val realDiff = newPosition - currentPosition
+        val newPosition =
+            (currentPosition + latDiff.toOffset()).coerceIn(
+                yMin = LAT_LOWER_BOUND,
+                yMax = LAT_UPPER_BOUND,
+            )
+        val realDiff = newPosition - currentPosition
 
-            Logger.d { "NewPosition: $newPosition" }
-            Logger.d { "RealDiff: $realDiff" }
+        Logger.d { "NewPosition: $newPosition" }
+        Logger.d { "RealDiff: $realDiff" }
 
-            val newZoom = (zoom + (1 - zoomChange) * 0.5f)
+        val newZoom = (zoom + (1 - zoomChange) * 0.5f)
 
-            // Update to the new position
-            scope.launch {
-                latLngAnimatable.snapTo(newPosition)
-                zoomAnimatable.snapTo(newZoom)
-            }
-
-            // Track the gesture to calculate velocity later
-            val isZooming = zoomChange != 1f
-            if (!isZooming) {
-                tracker.addPosition(System.currentTimeMillis(), realDiff)
-            } else {
-                tracker.resetTracking()
-            }
+        scope.launch {
+            latLngAnimatable.snapTo(newPosition)
+            zoomAnimatable.snapTo(newZoom)
         }
 
-    val onGestureEnd: () -> Unit = {
-        scope.launch {
-            // Fling the map based on velocity of the gesture
+        val isZooming = zoomChange != 1f
+        if (!isZooming) {
+            tracker.addPosition(System.currentTimeMillis(), realDiff)
+        } else {
+            tracker.resetTracking()
+        }
+    }
+
+    fun onGestureEnd() {
+        interactionMode = MapInteractionMode.Idle
+        returnToIdleJob = scope.launch {
             var (longVelocity, latVelocity) = tracker.calculateVelocity()
             tracker.resetTracking()
             do {
@@ -166,38 +163,89 @@ fun InteractiveMap(
                 latVelocity = -result.endState.velocityVector.v2
             } while (result.endReason == AnimationEndReason.BoundReached)
 
-            // Restore camera to the selected location if user doesn't select anything
+            launch {
+                alphaAnimation.animateTo(1f, tween(100))
+            }
+
+            delay(2000)
+
             launch {
                 latLngAnimatable.animateTo(
                     calculateClosestOffset(latLngAnimatable.value, currentLocation.toOffset()),
-                    tween(1000, 2000),
+                    tween(1000),
                 )
             }
-            launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000, 2000)) }
-            launch {
-                // Ensure we animate to full alpha before starting next as animateTo will abort any
-                // existing animation.
-                alphaAnimation.animateTo(1f, tween(100))
-                alphaAnimation.animateTo(0f, tween(400, 1900))
-            }
+            launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000)) }
+            launch { alphaAnimation.animateTo(0f, tween(400)) }
         }
     }
+
+    fun abortAnimations() {
+        cancelReturnJob()
+        scope.launch {
+            latLngAnimatable.stop()
+            zoomAnimatable.stop()
+            alphaAnimation.stop()
+        }
+    }
+
+    private fun cancelReturnJob() {
+        returnToIdleJob?.cancel()
+        returnToIdleJob = null
+    }
+}
+
+@Composable
+internal fun rememberMapCameraController(
+    currentLocation: LatLong,
+    zoomRange: ClosedFloatingPointRange<Float>,
+    scope: CoroutineScope = rememberCoroutineScope(),
+): MapCameraController {
+    val controller = remember {
+        MapCameraController(scope, zoomRange, currentLocation)
+    }
+    LaunchedEffect(currentLocation) {
+        controller.onCurrentLocationChanged(currentLocation)
+    }
+    return controller
+}
+
+@Composable
+fun InteractiveMap(
+    currentLocation: LatLong,
+    verticalBias: Float = .5f,
+    markers: List<Marker>,
+    locations: List<LatLong>,
+    hops: List<Hop>,
+    modifier: Modifier = Modifier,
+    onMarkerClick: ((Marker) -> Unit)? = null,
+    globeColors: GlobeColors = GlobeColors.default(),
+) {
+    val zoomRange = 1.2f..2.5f
+    val controller = rememberMapCameraController(currentLocation, zoomRange)
+
+    val locationMarkers = locations.map {
+        Marker(it, colors = LocationMarkerColors.default(controller.alphaAnimation.value))
+    }
+
+    var view: MapSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
     val cameraPosition =
         CameraPosition(
-            latLngAnimatable.value.toLatLng(),
-            zoomAnimatable.value,
+            controller.latLngAnimatable.value.toLatLng(),
+            controller.zoomAnimatable.value,
             verticalBias = verticalBias,
         )
     val globeViewState =
         GlobeViewState(
             cameraPosition,
             markers + locationMarkers,
-            hops.map { it.copy(color = Color.White.copy(alpha = alphaAnimation.value * 0.6f)) },
+            hops.map { it.copy(color = Color.White.copy(alpha = controller.alphaAnimation.value * 0.6f)) },
             globeColors,
         )
+
     AndroidView(
         modifier =
             Modifier.pointerInput(lifeCycleState) {
@@ -210,9 +258,11 @@ fun InteractiveMap(
                 }
                 .pointerInput(lifeCycleState) {
                     detectTransformGesturesWithEnd(
-                        onGestureStart = onGestureStart,
-                        onGesture = onGesture,
-                        onGestureEnd = onGestureEnd,
+                        onGestureStart = { controller.onGestureStart() },
+                        onGesture = { centroid, pan, zoom ->
+                            controller.onGesture(centroid, pan, zoom, view)
+                        },
+                        onGestureEnd = { controller.onGestureEnd() },
                     )
                 },
         factory = { MapSurfaceView(it) },
