@@ -143,24 +143,24 @@ pub async fn download_and_verify_relay_list(
     // Parse the payload from the envelope.
     let payload = match validate::validate_relay_list_envelope(&envelope, sigsum_trusted_pubkeys) {
         Ok(payload) => {
-            log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
+            tracing::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
             payload
         }
         Err(e) => {
-            log::error!(
+            tracing::error!(
                 "SIGSUM: Relay list sigsum signature validation failed: {}",
                 e.source
             );
-            log::debug!("SIGSUM: Attempting to parse unverified payload");
+            tracing::debug!("SIGSUM: Attempting to parse unverified payload");
 
             e.timestamp_parser
                 .parse_without_verification()
                 .inspect_err(|_| {
-                    log::error!(
+                    tracing::error!(
                         "SIGSUM: Failed to parse unverified payload; aborting relay list update"
                     );
                 })
-                .inspect(|_| log::debug!("SIGSUM: Successfully parsed unverified payload"))
+                .inspect(|_| tracing::debug!("SIGSUM: Successfully parsed unverified payload"))
                 .map_err(rest::Error::from)?
         }
     };
@@ -168,14 +168,14 @@ pub async fn download_and_verify_relay_list(
     // Verify that the timestamp is not too old.
     let new_timestamp = payload.timestamp;
     if new_timestamp < (Utc::now() - TIMESTAMP_MAX_VALID_AGE) {
-        log::error!("SIGSUM: Relay list timestamp is too old: {new_timestamp}",);
+        tracing::error!("SIGSUM: Relay list timestamp is too old: {new_timestamp}",);
     }
 
     if let Some(current) = current_digest {
         // Verify that the timestamp we got from the API is not older than the most recent timestamp
         // we have seen.
         if new_timestamp < current.timestamp {
-            log::error!(
+            tracing::error!(
                 "SIGSUM: Relay list timestamp is older than current timestamp\n\
                 current {}, new: {new_timestamp}",
                 current.timestamp,
@@ -184,7 +184,9 @@ pub async fn download_and_verify_relay_list(
 
         // If the digest has not changed we do not need to fetch the relay list.
         if current.digest == payload.digest {
-            log::debug!("SIGSUM: Payload digest hasn't changed - will not fetch new relay list");
+            tracing::debug!(
+                "SIGSUM: Payload digest hasn't changed - will not fetch new relay list"
+            );
             return Ok(None);
         }
     }
@@ -194,9 +196,9 @@ pub async fn download_and_verify_relay_list(
 
     // Validate that the fetched relay list digest matches the sigsum digest.
     if relay_list_response.digest == payload.digest {
-        log::debug!("SIGSUM: Relay list sigsum data validation succeeded");
+        tracing::debug!("SIGSUM: Relay list sigsum data validation succeeded");
     } else {
-        log::error!("SIGSUM: Fetched relay list digest does not equal sigsum digest");
+        tracing::error!("SIGSUM: Fetched relay list digest does not equal sigsum digest");
     }
 
     Ok(Some(SigsumVerifiedRelayList {

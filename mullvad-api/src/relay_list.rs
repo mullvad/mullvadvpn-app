@@ -42,7 +42,7 @@ where
         match T::deserialize(value) {
             Ok(entry) => result.push(entry),
             Err(err) => {
-                log::warn!(
+                tracing::warn!(
                     "Discarding malformed relay list entry of type '{}'.\nError: {err}",
                     std::any::type_name::<T>()
                 );
@@ -109,7 +109,7 @@ impl RelayListProxy {
         let response = self.relay_list_content_response(digest).await?;
 
         let body = response.body().await.inspect_err(|_err| {
-            log::error!("Failed to fetch relay list");
+            tracing::error!("Failed to fetch relay list");
         })?;
 
         let new_digest_bytes: Sha256Bytes = Sha256::digest(&body).into();
@@ -145,7 +145,7 @@ impl RelayListProxy {
         let response = self.relay_list_timestamp_response().await?;
 
         let body = response.body().await.inspect_err(|_err| {
-            log::error!("Failed to deserialize API response of relay list sigsum")
+            tracing::error!("Failed to deserialize API response of relay list sigsum")
         })?;
 
         let envelope = str::from_utf8(&body)
@@ -235,7 +235,7 @@ impl ServerRelayList {
                         country.cities.push(location_to_city(&location, city_code));
                     }
                     None => {
-                        log::error!("Bad location code:{}", code);
+                        tracing::error!("Bad location code:{}", code);
                         continue;
                     }
                 }
