@@ -151,15 +151,35 @@ pub struct AmIMullvad {
 /// GeoIP information exposed from the daemon to frontends.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GeoIpLocation {
-    pub ipv4: Option<Ipv4Addr>,
-    pub ipv6: Option<Ipv6Addr>,
-    pub country: String,
-    pub city: Option<String>,
+    /// A geographic coordinate that specifies the north-south position of a point on the surface of the Earth as an angle ranging from `-90°` (south pole) to `+90°` (north pole) with `0°` at the equator.
     pub latitude: f64,
+    /// A geographic coordinate that specifies the east-west position of a point on the surface of the Earth.
+    /// Longitude is given as an angular measurement with `0°` at the Prime Meridian, ranging from `−180°` westward to `+180°` eastward.
     pub longitude: f64,
+    /// Public IPv4 address ("Out-IP").
+    pub ipv4: Option<Ipv4Addr>,
+    /// Public IPv6 address ("Out-IP").
+    pub ipv6: Option<Ipv6Addr>,
+    /// If public IP address(es) are Mullvad IPs.
     pub mullvad_exit_ip: bool,
+    /// Hostname of the exit relay. e.g. `se-got-wg-101`.
     pub hostname: Option<String>,
+    /// City code of the exit relay. e.g. `got` for "Gothenburg".
+    pub city: Option<String>,
+    /// Country code of the exit relay. e.g. `se` for "Sweden".
+    pub country: String,
+    /// Hostname of the entry relay. e.g. `se-got-wg-101`.
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
     pub entry_hostname: Option<String>,
+    /// City code of the entry relay. e.g. `got` for "Gothenburg".
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_city: Option<String>,
+    ///  Country code of the entry relay. e.g. `se` for "Sweden".
+    ///
+    /// This field is `Some` when traffic is routed through an entry relay.
+    pub entry_country: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -170,15 +190,17 @@ impl From<AmIMullvad> for GeoIpLocation {
         };
 
         GeoIpLocation {
-            ipv4,
-            ipv6,
-            country: location.country,
-            city: location.city,
             latitude: location.latitude,
             longitude: location.longitude,
+            ipv4,
+            ipv6,
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
+            city: location.city,
+            country: location.country,
             entry_hostname: None,
+            entry_city: None,
+            entry_country: None,
         }
     }
 }

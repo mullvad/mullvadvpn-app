@@ -95,15 +95,17 @@ impl ParametersGenerator {
         let location = exit.location.clone();
 
         Some(GeoIpLocation {
-            ipv4: None,
-            ipv6: None,
-            country: location.country,
-            city: Some(location.city),
             latitude: location.latitude,
             longitude: location.longitude,
+            ipv4: None,
+            ipv6: None,
             mullvad_exit_ip: true,
             hostname: Some(exit.hostname.clone()),
+            city: Some(location.city),
+            country: location.country,
             entry_hostname: entry.map(|relay| relay.hostname.clone()),
+            entry_city: entry.map(|relay| relay.location.city_code.clone()),
+            entry_country: entry.map(|relay| relay.location.country_code.clone()),
         })
     }
 }

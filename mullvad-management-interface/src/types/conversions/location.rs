@@ -12,6 +12,8 @@ impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
             mullvad_exit_ip: geoip.mullvad_exit_ip,
             hostname: geoip.hostname,
             entry_hostname: geoip.entry_hostname,
+            entry_city: geoip.entry_city,
+            entry_country: geoip.entry_country,
         }
     }
 }
@@ -36,6 +38,8 @@ impl TryFrom<proto::GeoIpLocation> for mullvad_types::location::GeoIpLocation {
             mullvad_exit_ip: geoip.mullvad_exit_ip,
             hostname: geoip.hostname,
             entry_hostname: geoip.entry_hostname,
+            entry_city: geoip.entry_city,
+            entry_country: geoip.entry_country,
         })
     }
 }

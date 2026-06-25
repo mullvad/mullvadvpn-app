@@ -988,6 +988,16 @@ export class GeoIpLocation extends jspb.Message {
     getEntryHostname(): string | undefined;
     setEntryHostname(value: string): GeoIpLocation;
 
+    hasEntryCity(): boolean;
+    clearEntryCity(): void;
+    getEntryCity(): string | undefined;
+    setEntryCity(value: string): GeoIpLocation;
+
+    hasEntryCountry(): boolean;
+    clearEntryCountry(): void;
+    getEntryCountry(): string | undefined;
+    setEntryCountry(value: string): GeoIpLocation;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GeoIpLocation.AsObject;
     static toObject(includeInstance: boolean, msg: GeoIpLocation): GeoIpLocation.AsObject;
@@ -1009,6 +1019,8 @@ export namespace GeoIpLocation {
         mullvadExitIp: boolean,
         hostname?: string,
         entryHostname?: string,
+        entryCity?: string,
+        entryCountry?: string,
     }
 }
 
