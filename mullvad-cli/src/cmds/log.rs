@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 
 #[derive(Subcommand, Debug)]
 pub enum Log {
-    /// Set the log level of the daemon, using the `RUST_LOG` format.
+    /// Set the log level of the daemon.
     SetLevel { level: Level },
-    /// Configure the `RUST_LOG` variable.
+    /// Set the log level of the daemon, using the `RUST_LOG` format.
     ///
     /// Set a custom log level per crate or module using the same format as the `RUST_LOG` environment variable.
     /// See the `env_logger` crate for more information: <https://docs.rs/env_logger/latest/env_logger/>
