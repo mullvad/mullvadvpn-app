@@ -39,7 +39,11 @@ fun accountNumberVisualTransformation(showAccount: Boolean = true, showLastX: In
         )
     }
 
-fun accountNumberOutputTransformation(showAccount: Boolean = true, showLastX: Int = 0) =
+// HACK: showLastX is a lambda to avoid triggering remember recomposition. Since we are using a
+// lambda this re-evaluates the output transformation without creating a new function in the
+// remember. This fixes a cursor issue on FireStick, which otherwise would reset the cursor to the
+// start of the input field.
+fun accountNumberOutputTransformation(showAccount: Boolean = true, showLastX: () -> Int = { 0 }) =
     OutputTransformation {
         // Insert separators between chunks (from right to left to maintain correct positions)
         // Start from the last chunk boundary that is within the string (not at the end)
@@ -52,7 +56,7 @@ fun accountNumberOutputTransformation(showAccount: Boolean = true, showLastX: In
         if (showAccount) return@OutputTransformation
 
         val length = length
-        val visibleStart = (length - showLastX).coerceAtLeast(0)
+        val visibleStart = (length - showLastX()).coerceAtLeast(0)
 
         for (i in 0 until visibleStart) {
             val c = charAt(i)
