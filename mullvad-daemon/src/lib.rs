@@ -52,7 +52,6 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountNumber, VoucherSubmission},
@@ -302,7 +301,6 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
-    SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set override options to use for a given relay
@@ -1573,9 +1571,6 @@ impl Daemon {
                     .await
             }
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
-            SetDaitaSettings(tx, daita_settings) => {
-                self.on_set_daita_settings(tx, daita_settings).await
-            }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetRelayOverride(tx, relay_override) => {
                 self.on_set_relay_override(tx, relay_override).await
@@ -2805,7 +2800,7 @@ impl Daemon {
         let result = self
             .settings
             .update(|settings| {
-                settings.tunnel_options.wireguard.daita.enabled = value;
+                settings.tunnel_options.wireguard.daita = value;
             })
             .await;
 
@@ -2824,30 +2819,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
-            }
-        }
-    }
-
-    async fn on_set_daita_settings(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        daita_settings: DaitaSettings,
-    ) {
-        match self
-            .settings
-            .update(|settings| settings.tunnel_options.wireguard.daita = daita_settings)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_settings response");
             }
         }
     }
