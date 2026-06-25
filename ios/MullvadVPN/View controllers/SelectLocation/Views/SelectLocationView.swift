@@ -77,6 +77,9 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     } onRemove: { filter in
                         viewModel.onFilterRemoved(filter)
                     }
+                    .transition(
+                        .move(edge: .leading).combined(with: .opacity)
+                    )
                 }
             }
             .padding(.vertical)
