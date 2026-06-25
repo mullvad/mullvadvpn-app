@@ -110,7 +110,7 @@ class SettingsScreenTest {
                         isLoggedIn = false,
                         isSupportedVersion = true,
                         isPlayBuild = false,
-                        multihopEnabled = false,
+                        multihopMode = MultihopMode.NEVER,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = true,
                     )

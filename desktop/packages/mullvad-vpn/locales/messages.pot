@@ -3898,10 +3898,10 @@ msgstr ""
 msgid "Your device"
 msgstr ""
 
-msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgid "Your device (%s)"
 msgstr ""
 
-msgid "Your device (%s)"
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr ""
 
 msgid "\"%s\" was created"
