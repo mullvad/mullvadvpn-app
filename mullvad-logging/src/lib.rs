@@ -40,32 +40,6 @@ pub const SILENCED_CRATES: &[&str] = &[
 /// Crates that are silenced one level below the configured level
 pub const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp", "gotatun"];
 
-/// Returns the effective log level for a given target (crate/module name).
-///
-/// This checks the target against the silenced crate lists and returns
-/// the appropriate maximum log level.
-pub fn get_log_level_for_target(target: &str, default_level: LevelFilter) -> LevelFilter {
-    for silenced in WARNING_SILENCED_CRATES {
-        if target.starts_with(silenced) {
-            return LevelFilter::ERROR;
-        }
-    }
-
-    for silenced in SILENCED_CRATES {
-        if target.starts_with(silenced) {
-            return LevelFilter::WARN;
-        }
-    }
-
-    for silenced in SLIGHTLY_SILENCED_CRATES {
-        if target.starts_with(silenced) {
-            return one_level_quieter(default_level);
-        }
-    }
-
-    default_level
-}
-
 /// Returns a log level that is one level quieter than the input level.
 pub fn one_level_quieter(level: LevelFilter) -> LevelFilter {
     match level {
