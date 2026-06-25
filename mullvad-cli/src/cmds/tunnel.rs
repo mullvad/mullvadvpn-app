@@ -83,7 +83,7 @@ impl Tunnel {
             tunnel_options.wireguard.quantum_resistant,
         );
 
-        print_option!("DAITA", tunnel_options.wireguard.daita.enabled);
+        print_option!("DAITA", tunnel_options.wireguard.daita);
 
         let key = rpc.get_wireguard_key().await?;
         print_option!("Public key", key.key,);

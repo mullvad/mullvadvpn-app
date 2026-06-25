@@ -58,12 +58,6 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
-pub struct DaitaSettings {
-    #[serde(rename = "daita")]
-    pub enabled: bool,
-}
-
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct WireguardData {
@@ -202,8 +196,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
-    #[serde(flatten)]
-    pub daita: DaitaSettings,
+    pub daita: bool,
     /// Use userspace WireGuard.
     pub userspace: bool,
     /// Interval used for automatic key rotation
@@ -216,7 +209,7 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::default(),
-            daita: DaitaSettings::default(),
+            daita: false,
             userspace: false,
             rotation_interval: None,
         }
@@ -228,7 +221,7 @@ impl TunnelOptions {
         wireguard::TunnelOptions {
             mtu: self.mtu,
             quantum_resistant: self.quantum_resistant.enabled(),
-            daita: self.daita.enabled,
+            daita: self.daita,
             userspace: self.userspace,
         }
     }

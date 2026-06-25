@@ -97,7 +97,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                     .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.rotation_interval")
             }),
             quantum_resistant: Some(proto::QuantumResistantState::from(options.wireguard.quantum_resistant)),
-            daita: Some(proto::DaitaSettings::from(options.wireguard.daita.clone())),
+            daita: Some(proto::DaitaSettings::from(options.wireguard.daita)),
             enable_ipv6: options.generic.enable_ipv6,
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             userspace: options.wireguard.userspace,
@@ -233,12 +233,9 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing quantum resistant state",
                     ))??,
-                daita: options
-                    .daita
-                    .map(mullvad_types::wireguard::DaitaSettings::from)
-                    .ok_or(FromProtobufTypeError::invalid_argument(
-                        "missing daita settings",
-                    ))?,
+                daita: options.daita.map(|setting| setting.enabled).ok_or(
+                    FromProtobufTypeError::invalid_argument("missing daita settings"),
+                )?,
                 userspace: options.userspace,
             },
             generic: net::GenericTunnelOptions {
