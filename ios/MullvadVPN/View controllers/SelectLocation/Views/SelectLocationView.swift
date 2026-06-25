@@ -67,7 +67,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 )
                 .padding(.horizontal, 16)
-                if !viewModel.visibleFilterChips.isEmpty {
+                if headerIsExpanded && !viewModel.visibleFilterChips.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.visibleFilterChips,
                         labelStyle: .general,
@@ -78,7 +78,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         viewModel.onFilterRemoved(filter)
                     }
                     .transition(
-                        .move(edge: viewModel.multihopContext == .exit ? .trailing : .leading).combined(with: .opacity)
+                        .move(edge: .top).combined(with: .opacity)
                     )
                 }
             }
