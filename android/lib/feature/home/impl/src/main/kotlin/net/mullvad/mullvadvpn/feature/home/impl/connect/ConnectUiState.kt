@@ -4,9 +4,10 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPath
 
 data class ConnectUiState(
-    val hops: List<LatLong>,
+    val hops: ConnectionPath,
     val locations: List<LatLong>,
     val internetLocation: GeoIpLocation?,
     val selectedRelayItemTitle: String?,
@@ -23,7 +24,7 @@ data class ConnectUiState(
     companion object {
         val INITIAL =
             ConnectUiState(
-                hops = emptyList(),
+                hops = ConnectionPath(),
                 locations = emptyList(),
                 internetLocation = null,
                 selectedRelayItemTitle = null,
