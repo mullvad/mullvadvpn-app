@@ -514,7 +514,10 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
         }
 
-    val hops = state.hops.zipWithNext().map { Hop(it.first, it.second) }
+    val hops = remember(state.hops) {
+        state.hops.toHops()
+            .map { Hop(it.first, it.second)  }
+    }
 
     InteractiveMap(
         currentLocation = currentLocation.value,

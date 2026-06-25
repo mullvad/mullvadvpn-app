@@ -13,13 +13,12 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 
-typealias Hops = List<LatLong>
 class ConnectionPathUseCase(
     val lastKnownDisconnectedLocation: LastKnownLocationUseCase,
     val connectionProxy: ConnectionProxy,
     val relayListRepository: RelayListRepository,
 ) {
-    operator fun invoke(): Flow<Hops> =
+    operator fun invoke(): Flow<ConnectionPath> =
         combine(
             lastKnownDisconnectedLocation.lastKnownDisconnectedLocation.map {
                 it?.let {
@@ -45,7 +44,7 @@ class ConnectionPathUseCase(
             val entryRelay = entryHostname?.let { relayList.findRelay(it) }
             val exitRelay = exitHostname?.let { relayList.findRelay(it) }
 
-            listOfNotNull(offlineLocation, entryRelay?.latLong, exitRelay?.latLong)
+            ConnectionPath(offlineLocation, entryRelay?.latLong, exitRelay?.latLong)
         }
 
     private fun List<RelayItem.Location.Country>.findRelay(
@@ -54,4 +53,24 @@ class ConnectionPathUseCase(
         withDescendants().filterIsInstance<RelayItem.Location.Relay>().firstOrNull {
             it.id.code == hostname
         }
+}
+
+data class ConnectionPath(
+    val offlineLocation: LatLong? = null,
+    val entry: LatLong? = null,
+    val exit: LatLong? = null,
+) {
+    fun toHops(): List<Pair<LatLong, LatLong>> =
+        buildList {
+                if (offlineLocation != null) {
+                    add(offlineLocation)
+                }
+                if (entry != null) {
+                    add(entry)
+                }
+                if (exit != null) {
+                    add(exit)
+                }
+            }
+            .zipWithNext()
 }

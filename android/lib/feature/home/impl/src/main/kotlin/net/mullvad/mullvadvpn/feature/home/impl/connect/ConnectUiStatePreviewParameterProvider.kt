@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPath
 
 class ConnectUiStatePreviewParameterProvider : PreviewParameterProvider<ConnectUiState> {
     override val values = sequenceOf(ConnectUiState.INITIAL) + otherStates
@@ -50,7 +51,7 @@ private val otherStates =
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
                 isPlayBuild = true,
-                hops = emptyList(),
+                hops = ConnectionPath(),
                 locations = emptyList(),
             )
         }
