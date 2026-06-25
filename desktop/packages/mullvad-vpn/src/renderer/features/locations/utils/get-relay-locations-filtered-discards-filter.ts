@@ -1,9 +1,10 @@
+import { MultihopMode } from '../../../../shared/daemon-rpc-types';
 import { RelaySelectorRelayDiscard } from '../../../../shared/relay-selector-rpc-types';
 import { IRelayLocationRelayRedux } from '../../../redux/settings/reducers';
 
 export function getRelayLocationsFilteredDiscardsFilter(
   relayDiscards: RelaySelectorRelayDiscard[],
-  multihop: boolean,
+  multihop: MultihopMode,
 ) {
   return (relay: IRelayLocationRelayRedux) =>
     relayDiscards.some((discardedRelay) => {
@@ -17,7 +18,7 @@ export function getRelayLocationsFilteredDiscardsFilter(
 
           // If multihop is enabled we want to be able to present the conflicting server in the
           // relay list.
-          if (key === 'conflictWithOtherHop' && multihop) {
+          if (key === 'conflictWithOtherHop' && multihop !== 'never') {
             return true;
           }
 
