@@ -52,6 +52,7 @@ export function SelectLocationViewImpl() {
     locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly && multihop;
   const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
   const showSearchField = !showDisabledEntrySelection;
+  const showEntryExitBar = multihop !== 'never';
 
   return (
     <View backgroundColor="darkBlue">
@@ -70,13 +71,12 @@ export function SelectLocationViewImpl() {
             flexDirection="column"
             horizontalMargin="medium"
             padding={{ bottom: 'small' }}>
-            {multihop && (
+            {showEntryExitBar && (
               <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
               </StyledScopeBar>
             )}
-
             {showFilters && <FilterChips />}
             {showSearchField && <LocationSearchField />}
           </View.Container>
