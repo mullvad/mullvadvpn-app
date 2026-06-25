@@ -106,7 +106,7 @@ class SelectLocationViewModel(
                         isEntryFilteringEnabled = !settings.entryBlocked(),
                         lastKnownLocation = lastKnownLocation?.country,
                         entryCountry =
-                            tunnelState.entryCountryCode?.let {
+                            tunnelState.entryCountry?.let {
                                 relayListRepository.findCountryByCode(it)?.name
                             },
                     )
@@ -121,8 +121,8 @@ class SelectLocationViewModel(
     private val TunnelState.errorCause: ErrorStateCause?
         get() = (this as? TunnelState.Error)?.errorState?.cause
 
-    private val TunnelState.entryCountryCode: String?
-        get() = (this as? TunnelState.Connected)?.location?.entryHostname?.split("-")?.first()
+    private val TunnelState.entryCountry: String?
+        get() = (this as? TunnelState.Connected)?.location?.entryCountry
 
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

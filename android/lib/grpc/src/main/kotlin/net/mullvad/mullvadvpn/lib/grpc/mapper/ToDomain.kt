@@ -194,6 +194,8 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         longitude = longitude,
         hostname = if (hasHostname()) hostname else null,
         entryHostname = if (hasEntryHostname()) entryHostname else null,
+        entryCountry = if (hasEntryCountry()) entryCountry else null,
+        entryCity = if (hasEntryCity()) entryCity else null,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
