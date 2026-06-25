@@ -6,7 +6,6 @@ use crate::migrations::multihop::settings::{
 };
 use crate::relay_selector::RelaySelectorIO;
 
-use anyhow::Context;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_relay_selector::query::{Hops, RelayQuery};
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
@@ -105,12 +104,14 @@ impl __Settings {
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
     pub fn check_magic_mulithop(
         mut self,
-        cache_dir: &Path,
-        resource_dir: &Path,
+        cache_dir: impl AsRef<Path>,
+        resource_dir: impl AsRef<Path>,
     ) -> anyhow::Result<Self> {
-        let relay_selector =
-            RelaySelectorIO::load(self.custom_lists.clone().into(), cache_dir, resource_dir)
-                .context("Failed to initialize relay selector. Skipping migration.")?;
+        let relay_selector = RelaySelectorIO::load_with_default(
+            self.custom_lists.clone().into(),
+            cache_dir,
+            resource_dir,
+        );
         // Query the relay selector for entry relay
         // If an entry relay needs to be selected even though multihop is not explicitly enabled, the
         // entry might be needed to unblock the user post-migration.

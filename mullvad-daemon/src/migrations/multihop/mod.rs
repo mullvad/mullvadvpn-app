@@ -23,8 +23,8 @@ const PREVIOUS_SETTING: SettingsVersion = SettingsVersion::V17;
 /// If `Ok(none)` is returned, the migration has already run.
 pub fn migrate(
     settings: &mut Value,
-    cache_dir: &Path,
-    resource_dir: &Path,
+    cache_dir: impl AsRef<Path>,
+    resource_dir: impl AsRef<Path>,
 ) -> Result<Option<Scenario>> {
     if !version_matches(settings) {
         return Ok(None);
@@ -42,7 +42,7 @@ pub fn migrate(
 /// The relay selector will be initialized with an empty relay list, causing
 /// `check_magic_mulithop` to conservatively skip magic multihop detection.
 pub fn migrate_without_relay_selector(settings: &mut Value) -> Result<Option<Scenario>> {
-    migrate(settings, Path::new(""), Path::new(""))
+    migrate(settings, "", "")
 }
 
 pub(crate) fn version_matches(settings: &Value) -> bool {

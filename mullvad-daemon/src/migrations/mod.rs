@@ -240,6 +240,9 @@ async fn migrate_settings(
     let multihop_split_filter_migration = if let Some(dirs) = directories.as_ref() {
         multihop::migrate(settings, dirs.cache_dir, dirs.resource_dir)?
     } else {
+        // Run the migration without access to the relay list (e.g. in tests).
+        // The relay selector will be initialized with an empty relay list, causing
+        // the migration to skip magic multihop detection.
         multihop::migrate_without_relay_selector(settings)?
     };
 

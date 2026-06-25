@@ -11,8 +11,8 @@ use std::path::Path;
 /// Perform the migration on a settings blob.
 pub(crate) fn run(
     settings: &mut Value,
-    cache_dir: &Path,
-    resource_dir: &Path,
+    cache_dir: impl AsRef<Path>,
+    resource_dir: impl AsRef<Path>,
 ) -> Result<Scenario, Error> {
     // Parse the current settings blob to a structured format.
     let input = v17::__Settings::deserialize(settings.clone())
