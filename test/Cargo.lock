@@ -2281,7 +2281,6 @@ dependencies = [
  "hyper-util",
  "ipnetwork 0.21.1",
  "libc",
- "log",
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
@@ -2301,6 +2300,7 @@ dependencies = [
  "tokio-rustls",
  "tokio-socks",
  "tower",
+ "tracing",
  "vec1",
 ]
 
