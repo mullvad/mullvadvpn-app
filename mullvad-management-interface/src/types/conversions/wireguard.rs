@@ -67,22 +67,8 @@ impl TryFrom<proto::QuantumResistantState> for mullvad_types::wireguard::Quantum
     }
 }
 
-#[cfg(daita)]
-impl From<mullvad_types::wireguard::DaitaSettings> for proto::DaitaSettings {
-    fn from(settings: mullvad_types::wireguard::DaitaSettings) -> Self {
-        proto::DaitaSettings {
-            enabled: settings.enabled,
-            direct_only: !settings.use_multihop_if_necessary,
-        }
-    }
-}
-
-#[cfg(daita)]
-impl From<proto::DaitaSettings> for mullvad_types::wireguard::DaitaSettings {
-    fn from(settings: proto::DaitaSettings) -> Self {
-        mullvad_types::wireguard::DaitaSettings {
-            enabled: settings.enabled,
-            use_multihop_if_necessary: !settings.direct_only,
-        }
+impl From<bool> for proto::DaitaSettings {
+    fn from(enabled: bool) -> Self {
+        proto::DaitaSettings { enabled }
     }
 }

@@ -1,6 +1,6 @@
 use crate::{
     DaemonCommand, DaemonCommandSender, account_history, device,
-    relay_selector::RelaySelectorServiceImpl,
+    relay_selector::{RelaySelectorIO, grpc_service::RelaySelectorServer},
 };
 use futures::{
     StreamExt,
@@ -357,30 +357,13 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(daita)]
-    async fn set_daita_direct_only(&self, request: Request<bool>) -> ServiceResult<()> {
-        let direct_only_enabled = request.into_inner();
-        log::debug!("set_daita_direct_only({direct_only_enabled})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(
-            tx,
-            !direct_only_enabled,
-        ))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
-    }
-
-    #[cfg(daita)]
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
     ) -> ServiceResult<()> {
-        let state = mullvad_types::wireguard::DaitaSettings::from(request.into_inner());
-
-        log::debug!("set_daita_settings({state:?})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaSettings(tx, state))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
+        log::trace!("set_daita_settings");
+        let request = request.map(|request| request.enabled);
+        self.set_enable_daita(request).await
     }
 
     #[cfg(not(daita))]
@@ -1381,7 +1364,7 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
-        relay_selector: mullvad_relay_selector::RelaySelector,
+        relay_selector: RelaySelectorIO,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1397,7 +1380,7 @@ impl ManagementInterfaceServer {
             log_reload_handle,
         };
 
-        let relay_selector_service = RelaySelectorServiceImpl::new(relay_selector);
+        let relay_selector_service = RelaySelectorServer::new(relay_selector);
 
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             management_service,

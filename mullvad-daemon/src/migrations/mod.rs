@@ -43,10 +43,11 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
-use crate::{DaemonEventSender, InternalDaemonEvent};
+use crate::{DaemonEventSender, InternalDaemonEvent, migrations::multihop::scenario::Scenario};
 
 mod account_history;
 mod device;
+mod multihop;
 mod v1;
 mod v10;
 mod v11;
@@ -68,6 +69,9 @@ const SETTINGS_FILE: &str = "settings.json";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("An error occured")]
+    Other(#[from] anyhow::Error),
+
     #[error("Failed to read the settings")]
     Read(#[source] io::Error),
 
@@ -126,16 +130,25 @@ impl MigrationComplete {
     }
 }
 
-/// Contains discarded data that may be useful for later work.
-pub type MigrationData = v5::MigrationData;
-
 /// Directories that may be passed to the migration logic.
 pub struct Directories<'path> {
     cache_dir: &'path Path,
+    resource_dir: &'path Path,
     settings_dir: &'path Path,
 }
 
-pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option<MigrationData>> {
+/// Contains discarded data that may be useful for later work.
+#[derive(Default)]
+pub struct MigrationData {
+    pub(crate) v5: Option<v5::MigrationData>,
+    pub(crate) multihop_split_filter_migration: Option<Scenario>,
+}
+
+pub async fn migrate_all(
+    cache_dir: &Path,
+    resource_dir: &Path,
+    settings_dir: &Path,
+) -> Result<MigrationData> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -144,7 +157,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     let path = settings_dir.join(SETTINGS_FILE);
 
     if !path.is_file() {
-        return Ok(None);
+        return Ok(MigrationData::default());
     }
 
     let settings_bytes = fs::read(&path).await.map_err(Error::Read)?;
@@ -155,6 +168,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     let old_settings = settings.clone();
     let directories = Directories {
         cache_dir,
+        resource_dir,
         settings_dir,
     };
 
@@ -187,7 +201,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
 async fn migrate_settings(
     directories: Option<Directories<'_>>,
     settings: &mut serde_json::Value,
-) -> Result<Option<MigrationData>> {
+) -> Result<MigrationData> {
     if !settings.is_object() {
         return Err(Error::InvalidSettingsContent);
     }
@@ -197,16 +211,12 @@ async fn migrate_settings(
     v3::migrate(settings)?;
     v4::migrate(settings)?;
 
-    if let Some(Directories {
-        cache_dir,
-        settings_dir,
-    }) = directories
-    {
-        account_history::migrate_location(cache_dir, settings_dir).await;
-        account_history::migrate_formats(settings_dir, settings).await?;
+    if let Some(dirs) = directories.as_ref() {
+        account_history::migrate_location(dirs.cache_dir, dirs.settings_dir).await;
+        account_history::migrate_formats(dirs.settings_dir, settings).await?;
     }
 
-    let migration_data = v5::migrate(settings)?;
+    let v5 = v5::migrate(settings)?;
     v6::migrate(settings)?;
     v7::migrate(settings)?;
     v8::migrate(settings)?;
@@ -214,8 +224,8 @@ async fn migrate_settings(
     v9::migrate(
         settings,
         #[cfg(target_os = "android")]
-        directories.map(|directories| v9::Directories {
-            settings: directories.settings_dir,
+        directories.as_ref().map(|dirs| v9::Directories {
+            settings: dirs.settings_dir,
         }),
     )?;
 
@@ -227,11 +237,23 @@ async fn migrate_settings(
     v15::migrate(settings)?;
     v16::migrate(settings)?;
 
-    Ok(migration_data)
+    let multihop_split_filter_migration = if let Some(dirs) = directories.as_ref() {
+        multihop::migrate(settings, dirs.cache_dir, dirs.resource_dir)?
+    } else {
+        // Run the migration without access to the relay list (e.g. in tests).
+        // The relay selector will be initialized with an empty relay list, causing
+        // the migration to skip magic multihop detection.
+        multihop::migrate_without_relay_selector(settings)?
+    };
+
+    Ok(MigrationData {
+        v5,
+        multihop_split_filter_migration,
+    })
 }
 
 pub(crate) fn migrate_device(
-    migration_data: MigrationData,
+    migration_data: v5::MigrationData,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: DaemonEventSender<InternalDaemonEvent>,
 ) -> MigrationComplete {

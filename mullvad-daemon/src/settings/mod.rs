@@ -242,18 +242,21 @@ impl SettingsPersister {
     /// Serializes the settings and saves them to the given file.
     async fn save_inner(path: &Path, settings: &Settings) -> Result<(), Error> {
         log::debug!("Writing settings to {}", path.display());
-
         let buffer = serde_json::to_string_pretty(settings).map_err(Error::SerializeError)?;
-        let mut file = mullvad_fs::AtomicFile::new(path)
-            .await
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
-        file.write_all(&buffer.into_bytes())
-            .await
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
-        file.finalize()
-            .await
-            .map_err(|e| Error::WriteError(path.display().to_string(), e))?;
+        Self::save_bytes(path, &buffer).await
+    }
 
+    /// Save content to disk at `path`.
+    pub(crate) async fn save_bytes(
+        path: impl AsRef<Path>,
+        bytes: impl AsRef<[u8]>,
+    ) -> Result<(), Error> {
+        let write_err = |e| Error::WriteError(path.as_ref().display().to_string(), e);
+        let mut file = mullvad_fs::AtomicFile::new(path.as_ref())
+            .await
+            .map_err(write_err)?;
+        file.write_all(bytes.as_ref()).await.map_err(write_err)?;
+        file.finalize().await.map_err(write_err)?;
         Ok(())
     }
 
@@ -682,6 +685,7 @@ mod test {
                   "mssfix": null
                 },
                 "wireguard": {
+                  "daita": false,
                   "mtu": null,
                   "rotation_interval": null
                 },

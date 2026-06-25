@@ -20,7 +20,7 @@ mod macos;
 pub mod management_interface;
 mod migrations;
 mod relay_list;
-mod relay_selector;
+pub mod relay_selector;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
@@ -31,7 +31,8 @@ mod tunnel;
 pub mod version;
 
 use crate::{
-    relay_list::parsed_relays::parse_relays_from_file, target_state::PersistentTargetState,
+    relay_list::parsed_relays::parse_relays_from_file, relay_selector::RelaySelectorIO,
+    target_state::PersistentTargetState,
 };
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -47,13 +48,10 @@ use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
-#[cfg(daita)]
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountNumber, VoucherSubmission},
@@ -304,10 +302,6 @@ pub enum DaemonCommand {
     /// Set DAITA settings for the tunnel
     #[cfg(daita)]
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
-    #[cfg(daita)]
-    SetDaitaUseMultihopIfNecessary(ResponseTx<(), settings::Error>, bool),
-    #[cfg(daita)]
-    SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set override options to use for a given relay
@@ -692,7 +686,7 @@ pub struct Daemon {
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_handle: version::router::VersionRouterHandle,
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
@@ -723,23 +717,48 @@ impl Daemon {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
-            .await
-            .unwrap_or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to migrate settings or cache")
-                );
-                None
-            });
-
-        let mut settings = SettingsPersister::load(&config.settings_dir).await;
-
         // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
         // connections.
         let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
             .inspect_err(|err| log::error!("{err}"))
             .ok();
+
+        let migration_data = migrations::migrate_all(
+            &config.cache_dir,
+            &config.resource_dir,
+            &config.settings_dir,
+        )
+        .await
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate settings or cache")
+            );
+        })
+        .unwrap_or_default();
+
+        // If split filter / multihop migration ran, cache the result to disk. The result will need
+        // to be persisted until a client has acknowledged the migration, which could happen after a
+        // daemon restart.
+        // NOTE: This code may be removed once app versions prior to mid 2026 are unsupported.
+        if let Some(scenario) = migration_data.multihop_split_filter_migration
+            && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
+            && let Err(err) = SettingsPersister::save_bytes(
+                config.cache_dir.join("split-filter-migration.json"),
+                &scenario,
+            )
+            .await
+        {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg(&format!(
+                    "Failed to save split-filter migration ({scenario}) to disk: {err}"
+                ))
+            );
+        }
+
+        let mut settings = SettingsPersister::load(&config.settings_dir).await;
+
         let relay_selector = {
             let (initial_relay_list, initial_bridge_list) = initial_relay_list
                 .clone()
@@ -748,8 +767,8 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            RelaySelector::from_settings(
-                &settings,
+            RelaySelectorIO::from_settings(
+                settings.to_settings(),
                 initial_relay_list.clone(),
                 initial_bridge_list.clone(),
             )
@@ -835,7 +854,7 @@ impl Daemon {
             });
         });
 
-        let migration_complete = if let Some(migration_data) = migration_data {
+        let migration_complete = if let Some(migration_data) = migration_data.v5 {
             migrations::migrate_device(
                 migration_data,
                 api_handle.clone(),
@@ -1554,14 +1573,6 @@ impl Daemon {
             }
             #[cfg(daita)]
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
-            #[cfg(daita)]
-            SetDaitaUseMultihopIfNecessary(tx, value) => {
-                self.on_set_daita_use_multihop_if_necessary(tx, value).await
-            }
-            #[cfg(daita)]
-            SetDaitaSettings(tx, daita_settings) => {
-                self.on_set_daita_settings(tx, daita_settings).await
-            }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetRelayOverride(tx, relay_override) => {
                 self.on_set_relay_override(tx, relay_override).await
@@ -2786,7 +2797,7 @@ impl Daemon {
         let result = self
             .settings
             .update(|settings| {
-                settings.tunnel_options.wireguard.daita.enabled = value;
+                settings.tunnel_options.wireguard.daita = value;
             })
             .await;
 
@@ -2805,69 +2816,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
-            }
-        }
-    }
-
-    #[cfg(daita)]
-    async fn on_set_daita_use_multihop_if_necessary(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        value: bool,
-    ) {
-        match self
-            .settings
-            .update(|settings| {
-                settings
-                    .tunnel_options
-                    .wireguard
-                    .daita
-                    .use_multihop_if_necessary = value
-            })
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
-
-                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
-                    return; // DAITA is not supported for custom relays
-                }
-
-                let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
-
-                if settings_changed && daita_enabled {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_use_multihop_if_necessary response");
-            }
-        }
-    }
-
-    #[cfg(daita)]
-    async fn on_set_daita_settings(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        daita_settings: DaitaSettings,
-    ) {
-        match self
-            .settings
-            .update(|settings| settings.tunnel_options.wireguard.daita = daita_settings)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_settings response");
             }
         }
     }
