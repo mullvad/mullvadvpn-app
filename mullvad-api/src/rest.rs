@@ -267,7 +267,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
                 && err.is_network_error()
                 && !api_availability.is_offline()
             {
-                log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                tracing::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                 if let Some(tx) = tx {
                     let _ = tx
                         .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
@@ -488,7 +488,7 @@ impl Request<BoxBody<Bytes, Error>> {
             // Parse unexpected responses and errors
             if !expected_status.contains(&response.status()) {
                 if !expected_status.is_empty() {
-                    log::error!(
+                    tracing::error!(
                         "Unexpected HTTP status code {}, expected codes [{}]",
                         response.status(),
                         expected_status
@@ -514,7 +514,7 @@ impl Request<BoxBody<Bytes, Error>> {
             && code == crate::INVALID_ACCESS_TOKEN
             && let Some((account, store)) = &auth
         {
-            log::debug!("Access token was rejected. Retrying with a new one");
+            tracing::debug!("Access token was rejected. Retrying with a new one");
             store.invalidate_token(account);
             // Retry with new token
             send_request().await
