@@ -5005,6 +5005,8 @@
 				F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */,
 			);
 			path = Previews;
+			sourceTree = "<group>";
+		};
 		E10A0001000000000000AC01 /* GotaTunAdapter */ = {
 			isa = PBXGroup;
 			children = (
@@ -9538,7 +9540,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = "$PROJECT_DIR/MullvadRustRuntime/module.private.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
@@ -9586,7 +9588,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = "$PROJECT_DIR/MullvadRustRuntime/module.private.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
@@ -9633,7 +9635,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = "$PROJECT_DIR/MullvadRustRuntime/module.private.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
@@ -9679,7 +9681,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadRustRuntime/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = "$PROJECT_DIR/MullvadRustRuntime/module.private.modulemap";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";

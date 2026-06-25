@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
@@ -86,8 +87,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         settingsManager: SettingsManager,
         logRedactor: LogRedacting? = nil,
         migratedSettingsListener: MigratedSettingsListener,
-        inAppLogObserver: InAppLogBlockObserver,
-        breadcrumbsProvider: BreadcrumbsProvider
+        inAppLogObserver: InAppLogBlockObserver
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -1303,5 +1303,3 @@ extension DeviceState {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
 }
-
-

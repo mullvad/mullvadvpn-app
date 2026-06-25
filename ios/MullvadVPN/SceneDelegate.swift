@@ -91,8 +91,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             settingsManager: appDelegate.settingsManager,
             logRedactor: appDelegate.logRedactor,
             migratedSettingsListener: appDelegate.migratedSettingsListener,
-            inAppLogObserver: appDelegate.inAppLogObserver,
-            breadcrumbsProvider: appDelegate.breadcrumbsProvider
+            inAppLogObserver: appDelegate.inAppLogObserver
         )
 
         appCoordinator?.onShowSettings = { [weak self] in
