@@ -98,7 +98,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.latitude.value, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
-        globe.draw(projectionMatrix, viewMatrix, viewState.globeColors)
+        val contourWidth = (5f -viewState.cameraPosition.zoom * 2f).coerceIn(1f..4f)
+        globe.draw(projectionMatrix, viewMatrix, viewState.globeColors, contourWidth)
 
         // Draw location markers
         viewState.markers.forEach {
