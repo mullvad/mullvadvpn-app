@@ -50,6 +50,7 @@ tokio-rustls = { version = "0.26.0", default-features = false, features = [
 ] }
 tokio-socks = "0.5.1"
 tower = { workspace = true }
+tracing = { workspace = true }
 vec1 = { workspace = true, features = ["serde"] }
 
 [dev-dependencies]
