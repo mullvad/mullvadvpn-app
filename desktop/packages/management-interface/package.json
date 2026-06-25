@@ -27,5 +27,8 @@
   },
   "scripts": {
     "build": "bash ./scripts/container-run-generate-bindings.sh"
+  },
+  "volta": {
+    "extends": "../../package.json"
   }
 }
