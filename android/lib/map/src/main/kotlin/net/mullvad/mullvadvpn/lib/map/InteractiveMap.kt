@@ -154,8 +154,6 @@ fun InteractiveMap(
         scope.launch {
             // Fling the map based on velocity of the gesture
             var (longVelocity, latVelocity) = tracker.calculateVelocity()
-            Logger.d { "LongVelocity: $longVelocity, LatVelocity: $latVelocity" }
-            Logger.d { "OnGestureEnd" }
             tracker.resetTracking()
             do {
                 val result =
@@ -223,7 +221,9 @@ fun InteractiveMap(
             view = glSurfaceView
             glSurfaceView.setData(globeViewState)
         },
-        onRelease = { it.lifecycle = null },
+        onRelease = {
+            it.lifecycle = null
+        },
     )
 }
 
