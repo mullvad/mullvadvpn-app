@@ -361,13 +361,9 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         request: Request<types::DaitaSettings>,
     ) -> ServiceResult<()> {
-        let state = mullvad_types::wireguard::DaitaSettings::from(request.into_inner());
-
-        log::debug!("set_daita_settings({state:?})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaSettings(tx, state))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
+        log::trace!("set_daita_settings");
+        let request = request.map(|request| request.enabled);
+        self.set_enable_daita(request).await
     }
 
     #[cfg(not(daita))]
