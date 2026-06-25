@@ -125,7 +125,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             transportProvider: apiTransportProvider
         )
         appMessageHandler = AppMessageHandler(
-            packetTunnelActor: actor,
+            packetTunnelActor: implementation.actor,
             apiRequestProxy: apiRequestProxy,
             inAppLogBuffer: inAppLogBuffer
         )
