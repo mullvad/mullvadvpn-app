@@ -132,6 +132,7 @@ tonic = "0.14.6"
 tonic-prost = "0.14.6"
 tonic-prost-build = { version = "0.14.6", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
+tracing = "0.1.44"
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 tun = { version = "0.8.11", default-features = false, features = ["async"] }

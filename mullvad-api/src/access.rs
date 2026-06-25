@@ -10,6 +10,7 @@ use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
 use std::{borrow::Cow, collections::HashMap};
 use tokio::select;
+use tracing::{Level, instrument};
 
 pub const AUTH_URL_PREFIX: &str = "auth/v1";
 
@@ -73,12 +74,12 @@ impl AccessTokenStore {
                             // Otherwise, generate a new token
                             if let Some(ref access_token) = account_state.current_access_token {
                                 if !access_token.is_expired() {
-                                    log::trace!("Using stored access token");
+                                    tracing::trace!("Using stored access token");
                                     let _ = response_tx.send(Ok(access_token.access_token.clone()));
                                     continue;
                                 }
 
-                                log::debug!("Replacing expired access token");
+                                tracing::debug!("Replacing expired access token");
                                 account_state.current_access_token = None;
                             }
 
@@ -92,7 +93,7 @@ impl AccessTokenStore {
                                     let service = service.clone();
                                     let factory = factory.clone();
 
-                                    log::debug!("Fetching access token for an account");
+                                    tracing::debug!("Fetching access token for an account");
 
                                     tokio::spawn(async move {
                                         let result = fetch_access_token(service, factory, account.clone()).await;
@@ -111,7 +112,7 @@ impl AccessTokenStore {
                             // Drop in-flight requests for the account
                             // & forget any existing access token
 
-                            log::debug!("Invalidating access token for an account");
+                            tracing::debug!("Invalidating access token for an account");
 
                             if let Some(task) = account_state.inflight_request.take() {
                                 task.abort();
@@ -165,6 +166,7 @@ impl AccessTokenStore {
     }
 }
 
+#[instrument(level = Level::TRACE, skip(service, factory, account_number), ret)]
 async fn fetch_access_token(
     service: RequestServiceHandle,
     factory: RequestFactory,

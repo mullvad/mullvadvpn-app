@@ -6,6 +6,7 @@ use crate::{
     tls_stream::TlsStream,
 };
 use domain_fronting::ProxyConnection;
+use futures::FutureExt;
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
@@ -44,6 +45,7 @@ use tokio::{
     time::timeout,
 };
 use tower::Service;
+use tracing::{Instrument, Level, instrument, trace_span};
 
 #[cfg(any(feature = "api-override", test))]
 use crate::proxy::ConnectionDecorator;
@@ -72,12 +74,13 @@ impl HttpsConnectorHandle {
 }
 
 /// Requests for the HttpsConnector actor.
+#[derive(Debug)]
 enum HttpsConnectorRequest {
     Reset,
     SetConnectionMode(ApiConnectionMode),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
@@ -93,6 +96,7 @@ pub(crate) enum InnerConnectionMode {
 }
 
 impl InnerConnectionMode {
+    #[instrument(level = Level::TRACE, skip(socket_bypass_tx, disable_tls), ret)]
     async fn connect(
         self,
         hostname: &str,
@@ -272,6 +276,7 @@ impl InnerConnectionMode {
 /// Certificate verification is intentionally skipped because the security of domain fronting
 /// does not depend on the CDN TLS — the actual API connection is secured by the inner TLS
 /// layer to `api.mullvad.net`.
+#[instrument(level = Level::TRACE, skip(stream), ret)]
 async fn cdn_tls_connect(
     stream: TcpStream,
     front_domain: &str,
@@ -348,13 +353,13 @@ async fn cdn_tls_connect(
     connector.connect(server_name, stream).await
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct ShadowsocksConfig {
     proxy_context: SharedContext,
     params: ParsedShadowsocksConfig,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct ParsedShadowsocksConfig {
     peer: SocketAddr,
     password: String,
@@ -369,7 +374,7 @@ impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct SocksConfig {
     peer: SocketAddr,
     authentication: Option<proxy::SocksAuth>,
@@ -472,6 +477,7 @@ impl HttpsConnector {
     /// Establishes a TCP connection with a peer at the specified socket address.
     ///
     /// Will timeout after [`CONNECT_TIMEOUT`] seconds.
+    #[instrument(level = Level::TRACE, skip(socket_bypass_tx), ret)]
     async fn open_socket(
         addr: SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -486,7 +492,7 @@ impl HttpsConnector {
             let (done_tx, done_rx) = oneshot::channel();
             let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
             if done_rx.await.is_err() {
-                log::error!("Failed to bypass socket, connection might fail");
+                tracing::error!("Failed to bypass socket, connection might fail");
             }
         }
 
@@ -498,6 +504,7 @@ impl HttpsConnector {
     /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be
     /// used. Otherwise `dns_resolver` will be used as a fallback.
     /// If the URI contains a port, then that port will be used.
+    #[instrument(level = Level::TRACE, skip(dns_resolver), ret)]
     async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
 
@@ -550,6 +557,10 @@ impl Service<Uri> for HttpsConnector {
         #[cfg(any(feature = "api-override", test))]
         let disable_tls = self.disable_tls;
 
+        let span = trace_span!("HttpsConnector::call");
+        span.record("uri", &format_args!("{uri}"));
+
+        let return_span = span.clone();
         let fut = async move {
             if uri.scheme() != Some(&Scheme::HTTPS) {
                 return Err(io::Error::new(
@@ -597,7 +608,11 @@ impl Service<Uri> for HttpsConnector {
             }
 
             Ok(TokioIo::new(stream))
-        };
+        }
+        .inspect(move |result| {
+            return_span.record("return", format_args!("{result:?}"));
+        })
+        .instrument(span);
 
         Box::pin(fut)
     }
@@ -618,6 +633,7 @@ impl RequestHandler {
     }
 
     /// Process a single request from a connected [HttpsConnectorHandle].
+    #[instrument(level = Level::TRACE, skip(self))]
     fn handle(&mut self, request: HttpsConnectorRequest) {
         let handles = {
             let mut inner = self.connector.lock().unwrap();

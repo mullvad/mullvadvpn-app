@@ -72,7 +72,7 @@ impl ApiAvailability {
     /// starting it if it's not currently running.
     pub fn reset_inactivity_timer(&self) {
         let mut inner = self.acquire();
-        log::trace!("Restarting API inactivity check");
+        tracing::trace!("Restarting API inactivity check");
         inner.stop_inactivity_timer();
         let availability_handle = self.clone();
         inner.inactivity_timer = Some(tokio::spawn(async move {
@@ -194,7 +194,7 @@ impl Default for ApiAvailability {
 impl ApiAvailabilityState {
     fn suspend(&mut self) {
         if !self.state.suspended {
-            log::trace!("Suspending API requests");
+            tracing::trace!("Suspending API requests");
             self.state.suspended = true;
             let _ = self.tx.send(self.state);
         }
@@ -202,38 +202,38 @@ impl ApiAvailabilityState {
 
     fn unsuspend(&mut self) {
         if self.state.suspended {
-            log::trace!("Unsuspending API requests");
+            tracing::trace!("Unsuspending API requests");
             self.state.suspended = false;
             let _ = self.tx.send(self.state);
         }
     }
 
     fn set_inactive(&mut self) {
-        log::trace!("Settings state to inactive");
+        tracing::trace!("Settings state to inactive");
         if !self.state.inactive {
-            log::debug!("Pausing background API requests due to inactivity");
+            tracing::debug!("Pausing background API requests due to inactivity");
             self.state.inactive = true;
             let _ = self.tx.send(self.state);
         }
     }
 
     fn set_active(&mut self) {
-        log::trace!("Settings state to active");
+        tracing::trace!("Settings state to active");
         if self.state.inactive {
-            log::debug!("Resuming background API requests due to activity");
+            tracing::debug!("Resuming background API requests due to activity");
             self.state.inactive = false;
             let _ = self.tx.send(self.state).inspect_err(|send_err| {
-                log::debug!("All receivers of state updates have been dropped");
-                log::debug!("{send_err}");
+                tracing::debug!("All receivers of state updates have been dropped");
+                tracing::debug!("{send_err}");
             });
         }
     }
 
     fn set_offline(&mut self, offline: bool) {
         if offline {
-            log::debug!("Pausing API requests due to being offline");
+            tracing::debug!("Pausing API requests due to being offline");
         } else {
-            log::debug!("Resuming API requests due to coming online");
+            tracing::debug!("Resuming API requests due to coming online");
         }
         if self.state.offline != offline {
             self.state.offline = offline;
@@ -243,7 +243,7 @@ impl ApiAvailabilityState {
 
     fn pause_background(&mut self) {
         if !self.state.pause_background {
-            log::debug!("Pausing background API requests");
+            tracing::debug!("Pausing background API requests");
             self.state.pause_background = true;
             let _ = self.tx.send(self.state);
         }
@@ -251,14 +251,14 @@ impl ApiAvailabilityState {
 
     fn resume_background(&mut self) {
         if self.state.pause_background {
-            log::debug!("Resuming background API requests");
+            tracing::debug!("Resuming background API requests");
             self.state.pause_background = false;
             let _ = self.tx.send(self.state);
         }
     }
 
     fn stop_inactivity_timer(&mut self) {
-        log::trace!("Stopping API inactivity check");
+        tracing::trace!("Stopping API inactivity check");
         if let Some(timer) = self.inactivity_timer.take() {
             timer.abort();
         }

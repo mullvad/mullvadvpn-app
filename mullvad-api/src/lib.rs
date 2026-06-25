@@ -9,6 +9,7 @@ use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
+use tracing::{Instrument, Level, instrument, trace_span};
 
 pub mod availability;
 use availability::ApiAvailability;
@@ -116,6 +117,7 @@ impl ApiEndpoint {
     /// Panics if `MULLVAD_API_ADDR`, `MULLVAD_API_HOST` or
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(feature = "api-override")]
+    #[instrument(level = Level::DEBUG, ret)]
     pub fn from_env_vars() -> ApiEndpoint {
         let host_var = Self::read_var(env::API_HOST_VAR);
         let address_var = Self::read_var(env::API_ADDR_VAR);
@@ -135,7 +137,7 @@ impl ApiEndpoint {
             (None, None) => {}
             (Some(host), None) => {
                 use std::net::ToSocketAddrs;
-                log::debug!(
+                tracing::debug!(
                     "{api_addr} not found. Resolving API IP address from {api_host}={host}",
                     api_addr = env::API_ADDR_VAR,
                     api_host = env::API_HOST_VAR
@@ -164,7 +166,7 @@ impl ApiEndpoint {
 
         if api.host.is_none() && api.address.is_none() {
             if disable_tls_var.is_some() {
-                log::warn!(
+                tracing::warn!(
                     "{disable_tls} is ignored since {api_host} and {api_addr} are not set",
                     disable_tls = env::DISABLE_TLS_VAR,
                     api_host = env::API_HOST_VAR,
@@ -177,7 +179,7 @@ impl ApiEndpoint {
                 .map(|disable_tls| disable_tls != "0")
                 .unwrap_or(api.disable_tls);
 
-            log::debug!(
+            tracing::debug!(
                 "Overriding API. Using {host} at {scheme}{addr} (force direct={direct})",
                 host = api.host(),
                 addr = api.address(),
@@ -204,6 +206,7 @@ impl ApiEndpoint {
     /// Panics if `MULLVAD_API_ADDR`, `MULLVAD_API_HOST` or
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(not(feature = "api-override"))]
+    #[instrument(level = Level::TRACE, ret)]
     pub fn from_env_vars() -> ApiEndpoint {
         let env_vars = [
             env::API_HOST_VAR,
@@ -213,7 +216,7 @@ impl ApiEndpoint {
         ];
 
         if env_vars.map(Self::read_var).iter().any(Option::is_some) {
-            log::warn!(
+            tracing::warn!(
                 "These variables are ignored in production builds: {env_vars_pretty}",
                 env_vars_pretty = env_vars.join(", ")
             );
@@ -392,7 +395,7 @@ impl Runtime {
             Ok(cache) => cache,
             Err(error) => {
                 if cache_file.exists() {
-                    log::error!(
+                    tracing::error!(
                         "{}",
                         error.display_chain_with_msg(
                             "Failed to load cached API addresses. Falling back on bundled address"
@@ -518,15 +521,17 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
+        let span = trace_span!("get_data");
         let request = self.get_data_response(account);
 
-        async move { request.await?.deserialize().await }
+        async move { request.await?.deserialize().await }.instrument(span)
     }
 
     pub fn get_data_response(
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
+        let span = trace_span!("get_data_response");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -537,6 +542,7 @@ impl AccountsProxy {
                 .account(account)?;
             service.request(request).await
         }
+        .instrument(span)
     }
 
     pub fn create_account(
@@ -547,17 +553,20 @@ impl AccountsProxy {
             number: AccountNumber,
         }
 
+        let span = trace_span!("create_account");
         let request = self.create_account_response();
 
         async move {
             let account: AccountCreationResponse = request.await?.deserialize().await?;
             Ok(account.number)
         }
+        .instrument(span)
     }
 
     pub fn create_account_response(
         &self,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
+        let span = trace_span!("create_account_response");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -567,6 +576,7 @@ impl AccountsProxy {
                 .expected_status(&[StatusCode::CREATED]);
             service.request(request).await
         }
+        .instrument(span)
     }
 
     pub fn submit_voucher(
@@ -579,6 +589,7 @@ impl AccountsProxy {
             voucher_code: String,
         }
 
+        let span = trace_span!("submit_voucher");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let submission = VoucherSubmission { voucher_code };
@@ -590,12 +601,14 @@ impl AccountsProxy {
                 .expected_status(&[StatusCode::OK]);
             service.request(request).await?.deserialize().await
         }
+        .instrument(span)
     }
 
     pub fn delete_account(
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
+        let span = trace_span!("delete_account");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -609,6 +622,7 @@ impl AccountsProxy {
             let _ = service.request(request).await?;
             Ok(())
         }
+        .instrument(span)
     }
 
     #[cfg(target_os = "ios")]
@@ -648,6 +662,7 @@ impl AccountsProxy {
             obfuscated_id: String,
         }
 
+        let span = trace_span!("init_play_purchase");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -662,6 +677,7 @@ impl AccountsProxy {
 
             Ok(obfuscated_id)
         }
+        .instrument(span)
     }
 
     #[cfg(target_os = "android")]
@@ -670,6 +686,7 @@ impl AccountsProxy {
         account: AccountNumber,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
+        let span = trace_span!("verify_play_purchase");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -685,12 +702,13 @@ impl AccountsProxy {
             let response = service.request(request).await;
             match response {
                 Err(e) => {
-                    log::error!("verify_play_purchase failed: #{:?}", e);
+                    tracing::error!("verify_play_purchase failed: #{:?}", e);
                     Err(e)
                 }
                 Ok(_) => Ok(()),
             }
         }
+        .instrument(span)
     }
 
     pub fn get_www_auth_token(
@@ -748,6 +766,7 @@ impl ProblemReportProxy {
             metadata: metadata.clone(),
         };
 
+        let span = trace_span!("problem_report");
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -758,6 +777,7 @@ impl ProblemReportProxy {
             service.request(request).await?;
             Ok(())
         }
+        .instrument(span)
     }
 }
 
@@ -771,10 +791,12 @@ impl ApiProxy {
         Self { handle }
     }
 
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
         self.get_api_addrs_response().await?.deserialize().await
     }
 
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn get_api_addrs_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
         let request = self
             .handle
@@ -786,6 +808,7 @@ impl ApiProxy {
     }
 
     /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn api_addrs_available(&self) -> Result<bool, rest::Error> {
         let request = self
             .handle

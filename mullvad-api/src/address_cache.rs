@@ -90,7 +90,7 @@ impl AddressCache<FileAddressCacheBacking> {
         write_path: Option<Box<Path>>,
         hostname: String,
     ) -> Result<AddressCache<FileAddressCacheBacking>, Error> {
-        log::debug!("Loading API addresses from {}", read_path.display());
+        tracing::debug!("Loading API addresses from {}", read_path.display());
         let backing = FileAddressCacheBacking {
             read_path: Some(Arc::from(read_path)),
             write_path: write_path.map(Arc::from),
@@ -134,7 +134,7 @@ impl<T: AddressCacheBacking> AddressCache<T> {
 
     fn new_inner(address: SocketAddr, hostname: String, backing: Arc<T>) -> Self {
         let cache = AddressCacheInner::from_address(address);
-        log::debug!("Using API address: {}", cache.address);
+        tracing::debug!("Using API address: {}", cache.address);
 
         Self {
             inner: Arc::new(Mutex::new(cache)),
