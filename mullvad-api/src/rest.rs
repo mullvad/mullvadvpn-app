@@ -262,7 +262,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
                 && err.is_network_error()
                 && !api_availability.is_offline()
             {
-                log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                tracing::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                 if let Some(tx) = tx {
                     let _ = tx
                         .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
@@ -482,7 +482,7 @@ where
 
         if !self.expected_status.contains(&response.status()) {
             if !self.expected_status.is_empty() {
-                log::error!(
+                tracing::error!(
                     "Unexpected HTTP status code {}, expected codes [{}]",
                     response.status(),
                     self.expected_status
