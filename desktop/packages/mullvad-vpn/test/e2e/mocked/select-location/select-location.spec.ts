@@ -45,10 +45,10 @@ test.describe('Select location', () => {
     await expect(input).toBeFocused();
   });
 
-  test.describe('Multihop enabled', () => {
+  test.describe('Multihop', () => {
     test.beforeAll(async () => {
       await helpers.updateMockSettings({
-        multihop: true,
+        multihop: 'always',
       });
     });
 
@@ -75,7 +75,7 @@ test.describe('Select location', () => {
 
     test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
       await helpers.updateMockSettings({
-        multihop: true,
+        multihop: 'always',
         daita: true,
         directOnly: false,
       });
@@ -89,7 +89,7 @@ test.describe('Select location', () => {
 
     test('App should show entry selection when daita is enabled with direct only', async () => {
       await helpers.updateMockSettings({
-        multihop: true,
+        multihop: 'always',
         daita: true,
         directOnly: true,
       });
@@ -138,7 +138,7 @@ test.describe('Select location', () => {
       await util.ipc.settings.setRelaySettings.ignore();
 
       const settings = await helpers.updateMockSettings({
-        multihop: true,
+        multihop: 'always',
         daita: true,
         directOnly: true,
       });
@@ -232,7 +232,7 @@ test.describe('Select location', () => {
 
       await helpers.updateMockSettings(
         {
-          multihop: false,
+          multihop: 'never',
         },
         initialSettings,
       );
@@ -250,7 +250,7 @@ test.describe('Select location', () => {
 
       await helpers.updateMockSettings(
         {
-          multihop: true,
+          multihop: 'always',
         },
         initialSettings,
       );
@@ -274,7 +274,7 @@ test.describe('Select location', () => {
 
       await helpers.updateMockSettings(
         {
-          multihop: false,
+          multihop: 'never',
         },
         settings,
       );
@@ -313,7 +313,7 @@ test.describe('Select location', () => {
 
       await helpers.updateMockSettings(
         {
-          multihop: false,
+          multihop: 'never',
         },
         settings,
       );

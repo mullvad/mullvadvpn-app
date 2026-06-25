@@ -8,6 +8,7 @@ import {
   IRelayListCountry,
   IRelayListHostname,
   ISettings,
+  MultihopMode,
   Ownership,
   type Recents,
 } from '../../../../src/shared/daemon-rpc-types';
@@ -162,7 +163,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
       directOnly,
       multihop,
     }: {
-      multihop?: boolean;
+      multihop?: MultihopMode;
       daita?: boolean;
       directOnly?: boolean;
     },
@@ -173,7 +174,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     }
     if ('normal' in settings.relaySettings && settings.tunnelOptions.daita) {
       if (multihop !== undefined)
-        settings.relaySettings.normal.wireguardConstraints.useMultihop = multihop;
+        settings.relaySettings.normal.wireguardConstraints.multihop = multihop;
       if (daita !== undefined) settings.tunnelOptions.daita.enabled = daita;
       if (directOnly !== undefined) settings.tunnelOptions.daita.directOnly = directOnly;
     }
