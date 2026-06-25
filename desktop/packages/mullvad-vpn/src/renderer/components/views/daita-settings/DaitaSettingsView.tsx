@@ -3,7 +3,6 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/components';
-import { Flex, Icon, Text } from '../../../lib/components';
 import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
@@ -13,11 +12,9 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { HeaderTitle } from '../../SettingsHeader';
-import { useShowDaitaMultihopInfo } from './hooks';
 
 export function DaitaSettingsView() {
   const { pop } = useHistory();
-  const showDaitaMultihopInfo = useShowDaitaMultihopInfo();
 
   return (
     <View backgroundColor="darkBlue">
@@ -30,17 +27,6 @@ export function DaitaSettingsView() {
               <FlexColumn gap="medium">
                 <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
                   <HeaderTitle>{strings.daita}</HeaderTitle>
-                  {showDaitaMultihopInfo && (
-                    <Flex gap="small" alignItems="center">
-                      <Icon icon="info-circle" color="whiteOnBlue60" size="small" />
-                      <Text variant="labelTinySemiBold" color="whiteAlpha60">
-                        {messages.pgettext(
-                          'wireguard-settings-view',
-                          'Multihop is being used to enable DAITA for your selected location',
-                        )}
-                      </Text>
-                    </Flex>
-                  )}
                   <FlexColumn gap="large">
                     <Carousel
                       aria-label={
