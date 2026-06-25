@@ -78,7 +78,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         viewModel.onFilterRemoved(filter)
                     }
                     .transition(
-                        .move(edge: .leading).combined(with: .opacity)
+                        .move(edge: viewModel.multihopContext == .exit ? .trailing : .leading).combined(with: .opacity)
                     )
                 }
             }

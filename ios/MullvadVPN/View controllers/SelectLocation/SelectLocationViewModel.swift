@@ -534,7 +534,10 @@ extension SelectLocationViewModel {
     }
 
     var visibleFilterChips: [SelectLocationFilter] {
-        currentLocationContext.filter
+        switch (multihopContext, multihopState) {
+        case (.entry, .whenNeeded): []
+        default: currentLocationContext.filter
+        }
     }
 }
 
