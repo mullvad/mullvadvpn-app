@@ -155,7 +155,7 @@ impl From<Settings> for RelayQuery {
             obfuscation: obfuscation_constraint_from_settings(
                 settings.obfuscation_settings.clone(),
             ),
-            daita: Constraint::Only(settings.tunnel_options.wireguard.daita.enabled),
+            daita: Constraint::Only(settings.tunnel_options.wireguard.daita),
             ip_version: wg.ip_version,
         };
         let exit = ExitConstraints {

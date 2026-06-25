@@ -7,10 +7,7 @@ use std::{
 
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{
-    CustomTunnelEndpoint, settings,
-    wireguard::{DaitaSettings, QuantumResistantState},
-};
+use mullvad_types::{CustomTunnelEndpoint, settings, wireguard::QuantumResistantState};
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -645,9 +642,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
     mullvad_client
         .set_quantum_resistant_tunnel(QuantumResistantState::Off)
         .await?;
-    mullvad_client
-        .set_daita_settings(DaitaSettings::default())
-        .await?;
+    mullvad_client.set_daita_settings(false).await?;
 
     let peer_addr: SocketAddr = SocketAddr::new(
         IpAddr::V4(TEST_CONFIG.host_bridge_ip),
