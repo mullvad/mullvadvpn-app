@@ -15,16 +15,17 @@ public final class InAppLogBuffer: @unchecked Sendable {
     public init() {}
 
     public func append(_ entry: InAppLogEntry) {
-        lock.lock()
-        entries.append(entry)
-        lock.unlock()
+        lock.withLock {
+            entries.append(entry)
+        }
     }
 
-    public func drain() -> [InAppLogEntry] {
-        lock.lock()
-        let result = entries
-        entries.removeAll()
-        lock.unlock()
-        return result
+    public func flush() -> [InAppLogEntry] {
+        lock.withLock {
+            let result = entries
+            entries.removeAll()
+
+            return result
+        }
     }
 }

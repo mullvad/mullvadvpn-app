@@ -42,7 +42,7 @@ public struct InAppLogHandler: LogHandler {
     init(process: InAppLogEntry.Process, label: String, observer: InAppLogBlockObserver) {
         self.process = process
         self.label = label
-        self.observerList.append(observer)
+        observerList.append(observer)
     }
 
     public func log(
@@ -54,15 +54,15 @@ public struct InAppLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
+        let logEntry = InAppLogEntry(
+            process: process,
+            timestamp: Date().logFormatted,
+            label: label,
+            message: message.description
+        )
+
         observerList.notify {
-            $0.didAddLogEntry(
-                InAppLogEntry(
-                    process: process,
-                    timestamp: Date().logFormatted,
-                    label: label,
-                    message: message.description
-                )
-            )
+            $0.didAddLogEntry(logEntry)
         }
     }
 }
