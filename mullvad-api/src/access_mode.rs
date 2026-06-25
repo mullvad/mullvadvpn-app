@@ -71,7 +71,7 @@ impl AccessMethodEvent {
 /// some [`AccessMethodSetting`] (most likely the currently active access
 /// method). These logically related values are sometimes useful to group
 /// together into one value, which is encoded by [`ResolvedConnectionMode`].
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ResolvedConnectionMode {
     /// The connection strategy to be used by the `mullvad-api` crate when
     /// initializing API requests.
@@ -138,7 +138,7 @@ impl AccessModeSelectorHandle {
 
     pub async fn get_current(&self) -> Result<ResolvedConnectionMode> {
         self.send_command(Message::Get).await.inspect_err(|_| {
-            log::debug!("Failed to get current access method!");
+            tracing::debug!("Failed to get current access method!");
         })
     }
 
@@ -146,7 +146,7 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Use(tx, value))
             .await
             .inspect_err(|_| {
-                log::debug!("Failed to set new access method!");
+                tracing::debug!("Failed to set new access method!");
             })
     }
 
@@ -154,7 +154,7 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Update(tx, access_methods))
             .await
             .inspect_err(|_| {
-                log::debug!("Failed to switch to a new set of access methods");
+                tracing::debug!("Failed to switch to a new set of access methods");
             })
     }
 
@@ -169,13 +169,13 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Resolve(tx, setting))
             .await
             .inspect_err(|_| {
-                log::error!("Failed to resolve access method!");
+                tracing::error!("Failed to resolve access method!");
             })
     }
 
     pub async fn rotate(&self) -> Result<ApiConnectionMode> {
         self.send_command(Message::Rotate).await.inspect_err(|_| {
-            log::debug!("Failed while getting the next access method");
+            tracing::debug!("Failed while getting the next access method");
         })
     }
 }
@@ -288,7 +288,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
 
     async fn into_future(mut self) {
         while let Some(cmd) = self.cmd_rx.next().await {
-            log::trace!("Processing {cmd} command");
+            tracing::trace!("Processing {cmd} command");
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::Use(tx, id) => self.on_use_access_method(tx, id).await,
@@ -299,13 +299,13 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             match execution {
                 Ok(_) => (),
                 Err(error) if error.is_critical_error() => {
-                    log::error!(
+                    tracing::error!(
                         "AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}"
                     );
                     break;
                 }
                 Err(error) => {
-                    log::debug!("AccessModeSelector failed processing command due to {error}");
+                    tracing::debug!("AccessModeSelector failed processing command due to {error}");
                 }
             }
         }
@@ -330,7 +330,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg(feature = "api-override")]
         {
             if self.api_endpoint.force_direct {
-                log::debug!("API proxies are disabled");
+                tracing::debug!("API proxies are disabled");
                 return;
             }
         }
@@ -357,11 +357,11 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg(feature = "api-override")]
         {
             if self.api_endpoint.force_direct {
-                log::debug!("API proxies are disabled");
+                tracing::debug!("API proxies are disabled");
                 return Ok(ApiConnectionMode::Direct);
             }
 
-            log::debug!(
+            tracing::debug!(
                 "The `api-override` feature is enabled, but a direct connection \
                  is not enforced. Selecting API access methods as normal"
             );
@@ -381,7 +381,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
 
         self.current = resolved;
 
-        log::info!(
+        tracing::info!(
             "A new API access method has been selected: {name}",
             name = self.current.setting.name
         );
