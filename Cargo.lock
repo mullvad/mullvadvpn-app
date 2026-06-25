@@ -3248,6 +3248,7 @@ dependencies = [
  "tokio-rustls",
  "tokio-socks",
  "tower",
+ "tracing",
  "vec1",
 ]
 

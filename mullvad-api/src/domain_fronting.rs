@@ -23,7 +23,7 @@ pub async fn resolve() -> Option<ApiConnectionMode> {
             config,
         ))),
         Err(error) => {
-            log::warn!("Failed to resolve domain fronting config: {error}");
+            tracing::warn!("Failed to resolve domain fronting config: {error}");
             None
         }
     }

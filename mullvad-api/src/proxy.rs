@@ -16,6 +16,7 @@ use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
 };
+use tracing::{Level, instrument};
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
@@ -88,6 +89,7 @@ pub struct DomainFrontingConfig {
 
 impl DomainFrontingConfig {
     /// Resolve a domain fronting configuration by performing DNS lookup on the front domain.
+    #[instrument(level = Level::TRACE, ret)]
     pub async fn resolve(
         front: Uri,
         proxy_host: String,
@@ -145,7 +147,7 @@ impl ApiConnectionMode {
     /// This returns `ApiConnectionMode::Direct` if reading from disk fails for any reason.
     pub async fn try_from_cache(cache_dir: &Path) -> Self {
         Self::from_cache(cache_dir).await.unwrap_or_else(|error| {
-            log::error!(
+            tracing::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to read API endpoint cache")
             );
@@ -155,11 +157,12 @@ impl ApiConnectionMode {
 
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
     /// If the file does not exist, this returns `Ok(ApiConnectionMode::Direct)`.
+    #[instrument(level = Level::TRACE, ret)]
     async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         match fs::read_to_string(path).await {
             Ok(s) => serde_json::from_str(&s).map_err(|error| {
-                log::error!(
+                tracing::error!(
                     "{}",
                     error.display_chain_with_msg(&format!(
                         "Failed to deserialize \"{CURRENT_CONFIG_FILENAME}\""
@@ -178,6 +181,7 @@ impl ApiConnectionMode {
     }
 
     /// Stores this config to `CURRENT_CONFIG_FILENAME`.
+    #[instrument(level = Level::TRACE, ret)]
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
         let mut file = mullvad_fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
         let json = serde_json::to_string_pretty(self)
@@ -188,12 +192,13 @@ impl ApiConnectionMode {
     }
 
     /// Attempts to remove `CURRENT_CONFIG_FILENAME`, if it exists.
+    #[instrument(level = Level::TRACE)]
     pub async fn try_delete_cache(cache_dir: &Path) {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         if let Err(err) = fs::remove_file(path).await
             && err.kind() != std::io::ErrorKind::NotFound
         {
-            log::error!(
+            tracing::error!(
                 "{}",
                 err.display_chain_with_msg("Failed to remove old API config")
             );
@@ -276,7 +281,9 @@ impl AsyncRead for ApiConnection {
         cx: &mut task::Context<'_>,
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_read(cx, buf)
+        let poll = Pin::new(&mut self.0).poll_read(cx, buf);
+        tracing::trace!(name: "ApiConnection::poll_read", return = ?poll);
+        poll
     }
 }
 
@@ -286,20 +293,46 @@ impl AsyncWrite for ApiConnection {
         cx: &mut task::Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        Pin::new(&mut self.0).poll_write(cx, buf)
+        let poll = Pin::new(&mut self.0).poll_write(cx, buf);
+        tracing::trace!(name: "ApiConnection::poll_write", buf_len = buf.len(), return = ?poll);
+        poll
     }
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_flush(cx)
+        let poll = Pin::new(&mut self.0).poll_flush(cx);
+        tracing::trace!(name: "ApiConnection::poll_flush", return = ?poll);
+        poll
     }
 
     fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_shutdown(cx)
+        let poll = Pin::new(&mut self.0).poll_shutdown(cx);
+        tracing::trace!(name: "ApiConnection::poll_shutdown", return = ?poll);
+        poll
+    }
+
+    fn poll_write_vectored(
+        mut self: Pin<&mut Self>,
+        cx: &mut task::Context<'_>,
+        bufs: &[io::IoSlice<'_>],
+    ) -> Poll<io::Result<usize>> {
+        let poll = Pin::new(&mut self.0).poll_write_vectored(cx, bufs);
+        tracing::trace!(name: "ApiConnection::poll_write_vectored", return = ?poll);
+        poll
+    }
+
+    fn is_write_vectored(&self) -> bool {
+        self.0.is_write_vectored()
     }
 }
 
 impl Connection for ApiConnection {
     fn connected(&self) -> Connected {
         self.0.connected()
+    }
+}
+
+impl fmt::Debug for ApiConnection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("ApiConnection").finish_non_exhaustive()
     }
 }
