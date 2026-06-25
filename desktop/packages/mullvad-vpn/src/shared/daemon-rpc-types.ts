@@ -289,9 +289,11 @@ export type RelayLocationGeographical =
 
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
+export type MultihopMode = 'when-needed' | 'always' | 'never';
+
 export interface IWireguardConstraints {
   ipVersion: Constraint<IpVersion>;
-  useMultihop: boolean;
+  multihop: MultihopMode;
   entryLocation: Constraint<RelayLocation>;
 }
 

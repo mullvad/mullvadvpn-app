@@ -838,7 +838,7 @@ export default class AppRenderer {
           ownership,
           wireguard: {
             ipVersion: liftConstraint(wireguardConstraints.ipVersion),
-            useMultihop: wireguardConstraints.useMultihop,
+            multihop: wireguardConstraints.multihop,
             entryLocation: liftConstraint(wireguardConstraints.entryLocation),
           },
         },
@@ -1114,10 +1114,10 @@ export default class AppRenderer {
           const city = country?.cities.find(({ code }) => constraint.city === code);
 
           let entryHostname: string | undefined;
-          const multihopConstraint = relaySettings.normal.wireguardConstraints.useMultihop;
+          const multihopConstraint = relaySettings.normal.wireguardConstraints.multihop;
           const entryLocationConstraint = relaySettings.normal.wireguardConstraints.entryLocation;
           if (
-            multihopConstraint &&
+            multihopConstraint !== 'never' &&
             entryLocationConstraint !== 'any' &&
             'hostname' in entryLocationConstraint.only &&
             entryLocationConstraint.only.hostname.length === 3
