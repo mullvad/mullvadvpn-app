@@ -220,9 +220,9 @@ export interface ITunnelStateRelayInfo {
 // The order of the variants match the priority order and can be sorted on.
 export enum FeatureIndicator {
   daita,
-  daitaMultihop,
   quantumResistance,
   multihop,
+  multihopAuto,
   splitTunneling,
   lockdownMode,
   udp2tcp,

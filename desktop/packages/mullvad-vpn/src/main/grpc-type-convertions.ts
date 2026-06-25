@@ -370,6 +370,8 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
+    case grpcTypes.FeatureIndicator.MULTIHOP_AUTO:
+      return FeatureIndicator.multihopAuto;
       return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
       return FeatureIndicator.lockdownMode;
@@ -387,8 +389,6 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMtu;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
-    case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
-      return FeatureIndicator.daitaMultihop;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
     case grpcTypes.FeatureIndicator.QUIC:

@@ -29,10 +29,10 @@ type FeatureIndicatorWithOptionTestOption = FeatureIndicatorTestOption & {
 
 const featureIndicatorWithoutOption: FeatureIndicatorTestOption[] = [
   {
-    testId: 'DAITA multihop',
-    featureIndicator: FeatureIndicator.daitaMultihop,
-    route: RoutePath.daitaSettings,
-    featureIndicatorLabel: 'DAITA: Multihop',
+    testId: 'automatic multihop',
+    featureIndicator: FeatureIndicator.multihopAuto,
+    route: RoutePath.multihopSettings,
+    featureIndicatorLabel: 'Automatic multihop',
   },
   {
     testId: 'split tunneling',
@@ -97,7 +97,7 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
     featureIndicator: FeatureIndicator.multihop,
     route: RoutePath.multihopSettings,
     featureIndicatorLabel: 'Multihop',
-    option: { name: 'Enable', type: 'switch' },
+    option: { name: 'Mode', type: 'listbox' },
   },
   {
     testId: 'custom dns',
