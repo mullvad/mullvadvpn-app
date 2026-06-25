@@ -11,10 +11,7 @@ impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
             tunnel_metadata: endpoint
                 .tunnel_interface
                 .map(|tunnel_interface| proto::TunnelMetadata { tunnel_interface }),
-            #[cfg(daita)]
             daita: endpoint.daita,
-            #[cfg(not(daita))]
-            daita: false,
         }
     }
 }
@@ -175,7 +172,6 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
             tunnel_interface: endpoint
                 .tunnel_metadata
                 .map(|tunnel_metadata| tunnel_metadata.tunnel_interface),
-            #[cfg(daita)]
             daita: endpoint.daita,
         })
     }

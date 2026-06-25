@@ -2,8 +2,6 @@
 use crate::types;
 #[cfg(not(target_os = "android"))]
 use futures::{Stream, StreamExt};
-#[cfg(all(daita, not(target_os = "android")))]
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::AccessMethodSetting,
     device::{DeviceEvent, RemoveDeviceEvent},
@@ -302,15 +300,13 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    #[cfg(daita)]
     pub async fn set_enable_daita(&mut self, value: bool) -> Result<()> {
         self.0.set_enable_daita(value).await?;
         Ok(())
     }
 
-    #[cfg(daita)]
-    pub async fn set_daita_settings(&mut self, settings: DaitaSettings) -> Result<()> {
-        let settings = types::DaitaSettings::from(settings);
+    pub async fn set_daita_settings(&mut self, enable: bool) -> Result<()> {
+        let settings = types::DaitaSettings::from(enable);
         self.0.set_daita_settings(settings).await?;
         Ok(())
     }
