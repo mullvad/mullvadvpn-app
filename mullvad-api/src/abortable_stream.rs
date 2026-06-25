@@ -39,6 +39,7 @@ impl AbortableStreamHandle {
     }
 }
 
+#[derive(Debug)]
 pub struct AbortableStream<S: Unpin> {
     stream: S,
     shutdown_rx: Fuse<oneshot::Receiver<()>>,
