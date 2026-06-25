@@ -341,8 +341,12 @@ private fun ColumnScope.LoginInput(
     }
 
     val outputTransformation =
-        remember(showPassword, showLastChar) {
-            accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
+        remember(showPassword) {
+            accountNumberOutputTransformation(
+                showAccount = showPassword,
+                // HACK! See comment in accountNumberOutputTransformation for more information.
+                showLastX = { if (showLastChar) 1 else 0 },
+            )
         }
 
     val accountState = rememberTextFieldState(state.accountNumberInput)

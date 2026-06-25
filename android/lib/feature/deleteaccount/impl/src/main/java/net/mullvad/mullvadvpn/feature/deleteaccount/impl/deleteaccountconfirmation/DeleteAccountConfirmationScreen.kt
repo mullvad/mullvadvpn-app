@@ -239,10 +239,11 @@ private fun AccountNumberInput(
     var showPassword by remember { mutableStateOf(false) }
 
     val transformation =
-        remember(showPassword, showLastChar) {
+        remember(showPassword) {
             accountNumberOutputTransformation(
                 showAccount = showPassword,
-                showLastX = if (showLastChar) 1 else 0,
+                // HACK! See comment in accountNumberOutputTransformation for more information.
+                showLastX = { if (showLastChar) 1 else 0 },
             )
         }
 
