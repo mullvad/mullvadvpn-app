@@ -8,6 +8,7 @@ import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
 import { GeographicalLocationTrailingActions } from './components';
@@ -33,8 +34,10 @@ function GeographicalLocationImpl({
   onSelect,
   ...props
 }: GeographicalLocationProps) {
+  const { searchTerm } = useSelectLocationViewContext();
   const { loading } = useGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
+  const [lastSearchTerm, setLastSearchTerm] = useState(searchTerm);
   const locationChildren = getLocationChildren(location);
   const { selectedLocationRef } = useScrollPositionContext();
   const { hasRecents } = useRecents();
@@ -47,11 +50,15 @@ function GeographicalLocationImpl({
   // state from an effect.
   const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
     setExpanded(value);
+    setLastSearchTerm(searchTerm);
   });
 
+  // If search term changes, reset expanded state.
   useEffect(() => {
-    setExpandedEffectEvent(location.expanded);
-  }, [location.expanded]);
+    if (searchTerm !== lastSearchTerm) {
+      setExpandedEffectEvent(location.expanded);
+    }
+  }, [searchTerm, lastSearchTerm, location.expanded]);
 
   const disabled = disabledProp || location.disabled || loading;
   const showChildren = locationChildren.length > 0 && expanded;
