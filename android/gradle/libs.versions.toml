@@ -75,6 +75,7 @@ annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
 material = "1.14.0"
 rust-android = "0.10.1"
+test-balloon = "1.0.1-K2.3.20"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -177,6 +178,7 @@ protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", ve
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+test-balloon-framework = { group = "de.infix.testBalloon", name = "testBalloon-framework-core", version.ref = "test-balloon" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
@@ -213,3 +215,6 @@ mullvad-android-library-instrumented-test = { id = "mullvad.android-library-inst
 mullvad-kotlin-toolchain = { id = "mullvad.kotlin-toolchain" }
 mullvad-utilities = { id = "mullvad.utilities" }
 mullvad-unit-test = { id = "mullvad.unit-test" }
+test-balloon = { id = "de.infix.testBalloon", version.ref = "test-balloon" }
+
+power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert:org.jetbrains.kotlin.plugin.power-assert.gradle.plugin"}

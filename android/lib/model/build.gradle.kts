@@ -5,9 +5,14 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android { namespace = "net.mullvad.mullvadvpn.lib.model" }
+android {
+    namespace = "net.mullvad.mullvadvpn.lib.model"
+}
 
 dependencies {
+//    implementation(libs.test.balloon)
+    implementation(libs.junit)
+    implementation(kotlin("test"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

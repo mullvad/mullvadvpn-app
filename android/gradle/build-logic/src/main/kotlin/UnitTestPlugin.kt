@@ -1,5 +1,6 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.dependencies
 import utilities.libs
@@ -8,18 +9,15 @@ class UnitTestPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "mullvad.kotlin-toolchain")
-            apply(plugin = "de.mannodermaus.android-junit5")
+//            apply(plugin = "power.assert")
+            apply(plugin = "de.infix.testBalloon")
             dependencies {
-                "testImplementation"(project(":lib:common-test"))
                 "testImplementation"(libs.findLibrary("kotlinx.coroutines.test").get())
+                "testImplementation"(libs.findLibrary("junit").get())
                 "testImplementation"(libs.findLibrary("mockk").get())
-                "testImplementation"(libs.findLibrary("junit-jupiter-api").get())
-                "testImplementation"(libs.findLibrary("junit.jupiter.params").get())
-                "testRuntimeOnly"(libs.findLibrary("junit-jupiter-engine").get())
                 "testImplementation"(libs.findLibrary("turbine").get())
                 "testImplementation"(libs.findLibrary("kotlin.test").get())
-                "testImplementation"(libs.findLibrary("junit5.android.test.core").get())
-                "testImplementation"(libs.findLibrary("junit5.android.test.extensions").get())
+                "testImplementation"(libs.findLibrary("test.balloon.framework").get())
             }
 
             tasks.register("testAllUnitTests") {
