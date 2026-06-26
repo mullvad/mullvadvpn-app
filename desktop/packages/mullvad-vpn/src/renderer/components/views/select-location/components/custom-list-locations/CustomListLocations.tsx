@@ -30,7 +30,12 @@ function CustomListLocationsImpl() {
   const showAddLocationToCustomListText = hasCustomLists;
 
   return (
-    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+    <FlexColumn
+      as="section"
+      aria-labelledby={titleId}
+      gap="tiny"
+      tabIndex={-1}
+      data-focusable-heading>
       <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
         <StyledAnimatedList>

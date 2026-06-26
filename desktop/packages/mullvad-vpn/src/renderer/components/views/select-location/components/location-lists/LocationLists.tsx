@@ -10,11 +10,11 @@ import { RecentLocations } from '../recent-locations';
 import { useHasSearched, useHasSearchedLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
 
-export type LocationsListsProps = React.PropsWithChildren & {
+export type LocationsListsProps = {
   type: LocationType;
 };
 
-export function LocationLists(props: LocationsListsProps) {
+export function LocationLists({ type }: LocationsListsProps) {
   const { hasRecents } = useRecents();
   const hasSearched = useHasSearched();
   const hasVisibleCustomLists = useHasCustomLists();
@@ -27,7 +27,7 @@ export function LocationLists(props: LocationsListsProps) {
     hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
 
   return (
-    <LocationListsProvider {...props}>
+    <LocationListsProvider type={type}>
       <Expandable expanded={showRecentLocations}>
         <Expandable.Content>
           <RecentLocations />
