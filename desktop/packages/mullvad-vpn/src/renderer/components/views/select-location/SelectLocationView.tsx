@@ -1,12 +1,17 @@
-import { useCallback } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { useMultihop } from '../../../features/multihop/hooks';
+import { Carousel } from '../../../lib/components/carousel';
+import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
+import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
+import type { IScrollEvent } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
@@ -14,74 +19,95 @@ import {
   FilterChips,
   HeaderMenuIconButton,
   LocationLists,
-  LocationSearchField,
-  ScopeBarItem,
+  SelectLocationSelector,
   SpacePreAllocationView,
 } from './components';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
-import { StyledScopeBar } from './SelectLocationStyles';
 import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
 } from './SelectLocationViewContext';
 
+const StyledStickyContainer = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  background-color: ${colors.darkBlue};
+`;
+
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { saveScrollPosition, scrollViewRef, spacePreAllocationViewRef } =
-    useScrollPositionContext();
-  const { locationType, setLocationType } = useSelectLocationViewContext();
-
-  const { multihop } = useMultihop();
+  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
   const onClose = useCallback(() => history.pop(), [history]);
 
-  const changeLocationType = useCallback(
-    (locationType: LocationType) => {
-      saveScrollPosition();
-      setLocationType(locationType);
+  const handleScroll = React.useCallback(
+    (event: IScrollEvent) => {
+      setScrollTop(event.scrollTop);
     },
-    [saveScrollPosition, setLocationType],
+    [setScrollTop],
   );
 
-  const showEntryExitBar = multihop === 'always';
+  const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
     <View backgroundColor="darkBlue">
       <BackAction action={onClose}>
         <NavigationContainer>
-          <AppNavigationHeader
-            title={
-              // TRANSLATORS: Title label in navigation bar
-              messages.pgettext('select-location-nav', 'Select location')
-            }
-            titleVisible>
-            <HeaderMenuIconButton />
-          </AppNavigationHeader>
-
-          <View.Container
-            flexDirection="column"
-            horizontalMargin="medium"
-            padding={{ bottom: 'small' }}>
-            {showEntryExitBar && (
-              <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-              </StyledScopeBar>
-            )}
-            {isAnyFilterActive && <FilterChips />}
-            <LocationSearchField />
-          </View.Container>
-
-          <NavigationScrollbars ref={scrollViewRef}>
-            <View.Content padding={{ top: 'small' }}>
+          <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
+            <StyledStickyContainer>
+              <AppNavigationHeader
+                title={
+                  // TRANSLATORS: Title label in navigation bar
+                  messages.pgettext('select-location-nav', 'Select location')
+                }
+                titleVisible>
+                <HeaderMenuIconButton />
+              </AppNavigationHeader>
+              <FlexColumn
+                margin={{ horizontal: 'medium' }}
+                padding={{ bottom: 'small' }}
+                gap="small">
+                <SelectLocationSelector />
+                {isAnyFilterActive && <FilterChips />}
+              </FlexColumn>
+            </StyledStickyContainer>
+            <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
-                  <LocationLists
-                    // Set key to reset list when switching between entry and exit
-                    key={locationType}
-                    type={locationType}
-                  />
+                  <Carousel disableScroll slideIndex={slideIndex}>
+                    <Carousel.Slides>
+                      <Carousel.Slides.Slide key="entry">
+                        <AnimatePresence>
+                          {locationType === LocationType.entry && (
+                            <motion.div
+                              key="entry"
+                              initial={{ opacity: 1 }}
+                              exit={{ opacity: 0.4 }}
+                              transition={{ duration: 0.2 }}>
+                              <LocationLists type={LocationType.entry} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Carousel.Slides.Slide>
+                      <Carousel.Slides.Slide key="exit">
+                        <AnimatePresence>
+                          {locationType === LocationType.exit && (
+                            <motion.div
+                              key="exit"
+                              initial={{ opacity: 1 }}
+                              exit={{ opacity: 0.4 }}
+                              transition={{ duration: 0.2 }}>
+                              <LocationLists type={LocationType.exit} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Carousel.Slides.Slide>
+                    </Carousel.Slides>
+                  </Carousel>
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
