@@ -26,12 +26,12 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     var body: some View {
         ScrollViewReader { scrollProxy in
             // All items in the list are arranged in a flat hierarchy
-            List {
-                EmptyView()
-                    .frame(height: 0)
-                    .id(topAnchor)
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    EmptyView()
+                        .frame(height: 0)
+                        .id(topAnchor)
 
-                Group {
                     Color.clear
                         .frame(height: 0)
                         .onAppear {
@@ -40,57 +40,60 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         .onDisappear {
                             onScrollVisibilityChange(false)
                         }
-                    if !context.filter.isEmpty {
-                        ActiveFilterView(
-                            activeFilter: context.filter,
-                            labelStyle: .general,
-                            automaticLocationIsActive: context.isAutomaticLocation
-                        ) { filter in
-                            viewModel.onFilterTapped(filter)
-                        } onRemove: { filter in
-                            viewModel.onFilterRemoved(filter)
-                        }
-                        .padding(.bottom, 16)
-                    }
+
                     Group {
-                        if viewModel.isRecentsEnabled {
-                            recentsSection(isShowingHeader: isShowingRecentsSection)
+                        if !context.filter.isEmpty {
+                            ActiveFilterView(
+                                activeFilter: context.filter,
+                                labelStyle: .general,
+                                automaticLocationIsActive: context.isAutomaticLocation
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
+                            }
+                            .padding(.bottom, 16)
                         }
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
+                        Group {
+                            if viewModel.isRecentsEnabled {
+                                recentsSection(isShowingHeader: isShowingRecentsSection)
+                            }
+                            if isShowingCustomListsSection {
+                                customListSection(isShowingHeader: isShowingAllLocationsSection)
+                            }
+                            if isShowingAllLocationsSection {
+                                allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                            }
+                            if !isShowingCustomListsSection && !isShowingAllLocationsSection {
+                                Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                                    .font(.mullvadMiniSemiBold)
+                                    .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                                    .padding(.vertical)
+                            }
                         }
-                        if isShowingAllLocationsSection {
-                            allLocationsSection(isShowingHeader: isShowingCustomListsSection)
-                        }
-                        if !isShowingCustomListsSection && !isShowingAllLocationsSection {
-                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
-                                .font(.mullvadMiniSemiBold)
-                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                                .padding(.vertical)
-                        }
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
+//                    .listRowInsets(.init())
+//                    .listRowSeparator(.hidden)
+//                    .listRowBackground(Color.clear)
+//                    .buttonStyle(PlainButtonStyle())
+//                    .zIndex(3)  // prevent wrong overlapping during animations
                 }
-                .listRowInsets(.init())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .buttonStyle(PlainButtonStyle())
-                .zIndex(3)  // prevent wrong overlapping during animations
-            }
-            .environment(\.defaultMinListRowHeight, 0)
-            .listStyle(.plain)
-            .coordinateSpace(.exitLocationScroll)
-            .onAppear {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.isRecentsEnabled) {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.multihopContext) {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.searchText) { oldValue, newValue in
-                scrollToCurrentSelection(scrollProxy)
+                .environment(\.defaultMinListRowHeight, 0)
+                .listStyle(.plain)
+                .coordinateSpace(.exitLocationScroll)
+                .onAppear {
+                    scrollToCurrentSelection(scrollProxy)
+                }
+                .onChange(of: viewModel.isRecentsEnabled) {
+                    scrollToCurrentSelection(scrollProxy)
+                }
+                .onChange(of: viewModel.multihopContext) {
+                    scrollToCurrentSelection(scrollProxy)
+                }
+                .onChange(of: viewModel.searchText) { oldValue, newValue in
+                    scrollToCurrentSelection(scrollProxy)
+                }
             }
         }
         .mullvadInputAlert(item: $newCustomListAlert)
@@ -245,7 +248,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         } else if viewModel.searchText.isEmpty,
             let selectedLocation = context.selectedLocation
         {
-            scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
+            scrollProxy.scrollTo(selectedLocation.code, anchor: .center)
         }
     }
 }

@@ -22,7 +22,6 @@ class LocationNode: @unchecked Sendable {
     var isSelected: Bool
     var isExcluded: Bool
     var isOverridden: Bool
-    let id = UUID()
 
     var isSearchable: Bool {
         true

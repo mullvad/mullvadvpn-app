@@ -43,7 +43,7 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
         .contextMenu {
             contextMenu(location)
         }
-        .id(location.id)  // to be able to scroll to this item programmatically
+        .id(location.code)  // to be able to scroll to this item programmatically
         .mullvadAlert(item: $alert)
     }
 }

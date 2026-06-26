@@ -14,7 +14,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     var level = 0
 
     var childIndices: [Int] {
-        location.children
+        location
+            .children
             .enumerated()
             .map { $0.offset }
     }
@@ -45,9 +46,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             accessibilityLabel: location.name,
             leading: {
                 itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
-                    .contextMenu{
-                        contextMenu(location)
-                    }
             },
             segment: {
                 if hasChildren {
@@ -91,7 +89,10 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
-        .id(location.id)  // to be able to scroll to this item programmatically
+        .id(location.code)  // to be able to scroll to this item programmatically
+        .contextMenu {
+            contextMenu(location)
+        }
     }
 
     func toggleChildren() {

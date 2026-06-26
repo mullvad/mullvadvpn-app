@@ -41,7 +41,7 @@ class RecentListDataSource: LocationDataSourceProtocol {
 
                 return RecentLocationNode(
                     name: copiedNode.name,
-                    code: copiedNode.code,
+                    code: LocationNode.combineNodeCodes(["Recents", copiedNode.code]),
                     locations: copiedNode.locations,
                     isActive: copiedNode.isActive,
                     parent: copiedNode.parent,
