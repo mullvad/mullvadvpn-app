@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { Button, LabelTinySemiBold } from '../../../../../lib/components';
+import { Button, Icon, LabelTinySemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useHistory } from '../../../../../lib/history';
 
@@ -19,8 +19,9 @@ export function DisabledEntrySelection() {
   }, [push]);
 
   return (
-    <FlexColumn gap="large" margin={{ horizontal: 'large', bottom: 'tiny' }}>
-      <LabelTinySemiBold color="whiteAlpha60">
+    <FlexColumn gap="medium" alignItems="center" justifyContent="center" flexGrow={1}>
+      <Icon icon="info-circle" size="big" />
+      <LabelTinySemiBold color="whiteAlpha60" textAlign="center">
         {sprintf(
           messages.pgettext(
             'select-location-view',
