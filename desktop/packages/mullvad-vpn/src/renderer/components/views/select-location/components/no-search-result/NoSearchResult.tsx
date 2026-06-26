@@ -9,7 +9,11 @@ import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 export function NoSearchResult() {
   const { searchTerm } = useSelectLocationViewContext();
   return (
-    <FlexColumn justifyContent="center" alignItems="center">
+    <FlexColumn
+      justifyContent="center"
+      alignItems="center"
+      aria-live="assertive"
+      aria-atomic="true">
       <LabelTinySemiBold color="whiteAlpha60" textAlign="center">
         {formatHtml(
           sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), {
