@@ -27,3 +27,5 @@ export * from './filter-locations-by-relay-locations-filtered';
 export * from './get-relay-locations-filtered-filter';
 export * from './get-relay-locations-filtered-discards-filter';
 export * from './get-relay-locations-filtered-matches-filter';
+export * from './find-location';
+export * from './is-location';
