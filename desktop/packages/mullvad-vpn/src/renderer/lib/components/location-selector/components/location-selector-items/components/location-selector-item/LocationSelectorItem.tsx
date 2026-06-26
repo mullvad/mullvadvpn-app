@@ -33,6 +33,8 @@ export type LocationSelectorItemProps = Omit<AnimatedListItemProps, 'children'> 
   React.PropsWithChildren<{
     id: string;
     type: LocationSelectorItemType;
+    inputRef?: React.RefObject<HTMLInputElement | null>;
+    triggerRef?: React.RefObject<HTMLDivElement | null>;
   }>;
 
 function LocationSelectorItemImpl({
@@ -46,9 +48,15 @@ function LocationSelectorItemImpl({
   );
 }
 
-function LocationSelectorItem({ id, type, ...props }: LocationSelectorItemProps) {
+function LocationSelectorItem({
+  id,
+  type,
+  inputRef,
+  triggerRef,
+  ...props
+}: LocationSelectorItemProps) {
   return (
-    <LocationSelectorItemProvider id={id} type={type}>
+    <LocationSelectorItemProvider id={id} type={type} inputRef={inputRef} triggerRef={triggerRef}>
       <LocationSelectorItemImpl {...props} />
     </LocationSelectorItemProvider>
   );
