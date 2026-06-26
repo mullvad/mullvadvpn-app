@@ -4,15 +4,24 @@ import styled from 'styled-components';
 import { Flex } from '../flex';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import { CarouselControls, CarouselSlides } from './components';
-import { useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
+import { useFocusCarousel, useHandleKeyboardNavigation, useSlides } from './hooks';
 
 export const StyledCarousel = styled.section``;
 
-export type CarouselProps = React.ComponentPropsWithRef<'section'>;
+export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
+  slideIndex?: number;
+};
 
-function CarouselImpl({ children, ...props }: CarouselProps) {
+function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
   const { carouselRef } = useCarouselContext();
+  const { goToSlide } = useSlides();
+
+  React.useEffect(() => {
+    if (slideIndex !== undefined) {
+      goToSlide(slideIndex);
+    }
+  }, [slideIndex, goToSlide]);
 
   useFocusCarousel();
 
