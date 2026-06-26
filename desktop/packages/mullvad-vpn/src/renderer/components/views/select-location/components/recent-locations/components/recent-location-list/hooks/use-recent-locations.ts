@@ -1,12 +1,14 @@
 import { LocationType } from '../../../../../../../../features/locations/types';
 import { useMultihop } from '../../../../../../../../features/multihop/hooks';
-import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 import { useLocationListsContext } from '../../../../location-lists/LocationListsContext';
 
 export function useRecentLocations() {
-  const { recentMultihopEntryLocations, recentMultihopExitLocations, recentSinglehopLocations } =
-    useSelectLocationViewContext();
-  const { type } = useLocationListsContext();
+  const {
+    type,
+    recentMultihopEntryLocations,
+    recentMultihopExitLocations,
+    recentSinglehopLocations,
+  } = useLocationListsContext();
   const { multihop } = useMultihop();
   if (!multihop) {
     if (recentSinglehopLocations) {
