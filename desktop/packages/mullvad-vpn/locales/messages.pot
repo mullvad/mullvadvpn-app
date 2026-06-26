@@ -189,6 +189,9 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
+msgid "Internet"
+msgstr ""
+
 msgid "IPv4"
 msgstr ""
 
@@ -273,11 +276,19 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "Search for..."
+msgid "Search entry location or server"
 msgstr ""
 
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
+msgid "Search entry location, press enter to edit"
+msgstr ""
+
+msgid "Search exit location or server"
+msgstr ""
+
+msgid "Search exit location, press enter to edit"
+msgstr ""
+
+msgid "Search for..."
 msgstr ""
 
 msgid "SECURE CONNECTION"
@@ -319,6 +330,9 @@ msgid "Use"
 msgstr ""
 
 msgid "Username"
+msgstr ""
+
+msgid "Your device"
 msgstr ""
 
 #. Text for screen readers to describe the LWO settings navigation button.
@@ -2095,14 +2109,6 @@ msgid "Enable recents"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Entry"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr ""
-
-msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr ""
 
@@ -3453,9 +3459,6 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-msgid "Internet"
-msgstr ""
-
 msgid "Invalid IP address"
 msgstr ""
 
@@ -3922,9 +3925,6 @@ msgid "You will lose access to this account on all devices."
 msgstr ""
 
 msgid "You will lose your remaining"
-msgstr ""
-
-msgid "Your device"
 msgstr ""
 
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
