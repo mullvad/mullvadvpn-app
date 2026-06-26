@@ -1,15 +1,14 @@
 package net.mullvad.mullvadvpn.lib.model
 
 import arrow.core.nonEmptyListOf
+import de.infix.testBalloon.framework.core.testSuite
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
+import kotlin.test.assertFailsWith
 import net.mullvad.mullvadvpn.lib.model.HighlightedString.Companion.findHighlights
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNull
-import org.junit.jupiter.api.assertThrows
 
-class HighlightedStringTest {
-    @Test
-    fun `find highlights when query is not present should not match`() {
+val HighlightedStringTestSuite by testSuite("HighlightedString tests") {
+    test("find highlights when query is not present should not match") {
         // Arrange
         val text = "Text"
 
@@ -20,8 +19,7 @@ class HighlightedStringTest {
         assertNull(result)
     }
 
-    @Test
-    fun `find highlights when query is present once should match once`() {
+    test("find highlights when query is present once should match once") {
         // Arrange
         val text = "Text with delimiter"
 
@@ -32,8 +30,7 @@ class HighlightedStringTest {
         assertEquals(HighlightedString(nonEmptyListOf(5..8), text), result)
     }
 
-    @Test
-    fun `find highlights when query is present twice should match twice`() {
+    test("find highlights when query is present twice should match twice") {
         // Arrange
         val text = "Text with multiple delimiters"
 
@@ -44,8 +41,7 @@ class HighlightedStringTest {
         assertEquals(HighlightedString(nonEmptyListOf(6..7, 24..25), text), result)
     }
 
-    @Test
-    fun `find highlights when query has two words and is present should match`() {
+    test("find highlights when query has two words and is present should match") {
         // Arrange
         val text = "one two one three one"
 
@@ -56,8 +52,7 @@ class HighlightedStringTest {
         assertEquals(HighlightedString(nonEmptyListOf(4..10), text), result)
     }
 
-    @Test
-    fun `find highlights when matching query with multiple words should not match if not all words are present`() {
+    test("find highlights when matching query with multiple words should not match if not all words are present") {
         // Arrange
         val text = "one two one three one"
 
@@ -68,13 +63,12 @@ class HighlightedStringTest {
         assertNull(result)
     }
 
-    @Test
-    fun `should throw if highlights are out of bounds`() {
+    test("should throw if highlights are out of bounds") {
         // Arrange
         val text = "Short text"
 
         // Act & Assert
-        assertThrows<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             HighlightedString(nonEmptyListOf(0..4, 10..15), text)
         }
     }

@@ -1,50 +1,42 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import de.infix.testBalloon.framework.core.testSuite
 import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertFailsWith
 
-class LongitudeTest {
-    @Test
-    fun `create longitude with longitude should work`() {
-        assertDoesNotThrow { Longitude(80f) }
+val LongitudeTestSuite by testSuite("Longitude tests") {
+    test("create longitude with longitude should work") {
+        Longitude(80f)
     }
 
-    @Test
-    fun `create longitude with negative longitude should work`() {
-        assertDoesNotThrow { Longitude(-80f) }
+    test("create longitude with negative longitude should work") {
+        Longitude(-80f)
     }
 
-    @Test
-    fun `create too high longitude should give IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> { Longitude(180.1f) }
+    test("create too high longitude should give IllegalArgumentException") {
+        assertFailsWith<IllegalArgumentException> { Longitude(180.1f) }
     }
 
-    @Test
-    fun `create too low longitude should give IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> { Longitude(-180.1f) }
+    test("create too low longitude should give IllegalArgumentException") {
+        assertFailsWith<IllegalArgumentException> { Longitude(-180.1f) }
     }
 
-    @Test
-    fun `fromFloat should accept and wrap large value`() {
+    test("fromFloat should accept and wrap large value") {
         val longFloat = 720f
         val longitude = Longitude.fromFloat(longFloat)
 
         assertEquals(0f, longitude.value)
     }
 
-    @Test
-    fun `fromFloat should accept and wrap large negative value`() {
+    test("fromFloat should accept and wrap large negative value") {
         val longFloat = -720f
         val longitude = Longitude.fromFloat(longFloat)
 
         assertEquals(0f, longitude.value, 0f)
     }
 
-    @Test
-    fun `adding two positive longitude should result in the sum`() {
+    test("adding two positive longitude should result in the sum") {
         val longFloat1 = 80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 30f
@@ -53,8 +45,7 @@ class LongitudeTest {
         assertEquals(longFloat1 + longFloat2, (longitude1 + longitude2).value)
     }
 
-    @Test
-    fun `adding two large positive longitude should result in the sum wrapped`() {
+    test("adding two large positive longitude should result in the sum wrapped") {
         val longFloat1 = 170f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 150f
@@ -65,8 +56,7 @@ class LongitudeTest {
         assertEquals(expectedResult, (longitude1 + longitude2).value)
     }
 
-    @Test
-    fun `adding two negative longitude should result in the sum wrapped`() {
+    test("adding two negative longitude should result in the sum wrapped") {
         val longFloat1 = -80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = -40f
@@ -75,8 +65,7 @@ class LongitudeTest {
         assertEquals(longFloat1 + longFloat2, (longitude1 + longitude2).value)
     }
 
-    @Test
-    fun `subtracting two positive longitude should result in the sum`() {
+    test("subtracting two positive longitude should result in the sum") {
         val longFloat1 = 80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 30f
@@ -85,8 +74,7 @@ class LongitudeTest {
         assertEquals(longFloat1 - longFloat2, (longitude1 - longitude2).value)
     }
 
-    @Test
-    fun `subtracting a large longitude should result in the sum wrapped`() {
+    test("subtracting a large longitude should result in the sum wrapped") {
         val longFloat1 = -30f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 170f
@@ -97,8 +85,7 @@ class LongitudeTest {
         assertEquals(expectedResult, (longitude1 - longitude2).value)
     }
 
-    @Test
-    fun `subtracting a negative latitude should result in same as addition`() {
+    test("subtracting a negative latitude should result in same as addition") {
         val longFloat1 = -80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = -40f
@@ -107,8 +94,7 @@ class LongitudeTest {
         assertEquals(longFloat1 + longFloat2.absoluteValue, (longitude1 - longitude2).value)
     }
 
-    @Test
-    fun `subtracting a large negative latitude should result in same as addition wrapped`() {
+    test("subtracting a large negative latitude should result in same as addition wrapped") {
         val longFloat1 = 80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = -140f
@@ -118,8 +104,7 @@ class LongitudeTest {
         assertEquals(longitude1 + absoluteLongitude2, longitude1 - longitude2)
     }
 
-    @Test
-    fun `distanceTo with two positive longitudes should return distance`() {
+    test("distanceTo with two positive longitudes should return distance") {
         val longFloat1 = 80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 30f
@@ -128,8 +113,7 @@ class LongitudeTest {
         assertEquals(longFloat1 - longFloat2, longitude1.distanceTo(longitude2))
     }
 
-    @Test
-    fun `distanceTo with two negative longitudes should return distance`() {
+    test("distanceTo with two negative longitudes should return distance") {
         val longFloat1 = -80f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = -30f
@@ -140,8 +124,7 @@ class LongitudeTest {
         assertEquals(expectedValue, longitude1.distanceTo(longitude2))
     }
 
-    @Test
-    fun `distanceTo with wrapping value should return shortest path as distance`() {
+    test("distanceTo with wrapping value should return shortest path as distance") {
         val longFloat1 = -170f
         val longitude1 = Longitude(longFloat1)
         val longFloat2 = 170f

@@ -1,58 +1,49 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import de.infix.testBalloon.framework.core.testSuite
 import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import kotlin.test.assertFailsWith
 
-class LatitudeTest {
-    @Test
-    fun `creating a valid latitude should work`() {
-        assertDoesNotThrow { Latitude(30f) }
+val LatitudeTestSuite by testSuite("Latitude tests") {
+    test("creating a valid latitude should work") {
+        Latitude(30f)
     }
 
-    @Test
-    fun `creating a valid negative latitude should work`() {
-        assertDoesNotThrow { Latitude(-30f) }
+    test("creating a valid negative latitude should work") {
+        Latitude(-30f)
     }
 
-    @Test
-    fun `create with too high latitude should give IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> { Latitude(90.1f) }
+    test("create with too high latitude should give IllegalArgumentException") {
+        assertFailsWith<IllegalArgumentException> { Latitude(90.1f) }
     }
 
-    @Test
-    fun `create with too low latitude should give IllegalArgumentException`() {
-        assertThrows<IllegalArgumentException> { Latitude(-90.1f) }
+    test("create with too low latitude should give IllegalArgumentException") {
+        assertFailsWith<IllegalArgumentException> { Latitude(-90.1f) }
     }
 
-    @Test
-    fun `fromFloat should accept and wrap large value`() {
+    test("fromFloat should accept and wrap large value") {
         val longFloat = 400f
         val longitude = Latitude.fromFloat(longFloat)
 
         assertEquals(40f, longitude.value)
     }
 
-    @Test
-    fun `fromFloat should accept and support half-wrap`() {
+    test("fromFloat should accept and support half-wrap") {
         val longFloat = 100f
         val longitude = Latitude.fromFloat(longFloat)
 
         assertEquals(80f, longitude.value)
     }
 
-    @Test
-    fun `fromFloat should accept and support negative half-wrap`() {
+    test("fromFloat should accept and support negative half-wrap") {
         val longFloat = -100f
         val longitude = Latitude.fromFloat(longFloat)
 
         assertEquals(-80f, longitude.value)
     }
 
-    @Test
-    fun `adding two positive latitude should result in the sum`() {
+    test("adding two positive latitude should result in the sum") {
         val latFloat1 = 20f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 30f
@@ -61,8 +52,7 @@ class LatitudeTest {
         assertEquals(latFloat1 + latFloat2, (latitude1 + latitude2).value)
     }
 
-    @Test
-    fun `adding two large positive latitude should result in the sum wrapped`() {
+    test("adding two large positive latitude should result in the sum wrapped") {
         val latFloat1 = 70f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 50f
@@ -73,8 +63,7 @@ class LatitudeTest {
         assertEquals(expectedResult, (latitude1 + latitude2).value)
     }
 
-    @Test
-    fun `adding two negative latitude should result in the sum`() {
+    test("adding two negative latitude should result in the sum") {
         val latFloat1 = -20f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -40f
@@ -83,8 +72,7 @@ class LatitudeTest {
         assertEquals(latFloat1 + latFloat2, (latitude1 + latitude2).value)
     }
 
-    @Test
-    fun `adding two large negative latitude should result in the sum`() {
+    test("adding two large negative latitude should result in the sum") {
         val latFloat1 = -70f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -50f
@@ -95,8 +83,7 @@ class LatitudeTest {
         assertEquals(expectedResult, (latitude1 + latitude2).value)
     }
 
-    @Test
-    fun `subtracting two positive latitude should result in the sum`() {
+    test("subtracting two positive latitude should result in the sum") {
         val latFloat1 = 80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 30f
@@ -105,8 +92,7 @@ class LatitudeTest {
         assertEquals(latFloat1 - latFloat2, (latitude1 - latitude2).value)
     }
 
-    @Test
-    fun `subtracting a large latitude should result in the sum wrapped`() {
+    test("subtracting a large latitude should result in the sum wrapped") {
         val latFloat1 = -30f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 80f
@@ -117,8 +103,7 @@ class LatitudeTest {
         assertEquals(expectedResult, (latitude1 - latitude2).value)
     }
 
-    @Test
-    fun `subtracting a negative latitude should result in same as addition`() {
+    test("subtracting a negative latitude should result in same as addition") {
         val latFloat1 = -30f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -40f
@@ -127,8 +112,7 @@ class LatitudeTest {
         assertEquals(latFloat1 + latFloat2.absoluteValue, (latitude1 - latitude2).value)
     }
 
-    @Test
-    fun `subtracting a large negative latitude should result in same as addition wrapped`() {
+    test("subtracting a large negative latitude should result in same as addition wrapped") {
         val latFloat1 = 80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -90f
@@ -139,8 +123,7 @@ class LatitudeTest {
         assertEquals(latitude1 + absoluteLatitude2, latitude1 - latitude2)
     }
 
-    @Test
-    fun `distanceTo with two positive latitudes should return distance`() {
+    test("distanceTo with two positive latitudes should return distance") {
         val latFloat1 = 80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = 30f
@@ -149,8 +132,7 @@ class LatitudeTest {
         assertEquals(latFloat1 - latFloat2, latitude1.distanceTo(latitude2))
     }
 
-    @Test
-    fun `distanceTo with two negative latitudes should return distance`() {
+    test("distanceTo with two negative latitudes should return distance") {
         val latFloat1 = -80f
         val latitude1 = Latitude(latFloat1)
         val latFloat2 = -30f
