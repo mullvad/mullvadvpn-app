@@ -50,18 +50,12 @@ import net.mullvad.mullvadvpn.lib.model.Longitude
 val LAT_LOWER_BOUND = -40f
 val LAT_UPPER_BOUND = 65f
 
-enum class MapInteractionMode {
-    Idle,
-    Interactive,
-}
-
 internal class MapCameraController(
     private val scope: CoroutineScope,
     private val zoomRange: ClosedFloatingPointRange<Float>,
     initialLocation: LatLong,
 ) {
-    var interactionMode: MapInteractionMode by mutableStateOf(MapInteractionMode.Idle)
-        private set
+    private var isPerformingGesture = false
 
     var currentLocation: LatLong by mutableStateOf(initialLocation)
         private set
@@ -83,7 +77,7 @@ internal class MapCameraController(
 
     fun onCurrentLocationChanged(newLocation: LatLong) {
         currentLocation = newLocation
-        if (interactionMode == MapInteractionMode.Idle) {
+        if (!isPerformingGesture) {
             cancelReturnJob()
             animateToLocation(newLocation)
         }
@@ -105,7 +99,7 @@ internal class MapCameraController(
 
     fun onGestureStart() {
         cancelReturnJob()
-        interactionMode = MapInteractionMode.Interactive
+        isPerformingGesture = true
         scope.launch {
             zoomAnimatable.stop()
             latLngAnimatable.stop()
@@ -113,12 +107,12 @@ internal class MapCameraController(
         }
     }
 
-    fun onGesture(centroid: Offset, pan: Offset, zoomChange: Float, view: MapSurfaceView?) {
+    fun onGesture(centroid: Offset, pan: Offset, zoomChange: Float, offsetToLatLng: (Offset) -> LatLong?) {
         val currentPosition = latLngAnimatable.value
         val zoom = zoomAnimatable.value
 
-        val org = view?.getPosition(centroid) ?: return
-        val new = view.getPosition(centroid + pan) ?: return
+        val org = offsetToLatLng(centroid) ?: return
+        val new = offsetToLatLng(centroid + pan) ?: return
 
         val latDiff = org - new
 
@@ -148,7 +142,7 @@ internal class MapCameraController(
     }
 
     fun onGestureEnd() {
-        interactionMode = MapInteractionMode.Idle
+        isPerformingGesture = false
         returnToIdleJob = scope.launch {
             var (longVelocity, latVelocity) = tracker.calculateVelocity()
             tracker.resetTracking()
@@ -242,7 +236,9 @@ fun InteractiveMap(
         GlobeViewState(
             cameraPosition,
             markers + locationMarkers,
-            hops.map { it.copy(color = Color.White.copy(alpha = controller.alphaAnimation.value * 0.6f)) },
+            hops.map {
+                it.copy(color = Color.White.copy(alpha = controller.alphaAnimation.value * 0.6f))
+            },
             globeColors,
         )
 
@@ -260,7 +256,7 @@ fun InteractiveMap(
                     detectTransformGesturesWithEnd(
                         onGestureStart = { controller.onGestureStart() },
                         onGesture = { centroid, pan, zoom ->
-                            controller.onGesture(centroid, pan, zoom, view)
+                            controller.onGesture(centroid, pan, zoom, { view!!.getPosition(it) } )
                         },
                         onGestureEnd = { controller.onGestureEnd() },
                     )
