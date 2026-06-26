@@ -1,8 +1,8 @@
-import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { useLocationListsContext } from '../../location-lists/LocationListsContext';
 import { useRelayLocationsFilteredByLocationType } from './use-relay-locations-filtered-by-location-type';
 
 export function useRelayCount() {
-  const { countryLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useLocationListsContext();
   const relayLocationsFiltered = useRelayLocationsFilteredByLocationType();
 
   const visibleRelays = countryLocations.reduce(

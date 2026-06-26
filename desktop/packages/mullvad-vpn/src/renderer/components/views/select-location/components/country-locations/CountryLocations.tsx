@@ -4,13 +4,13 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CountryLocation } from '../country-location';
+import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { useRelayCount } from './hooks';
 
 export function CountryLocations() {
-  const { countryLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useLocationListsContext();
   const { visibleRelays, totalRelays } = useRelayCount();
 
   const titleId = React.useId();
