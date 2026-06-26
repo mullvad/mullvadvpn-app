@@ -23,17 +23,18 @@ export const StyledLocationSelectorTextField = styled(TextField)`
 `;
 
 function LocationSelectorTextField({
+  value,
   onValueChange,
   onFocusExit,
   ...props
 }: LocationSelectorTextFieldProps) {
-  const { id, textFieldRef, setFocusInsideTextField } = useLocationSelectorItemContext();
+  const { id, textFieldRef, inputRef, setFocusInsideTextField } = useLocationSelectorItemContext();
 
   const handleOnValueChange = React.useCallback(
     (value: string) => {
       onValueChange?.(id, value);
     },
-    [id, onValueChange],
+    [onValueChange, id],
   );
 
   const handleOnFocusCapture = React.useCallback(() => {
@@ -42,19 +43,20 @@ function LocationSelectorTextField({
 
   const handleOnBlurCapture = React.useCallback(
     (e: React.FocusEvent<HTMLDivElement>) => {
-      const focusInsideTextField = textFieldRef.current?.contains(e.relatedTarget) ?? false;
+      const focusInsideTextField = inputRef.current?.contains(e.relatedTarget) ?? false;
       setFocusInsideTextField(focusInsideTextField);
       if (!focusInsideTextField) {
         onFocusExit?.();
       }
     },
-    [textFieldRef, setFocusInsideTextField, onFocusExit],
+    [inputRef, setFocusInsideTextField, onFocusExit],
   );
 
   return (
     <StyledLocationSelectorTextField
       ref={textFieldRef}
       variant="secondary"
+      value={value}
       onValueChange={handleOnValueChange}
       onFocusCapture={handleOnFocusCapture}
       onBlurCapture={handleOnBlurCapture}
