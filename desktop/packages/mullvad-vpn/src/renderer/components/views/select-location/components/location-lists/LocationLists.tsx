@@ -2,19 +2,18 @@ import { useRecents } from '../../../../../features/locations/hooks';
 import type { LocationType } from '../../../../../features/locations/types';
 import { Expandable } from '../../../../../lib/components/expandable';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { useHasCustomLists } from '../../hooks';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
 import { NoSearchResult } from '../no-search-result';
 import { RecentLocations } from '../recent-locations';
-import { useHasSearched, useHasSearchedLocations } from './hooks';
+import { useHasCustomLists, useHasSearched, useHasSearchedLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
 
 export type LocationsListsProps = {
   type: LocationType;
 };
 
-export function LocationLists({ type }: LocationsListsProps) {
+function LocationsListsImpl() {
   const { hasRecents } = useRecents();
   const hasSearched = useHasSearched();
   const hasVisibleCustomLists = useHasCustomLists();
@@ -27,7 +26,7 @@ export function LocationLists({ type }: LocationsListsProps) {
     hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
 
   return (
-    <LocationListsProvider type={type}>
+    <>
       <Expandable expanded={showRecentLocations}>
         <Expandable.Content>
           <RecentLocations />
@@ -38,6 +37,14 @@ export function LocationLists({ type }: LocationsListsProps) {
         {showCountryLocations && <CountryLocations />}
         {showNoSearchResult && <NoSearchResult />}
       </FlexColumn>
+    </>
+  );
+}
+
+export function LocationLists({ type }: LocationsListsProps) {
+  return (
+    <LocationListsProvider type={type}>
+      <LocationsListsImpl />
     </LocationListsProvider>
   );
 }
