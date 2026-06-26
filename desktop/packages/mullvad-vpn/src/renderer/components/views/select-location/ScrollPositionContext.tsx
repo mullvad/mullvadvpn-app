@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'reac
 
 import { LocationType } from '../../../features/locations/types';
 import { useHistory } from '../../../lib/history';
+import { useDebounce } from '../../../lib/hooks/use-debounce';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useStyledRef } from '../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
@@ -22,6 +23,8 @@ interface ScrollPositionContext {
   resetScrollPositions: () => void;
   scrollIntoView: (rect: DOMRect) => void;
   resetHeight: () => void;
+  scrollTop: number;
+  setScrollTop: (value: number) => void;
 }
 
 type ScrollPosition = [number, number];
@@ -47,6 +50,8 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
   const selectedLocationRef = useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = React.useState(0);
+  const debouncedScrollTop = useDebounce(scrollTop, 50);
 
   const saveScrollPosition = useCallback(() => {
     const scrollPosition = scrollViewRef.current?.getScrollPosition();
@@ -85,6 +90,8 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       resetScrollPositions,
       scrollIntoView,
       resetHeight,
+      scrollTop: debouncedScrollTop,
+      setScrollTop,
     }),
     [
       spacePreAllocationViewRef,
@@ -92,6 +99,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       resetScrollPositions,
       scrollIntoView,
       resetHeight,
+      debouncedScrollTop,
     ],
   );
 
