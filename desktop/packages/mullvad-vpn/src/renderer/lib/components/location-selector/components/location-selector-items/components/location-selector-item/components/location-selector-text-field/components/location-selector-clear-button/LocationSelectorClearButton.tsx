@@ -5,9 +5,14 @@ import { TextField, useTextFieldContext } from '../../../../../../../../../text-
 import type { TextFieldIconButtonProps } from '../../../../../../../../../text-field/components';
 import { useLocationSelectorItemContext } from '../../../../LocationSelectorItemContext';
 
-export type LocationSelectorClearButtonProps = TextFieldIconButtonProps;
+export type LocationSelectorClearButtonProps = TextFieldIconButtonProps & {
+  visible?: boolean;
+};
 
-export function LocationSelectorClearButton(props: LocationSelectorClearButtonProps) {
+export function LocationSelectorClearButton({
+  visible: visibleProp,
+  ...props
+}: LocationSelectorClearButtonProps) {
   const { value, onValueChange } = useTextFieldContext();
   const { focusInsideTextField } = useLocationSelectorItemContext();
 
@@ -15,7 +20,7 @@ export function LocationSelectorClearButton(props: LocationSelectorClearButtonPr
     onValueChange?.('');
   }, [onValueChange]);
 
-  const visible = focusInsideTextField && !!value;
+  const visible = visibleProp ?? (focusInsideTextField && !!value);
 
   return (
     <AnimatePresence>
