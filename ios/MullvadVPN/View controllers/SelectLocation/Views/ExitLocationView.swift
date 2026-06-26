@@ -27,19 +27,16 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         ScrollViewReader { scrollProxy in
             // All items in the list are arranged in a flat hierarchy
             ScrollView {
+                Color.clear
+                    .frame(height: 0)
+                    .scrollPosition { position in
+                        onScrollVisibilityChange(position >= 40)
+                    }
+
                 LazyVStack(alignment: .leading, spacing: 0) {
                     EmptyView()
                         .frame(height: 0)
                         .id(topAnchor)
-
-                    Color.clear
-                        .frame(height: 0)
-                        .onAppear {
-                            onScrollVisibilityChange(true)
-                        }
-                        .onDisappear {
-                            onScrollVisibilityChange(false)
-                        }
 
                     Group {
                         if !context.filter.isEmpty {
@@ -95,6 +92,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     scrollToCurrentSelection(scrollProxy)
                 }
             }
+            .coordinateSpace(name: CoordinateSpace.scroll)
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)

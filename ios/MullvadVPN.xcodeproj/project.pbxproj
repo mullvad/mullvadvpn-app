@@ -723,6 +723,7 @@
 		7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */; };
 		7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */; };
 		7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */; };
+		7ACC21682FEEB09300DB25F5 /* ScrollView+Position.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACC21672FEEB08800DB25F5 /* ScrollView+Position.swift */; };
 		7ACD79392C0DAADD00DBEE14 /* AddCustomListLocationsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACD79382C0DAADC00DBEE14 /* AddCustomListLocationsPage.swift */; };
 		7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE19102C1C349200260BB6 /* MultihopDecisionFlow.swift */; };
 		7ACE19132C1C352100260BB6 /* RelayPickingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACE19122C1C352100260BB6 /* RelayPickingTests.swift */; };
@@ -2419,6 +2420,7 @@
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
+		7ACC21672FEEB08800DB25F5 /* ScrollView+Position.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScrollView+Position.swift"; sourceTree = "<group>"; };
 		7ACD79382C0DAADC00DBEE14 /* AddCustomListLocationsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomListLocationsPage.swift; sourceTree = "<group>"; };
 		7ACE19102C1C349200260BB6 /* MultihopDecisionFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopDecisionFlow.swift; sourceTree = "<group>"; };
 		7ACE19122C1C352100260BB6 /* RelayPickingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayPickingTests.swift; sourceTree = "<group>"; };
@@ -3713,10 +3715,11 @@
 				7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				58B9EB142489139B00095626 /* RESTError+Display.swift */,
+				7ACC21672FEEB08800DB25F5 /* ScrollView+Position.swift */,
 				E158B35F285381C60002F069 /* String+AccountFormatting.swift */,
 				7AA564472F2B680D001D1FB9 /* String+Assets.swift */,
-				7A09C98029D99215000C2CAC /* String+Search.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Helpers.swift */,
+				7A09C98029D99215000C2CAC /* String+Search.swift */,
 				58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */,
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
@@ -6897,6 +6900,7 @@
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				7A0EAE9A2D01B41500D3EB8B /* MainButtonStyle.swift in Sources */,
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
+				7ACC21682FEEB09300DB25F5 /* ScrollView+Position.swift in Sources */,
 				F0C9CE3E2F110C3B00EF41CE /* UIStackView+Contentsize.swift in Sources */,
 				7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */,
 				F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */,
