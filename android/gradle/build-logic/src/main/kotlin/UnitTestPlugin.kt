@@ -9,8 +9,9 @@ class UnitTestPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "mullvad.kotlin-toolchain")
-//            apply(plugin = "power.assert")
             apply(plugin = "de.infix.testBalloon")
+            apply(plugin = "org.jetbrains.kotlin.plugin.power-assert")
+
             dependencies {
                 "testImplementation"(libs.findLibrary("kotlinx.coroutines.test").get())
                 "testImplementation"(libs.findLibrary("junit").get())

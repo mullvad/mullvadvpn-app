@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.play.publisher) apply false
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
+    alias(libs.plugins.kotlin.power.assert) apply false
     alias(libs.plugins.protobuf.core) apply false
     alias(libs.plugins.rust.android) apply false
     alias(libs.plugins.test.balloon) apply false
