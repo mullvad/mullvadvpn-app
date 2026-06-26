@@ -1,16 +1,6 @@
 import React from 'react';
 
-import {
-  useFilterCountryLocations,
-  useMapCustomListsToLocations,
-  useMapRecentsToLocations,
-  useMapReduxCountriesToCountryLocations,
-  useSearchCountryLocations,
-  useSearchCustomListLocations,
-  useSelectedEntryOrExitLocation,
-} from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { getRecentEntryLocations, getRecentExitLocations } from '../../../features/locations/utils';
 import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
 import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
@@ -22,10 +12,6 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  countryLocations: ReturnType<typeof useSearchCountryLocations>;
-  customListLocations: ReturnType<typeof useSearchCustomListLocations>;
-  recentEntryLocations: ReturnType<typeof getRecentEntryLocations>;
-  recentExitLocations: ReturnType<typeof getRecentExitLocations>;
   isolatedItem: LocationSelectorSelectedItem | undefined;
   setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
 };
@@ -64,56 +50,16 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     return LocationType.exit;
   }, [locationTypeSelector, multihop]);
 
-  const filteredCountries = useFilterCountryLocations(locationType);
-  const filteredCountryLocations = useMapReduxCountriesToCountryLocations(
-    locationType,
-    filteredCountries,
-  );
-  const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
-
-  const selectedLocation = useSelectedEntryOrExitLocation(locationType);
-
-  const filteredCustomListLocations = useMapCustomListsToLocations(
-    searchedCountryLocations,
-    searchTerm,
-    selectedLocation,
-  );
-  const searchedCustomListLocations = useSearchCustomListLocations(
-    filteredCustomListLocations,
-    searchTerm,
-  );
-
-  const recentLocations = useMapRecentsToLocations(
-    searchedCountryLocations,
-    searchedCustomListLocations,
-  );
-
-  const recentEntryLocations = getRecentEntryLocations(recentLocations);
-  const recentExitLocations = getRecentExitLocations(recentLocations);
-
   const value = React.useMemo(
     () => ({
       locationType,
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
-      countryLocations: searchedCountryLocations,
-      customListLocations: searchedCustomListLocations,
-      recentEntryLocations,
-      recentExitLocations,
       isolatedItem,
       setIsolatedItem,
     }),
-    [
-      locationType,
-      setSelectLocationView,
-      searchTerm,
-      searchedCountryLocations,
-      searchedCustomListLocations,
-      recentEntryLocations,
-      recentExitLocations,
-      isolatedItem,
-    ],
+    [isolatedItem, locationType, searchTerm, setSelectLocationView],
   );
 
   return (
