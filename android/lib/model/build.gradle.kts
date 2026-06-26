@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
-    alias(libs.plugins.mullvad.unit.test)
+    alias(libs.plugins.mullvad.unit.test.balloon)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
 }
@@ -10,7 +10,6 @@ android {
 }
 
 dependencies {
-//    implementation(libs.test.balloon)
     implementation(libs.junit)
     implementation(kotlin("test"))
     implementation(libs.kotlinx.serialization.json)

@@ -37,6 +37,12 @@ gradlePlugin {
         }
     }
     plugins {
+        register("unit-test-balloon") {
+            id = "mullvad.unit-test-balloon"
+            implementationClass = "UnitTestBalloonPlugin"
+        }
+    }
+    plugins {
         register("android-library") {
             id = "mullvad.android-library"
             implementationClass = "AndroidLibraryPlugin"

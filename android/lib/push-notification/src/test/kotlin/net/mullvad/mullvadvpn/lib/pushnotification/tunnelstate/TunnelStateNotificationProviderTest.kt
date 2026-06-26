@@ -4,6 +4,7 @@ import android.content.Context
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import de.infix.testBalloon.framework.core.testSuite
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -14,7 +15,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -33,76 +33,65 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferences
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
-class TunnelStateNotificationProviderTest {
-
-    private lateinit var mockContext: Context
-    private lateinit var connectionProxy: ConnectionProxy
-    private lateinit var deviceRepository: DeviceRepository
-    private lateinit var userPreferencesRepository: UserPreferencesRepository
-
-    private lateinit var tunnelStateFlow: MutableStateFlow<TunnelState>
-    private lateinit var deviceStateFlow: MutableStateFlow<DeviceState>
-    private lateinit var preferencesFlow: MutableStateFlow<UserPreferences>
-
-    private val testNotificationId = NotificationId(2)
-    private val testChannelId = NotificationChannelId("test_channel")
-
-    private lateinit var provider: TunnelStateNotificationProvider
-
-    private val testAccountNumber = AccountNumber("1234567890123456")
-    private val testDeviceId1 = DeviceId.fromString("12345678-1234-5678-1234-567812345678")
-
-    private val testDevice =
-        Device(
-            id = testDeviceId1,
-            name = "Device 1",
-            creationDate = ZonedDateTime.now().minusSeconds(100),
-        )
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @BeforeEach
-    fun setup() {
+const val VPN_SERVICE_UTILS = "net.mullvad.mullvadvpn.lib.common.util.VpnServiceUtilsKt"
+@ExperimentalCoroutinesApi val TunnelStateNotificationProviderTest by testSuite{
+    testFixture {
         mockkStatic(VPN_SERVICE_UTILS)
 
-        // Initialize mocks and default behaviors
-        mockContext = mockk()
-        connectionProxy = mockk()
-        deviceRepository = mockk()
-        userPreferencesRepository = mockk()
-        val userPreferences = mockk<UserPreferences>()
-        every { userPreferences.showLocationInSystemNotification } returns false
+        object {
+             val mockContext: Context = mockk()
+             val connectionProxy: ConnectionProxy = mockk()
+             val deviceRepository: DeviceRepository = mockk()
+             val userPreferencesRepository: UserPreferencesRepository = mockk()
 
-        // Setup controllable StateFlows
-        tunnelStateFlow = MutableStateFlow(TunnelState.Disconnected(null))
-        deviceStateFlow = MutableStateFlow(DeviceState.LoggedIn(testAccountNumber, testDevice))
-        preferencesFlow = MutableStateFlow(userPreferences)
+            val testAccountNumber = AccountNumber("1234567890123456")
+            val testDeviceId1 = DeviceId.fromString("12345678-1234-5678-1234-567812345678")
 
-        // Link flows to repository mocks
-        every { connectionProxy.tunnelState } returns tunnelStateFlow
-        every { deviceRepository.deviceState } returns deviceStateFlow
-        every { userPreferencesRepository.preferencesFlow() } returns preferencesFlow
+            val testDevice =
+                Device(
+                    id = testDeviceId1,
+                    name = "Device 1",
+                    creationDate = ZonedDateTime.now().minusSeconds(100),
+                )
+            val tunnelStateFlow = MutableStateFlow<TunnelState>(TunnelState.Disconnected(null))
+            val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.LoggedIn(testAccountNumber, testDevice))
+            val userPreferences = mockk<UserPreferences>()
+            val preferencesFlow = MutableStateFlow(userPreferences)
 
-        // Default behavior for prepareSafe()
-        every { mockContext.prepareVpnSafe() } returns Prepared.right()
+             val testNotificationId = NotificationId(2)
+             val testChannelId = NotificationChannelId("test_channel")
 
-        // Initialize the class under test
-        provider =
-            TunnelStateNotificationProvider(
-                context = mockContext,
-                connectionProxy = connectionProxy,
-                deviceRepository = deviceRepository,
-                preferences = userPreferencesRepository,
-                channelId = testChannelId,
-                scope = CoroutineScope(UnconfinedTestDispatcher()),
-            )
-    }
+             lateinit var provider: TunnelStateNotificationProvider
 
-    @Test
-    fun `should emit cancel notification when device state is logged out and tunnel state is disconnected`() =
-        runTest {
+        }.also {
+            // Initialize mocks and default behaviors
+            every { it.userPreferences.showLocationInSystemNotification } returns false
+
+            // Setup controllable StateFlows
+
+            // Link flows to repository mocks
+            every { it.connectionProxy.tunnelState } returns it.tunnelStateFlow
+            every { it.deviceRepository.deviceState } returns it.deviceStateFlow
+            every { it.userPreferencesRepository.preferencesFlow() } returns it.preferencesFlow
+
+            // Default behavior for prepareSafe()
+            every { it.mockContext.prepareVpnSafe() } returns Prepared.right()
+
+            // Initialize the class under test
+            it.provider =
+                TunnelStateNotificationProvider(
+                    context = it.mockContext,
+                    connectionProxy = it.connectionProxy,
+                    deviceRepository = it.deviceRepository,
+                    preferences = it.userPreferencesRepository,
+                    channelId = it.testChannelId,
+                    scope = CoroutineScope(UnconfinedTestDispatcher()),
+                )
+        }
+    } asContextForEach {
+
+        test("should emit cancel notification when device state is logged out and tunnel state is disconnected") {
             provider.notifications.test {
                 val initialItem = awaitItem()
                 assertTrue(initialItem is NotificationUpdate.Notify)
@@ -116,100 +105,91 @@ class TunnelStateNotificationProviderTest {
                 assertTrue(cancelItem is NotificationUpdate.Cancel)
             }
         }
-
-    @Test
-    fun `should emit connected notification when tunnel state is connected`() = runTest {
-        provider.notifications.test {
-            awaitItem() // Skip initial emission
-
-            // When tunnel state becomes Connected
-            tunnelStateFlow.value = TunnelState.Connected(mockk(), mockk(), emptyList())
-
-            // Then a Connected notification update is emitted
-            val update = awaitItem()
-            assertTrue(update is NotificationUpdate.Notify)
-            assertTrue(update.value.state is NotificationTunnelState.Connected)
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun `should emit disconnected with prepare error when VPN is not prepared`() = runTest {
-        // Given VPN is not prepared
-        val prepareError = PrepareError.OtherAlwaysOnApp("OtherVPN")
-        every { mockContext.prepareVpnSafe() } returns prepareError.left()
-
-        provider =
-            TunnelStateNotificationProvider(
-                context = mockContext,
-                connectionProxy = connectionProxy,
-                deviceRepository = deviceRepository,
-                preferences = userPreferencesRepository,
-                channelId = testChannelId,
-                scope = CoroutineScope(UnconfinedTestDispatcher()),
-            )
-
-        provider.notifications.test {
-            val item = awaitItem() as NotificationUpdate.Notify<Notification.Tunnel>
-
-            // Then a Disconnected notification update is emitted with the pepare error
-            assertEquals(testNotificationId, item.notificationId)
-            val expectedState = NotificationTunnelState.Disconnected(prepareError)
-            assertEquals(expectedState, item.value.state)
-        }
-    }
-
-    @Test
-    fun `should re-emit current notification if the show location in notification preference is changed`() =
-        runTest {
-            val location =
-                GeoIpLocation(
-                    country = "USA",
-                    latitude = 40.7128,
-                    longitude = -74.0060,
-                    ipv4 = null,
-                    ipv6 = null,
-                    city = null,
-                    hostname = null,
-                    entryHostname = null,
-                )
-
+        test("should emit connected notification when tunnel state is connected") {
             provider.notifications.test {
-                awaitItem() // Skip initial
+                awaitItem() // Skip initial emission
 
                 // When tunnel state becomes Connected
-                tunnelStateFlow.value =
-                    TunnelState.Connected(mockk(), location = location, emptyList())
+                tunnelStateFlow.value = TunnelState.Connected(mockk(), mockk(), emptyList())
 
                 // Then a Connected notification update is emitted
                 val update = awaitItem()
                 assertTrue(update is NotificationUpdate.Notify)
                 assertTrue(update.value.state is NotificationTunnelState.Connected)
-                // but the location is null because showLocationInSystemNotification is false
-                assertEquals(
-                    (update.value.state as NotificationTunnelState.Connected).location,
-                    null,
-                )
-
-                // When show location in notification preference is changed to true
-                preferencesFlow.value =
-                    mockk<UserPreferences>().also {
-                        every { it.showLocationInSystemNotification } returns true
-                    }
-
-                // Then the notification should be re-emitted
-                val update2 = awaitItem()
-                assertTrue(update2 is NotificationUpdate.Notify)
-                assertTrue(update2.value.state is NotificationTunnelState.Connected)
-                // And the location is now present in the notification
-                assertEquals(
-                    (update2.value.state as NotificationTunnelState.Connected).location,
-                    location,
-                )
             }
         }
 
-    companion object {
-        const val VPN_SERVICE_UTILS = "net.mullvad.mullvadvpn.lib.common.util.VpnServiceUtilsKt"
+        test("should emit disconnected with prepare error when VPN is not prepared") {
+            // Given VPN is not prepared
+            val prepareError = PrepareError.OtherAlwaysOnApp("OtherVPN")
+            every { mockContext.prepareVpnSafe() } returns prepareError.left()
+
+            provider =
+                TunnelStateNotificationProvider(
+                    context = mockContext,
+                    connectionProxy = connectionProxy,
+                    deviceRepository = deviceRepository,
+                    preferences = userPreferencesRepository,
+                    channelId = testChannelId,
+                    scope = CoroutineScope(UnconfinedTestDispatcher()),
+                )
+
+            provider.notifications.test {
+                val item = awaitItem() as NotificationUpdate.Notify<Notification.Tunnel>
+
+                // Then a Disconnected notification update is emitted with the pepare error
+                assertEquals(testNotificationId, item.notificationId)
+                val expectedState = NotificationTunnelState.Disconnected(prepareError)
+                assertEquals(expectedState, item.value.state)
+            }
+        }
+
+        test("should re-emit current notification if the show location in notification preference is changed") {
+                val location =
+                    GeoIpLocation(
+                        country = "USA",
+                        latitude = 40.7128,
+                        longitude = -74.0060,
+                        ipv4 = null,
+                        ipv6 = null,
+                        city = null,
+                        hostname = null,
+                        entryHostname = null,
+                    )
+
+                provider.notifications.test {
+                    awaitItem() // Skip initial
+
+                    // When tunnel state becomes Connected
+                    tunnelStateFlow.value =
+                        TunnelState.Connected(mockk(), location = location, emptyList())
+
+                    // Then a Connected notification update is emitted
+                    val update = awaitItem()
+                    assertTrue(update is NotificationUpdate.Notify)
+                    assertTrue(update.value.state is NotificationTunnelState.Connected)
+                    // but the location is null because showLocationInSystemNotification is false
+                    assertEquals(
+                        (update.value.state as NotificationTunnelState.Connected).location,
+                        null,
+                    )
+
+                    // When show location in notification preference is changed to true
+                    preferencesFlow.value =
+                        mockk<UserPreferences>().also {
+                            every { it.showLocationInSystemNotification } returns true
+                        }
+
+                    // Then the notification should be re-emitted
+                    val update2 = awaitItem()
+                    assertTrue(update2 is NotificationUpdate.Notify)
+                    assertTrue(update2.value.state is NotificationTunnelState.Connected)
+                    // And the location is now present in the notification
+                    assertEquals(
+                        (update2.value.state as NotificationTunnelState.Connected).location,
+                        location,
+                    )
+                }
+            }
     }
 }

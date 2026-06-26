@@ -218,4 +218,5 @@ mullvad-android-library-instrumented-test = { id = "mullvad.android-library-inst
 mullvad-kotlin-toolchain = { id = "mullvad.kotlin-toolchain" }
 mullvad-utilities = { id = "mullvad.utilities" }
 mullvad-unit-test = { id = "mullvad.unit-test" }
+mullvad-unit-test-balloon = { id = "mullvad.unit-test-balloon" }
 test-balloon = { id = "de.infix.testBalloon", version.ref = "test-balloon" }

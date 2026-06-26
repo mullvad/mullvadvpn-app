@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.mullvad.unit.test)
+    alias(libs.plugins.mullvad.unit.test.balloon)
 }
 
 android { namespace = "net.mullvad.mullvadvpn.feature.pushnotifications" }

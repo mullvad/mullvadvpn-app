@@ -1,49 +1,25 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.powerassert.gradle.PowerAssertGradleExtension
 import utilities.libs
 
 class UnitTestPlugin : Plugin<Project> {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "mullvad.kotlin-toolchain")
-            apply(plugin = "de.infix.testBalloon")
-            apply(plugin = "org.jetbrains.kotlin.plugin.power-assert")
-
-            configure<PowerAssertGradleExtension> {
-                functions.set(
-                    listOf(
-                        "kotlin.assert",
-                        "kotlin.test.assertTrue",
-                        "kotlin.test.assertEquals",
-                        "kotlin.test.assertNull",
-                    )
-                )
-                includedSourceSets.set(
-                    listOf(
-                        "debugAndroidTest",
-                        "debugUnitTest",
-                        "test",
-                        "testDebug",
-                        "testRelease",
-                        "testOssProdDebug",
-                    )
-                )
-            }
-
+            apply(plugin = "de.mannodermaus.android-junit5")
             dependencies {
+                "testImplementation"(project(":lib:common-test"))
                 "testImplementation"(libs.findLibrary("kotlinx.coroutines.test").get())
-                "testImplementation"(libs.findLibrary("junit").get())
                 "testImplementation"(libs.findLibrary("mockk").get())
+                "testImplementation"(libs.findLibrary("junit-jupiter-api").get())
+                "testImplementation"(libs.findLibrary("junit.jupiter.params").get())
+                "testRuntimeOnly"(libs.findLibrary("junit-jupiter-engine").get())
                 "testImplementation"(libs.findLibrary("turbine").get())
                 "testImplementation"(libs.findLibrary("kotlin.test").get())
-                "testImplementation"(libs.findLibrary("test.balloon.framework").get())
-                "testImplementation"(libs.findLibrary("kotlin.power.assert.runtime").get())
+                "testImplementation"(libs.findLibrary("junit5.android.test.core").get())
+                "testImplementation"(libs.findLibrary("junit5.android.test.extensions").get())
             }
 
             tasks.register("testAllUnitTests") {
