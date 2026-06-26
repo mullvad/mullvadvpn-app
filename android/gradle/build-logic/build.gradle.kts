@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.ktfmt)
+    alias(libs.plugins.kotlin.power.assert)
 }
 
 ktfmt {
@@ -13,6 +14,7 @@ dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.android.gradle.junit5)
+    implementation(libs.kotlin.power.assert.plugin)
 }
 
 gradlePlugin {

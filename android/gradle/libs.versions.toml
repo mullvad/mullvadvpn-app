@@ -15,7 +15,7 @@ ndk = "27.3.13750724"
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 android-gradle-aapt = "15009934"
-android-gradle-plugin = "9.2.1"
+android-gradle-plugin = "9.3.0-rc01"
 # Other
 android-billingclient = "9.1.0"
 androidx-activitycompose = "1.13.0"
@@ -57,7 +57,7 @@ kermit = "2.1.0"
 koin = "4.2.2"
 koin-compose = "4.2.2"
 konsist = "0.17.3"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kotlin-ksp = "2.3.9"
 kotlinx = "1.11.0"
 kotlinx-serialization-json = "1.11.0"
@@ -75,7 +75,7 @@ annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
 material = "1.14.0"
 rust-android = "0.10.1"
-test-balloon = "1.0.1-K2.3.20"
+test-balloon = "1.0.1-K2.4.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -154,6 +154,7 @@ konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 # Required for build-logic convention plugins to apply AGP and Kotlin Gradle Plugin
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-native-prebuilt = { module = "org.jetbrains.kotlin:kotlin-native-prebuilt", version.ref = "kotlin" }
+kotlin-power-assert-plugin = { module = "org.jetbrains.kotlin.plugin.power-assert:org.jetbrains.kotlin.plugin.power-assert.gradle.plugin", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -179,6 +180,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 test-balloon-framework = { group = "de.infix.testBalloon", name = "testBalloon-framework-core", version.ref = "test-balloon" }
+kotlin-power-assert-runtime = { group = "org.jetbrains.kotlin", name = "kotlin-power-assert-runtime", version.ref = "kotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }

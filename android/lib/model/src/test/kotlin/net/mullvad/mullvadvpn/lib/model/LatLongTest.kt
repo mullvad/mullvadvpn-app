@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.model
 
 import de.infix.testBalloon.framework.core.testSuite
 import kotlin.math.sqrt
+import kotlin.test.assertTrue
 
 val LatLongTestSuite by testSuite("LatLong tests") {
     test("degree distance between two LatLong should be same as hypotenuse") {
