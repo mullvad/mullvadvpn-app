@@ -37,18 +37,26 @@ export const StyledLocationSelectorTextFieldInputInput = styled(TextField.Input)
     `;
   }}
 `;
+
 export const StyledInputAnimationContainer = styled(motion.div)`
   display: flex;
   flex: 1;
 `;
 
-export function LocationSelectorTextFieldInput(props: LocationSelectorTextFieldInputProps) {
+export function LocationSelectorTextFieldInput({
+  onFocus,
+  ...props
+}: LocationSelectorTextFieldInputProps) {
   const { inputRef, id, onSelectedItemChange, focusInsideTextField } =
     useLocationSelectorItemContext();
 
-  const handleFocus = React.useCallback(() => {
-    onSelectedItemChange?.(id);
-  }, [id, onSelectedItemChange]);
+  const handleFocus = React.useCallback(
+    (event: React.FocusEvent<HTMLInputElement>) => {
+      onSelectedItemChange?.(id);
+      onFocus?.(event);
+    },
+    [id, onFocus, onSelectedItemChange],
+  );
 
   const selected = useIsLocationSelected(id);
 
