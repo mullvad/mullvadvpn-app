@@ -40,7 +40,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         SegmentedListItem(
             level: level,
             isLastInList: isLastInList,
-            isDisabled: isDisabled,
+            userInteraction: isDisabled ? .disabled : .enabled,
             accessibilityIdentifier: .locationListItem(location.name),
             accessibilityLabel: location.name,
             leading: {

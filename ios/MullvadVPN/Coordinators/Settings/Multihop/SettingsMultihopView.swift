@@ -62,6 +62,7 @@ struct SettingsMultihopView: View {
                 VStack(spacing: 0) {
                     SegmentedListItem(
                         isLastInList: false,
+                        userInteraction: .enabledWithoutHighlight,
                         leading: {
                             itemFactory.leading(for: .generic(title: NSLocalizedString("Mode", comment: "")))
                         },

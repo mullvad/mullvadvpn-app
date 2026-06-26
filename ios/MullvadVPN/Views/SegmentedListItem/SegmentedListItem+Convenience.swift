@@ -16,7 +16,7 @@ extension SegmentedListItem where Trailing == EmptyView {
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -27,7 +27,7 @@ extension SegmentedListItem where Trailing == EmptyView {
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading
@@ -43,7 +43,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView {
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -53,7 +53,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView {
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading
@@ -69,7 +69,7 @@ extension SegmentedListItem where Trailing == EmptyView, GroupedContent == Empty
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -79,7 +79,7 @@ extension SegmentedListItem where Trailing == EmptyView, GroupedContent == Empty
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading
@@ -95,7 +95,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView, G
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -104,7 +104,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView, G
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading
@@ -120,7 +120,7 @@ extension SegmentedListItem where Segment == EmptyView, GroupedContent == EmptyV
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -130,7 +130,7 @@ extension SegmentedListItem where Segment == EmptyView, GroupedContent == EmptyV
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading
@@ -146,7 +146,7 @@ extension SegmentedListItem where Segment == EmptyView {
     init(
         level: Int = 0,
         isLastInList: Bool = true,
-        isDisabled: Bool = false,
+        userInteraction: SegmentedListItem.UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
@@ -157,7 +157,7 @@ extension SegmentedListItem where Segment == EmptyView {
     ) {
         self.level = level
         self.isLastInList = isLastInList
-        self.isDisabled = isDisabled
+        self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
         self.leading = leading

@@ -24,6 +24,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                 VStack(spacing: 0) {
                     SegmentedListItem(
                         isLastInList: false,
+                        userInteraction: .enabledWithoutHighlight,
                         accessibilityIdentifier: .includeAllNetworksSwitch,
                         leading: {
                             itemFactory.leading(for: .generic(title: NSLocalizedString("Enable", comment: "")))
@@ -38,6 +39,7 @@ struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewM
                         },
                         groupedContent: {
                             SegmentedListItem(
+                                userInteraction: .enabledWithoutHighlight,
                                 accessibilityIdentifier: .localNetworkSharingSwitch,
                                 leading: {
                                     itemFactory.leading(
