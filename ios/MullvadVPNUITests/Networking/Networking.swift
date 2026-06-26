@@ -196,7 +196,7 @@ class Networking {
 
             dataTask.resume()
 
-            let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+            let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 5)
 
             if waitResult != .completed {
                 XCTFail("Failed to verify DNS server provider - timeout")
@@ -282,7 +282,7 @@ class Networking {
 
         dataTask.resume()
 
-        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 30)
+        let waitResult = XCTWaiter.wait(for: [completionHandlerInvokedExpectation], timeout: 5)
 
         if waitResult != .completed {
             XCTFail("Request to connection check API failed - timeout")
