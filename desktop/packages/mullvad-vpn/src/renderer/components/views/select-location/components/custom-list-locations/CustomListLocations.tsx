@@ -5,10 +5,10 @@ import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { useHasCustomLists } from '../../hooks';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListLocation } from '../custom-list-location';
+import { useHasCustomLists } from '../location-lists/hooks';
+import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { CustomListsSectionTitle } from './components';
 import {
   CustomListLocationsProvider,
@@ -22,7 +22,7 @@ const StyledAnimatedList = styled(AnimatedList)`
 
 function CustomListLocationsImpl() {
   const { addingCustomList } = useCustomListLocationsContext();
-  const { customListLocations } = useSelectLocationViewContext();
+  const { customListLocations } = useLocationListsContext();
   const titleId = React.useId();
 
   const hasCustomLists = useHasCustomLists();
