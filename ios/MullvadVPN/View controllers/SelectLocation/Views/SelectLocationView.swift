@@ -67,18 +67,36 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 )
                 .padding(.horizontal, 16)
-                if headerIsExpanded && !viewModel.visibleFilterChips.isEmpty {
-                    ActiveFilterView(
-                        activeFilter: viewModel.visibleFilterChips,
-                        labelStyle: .general,
-                        automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
-                    ) { filter in
-                        viewModel.onFilterTapped(filter)
-                    } onRemove: { filter in
-                        viewModel.onFilterRemoved(filter)
+                if headerIsExpanded {
+                    VStack {
+                        if viewModel.multihopContext == .entry {
+                            ActiveFilterView(
+                                activeFilter: viewModel.visibleFilterChips,
+                                labelStyle: .general,
+                                automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
+                            }.transition(
+                                .move(edge: .leading)
+                            )
+                        } else {
+                            ActiveFilterView(
+                                activeFilter: viewModel.visibleFilterChips,
+                                labelStyle: .general,
+                                automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
+                            ) { filter in
+                                viewModel.onFilterTapped(filter)
+                            } onRemove: { filter in
+                                viewModel.onFilterRemoved(filter)
+                            }.transition(
+                                .move(edge: .trailing)
+                            )
+                        }
                     }
                     .transition(
-                        .move(edge: .top).combined(with: .opacity)
+                        .topSlide.combined(with: .opacity)
                     )
                 }
             }
