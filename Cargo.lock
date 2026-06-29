@@ -1888,9 +1888,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.7.1"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e81edfb0f5289200018c31d9aeaa1090ae7575fdb499073dd1b24ea8874c60"
+checksum = "09e8590454839d406160792e2c5617e463a0d223f7370687528d0dd6560140b9"
 dependencies = [
  "aead",
  "base64",
