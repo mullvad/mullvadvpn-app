@@ -52,16 +52,14 @@ class SettingsMigrationWizardCoordinator: Coordinator, SettingsChildCoordinator,
 
     private func customiseNavigation(on viewController: UIViewController) {
         if route == .settingsMigrationWizard {
-
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
+            let closeButton = UIBarButtonItem(
+                image: .Buttons.close,
                 primaryAction: UIAction(handler: { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self, false)
                 })
             )
-            viewController.navigationItem.rightBarButtonItem = doneButton
+            viewController.navigationItem.leftBarButtonItem = closeButton
         }
     }
-
 }
