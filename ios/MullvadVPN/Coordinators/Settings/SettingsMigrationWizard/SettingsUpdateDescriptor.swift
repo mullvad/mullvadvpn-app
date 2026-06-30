@@ -140,9 +140,12 @@ private extension MultihopStateV2 {
         case .whenNeeded:
             NSLocalizedString(
                 """
-                To ensure your current settings work with your selected location, and to avoid blocking your \
-                connection, the app might automatically multihop via a different entry server. 
+                Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+                This ensures your connection does not get blocked due to incompatible settings.
+
                 This will be indicated by the %@ symbol.
+
                 """, comment: "")
 
         }
