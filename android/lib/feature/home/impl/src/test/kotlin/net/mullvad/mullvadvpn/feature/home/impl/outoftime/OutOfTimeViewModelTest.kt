@@ -10,11 +10,10 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.runAndCancelContextTest
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -83,51 +82,51 @@ class OutOfTimeViewModelTest {
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 connectionProxy = mockConnectionProxy,
-                pollAccountExpiry = false,
                 isPlayBuild = false,
             )
     }
 
     @AfterEach
     fun tearDown() {
-        viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
 
     @Test
-    fun `when clicking on site payment then open website account view`() = runTest {
-        // Arrange
-        val mockToken = WebsiteAuthToken.fromString("154c4cc94810fddac78398662b7fa0c7")
-        coEvery { mockAccountRepository.getWebsiteAuthToken() } returns mockToken
+    fun `when clicking on site payment then open website account view`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val mockToken = WebsiteAuthToken.fromString("154c4cc94810fddac78398662b7fa0c7")
+            coEvery { mockAccountRepository.getWebsiteAuthToken() } returns mockToken
 
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            viewModel.onSitePaymentClick()
-            val action = awaitItem()
-            assertIs<OutOfTimeViewModel.UiSideEffect.OpenAccountView>(action)
-            assertEquals(mockToken, action.token)
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                viewModel.onSitePaymentClick()
+                val action = awaitItem()
+                assertIs<OutOfTimeViewModel.UiSideEffect.OpenAccountView>(action)
+                assertEquals(mockToken, action.token)
+            }
         }
-    }
 
     @Test
-    fun `when tunnel state changes then ui should be updated`() = runTest {
-        // Arrange
-        val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk(), emptyList())
+    fun `when tunnel state changes then ui should be updated`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk(), emptyList())
 
-        // Act, Assert
-        viewModel.uiState.test {
-            // Default item
-            awaitItem()
-            tunnelState.emit(tunnelRealStateTestItem)
-            val result = awaitItem()
-            assertIs<Lc.Content<OutOfTimeUiState>>(result)
-            assertEquals(tunnelRealStateTestItem, result.value.tunnelState)
+            // Act, Assert
+            viewModel.uiState.test {
+                // Default item
+                awaitItem()
+                tunnelState.emit(tunnelRealStateTestItem)
+                val result = awaitItem()
+                assertIs<Lc.Content<OutOfTimeUiState>>(result)
+                assertEquals(tunnelRealStateTestItem, result.value.tunnelState)
+            }
         }
-    }
 
     @Test
     fun `when OutOfTimeUseCase returns false uiSideEffect should emit OpenConnectScreen`() =
-        runTest {
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
             // Act, Assert
             viewModel.uiSideEffect.test {
                 outOfTimeFlow.value = false
@@ -137,40 +136,42 @@ class OutOfTimeViewModelTest {
         }
 
     @Test
-    fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() = runTest {
-        // Arrange
-        val mockDisconnectReason = DisconnectReason.USER_INITIATED_OUT_OF_TIME
-        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
+    fun `onDisconnectClick should invoke disconnect on ConnectionProxy`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val mockDisconnectReason = DisconnectReason.USER_INITIATED_OUT_OF_TIME
+            coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
-        // Act
-        viewModel.onDisconnectClick()
+            // Act
+            viewModel.onDisconnectClick()
 
-        // Assert
-        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
-    }
+            // Assert
+            coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
+        }
 
     @Test
-    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
-        // Arrange
-        paymentAvailabilityFlow.value =
-            PaymentAvailability.ProductsAvailable(
-                products =
-                    listOf(
-                        PaymentProduct(
-                            productId = ProductId("test_product_id"),
-                            price = ProductPrice("9.99"),
-                            status = PaymentStatus.PENDING,
+    fun `when there is a pending purchase, uiState should reflect it`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            paymentAvailabilityFlow.value =
+                PaymentAvailability.ProductsAvailable(
+                    products =
+                        listOf(
+                            PaymentProduct(
+                                productId = ProductId("test_product_id"),
+                                price = ProductPrice("9.99"),
+                                status = PaymentStatus.PENDING,
+                            )
                         )
-                    )
-            )
+                )
 
-        // Act, Assert
-        viewModel.uiState.test {
-            val result = awaitItem()
-            assertIs<Lc.Content<OutOfTimeUiState>>(result)
-            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem()
+                assertIs<Lc.Content<OutOfTimeUiState>>(result)
+                assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
+            }
         }
-    }
 
     companion object {
         private val MOCK_DEVICE =

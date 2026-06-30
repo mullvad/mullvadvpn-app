@@ -6,6 +6,7 @@ import arrow.core.right
 import arrow.resilience.Schedule
 import arrow.resilience.retryEither
 import co.touchlab.kermit.Logger
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +34,9 @@ interface PaymentLogic {
 
     suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>
+    suspend fun verifyPurchases(
+        maxAttempts: Long? = null
+    ): Either<VerificationError, VerificationResult>
 
     suspend fun allAvailableProducts(): List<PaymentProduct>?
 
@@ -53,7 +56,7 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
             .transform {
                 emit(it)
                 if (it.shouldDelayLoading()) {
-                    delay(EXTRA_LOADING_DELAY_MS)
+                    delay(EXTRA_LOADING_DELAY)
                 }
             }
             .onEach(::logPurchaseResult)
@@ -71,12 +74,12 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
         _purchaseResult.emit(null)
     }
 
-    override suspend fun verifyPurchases() =
+    override suspend fun verifyPurchases(maxAttempts: Long?) =
         Schedule.exponential<VerificationError>(
                 VERIFICATION_INITIAL_BACK_OFF_DURATION,
                 VERIFICATION_BACK_OFF_FACTOR,
             )
-            .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS))
+            .and(Schedule.recurs(maxAttempts ?: VERIFICATION_MAX_ATTEMPTS))
             .doWhile { error, _ ->
                 logVerificationError(error)
                 // If we have a verification error we should not retry as it will fail again.
@@ -188,12 +191,14 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
         }
 
     companion object {
-        const val EXTRA_LOADING_DELAY_MS = 300L
+        val EXTRA_LOADING_DELAY = 300.milliseconds
         const val QUERY_PRODUCTS_TIMEOUT = 3000L
 
         const val VERIFICATION_MAX_ATTEMPTS = 4L
         val VERIFICATION_INITIAL_BACK_OFF_DURATION = 3.seconds
         const val VERIFICATION_BACK_OFF_FACTOR = 3.toDouble()
+
+        val VERIFICATION_POLL_INTERVAL = 15.seconds
     }
 }
 
@@ -213,7 +218,8 @@ class EmptyPaymentUseCase : PaymentLogic {
         // No op
     }
 
-    override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
+    override suspend fun verifyPurchases(maxAttempts: Long?) =
+        VerificationResult.NothingToVerify.right()
 
     override suspend fun retryVerifyPurchase(): Either<VerificationError, VerificationResult> =
         VerificationResult.NothingToVerify.right()
