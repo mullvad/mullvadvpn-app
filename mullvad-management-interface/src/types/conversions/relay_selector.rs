@@ -157,7 +157,10 @@ impl From<RelayPartitions> for proto::RelayPartitions {
 
 impl From<Relay> for proto::Relay {
     fn from(Relay { hostname, .. }: Relay) -> Self {
-        Self { hostname }
+        Self {
+            hostname,
+            metadata: None,
+        }
     }
 }
 

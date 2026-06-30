@@ -92,6 +92,14 @@ message Relay {
   // It is the full hostname, e.g. `se-got-wg-101`.
   // This can *NOT* be a location, e.g. `se` or `se-got`.
   string hostname = 1;
+  /// This field exists to provide more data points to each client which directly contributes to
+  /// providing a better UX.
+  Metadata metadata = 2;
+  /// Annotations from the relay selector.
+  message Metadata {
+    /// The relay is only valid as an exit relay if a separate entry relay is exists.
+    bool needs_other_entry = 1;
+  }
 }
 
 // A relay which was discarded when evaluating some predicate, and why.
