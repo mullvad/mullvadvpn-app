@@ -60,6 +60,7 @@ struct ActiveFilterView: View {
                 Text("Filters are overridden when using an automatic location")
                     .font(.mullvadMini)
                     .foregroundStyle(Color.MullvadText.onBackground)
+                Spacer()
             }
             .padding(.horizontal)
             .padding(.top, -4)
