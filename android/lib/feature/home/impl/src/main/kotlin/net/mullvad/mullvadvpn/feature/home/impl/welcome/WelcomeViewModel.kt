@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -23,7 +24,6 @@ import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
 import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -66,15 +66,14 @@ class WelcomeViewModel(
     init {
         viewModelScope.launch {
             while (pollAccountExpiry) {
+                paymentUseCase.verifyPurchases()
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        verifyPurchases()
         viewModelScope.launch { deviceRepository.updateDevice() }
         viewModelScope.launch {
-            val accountNumber =
-                uiState.map { it.contentOrNull()?.accountNumber }.filterNotNull().first()
+            val accountNumber = uiState.mapNotNull { it.contentOrNull()?.accountNumber }.first()
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
         }
     }
@@ -100,14 +99,6 @@ class WelcomeViewModel(
         viewModelScope.launch {
             connectionProxy.disconnect(DisconnectReason.USER_INITIATED_WELCOME).onLeft {
                 _uiSideEffect.send(UiSideEffect.GenericError)
-            }
-        }
-    }
-
-    private fun verifyPurchases() {
-        viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().isSuccess()) {
-                updateAccountExpiry()
             }
         }
     }

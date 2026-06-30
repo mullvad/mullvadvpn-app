@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
 import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -68,11 +67,11 @@ class OutOfTimeViewModel(
     init {
         viewModelScope.launch {
             while (pollAccountExpiry) {
+                paymentUseCase.verifyPurchases()
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        verifyPurchases()
         viewModelScope.launch { deviceRepository.updateDevice() }
     }
 
@@ -87,14 +86,6 @@ class OutOfTimeViewModel(
         viewModelScope.launch {
             connectionProxy.disconnect(DisconnectReason.USER_INITIATED_OUT_OF_TIME).onLeft {
                 _uiSideEffect.send(UiSideEffect.GenericError)
-            }
-        }
-    }
-
-    private fun verifyPurchases() {
-        viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().isSuccess()) {
-                updateAccountExpiry()
             }
         }
     }
