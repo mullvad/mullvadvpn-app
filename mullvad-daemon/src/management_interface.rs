@@ -1168,9 +1168,29 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(feature_indicators))
     }
 
-    async fn set_log_filter(&self, request: Request<types::LogFilter>) -> ServiceResult<()> {
+    async fn set_log_level(&self, request: Request<types::LogLevel>) -> ServiceResult<()> {
+        let inner = request.into_inner();
+
+        let tracing_level = match inner.level() {
+            types::LogLevelValue::Off => mullvad_logging::LevelFilter::OFF,
+            types::LogLevelValue::Error => mullvad_logging::LevelFilter::ERROR,
+            types::LogLevelValue::Warn => mullvad_logging::LevelFilter::WARN,
+            types::LogLevelValue::Info => mullvad_logging::LevelFilter::INFO,
+            types::LogLevelValue::Debug => mullvad_logging::LevelFilter::DEBUG,
+            types::LogLevelValue::Trace => mullvad_logging::LevelFilter::TRACE,
+        };
         self.log_reload_handle
-            .set_log_filter(request.into_inner().log_filter)
+            .set_log_level(tracing_level)
+            .map_err(|error| Status::invalid_argument(error.to_string()))?;
+        Ok(Response::new(()))
+    }
+
+    async fn set_rust_log_env_filter(
+        &self,
+        request: Request<types::LogFilter>,
+    ) -> ServiceResult<()> {
+        self.log_reload_handle
+            .set_rust_log_env_filter(request.into_inner().log_filter)
             .map_err(|error| Status::invalid_argument(error.to_string()))?;
         Ok(Response::new(()))
     }

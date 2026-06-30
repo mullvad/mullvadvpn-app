@@ -156,7 +156,8 @@ service ManagementService {
   rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
   rpc GetAppUpgradeCacheDir(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 
-  rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
+  rpc SetLogLevel(LogLevel) returns (google.protobuf.Empty) {}
+  rpc SetRustLogEnvFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
 
   // The great multihop migration of 2026
@@ -170,6 +171,17 @@ service ManagementService {
   // mark the migration as completed. This will cause GetMigrationEvent to return a null-value
   // indefintely.
   rpc ClearMigrationMessage(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message LogLevel { LogLevelValue level = 1; }
+
+enum LogLevelValue {
+  OFF = 0;
+  ERROR = 1;
+  WARN = 2;
+  INFO = 3;
+  DEBUG = 4;
+  TRACE = 5;
 }
 
 message AppUpgradeEvent {
