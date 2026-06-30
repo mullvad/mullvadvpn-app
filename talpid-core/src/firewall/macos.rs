@@ -478,6 +478,17 @@ impl Firewall {
 
                 Ok(rules)
             }
+            FirewallPolicy::Disconnecting { allow_lan } => {
+                let mut rules = Vec::new();
+
+                if *allow_lan {
+                    // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
+                    rules.append(&mut self.get_block_dns_rules()?);
+                    rules.append(&mut self.get_allow_lan_rules()?);
+                }
+
+                Ok(rules)
+            }
         }
     }
 

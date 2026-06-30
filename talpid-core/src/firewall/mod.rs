@@ -121,6 +121,12 @@ pub enum FirewallPolicy {
         redirect_interface: Option<String>,
     },
 
+    /// Allow traffic only to server
+    Disconnecting {
+        /// Flag setting if communication with LAN networks should be possible.
+        allow_lan: bool,
+    },
+
     /// Block all network traffic in and out from the computer.
     Blocked {
         /// Flag setting if communication with LAN networks should be possible.
@@ -183,7 +189,8 @@ impl FirewallPolicy {
         match self {
             FirewallPolicy::Connecting { allow_lan, .. }
             | FirewallPolicy::Connected { allow_lan, .. }
-            | FirewallPolicy::Blocked { allow_lan, .. } => *allow_lan,
+            | FirewallPolicy::Blocked { allow_lan, .. }
+            | FirewallPolicy::Disconnecting { allow_lan } => *allow_lan,
         }
     }
 
@@ -198,6 +205,7 @@ impl FirewallPolicy {
                 redirect_interface, ..
             } => redirect_interface.as_deref(),
             FirewallPolicy::Blocked { .. } => None,
+            FirewallPolicy::Disconnecting { .. } => None,
         }
     }
 }
@@ -295,6 +303,11 @@ impl fmt::Display for FirewallPolicy {
                     .as_ref()
                     .map(|endpoint| -> &dyn std::fmt::Display { endpoint })
                     .unwrap_or(&"none"),
+            ),
+            FirewallPolicy::Disconnecting { allow_lan, .. } => write!(
+                f,
+                "Disconnecting. {} LAN",
+                if *allow_lan { "Allowing" } else { "Blocking" }
             ),
         }
     }
