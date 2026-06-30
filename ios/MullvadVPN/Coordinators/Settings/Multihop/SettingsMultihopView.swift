@@ -156,10 +156,12 @@ extension SettingsMultihopView {
                 Text("When needed")
                     .fontWeight(.bold)
                 Text(
-                    "To ensure your current settings work with your selected location, and to "
-                        + "avoid blocking your connection, the app might automatically multihop via "
-                        + "a different entry server."
-                )
+                    "Not all our locations/servers support every feature in the app. "
+                        + "If your selected location/server doesn't support the features you've enabled, "
+                        + "the app will automatically multihop via a compatible server.")
+                Text("")
+                Text("This ensures your connection does not get blocked due to incompatible settings.")
+                Text("")
                 Text(
                     "This will be indicated by the \(UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 14, to: .subheadline, offset: .init(x: 0, y: 2))) symbol"
                 )
@@ -204,10 +206,11 @@ extension SettingsMultihopView {
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(
-                    "To ensure your current settings work with your selected location, and to "
-                        + "avoid blocking your connection, the app might automatically multihop via "
-                        + "a different entry server."
+                    "Not all our locations/servers support every feature in the app. If your selected"
+                        + " location/server doesn't support the features you've enabled, the app will"
+                        + "automatically multihop via a compatible server."
                 )
+                Text("This ensures your connection does not get blocked due to incompatible settings.")
                 Text(
                     "This will be indicated by the \(UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 15, to: .body, offset: .init(x: 0, y: 2))) symbol."
                 )
