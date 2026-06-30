@@ -64,50 +64,52 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                     )
                 }
 
+        // It's important that we try "softly" here so that we can still try to find exit candidates
+        // even if there are no entry candidates.
         return if tunnelSettings.automaticMultihopIsEnabled {
             RelayCandidates(
-                entryRelays: try findCandidates(
+                entryRelays: (try? findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
                     tunnelSettings.relayConstraints.entryLocations,
                     tunnelSettings.relayConstraints.entryFilter,
                     obfuscation
-                ),
-                exitRelays: try findCandidates(
+                )) ?? [],
+                exitRelays: (try? findCandidates(
                     relays,
                     false,
                     tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     nil
-                )
+                )) ?? []
             )
         } else if tunnelSettings.tunnelMultihopState.isAlways {
             RelayCandidates(
-                entryRelays: try findCandidates(
+                entryRelays: (try? findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
                     tunnelSettings.relayConstraints.entryLocations,
                     tunnelSettings.relayConstraints.entryFilter,
                     obfuscation
-                ),
-                exitRelays: try findCandidates(
+                )) ?? [],
+                exitRelays: (try? findCandidates(
                     relays,
                     false,
                     tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     nil
-                )
+                )) ?? []
             )
         } else {
             RelayCandidates(
                 entryRelays: nil,
-                exitRelays: try findCandidates(
+                exitRelays: (try? findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
                     tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     obfuscation
-                )
+                )) ?? []
             )
         }
     }
