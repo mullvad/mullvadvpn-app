@@ -10,6 +10,26 @@ import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/t
 import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 import * as google_protobuf_duration_pb from "google-protobuf/google/protobuf/duration_pb";
 
+export class LogLevel extends jspb.Message { 
+    getLevel(): LogLevelValue;
+    setLevel(value: LogLevelValue): LogLevel;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): LogLevel.AsObject;
+    static toObject(includeInstance: boolean, msg: LogLevel): LogLevel.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: LogLevel, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): LogLevel;
+    static deserializeBinaryFromReader(message: LogLevel, reader: jspb.BinaryReader): LogLevel;
+}
+
+export namespace LogLevel {
+    export type AsObject = {
+        level: LogLevelValue,
+    }
+}
+
 export class AppUpgradeEvent extends jspb.Message { 
 
     hasDownloadStarting(): boolean;
@@ -3495,6 +3515,15 @@ export namespace SplitFilterMigration {
     SEVENB = 12,
     }
 
+}
+
+export enum LogLevelValue {
+    OFF = 0,
+    ERROR = 1,
+    WARN = 2,
+    INFO = 3,
+    DEBUG = 4,
+    TRACE = 5,
 }
 
 export enum AfterDisconnect {

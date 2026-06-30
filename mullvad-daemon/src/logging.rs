@@ -29,9 +29,9 @@ pub enum Error {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum SetLogFilterError {
-    #[error("Invalid log filter: {0}")]
-    InvalidFilter(#[from] tracing_subscriber::filter::ParseError),
+pub enum SetLogLevelError {
+    #[error("Invalid log level: {0}")]
+    InvalidLevel(#[from] tracing_subscriber::filter::ParseError),
 
     #[error("Failed to reconfigure log filter")]
     Reload(#[from] tracing_subscriber::reload::Error),
@@ -130,15 +130,25 @@ pub struct LogHandle {
 }
 
 impl LogHandle {
-    /// Adjust the log level.
-    ///
-    /// - `level_filter`: A `RUST_LOG` string. See `env_logger` for more information:
-    ///   <https://docs.rs/env_logger/latest/env_logger/>
-    pub fn set_log_filter(&self, level_filter: impl AsRef<str>) -> Result<(), SetLogFilterError> {
-        let new = silence_crates(EnvFilter::try_new(level_filter.as_ref())?);
+    pub fn set_log_level(&self, level_filter: LevelFilter) -> Result<(), SetLogLevelError> {
+        let new = silence_crates(EnvFilter::new(level_filter.to_string()));
         self.env_filter
             .modify(|env_filter| *env_filter = new)
-            .map_err(SetLogFilterError::from)
+            .map_err(SetLogLevelError::from)
+    }
+
+    /// Adjust the log level using the `RUST_LOG` format.
+    ///
+    /// See `env_logger` for more information:
+    ///   <https://docs.rs/env_logger/latest/env_logger/>
+    pub fn set_rust_log_env_filter(
+        &self,
+        level_filter: impl AsRef<str>,
+    ) -> Result<(), SetLogLevelError> {
+        let new = EnvFilter::try_new(level_filter.as_ref())?;
+        self.env_filter
+            .modify(|env_filter| *env_filter = new)
+            .map_err(SetLogLevelError::from)
     }
 
     /// Subscribe to new log events.
@@ -218,10 +228,10 @@ pub fn init_logger(
         log::LevelFilter::Trace => LevelFilter::TRACE,
     };
 
-    let env_filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(level_filter.to_string()));
-
-    let default_filter = silence_crates(env_filter);
+    let default_filter = match EnvFilter::try_from_default_env() {
+        Ok(env_filter) => env_filter, // Don't silence crates if `RUST_LOG` is set
+        Err(_) => silence_crates(EnvFilter::new(level_filter.to_string())),
+    };
 
     // TODO: Switch this to a rolling appender, likely daily or hourly
     let file_writer = LogFileWriter::new(log_location)?;

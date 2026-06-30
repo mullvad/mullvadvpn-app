@@ -39,7 +39,7 @@ impl Log {
     pub async fn handle(self) -> Result<()> {
         match self {
             Log::SetLevel { level } => set_level(level).await,
-            Log::SetRustLog { filter } => set_filter(filter).await,
+            Log::SetRustLog { filter } => set_rust_log(filter).await,
             Log::Listen => on_listen().await,
         }
     }
@@ -60,12 +60,24 @@ async fn on_listen() -> std::result::Result<(), anyhow::Error> {
 }
 
 async fn set_level(level: Level) -> std::result::Result<(), anyhow::Error> {
-    let level = (level as usize).to_string();
-    set_filter(level).await
+    let value = match level {
+        Level::Off => mullvad_management_interface::types::LogLevelValue::Off,
+        Level::Error => mullvad_management_interface::types::LogLevelValue::Error,
+        Level::Warn => mullvad_management_interface::types::LogLevelValue::Warn,
+        Level::Info => mullvad_management_interface::types::LogLevelValue::Info,
+        Level::Debug => mullvad_management_interface::types::LogLevelValue::Debug,
+        Level::Trace => mullvad_management_interface::types::LogLevelValue::Trace,
+    };
+    let mut rpc = MullvadProxyClient::new().await?;
+    rpc.set_log_level(mullvad_management_interface::types::LogLevel {
+        level: value as i32,
+    })
+    .await?;
+    Ok(())
 }
 
-async fn set_filter(filter: String) -> std::result::Result<(), anyhow::Error> {
+async fn set_rust_log(filter: String) -> std::result::Result<(), anyhow::Error> {
     let mut rpc = MullvadProxyClient::new().await?;
-    rpc.set_log_filter(filter).await?;
+    rpc.set_rust_log_env_filter(filter).await?;
     Ok(())
 }

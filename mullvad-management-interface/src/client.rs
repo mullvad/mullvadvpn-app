@@ -663,8 +663,15 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_log_filter(&mut self, level: String) -> Result<()> {
-        self.0.set_log_filter(types::LogFilter::from(level)).await?;
+    pub async fn set_log_level(&mut self, level: impl Into<types::LogLevel>) -> Result<()> {
+        self.0.set_log_level(level.into()).await?;
+        Ok(())
+    }
+
+    pub async fn set_rust_log_env_filter(&mut self, filter: String) -> Result<()> {
+        self.0
+            .set_rust_log_env_filter(types::LogFilter::from(filter))
+            .await?;
         Ok(())
     }
 

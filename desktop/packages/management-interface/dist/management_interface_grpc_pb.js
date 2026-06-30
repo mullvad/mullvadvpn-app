@@ -272,6 +272,17 @@ function deserialize_mullvad_daemon_management_interface_LogFilter(buffer_arg) {
   return management_interface_pb.LogFilter.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_LogLevel(arg) {
+  if (!(arg instanceof management_interface_pb.LogLevel)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.LogLevel');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_LogLevel(buffer_arg) {
+  return management_interface_pb.LogLevel.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_LogMessage(arg) {
   if (!(arg instanceof management_interface_pb.LogMessage)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.LogMessage');
@@ -1516,8 +1527,19 @@ appUpgrade: {
     responseSerialize: serialize_google_protobuf_StringValue,
     responseDeserialize: deserialize_google_protobuf_StringValue,
   },
-  setLogFilter: {
-    path: '/mullvad_daemon.management_interface.ManagementService/SetLogFilter',
+  setLogLevel: {
+    path: '/mullvad_daemon.management_interface.ManagementService/SetLogLevel',
+    requestStream: false,
+    responseStream: false,
+    requestType: management_interface_pb.LogLevel,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_mullvad_daemon_management_interface_LogLevel,
+    requestDeserialize: deserialize_mullvad_daemon_management_interface_LogLevel,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
+  },
+  setRustLogEnvFilter: {
+    path: '/mullvad_daemon.management_interface.ManagementService/SetRustLogEnvFilter',
     requestStream: false,
     responseStream: false,
     requestType: management_interface_pb.LogFilter,
