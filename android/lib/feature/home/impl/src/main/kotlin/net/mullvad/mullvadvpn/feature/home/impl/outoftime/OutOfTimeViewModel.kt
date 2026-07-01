@@ -22,11 +22,13 @@ import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
 import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic.Companion.VERIFICATION_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 
 class OutOfTimeViewModel(
@@ -35,7 +37,7 @@ class OutOfTimeViewModel(
     private val paymentUseCase: PaymentLogic,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
-    private val pollAccountExpiry: Boolean = true,
+    private val pollAccountExpiryAndPaymentVerification: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
 
@@ -66,10 +68,20 @@ class OutOfTimeViewModel(
 
     init {
         viewModelScope.launch {
-            while (pollAccountExpiry) {
+            while (pollAccountExpiryAndPaymentVerification) {
                 paymentUseCase.verifyPurchases()
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
+            }
+        }
+        viewModelScope.launch {
+            while (pollAccountExpiryAndPaymentVerification) {
+                // We do not want to retry verification if it fails, since we are already polling
+                // for it.
+                if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {
+                    updateAccountExpiry()
+                }
+                delay(VERIFICATION_POLL_INTERVAL)
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }

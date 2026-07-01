@@ -77,7 +77,7 @@ class WelcomeViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
-                pollAccountExpiry = false,
+                pollAccountExpiryAndPaymentVerification = false,
                 isPlayBuild = false,
             )
     }
