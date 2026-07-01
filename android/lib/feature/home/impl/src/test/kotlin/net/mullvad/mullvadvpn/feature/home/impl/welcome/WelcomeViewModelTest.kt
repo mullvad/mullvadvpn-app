@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.welcome
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
@@ -55,6 +56,7 @@ class WelcomeViewModelTest {
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
     private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
+    private val mockActivityLifecycle: Lifecycle = mockk(relaxed = true)
 
     private lateinit var viewModel: WelcomeViewModel
 
@@ -76,6 +78,7 @@ class WelcomeViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
+                activityLifecycle = mockActivityLifecycle,
                 isPlayBuild = false,
             )
     }

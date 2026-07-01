@@ -4,6 +4,8 @@ package net.mullvad.mullvadvpn.app
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -81,6 +83,7 @@ import net.mullvad.mullvadvpn.screen.navigation.splashEntry
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(
     ExperimentalComposeUiApi::class,
@@ -106,7 +109,9 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         )
     }
 
-    val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val mullvadAppViewModel =
+        koinViewModel<MullvadAppViewModel> { parametersOf(activity.lifecycle) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {

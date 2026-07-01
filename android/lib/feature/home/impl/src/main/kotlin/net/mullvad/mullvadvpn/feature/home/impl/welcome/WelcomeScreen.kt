@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.feature.home.impl.welcome
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Content|TunnelConnected")
 @Composable
@@ -91,7 +94,8 @@ private fun PreviewWelcomeScreen(
 
 @Composable
 fun Welcome(navigator: Navigator) {
-    val vm = koinViewModel<WelcomeViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val vm = koinViewModel<WelcomeViewModel> { parametersOf(activity.lifecycle) }
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }

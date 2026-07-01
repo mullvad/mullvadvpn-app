@@ -1,13 +1,10 @@
 package net.mullvad.mullvadvpn.app
 
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -28,9 +25,8 @@ private val noServiceNavKeys = listOf(SplashNavKey, PrivacyDisclaimerNavKey)
 class MullvadAppViewModel(
     private val connectionProxy: ConnectionProxy,
     managementService: ManagementService,
-) : ViewModel(), LifecycleEventObserver {
-
-    private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
+    activityLifecycle: Lifecycle,
+) : ViewModel() {
 
     private val backStackFlow: MutableStateFlow<List<NavKey2>> = MutableStateFlow(emptyList())
 
@@ -40,10 +36,11 @@ class MullvadAppViewModel(
 
     @OptIn(FlowPreview::class)
     val uiSideEffect =
-        combine(lifecycleFlow, managementService.connectionState, backStackFlow) {
-                event,
-                connEvent,
-                backStack ->
+        combine(
+                activityLifecycle.currentStateFlow,
+                managementService.connectionState,
+                backStackFlow,
+            ) { event, connEvent, backStack ->
                 toDaemonState(event, connEvent, backStack.lastOrNull())
             }
             .map { state ->
@@ -65,12 +62,8 @@ class MullvadAppViewModel(
             .distinctUntilChanged()
             .shareIn(viewModelScope, SharingStarted.Eagerly)
 
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        viewModelScope.launch { lifecycleFlow.emit(event) }
-    }
-
     private fun toDaemonState(
-        lifecycleEvent: Lifecycle.Event,
+        lifecycleEvent: Lifecycle.State,
         serviceState: GrpcConnectivityState,
         currentDestination: NavKey2?,
     ): DaemonState {
@@ -79,7 +72,7 @@ class MullvadAppViewModel(
             return DaemonState.Hidden.Ignored
         }
 
-        return if (lifecycleEvent.targetState.isAtLeast(Lifecycle.State.STARTED)) {
+        return if (lifecycleEvent.isAtLeast(Lifecycle.State.STARTED)) {
             // If we are started we want to show the overlay if we are not connected to daemon
             when (serviceState) {
                 GrpcConnectivityState.Connecting,
