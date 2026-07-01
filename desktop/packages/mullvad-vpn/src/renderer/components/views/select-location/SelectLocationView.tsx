@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
+import { useIsDaitaEnabledWithoutDirectOnly } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
@@ -33,8 +33,6 @@ export function SelectLocationViewImpl() {
     useScrollPositionContext();
   const { locationType, setLocationType } = useSelectLocationViewContext();
 
-  const { daitaEnabled } = useDaitaEnabled();
-  const { daitaDirectOnly } = useDaitaDirectOnly();
   const { multihop } = useMultihop();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
@@ -48,8 +46,10 @@ export function SelectLocationViewImpl() {
     [saveScrollPosition, setLocationType],
   );
 
-  const showDisabledEntrySelection =
-    locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly && multihop;
+  const isEntrySelection = locationType === LocationType.entry;
+  const isDaitaWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
+
+  const showDisabledEntrySelection = isEntrySelection && isDaitaWithoutDirectOnly;
   const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
   const showSearchField = !showDisabledEntrySelection;
   const showEntryExitBar = multihop !== 'never';
