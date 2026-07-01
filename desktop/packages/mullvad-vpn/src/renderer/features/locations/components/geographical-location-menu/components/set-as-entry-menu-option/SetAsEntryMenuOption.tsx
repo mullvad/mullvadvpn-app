@@ -21,32 +21,33 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   const { selectEntryRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
   const { entry, exit } = useSelectedLocations();
+  const isExitSingleRelay = exit && 'hostname' in exit;
   const isExitSelected = isLocationSelected(location.details, exit);
 
   const handleClick = React.useCallback(async () => {
-    if (!multihop) {
-      await setMultihop({ enabled: true, entryLocation: location.details });
-    }
-    if (multihop) {
-      if (isExitSelected) {
-        // Swap entry and exit location
-        await setMultihop({ enabled: true, entryLocation: location.details, exitLocation: entry });
-      } else {
-        await selectEntryRelayLocation(location.details);
-      }
+    if (isExitSingleRelay && isExitSelected) {
+      // Swap entry and exit location
+      await setMultihop({ multihop, entryLocation: location.details, exitLocation: entry });
+    } else {
+      await selectEntryRelayLocation(location.details);
     }
     onOpenChange?.(false);
   }, [
-    multihop,
+    isExitSingleRelay,
+    isExitSelected,
     onOpenChange,
     setMultihop,
+    multihop,
     location.details,
-    isExitSelected,
     entry,
     selectEntryRelayLocation,
   ]);
 
-  const disabled = (daitaEnabled && !daitaDirectOnly) || (!multihop && isExitSelected);
+  const isDaitaWithoutDirectOnly = daitaEnabled && !daitaDirectOnly;
+  const isExitSelectedWithoutMultihop = !multihop && isExitSelected;
+
+  const disabled = isDaitaWithoutDirectOnly || isExitSelectedWithoutMultihop;
+
   const label = disabled
     ? // This line is here to prevent the following one to be moved up here by prettier
       // TRANSLATORS: Text for button that sets a location as entry relay
