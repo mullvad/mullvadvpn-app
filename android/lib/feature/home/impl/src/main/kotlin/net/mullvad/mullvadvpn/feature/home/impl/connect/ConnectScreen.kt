@@ -90,11 +90,11 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKe
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
-import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.lib.common.compose.CONNECTED_ZOOM
-import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.DEFAULT_ZOOM
+import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.fallbackLatLong
@@ -508,7 +508,6 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     val currentLocation =
         remember(state.internetLocation?.toLatLong()) {
-            // Berlin
             mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
         }
 
