@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.model.COMPLETE_ANGLE
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.STRAIGHT_ANGLE
 
 private const val LAT_LOWER_BOUND = -40f
 private const val LAT_UPPER_BOUND = 65f
@@ -297,8 +298,8 @@ fun Float.closestTarget(target: Float): Float {
 
     val diff = this - newTarget
     return when {
-        diff > 180f -> newTarget + COMPLETE_ANGLE
-        diff < -180f -> newTarget - COMPLETE_ANGLE
+        diff > STRAIGHT_ANGLE -> newTarget + COMPLETE_ANGLE
+        diff < -STRAIGHT_ANGLE -> newTarget - COMPLETE_ANGLE
         else -> newTarget
     }
 }

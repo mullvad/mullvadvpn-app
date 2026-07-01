@@ -50,7 +50,9 @@ fun LatLong(latitude: Float, longitude: Float) =
     LatLong(Latitude.fromFloat(latitude), Longitude.fromFloat(longitude))
 
 const val COMPLETE_ANGLE = 360f
+const val STRAIGHT_ANGLE = 180f
+const val RIGHT_ANGLE = 90f
 
-fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
+fun Float.toRadians() = this * Math.PI.toFloat() / STRAIGHT_ANGLE
 
-fun Float.toDegrees() = this * ((COMPLETE_ANGLE / 2) / Math.PI.toFloat())
+fun Float.toDegrees() = this * (STRAIGHT_ANGLE / Math.PI.toFloat())

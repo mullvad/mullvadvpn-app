@@ -214,14 +214,13 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         }
     }
 
-    fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
-        val intersectionPoint = calculateIntersection(offset) ?: return null
-
-        val closestMarker =
-            markerVector.minByOrNull { it.key.distanceTo(intersectionPoint) } ?: return null
-
-        return closestMarker.value to closestMarker.key.distanceTo(intersectionPoint)
-    }
+    fun closestMarker(offset: Offset): Pair<Marker?, Float>? =
+        calculateIntersection(offset)?.let { intersectionPoint ->
+            markerVector.minByOrNull { it.key.distanceTo(intersectionPoint) }?.let { closestMarker
+                ->
+                closestMarker.value to closestMarker.key.distanceTo(intersectionPoint)
+            }
+        }
 
     fun calculateDirectionVector(
         fovy: Float,

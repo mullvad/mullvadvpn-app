@@ -8,6 +8,7 @@ import kotlin.math.sqrt
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.RIGHT_ANGLE
 import net.mullvad.mullvadvpn.lib.model.toDegrees
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
@@ -80,7 +81,7 @@ fun Vector3.toLatLng(): LatLong {
 
     return LatLong(
         // This worked for some reason (camera starts at lat 90!)
-        Latitude.fromFloat(90f - lat.toDegrees()),
+        Latitude.fromFloat(RIGHT_ANGLE- lat.toDegrees()),
         Longitude.fromFloat(-lon.toDegrees()),
     )
 }
