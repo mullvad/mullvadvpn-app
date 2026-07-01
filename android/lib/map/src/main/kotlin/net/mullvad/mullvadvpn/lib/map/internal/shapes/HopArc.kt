@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 
 import android.opengl.GLES20
 import androidx.compose.ui.graphics.Color
-import co.touchlab.kermit.Logger
 import java.nio.FloatBuffer
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.mullvadvpn.lib.map.data.Sphere
@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
-class Parabola(
+class HopArc(
     val from: LatLong,
     val to: LatLong,
     val color: Color,
@@ -31,46 +31,45 @@ class Parabola(
         val end = to.toWorldVector3()
         val d = start.distanceTo(end)
 
-        Logger.d("Distance: $d")
-        val isTeardrop = d < 0.1f
-        Logger.d("isTeardrop: $isTeardrop")
-        val maxHeight = if (isTeardrop) {
-            0.012f
-        } else {
-            (0.10f * d).coerceIn(0.02f, 0.1f) // Adjust factor to look beautiful
-        }
-        val maxWidth = if (isTeardrop) 0.006f else 0.0f
+        val isShortArc = d < 0.02f
 
-        val vertices = if (isTeardrop) {
-            buildTeardropVertices(start, end, segments, maxHeight, maxWidth)
-        } else {
-            buildParabolaVertices(start, end, segments, maxHeight)
-        }
+        // If the distance is short/same we want a more drop like arc shape, where the curve goes
+        // in the opposite direction in the beginning to avoid it becoming a straight line up and
+        // down.
+        val vertices =
+            if (isShortArc) {
+                buildShortArcVertices(start, end, segments)
+            } else {
+                val maxHeight = longArcMaxHeight(d)
+                buildLongArcVertices(start, end, segments, maxHeight)
+            }
 
         val positionFloatBuffer = FloatBuffer.wrap(vertices)
         positionBuffer = initGLArrayBuffer(positionFloatBuffer)
 
         shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
-        attribLocations = AttribLocations(
-            vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition")
-        )
+        attribLocations =
+            AttribLocations(
+                vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition")
+            )
 
-        uniformLocation = UniformLocation(
-            color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
-            projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-            modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
-        )
+        uniformLocation =
+            UniformLocation(
+                color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
+                projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix"),
+            )
 
         colorArray = floatArrayOf(color.red, color.green, color.blue, color.alpha)
     }
 
-    private fun buildTeardropVertices(
+    private fun buildShortArcVertices(
         start: Vector3,
         end: Vector3,
         segments: Int,
-        maxHeight: Float,
-        maxWidth: Float
+        maxHeight: Float = SHORT_ARC_MAX_HEIGHT,
+        maxWidth: Float = SHORT_ARC_MAX_WIDTH,
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
         // Calculate a stable tangent vector to define the loop's lateral plane
@@ -78,16 +77,18 @@ class Parabola(
         val startEndDiff = end - start
         var baseTangent = startEndDiff - baseNormal * startEndDiff.dot(baseNormal)
         if (baseTangent.dot(baseTangent) < 1e-10f) {
-            val reference = if (kotlin.math.abs(baseNormal.y) < 0.9f) {
-                Vector3(0f, 1f, 0f)
-            } else {
-                Vector3(0f, 0f, 1f)
-            }
-            baseTangent = Vector3(
-                baseNormal.y * reference.z - baseNormal.z * reference.y,
-                baseNormal.z * reference.x - baseNormal.x * reference.z,
-                baseNormal.x * reference.y - baseNormal.y * reference.x
-            )
+            val reference =
+                if (abs(baseNormal.y) < 0.9f) {
+                    Vector3(0f, 1f, 0f)
+                } else {
+                    Vector3(0f, 0f, 1f)
+                }
+            baseTangent =
+                Vector3(
+                    baseNormal.y * reference.z - baseNormal.z * reference.y,
+                    baseNormal.z * reference.x - baseNormal.x * reference.z,
+                    baseNormal.x * reference.y - baseNormal.y * reference.x,
+                )
         }
         baseTangent = baseTangent.normalize()
 
@@ -111,11 +112,11 @@ class Parabola(
         return vertices
     }
 
-    private fun buildParabolaVertices(
+    private fun buildLongArcVertices(
         start: Vector3,
         end: Vector3,
         segments: Int,
-        maxHeight: Float
+        maxHeight: Float,
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
         for (i in 0..segments) {
@@ -123,7 +124,11 @@ class Parabola(
             val p = start + (end - start) * t
             val u = p.normalize()
             val h = maxHeight * 4.0f * t * (1.0f - t)
-            val point = u * (Sphere.RADIUS + h + 0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
+            val point =
+                u *
+                    (Sphere.RADIUS +
+                        h +
+                        0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
 
             val index = i * VERTEX_COMPONENT_SIZE
             vertices[index] = point.x
@@ -175,6 +180,9 @@ class Parabola(
         return Vector3(x, y, z)
     }
 
+    private fun longArcMaxHeight(distance: Float): Float =
+        (LONG_ARC_DISTANCE_FACTOR * distance).coerceIn(LONG_ARC_MIN_HEIGHT, LONG_ARC_MAX_HEIGHT)
+
     private data class AttribLocations(val vertexPosition: Int)
 
     private data class UniformLocation(
@@ -194,7 +202,8 @@ class Parabola(
             void main(void) {
                 gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
             }
-            """.trimIndent()
+            """
+                .trimIndent()
 
         private val fragmentShaderCode =
             """
@@ -204,6 +213,14 @@ class Parabola(
             void main(void) {
                 gl_FragColor = uColor;
             }
-            """.trimIndent()
+            """
+                .trimIndent()
+
+        private const val SHORT_ARC_MAX_HEIGHT = 0.02f
+        private const val SHORT_ARC_MAX_WIDTH = 0.03f
+
+        private const val LONG_ARC_DISTANCE_FACTOR = 0.1f
+        private const val LONG_ARC_MIN_HEIGHT = 0.02f
+        private const val LONG_ARC_MAX_HEIGHT = 0.10f
     }
 }
