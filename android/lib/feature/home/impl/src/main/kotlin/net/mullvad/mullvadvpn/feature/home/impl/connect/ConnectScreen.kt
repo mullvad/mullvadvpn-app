@@ -92,9 +92,9 @@ import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
-import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM
+import net.mullvad.mullvadvpn.lib.common.compose.CONNECTED_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
-import net.mullvad.mullvadvpn.lib.common.compose.UNSECURE_ZOOM
+import net.mullvad.mullvadvpn.lib.common.compose.DEFAULT_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.fallbackLatLong
@@ -495,11 +495,11 @@ private fun Content(
 @Composable
 private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
-    // Distance to marker when secure/unsecure
+    // Distance to marker when connected/not connected
     val secureZoom =
         animateFloatAsState(
             targetValue =
-                if (state.tunnelState is TunnelState.Connected) 0f else 0.05f,
+                if (state.tunnelState is TunnelState.Connected) CONNECTED_ZOOM else DEFAULT_ZOOM,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom",
         )
