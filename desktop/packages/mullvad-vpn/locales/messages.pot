@@ -1035,16 +1035,14 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr ""
 
-#. This is used as a feature indicator to show that DAITA is enabled through
-#. multihop.
-#. Available placeholders:
-#. %(DAITA)s - Is a non-translatable feature "DAITA"
-msgctxt "connect-view"
-msgid "%(DAITA)s: Multihop"
-msgstr ""
-
 msgctxt "connect-view"
 msgid "Active features"
+msgstr ""
+
+#. This is used as a feature indicator to show that multihop is used
+#. to enable the connection.
+msgctxt "connect-view"
+msgid "Automatic multihop"
 msgstr ""
 
 msgctxt "connect-view"
@@ -2071,6 +2069,12 @@ msgctxt "select-location-view"
 msgid "All locations"
 msgstr ""
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Always".
+msgctxt "select-location-view"
+msgid "Always"
+msgstr ""
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2081,11 +2085,6 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr ""
 
-#. Used in button to disable multihop.
-msgctxt "select-location-view"
-msgid "Disable multihop"
-msgstr ""
-
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr ""
@@ -2093,11 +2092,6 @@ msgstr ""
 #. Label for custom lists that don't have any locations added to them yet.
 msgctxt "select-location-view"
 msgid "Empty"
-msgstr ""
-
-#. Used in button to enable multihop.
-msgctxt "select-location-view"
-msgid "Enable multihop"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2114,6 +2108,17 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Filtered:"
+msgstr ""
+
+#. Title for a menu with items for the Multihop mode setting options.
+msgctxt "select-location-view"
+msgid "Multihop mode"
+msgstr ""
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Never".
+msgctxt "select-location-view"
+msgid "Never"
 msgstr ""
 
 #. Message shown when the user has no recent locations.
@@ -2155,6 +2160,12 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr ""
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "When needed".
+msgctxt "select-location-view"
+msgid "When needed"
 msgstr ""
 
 msgctxt "settings-import"
@@ -2228,6 +2239,12 @@ msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
 msgstr ""
 
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Always" option is selected.
+msgctxt "settings-view"
+msgid "Always"
+msgstr ""
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -2240,6 +2257,12 @@ msgstr ""
 
 msgctxt "settings-view"
 msgid "Multihop"
+msgstr ""
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Never" option is selected.
+msgctxt "settings-view"
+msgid "Never"
 msgstr ""
 
 #. Title label in navigation bar
@@ -2265,6 +2288,12 @@ msgstr ""
 #. Navigation button to the 'VPN settings' view
 msgctxt "settings-view"
 msgid "VPN settings"
+msgstr ""
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "When needed" option is selected.
+msgctxt "settings-view"
+msgid "When needed"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -2844,6 +2873,12 @@ msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
 msgstr ""
 
+#. Label for the Multihop mode setting's option to always use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Always"
+msgstr ""
+
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr ""
@@ -2873,6 +2908,11 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr ""
 
+#. Title for Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "Mode"
+msgstr ""
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
@@ -2885,11 +2925,13 @@ msgid "Multihop"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Multihop is being used to enable DAITA for your selected location"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr ""
 
+#. Label for the Multihop mode setting's option to never use the multihop
+#. feature.
 msgctxt "wireguard-settings-view"
-msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgid "Never"
 msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
@@ -2961,6 +3003,12 @@ msgctxt "wireguard-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr ""
 
+#. Label for the Multihop mode setting's option to use the multihop
+#. feature when it is needed.
+msgctxt "wireguard-settings-view"
+msgid "When needed"
+msgstr ""
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
@@ -3005,6 +3053,9 @@ msgid "%s settings."
 msgstr ""
 
 msgid "%s was added to your account."
+msgstr ""
+
+msgid "%s: Multihop"
 msgstr ""
 
 msgid "(%d)"
@@ -3250,6 +3301,9 @@ msgstr ""
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
+msgid "Disable multihop"
+msgstr ""
+
 msgid "Discard"
 msgstr ""
 
@@ -3287,6 +3341,9 @@ msgid "Enable all access methods in the app"
 msgstr ""
 
 msgid "Enable method"
+msgstr ""
+
+msgid "Enable multihop"
 msgstr ""
 
 msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."

@@ -15,8 +15,8 @@ import {
   getRecentMultihopExitLocations,
   getRecentSinglehopLocations,
 } from '../../../features/locations/utils';
+import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
-import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -51,17 +51,17 @@ type SelectLocationViewProviderProps = React.PropsWithChildren;
 export function SelectLocationViewProvider({ children }: SelectLocationViewProviderProps) {
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = React.useState('');
-  const relaySettings = useNormalRelaySettings();
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
+  const { multihop } = useMultihop();
 
   const locationType = React.useMemo(() => {
-    const allowEntryLocations = relaySettings?.wireguard.useMultihop;
-
+    const allowEntryLocations = multihop !== 'never';
     if (allowEntryLocations) {
       return locationTypeSelector;
     }
+
     return LocationType.exit;
-  }, [locationTypeSelector, relaySettings]);
+  }, [locationTypeSelector, multihop]);
 
   const filteredCountries = useFilterCountryLocations(locationType);
   const filteredCountryLocations = useMapReduxCountriesToCountryLocations(

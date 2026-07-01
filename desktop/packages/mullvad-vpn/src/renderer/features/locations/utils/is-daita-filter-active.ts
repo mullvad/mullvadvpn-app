@@ -1,14 +1,14 @@
+import { MultihopMode } from '../../../../shared/daemon-rpc-types';
 import { LocationType } from '../types';
 
 export function isDaitaFilterActive(
   daita: boolean,
   directOnly: boolean,
   locationType: LocationType,
-  multihop: boolean,
+  multihop: MultihopMode,
 ) {
-  const isEntry = multihop
-    ? locationType === LocationType.entry
-    : locationType === LocationType.exit;
+  const isEntry =
+    multihop !== 'never' ? locationType === LocationType.entry : locationType === LocationType.exit;
 
   return daita && (directOnly || multihop) && isEntry;
 }

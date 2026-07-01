@@ -220,9 +220,9 @@ export interface ITunnelStateRelayInfo {
 // The order of the variants match the priority order and can be sorted on.
 export enum FeatureIndicator {
   daita,
-  daitaMultihop,
   quantumResistance,
   multihop,
+  multihopAuto,
   splitTunneling,
   lockdownMode,
   udp2tcp,
@@ -289,9 +289,11 @@ export type RelayLocationGeographical =
 
 export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
+export type MultihopMode = 'when-needed' | 'always' | 'never';
+
 export interface IWireguardConstraints {
   ipVersion: Constraint<IpVersion>;
-  useMultihop: boolean;
+  multihop: MultihopMode;
   entryLocation: Constraint<RelayLocation>;
 }
 
