@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.lib.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.findRelay
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
@@ -53,24 +53,4 @@ class ConnectionPathUseCase(
         withDescendants().filterIsInstance<RelayItem.Location.Relay>().firstOrNull {
             it.id.code == hostname
         }
-}
-
-data class ConnectionPath(
-    val offlineLocation: LatLong? = null,
-    val entry: LatLong? = null,
-    val exit: LatLong? = null,
-) {
-    fun toHops(): List<Pair<LatLong, LatLong>> =
-        buildList {
-                if (offlineLocation != null) {
-                    add(offlineLocation)
-                }
-                if (entry != null) {
-                    add(entry)
-                }
-                if (exit != null) {
-                    add(exit)
-                }
-            }
-            .zipWithNext()
 }

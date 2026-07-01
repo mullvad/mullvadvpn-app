@@ -16,14 +16,14 @@ import net.mullvad.mullvadvpn.lib.model.Longitude
 
 @Preview(showBackground = false, showSystemUi = false)
 @Composable
-private fun MapPreview() {
+private fun PreviewMap() {
     val berlin = LatLong(Latitude(52.5200f), Longitude(13.4050f))
     Map(cameraPosition = CameraPosition(latLong = berlin, zoom = 1.9f))
 }
 
 @Preview
 @Composable
-private fun SpinningGlobePreview() {
+private fun PreviewSpinningGlobe() {
     val infinite = rememberInfiniteTransition()
     val rawLongitude by
         infinite.animateFloat(

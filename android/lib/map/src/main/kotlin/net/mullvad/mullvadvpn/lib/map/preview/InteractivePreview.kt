@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.map.data.Marker
 
 @Preview
 @Composable
-private fun InteractiveMapPreview() {
+private fun PreviewInteractiveMap() {
     // Starting position
     val currentLocation = remember {
         // Berlin
