@@ -63,7 +63,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         if (colors.perimeterColors != null) {
             Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.00001f)
         } else {
-            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.000f)
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
         }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
@@ -124,7 +124,6 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val ringColorArray = ringColor.toFloatArray()
 
         for (i in 1 until points) {
-
             val angle = (i.toFloat() / numEdges) * 2f * Math.PI
             val posIndex = i * VERTEX_COMPONENT_SIZE
             positions[posIndex] = offset[0] + radius * cos(angle).toFloat()
