@@ -1965,6 +1965,11 @@ export class Recent extends jspb.Message {
     getMultihop(): MultihopRecent | undefined;
     setMultihop(value?: MultihopRecent): Recent;
 
+    hasAutomaticEntryMultihop(): boolean;
+    clearAutomaticEntryMultihop(): void;
+    getAutomaticEntryMultihop(): LocationConstraint | undefined;
+    setAutomaticEntryMultihop(value?: LocationConstraint): Recent;
+
     getTypeCase(): Recent.TypeCase;
 
     serializeBinary(): Uint8Array;
@@ -1981,12 +1986,14 @@ export namespace Recent {
     export type AsObject = {
         singlehop?: LocationConstraint.AsObject,
         multihop?: MultihopRecent.AsObject,
+        automaticEntryMultihop?: LocationConstraint.AsObject,
     }
 
     export enum TypeCase {
         TYPE_NOT_SET = 0,
         SINGLEHOP = 1,
         MULTIHOP = 2,
+        AUTOMATIC_ENTRY_MULTIHOP = 3,
     }
 
 }

@@ -15724,7 +15724,7 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.hasExit = fun
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.mullvad_daemon.management_interface.Recent.oneofGroups_ = [[1,2]];
+proto.mullvad_daemon.management_interface.Recent.oneofGroups_ = [[1,2,3]];
 
 /**
  * @enum {number}
@@ -15732,7 +15732,8 @@ proto.mullvad_daemon.management_interface.Recent.oneofGroups_ = [[1,2]];
 proto.mullvad_daemon.management_interface.Recent.TypeCase = {
   TYPE_NOT_SET: 0,
   SINGLEHOP: 1,
-  MULTIHOP: 2
+  MULTIHOP: 2,
+  AUTOMATIC_ENTRY_MULTIHOP: 3
 };
 
 /**
@@ -15774,7 +15775,8 @@ proto.mullvad_daemon.management_interface.Recent.prototype.toObject = function(o
 proto.mullvad_daemon.management_interface.Recent.toObject = function(includeInstance, msg) {
   var f, obj = {
     singlehop: (f = msg.getSinglehop()) && proto.mullvad_daemon.management_interface.LocationConstraint.toObject(includeInstance, f),
-    multihop: (f = msg.getMultihop()) && proto.mullvad_daemon.management_interface.MultihopRecent.toObject(includeInstance, f)
+    multihop: (f = msg.getMultihop()) && proto.mullvad_daemon.management_interface.MultihopRecent.toObject(includeInstance, f),
+    automaticEntryMultihop: (f = msg.getAutomaticEntryMultihop()) && proto.mullvad_daemon.management_interface.LocationConstraint.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -15821,6 +15823,11 @@ proto.mullvad_daemon.management_interface.Recent.deserializeBinaryFromReader = f
       reader.readMessage(value,proto.mullvad_daemon.management_interface.MultihopRecent.deserializeBinaryFromReader);
       msg.setMultihop(value);
       break;
+    case 3:
+      var value = new proto.mullvad_daemon.management_interface.LocationConstraint;
+      reader.readMessage(value,proto.mullvad_daemon.management_interface.LocationConstraint.deserializeBinaryFromReader);
+      msg.setAutomaticEntryMultihop(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -15864,6 +15871,14 @@ proto.mullvad_daemon.management_interface.Recent.serializeBinaryToWriter = funct
       2,
       f,
       proto.mullvad_daemon.management_interface.MultihopRecent.serializeBinaryToWriter
+    );
+  }
+  f = message.getAutomaticEntryMultihop();
+  if (f != null) {
+    writer.writeMessage(
+      3,
+      f,
+      proto.mullvad_daemon.management_interface.LocationConstraint.serializeBinaryToWriter
     );
   }
 };
@@ -15940,6 +15955,43 @@ proto.mullvad_daemon.management_interface.Recent.prototype.clearMultihop = funct
  */
 proto.mullvad_daemon.management_interface.Recent.prototype.hasMultihop = function() {
   return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional LocationConstraint automatic_entry_multihop = 3;
+ * @return {?proto.mullvad_daemon.management_interface.LocationConstraint}
+ */
+proto.mullvad_daemon.management_interface.Recent.prototype.getAutomaticEntryMultihop = function() {
+  return /** @type{?proto.mullvad_daemon.management_interface.LocationConstraint} */ (
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.LocationConstraint, 3));
+};
+
+
+/**
+ * @param {?proto.mullvad_daemon.management_interface.LocationConstraint|undefined} value
+ * @return {!proto.mullvad_daemon.management_interface.Recent} returns this
+*/
+proto.mullvad_daemon.management_interface.Recent.prototype.setAutomaticEntryMultihop = function(value) {
+  return jspb.Message.setOneofWrapperField(this, 3, proto.mullvad_daemon.management_interface.Recent.oneofGroups_[0], value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.Recent} returns this
+ */
+proto.mullvad_daemon.management_interface.Recent.prototype.clearAutomaticEntryMultihop = function() {
+  return this.setAutomaticEntryMultihop(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.Recent.prototype.hasAutomaticEntryMultihop = function() {
+  return jspb.Message.getField(this, 3) != null;
 };
 
 
