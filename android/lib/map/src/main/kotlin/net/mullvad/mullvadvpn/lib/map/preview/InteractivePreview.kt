@@ -24,7 +24,6 @@ private fun InteractiveMapPreview() {
     // Create some markers
     val markers = locations.map {
         Marker(
-            id = it.toString(),
             latLong = it,
             colors =
                 if (it == currentLocation.value) selectLocationMarkerColors
