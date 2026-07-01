@@ -10,17 +10,21 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import kotlin.collections.emptyList
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.ErrorState
@@ -34,6 +38,8 @@ import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
@@ -88,6 +94,9 @@ class ConnectViewModelTest {
     // System VPN Settings
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase = mockk()
 
+    private val mockRelayListRepository : RelayListRepository = mockk()
+    private val mockConnectionPathUseCase : ConnectionPathUseCase = mockk()
+
     @BeforeEach
     fun setup() {
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -102,6 +111,9 @@ class ConnectViewModelTest {
 
         every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns
             lastKnownLocationFlow
+
+        every { mockConnectionPathUseCase() } returns flowOf(ConnectionPath())
+        every { mockRelayListRepository.relayList } returns MutableStateFlow(listOf())
 
         every { mockLocation.country } returns "dummy country"
 
@@ -125,6 +137,8 @@ class ConnectViewModelTest {
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 isPlayBuild = false,
                 resolveAppListing = mockk(),
+                relayListRepository = mockRelayListRepository,
+                connectionPath = mockConnectionPathUseCase,
             )
     }
 
