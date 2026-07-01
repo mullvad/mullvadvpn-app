@@ -496,10 +496,10 @@ private fun Content(
 private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     // Distance to marker when secure/unsecure
-    val baseZoom =
+    val secureZoom =
         animateFloatAsState(
             targetValue =
-                if (state.tunnelState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
+                if (state.tunnelState is TunnelState.Connected) 0f else 0.05f,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom",
         )
@@ -519,6 +519,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     InteractiveMap(
         currentLocation = currentLocation.value,
+        secureZoom.value,
         progressIndicatorBias,
         markers = listOfNotNull(locationMarker),
         locations = state.locations,
