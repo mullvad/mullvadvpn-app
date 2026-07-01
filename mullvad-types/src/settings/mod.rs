@@ -156,13 +156,14 @@ pub enum Recent {
         entry: LocationConstraint,
         exit: LocationConstraint,
     },
+    AutomaticEntryMultihop(LocationConstraint),
 }
 
 impl TryFrom<&RelaySettings> for Recent {
     type Error = &'static str;
 
     fn try_from(value: &RelaySettings) -> Result<Self, Self::Error> {
-        match value {
+        return match value {
             RelaySettings::CustomTunnelEndpoint(_) => {
                 Err("Cannot convert CustomTunnelEndpoint to Recent")
             }
@@ -175,42 +176,59 @@ impl TryFrom<&RelaySettings> for Recent {
                     .clone();
 
                 let recent = match constraints.wireguard_constraints.multihop {
-                    Multihop::Always => {
-                        let entry = constraints
-                            .wireguard_constraints
-                            .entry_location
-                            .as_ref()
-                            .option()
-                            .ok_or("Location must be Constraint::Only")?
-                            .clone();
-
-                        if matches!(
-                            entry,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && matches!(
-                            location,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && entry == location
-                        {
-                            return Err(
-                                "Multihop recent cannot have identical (country, city, host) triple.",
-                            );
-                        }
-
-                        Recent::Multihop {
-                            entry,
-                            exit: location,
+                    Multihop::Always => multihop_recent(
+                        constraints.wireguard_constraints.entry_location.clone(),
+                        location,
+                    )?,
+                    Multihop::Auto => {
+                        // Parse as multihop if an entry location is set, otherwise it is a singlehop.
+                        if constraints.wireguard_constraints.entry_location.is_only() {
+                            multihop_recent(
+                                constraints.wireguard_constraints.entry_location.clone(),
+                                location,
+                            )?
+                        } else {
+                            Recent::Singlehop(location)
                         }
                     }
-                    Multihop::Never | Multihop::Auto => Recent::Singlehop(location),
+                    Multihop::Never => Recent::Singlehop(location),
                 };
 
                 Ok(recent)
             }
+        };
+
+        fn multihop_recent(
+            entry_location: Constraint<LocationConstraint>,
+            exit_location: LocationConstraint,
+        ) -> Result<Recent, &'static str> {
+            let recent = match entry_location {
+                Constraint::Any => Recent::AutomaticEntryMultihop(exit_location),
+                Constraint::Only(entry) => {
+                    match (&entry, &exit_location) {
+                        (
+                            entry @ LocationConstraint::Location(
+                                GeographicLocationConstraint::Hostname(..),
+                            ),
+                            exit @ LocationConstraint::Location(
+                                GeographicLocationConstraint::Hostname(..),
+                            ),
+                        ) if entry == exit => {
+                            return Err(
+                                "Multihop recent cannot have identical (country, city, host) triple.",
+                            );
+                        }
+                        _ => {}
+                    }
+
+                    Recent::Multihop {
+                        entry,
+                        exit: exit_location,
+                    }
+                }
+            };
+
+            Ok(recent)
         }
     }
 }
