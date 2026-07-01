@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.welcome
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -28,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 
 class WelcomeViewModel(
@@ -35,6 +37,7 @@ class WelcomeViewModel(
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
+    private val lifecycleRepository: LifecycleRepository,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
@@ -66,6 +69,11 @@ class WelcomeViewModel(
     init {
         viewModelScope.launch {
             while (pollAccountExpiry) {
+                // If the daemon is not running calling updateAccountExpiry will cause a
+                // TransientFailure so we make sure we are in the foreground before calling
+                lifecycleRepository.lifecycleFlow.first {
+                    it.isAtLeast(Lifecycle.State.STARTED)
+                }
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }

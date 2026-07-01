@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.pushnotification.tunnelstate.TunnelStateNotifi
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.LocaleRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesMigration
@@ -70,6 +71,7 @@ val appModule = module {
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
     single { AccountExpiryNotificationActionUseCase(get(), get()) }
+    single { LifecycleRepository() }
     // TODO Move these back to UiModule when fixDisableBug is removed
     single { AppObfuscationRepository(get(), get()) }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

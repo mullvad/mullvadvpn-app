@@ -340,7 +340,16 @@ val uiModule = module {
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
     viewModel { params -> LocalNetworkSharingViewModel(isModal = params.get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel {
+        WelcomeViewModel(
+            accountRepository = get(),
+            deviceRepository = get(),
+            paymentUseCase = get(),
+            connectionProxy = get(),
+            lifecycleRepository = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
     viewModel {
         ReportProblemViewModel(
             mullvadProblemReporter = get(),
@@ -350,7 +359,17 @@ val uiModule = module {
         )
     }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
+    viewModel {
+        OutOfTimeViewModel(
+            accountRepository = get(),
+            deviceRepository = get(),
+            paymentUseCase = get(),
+            outOfTimeUseCase = get(),
+            connectionProxy = get(),
+            lifecycleRepository = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
     viewModel { FilterViewModel(get(), get()) }
     viewModel { params ->
         CreateCustomListDialogViewModel(locationCode = params.getOrNull(), get())
@@ -453,7 +472,13 @@ val uiModule = module {
     }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
-    single { MullvadAppViewModel(get(), get()) }
+    single {
+        MullvadAppViewModel(
+            connectionProxy = get(),
+            managementService = get(),
+            lifecycleRepository = get(),
+        )
+    }
 }
 
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"

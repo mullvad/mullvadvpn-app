@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -56,6 +57,7 @@ class WelcomeViewModelTest {
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
     private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
+    private val mockLifecycleRepository: LifecycleRepository = mockk(relaxed = true)
 
     private lateinit var viewModel: WelcomeViewModel
 
@@ -77,6 +79,7 @@ class WelcomeViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
+                lifecycleRepository = mockLifecycleRepository,
                 pollAccountExpiry = false,
                 isPlayBuild = false,
             )
