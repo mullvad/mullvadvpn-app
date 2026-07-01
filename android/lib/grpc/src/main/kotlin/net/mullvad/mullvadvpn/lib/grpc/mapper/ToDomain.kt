@@ -806,6 +806,11 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
         ManagementInterface.Recent.TypeCase.SINGLEHOP ->
             Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)
 
+        ManagementInterface.Recent.TypeCase.AUTOMATIC_ENTRY_MULTIHOP ->
+            Recent.AutomaticEntryMultihop(
+                (automaticEntryMultihop.toDomain() as Constraint.Only).value
+            )
+
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
 

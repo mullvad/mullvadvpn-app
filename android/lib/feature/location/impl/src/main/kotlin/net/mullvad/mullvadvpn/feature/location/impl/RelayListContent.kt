@@ -151,7 +151,8 @@ private fun AutomaticItem(
     val colors = ListItemDefaults.colors()
 
     MullvadListItem(
-        modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
+        modifier =
+            Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
         isSelected = listItem.isSelected,
         isEnabled = true,
         onClick = onSelectAutomaticEntry,

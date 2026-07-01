@@ -4,6 +4,7 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
@@ -22,7 +23,7 @@ internal fun relayListItems(
     relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
-    recents: List<RelayItem>?,
+    recents: List<RecentItem>?,
     selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -85,7 +86,7 @@ private fun createRelayListItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
-    recents: List<RelayItem>?,
+    recents: List<RecentItem>?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
@@ -120,7 +121,7 @@ private fun createRelayListItems(
 }
 
 private fun createRecentsSection(
-    recents: List<RelayItem>,
+    recents: List<RecentItem>,
     itemSelection: RelayItemSelection,
     relayListType: RelayListType,
 ): List<RelayListItem> = buildList {
@@ -129,8 +130,16 @@ private fun createRecentsSection(
     val shown =
         recents
             .map { recent ->
-                val isSelected = recent.matches(itemSelection, relayListType)
-                RelayListItem.RecentListItem(item = recent, isSelected = isSelected)
+                when (recent) {
+                    is RecentItem.Relay -> {
+                        val isSelected = recent.item.matches(itemSelection, relayListType)
+                        RelayListItem.RecentListItem(item = recent.item, isSelected = isSelected)
+                    }
+                    RecentItem.Automatic ->
+                        RelayListItem.AutomaticEntryItem.Recent(
+                            isSelected = itemSelection.isEntryLocationAutomatic()
+                        )
+                }
             }
             // Convert to a set to remove possible duplicates. We can get duplicate entries if
             // multihop is enabled because multiple multihop recents
@@ -285,7 +294,11 @@ private fun createLocationSection(
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
     if (relayListType.isMultihopEntry) {
-        add(RelayListItem.AutomaticEntryItem(isSelected = selectedItem.isEntryLocationAutomatic()))
+        add(
+            RelayListItem.AutomaticEntryItem.RelayList(
+                isSelected = selectedItem.isEntryLocationAutomatic()
+            )
+        )
     }
     addAll(
         countries.flatMap { country ->
