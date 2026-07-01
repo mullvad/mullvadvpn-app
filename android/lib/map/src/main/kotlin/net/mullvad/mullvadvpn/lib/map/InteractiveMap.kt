@@ -217,7 +217,6 @@ fun InteractiveMap(
     markers: List<Marker>,
     locations: List<LatLong>,
     hops: List<Hop>,
-    modifier: Modifier = Modifier,
     onMarkerClick: ((Marker) -> Unit)? = null,
     globeColors: GlobeColors = GlobeColors.default(),
 ) {
