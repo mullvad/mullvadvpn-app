@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [android/2026.8-beta1] - 2026-06-24
 ### Added
 - Highlight search phrase when searching in Split tunneling.
+- The globe is now interactive, user can now pan, and pinch-to-zoom, to discover where servers are
+  located. It is also possible to see the connection, see the path of your connection.
 
 ### Changed
 - Improve error handling of Google play purchases.
