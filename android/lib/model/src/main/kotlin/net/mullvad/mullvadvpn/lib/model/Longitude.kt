@@ -6,7 +6,7 @@ import kotlinx.parcelize.Parcelize
 
 @JvmInline
 @Parcelize
-value class Longitude(val value: Float): Parcelable {
+value class Longitude(val value: Float) : Parcelable {
     init {
         require(value in LONGITUDE_RANGE) {
             "Longitude: '$value' must be between $MIN_LONGITUDE_VALUE and $MAX_LONGITUDE_VALUE"

@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 
 data class ConnectUiState(
     val internetLocation: GeoIpLocation?,
