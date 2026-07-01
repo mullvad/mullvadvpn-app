@@ -646,7 +646,7 @@ internal fun ManagementInterface.Relay.toDomain(
         lwo = endpointData.lwo,
     )
 
-private fun ManagementInterface.Location.toDomain() : LatLong =
+private fun ManagementInterface.Location.toDomain(): LatLong =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
 private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =

@@ -8,4 +8,3 @@ data class Hop(
     val to: LatLong,
     val color: Color = Color.White.copy(alpha = 0.6f),
 )
-

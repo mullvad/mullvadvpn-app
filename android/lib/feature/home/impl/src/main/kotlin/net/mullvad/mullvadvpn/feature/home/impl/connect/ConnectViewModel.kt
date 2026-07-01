@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
-    private val relayListRepository: RelayListRepository,
+    relayListRepository: RelayListRepository,
     private val changelogRepository: ChangelogRepository,
     private val connectionPath: ConnectionPathUseCase,
     inAppNotificationController: InAppNotificationController,
@@ -59,7 +59,7 @@ class ConnectViewModel(
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
-    private val lastKnownLocationUseCase: LastKnownLocationUseCase,
+    lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
@@ -73,7 +73,7 @@ class ConnectViewModel(
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 connectionPath(),
-            relayListRepository.relayList,
+                relayListRepository.relayList,
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState.withPrev(),

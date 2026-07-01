@@ -162,7 +162,7 @@ internal class Globe(resources: Resources) {
                 gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
                 vColor = uColor;
             }
-                """
+            """
                 .trimIndent()
         private val fragmentShaderCode =
             """
@@ -171,7 +171,7 @@ internal class Globe(resources: Resources) {
             void main(void) {
                 gl_FragColor = vColor;
             }
-                """
+            """
                 .trimIndent()
     }
 }

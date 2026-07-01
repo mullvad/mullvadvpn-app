@@ -227,7 +227,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
                 gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
                 vColor = aVertexColor;
             }
-                """
+            """
                 .trimIndent()
         private val fragmentShaderCode =
             """
@@ -236,7 +236,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             void main(void) {
                 gl_FragColor = vColor;
             }
-                """
+            """
                 .trimIndent()
     }
 }

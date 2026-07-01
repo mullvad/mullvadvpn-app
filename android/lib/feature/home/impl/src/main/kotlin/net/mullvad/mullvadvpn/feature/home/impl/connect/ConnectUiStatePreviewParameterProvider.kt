@@ -4,9 +4,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 
 class ConnectUiStatePreviewParameterProvider : PreviewParameterProvider<ConnectUiState> {
     override val values = sequenceOf(ConnectUiState.INITIAL) + otherStates

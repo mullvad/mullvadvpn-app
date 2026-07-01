@@ -24,8 +24,8 @@ import net.mullvad.mullvadvpn.lib.map.data.rotateAroundX
 import net.mullvad.mullvadvpn.lib.map.data.rotateAroundY
 import net.mullvad.mullvadvpn.lib.map.data.toVector3
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
-import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.HopArc
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
 internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
@@ -98,7 +98,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.latitude.value, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
-        val contourWidth = (5f -viewState.cameraPosition.zoom * 2f).coerceIn(1f..4f)
+        val contourWidth = (5f - viewState.cameraPosition.zoom * 2f).coerceIn(1f..4f)
         globe.draw(projectionMatrix, viewMatrix, viewState.globeColors, contourWidth)
 
         // Draw location markers
@@ -112,7 +112,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
         viewState.hops.forEach { hop ->
             val hopArc =
-                hopArcCache[hop] ?: HopArc(hop.from, hop.to, color = hop.color).also { hopArcCache.put(hop, it) }
+                hopArcCache[hop]
+                    ?: HopArc(hop.from, hop.to, color = hop.color).also { hopArcCache.put(hop, it) }
             hopArc.draw(projectionMatrix, viewMatrix)
         }
     }
