@@ -44,8 +44,8 @@ value class Latitude(val value: Float) : Parcelable {
 
             // If we are above 180 or below -180, we wrapped half a turn and need to flip sign
             val partiallyUnwound =
-                if (withoutRotations.absoluteValue > COMPLETE_ANGLE / 2) {
-                    -withoutRotations % (COMPLETE_ANGLE / 2)
+                if (withoutRotations.absoluteValue > STRAIGHT_ANGLE) {
+                    -withoutRotations % STRAIGHT_ANGLE
                 } else withoutRotations
 
             return when {
