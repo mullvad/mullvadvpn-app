@@ -135,7 +135,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.util.visible
-import net.mullvad.mullvadvpn.lib.usecase.ConnectionPath
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
@@ -505,19 +504,12 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             label = "baseZoom",
         )
 
-//    val markers = state.tunnelState.toMarker(state.internetLocation)?.let { listOf(it) } ?: emptyList()
+    val locationMarker = state.tunnelState.toMarker(state.internetLocation)
 
     val currentLocation =
         remember(state.internetLocation?.toLatLong()) {
             // Berlin
             mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
-        }
-
-    val markers =
-        if(!state.tunnelState.isBlocked()) {
-            state.hops.toMarkers()
-        } else {
-            emptyList()
         }
 
     val hops =
@@ -528,7 +520,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
     InteractiveMap(
         currentLocation = currentLocation.value,
         progressIndicatorBias,
-        markers = markers,
+        markers = listOfNotNull(locationMarker),
         locations = state.locations,
         hops = hops,
         globeColors =
@@ -538,44 +530,6 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
                 backgroundColor = MaterialTheme.colorScheme.tertiary,
             ),
     )
-}
-
-@Composable
-private fun ConnectionPath.toMarkers(): List<Marker> = buildList {
-    exit?.let {
-        add(
-            Marker(
-                it,
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.positive),
-            )
-        )
-    }
-
-    entry?.let {
-        add(
-            Marker(
-                it,
-                colors =
-                    LocationMarkerColors(
-                        centerColor = MaterialTheme.colorScheme.positive,
-                        perimeterColors = Color.Transparent,
-                    ),
-            )
-        )
-    }
-    offlineLocation?.let {
-        if(exit == null) {
-            add(Marker(
-                it,
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
-            ))
-        } else {
-            add(Marker(
-                it,
-                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.positive, perimeterColors = Color.Transparent),
-            ))
-        }
-    }
 }
 
 @Composable
@@ -816,23 +770,26 @@ private fun ButtonPanel(
     }
 }
 
-//@Composable
-//fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
-//    if (location == null) return null
-//    return when (this) {
-//        is TunnelState.Connected ->
-//            Marker(
-//                location.toLatLong(),
-//                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.positive),
-//            )
-//
-//        is TunnelState.Connecting -> null
-//        is TunnelState.Disconnected ->
-//
-//        is TunnelState.Disconnecting -> null
-//        is TunnelState.Error -> null
-//    }
-//}
+@Composable
+fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
+    if (location == null) return null
+    return when (this) {
+        is TunnelState.Connected ->
+            Marker(
+                location.toLatLong(),
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.positive),
+            )
+
+        is TunnelState.Connecting -> null
+        is TunnelState.Disconnected ->
+            Marker(
+                location.toLatLong(),
+                colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
+            )
+        is TunnelState.Disconnecting -> null
+        is TunnelState.Error -> null
+    }
+}
 
 @Composable
 fun TunnelState.topBarColor(): Color =

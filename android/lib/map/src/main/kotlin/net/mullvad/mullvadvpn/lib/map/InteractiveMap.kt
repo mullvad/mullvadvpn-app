@@ -107,7 +107,12 @@ internal class MapCameraController(
         }
     }
 
-    fun onGesture(centroid: Offset, pan: Offset, zoomChange: Float, offsetToLatLng: (Offset) -> LatLong?) {
+    fun onGesture(
+        centroid: Offset,
+        pan: Offset,
+        zoomChange: Float,
+        offsetToLatLng: (Offset) -> LatLong?,
+    ) {
         val currentPosition = latLngAnimatable.value
         val zoom = zoomAnimatable.value
 
@@ -221,7 +226,12 @@ fun InteractiveMap(
     val locationMarkers = locations.map {
         Marker(it, colors = LocationMarkerColors.default(controller.alphaAnimation.value))
     }
-
+    val hopMarkers = hops.map {
+        Marker(
+            it.from,
+            colors = LocationMarkerColors.hop(alpha = controller.alphaAnimation.value)
+        )
+    }
     var view: MapSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
@@ -235,7 +245,7 @@ fun InteractiveMap(
     val globeViewState =
         GlobeViewState(
             cameraPosition,
-            markers + locationMarkers,
+            markers + hopMarkers + locationMarkers,
             hops.map {
                 it.copy(color = Color.White.copy(alpha = controller.alphaAnimation.value * 0.6f))
             },
@@ -256,7 +266,7 @@ fun InteractiveMap(
                     detectTransformGesturesWithEnd(
                         onGestureStart = { controller.onGestureStart() },
                         onGesture = { centroid, pan, zoom ->
-                            controller.onGesture(centroid, pan, zoom, { view!!.getPosition(it) } )
+                            controller.onGesture(centroid, pan, zoom, { view!!.getPosition(it) })
                         },
                         onGestureEnd = { controller.onGestureEnd() },
                     )
