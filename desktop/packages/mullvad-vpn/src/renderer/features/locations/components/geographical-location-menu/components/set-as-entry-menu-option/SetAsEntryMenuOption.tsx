@@ -4,7 +4,7 @@ import { messages } from '../../../../../../../shared/gettext';
 import { Menu } from '../../../../../../lib/components/menu';
 import { useMenuContext } from '../../../../../../lib/components/menu/MenuContext';
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
-import { useDaitaDirectOnly, useDaitaEnabled } from '../../../../../daita/hooks';
+import { useIsDaitaEnabledWithoutDirectOnly } from '../../../../../daita/hooks';
 import { useMultihop } from '../../../../../multihop/hooks';
 import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
@@ -16,8 +16,6 @@ export type SetAsEntryMenuOptionProps = MenuOptionProps & {
 
 export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptionProps) {
   const { multihop, setMultihop } = useMultihop();
-  const { daitaEnabled } = useDaitaEnabled();
-  const { daitaDirectOnly } = useDaitaDirectOnly();
   const { selectEntryRelayLocation } = useRelayLocations();
   const { onOpenChange } = useMenuContext();
   const { entry, exit } = useSelectedLocations();
@@ -43,10 +41,10 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
     selectEntryRelayLocation,
   ]);
 
-  const isDaitaWithoutDirectOnly = daitaEnabled && !daitaDirectOnly;
+  const isDaitaEnabledWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
   const isExitSelectedWithoutMultihop = !multihop && isExitSelected;
 
-  const disabled = isDaitaWithoutDirectOnly || isExitSelectedWithoutMultihop;
+  const disabled = isDaitaEnabledWithoutDirectOnly || isExitSelectedWithoutMultihop;
 
   const label = disabled
     ? // This line is here to prevent the following one to be moved up here by prettier
