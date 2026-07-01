@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 
 import android.opengl.GLES20
 import androidx.compose.ui.graphics.Color
+import co.touchlab.kermit.Logger
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
@@ -30,16 +31,48 @@ class Parabola(
         val end = to.toWorldVector3()
         val d = start.distanceTo(end)
 
-        val isTeardrop = d < 0.03f
+        Logger.d("Distance: $d")
+        val isTeardrop = d < 0.1f
+        Logger.d("isTeardrop: $isTeardrop")
         val maxHeight = if (isTeardrop) {
-            0.03f
+            0.012f
         } else {
-            (0.07f * d).coerceAtLeast(0.01f) // Adjust factor to look beautiful
+            (0.10f * d).coerceIn(0.13f, 0.2f) // Adjust factor to look beautiful
         }
-        val maxWidth = if (isTeardrop) 0.015f else 0.0f
+        val maxWidth = if (isTeardrop) 0.006f else 0.0f
 
+        val vertices = if (isTeardrop) {
+            buildTeardropVertices(start, end, segments, maxHeight, maxWidth)
+        } else {
+            buildParabolaVertices(start, end, segments, maxHeight)
+        }
+
+        val positionFloatBuffer = FloatBuffer.wrap(vertices)
+        positionBuffer = initGLArrayBuffer(positionFloatBuffer)
+
+        shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
+
+        attribLocations = AttribLocations(
+            vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition")
+        )
+
+        uniformLocation = UniformLocation(
+            color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
+            projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
+            modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+        )
+
+        colorArray = floatArrayOf(color.red, color.green, color.blue, color.alpha)
+    }
+
+    private fun buildTeardropVertices(
+        start: Vector3,
+        end: Vector3,
+        segments: Int,
+        maxHeight: Float,
+        maxWidth: Float
+    ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
-
         // Calculate a stable tangent vector to define the loop's lateral plane
         val baseNormal = start.normalize()
         val startEndDiff = end - start
@@ -64,38 +97,40 @@ class Parabola(
             val u = p.normalize()
             val h = maxHeight * 4.0f * t * (1.0f - t)
 
-            val point = if (isTeardrop) {
-                val angle = (kotlin.math.PI * t).toFloat()
-                val sinT = sin(angle)
-                val cosT = cos(angle)
-                val w = -maxWidth * sinT * sinT * cosT
-                u * (Sphere.RADIUS + h + 0.00010f) + baseTangent * w
-            } else {
-                u * (Sphere.RADIUS + h + 0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
-            }
+            val angle = (kotlin.math.PI * t).toFloat()
+            val sinT = sin(angle)
+            val cosT = cos(angle)
+            val w = -maxWidth * sinT * cosT
+            val point = u * (Sphere.RADIUS + h + 0.00010f) + baseTangent * w
 
             val index = i * VERTEX_COMPONENT_SIZE
             vertices[index] = point.x
             vertices[index + 1] = point.y
             vertices[index + 2] = point.z
         }
+        return vertices
+    }
 
-        val positionFloatBuffer = FloatBuffer.wrap(vertices)
-        positionBuffer = initGLArrayBuffer(positionFloatBuffer)
+    private fun buildParabolaVertices(
+        start: Vector3,
+        end: Vector3,
+        segments: Int,
+        maxHeight: Float
+    ): FloatArray {
+        val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
+        for (i in 0..segments) {
+            val t = i.toFloat() / segments
+            val p = start + (end - start) * t
+            val u = p.normalize()
+            val h = maxHeight * 4.0f * t * (1.0f - t)
+            val point = u * (Sphere.RADIUS + h + 0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
 
-        shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
-
-        attribLocations = AttribLocations(
-            vertexPosition = GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition")
-        )
-
-        uniformLocation = UniformLocation(
-            color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
-            projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-            modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
-        )
-
-        colorArray = floatArrayOf(color.red, color.green, color.blue, color.alpha)
+            val index = i * VERTEX_COMPONENT_SIZE
+            vertices[index] = point.x
+            vertices[index + 1] = point.y
+            vertices[index + 2] = point.z
+        }
+        return vertices
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, lineWidth: Float = 4f) {
