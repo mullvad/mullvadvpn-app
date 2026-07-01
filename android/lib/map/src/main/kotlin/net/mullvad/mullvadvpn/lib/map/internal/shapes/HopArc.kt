@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 import android.opengl.GLES20
 import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -29,20 +30,12 @@ class HopArc(
     init {
         val start = from.toWorldVector3()
         val end = to.toWorldVector3()
-        val d = start.distanceTo(end)
-
-        val isShortArc = d < SHORT_ARC_CUTOFF_DISTANCE
 
         // If the distance is short/same we want a more drop like arc shape, where the curve goes
         // in the opposite direction in the beginning to avoid it becoming a straight line up and
         // down.
-        val vertices =
-            if (isShortArc) {
-                buildShortArcVertices(start, end, segments)
-            } else {
-                val maxHeight = longArcMaxHeight(d)
-                buildLongArcVertices(start, end, segments, maxHeight)
-            }
+
+        val vertices = buildArcVertices(start, end, segments)
 
         val positionFloatBuffer = FloatBuffer.wrap(vertices)
         positionBuffer = initGLArrayBuffer(positionFloatBuffer)
@@ -64,14 +57,53 @@ class HopArc(
         colorArray = floatArrayOf(color.red, color.green, color.blue, color.alpha)
     }
 
-    private fun buildShortArcVertices(
+    private fun buildArcVertices(
         start: Vector3,
         end: Vector3,
         segments: Int,
-        maxHeight: Float = SHORT_ARC_MAX_HEIGHT,
-        maxWidth: Float = SHORT_ARC_MAX_WIDTH,
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
+
+        val d = start.distanceTo(end)
+        val isShortArc = d < SHORT_ARC_CUTOFF_DISTANCE
+        val maxHeight = if (isShortArc) SHORT_ARC_MAX_HEIGHT else longArcMaxHeight(d)
+        val shortArcTangentVector = if (isShortArc) baseTangentVector(start, end) else null
+
+        val hopVector = end - start
+        for (i in 0..segments) {
+            val progress = i.toFloat() / segments
+            // We start drawing from start, and draw on part (t) until we reach then end.
+            val point = start + hopVector * progress
+            val unitVector = point.normalize()
+            val height = maxHeight * progress * (1.0f - progress)
+
+            val hopPoint: Vector3 =
+                (unitVector *
+                        (Sphere.RADIUS +
+                            height +
+                            0.00010f // Offset since each marker is hovering above the globe.
+                        ))
+                    .let {
+                        // If we have a short vector we need to apply the tangent vector to ensure
+                        // we don't end up with a line that goes straight up and down.
+                        if (shortArcTangentVector != null) {
+                            val angle = (PI * progress).toFloat()
+                            val width = -SHORT_ARC_MAX_WIDTH * sin(angle) * cos(angle)
+                            it + (shortArcTangentVector * width)
+                        } else {
+                            it
+                        }
+                    }
+
+            val index = i * VERTEX_COMPONENT_SIZE
+            vertices[index] = hopPoint.x
+            vertices[index + 1] = hopPoint.y
+            vertices[index + 2] = hopPoint.z
+        }
+        return vertices
+    }
+
+    private fun baseTangentVector(start: Vector3, end: Vector3): Vector3 {
         // Calculate a stable tangent vector to define the loop's lateral plane
         val baseNormal = start.normalize()
         val startEndDiff = end - start
@@ -90,55 +122,7 @@ class HopArc(
                     baseNormal.x * reference.y - baseNormal.y * reference.x,
                 )
         }
-        baseTangent = baseTangent.normalize()
-
-        for (i in 0..segments) {
-            val t = i.toFloat() / segments
-            val p = start + (end - start) * t
-            val u = p.normalize()
-            val h = maxHeight * 4.0f * t * (1.0f - t)
-
-            val angle = (kotlin.math.PI * t).toFloat()
-            val sinT = sin(angle)
-            val cosT = cos(angle)
-            val w = -maxWidth * sinT * cosT
-            val point = u * (Sphere.RADIUS + h + 0.00010f) + baseTangent * w
-
-            val index = i * VERTEX_COMPONENT_SIZE
-            vertices[index] = point.x
-            vertices[index + 1] = point.y
-            vertices[index + 2] = point.z
-        }
-        return vertices
-    }
-
-    private fun buildLongArcVertices(
-        start: Vector3,
-        end: Vector3,
-        segments: Int,
-        maxHeight: Float,
-    ): FloatArray {
-        val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
-
-        val hopVector = end - start
-        for (i in 0..segments) {
-            val progress = i.toFloat() / segments
-            val point = start + (hopVector) * progress
-            val unitVector: Vector3 = point.normalize()
-            val height = maxHeight * progress * (1.0f - progress)
-
-            val hopPoint =
-                unitVector *
-                    (Sphere.RADIUS +
-                        0.00010f + // Offset since each marker is hovering above the globe.
-                        height)
-
-            val index = i * VERTEX_COMPONENT_SIZE
-            vertices[index] = hopPoint.x
-            vertices[index + 1] = hopPoint.y
-            vertices[index + 2] = hopPoint.z
-        }
-        return vertices
+        return baseTangent.normalize()
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, lineWidth: Float = 4f) {
