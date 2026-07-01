@@ -1940,6 +1940,21 @@
         <target state="new">Norway</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</source>
+        <target state="new">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
         <target state="new">Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</target>
@@ -2792,6 +2807,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">This device is now named **%@**. See more under "Manage devices" in Account.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve">
+        <source>This ensures your connection does not get blocked due to incompatible settings.</source>
+        <target state="new">This ensures your connection does not get blocked due to incompatible settings.</target>
+        <note from="auto-generated">A description of the when-needed multihop feature.</note>
+      </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
         <target state="new">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</target>
@@ -2911,13 +2931,6 @@ Do you want to remove the saved account number?</target>
         <source>To enable this setting, add at least one server.</source>
         <target state="new">To enable this setting, add at least one server.</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server. &#10;This will be indicated by the %@ symbol." xml:space="preserve">
-        <source>To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server. 
-This will be indicated by the %@ symbol.</source>
-        <target state="new">To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server. 
-This will be indicated by the %@ symbol.</target>
-        <note from="auto-generated">A description of the "when needed" setting for multihop.</note>
       </trans-unit>
       <trans-unit id="To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel." xml:space="preserve">
         <source>To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.</source>
