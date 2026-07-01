@@ -61,7 +61,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
         // Translate marker to put it above the globe
         if (colors.perimeterColors != null) {
-            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + 0.00001f)
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + PERIMETER_Z_OFFSET)
         } else {
             Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
         }
@@ -211,6 +211,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
+        private const val PERIMETER_Z_OFFSET = 0.00001f
 
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =
