@@ -4,7 +4,6 @@ import android.opengl.GLES20
 import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
 import kotlin.math.PI
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.mullvadvpn.lib.map.data.Sphere
@@ -30,10 +29,6 @@ class HopArc(
     init {
         val start = from.toWorldVector3()
         val end = to.toWorldVector3()
-
-        // If the distance is short/same we want a more drop like arc shape, where the curve goes
-        // in the opposite direction in the beginning to avoid it becoming a straight line up and
-        // down.
 
         val vertices = buildArcVertices(start, end, segments)
 
@@ -64,65 +59,62 @@ class HopArc(
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
 
-        val d = start.distanceTo(end)
-        val isShortArc = d < SHORT_ARC_CUTOFF_DISTANCE
-        val maxHeight = if (isShortArc) SHORT_ARC_MAX_HEIGHT else longArcMaxHeight(d)
+        // If the distance is short/zero we want a more drop like arc shape, where the curve goes
+        // in the opposite direction in the beginning to avoid it becoming a straight line up and
+        // down.
+        val distance = start.distanceTo(end)
+        val isShortArc = distance < SHORT_ARC_CUTOFF_DISTANCE
+        val maxHeight = if (isShortArc) SHORT_ARC_MAX_HEIGHT else longArcMaxHeight(distance)
+        // If it is a short arc we create a baseTangentVector that is used to offset in width later
         val shortArcTangentVector = if (isShortArc) baseTangentVector(start, end) else null
 
         val hopVector = end - start
+        val baseHeight =
+            Sphere.RADIUS + 0.00010f // Offset since each marker is hovering above the globe.
+
         for (i in 0..segments) {
             val progress = i.toFloat() / segments
             // We start drawing from start, and draw on part (t) until we reach then end.
             val point = start + hopVector * progress
             val unitVector = point.normalize()
-            val height = maxHeight * progress * (1.0f - progress)
+            val height = baseHeight + maxHeight * progress * (1.0f - progress)
 
-            val hopPoint: Vector3 =
-                (unitVector *
-                        (Sphere.RADIUS +
-                            height +
-                            0.00010f // Offset since each marker is hovering above the globe.
-                        ))
-                    .let {
-                        // If we have a short vector we need to apply the tangent vector to ensure
-                        // we don't end up with a line that goes straight up and down.
-                        if (shortArcTangentVector != null) {
-                            val angle = (PI * progress).toFloat()
-                            val width = -SHORT_ARC_MAX_WIDTH * sin(angle) * cos(angle)
-                            it + (shortArcTangentVector * width)
-                        } else {
-                            it
-                        }
-                    }
+            var segmentPoint = unitVector * height
+            // If we have a short vector we need to apply the tangent vector to ensure
+            // we don't end up with a line that goes straight up and down. Here we add
+            // the drop shape
+            if (shortArcTangentVector != null) {
+                val angle = (PI * progress).toFloat()
+                val width = -SHORT_ARC_MAX_WIDTH * sin(angle) * cos(angle)
+                segmentPoint += (shortArcTangentVector * width)
+            }
 
             val index = i * VERTEX_COMPONENT_SIZE
-            vertices[index] = hopPoint.x
-            vertices[index + 1] = hopPoint.y
-            vertices[index + 2] = hopPoint.z
+            vertices[index] = segmentPoint.x
+            vertices[index + 1] = segmentPoint.y
+            vertices[index + 2] = segmentPoint.z
         }
         return vertices
     }
 
+    /**
+     * Returns a unit vector tangent to the sphere at [start], pointing towards [end].
+     *
+     * Used to give the short-arc drop loop a stable sideways direction to bulge into. When [start]
+     * and [end] are the same point a tangent along the longitude lines are chosen.
+     */
     private fun baseTangentVector(start: Vector3, end: Vector3): Vector3 {
-        // Calculate a stable tangent vector to define the loop's lateral plane
-        val baseNormal = start.normalize()
-        val startEndDiff = end - start
-        var baseTangent = startEndDiff - baseNormal * startEndDiff.dot(baseNormal)
-        if (baseTangent.dot(baseTangent) < 1e-10f) {
-            val reference =
-                if (abs(baseNormal.y) < 0.9f) {
-                    Vector3(0f, 1f, 0f)
-                } else {
-                    Vector3(0f, 0f, 1f)
-                }
-            baseTangent =
-                Vector3(
-                    baseNormal.y * reference.z - baseNormal.z * reference.y,
-                    baseNormal.z * reference.x - baseNormal.x * reference.z,
-                    baseNormal.x * reference.y - baseNormal.y * reference.x,
-                )
-        }
-        return baseTangent.normalize()
+        val normal = start.normalize()
+        val diffVector = (end - start)
+        val towardsEnd = diffVector - normal * diffVector.dot(normal)
+
+        val tangent =
+            if (start == end)
+                // We don't care to handle if it is close to North/South Pole
+                normal.cross(Vector3(0f, 1f, 0f))
+            else towardsEnd
+
+        return tangent.normalize()
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, lineWidth: Float = 4f) {
