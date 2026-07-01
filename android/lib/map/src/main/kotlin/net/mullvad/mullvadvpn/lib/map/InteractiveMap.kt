@@ -29,8 +29,8 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import co.touchlab.kermit.Logger
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -47,8 +47,8 @@ import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 
-val LAT_LOWER_BOUND = -40f
-val LAT_UPPER_BOUND = 65f
+private const val LAT_LOWER_BOUND = -40f
+private const val LAT_UPPER_BOUND = 65f
 
 internal class MapCameraController(
     private val scope: CoroutineScope,
@@ -127,10 +127,6 @@ internal class MapCameraController(
                 yMax = LAT_UPPER_BOUND,
             )
         val realDiff = newPosition - currentPosition
-
-        Logger.d { "NewPosition: $newPosition" }
-        Logger.d { "RealDiff: $realDiff" }
-
         val newZoom = (zoom + (1 - zoomChange) * 0.5f)
 
         scope.launch {
@@ -149,7 +145,8 @@ internal class MapCameraController(
     fun onGestureEnd() {
         isPerformingGesture = false
         returnToIdleJob = scope.launch {
-            var (longVelocity, latVelocity) = tracker.calculateVelocity()
+            var (longVelocity, latVelocity) =
+                tracker.calculateVelocity(maximumVelocity = Velocity(1000f, 1000f))
             tracker.resetTracking()
             do {
                 val result =
@@ -166,7 +163,7 @@ internal class MapCameraController(
                 alphaAnimation.animateTo(1f, tween(100))
             }
 
-            delay(2000)
+            delay(3.seconds)
 
             launch {
                 latLngAnimatable.animateTo(
@@ -176,15 +173,6 @@ internal class MapCameraController(
             }
             launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000)) }
             launch { alphaAnimation.animateTo(0f, tween(400)) }
-        }
-    }
-
-    fun abortAnimations() {
-        cancelReturnJob()
-        scope.launch {
-            latLngAnimatable.stop()
-            zoomAnimatable.stop()
-            alphaAnimation.stop()
         }
     }
 
@@ -226,7 +214,7 @@ fun InteractiveMap(
     val hopMarkers = hops.map {
         Marker(
             it.from,
-            colors = LocationMarkerColors.hop(alpha = controller.alphaAnimation.value)
+            colors = LocationMarkerColors.hop(alpha = controller.alphaAnimation.value),
         )
     }
     val locationMarkers = locations.map {
