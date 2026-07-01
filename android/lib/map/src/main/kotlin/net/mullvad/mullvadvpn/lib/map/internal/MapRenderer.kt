@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.map.data.rotateAroundY
 import net.mullvad.mullvadvpn.lib.map.data.toVector3
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
-import net.mullvad.mullvadvpn.lib.map.internal.shapes.Parabola
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.HopArc
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
 internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
@@ -47,13 +47,13 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
             }
         }
 
-    private val parabolaCache: LruCache<Hop, Parabola> =
-        object : LruCache<Hop, Parabola>(10) {
+    private val hopArcCache: LruCache<Hop, HopArc> =
+        object : LruCache<Hop, HopArc>(10) {
             override fun entryRemoved(
                 evicted: Boolean,
                 key: Hop,
-                oldValue: Parabola,
-                newValue: Parabola?,
+                oldValue: HopArc,
+                newValue: HopArc?,
             ) {
                 oldValue.onRemove()
             }
@@ -70,7 +70,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
         markerCache.evictAll()
-        parabolaCache.evictAll()
+        hopArcCache.evictAll()
         initGLOptions()
     }
 
@@ -111,9 +111,9 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         }
 
         viewState.hops.forEach { hop ->
-            val parabola =
-                parabolaCache[hop] ?: Parabola(hop.from, hop.to, color = hop.color).also { parabolaCache.put(hop, it) }
-            parabola.draw(projectionMatrix, viewMatrix)
+            val hopArc =
+                hopArcCache[hop] ?: HopArc(hop.from, hop.to, color = hop.color).also { hopArcCache.put(hop, it) }
+            hopArc.draw(projectionMatrix, viewMatrix)
         }
     }
 
