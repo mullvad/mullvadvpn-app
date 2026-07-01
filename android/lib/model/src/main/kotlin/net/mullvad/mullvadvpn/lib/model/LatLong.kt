@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.Latitude.Companion.mean
 
 @Parcelize
-data class LatLong(val latitude: Latitude, val longitude: Longitude): Parcelable {
+data class LatLong(val latitude: Latitude, val longitude: Longitude) : Parcelable {
 
     fun degreeDistanceTo(other: LatLong): Float =
         sqrt(
@@ -45,6 +45,9 @@ data class LatLong(val latitude: Latitude, val longitude: Longitude): Parcelable
         const val EARTH_RADIUS = 6371.009f
     }
 }
+
+fun LatLong(latitude: Float, longitude: Float) =
+    LatLong(Latitude.fromFloat(latitude), Longitude.fromFloat(longitude))
 
 const val COMPLETE_ANGLE = 360f
 
