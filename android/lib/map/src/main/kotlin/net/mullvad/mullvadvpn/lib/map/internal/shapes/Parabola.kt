@@ -37,7 +37,7 @@ class Parabola(
         val maxHeight = if (isTeardrop) {
             0.012f
         } else {
-            (0.10f * d).coerceIn(0.13f, 0.2f) // Adjust factor to look beautiful
+            (0.10f * d).coerceIn(0.02f, 0.1f) // Adjust factor to look beautiful
         }
         val maxWidth = if (isTeardrop) 0.006f else 0.0f
 
