@@ -46,12 +46,12 @@ private val otherStates =
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,
+                hops = ConnectionPath(),
+                locations = emptyList(),
                 inAppNotification =
                     if (index == 0) InAppNotification.NewDevice("Test Device") else null,
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
                 isPlayBuild = true,
-                hops = ConnectionPath(),
-                locations = emptyList(),
             )
         }

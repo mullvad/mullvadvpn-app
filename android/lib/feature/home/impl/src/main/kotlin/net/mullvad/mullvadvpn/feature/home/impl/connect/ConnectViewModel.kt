@@ -90,8 +90,6 @@ class ConnectViewModel(
                 accountData,
                 deviceName ->
                 ConnectUiState(
-                    hops = connectionPath,
-                    locations = relayList.flatMap { it.cities }.map { it.latLong },
                     internetLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->
@@ -118,6 +116,8 @@ class ConnectViewModel(
                             null
                         },
                     tunnelState = tunnelState,
+                    hops = connectionPath,
+                    locations = relayList.flatMap { it.cities }.map { it.latLong },
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
