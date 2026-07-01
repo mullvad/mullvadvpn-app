@@ -31,7 +31,7 @@ class HopArc(
         val end = to.toWorldVector3()
         val d = start.distanceTo(end)
 
-        val isShortArc = d < 0.02f
+        val isShortArc = d < SHORT_ARC_CUTOFF_DISTANCE
 
         // If the distance is short/same we want a more drop like arc shape, where the curve goes
         // in the opposite direction in the beginning to avoid it becoming a straight line up and
@@ -119,21 +119,24 @@ class HopArc(
         maxHeight: Float,
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
+
+        val hopVector = end - start
         for (i in 0..segments) {
-            val t = i.toFloat() / segments
-            val p = start + (end - start) * t
-            val u = p.normalize()
-            val h = maxHeight * 4.0f * t * (1.0f - t)
-            val point =
-                u *
+            val progress = i.toFloat() / segments
+            val point = start + (hopVector) * progress
+            val unitVector: Vector3 = point.normalize()
+            val height = maxHeight * progress * (1.0f - progress)
+
+            val hopPoint =
+                unitVector *
                     (Sphere.RADIUS +
-                        h +
-                        0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
+                        0.00010f + // Offset since each marker is hovering above the globe.
+                        height)
 
             val index = i * VERTEX_COMPONENT_SIZE
-            vertices[index] = point.x
-            vertices[index + 1] = point.y
-            vertices[index + 2] = point.z
+            vertices[index] = hopPoint.x
+            vertices[index + 1] = hopPoint.y
+            vertices[index + 2] = hopPoint.z
         }
         return vertices
     }
@@ -216,11 +219,12 @@ class HopArc(
             """
                 .trimIndent()
 
-        private const val SHORT_ARC_MAX_HEIGHT = 0.02f
+        private const val SHORT_ARC_CUTOFF_DISTANCE = 0.02f
+        private const val SHORT_ARC_MAX_HEIGHT = 0.08f
         private const val SHORT_ARC_MAX_WIDTH = 0.03f
 
         private const val LONG_ARC_DISTANCE_FACTOR = 0.1f
-        private const val LONG_ARC_MIN_HEIGHT = 0.02f
-        private const val LONG_ARC_MAX_HEIGHT = 0.10f
+        private const val LONG_ARC_MIN_HEIGHT = 0.08f
+        private const val LONG_ARC_MAX_HEIGHT = 0.40f
     }
 }
