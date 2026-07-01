@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
@@ -63,6 +64,24 @@ class SelectableRelayListItemPreviewParameterProvider :
                             cityNames = listOf("Expanded city A", "Expanded city B"),
                             relaysPerCity = 2,
                             active = false,
+                        ),
+                    isSelected = true,
+                    hierarchy = Hierarchy.Parent,
+                    itemPosition = Position.Single,
+                ),
+                RelayListItem.GeoLocationItem(
+                    item =
+                        generateRelayItemRelay(
+                            cityCode =
+                                GeoLocationId.City(
+                                    country = GeoLocationId.Country("ar"),
+                                    code = "bue",
+                                ),
+                            hostName = "ar-bue-wg-001",
+                            cityName = "Buenos Aires",
+                            countryName = "Argentina",
+                            active = true,
+                            daita = false,
                         ),
                     isSelected = true,
                     hierarchy = Hierarchy.Parent,

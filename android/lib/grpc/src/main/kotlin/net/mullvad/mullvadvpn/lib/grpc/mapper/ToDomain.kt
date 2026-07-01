@@ -653,6 +653,7 @@ internal fun ManagementInterface.Relay.toDomain(
                 null
             },
         lwo = endpointData.lwo,
+        needsOtherEntry = true
     )
 
 private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =
