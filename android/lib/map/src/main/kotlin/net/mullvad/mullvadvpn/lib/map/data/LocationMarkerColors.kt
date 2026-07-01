@@ -33,5 +33,15 @@ data class LocationMarkerColors(
                 shadowColor =
                     Color.Black.copy(DEFAULT_SHADOW_ALPHA * EaseInCirc.transform(alpha)),
             )
+
+        fun hop(alpha: Float = 1f) =
+            LocationMarkerColors(
+                perimeterColors = Color.Transparent,
+                centerColor = Color(0xFF44AD4D.toInt()).copy(alpha = EaseOutQuad.transform(alpha)),
+                ringBorderColor =
+                    Color(0xFFFFFFFF.toInt()).copy(alpha = EaseInCirc.transform(alpha)),
+                shadowColor =
+                    Color.Black.copy(DEFAULT_SHADOW_ALPHA * EaseInCirc.transform(alpha)),
+            )
     }
 }
