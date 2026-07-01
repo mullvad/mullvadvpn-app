@@ -513,7 +513,12 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
         }
 
-    val markers = state.hops.toMarkers()
+    val markers =
+        if(!state.tunnelState.isBlocked()) {
+            state.hops.toMarkers()
+        } else {
+            emptyList()
+        }
 
     val hops =
         remember(state.hops) {
