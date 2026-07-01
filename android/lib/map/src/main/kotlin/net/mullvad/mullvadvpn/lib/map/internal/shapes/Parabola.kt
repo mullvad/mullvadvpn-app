@@ -29,16 +29,50 @@ class Parabola(
         val start = from.toWorldVector3()
         val end = to.toWorldVector3()
         val d = start.distanceTo(end)
-        val maxHeight = (0.07f * d).coerceAtLeast(0.01f) // Adjust factor to look beautiful
+
+        val isTeardrop = d < 0.03f
+        val maxHeight = if (isTeardrop) {
+            0.03f
+        } else {
+            (0.07f * d).coerceAtLeast(0.01f) // Adjust factor to look beautiful
+        }
+        val maxWidth = if (isTeardrop) 0.015f else 0.0f
 
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
+
+        // Calculate a stable tangent vector to define the loop's lateral plane
+        val baseNormal = start.normalize()
+        val startEndDiff = end - start
+        var baseTangent = startEndDiff - baseNormal * startEndDiff.dot(baseNormal)
+        if (baseTangent.dot(baseTangent) < 1e-10f) {
+            val reference = if (kotlin.math.abs(baseNormal.y) < 0.9f) {
+                Vector3(0f, 1f, 0f)
+            } else {
+                Vector3(0f, 0f, 1f)
+            }
+            baseTangent = Vector3(
+                baseNormal.y * reference.z - baseNormal.z * reference.y,
+                baseNormal.z * reference.x - baseNormal.x * reference.z,
+                baseNormal.x * reference.y - baseNormal.y * reference.x
+            )
+        }
+        baseTangent = baseTangent.normalize()
 
         for (i in 0..segments) {
             val t = i.toFloat() / segments
             val p = start + (end - start) * t
             val u = p.normalize()
             val h = maxHeight * 4.0f * t * (1.0f - t)
-            val point = u * (Sphere.RADIUS + h + 0.00015f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
+
+            val point = if (isTeardrop) {
+                val angle = (kotlin.math.PI * t).toFloat()
+                val sinT = sin(angle)
+                val cosT = cos(angle)
+                val w = -maxWidth * sinT * sinT * cosT
+                u * (Sphere.RADIUS + h + 0.00010f) + baseTangent * w
+            } else {
+                u * (Sphere.RADIUS + h + 0.00010f) // Base radius of 1f matches MARKER_TRANSLATE_Z_FACTOR
+            }
 
             val index = i * VERTEX_COMPONENT_SIZE
             vertices[index] = point.x
