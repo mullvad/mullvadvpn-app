@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.feature.home.impl.welcome
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -37,6 +39,7 @@ class WelcomeViewModel(
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
+    activityLifecycle: Lifecycle,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -66,19 +69,13 @@ class WelcomeViewModel(
 
     init {
         viewModelScope.launch {
-            while (true) {
-                updateAccountExpiry()
-                delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
+            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                pollAccountExpiry()
             }
         }
         viewModelScope.launch {
-            while (true) {
-                // We do not want to retry verification if it fails, since we are already polling
-                // for it.
-                if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {
-                    updateAccountExpiry()
-                }
-                delay(VERIFICATION_POLL_INTERVAL)
+            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                pollPurchaseVerification()
             }
         }
         viewModelScope.launch { deviceRepository.updateDevice() }
@@ -115,6 +112,24 @@ class WelcomeViewModel(
 
     private suspend fun updateAccountExpiry() {
         accountRepository.refreshAccountData()
+    }
+
+    private suspend fun pollAccountExpiry() {
+        while (true) {
+            updateAccountExpiry()
+            delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
+        }
+    }
+
+    private suspend fun pollPurchaseVerification() {
+        while (true) {
+            // We do not want to retry verification if it fails, since we are already polling
+            // for it.
+            if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {
+                updateAccountExpiry()
+            }
+            delay(VERIFICATION_POLL_INTERVAL)
+        }
     }
 
     sealed interface UiSideEffect {

@@ -40,6 +40,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
 import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override val scope by activityScope()
@@ -57,9 +58,15 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private var isReadyNextDraw: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadKoinModules(listOf(uiModule, paymentModule))
-
-        lifecycle.addObserver(mullvadAppViewModel)
+        loadKoinModules(
+            listOf(
+                uiModule,
+                paymentModule,
+                module {
+                    single { lifecycle }
+                },
+            )
+        )
 
         installSplashScreen().setKeepOnScreenCondition {
             val isReady = isReadyNextDraw
@@ -123,11 +130,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         if (serviceConnectionManager.connectionState.value == ServiceConnectionState.Bound) {
             serviceConnectionManager.unbind()
         }
-    }
-
-    override fun onDestroy() {
-        lifecycle.removeObserver(mullvadAppViewModel)
-        super.onDestroy()
     }
 
     private fun handleIntent(intent: Intent) {
