@@ -324,6 +324,9 @@ impl From<mullvad_types::settings::Recent> for proto::Recent {
                     exit: Some(exit.into()),
                 })),
             },
+            mullvad_types::settings::Recent::AutomaticEntryMultihop(exit) => Self {
+                r#type: Some(proto::recent::Type::AutomaticEntryMultihop(exit.into())),
+            },
         }
     }
 }
