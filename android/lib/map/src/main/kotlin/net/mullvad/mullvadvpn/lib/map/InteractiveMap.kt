@@ -212,6 +212,7 @@ internal fun rememberMapCameraController(
 @Composable
 fun InteractiveMap(
     currentLocation: LatLong,
+    secureZoom: Float = 0f,
     verticalBias: Float = .5f,
     markers: List<Marker>,
     locations: List<LatLong>,
@@ -223,14 +224,14 @@ fun InteractiveMap(
     val zoomRange = 1.2f..2.5f
     val controller = rememberMapCameraController(currentLocation, zoomRange)
 
-    val locationMarkers = locations.map {
-        Marker(it, colors = LocationMarkerColors.default(controller.alphaAnimation.value))
-    }
     val hopMarkers = hops.map {
         Marker(
             it.from,
             colors = LocationMarkerColors.hop(alpha = controller.alphaAnimation.value)
         )
+    }
+    val locationMarkers = locations.map {
+        Marker(it, colors = LocationMarkerColors.default(controller.alphaAnimation.value))
     }
     var view: MapSurfaceView? = remember { null }
 
@@ -239,7 +240,7 @@ fun InteractiveMap(
     val cameraPosition =
         CameraPosition(
             controller.latLngAnimatable.value.toLatLng(),
-            controller.zoomAnimatable.value,
+            controller.zoomAnimatable.value + secureZoom,
             verticalBias = verticalBias,
         )
     val globeViewState =
