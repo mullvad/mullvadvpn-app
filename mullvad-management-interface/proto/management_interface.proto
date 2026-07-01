@@ -590,16 +590,17 @@ message RelayOverride {
 
 message Recents { repeated Recent recents = 1; }
 
-message MultihopRecent {
-  LocationConstraint entry = 1;
-  LocationConstraint exit = 2;
-}
-
 message Recent {
   oneof type {
     LocationConstraint singlehop = 1;
     MultihopRecent multihop = 2;
+    LocationConstraint automatic_entry_multihop = 3;
   }
+}
+
+message MultihopRecent {
+  LocationConstraint entry = 1;
+  LocationConstraint exit = 2;
 }
 
 message SplitTunnelSettings {
