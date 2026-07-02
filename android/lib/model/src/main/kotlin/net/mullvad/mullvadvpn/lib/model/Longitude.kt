@@ -1,9 +1,12 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import kotlin.math.absoluteValue
+import kotlinx.parcelize.Parcelize
 
 @JvmInline
-value class Longitude(val value: Float) {
+@Parcelize
+value class Longitude(val value: Float) : Parcelable {
     init {
         require(value in LONGITUDE_RANGE) {
             "Longitude: '$value' must be between $MIN_LONGITUDE_VALUE and $MAX_LONGITUDE_VALUE"
@@ -43,7 +46,7 @@ value class Longitude(val value: Float) {
             return Longitude(unwoundValue)
         }
 
-        private fun unwind(value: Float): Float {
+        fun unwind(value: Float): Float {
             val unwound = value % COMPLETE_ANGLE
             return when {
                 unwound > MAX_LONGITUDE_VALUE -> unwound - COMPLETE_ANGLE
