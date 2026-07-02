@@ -27,7 +27,6 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_types::ErrorExt;
 
 pub use hyper::StatusCode;
 
@@ -252,6 +251,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         request: Request<BoxBody<Bytes, Error>>,
         completion_tx: oneshot::Sender<Result<Response<Incoming>>>,
     ) {
+        let uri = request.uri().clone();
         let tx = self.command_tx.upgrade();
 
         let api_availability = self.api_availability.clone();
@@ -267,7 +267,10 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
                 && err.is_network_error()
                 && !api_availability.is_offline()
             {
-                tracing::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                tracing::warn!(
+                    "request to {host:?} failed: {err:?}",
+                    host = uri.host().unwrap_or_default(),
+                );
                 if let Some(tx) = tx {
                     let _ = tx
                         .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
