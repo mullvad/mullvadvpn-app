@@ -135,7 +135,8 @@ fun AutoConnectAndLockdownModeScreen(
                     modifier
                         .drawVerticalScrollbar(
                             state = scrollState,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                            color =
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
                         .verticalScroll(state = scrollState),
                 verticalArrangement = Arrangement.Center,

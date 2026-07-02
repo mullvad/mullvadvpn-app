@@ -53,23 +53,21 @@ internal suspend fun removeLocationFromCustomList(
                 CustomListActionError,
                 LocationsChanged,
             >,
-) =
-    either {
-            val customList = getCustomListById(customListId).bind()
-            val newLocations = (customList.locations - item.id)
-            val success =
-                update(CustomListAction.UpdateLocations(customList.id, newLocations)).bind()
-            if (success.addedLocations.isEmpty()) {
-                CustomListActionResultData.Success.LocationRemoved(
-                    customListName = success.name,
-                    locationName = item.name,
-                    undo = success.undo,
-                )
-            } else {
-                CustomListActionResultData.Success.LocationChanged(
-                    customListName = success.name,
-                    undo = success.undo,
-                )
-            }
-        }
-        .getOrElse { CustomListActionResultData.GenericError }
+) = either {
+    val customList = getCustomListById(customListId).bind()
+    val newLocations = (customList.locations - item.id)
+    val success = update(CustomListAction.UpdateLocations(customList.id, newLocations)).bind()
+    if (success.addedLocations.isEmpty()) {
+        CustomListActionResultData.Success.LocationRemoved(
+            customListName = success.name,
+            locationName = item.name,
+            undo = success.undo,
+        )
+    } else {
+        CustomListActionResultData.Success.LocationChanged(
+            customListName = success.name,
+            undo = success.undo,
+        )
+    }
+}
+    .getOrElse { CustomListActionResultData.GenericError }

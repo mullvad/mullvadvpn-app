@@ -250,7 +250,8 @@ private fun EnterVoucherBody(
                 state.voucherInput.isEmpty() || state.voucherInput.length == MAX_VOUCHER_LENGTH,
             isDigitsOnlyAllowed = false,
             visualTransformation = vouchersVisualTransformation(),
-            textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
+            textStyle =
+                MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
         )
     }
     Spacer(modifier = Modifier.height(Dimens.smallPadding))

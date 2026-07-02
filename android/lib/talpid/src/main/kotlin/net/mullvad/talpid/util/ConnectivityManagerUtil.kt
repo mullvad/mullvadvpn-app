@@ -24,117 +24,111 @@ import net.mullvad.talpid.model.IpAvailability
 
 private val CONNECTIVITY_DEBOUNCE = 300.milliseconds
 
-fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> =
-    callbackFlow {
-            val callback =
-                object : NetworkCallback() {
-                    override fun onLinkPropertiesChanged(
-                        network: Network,
-                        linkProperties: LinkProperties,
-                    ) {
-                        super.onLinkPropertiesChanged(network, linkProperties)
-                        trySendBlocking(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
-                    }
+fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
+    val callback =
+        object : NetworkCallback() {
+            override fun onLinkPropertiesChanged(
+                network: Network,
+                linkProperties: LinkProperties,
+            ) {
+                super.onLinkPropertiesChanged(network, linkProperties)
+                trySendBlocking(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
+            }
 
-                    override fun onAvailable(network: Network) {
-                        super.onAvailable(network)
-                        trySendBlocking(NetworkEvent.Available(network))
-                    }
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                trySendBlocking(NetworkEvent.Available(network))
+            }
 
-                    override fun onCapabilitiesChanged(
-                        network: Network,
-                        networkCapabilities: NetworkCapabilities,
-                    ) {
-                        super.onCapabilitiesChanged(network, networkCapabilities)
-                        trySendBlocking(
-                            NetworkEvent.CapabilitiesChanged(network, networkCapabilities)
-                        )
-                    }
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                trySendBlocking(NetworkEvent.CapabilitiesChanged(network, networkCapabilities))
+            }
 
-                    override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
-                        super.onBlockedStatusChanged(network, blocked)
-                        trySendBlocking(NetworkEvent.BlockedStatusChanged(network, blocked))
-                    }
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                super.onBlockedStatusChanged(network, blocked)
+                trySendBlocking(NetworkEvent.BlockedStatusChanged(network, blocked))
+            }
 
-                    override fun onLosing(network: Network, maxMsToLive: Int) {
-                        super.onLosing(network, maxMsToLive)
-                        trySendBlocking(NetworkEvent.Losing(network, maxMsToLive))
-                    }
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                super.onLosing(network, maxMsToLive)
+                trySendBlocking(NetworkEvent.Losing(network, maxMsToLive))
+            }
 
-                    override fun onLost(network: Network) {
-                        super.onLost(network)
-                        trySendBlocking(NetworkEvent.Lost(network))
-                    }
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                trySendBlocking(NetworkEvent.Lost(network))
+            }
 
-                    override fun onUnavailable() {
-                        super.onUnavailable()
-                        trySendBlocking(NetworkEvent.Unavailable)
-                    }
-                }
-            registerDefaultNetworkCallback(callback)
-
-            awaitClose { unregisterNetworkCallback(callback) }
+            override fun onUnavailable() {
+                super.onUnavailable()
+                trySendBlocking(NetworkEvent.Unavailable)
+            }
         }
-        .onEach { Logger.d("Got a default network event type: ${it::class.simpleName}") }
+    registerDefaultNetworkCallback(callback)
 
-fun ConnectivityManager.nonVpnInternetNetworksEvents(): Flow<NetworkEvent> =
-    callbackFlow {
-            val callback =
-                object : NetworkCallback() {
-                    override fun onLinkPropertiesChanged(
-                        network: Network,
-                        linkProperties: LinkProperties,
-                    ) {
-                        super.onLinkPropertiesChanged(network, linkProperties)
-                        trySendBlocking(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
-                    }
+    awaitClose { unregisterNetworkCallback(callback) }
+}
+    .onEach { Logger.d("Got a default network event type: ${it::class.simpleName}") }
 
-                    override fun onAvailable(network: Network) {
-                        super.onAvailable(network)
-                        trySendBlocking(NetworkEvent.Available(network))
-                    }
+fun ConnectivityManager.nonVpnInternetNetworksEvents(): Flow<NetworkEvent> = callbackFlow {
+    val callback =
+        object : NetworkCallback() {
+            override fun onLinkPropertiesChanged(
+                network: Network,
+                linkProperties: LinkProperties,
+            ) {
+                super.onLinkPropertiesChanged(network, linkProperties)
+                trySendBlocking(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
+            }
 
-                    override fun onCapabilitiesChanged(
-                        network: Network,
-                        networkCapabilities: NetworkCapabilities,
-                    ) {
-                        super.onCapabilitiesChanged(network, networkCapabilities)
-                        trySendBlocking(
-                            NetworkEvent.CapabilitiesChanged(network, networkCapabilities)
-                        )
-                    }
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                trySendBlocking(NetworkEvent.Available(network))
+            }
 
-                    override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
-                        super.onBlockedStatusChanged(network, blocked)
-                        trySendBlocking(NetworkEvent.BlockedStatusChanged(network, blocked))
-                    }
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                trySendBlocking(NetworkEvent.CapabilitiesChanged(network, networkCapabilities))
+            }
 
-                    override fun onLosing(network: Network, maxMsToLive: Int) {
-                        super.onLosing(network, maxMsToLive)
-                        trySendBlocking(NetworkEvent.Losing(network, maxMsToLive))
-                    }
+            override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
+                super.onBlockedStatusChanged(network, blocked)
+                trySendBlocking(NetworkEvent.BlockedStatusChanged(network, blocked))
+            }
 
-                    override fun onLost(network: Network) {
-                        super.onLost(network)
-                        trySendBlocking(NetworkEvent.Lost(network))
-                    }
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                super.onLosing(network, maxMsToLive)
+                trySendBlocking(NetworkEvent.Losing(network, maxMsToLive))
+            }
 
-                    override fun onUnavailable() {
-                        super.onUnavailable()
-                        trySendBlocking(NetworkEvent.Unavailable)
-                    }
-                }
-            registerNetworkCallback(
-                NetworkRequest.Builder()
-                    .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                    .build(),
-                callback,
-            )
+            override fun onLost(network: Network) {
+                super.onLost(network)
+                trySendBlocking(NetworkEvent.Lost(network))
+            }
 
-            awaitClose { unregisterNetworkCallback(callback) }
+            override fun onUnavailable() {
+                super.onUnavailable()
+                trySendBlocking(NetworkEvent.Unavailable)
+            }
         }
-        .onEach { Logger.d("Got an other network event type: ${it::class.simpleName}") }
+    registerNetworkCallback(
+        NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build(),
+        callback,
+    )
+
+    awaitClose { unregisterNetworkCallback(callback) }
+}
+    .onEach { Logger.d("Got an other network event type: ${it::class.simpleName}") }
 
 internal fun ConnectivityManager.defaultRawNetworkStateFlow(): Flow<RawNetworkState?> =
     defaultNetworkEvents().scan(null as RawNetworkState?) { state, event -> state.reduce(event) }

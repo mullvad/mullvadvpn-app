@@ -524,7 +524,10 @@ private fun Products(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier =
-                    Modifier.padding(start = Dimens.cellStartPadding, end = Dimens.cellStartPadding),
+                    Modifier.padding(
+                        start = Dimens.cellStartPadding,
+                        end = Dimens.cellStartPadding,
+                    ),
             ) {
                 Icon(
                     modifier = Modifier.size(Dimens.smallIconSize),

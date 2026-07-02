@@ -97,19 +97,21 @@ fun List<RelayItem.Location.Country>.findByGeoLocationId(
 
 fun List<RelayItem.Location.Country>.findCity(
     geoLocationId: GeoLocationId.City
-): RelayItem.Location.City? =
-    find { country -> country.id == geoLocationId.country }
-        ?.cities
-        ?.find { city -> city.id == geoLocationId }
+): RelayItem.Location.City? = find { country ->
+    country.id == geoLocationId.country
+}
+    ?.cities
+    ?.find { city -> city.id == geoLocationId }
 
 fun List<RelayItem.Location.Country>.findRelay(
     geoLocationId: GeoLocationId.Hostname
-): RelayItem.Location.Relay? =
-    find { country -> country.id == geoLocationId.country }
-        ?.cities
-        ?.find { city -> city.id == geoLocationId.city }
-        ?.relays
-        ?.find { relay -> relay.id == geoLocationId }
+): RelayItem.Location.Relay? = find { country ->
+    country.id == geoLocationId.country
+}
+    ?.cities
+    ?.find { city -> city.id == geoLocationId.city }
+    ?.relays
+    ?.find { relay -> relay.id == geoLocationId }
 
 /**
  * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are

@@ -126,19 +126,18 @@ class CustomListLocationsViewModel(
         viewModelScope.launch {
             _selectedLocations.value?.let { selectedLocations ->
                 val locationsToSave = selectedLocations.calculateLocationsToSave()
-                val result =
-                    either {
-                            val success =
-                                customListActionUseCase(
-                                        CustomListAction.UpdateLocations(
-                                            navArgs.customListId,
-                                            locationsToSave.map { it.id },
-                                        )
-                                    )
-                                    .bind()
-                            calculateResultData(success, locationsToSave)
-                        }
-                        .getOrElse { CustomListActionResultData.GenericError }
+                val result = either {
+                    val success =
+                        customListActionUseCase(
+                                CustomListAction.UpdateLocations(
+                                    navArgs.customListId,
+                                    locationsToSave.map { it.id },
+                                )
+                            )
+                            .bind()
+                    calculateResultData(success, locationsToSave)
+                }
+                    .getOrElse { CustomListActionResultData.GenericError }
                 _uiSideEffect.send(
                     CustomListLocationsSideEffect.ReturnWithResultData(result = result)
                 )

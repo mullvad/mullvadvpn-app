@@ -104,7 +104,9 @@ fun SelectPortScreen(
 
     ScaffoldWithSmallTopBar(
         appBarTitle = state.contentOrNull()?.title ?: "",
-        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
     ) { modifier ->
         val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(

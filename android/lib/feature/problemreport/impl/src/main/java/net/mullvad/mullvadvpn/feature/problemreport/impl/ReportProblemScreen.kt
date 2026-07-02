@@ -138,7 +138,9 @@ private fun ReportProblemScreen(
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.report_a_problem),
-        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
     ) { modifier ->
         // Show sending states
         if (state.sendingState != null) {
@@ -164,7 +166,8 @@ private fun ReportProblemScreen(
                         .then(modifier)
                         .drawVerticalScrollbar(
                             state = scrollState,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                            color =
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         )
                         .verticalScroll(state = scrollState)
                         .padding(

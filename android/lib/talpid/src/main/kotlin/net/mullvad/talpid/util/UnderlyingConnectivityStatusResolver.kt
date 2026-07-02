@@ -34,25 +34,24 @@ class UnderlyingConnectivityStatusResolver(
     private fun hasIpVersion(
         ip: InetAddress,
         protect: (socket: DatagramSocket) -> Boolean,
-    ): Boolean =
-        result {
-                // Open socket
-                val socket = openSocket().bind()
+    ): Boolean = result {
+        // Open socket
+        val socket = openSocket().bind()
 
-                val protected = protect(socket)
+        val protected = protect(socket)
 
-                // Protect so we can get underlying network
-                if (!protected) {
-                    // We shouldn't be doing this if we don't have a VPN, then we should have
-                    // checked the network directly.
-                    Logger.w("Failed to protect socket")
-                }
+        // Protect so we can get underlying network
+        if (!protected) {
+            // We shouldn't be doing this if we don't have a VPN, then we should have
+            // checked the network directly.
+            Logger.w("Failed to protect socket")
+        }
 
-                // "Connect" to public ip to see IP version is available
-                val address = InetSocketAddress(ip, 1)
-                socket.connectSafe(address).bind()
-            }
-            .isSuccess
+        // "Connect" to public ip to see IP version is available
+        val address = InetSocketAddress(ip, 1)
+        socket.connectSafe(address).bind()
+    }
+        .isSuccess
 
     private fun openSocket(): Either<Throwable, DatagramSocket> =
         Either.catch { DatagramSocket() }.onLeft { Logger.e("Could not open socket or bind port") }

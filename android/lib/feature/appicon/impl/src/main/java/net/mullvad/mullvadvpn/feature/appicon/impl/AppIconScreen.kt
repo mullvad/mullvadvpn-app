@@ -105,7 +105,9 @@ fun AppIconScreen(
     ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.app_icon),
-        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
     ) { modifier ->
         val lazyGridState: LazyGridState = rememberLazyGridState()
         LazyVerticalGrid(
