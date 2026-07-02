@@ -228,9 +228,21 @@ type RedeemVoucherAlertProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-export function RedeemVoucherAlert({ open, onOpenChange }: RedeemVoucherAlertProps) {
+export function RedeemVoucherAlert({
+  open,
+  onOpenChange: onOpenChangeProps,
+}: RedeemVoucherAlertProps) {
   const { submitting, response } = useContext(RedeemVoucherContext);
   const locale = useSelector((state) => state.userInterface.locale);
+
+  const onOpenChange = useCallback(
+    (open: boolean) => {
+      if (!submitting) {
+        onOpenChangeProps?.(open);
+      }
+    },
+    [submitting, onOpenChangeProps],
+  );
 
   if (response?.type === 'success') {
     const duration = formatRelativeDate(0, response.secondsAdded * 1000, {
