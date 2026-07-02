@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
@@ -96,6 +97,7 @@ class ModifyMultihopUseCaseTest {
         runTest {
             // Arrange
             val mockRelayItemId: GeoLocationId.Hostname = mockk()
+            val mockLocationConstraint: Constraint<RelayItemId> = Constraint.Only(mockRelayItemId)
             val mockRelayItem: RelayItem.Location.Relay = mockk()
             val mockSettings: Settings = mockk()
             every { mockSettings.relaySettings.relayConstraints.location } returns
@@ -103,8 +105,9 @@ class ModifyMultihopUseCaseTest {
             every { mockRelayItem.id } returns mockRelayItemId
             every { mockRelayItem.active } returns true
             every { mockSettings.isDaitaEnabled() } returns true
-            coEvery { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) } returns
-                Unit.right()
+            coEvery {
+                mockWireguardConstraintsRepository.setEntryLocation(mockLocationConstraint)
+            } returns Unit.right()
             val change = MultihopChange.Entry(mockRelayItem)
 
             // Act
@@ -112,7 +115,7 @@ class ModifyMultihopUseCaseTest {
             val result = modifyMultihopUseCase(change = change).getOrNull()
 
             // Assert
-            coVerify { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) }
+            coVerify { mockWireguardConstraintsRepository.setEntryLocation(mockLocationConstraint) }
             assertNotNull(result)
         }
 

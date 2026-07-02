@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">To urządzenie ma teraz nazwę <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UTWORZONO NOWE URZĄDZENIE</string>
     <string name="new_list">Nowa lista</string>
+    <string name="next">Dalej</string>
     <string name="no_custom_lists_available">Brak dostępnych list niestandardowych</string>
     <string name="no_email_app_available">Na urządzeniu nie ma dostępnej aplikacji poczty elektronicznej</string>
     <string name="no_internet_connection">Brak połączenia z Internetem</string>

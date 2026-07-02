@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="new_list">Nieuwe lijst</string>
+    <string name="next">Volgende</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>
     <string name="no_email_app_available">Er staat geen e-mailprogramma op het apparaat</string>
     <string name="no_internet_connection">Geen internetverbinding</string>

@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">歡迎，此裝置現在名為 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="new_list">新清單</string>
+    <string name="next">下一步</string>
     <string name="no_custom_lists_available">有可用的自訂清單</string>
     <string name="no_email_app_available">裝置上沒有可用的電子郵件應用程式</string>
     <string name="no_internet_connection">沒有網際網路連線</string>

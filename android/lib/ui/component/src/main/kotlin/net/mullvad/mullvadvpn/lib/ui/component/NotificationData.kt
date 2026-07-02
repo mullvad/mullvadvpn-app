@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.ClickableText
@@ -41,7 +42,7 @@ data class NotificationData(
         action: NotificationAction? = null,
     ) : this(
         AnnotatedString(title),
-        message?.let { NotificationMessage.Text(AnnotatedString(it)) },
+        message?.let { Text(AnnotatedString(it)) },
         statusLevel,
         action,
     )
@@ -84,6 +85,8 @@ fun InAppNotification.toNotificationData(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -170,7 +173,6 @@ fun InAppNotification.toNotificationData(
                         stringResource(id = R.string.dismiss),
                     ),
             )
-
         InAppNotification.Android16UpgradeWarning ->
             NotificationData(
                 title = stringResource(id = R.string.android_16_upgrade_warning_title),
@@ -204,6 +206,77 @@ fun InAppNotification.toNotificationData(
                         stringResource(id = R.string.dismiss),
                     ),
             )
+        is InAppNotification.MultihopMigration -> {
+            NotificationData(
+                title = stringResource(id = R.string.multihop_migration_in_app_message_title),
+                message =
+                    ClickableText(
+                        text =
+                            buildAnnotatedString {
+                                appendLine(
+                                    stringResource(
+                                        id = R.string.multihop_migration_in_app_message_description
+                                    )
+                                )
+                                withStyle(
+                                    SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                ) {
+                                    append(stringResource(R.string.click_here_to_read_more))
+                                }
+                            },
+                        onClick = {
+                            onClickShowMultihopMigrationWizard(
+                                MultihopMigrationData(splitFilterMigration, false)
+                            )
+                        },
+                        contentDescription = stringResource(id = R.string.click_here_to_read_more),
+                    ),
+                statusLevel = statusLevel,
+                action =
+                    NotificationAction(
+                        icon = Icons.Rounded.Clear,
+                        onClick = onClickDismissMigrateMultihopWarning,
+                        contentDescription = stringResource(id = R.string.dismiss),
+                    ),
+            )
+        }
+        is InAppNotification.MultihopMigrationBlocked -> {
+            NotificationData(
+                title =
+                    stringResource(id = R.string.multihop_migration_blocked_in_app_message_title),
+                message =
+                    ClickableText(
+                        text =
+                            buildAnnotatedString {
+                                appendLine(
+                                    stringResource(
+                                        id =
+                                            R.string
+                                                .multihop_migration_blocked_in_app_message_description
+                                    )
+                                )
+                                withStyle(
+                                    SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                ) {
+                                    append(stringResource(R.string.click_here_to_read_more))
+                                }
+                            },
+                        onClick = {
+                            onClickShowMultihopMigrationWizard(
+                                MultihopMigrationData(splitFilterMigration, true)
+                            )
+                        },
+                        contentDescription = stringResource(id = R.string.click_here_to_read_more),
+                    ),
+                statusLevel = statusLevel,
+            )
+        }
     }
 
 @Composable
@@ -214,7 +287,7 @@ private fun errorMessageBannerData(
 ) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message = NotificationMessage.Text(error.message(onClickShowWireguardPortSettings)),
+        message = Text(error.message(onClickShowWireguardPortSettings)),
         statusLevel = statusLevel,
     )
 
@@ -333,11 +406,7 @@ private fun ErrorStateCause.NoRelaysMatchSelectedPort.message(
             LinkAnnotation.Clickable(
                 tag = stringResource(R.string.wireguard),
                 linkInteractionListener =
-                    object : LinkInteractionListener {
-                        override fun onClick(link: LinkAnnotation) {
-                            onClickShowWireguardPortSettings()
-                        }
-                    },
+                    LinkInteractionListener { onClickShowWireguardPortSettings() },
             )
         ) {
             append(stringResource(R.string.wireguard_settings, stringResource(R.string.wireguard)))

@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">ยินดีต้อนรับ อุปกรณ์นี้มีชื่อว่า <b>%1$s</b> แล้ว</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="new_list">รายการใหม่</string>
+    <string name="next">ถัดไป</string>
     <string name="no_custom_lists_available">ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน</string>
     <string name="no_email_app_available">ไม่มีแอปอีเมลบนอุปกรณ์</string>
     <string name="no_internet_connection">ไม่มีการเชื่อมต่ออินเทอร์เน็ต</string>

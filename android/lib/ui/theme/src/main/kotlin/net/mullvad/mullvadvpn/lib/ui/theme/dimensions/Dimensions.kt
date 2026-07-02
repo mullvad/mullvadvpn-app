@@ -37,6 +37,7 @@ data class Dimensions(
     val indentedCellStartPadding: Dp = 48.dp,
     val indicatorPadding: Dp = 4.dp,
     val indicatorSize: Dp = 8.dp,
+    val indicatorWidthSelected: Dp = 24.dp,
     val largePadding: Dp = 32.dp,
     val largeSpacer: Dp = 24.dp,
     val listIconSize: Dp = 24.dp,

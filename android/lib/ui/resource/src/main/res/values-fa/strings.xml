@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">خوش آمدید، این دستگاه اکنون <b>%1$s</b> نام دارد.</string>
     <string name="new_device_notification_title">دستگاه جدید ایجاد شد</string>
     <string name="new_list">فهرست جدید</string>
+    <string name="next">بعدی</string>
     <string name="no_custom_lists_available">هیچ فهرست سفارشی موجود نیست</string>
     <string name="no_email_app_available">هیچ اپلیکیشن ایمیلی روی دستگاه موجود نیست</string>
     <string name="no_internet_connection">اتصال به اینترنت وجود ندارد</string>

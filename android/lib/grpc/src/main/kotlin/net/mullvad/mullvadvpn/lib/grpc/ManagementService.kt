@@ -58,6 +58,7 @@ import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
+import net.mullvad.mullvadvpn.lib.model.ClearMigrationMessageError
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
@@ -84,6 +85,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
+import net.mullvad.mullvadvpn.lib.model.GetMigrationEventError
 import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
@@ -126,6 +128,7 @@ import net.mullvad.mullvadvpn.lib.model.SetWireguardMtuError
 import net.mullvad.mullvadvpn.lib.model.SetWireguardQuantumResistantError
 import net.mullvad.mullvadvpn.lib.model.Settings as ModelSettings
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.lib.model.UnknownApiAccessMethodError
@@ -921,14 +924,14 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setEntryLocation(
-        entryLocation: RelayItemId
+        entryLocation: Constraint<RelayItemId>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated =
                     RelaySettings.relayConstraints.wireguardConstraints.entryLocation.set(
                         relaySettings,
-                        Constraint.Only(entryLocation),
+                        entryLocation,
                     )
                 grpc.setRelaySettings(updated.fromDomain())
             }
@@ -990,6 +993,17 @@ class ManagementService(
             .map { it.toDomain() }
             .onLeft { Logger.e("Get all shadowsocks ciphers error") }
             .mapLeft(GetShadowsocksCiphersError::Unknown)
+
+    suspend fun getMigrationEvent(): Either<GetMigrationEventError, SplitFilterMigration> =
+        Either.catch { grpc.getMigrationEvent(Empty.getDefaultInstance()).toDomain() }
+            .onLeft { Logger.e("Get migration event error") }
+            .mapLeft(GetMigrationEventError::Unknown)
+
+    suspend fun clearMigrationMessage(): Either<ClearMigrationMessageError, Unit> =
+        Either.catch { grpc.clearMigrationMessage(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Clear migration message error") }
+            .mapLeft(ClearMigrationMessageError::Unknown)
+            .mapEmpty()
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
