@@ -1,13 +1,17 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { useCallback } from 'react';
+import React from 'react';
 
 import { messages } from '../../../../shared/gettext';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
+import { Carousel } from '../../../lib/components/carousel';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
+import type { IScrollEvent } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
@@ -16,12 +20,10 @@ import {
   FilterChips,
   HeaderMenuIconButton,
   LocationLists,
-  LocationSearchField,
-  ScopeBarItem,
+  SelectLocationSelector,
   SpacePreAllocationView,
 } from './components';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
-import { StyledScopeBar } from './SelectLocationStyles';
 import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
@@ -29,10 +31,8 @@ import {
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { saveScrollPosition, scrollViewRef, spacePreAllocationViewRef } =
-    useScrollPositionContext();
-  const { locationType, setLocationType } = useSelectLocationViewContext();
-
+  const { scrollViewRef, spacePreAllocationViewRef, setScrollTop } = useScrollPositionContext();
+  const { locationType } = useSelectLocationViewContext();
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
   const { multihop } = useMultihop();
@@ -40,18 +40,17 @@ export function SelectLocationViewImpl() {
 
   const onClose = useCallback(() => history.pop(), [history]);
 
-  const changeLocationType = useCallback(
-    (locationType: LocationType) => {
-      saveScrollPosition();
-      setLocationType(locationType);
+  const handleScroll = React.useCallback(
+    (event: IScrollEvent) => {
+      setScrollTop(event.scrollTop);
     },
-    [saveScrollPosition, setLocationType],
+    [setScrollTop],
   );
 
   const showDisabledEntrySelection =
     locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly && multihop;
   const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
-  const showSearchField = !showDisabledEntrySelection;
+  const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
     <View backgroundColor="darkBlue">
@@ -70,31 +69,50 @@ export function SelectLocationViewImpl() {
             flexDirection="column"
             horizontalMargin="medium"
             padding={{ bottom: 'small' }}>
-            {multihop && (
-              <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
-                <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
-              </StyledScopeBar>
-            )}
+            <SelectLocationSelector />
 
             {showFilters && <FilterChips />}
-            {showSearchField && <LocationSearchField />}
           </View.Container>
 
-          <NavigationScrollbars ref={scrollViewRef}>
+          <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
             <View.Content padding={{ top: 'small' }}>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                {showDisabledEntrySelection ? (
-                  <DisabledEntrySelection />
-                ) : (
-                  <View.Container horizontalMargin="medium" flexDirection="column">
-                    <LocationLists
-                      // Set key to reset list when switching between entry and exit
-                      key={locationType}
-                      type={locationType}
-                    />
-                  </View.Container>
-                )}
+                <View.Container horizontalMargin="medium" flexDirection="column">
+                  <Carousel slideIndex={slideIndex}>
+                    <Carousel.Slides>
+                      <Carousel.Slides.Slide key="entry">
+                        <AnimatePresence>
+                          {locationType === LocationType.entry && (
+                            <motion.div
+                              key="entry"
+                              initial={{ opacity: 1 }}
+                              exit={{ opacity: 0.4 }}
+                              transition={{ duration: 0.2 }}>
+                              {showDisabledEntrySelection ? (
+                                <DisabledEntrySelection />
+                              ) : (
+                                <LocationLists type={LocationType.entry} />
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Carousel.Slides.Slide>
+                      <Carousel.Slides.Slide key="exit">
+                        <AnimatePresence>
+                          {locationType === LocationType.exit && (
+                            <motion.div
+                              key="exit"
+                              initial={{ opacity: 1 }}
+                              exit={{ opacity: 0.4 }}
+                              transition={{ duration: 0.2 }}>
+                              <LocationLists type={LocationType.exit} />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </Carousel.Slides.Slide>
+                    </Carousel.Slides>
+                  </Carousel>
+                </View.Container>
               </SpacePreAllocationView>
             </View.Content>
           </NavigationScrollbars>

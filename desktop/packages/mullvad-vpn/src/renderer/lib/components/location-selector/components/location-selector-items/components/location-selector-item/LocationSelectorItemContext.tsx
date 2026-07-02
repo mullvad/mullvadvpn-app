@@ -33,10 +33,14 @@ export const useLocationSelectorItemContext = (): LocationSelectorItemContextPro
 type LocationSelectorItemProviderProps = React.PropsWithChildren<{
   id: LocationSelectorItemProps['id'];
   type: LocationSelectorItemProps['type'];
+  inputRef?: LocationSelectorItemProps['inputRef'];
+  triggerRef?: LocationSelectorItemProps['triggerRef'];
 }>;
 
 export function LocationSelectorItemProvider({
   children,
+  inputRef: inputRefProp,
+  triggerRef: triggerRefProp,
   ...props
 }: LocationSelectorItemProviderProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -47,9 +51,9 @@ export function LocationSelectorItemProvider({
 
   const value = React.useMemo(
     () => ({
-      inputRef,
+      inputRef: inputRefProp ? inputRefProp : inputRef,
+      triggerRef: triggerRefProp ? triggerRefProp : triggerRef,
       textFieldRef,
-      triggerRef,
       selectedItem,
       onSelectedItemChange,
       expanded,
@@ -57,7 +61,15 @@ export function LocationSelectorItemProvider({
       setFocusInsideTextField,
       ...props,
     }),
-    [selectedItem, onSelectedItemChange, expanded, focusInsideTextField, props],
+    [
+      inputRefProp,
+      triggerRefProp,
+      selectedItem,
+      onSelectedItemChange,
+      expanded,
+      focusInsideTextField,
+      props,
+    ],
   );
 
   return (

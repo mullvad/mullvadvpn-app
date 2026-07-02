@@ -9,7 +9,13 @@ export function RecentLocations() {
   const titleId = React.useId();
 
   return (
-    <FlexColumn as="section" gap="tiny" margin={{ bottom: 'large' }} aria-labelledby={titleId}>
+    <FlexColumn
+      as="section"
+      gap="tiny"
+      margin={{ bottom: 'large' }}
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      data-focusable-heading>
       <SectionTitle>
         <SectionTitle.Title as="h3" id={titleId}>
           {
