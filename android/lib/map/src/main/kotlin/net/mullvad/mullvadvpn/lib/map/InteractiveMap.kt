@@ -35,6 +35,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.map.MapCameraController.Companion.ZOOM_RANGE
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
@@ -48,16 +49,10 @@ import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.STRAIGHT_ANGLE
 
-private const val LAT_LOWER_BOUND = -40f
-private const val LAT_UPPER_BOUND = 65f
-
-// 1f is the surface of the globe
-private const val MAX_ZOOM = 1.2f
-private const val MIN_ZOOM = 2.5f
 
 internal class MapCameraController(
     private val scope: CoroutineScope,
-    private val zoomRange: ClosedFloatingPointRange<Float> = MAX_ZOOM..MIN_ZOOM,
+    private val zoomRange: ClosedFloatingPointRange<Float> = ZOOM_RANGE,
     initialLocation: LatLong,
 ) {
     private var isPerformingGesture = false
@@ -108,7 +103,7 @@ internal class MapCameraController(
         scope.launch {
             zoomAnimatable.stop()
             latLngAnimatable.stop()
-            alphaAnimation.animateTo(1f, tween(500))
+            alphaAnimation.animateTo(1f, tween(INTERACTIVE_FADE_IN_DURATION))
         }
     }
 
@@ -151,7 +146,7 @@ internal class MapCameraController(
         isPerformingGesture = false
         returnToIdleJob = scope.launch {
             var (longVelocity, latVelocity) =
-                tracker.calculateVelocity(maximumVelocity = Velocity(1000f, 1000f))
+                tracker.calculateVelocity(maximumVelocity = Velocity(MAX_FLING_VELOCITY, MAX_FLING_VELOCITY))
             tracker.resetTracking()
             do {
                 val result =
@@ -168,16 +163,16 @@ internal class MapCameraController(
                 alphaAnimation.animateTo(1f, tween(100))
             }
 
-            delay(3.seconds)
+            delay(RESTORE_CAMERA_TIMEOUT)
 
             launch {
                 latLngAnimatable.animateTo(
                     calculateClosestOffset(latLngAnimatable.value, currentLocation.toOffset()),
-                    tween(1000),
+                    tween(RESTORE_CAMERA_POSITION_DURATION),
                 )
             }
-            launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000)) }
-            launch { alphaAnimation.animateTo(0f, tween(400)) }
+            launch { zoomAnimatable.animateTo(zoomRange.start, tween(RESTORE_CAMERA_POSITION_DURATION)) }
+            launch { alphaAnimation.animateTo(0f, tween(INTERACTIVE_FADE_OUT_DURATION)) }
         }
     }
 
@@ -185,12 +180,31 @@ internal class MapCameraController(
         returnToIdleJob?.cancel()
         returnToIdleJob = null
     }
+
+    companion object {
+
+        // How far up the globe the camera can view
+        private const val LAT_LOWER_BOUND = -40f
+        private const val LAT_UPPER_BOUND = 65f
+
+        // 1f is the surface of the globe
+        internal val ZOOM_RANGE: ClosedFloatingPointRange<Float> = 1.2f..2.5f
+
+        private const val MAX_FLING_VELOCITY = 1000f
+
+        private val RESTORE_CAMERA_TIMEOUT = 3.seconds
+        private const val RESTORE_CAMERA_POSITION_DURATION = 1000
+
+
+        private const val INTERACTIVE_FADE_IN_DURATION = 500
+        private const val INTERACTIVE_FADE_OUT_DURATION = 400
+    }
 }
 
 @Composable
 internal fun rememberMapCameraController(
     currentLocation: LatLong,
-    zoomRange: ClosedFloatingPointRange<Float> = MAX_ZOOM..MIN_ZOOM,
+    zoomRange: ClosedFloatingPointRange<Float> = ZOOM_RANGE,
     scope: CoroutineScope = rememberCoroutineScope(),
 ): MapCameraController {
     val controller = remember {
