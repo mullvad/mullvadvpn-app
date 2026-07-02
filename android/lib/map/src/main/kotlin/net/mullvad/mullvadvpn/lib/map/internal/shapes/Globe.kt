@@ -6,51 +6,37 @@ import android.opengl.Matrix
 import java.nio.ByteBuffer
 import net.mullvad.mullvadvpn.lib.map.R
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
-import net.mullvad.mullvadvpn.lib.map.internal.IndexBufferWithLength
+import net.mullvad.mullvadvpn.lib.map.internal.GLIndexBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
-import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
-import net.mullvad.mullvadvpn.lib.map.internal.initIndexBuffer
+import net.mullvad.mullvadvpn.lib.map.internal.initGLArrayBuffer
+import net.mullvad.mullvadvpn.lib.map.internal.initGLIndexBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 
 internal class Globe(resources: Resources) {
-
     private val shaderProgram: Int
 
     private val attribLocations: AttribLocations
     private val uniformLocation: UniformLocation
 
-    private val landIndices: IndexBufferWithLength
-    private val landContour: IndexBufferWithLength
     private val landVertexBuffer: Int
+    private val landIndices: GLIndexBuffer
+    private val landContourIndices: GLIndexBuffer
 
-    private val oceanIndices: IndexBufferWithLength
     private val oceanVertexBuffer: Int
+    private val oceanIndices: GLIndexBuffer
 
     init {
-        val landPosStream = resources.openRawResource(R.raw.land_positions)
-        val landVertByteArray = landPosStream.use { it.readBytes() }
-        val landVertByteBuffer = ByteBuffer.wrap(landVertByteArray)
-        landVertexBuffer = initArrayBuffer(landVertByteBuffer)
+        val landVertByteBuffer = resources.loadRawByteBuffer(R.raw.land_positions)
+        landVertexBuffer = initGLArrayBuffer(landVertByteBuffer)
+        val landTriangleIndicesBuffer = resources.loadRawByteBuffer(R.raw.land_triangle_indices)
+        landIndices = initGLIndexBuffer(landTriangleIndicesBuffer)
+        val landContourIndicesBuffer = resources.loadRawByteBuffer(R.raw.land_contour_indices)
+        landContourIndices = initGLIndexBuffer(landContourIndicesBuffer)
 
-        val landTriangleIndicesStream = resources.openRawResource(R.raw.land_triangle_indices)
-        val landTriangleIndicesByteArray = landTriangleIndicesStream.use { it.readBytes() }
-        val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
-        landIndices = initIndexBuffer(landTriangleIndicesBuffer)
-
-        val landContourIndicesStream = resources.openRawResource(R.raw.land_contour_indices)
-        val landContourIndicesByteArray = landContourIndicesStream.use { it.readBytes() }
-        val landContourIndicesBuffer = ByteBuffer.wrap(landContourIndicesByteArray)
-        landContour = initIndexBuffer(landContourIndicesBuffer)
-
-        val oceanPosStream = resources.openRawResource(R.raw.ocean_positions)
-        val oceanVertByteArray = oceanPosStream.use { it.readBytes() }
-        val oceanVertByteBuffer = ByteBuffer.wrap(oceanVertByteArray)
-        oceanVertexBuffer = initArrayBuffer(oceanVertByteBuffer)
-
-        val oceanTriangleIndicesStream = resources.openRawResource(R.raw.ocean_indices)
-        val oceanTriangleIndicesByteArray = oceanTriangleIndicesStream.use { it.readBytes() }
-        val oceanTriangleIndicesBuffer = ByteBuffer.wrap(oceanTriangleIndicesByteArray)
-        oceanIndices = initIndexBuffer(oceanTriangleIndicesBuffer)
+        val oceanVertByteBuffer = resources.loadRawByteBuffer(R.raw.ocean_positions)
+        oceanVertexBuffer = initGLArrayBuffer(oceanVertByteBuffer)
+        val oceanTriangleIndicesBuffer = resources.loadRawByteBuffer(R.raw.ocean_indices)
+        oceanIndices = initGLIndexBuffer(oceanTriangleIndicesBuffer)
 
         // create empty OpenGL ES Program
         shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
@@ -63,6 +49,12 @@ internal class Globe(resources: Resources) {
                 projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
                 modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix"),
             )
+    }
+
+    private fun Resources.loadRawByteBuffer(id: Int): ByteBuffer {
+        val inputStream = openRawResource(id)
+        val byteArray = inputStream.use { it.readBytes() }
+        return ByteBuffer.wrap(byteArray)
     }
 
     fun draw(
@@ -82,7 +74,7 @@ internal class Globe(resources: Resources) {
             projectionMatrix,
             globeViewMatrix,
             landVertexBuffer,
-            landContour,
+            landContourIndices,
             colors.contourColorArray,
             GLES20.GL_LINE_STRIP,
         )
@@ -121,7 +113,7 @@ internal class Globe(resources: Resources) {
         projectionMatrix: FloatArray,
         modelViewMatrix: FloatArray,
         positionBuffer: Int,
-        indexBuffer: IndexBufferWithLength,
+        indexBuffer: GLIndexBuffer,
         color: FloatArray,
         mode: Int,
     ) {
