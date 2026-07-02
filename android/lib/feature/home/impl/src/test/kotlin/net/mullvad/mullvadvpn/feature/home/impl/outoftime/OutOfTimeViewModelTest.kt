@@ -83,7 +83,7 @@ class OutOfTimeViewModelTest {
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 connectionProxy = mockConnectionProxy,
-                pollAccountExpiry = false,
+                pollAccountExpiryAndPaymentVerification = false,
                 isPlayBuild = false,
             )
     }

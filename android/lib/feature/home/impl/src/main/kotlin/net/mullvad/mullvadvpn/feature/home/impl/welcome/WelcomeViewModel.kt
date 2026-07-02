@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -29,13 +30,14 @@ import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic.Companion.VERIFICATION_POLL_INTERVAL
 
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
-    private val pollAccountExpiry: Boolean = true,
+    private val pollAccountExpiryAndPaymentVerification: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -65,16 +67,24 @@ class WelcomeViewModel(
 
     init {
         viewModelScope.launch {
-            while (pollAccountExpiry) {
+            while (pollAccountExpiryAndPaymentVerification) {
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        verifyPurchases()
+        viewModelScope.launch {
+            while (pollAccountExpiryAndPaymentVerification) {
+                // We do not want to retry verification if it fails, since we are already polling
+                // for it.
+                if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {
+                    updateAccountExpiry()
+                }
+                delay(VERIFICATION_POLL_INTERVAL)
+            }
+        }
         viewModelScope.launch { deviceRepository.updateDevice() }
         viewModelScope.launch {
-            val accountNumber =
-                uiState.map { it.contentOrNull()?.accountNumber }.filterNotNull().first()
+            val accountNumber = uiState.mapNotNull { it.contentOrNull()?.accountNumber }.first()
             _uiSideEffect.send(UiSideEffect.StoreCredentialsRequest(accountNumber))
         }
     }
@@ -100,14 +110,6 @@ class WelcomeViewModel(
         viewModelScope.launch {
             connectionProxy.disconnect(DisconnectReason.USER_INITIATED_WELCOME).onLeft {
                 _uiSideEffect.send(UiSideEffect.GenericError)
-            }
-        }
-    }
-
-    private fun verifyPurchases() {
-        viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().isSuccess()) {
-                updateAccountExpiry()
             }
         }
     }
