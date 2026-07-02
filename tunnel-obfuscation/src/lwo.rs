@@ -249,8 +249,8 @@ pub fn obfuscate(rng: &mut impl RngCore, packet: &mut [u8], key: &[u8; 32]) {
     xor_bytes(header_bytes, key);
 
     // randomize byte and set MSB
-    let rand_byte = (rng.next_u32() % u8::MAX as u32) as u8;
-    header_bytes[1] = rand_byte | OBFUSCATION_BIT;
+    rng.fill_bytes(&mut header_bytes[1..2]);
+    header_bytes[1] |= OBFUSCATION_BIT;
 }
 
 pub fn deobfuscate(packet: &mut [u8], key: &[u8; 32]) {
@@ -332,6 +332,22 @@ pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
 mod test {
     use super::*;
 
+    struct FixedByteRng(u8);
+
+    impl RngCore for FixedByteRng {
+        fn next_u32(&mut self) -> u32 {
+            u32::from(self.0)
+        }
+
+        fn next_u64(&mut self) -> u64 {
+            u64::from(self.0)
+        }
+
+        fn fill_bytes(&mut self, dst: &mut [u8]) {
+            dst.fill(self.0);
+        }
+    }
+
     fn fake_packet() -> Vec<u8> {
         let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 100];
         packet[0] = DATA;
@@ -357,6 +373,16 @@ mod test {
 
         deobfuscate(&mut packet, &key);
         assert_eq!(packet, original_packet);
+    }
+
+    #[test]
+    fn test_obfuscation_reserved_byte_uses_full_random_byte() {
+        let key = [0xefu8; 32];
+        let mut packet = fake_packet();
+
+        obfuscate(&mut FixedByteRng(u8::MAX), &mut packet, &key);
+
+        assert_eq!(packet[1], u8::MAX);
     }
 
     #[tokio::test]
