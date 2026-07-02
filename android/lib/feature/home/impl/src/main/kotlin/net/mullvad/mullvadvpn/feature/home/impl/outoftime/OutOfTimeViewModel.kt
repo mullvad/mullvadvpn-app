@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.outoftime
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -27,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 
@@ -36,6 +39,7 @@ class OutOfTimeViewModel(
     private val paymentUseCase: PaymentLogic,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
+    private val lifecycleRepository: LifecycleRepository,
     private val pollAccountExpiry: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
@@ -68,6 +72,9 @@ class OutOfTimeViewModel(
     init {
         viewModelScope.launch {
             while (pollAccountExpiry) {
+                // If the daemon is not running calling updateAccountExpiry will cause a
+                // TransientFailure so we make sure we are in the foreground before calling
+                lifecycleRepository.lifecycleFlow.first { it.isAtLeast(Lifecycle.State.STARTED) }
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }

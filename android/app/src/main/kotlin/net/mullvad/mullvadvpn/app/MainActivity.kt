@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
+import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -53,13 +54,14 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
+    private val lifecycleRepository by inject<LifecycleRepository>()
 
     private var isReadyNextDraw: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
 
-        lifecycle.addObserver(mullvadAppViewModel)
+        lifecycle.addObserver(lifecycleRepository)
 
         installSplashScreen().setKeepOnScreenCondition {
             val isReady = isReadyNextDraw
@@ -126,7 +128,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     override fun onDestroy() {
-        lifecycle.removeObserver(mullvadAppViewModel)
+        lifecycle.removeObserver(lifecycleRepository)
         super.onDestroy()
     }
 

@@ -39,5 +39,6 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore)
+    implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.protobuf.kotlin.lite)
 }
