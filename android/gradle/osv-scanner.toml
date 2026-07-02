@@ -222,3 +222,9 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-50010"  # GHSA-c653-97m9-rcg9
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for external http communication"
+
+# Bouncy Castle for Java GOST 28147 CTR mode reuses keystream after 255 blocks
+[[IgnoredVulns]]
+id = "CVE-2025-14813"  # GHSA-574f-3g2m-x479
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
