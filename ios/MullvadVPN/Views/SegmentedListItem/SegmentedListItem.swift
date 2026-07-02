@@ -41,7 +41,9 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
         HStack(spacing: 2) {
             let button = Button {
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    onSelect?()
+                    if userInteraction != .disabled {
+                        onSelect?()
+                    }
                 }
             } label: {
                 let trailing = trailing()
@@ -63,15 +65,15 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
             case .enabled:
                 button
                     .buttonStyle(PlainButtonStyle())
-                    .disabled(false)
+                    .opacity(1)
             case .enabledWithoutHighlight:
                 button
                     .buttonStyle(StaticButtonStyle())
-                    .disabled(false)
+                    .opacity(1)
             case .disabled:
                 button
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(true)
+                    .buttonStyle(StaticButtonStyle())
+                    .opacity(0.5)
             }
 
             segment()?
