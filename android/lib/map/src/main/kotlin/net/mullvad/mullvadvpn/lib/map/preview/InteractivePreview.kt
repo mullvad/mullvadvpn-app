@@ -14,9 +14,9 @@ import net.mullvad.mullvadvpn.lib.map.data.Marker
 
 @Preview
 @Composable
-private fun PreviewInteractiveMap() {
+private fun PreviewInteractiveMapPreview() {
     // Starting position
-    val currentLocation = remember {
+    var currentLocation by remember {
         // Berlin
         mutableStateOf(locations[9])
     }
@@ -26,16 +26,16 @@ private fun PreviewInteractiveMap() {
         Marker(
             latLong = it,
             colors =
-                if (it == currentLocation.value) selectLocationMarkerColors
+                if (it == currentLocation) selectLocationMarkerColors
                 else unselectLocationMarkerColors,
         )
     }
     InteractiveMap(
-        currentLocation = currentLocation.value,
+        currentLocation = currentLocation,
         markers = markers,
-        hops = listOf(Hop(currentLocation.value, locations[1]), Hop(locations[1], locations[2])),
+        hops = listOf(Hop(currentLocation, locations[1]), Hop(locations[1], locations[2])),
         locations = emptyList(),
-        onMarkerClick = { currentLocation.value = it.latLong },
+        onMarkerClick = { currentLocation = it.latLong },
     )
 }
 
