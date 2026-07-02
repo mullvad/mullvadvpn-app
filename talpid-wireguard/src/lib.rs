@@ -177,6 +177,7 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
+        // TODO: Clean this up
         let obfuscator = if let Some(ref settings) = config.obfuscation_settings {
             log::trace!("Obfuscation settings: {settings:?}");
 

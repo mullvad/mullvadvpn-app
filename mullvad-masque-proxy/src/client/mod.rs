@@ -519,6 +519,8 @@ impl RunningClient {
     }
 }
 
+// TODO: Document the functions in this module
+
 async fn client_socket_output_bridge(
     return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
     mut output_rx: mpsc::Receiver<Bytes>,
@@ -529,6 +531,8 @@ async fn client_socket_output_bridge(
         return Ok(Stopped); // channel closed, exit gracefully
     };
 
+    // TODO: Attaching the return addrs here feels flaky, could it be possible that
+    // the wrong one gets attached to the packet?
     while let Some(payload) = output_rx.recv().await {
         let return_addr = *return_addr.borrow();
         if bridge_tx.send((return_addr, payload)).await.is_err() {
@@ -765,6 +769,10 @@ async fn client_socket_gso_tx_task(
             let Some((next_dest, next_packet)) = queued_packets.pop_front() else {
                 break;
             };
+
+            // TODO: This machinery for handling changing destination addr is not really used
+            // in practice. If we connected the socket we wouldn't have to deal with it.
+            // Could we make that trade-off?
 
             // If the destination differs, stop coalescing packets
             if next_dest != dest {
