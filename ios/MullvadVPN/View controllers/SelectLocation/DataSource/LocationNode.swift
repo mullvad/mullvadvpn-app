@@ -10,7 +10,7 @@ import MullvadSettings
 import MullvadTypes
 
 @Observable
-class LocationNode: @unchecked Sendable {
+class LocationNode: @unchecked Sendable, Identifiable {
     let name: String
     var code: String
     var locations: [RelayLocation]
@@ -22,10 +22,13 @@ class LocationNode: @unchecked Sendable {
     var isSelected: Bool
     var isExcluded: Bool
     var isOverridden: Bool
-    let id = UUID()
 
     var isSearchable: Bool {
         true
+    }
+
+    var id: String {
+        [String(describing: type(of: self)), code].joined(separator: "_")
     }
 
     init(

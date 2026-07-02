@@ -8,7 +8,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     let contextMenu: (LocationNode) -> ContextMenu
 
     var body: some View {
-        ForEach($locations, id: \.self) { location in
+        ForEach($locations, id: \.id) { location in
             LocationListItem(
                 location: location,
                 multihopContext: multihopContext,

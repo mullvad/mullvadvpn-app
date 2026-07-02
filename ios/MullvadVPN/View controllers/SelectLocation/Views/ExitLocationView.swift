@@ -6,17 +6,18 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @State var newCustomListAlert: MullvadInputAlert?
     @State var multihopWarningAlert: MullvadAlert?
     @State var alert: MullvadAlert?
+    @State private var selectedId: String?
     private let topAnchor = "topAnchor"
     let onScrollVisibilityChange: (Bool) -> Void
 
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
-                && !context.customLists.isEmpty)
+                && !$context.customLists.isEmpty)
     }
 
     var isShowingAllLocationsSection: Bool {
-        !context.locations.isEmpty
+        !$context.locations.isEmpty
     }
 
     var isShowingRecentsSection: Bool {
@@ -24,65 +25,49 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-            // All items in the list are arranged in a flat hierarchy
-            ScrollView {
-                Color.clear
-                    .frame(height: 0)
-                    .scrollPosition { position in
-                        onScrollVisibilityChange(position >= 40)
-                    }
+        // All items in the list are arranged in a flat hierarchy
+        ScrollView {
+            Color.clear
+                .frame(height: 1)
+                .id(topAnchor)
+//                .scrollVisibility(in: viewModel.multihopContext) { isBelowThreshold in
+//                    onScrollVisibilityChange(isBelowThreshold)
+//                }
 
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    EmptyView()
-                        .frame(height: 0)
-                        .onAppear {
-                            onScrollVisibilityChange(true)
-                        }
-                        .onDisappear {
-                            onScrollVisibilityChange(false)
-                        }
-                    Group {
-                        if viewModel.isRecentsEnabled {
-                            recentsSection(isShowingHeader: isShowingRecentsSection)
-                        }
-                        if isShowingCustomListsSection {
-                            customListSection(isShowingHeader: isShowingAllLocationsSection)
-                        }
-                        if isShowingAllLocationsSection {
-                            allLocationsSection(isShowingHeader: isShowingCustomListsSection)
-                        }
-                        if !isShowingCustomListsSection && !isShowingAllLocationsSection {
-                            Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
-                                .font(.mullvadMiniSemiBold)
-                                .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                                .padding(.vertical)
-                        }
+            LazyVStack(alignment: .leading, spacing: 0) {
+                Group {
+                    if viewModel.isRecentsEnabled {
+                        recentsSection(isShowingHeader: isShowingRecentsSection)
                     }
-                    .padding(.horizontal, 16)
+                    if isShowingCustomListsSection {
+                        customListSection(isShowingHeader: isShowingAllLocationsSection)
+                    }
+                    if isShowingAllLocationsSection {
+                        allLocationsSection(isShowingHeader: isShowingCustomListsSection)
+                    }
+                    if !isShowingCustomListsSection && !isShowingAllLocationsSection {
+                        Text("No result for \"\(viewModel.searchText)\", please try a different search term.")
+                            .font(.mullvadMiniSemiBold)
+                            .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                            .padding(.vertical)
+                    }
                 }
-                .listRowInsets(.init())
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .buttonStyle(PlainButtonStyle())
-                .zIndex(3)  // prevent wrong overlapping during animations
+                .padding(.horizontal, 16)
             }
-            .environment(\.defaultMinListRowHeight, 0)
-            .listStyle(.plain)
-            .coordinateSpace(.exitLocationScroll)
-            .onAppear {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.isRecentsEnabled) {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.multihopContext) {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.searchText) { oldValue, newValue in
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .coordinateSpace(name: CoordinateSpace.scroll)
+            .buttonStyle(PlainButtonStyle())
+            .zIndex(3)  // prevent wrong overlapping during animations
+        }
+        .environment(\.defaultMinListRowHeight, 0)
+        .coordinateSpace(name: viewModel.multihopContext)
+        .scrollPosition(id: $selectedId, anchor: .center)
+        .onAppear {
+            scrollToCurrentSelection()
+        }
+        .onChange(of: viewModel.isRecentsEnabled) {
+            scrollToCurrentSelection()
+        }
+        .onChange(of: viewModel.searchText) { oldValue, newValue in
+            scrollToCurrentSelection()
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
@@ -163,7 +148,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 }
                 .accessibilityLabel(Text("Create new custom list"))
                 .accessibilityIdentifier(.addNewCustomListButton)
-                if !context.customLists.isEmpty {
+                if !$context.customLists.isEmpty {
                     Button {
                         viewModel.showEditCustomListView(
                             locations: context.customListAvailableLocations
@@ -187,7 +172,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         }
 
         let text: LocalizedStringKey =
-            context.customLists.isEmpty
+            $context.customLists.isEmpty
             ? """
             To create a custom list press the “+” or long press on a country, city, or server.
             """
@@ -230,13 +215,13 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         )
     }
 
-    private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {
+    private func scrollToCurrentSelection() {
         if viewModel.isRecentsEnabled {
-            scrollProxy.scrollTo(topAnchor, anchor: .center)
+            selectedId = topAnchor
         } else if viewModel.searchText.isEmpty,
             let selectedLocation = context.selectedLocation
         {
-            scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
+            selectedId = selectedLocation.id
         }
     }
 }

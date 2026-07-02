@@ -89,6 +89,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         }
         .contextMenu {
             contextMenu(location)
+                .id([String(describing: type(of: self)), location.id].joined(separator: "_"))
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.id)  // to be able to scroll to this item programmatically
@@ -130,4 +131,10 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 )
             }
         }
+}
+
+extension LocationListItem: @MainActor Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.location == rhs.location
+    }
 }

@@ -4,8 +4,8 @@ import SwiftUI
 
 struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewModel {
     @ObservedObject var viewModel: ViewModel
-    @State private var headerIsExpandedForEntry: Bool = false
-    @State private var headerIsExpandedForExit: Bool = false
+    @State private var headerIsExpandedForEntry: Bool = true
+    @State private var headerIsExpandedForExit: Bool = true
     @State private var disablingRecentConnectionsAlert: MullvadAlert?
     @State private var multihopWarningAlert: MullvadAlert?
     @FocusState private var focusSearchField: Bool
@@ -121,9 +121,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             context: $viewModel.exitContext,
                             onScrollVisibilityChange: {
                                 expandHeader in
-                                withAnimation {
-                                    headerIsExpandedForExit = expandHeader
-                                }
+                                headerIsExpandedForExit = expandHeader
                             }
                         )
                         .transition(
@@ -134,9 +132,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel: viewModel,
                             onScrollVisibilityChange: {
                                 expandHeader in
-                                withAnimation {
-                                    headerIsExpandedForEntry = expandHeader
-                                }
+                                headerIsExpandedForExit = expandHeader
                             }
                         )
                         .transition(
