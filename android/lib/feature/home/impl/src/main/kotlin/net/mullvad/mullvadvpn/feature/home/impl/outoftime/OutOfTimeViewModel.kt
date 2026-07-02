@@ -74,9 +74,7 @@ class OutOfTimeViewModel(
             while (pollAccountExpiry) {
                 // If the daemon is not running calling updateAccountExpiry will cause a
                 // TransientFailure so we make sure we are in the foreground before calling
-                lifecycleRepository.lifecycleFlow.first {
-                    it.isAtLeast(Lifecycle.State.STARTED)
-                }
+                lifecycleRepository.lifecycleFlow.first { it.isAtLeast(Lifecycle.State.STARTED) }
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
