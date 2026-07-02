@@ -21,5 +21,8 @@ thiserror = { workspace = true }
 uuid = { version = "1.4.1", features = ["serde", "v4"] }
 vec1 = { workspace = true }
 
+[features]
+router = []
+
 [lints]
 workspace = true
