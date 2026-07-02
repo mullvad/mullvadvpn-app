@@ -40,7 +40,7 @@ jobs:
     needs: prepare
     runs-on: android-build
     env:
-      KTFMT_VERSION: "0.62"
+      KTFMT_VERSION: "0.64"
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
