@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s lo fa aggiungendo con attenzione rumore di rete e rendendo tutti i pacchetti di rete della stessa dimensione.</string>
     <string name="daita_description_slide_2_third_paragraph">Non tutti i nostri server sono abilitati per %1$s. Pertanto, utilizziamo automaticamente il multihop per abilitare %1$s con un server qualsiasi.</string>
     <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
-    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 giorni aggiunti al tuo account.</string>
     <string name="days_were_added_90">90 giorni aggiunti al tuo account.</string>
     <string name="delete">Elimina</string>
@@ -323,7 +322,6 @@
     <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Il multihop instrada il tuo traffico in un server WireGuard in entrata e in un altro in uscita, rendendo più difficile il tracciamento. Questo aumenta la latenza ma aumenta anche l\'anonimato online.</string>
-    <string name="multihop_entry_disabled_description">Il server di entrata per %1$s è attualmente sovrascritto da %2$s. Per selezionare un server di entrata, prima abilita \"%3$s\" o disabilita \"%2$s\" nelle impostazioni.</string>
     <string name="multihop_is_disabled">Il multihop è disabilitato</string>
     <string name="multihop_is_enabled">Il multihop è abilitato</string>
     <string name="name">Nome</string>
@@ -351,7 +349,6 @@
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="open_app_details">Apri dettagli app</string>
-    <string name="open_feature_settings">Apri le impostazioni %1$s</string>
     <string name="open_url">Apri URL</string>
     <string name="out_of_time">Scaduto</string>
     <string name="overrides_cleared">Sovrascritture cancellate</string>

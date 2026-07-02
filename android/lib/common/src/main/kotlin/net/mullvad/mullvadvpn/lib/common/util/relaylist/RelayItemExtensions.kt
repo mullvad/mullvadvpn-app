@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.PartitionHostname
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
@@ -53,7 +55,9 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-fun RelayItem.CustomList.filter(validHostnames: List<String>): RelayItem.CustomList {
+fun RelayItem.CustomList.filter(
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+): RelayItem.CustomList {
     val newLocations = locations.mapNotNull {
         when (it) {
             is RelayItem.Location.Country -> it.filter(validHostnames)
@@ -64,7 +68,9 @@ fun RelayItem.CustomList.filter(validHostnames: List<String>): RelayItem.CustomL
     return copy(locations = newLocations)
 }
 
-fun RelayItem.Location.Country.filter(validHostnames: List<String>): RelayItem.Location.Country? {
+fun RelayItem.Location.Country.filter(
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+): RelayItem.Location.Country? {
     val cities = cities.mapNotNull { it.filter(validHostnames) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
@@ -73,7 +79,9 @@ fun RelayItem.Location.Country.filter(validHostnames: List<String>): RelayItem.L
     }
 }
 
-private fun RelayItem.Location.City.filter(validHostnames: List<String>): RelayItem.Location.City? {
+private fun RelayItem.Location.City.filter(
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+): RelayItem.Location.City? {
     val relays = relays.mapNotNull { it.filter(validHostnames) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
@@ -83,8 +91,13 @@ private fun RelayItem.Location.City.filter(validHostnames: List<String>): RelayI
 }
 
 private fun RelayItem.Location.Relay.filter(
-    validHostnames: List<String>
-): RelayItem.Location.Relay? = if (validHostnames.contains(id.code)) this else null
+    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+): RelayItem.Location.Relay? {
+    val valid = validHostnames[id.code]
+    return valid?.let { needsOtherEntry ->
+        this.copy(needsOtherEntry = needsOtherEntry)
+    }
+}
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
     geoLocationId: GeoLocationId
@@ -97,19 +110,19 @@ fun List<RelayItem.Location.Country>.findByGeoLocationId(
 
 fun List<RelayItem.Location.Country>.findCity(
     geoLocationId: GeoLocationId.City
-): RelayItem.Location.City? =
-    find { country -> country.id == geoLocationId.country }
-        ?.cities
-        ?.find { city -> city.id == geoLocationId }
+): RelayItem.Location.City? = find { country ->
+    country.id == geoLocationId.country
+}?.cities?.find { city -> city.id == geoLocationId }
 
 fun List<RelayItem.Location.Country>.findRelay(
     geoLocationId: GeoLocationId.Hostname
-): RelayItem.Location.Relay? =
-    find { country -> country.id == geoLocationId.country }
-        ?.cities
-        ?.find { city -> city.id == geoLocationId.city }
-        ?.relays
-        ?.find { relay -> relay.id == geoLocationId }
+): RelayItem.Location.Relay? = find { country ->
+    country.id == geoLocationId.country
+}
+    ?.cities
+    ?.find { city -> city.id == geoLocationId.city }
+    ?.relays
+    ?.find { relay -> relay.id == geoLocationId }
 
 /**
  * Checks if two RelayItems are the same for the purpose of blocking selection. Only relays are

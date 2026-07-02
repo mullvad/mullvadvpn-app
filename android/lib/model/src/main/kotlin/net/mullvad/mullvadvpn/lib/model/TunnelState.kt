@@ -60,4 +60,9 @@ sealed class TunnelState {
             is Disconnecting -> true
             is Error -> this.errorState.isBlocking
         }
+
+    /// True if we are currently performing a "magic" multihop due to the "when needed"
+    /// setting being active and it being necessary.
+    fun isWhenNeededMultihopInEffect(): Boolean =
+        featureIndicators()?.contains(FeatureIndicator.MULTIHOP_AUTO) == true
 }

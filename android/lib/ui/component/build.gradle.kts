@@ -20,6 +20,7 @@ dependencies {
     implementation(projects.lib.ui.tag)
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
+    implementation(projects.lib.ui.icon)
 
     implementation(libs.arrow)
     implementation(libs.compose.material3)

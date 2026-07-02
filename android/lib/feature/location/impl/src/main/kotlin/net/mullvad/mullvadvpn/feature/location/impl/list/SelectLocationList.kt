@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,9 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
@@ -50,6 +50,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -71,7 +72,9 @@ private fun PreviewSelectLocationList(
                 bottomMargin = 0.dp,
                 relayListType = RelayListType.Single,
                 onSelectRelayItem = { _, _ -> },
-                openDaitaSettings = {},
+                onSetMultihopToAlways = {},
+                onSelectAutomaticEntry = {},
+                onAutomaticInfoClick = {},
                 onAddCustomList = {},
                 onEditCustomLists = {},
                 onUpdateBottomSheetState = {},
@@ -91,7 +94,9 @@ fun SelectLocationList(
     bottomMargin: Dp,
     relayListType: RelayListType,
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
-    openDaitaSettings: () -> Unit,
+    onSetMultihopToAlways: () -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -138,7 +143,9 @@ fun SelectLocationList(
         bottomMargin = bottomMargin,
         relayListType = relayListType,
         onSelectRelayItem = onSelectRelayItem,
-        openDaitaSettings = openDaitaSettings,
+        onSetMultihopToAlways = onSetMultihopToAlways,
+        onSelectAutomaticEntry = onSelectAutomaticEntry,
+        onAutomaticInfoClick = onAutomaticInfoClick,
         onAddCustomList = onAddCustomList,
         onEditCustomLists = onEditCustomLists,
         onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -155,7 +162,9 @@ fun SelectLocationList(
     bottomMargin: Dp,
     relayListType: RelayListType,
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
-    openDaitaSettings: () -> Unit,
+    onSetMultihopToAlways: () -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -184,6 +193,8 @@ fun SelectLocationList(
                 lazyListState = lazyListState,
                 bottomMargin = bottomMargin,
                 onSelectRelayItem = onSelectRelayItem,
+                onSelectAutomaticEntry = onSelectAutomaticEntry,
+                onAutomaticInfoClick = onAutomaticInfoClick,
                 onUpdateBottomSheetState = onUpdateBottomSheetState,
                 onAddCustomList = onAddCustomList,
                 onEditCustomLists = onEditCustomLists,
@@ -191,7 +202,7 @@ fun SelectLocationList(
             )
         }
         is Lce.Loading -> Loading()
-        is EntryBlocked -> EntryBlocked(openDaitaSettings = openDaitaSettings)
+        is EntryBlocked -> EntryBlocked(onSetMultihopToAlways = onSetMultihopToAlways)
     }
 }
 
@@ -201,6 +212,8 @@ private fun SelectLocationListContent(
     lazyListState: LazyListState,
     bottomMargin: Dp,
     onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
@@ -235,6 +248,8 @@ private fun SelectLocationListContent(
             relayListItems = state.relayListItems,
             relayListType = state.relayListType,
             onSelectRelayItem = { onSelectRelayItem(it, state.relayListType) },
+            onSelectAutomaticEntry = onSelectAutomaticEntry,
+            onAutomaticInfoClick = onAutomaticInfoClick,
             onToggleExpand = onToggleExpand,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
             customListHeader = {
@@ -256,28 +271,30 @@ private fun Loading() {
 }
 
 @Composable
-private fun EntryBlocked(openDaitaSettings: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
+private fun EntryBlocked(onSetMultihopToAlways: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            modifier = Modifier.size(Dimens.dialogIconHeight),
+            imageVector = MultihopWhenNeeded,
+            tint = MaterialTheme.colorScheme.onSurface,
+            contentDescription = null,
+        )
+        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         Text(
-            text =
-                stringResource(
-                    R.string.multihop_entry_disabled_description,
-                    stringResource(R.string.multihop).toLowerCase(Locale.current),
-                    stringResource(id = R.string.daita),
-                    stringResource(R.string.direct_only),
-                ),
+            text = stringResource(R.string.multihop_entry_disabled_description),
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         )
-        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+        Spacer(modifier = Modifier.weight(1f))
         PrimaryButton(
-            text =
-                stringResource(R.string.open_feature_settings, stringResource(id = R.string.daita)),
-            onClick = openDaitaSettings,
+            text = stringResource(R.string.set_multihop_to_always),
+            onClick = onSetMultihopToAlways,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         )
+        Spacer(modifier = Modifier.height(Dimens.screenBottomMargin))
     }
 }
 
@@ -289,6 +306,7 @@ private fun Lce<Unit, SelectLocationListUiState, Unit>.indexOfSelectedRelayItem(
                     is RelayListItem.CustomListItem -> it.isSelected
                     is RelayListItem.GeoLocationItem -> it.isSelected
                     is RelayListItem.RecentListItem -> it.isSelected
+                    is RelayListItem.AutomaticEntryItem -> it.isSelected
                     is RelayListItem.CustomListEntryItem,
                     is RelayListItem.CustomListFooter,
                     is RelayListItem.CustomListHeader,

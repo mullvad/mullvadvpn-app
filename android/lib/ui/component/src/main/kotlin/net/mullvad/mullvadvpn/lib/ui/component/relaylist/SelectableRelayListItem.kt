@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
@@ -23,11 +24,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ITEM_TAG
@@ -36,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 
 @Composable
 @Preview
@@ -47,7 +51,12 @@ private fun PreviewSelectableRelayLocationItem(
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
             relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
-                SelectableRelayListItem(relayListItem = it, onClick = {}, onToggleExpand = {})
+                SelectableRelayListItem(
+                    relayListItem = it,
+                    onClick = {},
+                    onToggleExpand = {},
+                    showMultihopWhenNeededIcon = it.item is RelayItem.Location.Relay,
+                )
             }
         }
     }
@@ -60,6 +69,7 @@ fun SelectableRelayListItem(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
+    showMultihopWhenNeededIcon: Boolean = false,
 ) {
     val active = relayListItem.item.active
     val selected = relayListItem.isSelected
@@ -114,15 +124,31 @@ fun SelectableRelayListItem(
                 colors.headlineColor(enabled = active, selected = selected),
             )
         },
-        trailingContent = {
-            if (relayListItem.canExpand) {
-                ExpandChevronDivider(
-                    isExpanded = relayListItem.expanded,
-                    modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
-                    onClick = { onToggleExpand(!relayListItem.expanded) },
-                )
-            }
-        },
+        trailingContent =
+            when {
+                showMultihopWhenNeededIcon -> {
+                    {
+                        Icon(
+                            modifier = Modifier.width(Dimens.dividerButtonWidth),
+                            imageVector = MultihopWhenNeeded,
+                            tint =
+                                if (selected) MaterialTheme.colorScheme.positive
+                                else MaterialTheme.colorScheme.onSurface,
+                            contentDescription = stringResource(R.string.multihop_when_needed),
+                        )
+                    }
+                }
+                relayListItem.canExpand -> {
+                    {
+                        ExpandChevronDivider(
+                            isExpanded = relayListItem.expanded,
+                            modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
+                            onClick = { onToggleExpand(!relayListItem.expanded) },
+                        )
+                    }
+                }
+                else -> null
+            },
     )
 }
 

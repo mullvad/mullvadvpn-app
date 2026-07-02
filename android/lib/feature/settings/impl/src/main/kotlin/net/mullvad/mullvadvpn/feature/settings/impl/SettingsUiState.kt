@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.feature.settings.impl
 
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
+
 data class SettingsUiState(
     val appVersion: String,
     val isLoggedIn: Boolean,
@@ -7,5 +9,5 @@ data class SettingsUiState(
     val isSupportedVersion: Boolean,
     val isDaitaEnabled: Boolean,
     val isPlayBuild: Boolean,
-    val multihopEnabled: Boolean,
+    val multihopMode: MultihopMode,
 )

@@ -8,6 +8,7 @@ import java.net.InetSocketAddress
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.random.Random
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
@@ -49,6 +50,7 @@ import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -193,6 +195,8 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         longitude = longitude,
         hostname = if (hasHostname()) hostname else null,
         entryHostname = if (hasEntryHostname()) entryHostname else null,
+        entryCountry = if (hasEntryCountry()) entryCountry else null,
+        entryCity = if (hasEntryCity()) entryCity else null,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -413,7 +417,7 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        isMultihopEnabled = useMultihop,
+        multihop = multihop.toDomain(),
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
@@ -421,7 +425,18 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             } else {
                 Constraint.Any
             },
+        entryOwnership = entryOwnership.toDomain(),
+        entryProviders = entryProvidersList.toDomain(),
     )
+
+internal fun ManagementInterface.WireguardConstraints.Multihop.toDomain(): MultihopMode =
+    when (this) {
+        ManagementInterface.WireguardConstraints.Multihop.Always -> MultihopMode.ALWAYS
+        ManagementInterface.WireguardConstraints.Multihop.Never -> MultihopMode.NEVER
+        ManagementInterface.WireguardConstraints.Multihop.Auto -> MultihopMode.WHEN_NEEDED
+        ManagementInterface.WireguardConstraints.Multihop.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized multihop")
+    }
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
     when (this) {
@@ -639,6 +654,8 @@ internal fun ManagementInterface.Relay.toDomain(
                 null
             },
         lwo = endpointData.lwo,
+        // This will be set later when we get the relay filter partition response.
+        needsOtherEntry = false,
     )
 
 private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =
@@ -758,7 +775,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
         ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
-        ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
+        ManagementInterface.FeatureIndicator.MULTIHOP_AUTO -> FeatureIndicator.MULTIHOP_AUTO
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT
@@ -792,12 +809,18 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
         ManagementInterface.Recent.TypeCase.SINGLEHOP ->
             Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)
 
+        ManagementInterface.Recent.TypeCase.AUTOMATIC_ENTRY_MULTIHOP ->
+            Recent.AutomaticEntryMultihop(
+                (automaticEntryMultihop.toDomain() as Constraint.Only).value
+            )
+
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.map { it.hostname },
+        // change false to value of Metadata.needsOtherEntry when gRPC is done
+        matches = matchesList.associate { Pair(it.hostname, false) },
         discards = discardsList.map { it.toDomain() },
     )
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="multiple_icons">%1$s Text %2$s here</string>
+    <string name="icon_at_end">Text %1$s</string>
+</resources>

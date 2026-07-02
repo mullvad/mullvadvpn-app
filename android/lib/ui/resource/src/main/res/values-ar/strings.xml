@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_second_paragraph">تُجرى ميزة %1$s ذلك من خلال إضافة ضوضاء الشبكة بعناية وجعل جميع حزم الشبكة بالحجم نفسه.</string>
     <string name="daita_description_slide_2_third_paragraph">لم يتم تفعيل ميزة %1$s لكل خوادمنا. لذلك، فإننا نستخدم القفز المتعدد تلقائيًا لتفعيل ميزة %1$s مع أي خادم.</string>
     <string name="daita_info">بتفعيل \"%1$s\"، سيتعين عليك اختيار خادم مُفعَّل عليه ميزة %2$s يدويًا. قد يؤدي ذلك إلى حظرك حتى تختار خادمًا متوافقًا في شاشة \"تحديد الموقع\".</string>
-    <string name="daita_multihop">%1$s: القفز المتعدد</string>
     <string name="days_were_added_30">تمت إضافة 30 يومًا إلى حسابك.</string>
     <string name="days_were_added_90">تمت إضافة 90 يومًا إلى حسابك.</string>
     <string name="delete">حذف</string>
@@ -323,7 +322,6 @@
     <string name="mullvad_owned_only">مملوك لـ Mullvad فقط</string>
     <string name="multihop">القفز المتعدد</string>
     <string name="multihop_description">يوجِّه القفز المتعدد حركة البيانات لديك من خادم WireGuard إلى آخر، مما يجعل من الصعب تتبُّعها. ويؤدي ذلك إلى زيادة زمن الوصول، لكنه يزيد من إخفاء الهوية على الإنترنت.</string>
-    <string name="multihop_entry_disabled_description">خادم الدخول لـ %1$s تم تجاوزه حاليًا من قِبل ميزة %2$s. لاختيار خادم دخول، يُرجى أولًا تفعيل \"%3$s\" أو إيقاف \"ميزة %2$s\" في الإعدادات.</string>
     <string name="multihop_is_disabled">تم تعطيل القفز المتعدد</string>
     <string name="multihop_is_enabled">تم تمكين القفز المتعدد</string>
     <string name="name">الاسم</string>
@@ -351,7 +349,6 @@
     <string name="off">إيقاف</string>
     <string name="on">تشغيل</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
-    <string name="open_feature_settings">فتح إعدادات ميزة %1$s</string>
     <string name="open_url">فتح عنوان URL</string>
     <string name="out_of_time">انتهى الوقت</string>
     <string name="overrides_cleared">تم مسح التجاوزات</string>
