@@ -25,7 +25,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     init {
         val rings = createRings()
-        ringSizes = rings.map { (positions, _) -> positions.size }
+        ringSizes = rings.map { (positions, _) -> positions.size / VERTEX_COMPONENT_SIZE }
 
         val positionFloatArray = joinMultipleArrays(rings.map { it.vertices })
         val positionFloatBuffer = FloatBuffer.wrap(positionFloatArray)
@@ -94,8 +94,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         var offset = 0
         for (ringSize in ringSizes) {
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, offset, ringSize)
-            // Add number off vertices in the ring to the offset
-            offset += ringSize / VERTEX_COMPONENT_SIZE
+            offset += ringSize
         }
     }
 
