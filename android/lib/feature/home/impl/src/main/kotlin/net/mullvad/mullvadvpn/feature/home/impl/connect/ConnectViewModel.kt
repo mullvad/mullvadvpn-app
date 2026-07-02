@@ -37,7 +37,9 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
@@ -47,7 +49,9 @@ import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    relayListRepository: RelayListRepository,
     private val changelogRepository: ChangelogRepository,
+    private val connectionPath: ConnectionPathUseCase,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceRepository: NewDeviceRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -68,6 +72,8 @@ class ConnectViewModel(
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
+                connectionPath(),
+                relayListRepository.relayList,
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState.withPrev(),
@@ -75,6 +81,8 @@ class ConnectViewModel(
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
             ) {
+                connectionPath,
+                relayList,
                 selectedRelayItemTitle,
                 notifications,
                 (tunnelState, prevTunnelState),
@@ -82,7 +90,7 @@ class ConnectViewModel(
                 accountData,
                 deviceName ->
                 ConnectUiState(
-                    location =
+                    internetLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->
                                 tunnelState.location ?: lastKnownDisconnectedLocation
@@ -108,6 +116,8 @@ class ConnectViewModel(
                             null
                         },
                     tunnelState = tunnelState,
+                    hops = connectionPath,
+                    locations = relayList.flatMap { it.cities }.map { it.latLong },
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),

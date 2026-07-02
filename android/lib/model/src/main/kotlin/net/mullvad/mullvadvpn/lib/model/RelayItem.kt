@@ -69,6 +69,7 @@ sealed interface RelayItem : Parcelable {
         data class City(
             override val id: GeoLocationId.City,
             override val name: String,
+            val latLong: LatLong,
             val relays: List<Relay>,
             val countryName: String,
         ) : Location {
@@ -82,6 +83,7 @@ sealed interface RelayItem : Parcelable {
         data class Relay(
             override val id: GeoLocationId.Hostname,
             override val active: Boolean,
+            val latLong: LatLong,
             val provider: ProviderId,
             val ownership: Ownership,
             val daita: Boolean,
