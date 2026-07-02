@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -14,7 +14,6 @@ import { View } from '../../../lib/components/view';
 import { colors, spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { generateRoutePath } from '../../../lib/routeHelpers';
-import { useBoolean } from '../../../lib/utility-hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../..';
 import * as Cell from '../../cell';
@@ -24,12 +23,12 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from '../../ContextMenu';
-import InfoButton from '../../InfoButton';
+import { Info } from '../../info';
 import { BackAction } from '../../keyboard-navigation';
-import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import { WarningDialog } from '../../warning-dialog';
 
 const StyledNameLabel = styled(Cell.Label)({
   display: 'block',
@@ -71,22 +70,29 @@ export function ApiAccessView() {
               // TRANSLATORS: Title label in navigation bar
               messages.pgettext('navigation-bar', 'API access')
             }>
-            <AppNavigationHeader.InfoButton
-              message={[
-                messages.pgettext(
-                  'api-access-methods-view',
-                  'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
-                ),
-                messages.pgettext(
-                  'api-access-methods-view',
-                  'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
-                ),
-                messages.pgettext(
-                  'api-access-methods-view',
-                  'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
-                ),
-              ]}
-            />
+            <AppNavigationHeader.Info>
+              <AppNavigationHeader.Info.Button />
+              <AppNavigationHeader.Info.Dialog>
+                <AppNavigationHeader.Info.Dialog.Text>
+                  {messages.pgettext(
+                    'api-access-methods-view',
+                    'The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations.',
+                  )}
+                </AppNavigationHeader.Info.Dialog.Text>
+                <AppNavigationHeader.Info.Dialog.Text>
+                  {messages.pgettext(
+                    'api-access-methods-view',
+                    'On some networks, where various types of censorship are being used, the API servers might not be directly reachable.',
+                  )}
+                </AppNavigationHeader.Info.Dialog.Text>
+                <AppNavigationHeader.Info.Dialog.Text>
+                  {messages.pgettext(
+                    'api-access-methods-view',
+                    'This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods.',
+                  )}
+                </AppNavigationHeader.Info.Dialog.Text>
+              </AppNavigationHeader.Info.Dialog>
+            </AppNavigationHeader.Info>
           </AppNavigationHeader>
 
           <NavigationScrollbars fillContainer>
@@ -161,11 +167,13 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
   const [testing, testResult, testApiAccessMethod] = useApiAccessMethodTest();
 
   // State for delete confirmation dialog.
-  const [removeConfirmationVisible, showRemoveConfirmation, hideRemoveConfirmation] = useBoolean();
+  const [openDeleteMethodDialog, setOpenDeleteMethodDialog] = useState(false);
+  const showDeleteMethodDialog = useCallback(() => setOpenDeleteMethodDialog(true), []);
+
   const confirmRemove = useCallback(() => {
     void removeApiAccessMethod(props.method.id);
-    hideRemoveConfirmation();
-  }, [hideRemoveConfirmation, props.method.id, removeApiAccessMethod]);
+    setOpenDeleteMethodDialog(false);
+  }, [props.method.id, removeApiAccessMethod]);
 
   // Toggle on/off on an access method.
   const toggle = useCallback(
@@ -212,7 +220,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         {
           type: 'item' as const,
           label: messages.gettext('Delete'),
-          onClick: showRemoveConfirmation,
+          onClick: showDeleteMethodDialog,
         },
       );
     }
@@ -224,7 +232,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
     props.method.id,
     setApiAccessMethod,
     testApiAccessMethod,
-    showRemoveConfirmation,
+    showDeleteMethodDialog,
     push,
   ]);
 
@@ -254,46 +262,61 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
       </Cell.LabelContainer>
       <Flex gap="small" alignItems="center">
         {props.method.type === 'direct' && (
-          <InfoButton
-            message={[
-              messages.pgettext(
-                'api-access-methods-view',
-                'With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.',
-              ),
-              messages.pgettext(
-                'api-access-methods-view',
-                'This can be useful when you are not affected by censorship.',
-              ),
-            ]}
-          />
+          <Info>
+            <Info.Button />
+            <Info.Dialog>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.',
+                )}
+              </Info.Dialog.Text>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'This can be useful when you are not affected by censorship.',
+                )}
+              </Info.Dialog.Text>
+            </Info.Dialog>
+          </Info>
         )}
         {props.method.type === 'bridges' && (
-          <InfoButton
-            message={[
-              messages.pgettext(
-                'api-access-methods-view',
-                'With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.',
-              ),
-              messages.pgettext(
-                'api-access-methods-view',
-                'This can be useful if the API is censored but Mullvad’s bridge servers are not.',
-              ),
-            ]}
-          />
+          <Info>
+            <Info.Button />
+            <Info.Dialog>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.',
+                )}
+              </Info.Dialog.Text>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'This can be useful if the API is censored but Mullvad’s bridge servers are not.',
+                )}
+              </Info.Dialog.Text>
+            </Info.Dialog>
+          </Info>
         )}
         {props.method.type === 'encrypted-dns-proxy' && (
-          <InfoButton
-            message={[
-              messages.pgettext(
-                'api-access-methods-view',
-                'With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.',
-              ),
-              messages.pgettext(
-                'api-access-methods-view',
-                'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.',
-              ),
-            ]}
-          />
+          <Info>
+            <Info.Button />
+            <Info.Dialog>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.',
+                )}
+              </Info.Dialog.Text>
+              <Info.Dialog.Text>
+                {messages.pgettext(
+                  'api-access-methods-view',
+                  'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.',
+                )}
+              </Info.Dialog.Text>
+            </Info.Dialog>
+          </Info>
         )}
         {/*
         {props.method.type === 'domain-fronting' && (
@@ -351,30 +374,31 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
       </Flex>
 
       {/* Confirmation dialog for method removal */}
-      <ModalAlert
-        isOpen={removeConfirmationVisible}
-        type={ModalAlertType.warning}
-        gridButtons={[
-          <Button key="cancel" onClick={hideRemoveConfirmation}>
-            <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-          </Button>,
-          <Button key="confirm" onClick={confirmRemove} variant="destructive">
-            <Button.Text>{messages.gettext('Delete')}</Button.Text>
-          </Button>,
-        ]}
-        close={hideRemoveConfirmation}
-        title={sprintf(messages.pgettext('api-access-methods-view', 'Delete %(name)s?'), {
-          name: props.method.name,
-        })}
-        message={
-          props.inUse
-            ? messages.pgettext(
-                'api-access-methods-view',
-                'The in use API access method will change.',
-              )
-            : undefined
-        }
-      />
+      <WarningDialog open={openDeleteMethodDialog} onOpenChange={setOpenDeleteMethodDialog}>
+        <WarningDialog.Subtitle>
+          {sprintf(messages.pgettext('api-access-methods-view', 'Delete %(name)s?'), {
+            name: props.method.name,
+          })}
+        </WarningDialog.Subtitle>
+        {props.inUse && (
+          <WarningDialog.Text>
+            {messages.pgettext(
+              'api-access-methods-view',
+              'The in use API access method will change.',
+            )}
+          </WarningDialog.Text>
+        )}
+        <WarningDialog.ButtonGroup>
+          <WarningDialog.Button onClick={confirmRemove} variant="destructive">
+            <WarningDialog.Button.Text>{messages.gettext('Delete')}</WarningDialog.Button.Text>
+          </WarningDialog.Button>
+          <WarningDialog.CloseButton>
+            <WarningDialog.CloseButton.Text>
+              {messages.gettext('Cancel')}
+            </WarningDialog.CloseButton.Text>
+          </WarningDialog.CloseButton>
+        </WarningDialog.ButtonGroup>
+      </WarningDialog>
     </Cell.Row>
   );
 }

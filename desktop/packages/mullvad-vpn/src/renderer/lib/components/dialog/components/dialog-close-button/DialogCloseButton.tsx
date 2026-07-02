@@ -5,7 +5,7 @@ import { usePopupContext } from '../../../popup/PopupContext';
 
 export type DialogCloseButtonProps = ButtonProps;
 
-export function DialogCloseButton({ children, ...props }: DialogCloseButtonProps) {
+function DialogCloseButton({ children, ...props }: DialogCloseButtonProps) {
   const { popupRef } = usePopupContext();
 
   const handleClick = React.useCallback(() => {
@@ -20,3 +20,9 @@ export function DialogCloseButton({ children, ...props }: DialogCloseButtonProps
     </Button>
   );
 }
+const DialogCloseButtonNamespace = Object.assign(DialogCloseButton, {
+  Text: Button.Text,
+  Icon: Button.Icon,
+});
+
+export { DialogCloseButtonNamespace as DialogCloseButton };

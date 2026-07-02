@@ -1,7 +1,16 @@
 import styled from 'styled-components';
 
 import { Flex } from '../flex';
-import { AlertIcon, AlertText, AlertTextGroup, AlertTitle } from './components';
+import {
+  AlertIcon,
+  AlertIconBadge,
+  AlertList,
+  AlertSpinner,
+  AlertSubtitle,
+  AlertText,
+  AlertTextGroup,
+  AlertTitle,
+} from './components';
 
 export type AlertProps = React.ComponentPropsWithRef<'div'>;
 
@@ -16,10 +25,14 @@ function Alert({ children, ...props }: AlertProps) {
 }
 
 const AlertNamespace = Object.assign(Alert, {
-  Text: AlertText,
-  Title: AlertTitle,
   Icon: AlertIcon,
+  IconBadge: AlertIconBadge,
+  List: AlertList,
+  Spinner: AlertSpinner,
+  Subtitle: AlertSubtitle,
+  Text: AlertText,
   TextGroup: AlertTextGroup,
+  Title: AlertTitle,
 });
 
 export { AlertNamespace as Alert };

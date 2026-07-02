@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import { useParams } from 'react-router';
-import { sprintf } from 'sprintf-js';
 
 import {
   CustomProxy,
@@ -11,7 +10,7 @@ import { messages } from '../../../../shared/gettext';
 import { useScheduler } from '../../../../shared/scheduler';
 import { useAppContext } from '../../../context';
 import { useApiAccessMethodTest } from '../../../lib/api-access-methods';
-import { Button } from '../../../lib/components';
+import { Dialog } from '../../../lib/components/dialog';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
@@ -20,7 +19,6 @@ import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../app-navigation-header';
 import { SettingsForm } from '../../cell/SettingsForm';
 import { BackAction } from '../../keyboard-navigation';
-import { ModalAlert, ModalAlertType } from '../../Modal';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
@@ -30,6 +28,13 @@ import {
   ProxyFormNameField,
 } from '../../ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
+import type { ApiAccessMethodTestingState } from './types';
+import {
+  getTestingDialogButtons,
+  getTestingDialogStatusIcon,
+  getTestingDialogText,
+  getTestingDialogTitle,
+} from './utils';
 
 export function EditApiAccessView() {
   return (
@@ -181,95 +186,46 @@ interface TestingDialogProps {
   save: () => void;
 }
 
-function TestingDialog(props: TestingDialogProps) {
-  let currentType: ModalAlertType | undefined;
-  if (props.testing) {
-    currentType = ModalAlertType.loading;
-  } else if (props.testResult) {
-    currentType = ModalAlertType.success;
-  } else if (props.testResult === false) {
-    currentType = ModalAlertType.failure;
+function TestingDialog({ name, newMethod, testing, testResult, cancel, save }: TestingDialogProps) {
+  let state: ApiAccessMethodTestingState | undefined = undefined;
+  if (testing) {
+    state = 'testing';
+  } else if (testResult === true) {
+    state = 'success';
+  } else if (testResult === false) {
+    state = 'failure';
   }
 
-  const type = useLastDefinedValue(currentType);
-  const displayType = type ?? ModalAlertType.failure;
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        cancel();
+      }
+    },
+    [cancel],
+  );
+
+  const lastDefinedType = useLastDefinedValue(state) ?? 'failure';
+
+  const subtitle = getTestingDialogText(lastDefinedType, newMethod, name);
+  const title = getTestingDialogTitle(lastDefinedType, newMethod);
+  const buttons = getTestingDialogButtons(lastDefinedType, save, cancel);
+  const statusIcon = getTestingDialogStatusIcon(lastDefinedType);
 
   return (
-    <ModalAlert
-      isOpen={!!currentType}
-      type={type}
-      gridButtons={getTestingDialogButtons(displayType, props.save, props.cancel)}
-      close={props.cancel}
-      title={getTestingDialogTitle(displayType, props.newMethod)}
-      message={getTestingDialogSubTitle(displayType, props.newMethod, props.name)}
-    />
+    <Dialog open={!!state} onOpenChange={handleOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Popup>
+          <Dialog.PopupContent>
+            {statusIcon}
+            <Dialog.TextGroup>
+              {title}
+              {subtitle}
+            </Dialog.TextGroup>
+            <Dialog.ButtonGroup>{buttons}</Dialog.ButtonGroup>
+          </Dialog.PopupContent>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog>
   );
-}
-
-function getTestingDialogTitle(type: ModalAlertType, newMethod: boolean) {
-  switch (type) {
-    case ModalAlertType.success:
-      return newMethod
-        ? messages.pgettext('api-access-methods-view', 'API reachable, adding method…')
-        : messages.pgettext('api-access-methods-view', 'API reachable, saving method…');
-    case ModalAlertType.failure:
-      return newMethod
-        ? messages.pgettext('api-access-methods-view', 'API unreachable, add anyway?')
-        : messages.pgettext('api-access-methods-view', 'API unreachable, save anyway?');
-    default:
-    case ModalAlertType.loading:
-      return messages.pgettext('api-access-methods-view', 'Testing method...');
-  }
-}
-
-function getTestingDialogSubTitle(type: ModalAlertType, newMethod: boolean, name: string) {
-  switch (type) {
-    case ModalAlertType.failure:
-      return newMethod
-        ? sprintf(
-            messages.pgettext(
-              'api-access-methods-view',
-              'The API could not be reached using the %(name)s method.',
-            ),
-            { name },
-          )
-        : sprintf(
-            // TRANSLATORS: %(save)s - Will be replaced with the translation for the word "Save".
-            messages.pgettext(
-              'api-access-methods-view',
-              'Clicking “%(save)s” changes the in use method.',
-            ),
-            { save: messages.gettext('Save') },
-          );
-    default:
-      return undefined;
-  }
-}
-
-function getTestingDialogButtons(type: ModalAlertType, save: () => void, cancel: () => void) {
-  const saveButton = (
-    <Button key="confirm" onClick={save}>
-      <Button.Text>{messages.gettext('Save')}</Button.Text>
-    </Button>
-  );
-  const cancelButton = (
-    <Button key="cancel" onClick={cancel}>
-      <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-    </Button>
-  );
-  const disabledCancelButton = (
-    <Button key="cancel" onClick={cancel} disabled>
-      <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-    </Button>
-  );
-
-  switch (type) {
-    case ModalAlertType.success:
-      return [disabledCancelButton];
-    case ModalAlertType.failure:
-      return [cancelButton, saveButton];
-    case ModalAlertType.loading:
-    default:
-      return [cancelButton];
-  }
 }

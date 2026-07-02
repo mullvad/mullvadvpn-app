@@ -1,33 +1,16 @@
 import { messages } from '../../../../shared/gettext';
-import { Button } from '../../../lib/components';
-import { ModalAlert, ModalAlertType, ModalMessage } from '../../Modal';
+import { CautionDialog } from '../../caution-dialog';
 
 interface Props {
-  visible: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
-  onHide: () => void;
 }
 
-export default function ClearAccountHistoryDialog(props: Props) {
+export default function ClearAccountHistoryDialog({ open, onOpenChange, onConfirm }: Props) {
   return (
-    <ModalAlert
-      isOpen={props.visible}
-      type={ModalAlertType.caution}
-      buttons={[
-        <Button key="confirm" onClick={props.onConfirm}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button which confirms the action to create a new account.
-              messages.pgettext('login-view', 'Create new account')
-            }
-          </Button.Text>
-        </Button>,
-        <Button key="back" onClick={props.onHide}>
-          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.onHide}>
-      <ModalMessage>
+    <CautionDialog open={open} onOpenChange={onOpenChange}>
+      <CautionDialog.Text>
         {
           // TRANSLATORS: Text that informs the users about consequences of creating a new account.
           messages.pgettext(
@@ -35,13 +18,28 @@ export default function ClearAccountHistoryDialog(props: Props) {
             'You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.',
           )
         }
-      </ModalMessage>
-      <ModalMessage>
+      </CautionDialog.Text>
+      <CautionDialog.Text>
         {
           // TRANSLATORS: Text that asks the user if they really want to create a new account.
           messages.pgettext('login-view', 'Do you want to create a new account?')
         }
-      </ModalMessage>
-    </ModalAlert>
+      </CautionDialog.Text>
+      <CautionDialog.ButtonGroup>
+        <CautionDialog.Button onClick={onConfirm}>
+          <CautionDialog.Button.Text>
+            {
+              // TRANSLATORS: Button which confirms the action to create a new account.
+              messages.pgettext('login-view', 'Create new account')
+            }
+          </CautionDialog.Button.Text>
+        </CautionDialog.Button>
+        <CautionDialog.CloseButton>
+          <CautionDialog.CloseButton.Text>
+            {messages.gettext('Cancel')}
+          </CautionDialog.CloseButton.Text>
+        </CautionDialog.CloseButton>
+      </CautionDialog.ButtonGroup>
+    </CautionDialog>
   );
 }

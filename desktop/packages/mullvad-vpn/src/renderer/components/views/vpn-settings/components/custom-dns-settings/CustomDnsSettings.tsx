@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { messages } from '../../../../../../shared/gettext';
 import { useDns } from '../../../../../features/dns/hooks';
-import { Button, IconButton } from '../../../../../lib/components';
+import { IconButton } from '../../../../../lib/components';
 import { AccordionProps } from '../../../../../lib/components/accordion';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
@@ -10,9 +10,9 @@ import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../../AriaGroup';
+import { CautionDialog } from '../../../../caution-dialog';
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
-import { ModalAlert, ModalAlertType } from '../../../../Modal';
 import { SettingsAccordion } from '../../../../settings-accordion';
 import { SettingsListItem } from '../../../../settings-list-item';
 import {
@@ -280,7 +280,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
         </SettingsListItem.Footer>
 
         <ConfirmationDialog
-          isOpen={confirmAction !== undefined}
+          open={confirmAction !== undefined}
           confirm={confirm}
           abort={abortConfirmation}
         />
@@ -377,35 +377,44 @@ function CellListItem(props: ICellListItemProps) {
 }
 
 interface IConfirmationDialogProps {
-  isOpen: boolean;
+  open: boolean;
   confirm: () => void;
   abort: () => void;
 }
 
-function ConfirmationDialog(props: IConfirmationDialogProps) {
+function ConfirmationDialog({ abort, confirm, open }: IConfirmationDialogProps) {
   const message = messages.pgettext(
     'vpn-settings-view',
     'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
   );
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) {
+        abort();
+      }
+    },
+    [abort],
+  );
+
   return (
-    <ModalAlert
-      isOpen={props.isOpen}
-      type={ModalAlertType.caution}
-      buttons={[
-        <Button variant="destructive" key="confirm" onClick={props.confirm}>
-          <Button.Text>
+    <CautionDialog open={open} onOpenChange={handleOpenChange}>
+      <CautionDialog.Text>{message}</CautionDialog.Text>
+      <CautionDialog.ButtonGroup>
+        <CautionDialog.Button variant="destructive" onClick={confirm}>
+          <CautionDialog.Button.Text>
             {
               // TRANSLATORS: Button label to add a private IP DNS server despite warning.
               messages.pgettext('vpn-settings-view', 'Add anyway')
             }
-          </Button.Text>
-        </Button>,
-        <Button key="back" onClick={props.abort}>
-          <Button.Text>{messages.gettext('Back')}</Button.Text>
-        </Button>,
-      ]}
-      close={props.abort}
-      message={message}
-    />
+          </CautionDialog.Button.Text>
+        </CautionDialog.Button>
+        <CautionDialog.CloseButton>
+          <CautionDialog.CloseButton.Text>
+            {messages.gettext('Back')}
+          </CautionDialog.CloseButton.Text>
+        </CautionDialog.CloseButton>
+      </CautionDialog.ButtonGroup>
+    </CautionDialog>
   );
 }
