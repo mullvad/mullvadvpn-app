@@ -49,7 +49,6 @@ import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.STRAIGHT_ANGLE
 
-
 internal class MapCameraController(
     private val scope: CoroutineScope,
     private val zoomRange: ClosedFloatingPointRange<Float> = ZOOM_RANGE,
@@ -93,7 +92,9 @@ internal class MapCameraController(
                 latLngAnimatable.animateTo(target.toOffset(), animationSpec = tween(duration))
             }
             launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
-            launch { alphaAnimation.animateTo(0f, animationSpec = tween(300)) }
+            launch {
+                alphaAnimation.animateTo(0f, animationSpec = tween(INTERACTIVE_FADE_OUT_DURATION))
+            }
         }
     }
 
@@ -146,7 +147,9 @@ internal class MapCameraController(
         isPerformingGesture = false
         returnToIdleJob = scope.launch {
             var (longVelocity, latVelocity) =
-                tracker.calculateVelocity(maximumVelocity = Velocity(MAX_FLING_VELOCITY, MAX_FLING_VELOCITY))
+                tracker.calculateVelocity(
+                    maximumVelocity = Velocity(MAX_FLING_VELOCITY, MAX_FLING_VELOCITY)
+                )
             tracker.resetTracking()
             do {
                 val result =
@@ -159,10 +162,6 @@ internal class MapCameraController(
                 latVelocity = -result.endState.velocityVector.v2
             } while (result.endReason == AnimationEndReason.BoundReached)
 
-            launch {
-                alphaAnimation.animateTo(1f, tween(100))
-            }
-
             delay(RESTORE_CAMERA_TIMEOUT)
 
             launch {
@@ -171,7 +170,9 @@ internal class MapCameraController(
                     tween(RESTORE_CAMERA_POSITION_DURATION),
                 )
             }
-            launch { zoomAnimatable.animateTo(zoomRange.start, tween(RESTORE_CAMERA_POSITION_DURATION)) }
+            launch {
+                zoomAnimatable.animateTo(zoomRange.start, tween(RESTORE_CAMERA_POSITION_DURATION))
+            }
             launch { alphaAnimation.animateTo(0f, tween(INTERACTIVE_FADE_OUT_DURATION)) }
         }
     }
@@ -195,8 +196,7 @@ internal class MapCameraController(
         private val RESTORE_CAMERA_TIMEOUT = 3.seconds
         private const val RESTORE_CAMERA_POSITION_DURATION = 1000
 
-
-        private const val INTERACTIVE_FADE_IN_DURATION = 500
+        private const val INTERACTIVE_FADE_IN_DURATION = 400
         private const val INTERACTIVE_FADE_OUT_DURATION = 400
     }
 }
