@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -147,6 +148,7 @@ class SearchLocationViewModelTest {
                         RelayItem.Location.City(
                             id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
                             "Gothenburg",
+                            latLong = LatLong(0f, 0f),
                             emptyList(),
                             countryName = "Sweden",
                         )

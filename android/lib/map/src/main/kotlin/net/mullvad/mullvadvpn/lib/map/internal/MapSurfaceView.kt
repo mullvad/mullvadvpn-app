@@ -2,14 +2,16 @@ package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import net.mullvad.mullvadvpn.lib.map.BuildConfig
-import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
+import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.data.toLatLng
+import net.mullvad.mullvadvpn.lib.model.LatLong
 
-internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
-
-    private val renderer: MapGLRenderer
+internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
+    private val renderer: MapRenderer = MapRenderer(context.resources)
     var lifecycle: Lifecycle? = null
         set(value) {
             field?.removeObserver(observer)
@@ -29,19 +31,28 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
 
-        if (BuildConfig.DEBUG) {
-            debugFlags = DEBUG_CHECK_GL_ERROR or DEBUG_LOG_GL_CALLS
-        }
-
-        renderer = MapGLRenderer(context.resources)
-
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
         renderMode = RENDERMODE_WHEN_DIRTY
     }
 
-    fun setData(viewState: MapViewState) {
+    fun setData(viewState: GlobeViewState) {
         renderer.setViewState(viewState)
         requestRender()
+    }
+
+    fun getPosition(offset: Offset): LatLong? = renderer.calculateIntersection(offset)?.toLatLng()
+
+    fun closestMarker(offset: Offset): Pair<Marker, Offset>? {
+        val (marker, distance) = renderer.closestMarker(offset) ?: return null
+        return if (distance < MIN_DISTANCE) {
+            marker?.let { marker to offset }
+        } else {
+            null
+        }
+    }
+
+    companion object {
+        private const val MIN_DISTANCE = 0.03f
     }
 }

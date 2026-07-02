@@ -1,13 +1,17 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 data class ConnectUiState(
-    val location: GeoIpLocation?,
+    val internetLocation: GeoIpLocation?,
     val selectedRelayItemTitle: String?,
     val tunnelState: TunnelState,
+    val hops: ConnectionPath,
+    val locations: List<LatLong>,
     val inAppNotification: InAppNotification?,
     val deviceName: String?,
     val daysLeftUntilExpiry: Long?,
@@ -20,9 +24,11 @@ data class ConnectUiState(
     companion object {
         val INITIAL =
             ConnectUiState(
-                location = null,
+                internetLocation = null,
                 selectedRelayItemTitle = null,
                 tunnelState = TunnelState.Disconnected(),
+                hops = ConnectionPath(),
+                locations = emptyList(),
                 inAppNotification = null,
                 deviceName = null,
                 daysLeftUntilExpiry = null,

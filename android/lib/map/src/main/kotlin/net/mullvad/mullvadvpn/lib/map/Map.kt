@@ -1,101 +1,92 @@
 package net.mullvad.mullvadvpn.lib.map
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
-import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.Marker
-import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
-import net.mullvad.mullvadvpn.lib.model.LatLong
-import net.mullvad.mullvadvpn.lib.model.Latitude
-import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.map.internal.MapSurfaceView
 
-@Preview
 @Composable
-private fun PreviewMap() {
-    val infinite = rememberInfiniteTransition()
-    val spin =
-        infinite.animateFloat(
-            0f,
-            360f,
-            infiniteRepeatable(animation = tween(30000, easing = LinearEasing)),
-        )
+fun Map(
+    cameraPosition: CameraPosition,
+    modifier: Modifier = Modifier,
+    markers: List<Marker> = emptyList(),
+    hops: List<Hop> = emptyList(),
+    globeColors: GlobeColors = GlobeColors.default(),
+) {
+    val globeViewState = GlobeViewState(cameraPosition, markers, hops, globeColors)
+    Map(modifier = modifier, globeViewState = globeViewState)
+}
 
-    Map(
-        modifier = Modifier,
-        cameraLocation =
-            CameraPosition(
-                LatLong(Latitude(0f), Longitude.fromFloat(spin.value)),
-                2f,
-                verticalBias = 0.5f,
-            ),
-        markers = emptyList(),
-        globeColors =
-            GlobeColors(
-                // Green
-                landColor = Color(0xFF26513C),
-                // Blue
-                oceanColor = Color(0xFF161E50),
-                // Darker green
-                contourColor = Color(0xFF1B3626),
-            ),
+@Composable
+private fun Map(modifier: Modifier = Modifier, globeViewState: GlobeViewState) {
+    val lifeCycleState = LocalLifecycleOwner.current.lifecycle
+
+    AndroidView(
+        modifier = modifier,
+        factory = { MapSurfaceView(it) },
+        update = { glSurfaceView ->
+            glSurfaceView.lifecycle = lifeCycleState
+            glSurfaceView.setData(globeViewState)
+        },
+        onRelease = { it.lifecycle = null },
     )
 }
 
 @Composable
 fun Map(
-    modifier: Modifier,
-    cameraLocation: CameraPosition,
-    markers: List<Marker>,
-    globeColors: GlobeColors,
+    cameraPosition: CameraPosition,
+    modifier: Modifier = Modifier,
+    markers: List<Marker> = emptyList(),
+    hops: List<Hop> = emptyList(),
+    globeColors: GlobeColors = GlobeColors.default(),
+    onMarkerClick: ((Marker) -> Unit) = {},
+    onMarkerLongPress: (Offset, Marker) -> Unit = { _, _ -> },
 ) {
-    val mapViewState = MapViewState(cameraLocation, markers, globeColors)
-    Map(modifier = modifier, mapViewState = mapViewState)
+    val globeViewState = GlobeViewState(cameraPosition, markers, hops, globeColors)
+    Map(modifier = modifier, globeViewState = globeViewState, onMarkerClick, onMarkerLongPress)
 }
 
 @Composable
-fun AnimatedMap(
-    modifier: Modifier,
-    cameraLocation: LatLong,
-    cameraBaseZoom: Float,
-    cameraVerticalBias: Float,
-    markers: List<Marker>,
-    globeColors: GlobeColors,
+private fun Map(
+    modifier: Modifier = Modifier,
+    globeViewState: GlobeViewState,
+    onClick: (Marker) -> Unit = {},
+    onLongClick: (Offset, Marker) -> Unit = { _, _ -> },
 ) {
-    Map(
-        modifier = modifier,
-        cameraLocation =
-            animatedCameraPosition(
-                baseZoom = cameraBaseZoom,
-                targetCameraLocation = cameraLocation,
-                cameraVerticalBias = cameraVerticalBias,
-            ),
-        markers = markers,
-        globeColors,
-    )
-}
-
-@Composable
-internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
+    var view: MapSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
     AndroidView(
-        modifier = modifier,
-        factory = { MapGLSurfaceView(it) },
+        modifier =
+            Modifier.pointerInput(lifeCycleState) {
+                    detectTapGestures(
+                        onTap = {
+                            val result = view?.closestMarker(it) ?: return@detectTapGestures
+                            onClick(result.first)
+                        },
+                        onLongPress = {
+                            val result = view?.closestMarker(it) ?: return@detectTapGestures
+                            onLongClick(result.second, result.first)
+                        },
+                    )
+                }
+                .then(modifier),
+        factory = { MapSurfaceView(it) },
         update = { glSurfaceView ->
             glSurfaceView.lifecycle = lifeCycleState
-            glSurfaceView.setData(mapViewState)
+            view = glSurfaceView
+            glSurfaceView.setData(globeViewState)
         },
         onRelease = { it.lifecycle = null },
     )
