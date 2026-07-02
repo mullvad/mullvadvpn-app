@@ -506,18 +506,13 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     val locationMarker = state.tunnelState.toMarker(state.internetLocation)
 
-    val currentLocation =
-        remember(state.internetLocation?.toLatLong()) {
-            mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
-        }
-
     val hops =
         remember(state.hops) {
             state.hops.toHops().map { Hop(it.first, it.second) }
         }
 
     InteractiveMap(
-        currentLocation = currentLocation.value,
+        currentLocation = state.internetLocation?.toLatLong() ?: fallbackLatLong,
         secureZoom.value,
         progressIndicatorBias,
         markers = listOfNotNull(locationMarker),
