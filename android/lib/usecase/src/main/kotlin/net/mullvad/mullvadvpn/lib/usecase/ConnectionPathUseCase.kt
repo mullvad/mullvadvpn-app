@@ -35,9 +35,9 @@ class ConnectionPathUseCase(
                 when (tunnelState) {
                     is TunnelState.Connected ->
                         tunnelState.location?.entryHostname to tunnelState.location?.hostname
-                    is TunnelState.Connecting -> null to null
-                    is TunnelState.Disconnected -> null to null
-                    is TunnelState.Disconnecting -> null to null
+                    is TunnelState.Connecting,
+                    is TunnelState.Disconnected,
+                    is TunnelState.Disconnecting,
                     is TunnelState.Error -> null to null
                 }
 
