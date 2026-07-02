@@ -361,16 +361,6 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
     }
 }
 
-private val selectLocationMarkerColors =
-    LocationMarkerColors(centerColor = Color(0xFF44AD4D.toInt()))
-
-private val unselectLocationMarkerColors =
-    LocationMarkerColors(
-        perimeterColors = null,
-        centerColor = Color(0xFF192E45.toInt()),
-        ringBorderColor = Color(0xFFFFFFFF.toInt()),
-    )
-
 class DiffVelocityTracker {
     private val xVelocityTracker = VelocityTracker1D(true)
     private val yVelocityTracker = VelocityTracker1D(true)

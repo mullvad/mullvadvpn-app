@@ -18,7 +18,7 @@ class HopArc(
     val from: LatLong,
     val to: LatLong,
     val color: Color,
-    private val segments: Int = 48,
+    private val segments: Int = DEFAULT_SEGMENT_SIZE,
 ) {
     private val shaderProgram: Int
     private val attribLocations: AttribLocations
@@ -195,6 +195,7 @@ class HopArc(
             """
                 .trimIndent()
 
+        private const val DEFAULT_SEGMENT_SIZE = 48
         private const val SHORT_ARC_CUTOFF_DISTANCE = 0.02f
         private const val SHORT_ARC_MAX_HEIGHT = 0.08f
         private const val SHORT_ARC_MAX_WIDTH = 0.03f
