@@ -14,7 +14,7 @@ object Stagemole {
 object Production {
     val DEFAULT_RELAY = Relays.gotWg001
     val DAITA_RELAY = Relays.saoWg201
-    val NON_DAITA_RELAY = Relays.tiaWg004
+    val NON_DAITA_RELAY = Relays.bruWg101
     val QUIC_RELAY = Relays.stoWg204
     val LWO_RELAY = Relays.stoWg204
     val OVERRIDE_RELAY = Relays.tiaWg004
@@ -27,7 +27,8 @@ private object Relays {
     val saoWg201 = TestRelay(relay = "br-sao-wg-201", country = "Brazil", city = "Sao Paulo")
 
     val gotWg001 = TestRelay(relay = "se-got-wg-001", country = "Sweden", city = "Gothenburg")
-    val gotWg002 = TestRelay(relay = "se-got-wg-002", country = "Sweden", city = "Gothenburg")
+
+    val bruWg101 = TestRelay(relay = "be-bru-wg-101", country = "Belgium", city = "Brussels")
 
     val stoWg001 = TestRelay(relay = "se-sto-wg-001", country = "Sweden", city = "Stockholm")
     val stoWg204 = TestRelay(relay = "se-sto-wg-204", country = "Sweden", city = "Stockholm")
