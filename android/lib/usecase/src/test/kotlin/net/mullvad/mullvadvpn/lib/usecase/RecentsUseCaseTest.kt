@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
@@ -169,6 +170,7 @@ class RecentsUseCaseTest {
                 name = "Stockholm",
                 relays = emptyList(),
                 countryName = "Sweden",
+                latLong = LatLong(0f, 0f),
             )
         private val SWEDEN =
             RelayItem.Location.Country(id = SWEDEN_ID, name = "Sweden", cities = listOf(STOCKHOLM))

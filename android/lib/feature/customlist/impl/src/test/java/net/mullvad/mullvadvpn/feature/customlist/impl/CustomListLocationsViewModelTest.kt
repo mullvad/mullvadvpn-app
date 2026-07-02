@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -367,9 +368,11 @@ class CustomListLocationsViewModelTest {
                                             lwo = false,
                                             countryName = "Sweden",
                                             cityName = "Gothenburg",
+                                            latLong = LatLong(0f, 0f),
                                         )
                                     ),
                                 countryName = "Sweden",
+                                latLong = LatLong(0f, 0f),
                             )
                         ),
                 )
@@ -389,6 +392,7 @@ class CustomListLocationsViewModelTest {
                 lwo = false,
                 cityName = "Copenhagen",
                 countryName = "Denmark",
+                latLong = LatLong(0f, 0f),
             )
     }
 }
