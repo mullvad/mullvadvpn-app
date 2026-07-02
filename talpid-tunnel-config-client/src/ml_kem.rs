@@ -66,3 +66,44 @@ pub fn keypair() -> Keypair {
         decapsulation_key,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ml_kem::kem::Encapsulate as _;
+
+    #[test]
+    fn decapsulate_roundtrips_shared_secret() {
+        let keypair = keypair();
+        let (ciphertext, shared_secret) = keypair
+            .encapsulation_key
+            .encapsulate(&mut rand_core::OsRng)
+            .unwrap();
+
+        let decapsulated_shared_secret = keypair.decapsulate(ciphertext.as_slice()).unwrap();
+
+        assert_eq!(decapsulated_shared_secret, shared_secret.0);
+    }
+
+    #[test]
+    fn decapsulate_rejects_invalid_ciphertext_length() {
+        let keypair = keypair();
+
+        for invalid_ciphertext in [&[][..], &[0u8][..]] {
+            let error = keypair.decapsulate(invalid_ciphertext).unwrap_err();
+
+            match error {
+                crate::Error::InvalidCiphertextLength {
+                    algorithm,
+                    actual,
+                    expected,
+                } => {
+                    assert_eq!(algorithm, ALGORITHM_NAME);
+                    assert_eq!(actual, invalid_ciphertext.len());
+                    assert_eq!(expected, CIPHERTEXT_LEN);
+                }
+                error => panic!("unexpected error: {error:?}"),
+            }
+        }
+    }
+}
