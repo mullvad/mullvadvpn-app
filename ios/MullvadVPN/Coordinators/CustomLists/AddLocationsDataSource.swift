@@ -95,7 +95,7 @@ class AddLocationsDataSource:
     }
 
     private func containsChild(parent: LocationNode, child: LocationNode) -> Bool {
-        parent.flattened.contains(child)
+        parent.descendants.contains(child)
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

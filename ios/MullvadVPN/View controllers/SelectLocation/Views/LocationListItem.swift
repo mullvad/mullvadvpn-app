@@ -59,7 +59,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
             },
             groupedContent: {
-                if isExpanded {
+                if isExpanded && hasChildren {
                     ForEach(
                         Array(childIndices.enumerated()),
                         id: \.element
