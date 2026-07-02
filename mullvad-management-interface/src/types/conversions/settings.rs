@@ -1,4 +1,3 @@
-use std::default::Default;
 use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
 use talpid_types::ErrorExt;

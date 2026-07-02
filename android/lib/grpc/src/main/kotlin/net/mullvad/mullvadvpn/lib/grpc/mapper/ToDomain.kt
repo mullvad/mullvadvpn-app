@@ -8,6 +8,7 @@ import java.net.InetSocketAddress
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.random.Random
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
@@ -653,7 +654,8 @@ internal fun ManagementInterface.Relay.toDomain(
                 null
             },
         lwo = endpointData.lwo,
-        needsOtherEntry = true,
+        // This will be set later when we get the relay filter partition response.
+        needsOtherEntry = false,
     )
 
 private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =
@@ -817,7 +819,8 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.map { it.hostname },
+        // change false to value of Metadata.needsOtherEntry when gRPC is done
+        matches = matchesList.associate { Pair(it.hostname, false) },
         discards = discardsList.map { it.toDomain() },
     )
 
