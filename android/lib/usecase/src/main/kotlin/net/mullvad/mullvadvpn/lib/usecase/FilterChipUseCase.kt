@@ -25,7 +25,7 @@ class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
-    private val multihopActiveUseCase: MultihopActiveUseCase,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
@@ -33,8 +33,8 @@ class FilterChipUseCase(
             relayListFilterRepository.selectedProviders(relayListType.toFilterTarget()),
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
-            multihopActiveUseCase(),
-        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopActiveStatus
+            multihopInEffectUseCase(),
+        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopInEffect
             ->
             filterChips(
                 selectedOwnership = selectedOwnership,
@@ -42,7 +42,7 @@ class FilterChipUseCase(
                 providerToOwnerships = providerOwnership,
                 settings = settings,
                 relayListType = relayListType,
-                multihopActiveStatus = multihopActiveStatus,
+                multihopInEffect = multihopInEffect,
             )
         }
 
@@ -52,13 +52,13 @@ class FilterChipUseCase(
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         settings: Settings?,
         relayListType: RelayListType,
-        multihopActiveStatus: MultihopActiveStatus,
+        multihopInEffect: MultihopInEffectStatus,
     ): List<FilterChip> {
 
         // Do not show any entry filters for when needed multihop.
         if (
             relayListType.isMultihopEntry &&
-                multihopActiveStatus == MultihopActiveStatus.WhenNeededActive
+                multihopInEffect == MultihopInEffectStatus.WhenNeededInEffect
         ) {
             return emptyList()
         }

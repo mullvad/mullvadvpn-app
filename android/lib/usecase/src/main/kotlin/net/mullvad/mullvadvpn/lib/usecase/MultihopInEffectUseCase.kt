@@ -3,18 +3,17 @@ package net.mullvad.mullvadvpn.lib.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
-class MultihopActiveUseCase(
+class MultihopInEffectUseCase(
     private val connectionProxy: ConnectionProxy,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
-    operator fun invoke(): Flow<MultihopActiveStatus> =
+    operator fun invoke(): Flow<MultihopInEffectStatus> =
         combine(
             connectionProxy.tunnelState,
             wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
@@ -25,23 +24,22 @@ class MultihopActiveUseCase(
     private fun checkMultihopActive(
         tunnelState: TunnelState,
         wireguardConstrains: WireguardConstraints,
-    ): MultihopActiveStatus =
+    ): MultihopInEffectStatus =
         when (wireguardConstrains.multihop) {
-            MultihopMode.ALWAYS -> MultihopActiveStatus.AlwaysOnActive
+            MultihopMode.ALWAYS -> MultihopInEffectStatus.AlwaysOnInEffect
 
-            MultihopMode.WHEN_NEEDED if
-                tunnelState.featureIndicators()?.contains(FeatureIndicator.MULTIHOP_AUTO) == true
-             -> MultihopActiveStatus.WhenNeededActive
+            MultihopMode.WHEN_NEEDED if tunnelState.isWhenNeededMultihopInEffect() ->
+                MultihopInEffectStatus.WhenNeededInEffect
 
-            else -> MultihopActiveStatus.Inactive
+            else -> MultihopInEffectStatus.Inactive
         }
 }
 
-enum class MultihopActiveStatus {
-    AlwaysOnActive,
-    WhenNeededActive,
+enum class MultihopInEffectStatus {
+    AlwaysOnInEffect,
+    WhenNeededInEffect,
     Inactive;
 
-    val isActive: Boolean
+    val isInEffect: Boolean
         get() = this != Inactive
 }

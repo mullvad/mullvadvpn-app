@@ -33,7 +33,7 @@ import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
@@ -52,7 +52,7 @@ class LocationBottomSheetViewModel(
     private val modifyAndEnableMultihopUseCase: ModifyAndEnableMultihopUseCase,
     private val selectAndEnableMultihopUseCase: SelectAndEnableMultihopUseCase,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    private val multihopActiveUseCase: MultihopActiveUseCase,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
     canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -294,7 +294,7 @@ class LocationBottomSheetViewModel(
                 LocationBottomSheetNavResult.EntryAndExitAreSame
         }
 
-    private suspend fun isMultihopActive(): Boolean = multihopActiveUseCase().first().isActive
+    private suspend fun isMultihopActive(): Boolean = multihopInEffectUseCase().first().isInEffect
 
     private fun Set<GeoLocationId>.validate(relayItem: RelayItem): SetAsState =
         if (

@@ -43,8 +43,8 @@ import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveStatus
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectStatus
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
@@ -63,7 +63,7 @@ class SelectLocationViewModelTest {
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
-    private val mockMultihopActiveUseCase: MultihopActiveUseCase = mockk()
+    private val mockMultihopInEffectUseCase: MultihopInEffectUseCase = mockk()
     private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
@@ -79,7 +79,7 @@ class SelectLocationViewModelTest {
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
-    private val multihopActive = MutableStateFlow(MultihopActiveStatus.WhenNeededActive)
+    private val multihopActive = MutableStateFlow(MultihopInEffectStatus.WhenNeededInEffect)
     private val lastKnownDisconnectedLocation = MutableStateFlow<GeoIpLocation?>(null)
 
     @BeforeEach
@@ -89,11 +89,10 @@ class SelectLocationViewModelTest {
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
         every { mockRelayListRepository.relayList } returns relayList
-        every { mockRelayListRepository.findCountryByCode(any()) } returns null
         every { mockSettingsRepository.settingsUpdates } returns settings
         every { mockConnectionProxy.tunnelState } returns flowOf(mockTunnelState)
         every { mockHopSelectionUseCase() } returns selectedRelayItemFlow
-        every { mockMultihopActiveUseCase() } returns multihopActive
+        every { mockMultihopInEffectUseCase() } returns multihopActive
         every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns
             lastKnownDisconnectedLocation
         every { mockRelayListFilterRepository.hasAnyEntryFilter() } returns true
@@ -115,7 +114,7 @@ class SelectLocationViewModelTest {
                 hopSelectionUseCase = mockHopSelectionUseCase,
                 connectionProxy = mockConnectionProxy,
                 relayListScrollConnection = relayListScrollConnection,
-                multihopActiveUseCase = mockMultihopActiveUseCase,
+                multihopInEffectUseCase = mockMultihopInEffectUseCase,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
             )
     }

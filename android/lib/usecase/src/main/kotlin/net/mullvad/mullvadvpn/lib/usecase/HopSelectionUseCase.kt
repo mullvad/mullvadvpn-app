@@ -20,7 +20,7 @@ class HopSelectionUseCase(
     private val customListRelayItemUseCase: CustomListsRelayItemUseCase,
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
-    private val multihopActiveUseCase: MultihopActiveUseCase,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
 ) {
     operator fun invoke(): Flow<HopSelection> =
         combine(
@@ -28,9 +28,9 @@ class HopSelectionUseCase(
             relayListRepository.relayList,
             settingsRepository.settingsUpdates.filterNotNull(),
             relayListRepository.selectedLocation,
-            multihopActiveUseCase(),
-        ) { customLists, relayList, settings, selectedExitLocation, multihopActiveStatus ->
-            if (multihopActiveStatus.isActive) {
+            multihopInEffectUseCase(),
+        ) { customLists, relayList, settings, selectedExitLocation, multihopInEffect ->
+            if (multihopInEffect.isInEffect) {
                 val entry =
                     if (settings.entryBlocked()) {
                         Constraint.Any

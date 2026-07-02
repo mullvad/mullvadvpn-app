@@ -46,8 +46,8 @@ import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveStatus
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectStatus
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
@@ -70,7 +70,7 @@ class LocationBottomSheetViewModelTest {
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockSelectedLocationUseCase: SelectedLocationUseCase = mockk()
-    private val mockMultihopActiveUseCase: MultihopActiveUseCase = mockk()
+    private val mockMultihopInEffectUseCase: MultihopInEffectUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockModifyAndEnableMultihopUseCase: ModifyAndEnableMultihopUseCase = mockk()
     private val mockSelectAndEnableMultihopUseCase: SelectAndEnableMultihopUseCase = mockk()
@@ -103,7 +103,7 @@ class LocationBottomSheetViewModelTest {
         MutableStateFlow<ValidSelection>(ValidSelection.OnlyEntry(emptySet()))
     private val selectedLocation =
         MutableStateFlow<RelayItemSelection>(RelayItemSelection.Single(Constraint.Any))
-    private val multihopActive = MutableStateFlow(MultihopActiveStatus.WhenNeededActive)
+    private val multihopActive = MutableStateFlow(MultihopInEffectStatus.WhenNeededInEffect)
 
     @BeforeEach
     fun setup() {
@@ -118,7 +118,7 @@ class LocationBottomSheetViewModelTest {
         every { mockRelayItemCanBeSelectedUseCase(any()) } returns validSelectionFlow
         every { mockCustomListsRelayItemUseCase() } returns customListRelayItems
         every { mockSelectedLocationUseCase() } returns selectedLocation
-        every { mockMultihopActiveUseCase() } returns multihopActive
+        every { mockMultihopInEffectUseCase() } returns multihopActive
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -136,7 +136,7 @@ class LocationBottomSheetViewModelTest {
                 canBeSelectedUseCase = mockRelayItemCanBeSelectedUseCase,
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
-                multihopActiveUseCase = mockMultihopActiveUseCase,
+                multihopInEffectUseCase = mockMultihopInEffectUseCase,
             )
     }
 

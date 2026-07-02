@@ -67,7 +67,7 @@ fun generateRelayItemRelay(
         lwo = false,
         cityName = cityName,
         countryName = countryName,
-        needsOtherEntry = false
+        needsOtherEntry = false,
     )
 
 private fun String.generateCountryCode() =

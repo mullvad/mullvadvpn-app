@@ -9,15 +9,15 @@ import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 class SelectedLocationUseCase(
     private val relayListRepository: RelayListRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    private val multihopActiveUseCase: MultihopActiveUseCase,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
 ) {
     operator fun invoke() =
         combine(
             relayListRepository.selectedLocation,
             wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
-            multihopActiveUseCase(),
-        ) { selectedLocation, wireguardConstraints, multihopActiveStatus ->
-            if (multihopActiveStatus.isActive) {
+            multihopInEffectUseCase(),
+        ) { selectedLocation, wireguardConstraints, multihopInEffect ->
+            if (multihopInEffect.isInEffect) {
                 RelayItemSelection.Multiple(
                     entryLocation = wireguardConstraints.entryLocation,
                     exitLocation = selectedLocation,

@@ -25,8 +25,8 @@ class SelectedLocationUseCaseTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
 
-    private val multihopActiveUseCase =
-        MultihopActiveUseCase(
+    private val multihopInEffectUseCase =
+        MultihopInEffectUseCase(
             connectionProxy = mockConnectionProxy,
             wireguardConstraintsRepository = mockWireguardConstraintsRepository,
         )
@@ -56,7 +56,7 @@ class SelectedLocationUseCaseTest {
             SelectedLocationUseCase(
                 relayListRepository = mockRelayListRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                multihopActiveUseCase = multihopActiveUseCase,
+                multihopInEffectUseCase = multihopInEffectUseCase,
             )
     }
 

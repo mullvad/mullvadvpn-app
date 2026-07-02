@@ -98,7 +98,7 @@ import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
@@ -206,13 +206,13 @@ val uiModule = module {
     single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
     single {
-        MultihopActiveUseCase(connectionProxy = get(), wireguardConstraintsRepository = get())
+        MultihopInEffectUseCase(connectionProxy = get(), wireguardConstraintsRepository = get())
     }
     single {
         SelectedLocationUseCase(
             relayListRepository = get(),
             wireguardConstraintsRepository = get(),
-            multihopActiveUseCase = get(),
+            multihopInEffectUseCase = get(),
         )
     }
     single {
@@ -220,7 +220,7 @@ val uiModule = module {
             relayListFilterRepository = get(),
             providerToOwnershipsUseCase = get(),
             settingsRepository = get(),
-            multihopActiveUseCase = get(),
+            multihopInEffectUseCase = get(),
         )
     }
     single { DeleteCustomDnsUseCase(get()) }
@@ -246,7 +246,7 @@ val uiModule = module {
             customListRelayItemUseCase = get(),
             relayListRepository = get(),
             settingsRepository = get(),
-            multihopActiveUseCase = get(),
+            multihopInEffectUseCase = get(),
         )
     }
     single {
@@ -340,7 +340,7 @@ val uiModule = module {
             modifyMultihopUseCase = get(),
             relayListScrollConnection = get(),
             connectionProxy = get(),
-            multihopActiveUseCase = get(),
+            multihopInEffectUseCase = get(),
             hopSelectionUseCase = get(),
             lastKnownLocationUseCase = get(),
         )
@@ -459,7 +459,7 @@ val uiModule = module {
             hopSelectionUseCase = get(),
             modifyAndEnableMultihopUseCase = get(),
             customListsRepository = get(),
-            multihopActiveUseCase = get(),
+            multihopInEffectUseCase = get(),
         )
     }
     viewModel { AppIconViewModel(get()) }

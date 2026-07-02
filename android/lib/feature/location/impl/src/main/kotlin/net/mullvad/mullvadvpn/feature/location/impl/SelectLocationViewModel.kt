@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
@@ -60,7 +60,7 @@ class SelectLocationViewModel(
     private val selectSingleUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val relayListScrollConnection: RelayListScrollConnection,
-    private val multihopActiveUseCase: MultihopActiveUseCase,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
     hopSelectionUseCase: HopSelectionUseCase,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     connectionProxy: ConnectionProxy,
@@ -105,10 +105,7 @@ class SelectLocationViewModel(
                         tunnelErrorStateCause = tunnelState.errorCause,
                         isEntryFilteringEnabled = !settings.entryBlocked(),
                         lastKnownLocation = lastKnownLocation?.country,
-                        entryCountry =
-                            tunnelState.entryCountry?.let {
-                                relayListRepository.findCountryByCode(it)?.name
-                            },
+                        entryCountry = tunnelState.entryCountry,
                     )
                 )
             }
@@ -128,10 +125,10 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun filterChips() =
-        combine(_multihopRelayListTypeSelection, multihopActiveUseCase()) {
+        combine(_multihopRelayListTypeSelection, multihopInEffectUseCase()) {
                 multihopRelayListType,
                 multihopActive ->
-                if (multihopActive.isActive) RelayListType.Multihop(multihopRelayListType)
+                if (multihopActive.isInEffect) RelayListType.Multihop(multihopRelayListType)
                 else RelayListType.Single
             }
             .flatMapLatest { filterChipUseCase(it) }

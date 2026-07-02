@@ -89,7 +89,7 @@ sealed interface RelayItem : Parcelable {
             val lwo: Boolean,
             val cityName: String,
             val countryName: String,
-            val needsOtherEntry: Boolean
+            val needsOtherEntry: Boolean,
         ) : Location {
             @IgnoredOnParcel override val name: String = id.code
             @IgnoredOnParcel override val hasChildren: Boolean = false

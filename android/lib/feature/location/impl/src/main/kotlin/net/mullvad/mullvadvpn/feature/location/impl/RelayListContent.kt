@@ -207,8 +207,7 @@ private fun GeoLocationItem(
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
         showMultihopWhenNeededIcon =
             (listItem.item as? RelayItem.Location.Relay)?.needsOtherEntry ?: false,
-        modifier =
-            Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
+        modifier = Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
     )
 }
 

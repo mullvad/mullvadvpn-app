@@ -109,8 +109,5 @@ class RelayListRepository(
     fun find(geoLocationId: GeoLocationId): RelayItem.Location? =
         relayList.value.findByGeoLocationId(geoLocationId)
 
-    fun findCountryByCode(countryCode: String): RelayItem.Location.Country? =
-        relayList.value.find { country -> country.id.code == countryCode }
-
     private fun defaultWireguardEndpointData() = WireguardEndpointData(emptyList(), emptyList())
 }

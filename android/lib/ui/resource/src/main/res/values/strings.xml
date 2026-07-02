@@ -371,6 +371,7 @@
     <string name="automatic_entry_info_first_paragraph">Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load.</string>
     <string name="automatic_entry_warning">Attention: This will ignore filter settings for the server that is being used as an entry point.</string>
     <string name="x_via_x">%1$s via %2$s</string>
+    <string name="via_country_city">via %1$s, %2$s</string>
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="entry">Entry</string>
