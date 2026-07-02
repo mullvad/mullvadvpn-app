@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
+- Ignore DAITA tunnel config responses unless DAITA was requested.
 
 #### Windows
 - Fix misleading "split tunneling" error when offline.
