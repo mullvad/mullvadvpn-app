@@ -5,8 +5,8 @@ import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 
-// If Daita is enabled without direct only we should block selection, search and hide filters for
-// the multihop entry list
+// If we are doing an automatic multihop we should block selection, search and hide filters for
+// the multihop entry list for the multihop entry.
 fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
     if (!isMultihopEntry()) {
         return false

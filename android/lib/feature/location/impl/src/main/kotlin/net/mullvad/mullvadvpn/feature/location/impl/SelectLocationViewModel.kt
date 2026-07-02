@@ -41,8 +41,8 @@ import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase

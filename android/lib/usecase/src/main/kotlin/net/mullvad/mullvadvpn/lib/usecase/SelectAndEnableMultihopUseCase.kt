@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
-import net.mullvad.mullvadvpn.lib.common.util.isMultihopWhenNeeded
+import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -28,7 +28,7 @@ class SelectAndEnableMultihopUseCase(
             }
         // If the entry selection is selected automatically by the app and not the user we should
         // not consider if the entry and exit are the same
-        if (!settings.isMultihopWhenNeeded()) {
+        if (!settings.entryBlocked()) {
             ensure(!entry.isTheSameAs(exit)) { SelectRelayItemError.EntryAndExitSame }
         }
         relayListRepository

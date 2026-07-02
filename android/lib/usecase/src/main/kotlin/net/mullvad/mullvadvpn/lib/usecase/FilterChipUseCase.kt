@@ -34,8 +34,7 @@ class FilterChipUseCase(
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
             multihopInEffectUseCase(),
-        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopInEffect
-            ->
+        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopInEffect ->
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedProviders,
