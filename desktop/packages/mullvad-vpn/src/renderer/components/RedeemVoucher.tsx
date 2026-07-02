@@ -231,8 +231,25 @@ type RedeemVoucherAlertProps = {
 export function RedeemVoucherAlert({ open, onOpenChange }: RedeemVoucherAlertProps) {
   const { submitting, response } = useContext(RedeemVoucherContext);
   const locale = useSelector((state) => state.userInterface.locale);
+  const [dismissed, setDismissed] = useState(false);
 
-  if (response?.type === 'success') {
+  const handleOpenChangeForVoucherInputDialog = useCallback(
+    (open: boolean) => {
+      // If the Dialog with the voucher code input is dismissed we want to make sure
+      // that the Dialog with the status of the voucher code check is not displayed
+      // afterwards
+      if (!submitting) {
+        onOpenChange?.(open);
+        setDismissed(true);
+      } else {
+        setDismissed(false);
+        onOpenChange?.(open);
+      }
+    },
+    [submitting, onOpenChange],
+  );
+
+  if (!dismissed && response?.type === 'success') {
     const duration = formatRelativeDate(0, response.secondsAdded * 1000, {
       capitalize: true,
       displayMonths: true,
@@ -259,7 +276,7 @@ export function RedeemVoucherAlert({ open, onOpenChange }: RedeemVoucherAlertPro
     );
   } else {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChangeForVoucherInputDialog}>
         <Dialog.Portal>
           <Dialog.Popup>
             <Dialog.PopupContent>
