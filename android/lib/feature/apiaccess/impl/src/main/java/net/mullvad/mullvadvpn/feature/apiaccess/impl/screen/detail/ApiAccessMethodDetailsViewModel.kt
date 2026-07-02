@@ -57,11 +57,11 @@ class ApiAccessMethodDetailsViewModel(
     fun setCurrentMethod() {
         testingJob = viewModelScope.launch {
             either {
-                    testMethodById().bind()
-                    apiAccessRepository
-                        .setCurrentApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
-                        .bind()
-                }
+                testMethodById().bind()
+                apiAccessRepository
+                    .setCurrentApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
+                    .bind()
+            }
                 .onLeft {
                     _uiSideEffect.send(
                         ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(

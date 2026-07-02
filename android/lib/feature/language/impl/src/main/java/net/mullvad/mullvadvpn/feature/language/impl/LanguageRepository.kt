@@ -15,10 +15,10 @@ class LanguageRepository(private val context: Context) {
     fun getSupportedLocales(): List<Locale> {
         val localeList = LocaleConfig(context).supportedLocales ?: return emptyList()
         return buildList {
-                for (i in 0 until localeList.size()) {
-                    add(localeList.get(i))
-                }
+            for (i in 0 until localeList.size()) {
+                add(localeList.get(i))
             }
+        }
             .sortedBy { it.getDisplayName(it).lowercase() }
     }
 

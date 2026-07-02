@@ -80,7 +80,9 @@ fun LanguageScreen(
 ) {
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.language),
-        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
     ) { modifier ->
         val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(

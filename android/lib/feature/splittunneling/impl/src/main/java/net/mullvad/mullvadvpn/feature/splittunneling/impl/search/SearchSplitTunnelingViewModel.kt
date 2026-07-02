@@ -46,10 +46,10 @@ class SearchSplitTunnelingViewModel(
             map { SearchAppItem.Default(appName = it.name, packageName = it.packageName) }
         } else {
             mapNotNull { appData ->
-                    HighlightedString.findHighlights(appData.name, searchTerm)?.let {
-                        SearchAppItem.Match(it, packageName = appData.packageName)
-                    }
+                HighlightedString.findHighlights(appData.name, searchTerm)?.let {
+                    SearchAppItem.Match(it, packageName = appData.packageName)
                 }
+            }
                 .sortedBy { it.appName.highlights.first().first }
         }
 

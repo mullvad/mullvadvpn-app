@@ -53,7 +53,9 @@ fun AppearanceScreen(
 ) {
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.appearance),
-        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
     ) { modifier ->
         val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(

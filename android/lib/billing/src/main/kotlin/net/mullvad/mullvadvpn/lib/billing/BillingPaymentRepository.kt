@@ -176,34 +176,33 @@ class BillingPaymentRepository(
 
     private suspend fun verifyPurchase(
         purchase: Purchase
-    ): Either<PlayPurchaseVerifyError, ProductId> =
-        either {
-                ensure(purchase.products.isNotEmpty()) {
-                    Logger.e("Purchase has no products")
-                    PlayPurchaseVerifyError.NoProducts
-                }
-                ensure(purchase.accountIdentifiers?.obfuscatedAccountId != null) {
-                    Logger.e("Purchase is missing obfuscatedAccountId")
-                    PlayPurchaseVerifyError.MissingObfuscatedAccountId
-                }
-                ensure(purchase.purchaseToken.isNotEmpty()) {
-                    Logger.e("Purchase has no purchase token")
-                    PlayPurchaseVerifyError.NoPurchaseToken
-                }
-                playPurchaseRepository
-                    .verifyPlayPurchase(
-                        PlayPurchase(
-                            productId = purchase.products.first(),
-                            purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
-                        )
-                    )
-                    .also { Logger.i("Purchase verification result $it") }
-                    .bind()
-            }
-            .onLeft {
-                Logger.e(
-                    "Failed to verify purchase token ending with ${purchase.purchaseToken.takeLast(2)}"
+    ): Either<PlayPurchaseVerifyError, ProductId> = either {
+        ensure(purchase.products.isNotEmpty()) {
+            Logger.e("Purchase has no products")
+            PlayPurchaseVerifyError.NoProducts
+        }
+        ensure(purchase.accountIdentifiers?.obfuscatedAccountId != null) {
+            Logger.e("Purchase is missing obfuscatedAccountId")
+            PlayPurchaseVerifyError.MissingObfuscatedAccountId
+        }
+        ensure(purchase.purchaseToken.isNotEmpty()) {
+            Logger.e("Purchase has no purchase token")
+            PlayPurchaseVerifyError.NoPurchaseToken
+        }
+        playPurchaseRepository
+            .verifyPlayPurchase(
+                PlayPurchase(
+                    productId = purchase.products.first(),
+                    purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
                 )
-            }
-            .map { ProductId(purchase.products.first()) }
+            )
+            .also { Logger.i("Purchase verification result $it") }
+            .bind()
+    }
+        .onLeft {
+            Logger.e(
+                "Failed to verify purchase token ending with ${purchase.purchaseToken.takeLast(2)}"
+            )
+        }
+        .map { ProductId(purchase.products.first()) }
 }

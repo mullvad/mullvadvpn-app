@@ -145,7 +145,8 @@ private fun GeoLocationItem(
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
-        modifier = Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
+        modifier =
+            Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
     )
 }
 

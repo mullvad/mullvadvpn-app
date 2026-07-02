@@ -244,7 +244,10 @@ private fun Modifier.drawScrollbar(
     reverseScrolling: Boolean,
     onDraw:
         DrawScope.(
-            reverseDirection: Boolean, atEnd: Boolean, color: Color, alpha: () -> Float,
+            reverseDirection: Boolean,
+            atEnd: Boolean,
+            color: Color,
+            alpha: () -> Float,
         ) -> Unit,
 ): Modifier = composed {
     val scrolled = remember {
