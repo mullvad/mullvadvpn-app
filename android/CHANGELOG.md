@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [Unreleased]
+### Added
+- Make the globe interactive, with supports for pan, pinch-to-zoom, and fling. This to discover
+  where servers are located as well as displaying your connection path.
+
+
 ## [android/2026.8-beta1] - 2026-06-24
 ### Added
 - Highlight search phrase when searching in Split tunneling.
