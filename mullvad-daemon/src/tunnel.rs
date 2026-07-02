@@ -104,8 +104,8 @@ impl ParametersGenerator {
             city: Some(location.city),
             country: location.country,
             entry_hostname: entry.map(|relay| relay.hostname.clone()),
-            entry_city: entry.map(|relay| relay.location.city_code.clone()),
-            entry_country: entry.map(|relay| relay.location.country_code.clone()),
+            entry_city: entry.map(|relay| relay.location.city.clone()),
+            entry_country: entry.map(|relay| relay.location.country.clone()),
         })
     }
 }
