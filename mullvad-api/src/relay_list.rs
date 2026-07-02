@@ -397,7 +397,7 @@ impl WireGuardRelay {
             daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
             shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
             quic: self.features.quic.map(relay_list::Quic::from),
-            lwo: self.features.lwo.is_some(),
+            lwo: self.features.lwo_v2.is_some(),
         };
 
         relay_list::WireguardRelay::new(
@@ -417,7 +417,7 @@ impl WireGuardRelay {
 struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
-    lwo: Option<Lwo>,
+    lwo_v2: Option<Lwo>,
 }
 
 /// DAITA doesn't have any configuration options (exposed by the API).
