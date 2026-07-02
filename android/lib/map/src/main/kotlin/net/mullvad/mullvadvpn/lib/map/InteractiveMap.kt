@@ -51,9 +51,13 @@ import net.mullvad.mullvadvpn.lib.model.STRAIGHT_ANGLE
 private const val LAT_LOWER_BOUND = -40f
 private const val LAT_UPPER_BOUND = 65f
 
+// 1f is the surface of the globe
+private const val MAX_ZOOM = 1.2f
+private const val MIN_ZOOM = 2.5f
+
 internal class MapCameraController(
     private val scope: CoroutineScope,
-    private val zoomRange: ClosedFloatingPointRange<Float>,
+    private val zoomRange: ClosedFloatingPointRange<Float> = MAX_ZOOM..MIN_ZOOM,
     initialLocation: LatLong,
 ) {
     private var isPerformingGesture = false
@@ -186,7 +190,7 @@ internal class MapCameraController(
 @Composable
 internal fun rememberMapCameraController(
     currentLocation: LatLong,
-    zoomRange: ClosedFloatingPointRange<Float>,
+    zoomRange: ClosedFloatingPointRange<Float> = MAX_ZOOM..MIN_ZOOM,
     scope: CoroutineScope = rememberCoroutineScope(),
 ): MapCameraController {
     val controller = remember {
@@ -209,8 +213,7 @@ fun InteractiveMap(
     onMarkerClick: ((Marker) -> Unit)? = null,
     globeColors: GlobeColors = GlobeColors.default(),
 ) {
-    val zoomRange = 1.2f..2.5f
-    val controller = rememberMapCameraController(currentLocation, zoomRange)
+    val controller = rememberMapCameraController(currentLocation)
 
     val hopMarkers = hops.map {
         Marker(
