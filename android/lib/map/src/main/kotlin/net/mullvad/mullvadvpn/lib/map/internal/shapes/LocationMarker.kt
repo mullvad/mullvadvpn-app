@@ -9,7 +9,7 @@ import kotlin.math.sin
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.internal.COLOR_COMPONENT_SIZE
 import net.mullvad.mullvadvpn.lib.map.internal.VERTEX_COMPONENT_SIZE
-import net.mullvad.mullvadvpn.lib.map.internal.initArrayBuffer
+import net.mullvad.mullvadvpn.lib.map.internal.initGLArrayBuffer
 import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.map.internal.toFloatArray
 import net.mullvad.mullvadvpn.lib.model.LatLong
@@ -25,7 +25,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     init {
         val rings = createRings()
-        ringSizes = rings.map { (positions, _) -> positions.size }
+        ringSizes = rings.map { (positions, _) -> positions.size / VERTEX_COMPONENT_SIZE }
 
         val positionFloatArray = joinMultipleArrays(rings.map { it.vertices })
         val positionFloatBuffer = FloatBuffer.wrap(positionFloatArray)
@@ -33,8 +33,8 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val colorFloatArray = joinMultipleArrays(rings.map { it.verticesColor })
         val colorFloatBuffer = FloatBuffer.wrap(colorFloatArray)
 
-        positionBuffer = initArrayBuffer(positionFloatBuffer)
-        colorBuffer = initArrayBuffer(colorFloatBuffer)
+        positionBuffer = initGLArrayBuffer(positionFloatBuffer)
+        colorBuffer = initGLArrayBuffer(colorFloatBuffer)
 
         shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
 
@@ -54,14 +54,23 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val modelViewMatrix = viewMatrix.copyOf()
 
         GLES20.glUseProgram(shaderProgram)
-
         Matrix.rotateM(modelViewMatrix, 0, latLong.longitude.value, 0f, 1f, 0f)
         Matrix.rotateM(modelViewMatrix, 0, latLong.latitude.value, -1f, 0f, 0f)
 
         Matrix.scaleM(modelViewMatrix, 0, size, size, 1f)
 
         // Translate marker to put it above the globe
-        Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+        if (colors.perimeterColors != null) {
+            Matrix.translateM(
+                modelViewMatrix,
+                0,
+                0f,
+                0f,
+                MARKER_TRANSLATE_Z_FACTOR + PERIMETER_Z_OFFSET,
+            )
+        } else {
+            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
+        }
 
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
         GLES20.glVertexAttribPointer(
@@ -91,8 +100,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         var offset = 0
         for (ringSize in ringSizes) {
             GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, offset, ringSize)
-            // Add number off vertices in the ring to the offset
-            offset += ringSize / VERTEX_COMPONENT_SIZE
+            offset += ringSize
         }
     }
 
@@ -121,7 +129,6 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val ringColorArray = ringColor.toFloatArray()
 
         for (i in 1 until points) {
-
             val angle = (i.toFloat() / numEdges) * 2f * Math.PI
             val posIndex = i * VERTEX_COMPONENT_SIZE
             positions[posIndex] = offset[0] + radius * cos(angle).toFloat()
@@ -148,37 +155,53 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
     }
 
     @Suppress("MagicNumber")
-    private fun createRings(): List<Ring> =
-        listOf(
-            circleFanVertices(
-                32,
-                0.5f,
-                floatArrayOf(0.0f, 0.0f, 0.0f),
-                colors.perimeterColors,
-                colors.perimeterColors,
-            ), // Semi-transparent outer
+    private fun createRings(): List<Ring> = buildList {
+        colors.perimeterColors?.let {
+            // Semi-transparent outer
+            add(
+                circleFanVertices(
+                    32,
+                    0.5f,
+                    floatArrayOf(0.0f, 0.0f, 0.0f),
+                    colors.perimeterColors,
+                    colors.perimeterColors,
+                )
+            )
+        }
+
+        // Shadow
+        add(
             circleFanVertices(
                 16,
                 0.28f,
-                floatArrayOf(0.0f, -0.05f, 0.00001f),
+                floatArrayOf(0.0f, -0.05f, 0.00002f),
                 colors.shadowColor,
                 colors.shadowColor.copy(alpha = 0.0f),
-            ), // Shadow
+            )
+        )
+
+        // White ring
+        add(
             circleFanVertices(
                 32,
                 0.185f,
-                floatArrayOf(0.0f, 0.0f, 0.00002f),
+                floatArrayOf(0.0f, 0.0f, 0.00006f),
                 colors.ringBorderColor,
                 colors.ringBorderColor,
-            ), // White ring
+            )
+        )
+
+        // Center colored circle
+        add(
             circleFanVertices(
                 32,
                 0.15f,
-                floatArrayOf(0.0f, 0.0f, 0.00003f),
+                floatArrayOf(0.0f, 0.0f, 0.00007f),
                 colors.centerColor,
                 colors.centerColor,
-            ), // Center colored circle
+            )
         )
+    }
 
     fun onRemove() {
         GLES20.glDeleteBuffers(2, intArrayOf(positionBuffer, colorBuffer), 0)
@@ -193,6 +216,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
+        private const val PERIMETER_Z_OFFSET = 0.00001f
 
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =

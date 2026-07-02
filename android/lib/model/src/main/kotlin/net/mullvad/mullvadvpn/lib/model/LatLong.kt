@@ -1,11 +1,14 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.sqrt
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.Latitude.Companion.mean
 
-data class LatLong(val latitude: Latitude, val longitude: Longitude) {
+@Parcelize
+data class LatLong(val latitude: Latitude, val longitude: Longitude) : Parcelable {
 
     fun degreeDistanceTo(other: LatLong): Float =
         sqrt(
@@ -43,6 +46,13 @@ data class LatLong(val latitude: Latitude, val longitude: Longitude) {
     }
 }
 
-const val COMPLETE_ANGLE = 360f
+fun LatLong(latitude: Float, longitude: Float) =
+    LatLong(Latitude.fromFloat(latitude), Longitude.fromFloat(longitude))
 
-fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
+const val COMPLETE_ANGLE = 360f
+const val STRAIGHT_ANGLE = 180f
+const val RIGHT_ANGLE = 90f
+
+fun Float.toRadians() = this * Math.PI.toFloat() / STRAIGHT_ANGLE
+
+fun Float.toDegrees() = this * (STRAIGHT_ANGLE / Math.PI.toFloat())
