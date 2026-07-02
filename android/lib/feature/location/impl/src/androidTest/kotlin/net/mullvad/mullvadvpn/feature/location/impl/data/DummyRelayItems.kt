@@ -4,6 +4,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -27,6 +28,7 @@ private val DUMMY_RELAY_1 =
         lwo = false,
         cityName = "Relay City 1",
         countryName = "RCo1",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
@@ -43,6 +45,7 @@ private val DUMMY_RELAY_2 =
         lwo = false,
         cityName = "Relay City 2",
         countryName = "RCo2",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_3 =
     RelayItem.Location.Relay(
@@ -59,6 +62,7 @@ private val DUMMY_RELAY_3 =
         lwo = true,
         cityName = "Relay City 3",
         countryName = "RCo3",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_4 =
     RelayItem.Location.Relay(
@@ -75,6 +79,7 @@ private val DUMMY_RELAY_4 =
         lwo = true,
         cityName = "Relay City 4",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_5 =
     RelayItem.Location.Relay(
@@ -91,6 +96,7 @@ private val DUMMY_RELAY_5 =
         lwo = true,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_6 =
     RelayItem.Location.Relay(
@@ -107,6 +113,7 @@ private val DUMMY_RELAY_6 =
         lwo = true,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_7 =
     RelayItem.Location.Relay(
@@ -123,6 +130,7 @@ private val DUMMY_RELAY_7 =
         lwo = false,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_8 =
     RelayItem.Location.Relay(
@@ -139,6 +147,7 @@ private val DUMMY_RELAY_8 =
         lwo = false,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_9 =
     RelayItem.Location.Relay(
@@ -155,6 +164,7 @@ private val DUMMY_RELAY_9 =
         lwo = true,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_10 =
     RelayItem.Location.Relay(
@@ -171,6 +181,7 @@ private val DUMMY_RELAY_10 =
         lwo = false,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_11 =
     RelayItem.Location.Relay(
@@ -187,6 +198,7 @@ private val DUMMY_RELAY_11 =
         lwo = false,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_12 =
     RelayItem.Location.Relay(
@@ -203,6 +215,7 @@ private val DUMMY_RELAY_12 =
         lwo = true,
         cityName = "Relay City 5",
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(
@@ -210,6 +223,7 @@ private val DUMMY_RELAY_CITY_1 =
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo1"), code = "RCi1"),
         relays = listOf(DUMMY_RELAY_1),
         countryName = "RCo1",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_CITY_2 =
     RelayItem.Location.City(
@@ -217,6 +231,7 @@ private val DUMMY_RELAY_CITY_2 =
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo2"), code = "RCi2"),
         relays = listOf(DUMMY_RELAY_2),
         countryName = "RCo2",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_CITY_3 =
     RelayItem.Location.City(
@@ -224,6 +239,7 @@ private val DUMMY_RELAY_CITY_3 =
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo3"), code = "RCi3"),
         relays = listOf(DUMMY_RELAY_3),
         countryName = "RCo3",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_CITY_4 =
     RelayItem.Location.City(
@@ -231,6 +247,7 @@ private val DUMMY_RELAY_CITY_4 =
         id = GeoLocationId.City(country = GeoLocationId.Country("RCo4"), code = "RCi4"),
         relays = listOf(DUMMY_RELAY_4),
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_CITY_5 =
     RelayItem.Location.City(
@@ -248,6 +265,7 @@ private val DUMMY_RELAY_CITY_5 =
                 DUMMY_RELAY_12,
             ),
         countryName = "RCo4",
+        latLong = LatLong(0f, 0f),
     )
 private val DUMMY_RELAY_COUNTRY_1 =
     RelayItem.Location.Country(

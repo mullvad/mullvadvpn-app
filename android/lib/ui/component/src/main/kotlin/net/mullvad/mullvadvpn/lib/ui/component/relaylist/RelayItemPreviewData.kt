@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -36,6 +39,7 @@ private fun generateRelayItemCity(
     RelayItem.Location.City(
         name = name,
         id = name.generateCityCode(countryCode),
+        latLong = LatLong(latitude = Latitude(0f), longitude = Longitude(0f)),
         relays =
             List(numberOfRelays) { index ->
                 generateRelayItemRelay(
@@ -56,6 +60,7 @@ private fun generateRelayItemRelay(
     countryName: String,
     active: Boolean = true,
     daita: Boolean = true,
+    latLong: LatLong = LatLong(latitude = Latitude(0f), longitude = Longitude(0f)),
 ) =
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(city = cityCode, code = hostName),
@@ -67,6 +72,7 @@ private fun generateRelayItemRelay(
         lwo = false,
         cityName = cityName,
         countryName = countryName,
+        latLong = latLong,
     )
 
 private fun String.generateCountryCode() =

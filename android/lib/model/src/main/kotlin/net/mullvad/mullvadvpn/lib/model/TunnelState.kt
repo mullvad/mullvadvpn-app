@@ -35,6 +35,13 @@ sealed class TunnelState {
             is Error -> null
         }
 
+    fun isConnectingOrDisconnecting(): Boolean =
+        when (this) {
+            is Connecting,
+            is Disconnecting -> true
+            else -> false
+        }
+
     fun isConnectingOrConnected(): Boolean =
         when (this) {
             is Connected,
