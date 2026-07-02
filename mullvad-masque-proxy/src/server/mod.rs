@@ -383,7 +383,7 @@ async fn proxy_rx_task(
 
             let _ = VarInt::decode(&mut received_packet);
             let Ok(fragments) =
-                fragment::fragment_packet(maximum_packet_size, &mut received_packet, fragment_id)
+                fragment::fragment_packet(maximum_packet_size, &received_packet, fragment_id)
             else {
                 continue;
             };

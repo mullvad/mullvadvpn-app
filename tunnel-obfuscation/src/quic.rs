@@ -9,21 +9,25 @@ use std::{
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
-use crate::{Obfuscator, socket::create_remote_socket};
+pub use mullvad_masque_proxy::{HTTP_MASQUE_DATAGRAM_CONTEXT_ID, client::RunningClient};
+
+use crate::{LocalSocketObfuscator, socket::create_remote_socket};
 
 type Result<T> = std::result::Result<T, Error>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to bind UDP socket")]
-    BindError(#[source] io::Error),
+    BindError(#[from] io::Error),
     #[error("Masque proxy error")]
-    MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
+    MasqueProxyError(#[from] mullvad_masque_proxy::client::Error),
 }
 
 #[derive(Debug)]
-pub struct Quic {
+pub struct QuicLocalSocket {
     local_endpoint: SocketAddr,
+    /// Local UDP socket that WireGuard sends to and receives from.
+    local_socket: UdpSocket,
     config: ClientConfig,
 }
 
@@ -74,15 +78,44 @@ impl Settings {
 
     /// Set `fwmark` for the Quic obfuscator.
     #[cfg(target_os = "linux")]
-    pub fn fwmark(self, fwmark: u32) -> Self {
-        let fwmark = Some(fwmark);
-        Self { fwmark, ..self }
+    pub fn set_fwmark(&mut self, fwmark: u32) {
+        self.fwmark = Some(fwmark);
     }
 
     /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
     /// prefix the auth token with that.
     fn auth_header(&self) -> String {
         format!("Bearer {token}", token = self.token.0)
+    }
+
+    pub async fn connect_client(&self) -> Result<mullvad_masque_proxy::client::Client> {
+        // The address family of the local QUIC client socket has to match the address family
+        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
+        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
+        // obfuscator is running.
+        let quic_socket = crate::socket::create_remote_socket(
+            self.quic_endpoint.is_ipv4(),
+            #[cfg(target_os = "linux")]
+            self.fwmark,
+        )
+        .await
+        .map_err(io::Error::from)?;
+
+        let config = ClientConfig::builder()
+            .quinn_socket(quic_socket)
+            .server_addr(self.quic_endpoint)
+            .server_host(self.hostname.clone())
+            .target_addr(self.wireguard_endpoint)
+            .auth_header(Some(self.auth_header()))
+            .mtu(self.mtu.unwrap_or(1500))
+            .build();
+
+        let client = mullvad_masque_proxy::client::Client::connect(config).await?;
+        Ok(client)
+    }
+
+    pub fn wireguard_endpoint(&self) -> SocketAddr {
+        self.wireguard_endpoint
     }
 }
 
@@ -117,10 +150,11 @@ impl std::str::FromStr for AuthToken {
     }
 }
 
-impl Quic {
+impl QuicLocalSocket {
     pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+        log::debug!("Starting QUIC proxy client over local socket");
         let (local_socket, local_udp_client_addr) =
-            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
+            QuicLocalSocket::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
                 .await
                 .map_err(crate::Error::CreateQuicObfuscator)?;
         // The address family of the local QUIC client socket has to match the address family
@@ -134,27 +168,30 @@ impl Quic {
         )
         .await?;
 
-        let config_builder = ClientConfig::builder()
-            .client_socket(local_socket)
+        let config = ClientConfig::builder()
             .quinn_socket(quic_socket)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
-            .mtu(settings.mtu.unwrap_or(1500));
+            .mtu(settings.mtu.unwrap_or(1500))
+            .build();
 
-        let config = config_builder.build();
-
-        let quic = Quic {
+        let quic = QuicLocalSocket {
             local_endpoint: local_udp_client_addr,
+            local_socket,
             config,
         };
 
         Ok(quic)
     }
 
-    async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<()> {
-        let client = client.run();
+    async fn run_forwarding(
+        client: Client,
+        local_socket: UdpSocket,
+        cancel_token: CancellationToken,
+    ) -> Result<()> {
+        let client = client.run(local_socket);
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
@@ -184,26 +221,36 @@ impl Quic {
 }
 
 #[async_trait]
-impl Obfuscator for Quic {
+impl LocalSocketObfuscator for QuicLocalSocket {
     fn endpoint(&self) -> SocketAddr {
         self.local_endpoint
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
+        let Self {
+            config,
+            local_socket,
+            ..
+        } = *self;
+
         let token = CancellationToken::new();
         let child_token = token.child_token();
         // This will always cancel `child_token` as soon as `run` is finished or aborted.
         let _drop_guard = token.drop_guard();
 
-        let client = Client::connect(self.config)
+        let client = Client::connect(config)
             .await
             .map_err(Error::MasqueProxyError)
             .map_err(crate::Error::RunQuicObfuscator)?;
 
-        tokio::spawn(Quic::run_forwarding(client, child_token))
-            .await
-            .unwrap()
-            .map_err(crate::Error::RunQuicObfuscator)
+        tokio::spawn(QuicLocalSocket::run_forwarding(
+            client,
+            local_socket,
+            child_token,
+        ))
+        .await
+        .unwrap()
+        .map_err(crate::Error::RunQuicObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {

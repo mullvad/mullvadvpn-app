@@ -11,7 +11,7 @@ use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 
-use crate::{Obfuscator, socket::create_remote_socket};
+use crate::{LocalSocketObfuscator, socket::create_remote_socket};
 
 const MAX_UDP_SIZE: usize = u16::MAX as usize;
 
@@ -291,7 +291,7 @@ fn xor_bytes(data: &mut [u8], key: &[u8; 32]) {
 }
 
 #[async_trait]
-impl Obfuscator for Lwo {
+impl LocalSocketObfuscator for Lwo {
     fn endpoint(&self) -> SocketAddr {
         self.local_endpoint
     }

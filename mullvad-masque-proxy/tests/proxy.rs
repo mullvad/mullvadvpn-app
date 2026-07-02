@@ -175,7 +175,6 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
     let quinn_socket = UdpSocket::bind(any_localhost_addr).await?;
 
     let client_config = client::ClientConfig::builder()
-        .client_socket(local_socket)
         .quinn_socket(quinn_socket)
         .server_addr(masque_server_addr)
         .server_host(HOST.to_owned())
@@ -191,7 +190,7 @@ async fn setup_masque(mtu: u16) -> anyhow::Result<(UdpSocket, UdpSocket)> {
 
     tokio::spawn(async move {
         client
-            .run()
+            .run(local_socket)
             .until_closed()
             .await
             .expect("QUIC client errored");
