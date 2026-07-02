@@ -368,11 +368,11 @@ class CustomListLocationsViewModelTest {
                                             lwo = false,
                                             countryName = "Sweden",
                                             cityName = "Gothenburg",
-                                            latLong = LatLong(0f, 0f)
+                                            latLong = LatLong(0f, 0f),
                                         )
                                     ),
                                 countryName = "Sweden",
-                                latLong = LatLong(0f, 0f)
+                                latLong = LatLong(0f, 0f),
                             )
                         ),
                 )
@@ -392,7 +392,7 @@ class CustomListLocationsViewModelTest {
                 lwo = false,
                 cityName = "Copenhagen",
                 countryName = "Denmark",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
     }
 }

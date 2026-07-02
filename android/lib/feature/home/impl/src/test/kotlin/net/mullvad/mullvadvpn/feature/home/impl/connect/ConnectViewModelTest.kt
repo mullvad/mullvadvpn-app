@@ -17,7 +17,6 @@ import kotlin.test.assertNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -94,8 +93,8 @@ class ConnectViewModelTest {
     // System VPN Settings
     private val mockSystemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase = mockk()
 
-    private val mockRelayListRepository : RelayListRepository = mockk()
-    private val mockConnectionPathUseCase : ConnectionPathUseCase = mockk()
+    private val mockRelayListRepository: RelayListRepository = mockk()
+    private val mockConnectionPathUseCase: ConnectionPathUseCase = mockk()
 
     @BeforeEach
     fun setup() {

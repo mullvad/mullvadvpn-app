@@ -216,10 +216,11 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     fun closestMarker(offset: Offset): Pair<Marker?, Float>? =
         calculateIntersection(offset)?.let { intersectionPoint ->
-            markerVector.minByOrNull { it.key.distanceTo(intersectionPoint) }?.let { closestMarker
-                ->
-                closestMarker.value to closestMarker.key.distanceTo(intersectionPoint)
-            }
+            markerVector
+                .minByOrNull { it.key.distanceTo(intersectionPoint) }
+                ?.let { closestMarker ->
+                    closestMarker.value to closestMarker.key.distanceTo(intersectionPoint)
+                }
         }
 
     fun calculateDirectionVector(

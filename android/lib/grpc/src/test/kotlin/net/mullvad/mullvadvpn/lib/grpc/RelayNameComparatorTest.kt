@@ -31,7 +31,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay10 =
             RelayItem.Location.Relay(
@@ -44,7 +44,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relay9 assertOrderBothDirection relay10
@@ -63,7 +63,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay9b =
             RelayItem.Location.Relay(
@@ -76,7 +76,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -96,7 +96,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay1 =
             RelayItem.Location.Relay(
@@ -109,7 +109,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay3 =
             RelayItem.Location.Relay(
@@ -122,7 +122,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay100 =
             RelayItem.Location.Relay(
@@ -135,7 +135,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relay001 assertOrderBothDirection relay1
@@ -157,7 +157,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay9b =
             RelayItem.Location.Relay(
@@ -170,7 +170,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
@@ -190,7 +190,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay005 =
             RelayItem.Location.Relay(
@@ -203,7 +203,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relay001 assertOrderBothDirection relay005
@@ -222,7 +222,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relayAr8 =
             RelayItem.Location.Relay(
@@ -235,7 +235,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relaySe5 =
             RelayItem.Location.Relay(
@@ -248,7 +248,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relaySe10 =
             RelayItem.Location.Relay(
@@ -261,7 +261,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relayAr2 assertOrderBothDirection relayAr8
@@ -282,7 +282,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay2w =
             RelayItem.Location.Relay(
@@ -295,7 +295,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relay2c assertOrderBothDirection relay2w
@@ -314,7 +314,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
         val relay22b =
             RelayItem.Location.Relay(
@@ -327,7 +327,7 @@ class RelayNameComparatorTest {
                 lwo = false,
                 countryName = "Country",
                 cityName = "City",
-                latLong = LatLong(0f, 0f)
+                latLong = LatLong(0f, 0f),
             )
 
         relay22a assertOrderBothDirection relay22b

@@ -81,7 +81,7 @@ fun Vector3.toLatLong(): LatLong {
 
     return LatLong(
         // This worked for some reason (camera starts at lat 90!)
-        Latitude.fromFloat(RIGHT_ANGLE- lat.toDegrees()),
+        Latitude.fromFloat(RIGHT_ANGLE - lat.toDegrees()),
         Longitude.fromFloat(-lon.toDegrees()),
     )
 }

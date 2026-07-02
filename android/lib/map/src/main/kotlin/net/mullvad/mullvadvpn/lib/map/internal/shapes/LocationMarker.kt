@@ -61,7 +61,13 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
         // Translate marker to put it above the globe
         if (colors.perimeterColors != null) {
-            Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR + PERIMETER_Z_OFFSET)
+            Matrix.translateM(
+                modelViewMatrix,
+                0,
+                0f,
+                0f,
+                MARKER_TRANSLATE_Z_FACTOR + PERIMETER_Z_OFFSET,
+            )
         } else {
             Matrix.translateM(modelViewMatrix, 0, 0f, 0f, MARKER_TRANSLATE_Z_FACTOR)
         }

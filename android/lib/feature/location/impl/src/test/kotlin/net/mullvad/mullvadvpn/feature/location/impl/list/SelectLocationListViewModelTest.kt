@@ -288,7 +288,7 @@ class SelectLocationListViewModelTest {
                         RelayItem.Location.City(
                             id = GeoLocationId.City(GeoLocationId.Country("se"), "got"),
                             "Gothenburg",
-                            LatLong(0f,0f),
+                            LatLong(0f, 0f),
                             emptyList(),
                             countryName = "Sweden",
                         )
