@@ -1,62 +1,44 @@
-import { useCallback } from 'react';
-import styled from 'styled-components';
+import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
-import { Button } from '../../../../../lib/components';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { TransitionType, useHistory } from '../../../../../lib/history';
-import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from '../../../../Modal';
+import { StatusDialog } from '../../../../status-dialog';
 import { useTroubleshootingSteps } from './hooks';
 
 export type TroubleshootingModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 };
 
-const StyledModalMessage = styled(ModalMessage)`
-  margin-top: 0;
-`;
-
-export function TroubleshootingModal({ isOpen, onClose }: TroubleshootingModalProps) {
+export function TroubleshootingModal({ open, onOpenChange }: TroubleshootingModalProps) {
   const { push } = useHistory();
-  const openSendProblemReport = useCallback(() => {
-    onClose();
+
+  const openSendProblemReport = React.useCallback(() => {
+    onOpenChange(false);
     push(RoutePath.problemReport, { transition: TransitionType.show });
-  }, [onClose, push]);
+  }, [onOpenChange, push]);
 
   const steps = useTroubleshootingSteps();
 
   return (
-    <ModalAlert
-      isOpen={isOpen}
-      type={ModalAlertType.info}
-      close={onClose}
-      buttons={[
-        <Button variant="success" key="problem-report" onClick={openSendProblemReport}>
-          <Button.Text>
-            {
-              // TRANSLATORS: Button label for sending a problem report.
-              messages.pgettext('launch-view', 'Send problem report')
-            }
-          </Button.Text>
-        </Button>,
-        <Button key="back" onClick={onClose}>
-          <Button.Text>{messages.gettext('Back')}</Button.Text>
-        </Button>,
-      ]}>
-      <ModalMessage>
-        {
-          // TRANSLATORS: Message in troubleshooting modal when the background process failed to start.
-          messages.pgettext(
-            'launch-view',
-            'The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:',
-          )
-        }
-      </ModalMessage>
-      <StyledModalMessage>
-        <ModalMessageList>{steps}</ModalMessageList>
-      </StyledModalMessage>
-      <ModalMessage>
+    <StatusDialog variant="info" open={open} onOpenChange={onOpenChange}>
+      <FlexColumn>
+        <StatusDialog.Text>
+          {
+            // TRANSLATORS: Message in troubleshooting modal when the background process failed to start.
+            messages.pgettext(
+              'launch-view',
+              'The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:',
+            )
+          }
+        </StatusDialog.Text>
+        <StatusDialog.Text>
+          <StatusDialog.List>{steps}</StatusDialog.List>
+        </StatusDialog.Text>
+      </FlexColumn>
+      <StatusDialog.Text>
         {
           // TRANSLATORS: Message in troubleshooting modal advising user to send a problem report if the steps do not work.
           messages.pgettext(
@@ -64,7 +46,20 @@ export function TroubleshootingModal({ isOpen, onClose }: TroubleshootingModalPr
             'If these steps do not work please send a problem report.',
           )
         }
-      </ModalMessage>
-    </ModalAlert>
+      </StatusDialog.Text>
+      <StatusDialog.ButtonGroup>
+        <StatusDialog.Button onClick={openSendProblemReport} variant="success">
+          <StatusDialog.Button.Text>
+            {
+              // TRANSLATORS: Button label for sending a problem report.
+              messages.pgettext('launch-view', 'Send problem report')
+            }
+          </StatusDialog.Button.Text>
+        </StatusDialog.Button>
+        <StatusDialog.CloseButton>
+          <StatusDialog.CloseButton.Text>{messages.gettext('Back')}</StatusDialog.CloseButton.Text>
+        </StatusDialog.CloseButton>
+      </StatusDialog.ButtonGroup>
+    </StatusDialog>
   );
 }

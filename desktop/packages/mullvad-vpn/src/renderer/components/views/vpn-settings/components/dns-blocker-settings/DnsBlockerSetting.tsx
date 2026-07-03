@@ -14,8 +14,7 @@ import { useDns } from '../../../../../features/dns/hooks';
 import { AccordionProps } from '../../../../../lib/components/accordion';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { formatHtml } from '../../../../../lib/html-formatter';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
+import { Info } from '../../../../info';
 import { SettingsAccordion } from '../../../../settings-accordion';
 import { CustomDnsEnabledFooter } from './components';
 
@@ -46,31 +45,34 @@ export function DnsBlockerSettings({ position, ...props }: DnsBlockerSettingsPro
                 {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
               </SettingsAccordion.Header.Item.Title>
               <SettingsAccordion.Header.Item.ActionGroup>
-                <InfoButton>
-                  <ModalMessage>
-                    {messages.pgettext(
-                      'vpn-settings-view',
-                      'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
-                    )}
-                  </ModalMessage>
-                  <ModalMessage>
-                    {messages.pgettext(
-                      'vpn-settings-view',
-                      'This might cause issues on certain websites, services, and apps.',
-                    )}
-                  </ModalMessage>
-                  <ModalMessage>
-                    {formatHtml(
-                      sprintf(
-                        messages.pgettext(
-                          'vpn-settings-view',
-                          'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+                <Info>
+                  <Info.Button />
+                  <Info.Dialog>
+                    <Info.Dialog.Text>
+                      {messages.pgettext(
+                        'vpn-settings-view',
+                        'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
+                      )}
+                    </Info.Dialog.Text>
+                    <Info.Dialog.Text>
+                      {messages.pgettext(
+                        'vpn-settings-view',
+                        'This might cause issues on certain websites, services, and apps.',
+                      )}
+                    </Info.Dialog.Text>
+                    <Info.Dialog.Text>
+                      {formatHtml(
+                        sprintf(
+                          messages.pgettext(
+                            'vpn-settings-view',
+                            'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+                          ),
+                          { customDnsFeatureName },
                         ),
-                        { customDnsFeatureName },
-                      ),
-                    )}
-                  </ModalMessage>
-                </InfoButton>
+                      )}
+                    </Info.Dialog.Text>
+                  </Info.Dialog>
+                </Info>
                 <StyledAccordionTrigger>
                   <SettingsAccordion.Header.Item.Chevron />
                 </StyledAccordionTrigger>

@@ -1,17 +1,12 @@
-import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../../../../../shared/constants';
 import { messages } from '../../../../../../../../shared/gettext';
-import { Button } from '../../../../../../../lib/components';
-import { ModalAlert, ModalAlertType } from '../../../../../../Modal';
+import { StatusDialog } from '../../../../../../status-dialog';
 import { useLinuxSettingsContext } from '../../LinuxSettingsContext';
 
 export function UnsupportedDialog() {
   const { showUnsupportedDialog, setShowUnsupportedDialog } = useLinuxSettingsContext();
-  const hideUnsupportedDialog = useCallback(() => {
-    setShowUnsupportedDialog(false);
-  }, [setShowUnsupportedDialog]);
 
   const unsupportedMessage = sprintf(
     // TRANSLATORS: Information about split tunneling being unavailable due to
@@ -27,19 +22,15 @@ export function UnsupportedDialog() {
     },
   );
 
-  const buttons = [
-    <Button key="cancel" onClick={hideUnsupportedDialog}>
-      <Button.Text>{messages.gettext('Got it!')}</Button.Text>
-    </Button>,
-  ];
-
   return (
-    <ModalAlert
-      isOpen={showUnsupportedDialog}
-      type={ModalAlertType.info}
-      message={unsupportedMessage}
-      buttons={buttons}
-      close={hideUnsupportedDialog}
-    />
+    <StatusDialog
+      variant="info"
+      open={showUnsupportedDialog}
+      onOpenChange={setShowUnsupportedDialog}>
+      <StatusDialog.Text>{unsupportedMessage}</StatusDialog.Text>
+      <StatusDialog.CloseButton>
+        <StatusDialog.CloseButton.Text>{messages.gettext('Got it!')}</StatusDialog.CloseButton.Text>
+      </StatusDialog.CloseButton>
+    </StatusDialog>
   );
 }

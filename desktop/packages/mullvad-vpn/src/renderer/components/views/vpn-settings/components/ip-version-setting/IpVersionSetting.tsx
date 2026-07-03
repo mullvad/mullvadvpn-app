@@ -6,8 +6,7 @@ import log from '../../../../../../shared/logging';
 import { ListboxProps } from '../../../../../lib/components/listbox';
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useSelector } from '../../../../../redux/store';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
+import { Info } from '../../../../info';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 export type IpVersionSettingProps = Omit<ListboxProps<IpVersion | null>, 'children'>;
@@ -46,28 +45,31 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
             }
           </SettingsListbox.Header.Item.Label>
           <SettingsListbox.Header.Item.ActionGroup>
-            <InfoButton>
-              <ModalMessage>
-                {
-                  // TRANSLATORS: A description for the setting Device IP version,
-                  // TRANSLATORS: explaining how the user can configure the setting.
-                  messages.pgettext(
-                    'vpn-settings-view',
-                    'This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.',
-                  )
-                }
-              </ModalMessage>
-              <ModalMessage>
-                {
-                  // TRANSLATORS: A complimentary description for the setting Device IP version,
-                  // TRANSLATORS: explaining why the user might want to configure the setting.
-                  messages.pgettext(
-                    'vpn-settings-view',
-                    'It can be useful when you are aware of problems caused by a certain IP version.',
-                  )
-                }
-              </ModalMessage>
-            </InfoButton>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
+                  {
+                    // TRANSLATORS: A description for the setting Device IP version,
+                    // TRANSLATORS: explaining how the user can configure the setting.
+                    messages.pgettext(
+                      'vpn-settings-view',
+                      'This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.',
+                    )
+                  }
+                </Info.Dialog.Text>
+                <Info.Dialog.Text>
+                  {
+                    // TRANSLATORS: A complimentary description for the setting Device IP version,
+                    // TRANSLATORS: explaining why the user might want to configure the setting.
+                    messages.pgettext(
+                      'vpn-settings-view',
+                      'It can be useful when you are aware of problems caused by a certain IP version.',
+                    )
+                  }
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
           </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>

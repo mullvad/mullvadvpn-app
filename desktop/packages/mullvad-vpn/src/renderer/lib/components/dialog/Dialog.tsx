@@ -29,13 +29,17 @@ const DialogNamespace = Object.assign(Dialog, {
   Popup: DialogPopup,
   PopupContent: DialogPopupContent,
   ButtonGroup: DialogButtonGroup,
+  CloseButton: DialogCloseButton,
   TextGroup: Alert.TextGroup,
   Text: Alert.Text,
   Title: DialogTitle,
+  Subtitle: Alert.Subtitle,
   Icon: Alert.Icon,
+  IconBadge: Alert.IconBadge,
+  Spinner: Alert.Spinner,
   Button: Button,
-  CloseButton: DialogCloseButton,
   Portal: DialogPortal,
+  List: Alert.List,
 });
 
 export { DialogNamespace as Dialog };

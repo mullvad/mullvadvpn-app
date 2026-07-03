@@ -9,8 +9,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
+import { Info } from '../../../../info';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 const UDP2TCP_PORTS = [80, 443, 5001];
@@ -53,14 +52,17 @@ export function UdpOverTcpPortSetting() {
             }
           </SettingsListbox.Header.Item.Label>
           <SettingsListbox.Header.Item.ActionGroup>
-            <InfoButton>
-              <ModalMessage>
-                {messages.pgettext(
-                  'wireguard-settings-view',
-                  'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
-                )}
-              </ModalMessage>
-            </InfoButton>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
+                  {messages.pgettext(
+                    'wireguard-settings-view',
+                    'Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.',
+                  )}
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
           </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>

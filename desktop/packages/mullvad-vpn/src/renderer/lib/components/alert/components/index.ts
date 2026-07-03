@@ -1,4 +1,7 @@
 export * from './alert-icon';
+export * from './alert-icon-badge';
+export * from './alert-list';
+export * from './alert-spinner';
 export * from './alert-text';
 export * from './alert-title';
 export * from './alert-text-group';

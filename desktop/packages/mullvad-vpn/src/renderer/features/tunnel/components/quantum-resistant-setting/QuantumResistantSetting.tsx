@@ -1,6 +1,5 @@
 import { messages } from '../../../../../shared/gettext';
-import InfoButton from '../../../../components/InfoButton';
-import { ModalMessage } from '../../../../components/Modal';
+import { Info } from '../../../../components/info';
 import { SettingsListItem } from '../../../../components/settings-list-item';
 import { ListItemProps } from '../../../../lib/components/list-item';
 import { QuantumResistantSwitch } from '../quantum-resistant-switch';
@@ -21,22 +20,23 @@ export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
             }
           </QuantumResistantSwitch.Label>
           <SettingsListItem.Item.ActionGroup>
-            <InfoButton>
-              <>
-                <ModalMessage>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
                   {messages.pgettext(
                     'wireguard-settings-view',
                     'This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.',
                   )}
-                </ModalMessage>
-                <ModalMessage>
+                </Info.Dialog.Text>
+                <Info.Dialog.Text>
                   {messages.pgettext(
                     'wireguard-settings-view',
                     'It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption.',
                   )}
-                </ModalMessage>
-              </>
-            </InfoButton>
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
 
             <QuantumResistantSwitch.Input />
           </SettingsListItem.Item.ActionGroup>

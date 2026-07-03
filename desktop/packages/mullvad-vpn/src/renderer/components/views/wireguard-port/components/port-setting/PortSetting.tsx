@@ -11,8 +11,7 @@ import {
 } from '../../../../../features/anti-censorship/utils';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
+import { Info } from '../../../../info';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 const WIREGUARD_UDP_PORTS = [51820, 53];
@@ -89,15 +88,16 @@ export function PortSetting() {
             }
           </SettingsListbox.Header.Item.Label>
           <SettingsListbox.Header.Item.ActionGroup>
-            <InfoButton>
-              <>
-                <ModalMessage>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
                   {messages.pgettext(
                     'wireguard-settings-view',
                     'The automatic setting will randomly choose from the valid port ranges shown below.',
                   )}
-                </ModalMessage>
-                <ModalMessage>
+                </Info.Dialog.Text>
+                <Info.Dialog.Text>
                   {sprintf(
                     messages.pgettext(
                       'wireguard-settings-view',
@@ -105,9 +105,9 @@ export function PortSetting() {
                     ),
                     { portRanges: portRangesText },
                   )}
-                </ModalMessage>
-              </>
-            </InfoButton>
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
           </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
