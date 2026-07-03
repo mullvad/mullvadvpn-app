@@ -11,12 +11,11 @@ import io.mockk.unmockkAll
 import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.home.impl.data.mock
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.runAndCancelContextTest
 import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -77,51 +76,51 @@ class WelcomeViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 connectionProxy = mockConnectionProxy,
-                pollAccountExpiry = false,
                 isPlayBuild = false,
             )
     }
 
     @AfterEach
     fun tearDown() {
-        viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
 
     @Test
-    fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() = runTest {
-        // Arrange
-        val mockToken = WebsiteAuthToken.fromString("154c4cc94810fddac78398662b7fa0c7")
-        coEvery { mockAccountRepository.getWebsiteAuthToken() } returns mockToken
+    fun `on onSitePaymentClick call uiSideEffect should emit OpenAccountView`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val mockToken = WebsiteAuthToken.fromString("154c4cc94810fddac78398662b7fa0c7")
+            coEvery { mockAccountRepository.getWebsiteAuthToken() } returns mockToken
 
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            viewModel.onSitePaymentClick()
-            val action = awaitItem()
-            assertIs<WelcomeViewModel.UiSideEffect.OpenAccountView>(action)
-            assertEquals(mockToken, action.token)
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                viewModel.onSitePaymentClick()
+                val action = awaitItem()
+                assertIs<WelcomeViewModel.UiSideEffect.OpenAccountView>(action)
+                assertEquals(mockToken, action.token)
+            }
         }
-    }
 
     @Test
-    fun `on new TunnelState uiState should include new TunnelState`() = runTest {
-        // Arrange
-        val tunnelUiStateTestItem: TunnelState = mockk()
+    fun `on new TunnelState uiState should include new TunnelState`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val tunnelUiStateTestItem: TunnelState = mockk()
 
-        // Act, Assert
-        viewModel.uiState.test {
-            // Default state
-            awaitItem()
-            tunnelState.emit(tunnelUiStateTestItem)
-            val result = awaitItem()
-            assertIs<Lc.Content<WelcomeUiState>>(result)
-            assertEquals(tunnelUiStateTestItem, result.value.tunnelState)
+            // Act, Assert
+            viewModel.uiState.test {
+                // Default state
+                awaitItem()
+                tunnelState.emit(tunnelUiStateTestItem)
+                val result = awaitItem()
+                assertIs<Lc.Content<WelcomeUiState>>(result)
+                assertEquals(tunnelUiStateTestItem, result.value.tunnelState)
+            }
         }
-    }
 
     @Test
     fun `when DeviceRepository returns LoggedIn uiState should include new accountNumber`() =
-        runTest {
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
             // Arrange
             val expectedAccountNumber = AccountNumber("4444555566667777")
             val device: Device = mockk()
@@ -141,50 +140,53 @@ class WelcomeViewModelTest {
         }
 
     @Test
-    fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
-        // Arrange
-        accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusHours(24)))
+    fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            accountExpiryStateFlow.emit(AccountData.mock(ZonedDateTime.now().plusHours(24)))
 
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            val action = awaitItem()
-            assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
+            // Act, Assert
+            viewModel.uiSideEffect.test {
+                val action = awaitItem()
+                assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
+            }
         }
-    }
 
     @Test
-    fun `when on disconnect click is called should call connection proxy disconnect`() = runTest {
-        // Arrange
-        val mockDisconnectReason = DisconnectReason.USER_INITIATED_WELCOME
-        coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
+    fun `when on disconnect click is called should call connection proxy disconnect`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            val mockDisconnectReason = DisconnectReason.USER_INITIATED_WELCOME
+            coEvery { mockConnectionProxy.disconnect(any()) } returns true.right()
 
-        // Act
-        viewModel.onDisconnectClick()
+            // Act
+            viewModel.onDisconnectClick()
 
-        // Assert
-        coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
-    }
+            // Assert
+            coVerify { mockConnectionProxy.disconnect(mockDisconnectReason) }
+        }
 
     @Test
-    fun `when there is a pending purchase, uiState should reflect it`() = runTest {
-        // Arrange
-        paymentAvailabilityFlow.value =
-            PaymentAvailability.ProductsAvailable(
-                products =
-                    listOf(
-                        PaymentProduct(
-                            productId = ProductId("test_product_id"),
-                            price = ProductPrice("9.99"),
-                            status = PaymentStatus.PENDING,
+    fun `when there is a pending purchase, uiState should reflect it`() =
+        runAndCancelContextTest(viewModel.viewModelScope.coroutineContext) {
+            // Arrange
+            paymentAvailabilityFlow.value =
+                PaymentAvailability.ProductsAvailable(
+                    products =
+                        listOf(
+                            PaymentProduct(
+                                productId = ProductId("test_product_id"),
+                                price = ProductPrice("9.99"),
+                                status = PaymentStatus.PENDING,
+                            )
                         )
-                    )
-            )
+                )
 
-        // Act, Assert
-        viewModel.uiState.test {
-            val result = awaitItem()
-            assertIs<Lc.Content<WelcomeUiState>>(result)
-            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem()
+                assertIs<Lc.Content<WelcomeUiState>>(result)
+                assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
+            }
         }
-    }
 }
