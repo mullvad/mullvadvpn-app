@@ -196,7 +196,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
             circleFanVertices(
                 32,
                 0.15f,
-                floatArrayOf(0.0f, 0.0f, 0.00007f),
+                floatArrayOf(0.0f, 0.0f, 0.00008f),
                 colors.centerColor,
                 colors.centerColor,
             )
@@ -216,7 +216,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
 
     companion object {
         private const val MARKER_TRANSLATE_Z_FACTOR = 1.0001f
-        private const val PERIMETER_Z_OFFSET = 0.00001f
+        private const val PERIMETER_Z_OFFSET = 0.00002f
 
         // Vertex, and fragment shader code is taken from Mullvad Desktop 3dmap.ts
         private val vertexShaderCode =
