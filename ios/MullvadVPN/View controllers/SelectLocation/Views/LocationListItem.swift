@@ -32,6 +32,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         let hasChildren = !childIndices.isEmpty
         let isExpanded = location.showsChildren
         let isDisabled = !location.isActive || location.isExcluded
+        let isCustomList = location.asCustomListNode != nil
 
         if level == 0 {
             Color.clear.frame(height: 4)
@@ -40,11 +41,15 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         SegmentedListItem(
             level: level,
             isLastInList: isLastInList,
-            userInteraction: isDisabled ? .disabled : .enabled,
+            userInteraction: isCustomList && isDisabled
+                ? .inactive : (isDisabled ? .disabled : .enabled),
             accessibilityIdentifier: .locationListItem(location.name),
             accessibilityLabel: location.name,
             leading: {
                 itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
+                    .contextMenu {
+                        contextMenu(location)
+                    }
             },
             segment: {
                 if hasChildren {
@@ -76,7 +81,10 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     }
                 }
             },
-            onSelect: { onSelect(location) }
+            onSelect: {
+                guard !isDisabled else { return }
+                onSelect(location)
+            }
         )
         .if(hasChildren) { view in
             view
@@ -86,9 +94,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 ) {
                     toggleChildren()
                 }
-        }
-        .contextMenu {
-            contextMenu(location)
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.id)  // to be able to scroll to this item programmatically
