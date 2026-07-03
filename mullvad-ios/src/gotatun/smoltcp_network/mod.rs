@@ -14,7 +14,6 @@ mod tcp_stream;
 pub use icmp_socket::SmoltcpIcmpSocket;
 pub use tcp_stream::SmoltcpTcpStream;
 
-use bytes::BytesMut;
 use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher},
@@ -149,7 +148,7 @@ impl SmoltcpHandle {
 /// These packets (TCP SYN, ICMP echo requests, etc.) are ready to be
 /// encrypted and sent by GotaTun.
 pub struct SmoltcpIpRecv {
-    rx: mpsc::Receiver<Vec<u8>>,
+    rx: mpsc::Receiver<Packet<Ip>>,
     mtu: MtuWatcher,
 }
 
@@ -158,16 +157,12 @@ impl IpRecv for SmoltcpIpRecv {
         &'a mut self,
         _pool: &mut PacketBufPool,
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
-        let raw = self
+        let packet = self
             .rx
             .recv()
             .await
             .ok_or_else(|| io::Error::new(io::ErrorKind::UnexpectedEof, "channel closed"))?;
-        let packet = Packet::from_bytes(BytesMut::from(raw.as_slice()));
-        let ip_packet = packet
-            .try_into_ip()
-            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
-        Ok(std::iter::once(ip_packet))
+        Ok(std::iter::once(packet))
     }
 
     fn mtu(&self) -> MtuWatcher {
@@ -180,16 +175,14 @@ impl IpRecv for SmoltcpIpRecv {
 /// Packets sent here (TCP SYN-ACK, ICMP echo replies, etc.) are delivered
 /// to the smoltcp stack for processing by TCP/ICMP sockets.
 pub struct SmoltcpIpSend {
-    tx: mpsc::Sender<Vec<u8>>,
+    tx: mpsc::Sender<Packet<Ip>>,
     notify: Arc<Notify>,
 }
 
 impl IpSend for SmoltcpIpSend {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
-        let raw: Packet<[u8]> = packet.into_bytes();
-        let bytes: &[u8] = &raw;
         self.tx
-            .send(bytes.to_vec())
+            .send(packet)
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "channel closed"))?;
         self.notify.notify_one();

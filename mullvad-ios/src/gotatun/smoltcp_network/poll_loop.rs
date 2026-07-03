@@ -8,6 +8,7 @@ use super::SmoltcpNetworkConfig;
 use super::device::SmoltcpDevice;
 use super::icmp_socket::SmoltcpIcmpSocket;
 use super::tcp_stream::SmoltcpTcpStream;
+use gotatun::packet::{Ip, Packet};
 use smoltcp::{
     iface::{Config as IfaceConfig, Interface, SocketHandle, SocketSet},
     socket::{icmp, tcp},
@@ -84,8 +85,8 @@ fn to_smoltcp_endpoint(addr: SocketAddr) -> IpEndpoint {
 
 pub(super) async fn poll_loop(
     config: SmoltcpNetworkConfig,
-    mut from_gotatun_rx: mpsc::Receiver<Vec<u8>>,
-    to_gotatun_tx: mpsc::Sender<Vec<u8>>,
+    mut from_gotatun_rx: mpsc::Receiver<Packet<Ip>>,
+    to_gotatun_tx: mpsc::Sender<Packet<Ip>>,
     mut cmd_rx: mpsc::Receiver<SocketCmd>,
     notify: Arc<Notify>,
 ) {
@@ -188,8 +189,8 @@ impl SmoltcpStack {
     }
 
     /// Queue an inbound (decrypted) IP packet for smoltcp to process.
-    fn enqueue_rx(&mut self, packet: Vec<u8>) {
-        self.device.enqueue_rx(packet);
+    fn enqueue_rx(&mut self, packet: Packet<Ip>) {
+        self.device.enqueue_rx(packet.into_bytes().to_vec());
     }
 
     /// Advance smoltcp: process all queued ingress and generate egress.
@@ -198,9 +199,18 @@ impl SmoltcpStack {
     }
 
     /// Move packets smoltcp emitted into the channel bound for GotaTun.
-    fn drain_tx_to_gotatun(&mut self, to_gotatun_tx: &mpsc::Sender<Vec<u8>>) {
-        for pkt in self.device.drain_tx() {
-            if to_gotatun_tx.try_send(pkt).is_err() {
+    fn drain_tx_to_gotatun(&mut self, to_gotatun_tx: &mpsc::Sender<Packet<Ip>>) {
+        for pkt_bytes in self.device.drain_tx() {
+            let packet = Packet::<[u8]>::copy_from(pkt_bytes.as_slice());
+            let ip_packet = match packet.try_into_ip() {
+                Ok(ip) => ip,
+                Err(err) => {
+                    log::error!("Failed to parse IP packet, dropping: {err}");
+                    continue;
+                }
+            };
+
+            if to_gotatun_tx.try_send(ip_packet).is_err() {
                 log::warn!("smoltcp: to_gotatun channel full or closed, dropping packet");
             }
         }
