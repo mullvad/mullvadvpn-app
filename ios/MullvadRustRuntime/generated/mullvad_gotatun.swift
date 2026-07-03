@@ -9,7 +9,7 @@ import Foundation
 // might be in a separate module, or it might be compiled inline into
 // this module. This is a bit of light hackery to work with both.
 #if canImport(MullvadRustRuntimeProxy)
-    import MullvadRustRuntimeProxy
+import MullvadRustRuntimeProxy
 #endif
 
 fileprivate extension RustBuffer {
@@ -22,7 +22,7 @@ fileprivate extension RustBuffer {
     }
 
     static func empty() -> RustBuffer {
-        RustBuffer(capacity: 0, len: 0, data: nil)
+        RustBuffer(capacity: 0, len:0, data: nil)
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
@@ -73,14 +73,14 @@ fileprivate extension Data {
 //
 // Instead, the read() method and these helper functions input a tuple of data
 
-private func createReader(data: Data) -> (data: Data, offset: Data.Index) {
+fileprivate func createReader(data: Data) -> (data: Data, offset: Data.Index) {
     (data: data, offset: 0)
 }
 
 // Reads an integer at the current offset, in big-endian order, and advances
 // the offset on success. Throws if reading the integer would move the
 // offset past the end of the buffer.
-private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
+fileprivate func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: Data.Index)) throws -> T {
     let range = reader.offset..<reader.offset + MemoryLayout<T>.size
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
@@ -91,15 +91,15 @@ private func readInt<T: FixedWidthInteger>(_ reader: inout (data: Data, offset: 
         return value as! T
     }
     var value: T = 0
-    let _ = withUnsafeMutableBytes(of: &value, { reader.data.copyBytes(to: $0, from: range) })
+    let _ = withUnsafeMutableBytes(of: &value, { reader.data.copyBytes(to: $0, from: range)})
     reader.offset = range.upperBound
     return value.bigEndian
 }
 
 // Reads an arbitrary number of bytes, to be used to read
 // raw bytes, this is useful when lifting strings
-private func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> [UInt8] {
-    let range = reader.offset..<(reader.offset + count)
+fileprivate func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: Int) throws -> Array<UInt8> {
+    let range = reader.offset..<(reader.offset+count)
     guard reader.data.count >= range.upperBound else {
         throw UniffiInternalError.bufferOverflow
     }
@@ -112,17 +112,17 @@ private func readBytes(_ reader: inout (data: Data, offset: Data.Index), count: 
 }
 
 // Reads a float at the current offset.
-private func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
+fileprivate func readFloat(_ reader: inout (data: Data, offset: Data.Index)) throws -> Float {
     return Float(bitPattern: try readInt(&reader))
 }
 
 // Reads a float at the current offset.
-private func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
+fileprivate func readDouble(_ reader: inout (data: Data, offset: Data.Index)) throws -> Double {
     return Double(bitPattern: try readInt(&reader))
 }
 
 // Indicates if the offset has reached the end of the buffer.
-private func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
+fileprivate func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
     return reader.offset < reader.data.count
 }
 
@@ -130,11 +130,11 @@ private func hasRemaining(_ reader: (data: Data, offset: Data.Index)) -> Bool {
 // struct, but we use standalone functions instead in order to make external
 // types work.  See the above discussion on Readers for details.
 
-private func createWriter() -> [UInt8] {
+fileprivate func createWriter() -> [UInt8] {
     return []
 }
 
-private func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Sequence, S.Element == UInt8 {
+fileprivate func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Sequence, S.Element == UInt8 {
     writer.append(contentsOf: byteArr)
 }
 
@@ -142,22 +142,22 @@ private func writeBytes<S>(_ writer: inout [UInt8], _ byteArr: S) where S: Seque
 //
 // Warning: make sure what you are trying to write
 // is in the correct type!
-private func writeInt<T: FixedWidthInteger>(_ writer: inout [UInt8], _ value: T) {
+fileprivate func writeInt<T: FixedWidthInteger>(_ writer: inout [UInt8], _ value: T) {
     var value = value.bigEndian
     withUnsafeBytes(of: &value) { writer.append(contentsOf: $0) }
 }
 
-private func writeFloat(_ writer: inout [UInt8], _ value: Float) {
+fileprivate func writeFloat(_ writer: inout [UInt8], _ value: Float) {
     writeInt(&writer, value.bitPattern)
 }
 
-private func writeDouble(_ writer: inout [UInt8], _ value: Double) {
+fileprivate func writeDouble(_ writer: inout [UInt8], _ value: Double) {
     writeInt(&writer, value.bitPattern)
 }
 
 // Protocol for types that transfer other types across the FFI. This is
 // analogous to the Rust trait of the same name.
-private protocol FfiConverter {
+fileprivate protocol FfiConverter {
     associatedtype FfiType
     associatedtype SwiftType
 
@@ -168,19 +168,19 @@ private protocol FfiConverter {
 }
 
 // Types conforming to `Primitive` pass themselves directly over the FFI.
-private protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType {}
+fileprivate protocol FfiConverterPrimitive: FfiConverter where FfiType == SwiftType { }
 
 extension FfiConverterPrimitive {
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lift(_ value: FfiType) throws -> SwiftType {
         return value
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lower(_ value: SwiftType) -> FfiType {
         return value
     }
@@ -188,12 +188,12 @@ extension FfiConverterPrimitive {
 
 // Types conforming to `FfiConverterRustBuffer` lift and lower into a `RustBuffer`.
 // Used for complex types where it's hard to write a custom lift/lower.
-private protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
+fileprivate protocol FfiConverterRustBuffer: FfiConverter where FfiType == RustBuffer {}
 
 extension FfiConverterRustBuffer {
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lift(_ buf: RustBuffer) throws -> SwiftType {
         var reader = createReader(data: Data(rustBuffer: buf))
         let value = try read(from: &reader)
@@ -204,18 +204,18 @@ extension FfiConverterRustBuffer {
         return value
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lower(_ value: SwiftType) -> RustBuffer {
-        var writer = createWriter()
-        write(value, into: &writer)
-        return RustBuffer(bytes: writer)
+          var writer = createWriter()
+          write(value, into: &writer)
+          return RustBuffer(bytes: writer)
     }
 }
 // An error type for FFI errors. These errors occur at the UniFFI level, not
 // the library level.
-private enum UniffiInternalError: LocalizedError {
+fileprivate enum UniffiInternalError: LocalizedError {
     case bufferOverflow
     case incompleteData
     case unexpectedOptionalTag
@@ -249,10 +249,10 @@ fileprivate extension NSLock {
     }
 }
 
-private let CALL_SUCCESS: Int8 = 0
-private let CALL_ERROR: Int8 = 1
-private let CALL_UNEXPECTED_ERROR: Int8 = 2
-private let CALL_CANCELLED: Int8 = 3
+fileprivate let CALL_SUCCESS: Int8 = 0
+fileprivate let CALL_ERROR: Int8 = 1
+fileprivate let CALL_UNEXPECTED_ERROR: Int8 = 2
+fileprivate let CALL_CANCELLED: Int8 = 3
 
 fileprivate extension RustCallStatus {
     init() {
@@ -274,8 +274,7 @@ private func rustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) -> T
 
 private func rustCallWithError<T, E: Swift.Error>(
     _ errorHandler: @escaping (RustBuffer) throws -> E,
-    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T
-) throws -> T {
+    _ callback: (UnsafeMutablePointer<RustCallStatus>) -> T) throws -> T {
     try makeRustCall(callback, errorHandler: errorHandler)
 }
 
@@ -295,40 +294,40 @@ private func uniffiCheckCallStatus<E: Swift.Error>(
     errorHandler: ((RustBuffer) throws -> E)?
 ) throws {
     switch callStatus.code {
-    case CALL_SUCCESS:
-        return
+        case CALL_SUCCESS:
+            return
 
-    case CALL_ERROR:
-        if let errorHandler = errorHandler {
-            throw try errorHandler(callStatus.errorBuf)
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.unexpectedRustCallError
-        }
+        case CALL_ERROR:
+            if let errorHandler = errorHandler {
+                throw try errorHandler(callStatus.errorBuf)
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.unexpectedRustCallError
+            }
 
-    case CALL_UNEXPECTED_ERROR:
-        // When the rust code sees a panic, it tries to construct a RustBuffer
-        // with the message.  But if that code panics, then it just sends back
-        // an empty buffer.
-        if callStatus.errorBuf.len > 0 {
-            throw UniffiInternalError.rustPanic(try FfiConverterString.lift(callStatus.errorBuf))
-        } else {
-            callStatus.errorBuf.deallocate()
-            throw UniffiInternalError.rustPanic("Rust panic")
-        }
+        case CALL_UNEXPECTED_ERROR:
+            // When the rust code sees a panic, it tries to construct a RustBuffer
+            // with the message.  But if that code panics, then it just sends back
+            // an empty buffer.
+            if callStatus.errorBuf.len > 0 {
+                throw UniffiInternalError.rustPanic(try FfiConverterString.lift(callStatus.errorBuf))
+            } else {
+                callStatus.errorBuf.deallocate()
+                throw UniffiInternalError.rustPanic("Rust panic")
+            }
 
-    case CALL_CANCELLED:
-        fatalError("Cancellation not supported yet")
+        case CALL_CANCELLED:
+            fatalError("Cancellation not supported yet")
 
-    default:
-        throw UniffiInternalError.unexpectedRustCallStatusCode
+        default:
+            throw UniffiInternalError.unexpectedRustCallStatusCode
     }
 }
 
 private func uniffiTraitInterfaceCall<T>(
     callStatus: UnsafeMutablePointer<RustCallStatus>,
     makeCall: () throws -> T,
-    writeReturn: (T) -> Void
+    writeReturn: (T) -> ()
 ) {
     do {
         try writeReturn(makeCall())
@@ -341,7 +340,7 @@ private func uniffiTraitInterfaceCall<T>(
 private func uniffiTraitInterfaceCallWithError<T, E>(
     callStatus: UnsafeMutablePointer<RustCallStatus>,
     makeCall: () throws -> T,
-    writeReturn: (T) -> Void,
+    writeReturn: (T) -> (),
     lowerError: (E) -> RustBuffer
 ) {
     do {
@@ -354,12 +353,12 @@ private func uniffiTraitInterfaceCallWithError<T, E>(
         callStatus.pointee.errorBuf = FfiConverterString.lower(String(describing: error))
     }
 }
-// Initial value and increment amount for handles.
+// Initial value and increment amount for handles. 
 // These ensure that SWIFT handles always have the lowest bit set
-private let UNIFFI_HANDLEMAP_INITIAL: UInt64 = 1
-private let UNIFFI_HANDLEMAP_DELTA: UInt64 = 2
+fileprivate let UNIFFI_HANDLEMAP_INITIAL: UInt64 = 1
+fileprivate let UNIFFI_HANDLEMAP_DELTA: UInt64 = 2
 
-private final class UniffiHandleMap<T>: @unchecked Sendable {
+fileprivate final class UniffiHandleMap<T>: @unchecked Sendable {
     // All mutation happens with this lock held, which is why we implement @unchecked Sendable.
     private let lock = NSLock()
     private var map: [UInt64: T] = [:]
@@ -379,7 +378,7 @@ private final class UniffiHandleMap<T>: @unchecked Sendable {
         return handle
     }
 
-    func get(handle: UInt64) throws -> T {
+     func get(handle: UInt64) throws -> T {
         try lock.withLock {
             guard let obj = map[handle] else {
                 throw UniffiInternalError.unexpectedStaleHandle
@@ -388,7 +387,7 @@ private final class UniffiHandleMap<T>: @unchecked Sendable {
         }
     }
 
-    func clone(handle: UInt64) throws -> UInt64 {
+     func clone(handle: UInt64) throws -> UInt64 {
         try lock.withLock {
             guard let obj = map[handle] else {
                 throw UniffiInternalError.unexpectedStaleHandle
@@ -408,9 +407,12 @@ private final class UniffiHandleMap<T>: @unchecked Sendable {
     }
 
     var count: Int {
-        map.count
+        get {
+            map.count
+        }
     }
 }
+
 
 // Public interface members begin here.
 // Magic number for the Rust proxy to call using the same mechanism as every other method,
@@ -422,9 +424,9 @@ private let UNIFFI_CALLBACK_ERROR: Int32 = 1
 private let UNIFFI_CALLBACK_UNEXPECTED_ERROR: Int32 = 2
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterUInt16: FfiConverterPrimitive {
+fileprivate struct FfiConverterUInt16: FfiConverterPrimitive {
     typealias FfiType = UInt16
     typealias SwiftType = UInt16
 
@@ -438,9 +440,9 @@ private struct FfiConverterUInt16: FfiConverterPrimitive {
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterUInt32: FfiConverterPrimitive {
+fileprivate struct FfiConverterUInt32: FfiConverterPrimitive {
     typealias FfiType = UInt32
     typealias SwiftType = UInt32
 
@@ -454,9 +456,9 @@ private struct FfiConverterUInt32: FfiConverterPrimitive {
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterInt32: FfiConverterPrimitive {
+fileprivate struct FfiConverterInt32: FfiConverterPrimitive {
     typealias FfiType = Int32
     typealias SwiftType = Int32
 
@@ -470,9 +472,9 @@ private struct FfiConverterInt32: FfiConverterPrimitive {
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterBool: FfiConverter {
+fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
 
@@ -494,9 +496,9 @@ private struct FfiConverterBool: FfiConverter {
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterString: FfiConverter {
+fileprivate struct FfiConverterString: FfiConverter {
     typealias SwiftType = String
     typealias FfiType = RustBuffer
 
@@ -540,9 +542,9 @@ private struct FfiConverterString: FfiConverter {
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterData: FfiConverterRustBuffer {
+fileprivate struct FfiConverterData: FfiConverterRustBuffer {
     typealias SwiftType = Data
 
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Data {
@@ -557,32 +559,35 @@ private struct FfiConverterData: FfiConverterRustBuffer {
     }
 }
 
+
+
+
 /**
  * A running GotaTun tunnel. Dropping it stops the tunnel (via
  * [`IosTunnelAdapter`]'s `Drop`); `stop` is exposed for deterministic teardown.
  */
 public protocol GotaTunTunnelProtocol: AnyObject, Sendable {
-
+    
     /**
      * Recycle UDP sockets after a network path change.
      */
-    func recycleUdpSockets()
-
+    func recycleUdpSockets() 
+    
     /**
      * Stop and tear down the tunnel. Safe to call multiple times.
      */
-    func stop()
-
+    func stop() 
+    
     /**
      * Suspend the tunnel (device sleep).
      */
-    func suspend()
-
+    func suspend() 
+    
     /**
      * Wake the tunnel from suspension.
      */
-    func wake()
-
+    func wake() 
+    
 }
 /**
  * A running GotaTun tunnel. Dropping it stops the tunnel (via
@@ -592,9 +597,9 @@ open class GotaTunTunnel: GotaTunTunnelProtocol, @unchecked Sendable {
     fileprivate let handle: UInt64
 
     /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public struct NoHandle {
         public init() {}
     }
@@ -602,9 +607,9 @@ open class GotaTunTunnel: GotaTunTunnelProtocol, @unchecked Sendable {
     // TODO: We'd like this to be `private` but for Swifty reasons,
     // we can't implement `FfiConverter` without making this `required` and we can't
     // make it `required` without making it `public`.
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     required public init(unsafeFromHandle handle: UInt64) {
         self.handle = handle
     }
@@ -614,16 +619,16 @@ open class GotaTunTunnel: GotaTunTunnelProtocol, @unchecked Sendable {
     //
     // - Warning:
     //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public init(noHandle: NoHandle) {
         self.handle = 0
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public func uniffiCloneHandle() -> UInt64 {
         return try! rustCall { uniffi_mullvad_ios_fn_clone_gotatuntunnel(self.handle, $0) }
     }
@@ -638,71 +643,72 @@ open class GotaTunTunnel: GotaTunTunnelProtocol, @unchecked Sendable {
         try! rustCall { uniffi_mullvad_ios_fn_free_gotatuntunnel(handle, $0) }
     }
 
+    
     /**
      * Start a tunnel with the given TUN file descriptor, config, and callbacks.
      *
      * Validates and parses the config, then spawns the adapter. Exactly one of
      * `on_connected`/`on_timeout`/`on_error` will be invoked on `callback`.
      */
-    public static func start(tunFd: Int32, config: GotaTunConfig, callback: GotaTunCallback) throws -> GotaTunTunnel {
-        return try FfiConverterTypeGotaTunTunnel_lift(
-            try rustCallWithError(FfiConverterTypeGotaTunFfiError_lift) {
-                uniffi_mullvad_ios_fn_constructor_gotatuntunnel_start(
-                    FfiConverterInt32.lower(tunFd),
-                    FfiConverterTypeGotaTunConfig_lower(config),
-                    FfiConverterCallbackInterfaceGotaTunCallback_lower(callback), $0
-                )
-            })
-    }
+public static func start(tunFd: Int32, config: GotaTunConfig, callback: GotaTunCallback)throws  -> GotaTunTunnel  {
+    return try  FfiConverterTypeGotaTunTunnel_lift(try rustCallWithError(FfiConverterTypeGotaTunFfiError_lift) {
+    uniffi_mullvad_ios_fn_constructor_gotatuntunnel_start(
+        FfiConverterInt32.lower(tunFd),
+        FfiConverterTypeGotaTunConfig_lower(config),
+        FfiConverterCallbackInterfaceGotaTunCallback_lower(callback),$0
+    )
+})
+}
+    
 
+    
     /**
      * Recycle UDP sockets after a network path change.
      */
-    open func recycleUdpSockets() {
-        try! rustCall {
-            uniffi_mullvad_ios_fn_method_gotatuntunnel_recycle_udp_sockets(
-                self.uniffiCloneHandle(), $0
-            )
-        }
-    }
-
+open func recycleUdpSockets()  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_gotatuntunnel_recycle_udp_sockets(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
     /**
      * Stop and tear down the tunnel. Safe to call multiple times.
      */
-    open func stop() {
-        try! rustCall {
-            uniffi_mullvad_ios_fn_method_gotatuntunnel_stop(
-                self.uniffiCloneHandle(), $0
-            )
-        }
-    }
-
+open func stop()  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_gotatuntunnel_stop(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
     /**
      * Suspend the tunnel (device sleep).
      */
-    open func suspend() {
-        try! rustCall {
-            uniffi_mullvad_ios_fn_method_gotatuntunnel_suspend(
-                self.uniffiCloneHandle(), $0
-            )
-        }
-    }
-
+open func suspend()  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_gotatuntunnel_suspend(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
     /**
      * Wake the tunnel from suspension.
      */
-    open func wake() {
-        try! rustCall {
-            uniffi_mullvad_ios_fn_method_gotatuntunnel_wake(
-                self.uniffiCloneHandle(), $0
-            )
-        }
-    }
+open func wake()  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_gotatuntunnel_wake(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
 
+    
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeGotaTunTunnel: FfiConverter {
     typealias FfiType = UInt64
@@ -726,19 +732,23 @@ public struct FfiConverterTypeGotaTunTunnel: FfiConverter {
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunTunnel_lift(_ handle: UInt64) throws -> GotaTunTunnel {
     return try FfiConverterTypeGotaTunTunnel.lift(handle)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunTunnel_lower(_ value: GotaTunTunnel) -> UInt64 {
     return FfiConverterTypeGotaTunTunnel.lower(value)
 }
+
+
+
 
 /**
  * Full tunnel configuration.
@@ -794,49 +804,37 @@ public struct GotaTunConfig: Equatable, Hashable {
     public init(
         /**
          * WireGuard private key (32 bytes).
-         */
-        privateKey: Data,
+         */privateKey: Data, 
         /**
          * Tunnel interface IPv4 address (e.g. "10.64.0.2").
-         */
-        ipv4Address: String,
+         */ipv4Address: String, 
         /**
          * Tunnel interface IPv6 address.
-         */
-        ipv6Address: String,
+         */ipv6Address: String, 
         /**
          * Tunnel MTU.
-         */
-        mtu: UInt16,
+         */mtu: UInt16, 
         /**
          * Exit peer (always present).
-         */
-        exitPeer: GotaTunPeer,
+         */exitPeer: GotaTunPeer, 
         /**
          * Entry peer for multihop, or `None` for singlehop.
-         */
-        entryPeer: GotaTunPeer?,
+         */entryPeer: GotaTunPeer?, 
         /**
          * Gateway IPv4 address used for connectivity pings (e.g. "10.64.0.1").
-         */
-        ipv4Gateway: String,
+         */ipv4Gateway: String, 
         /**
          * How long to wait for the tunnel to establish connectivity (seconds).
-         */
-        establishTimeoutSecs: UInt32,
+         */establishTimeoutSecs: UInt32, 
         /**
          * Enable post-quantum key exchange.
-         */
-        enablePq: Bool,
+         */enablePq: Bool, 
         /**
          * Enable DAITA.
-         */
-        enableDaita: Bool,
+         */enableDaita: Bool, 
         /**
          * Obfuscation method for the ingress relay.
-         */
-        obfuscation: GotaTunObfuscation
-    ) {
+         */obfuscation: GotaTunObfuscation) {
         self.privateKey = privateKey
         self.ipv4Address = ipv4Address
         self.ipv6Address = ipv6Address
@@ -850,31 +848,34 @@ public struct GotaTunConfig: Equatable, Hashable {
         self.obfuscation = obfuscation
     }
 
+    
+
+    
 }
 
 #if compiler(>=6)
-    extension GotaTunConfig: Sendable {}
+extension GotaTunConfig: Sendable {}
 #endif
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GotaTunConfig {
         return
             try GotaTunConfig(
-                privateKey: FfiConverterData.read(from: &buf),
-                ipv4Address: FfiConverterString.read(from: &buf),
-                ipv6Address: FfiConverterString.read(from: &buf),
-                mtu: FfiConverterUInt16.read(from: &buf),
-                exitPeer: FfiConverterTypeGotaTunPeer.read(from: &buf),
-                entryPeer: FfiConverterOptionTypeGotaTunPeer.read(from: &buf),
-                ipv4Gateway: FfiConverterString.read(from: &buf),
-                establishTimeoutSecs: FfiConverterUInt32.read(from: &buf),
-                enablePq: FfiConverterBool.read(from: &buf),
-                enableDaita: FfiConverterBool.read(from: &buf),
+                privateKey: FfiConverterData.read(from: &buf), 
+                ipv4Address: FfiConverterString.read(from: &buf), 
+                ipv6Address: FfiConverterString.read(from: &buf), 
+                mtu: FfiConverterUInt16.read(from: &buf), 
+                exitPeer: FfiConverterTypeGotaTunPeer.read(from: &buf), 
+                entryPeer: FfiConverterOptionTypeGotaTunPeer.read(from: &buf), 
+                ipv4Gateway: FfiConverterString.read(from: &buf), 
+                establishTimeoutSecs: FfiConverterUInt32.read(from: &buf), 
+                enablePq: FfiConverterBool.read(from: &buf), 
+                enableDaita: FfiConverterBool.read(from: &buf), 
                 obfuscation: FfiConverterTypeGotaTunObfuscation.read(from: &buf)
-            )
+        )
     }
 
     public static func write(_ value: GotaTunConfig, into buf: inout [UInt8]) {
@@ -892,19 +893,21 @@ public struct FfiConverterTypeGotaTunConfig: FfiConverterRustBuffer {
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunConfig_lift(_ buf: RustBuffer) throws -> GotaTunConfig {
     return try FfiConverterTypeGotaTunConfig.lift(buf)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunConfig_lower(_ value: GotaTunConfig) -> RustBuffer {
     return FfiConverterTypeGotaTunConfig.lower(value)
 }
+
 
 /**
  * A WireGuard peer (entry or exit).
@@ -924,33 +927,33 @@ public struct GotaTunPeer: Equatable, Hashable {
     public init(
         /**
          * Peer's WireGuard public key (32 bytes).
-         */
-        publicKey: Data,
+         */publicKey: Data, 
         /**
          * Peer endpoint as "ip:port".
-         */
-        endpoint: String
-    ) {
+         */endpoint: String) {
         self.publicKey = publicKey
         self.endpoint = endpoint
     }
 
+    
+
+    
 }
 
 #if compiler(>=6)
-    extension GotaTunPeer: Sendable {}
+extension GotaTunPeer: Sendable {}
 #endif
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeGotaTunPeer: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GotaTunPeer {
         return
             try GotaTunPeer(
-                publicKey: FfiConverterData.read(from: &buf),
+                publicKey: FfiConverterData.read(from: &buf), 
                 endpoint: FfiConverterString.read(from: &buf)
-            )
+        )
     }
 
     public static func write(_ value: GotaTunPeer, into buf: inout [UInt8]) {
@@ -959,50 +962,57 @@ public struct FfiConverterTypeGotaTunPeer: FfiConverterRustBuffer {
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunPeer_lift(_ buf: RustBuffer) throws -> GotaTunPeer {
     return try FfiConverterTypeGotaTunPeer.lift(buf)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunPeer_lower(_ value: GotaTunPeer) -> RustBuffer {
     return FfiConverterTypeGotaTunPeer.lower(value)
 }
+
 
 /**
  * Error returned when starting a tunnel.
  */
 public enum GotaTunFfiError: Swift.Error, Equatable, Hashable, Foundation.LocalizedError {
 
+    
+    
     /**
      * A field in the config was malformed (bad key length, unparseable address, …).
      */
-    case InvalidConfig(
-        String
+    case InvalidConfig(String
     )
     /**
      * An internal failure (e.g. the async runtime was unavailable).
      */
-    case Internal(
-        String
+    case Internal(String
     )
 
+    
+
+    
+
+    
     public var errorDescription: String? {
         String(reflecting: self)
     }
-
+    
 }
 
 #if compiler(>=6)
-    extension GotaTunFfiError: Sendable {}
+extension GotaTunFfiError: Sendable {}
 #endif
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeGotaTunFfiError: FfiConverterRustBuffer {
     typealias SwiftType = GotaTunFfiError
@@ -1011,43 +1021,50 @@ public struct FfiConverterTypeGotaTunFfiError: FfiConverterRustBuffer {
         let variant: Int32 = try readInt(&buf)
         switch variant {
 
-        case 1:
-            return .InvalidConfig(
-                try FfiConverterString.read(from: &buf)
+        
+
+        
+        case 1: return .InvalidConfig(
+            try FfiConverterString.read(from: &buf)
             )
-        case 2:
-            return .Internal(
-                try FfiConverterString.read(from: &buf)
+        case 2: return .Internal(
+            try FfiConverterString.read(from: &buf)
             )
 
-        default: throw UniffiInternalError.unexpectedEnumCase
+         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: GotaTunFfiError, into buf: inout [UInt8]) {
         switch value {
 
+        
+
+        
+        
         case let .InvalidConfig(v1):
             writeInt(&buf, Int32(1))
             FfiConverterString.write(v1, into: &buf)
-
+            
+        
         case let .Internal(v1):
             writeInt(&buf, Int32(2))
             FfiConverterString.write(v1, into: &buf)
-
+            
         }
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunFfiError_lift(_ buf: RustBuffer) throws -> GotaTunFfiError {
     return try FfiConverterTypeGotaTunFfiError.lift(buf)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunFfiError_lower(_ value: GotaTunFfiError) -> RustBuffer {
     return FfiConverterTypeGotaTunFfiError.lower(value)
@@ -1060,25 +1077,27 @@ public func FfiConverterTypeGotaTunFfiError_lower(_ value: GotaTunFfiError) -> R
  */
 
 public enum GotaTunObfuscation: Equatable, Hashable {
-
+    
     case off
     case udpOverTcp
     case shadowsocks
-    case quic(
-        hostname: String, token: String
+    case quic(hostname: String, token: String
     )
-    case lwo(
-        clientPublicKey: Data, serverPublicKey: Data
+    case lwo(clientPublicKey: Data, serverPublicKey: Data
     )
+
+
+
+
 
 }
 
 #if compiler(>=6)
-    extension GotaTunObfuscation: Sendable {}
+extension GotaTunObfuscation: Sendable {}
 #endif
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public struct FfiConverterTypeGotaTunObfuscation: FfiConverterRustBuffer {
     typealias SwiftType = GotaTunObfuscation
@@ -1086,67 +1105,72 @@ public struct FfiConverterTypeGotaTunObfuscation: FfiConverterRustBuffer {
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> GotaTunObfuscation {
         let variant: Int32 = try readInt(&buf)
         switch variant {
-
+        
         case 1: return .off
-
+        
         case 2: return .udpOverTcp
-
+        
         case 3: return .shadowsocks
-
-        case 4:
-            return .quic(
-                hostname: try FfiConverterString.read(from: &buf), token: try FfiConverterString.read(from: &buf)
-            )
-
-        case 5:
-            return .lwo(
-                clientPublicKey: try FfiConverterData.read(from: &buf),
-                serverPublicKey: try FfiConverterData.read(from: &buf)
-            )
-
+        
+        case 4: return .quic(hostname: try FfiConverterString.read(from: &buf), token: try FfiConverterString.read(from: &buf)
+        )
+        
+        case 5: return .lwo(clientPublicKey: try FfiConverterData.read(from: &buf), serverPublicKey: try FfiConverterData.read(from: &buf)
+        )
+        
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
 
     public static func write(_ value: GotaTunObfuscation, into buf: inout [UInt8]) {
         switch value {
-
+        
+        
         case .off:
             writeInt(&buf, Int32(1))
-
+        
+        
         case .udpOverTcp:
             writeInt(&buf, Int32(2))
-
+        
+        
         case .shadowsocks:
             writeInt(&buf, Int32(3))
-
-        case let .quic(hostname, token):
+        
+        
+        case let .quic(hostname,token):
             writeInt(&buf, Int32(4))
             FfiConverterString.write(hostname, into: &buf)
             FfiConverterString.write(token, into: &buf)
-
-        case let .lwo(clientPublicKey, serverPublicKey):
+            
+        
+        case let .lwo(clientPublicKey,serverPublicKey):
             writeInt(&buf, Int32(5))
             FfiConverterData.write(clientPublicKey, into: &buf)
             FfiConverterData.write(serverPublicKey, into: &buf)
-
+            
         }
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunObfuscation_lift(_ buf: RustBuffer) throws -> GotaTunObfuscation {
     return try FfiConverterTypeGotaTunObfuscation.lift(buf)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterTypeGotaTunObfuscation_lower(_ value: GotaTunObfuscation) -> RustBuffer {
     return FfiConverterTypeGotaTunObfuscation.lower(value)
 }
+
+
+
+
 
 /**
  * Callbacks from the tunnel adapter to Swift. Implemented on the Swift side and
@@ -1154,33 +1178,34 @@ public func FfiConverterTypeGotaTunObfuscation_lower(_ value: GotaTunObfuscation
  * except `on_timeout`, which may fire after `on_connected` if connectivity drops.
  */
 public protocol GotaTunCallback: AnyObject, Sendable {
-
+    
     /**
      * The tunnel is connected and traffic flows.
      */
-    func onConnected()
-
+    func onConnected() 
+    
     /**
      * The pinger timed out.
      */
-    func onTimeout()
-
+    func onTimeout() 
+    
     /**
      * A fatal error occurred.
      */
-    func onError(message: String)
-
+    func onError(message: String) 
+    
 }
 
+
 // Put the implementation in a struct so we don't pollute the top-level namespace
-private struct UniffiCallbackInterfaceGotaTunCallback {
+fileprivate struct UniffiCallbackInterfaceGotaTunCallback {
 
     // Create the VTable using a series of closures.
     // Swift automatically converts these into C callback functions.
     //
     // Store the vtable directly.
     static let vtable: UniffiVTableCallbackInterfaceGotaTunCallback = UniffiVTableCallbackInterfaceGotaTunCallback(
-        uniffiFree: { (uniffiHandle: UInt64) -> Void in
+        uniffiFree: { (uniffiHandle: UInt64) -> () in
             do {
                 try FfiConverterCallbackInterfaceGotaTunCallback.handleMap.remove(handle: uniffiHandle)
             } catch {
