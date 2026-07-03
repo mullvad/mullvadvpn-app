@@ -723,6 +723,7 @@ mod test {
               ]
             }"#;
 
+        // TODO: This is failing since we changed the format of recents. We must implement a migration for that.
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
     }
 
