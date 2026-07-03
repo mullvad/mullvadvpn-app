@@ -5,10 +5,10 @@
 /* eslint-disable */
 
 import * as jspb from "google-protobuf";
+import * as google_protobuf_duration_pb from "google-protobuf/google/protobuf/duration_pb";
 import * as google_protobuf_empty_pb from "google-protobuf/google/protobuf/empty_pb";
 import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/timestamp_pb";
 import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
-import * as google_protobuf_duration_pb from "google-protobuf/google/protobuf/duration_pb";
 
 export class LogLevel extends jspb.Message { 
     getLevel(): LogLevelValue;
@@ -1926,15 +1926,22 @@ export namespace Recents {
 
 export class MultihopRecent extends jspb.Message { 
 
-    hasEntry(): boolean;
-    clearEntry(): void;
-    getEntry(): LocationConstraint | undefined;
-    setEntry(value?: LocationConstraint): MultihopRecent;
+    hasSome(): boolean;
+    clearSome(): void;
+    getSome(): LocationConstraint | undefined;
+    setSome(value?: LocationConstraint): MultihopRecent;
+
+    hasAutomatic(): boolean;
+    clearAutomatic(): void;
+    getAutomatic(): google_protobuf_empty_pb.Empty | undefined;
+    setAutomatic(value?: google_protobuf_empty_pb.Empty): MultihopRecent;
 
     hasExit(): boolean;
     clearExit(): void;
     getExit(): LocationConstraint | undefined;
     setExit(value?: LocationConstraint): MultihopRecent;
+
+    getEntryCase(): MultihopRecent.EntryCase;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): MultihopRecent.AsObject;
@@ -1948,9 +1955,17 @@ export class MultihopRecent extends jspb.Message {
 
 export namespace MultihopRecent {
     export type AsObject = {
-        entry?: LocationConstraint.AsObject,
+        some?: LocationConstraint.AsObject,
+        automatic?: google_protobuf_empty_pb.Empty.AsObject,
         exit?: LocationConstraint.AsObject,
     }
+
+    export enum EntryCase {
+        ENTRY_NOT_SET = 0,
+        SOME = 1,
+        AUTOMATIC = 2,
+    }
+
 }
 
 export class Recent extends jspb.Message { 
@@ -1964,11 +1979,6 @@ export class Recent extends jspb.Message {
     clearMultihop(): void;
     getMultihop(): MultihopRecent | undefined;
     setMultihop(value?: MultihopRecent): Recent;
-
-    hasAutomaticEntryMultihop(): boolean;
-    clearAutomaticEntryMultihop(): void;
-    getAutomaticEntryMultihop(): LocationConstraint | undefined;
-    setAutomaticEntryMultihop(value?: LocationConstraint): Recent;
 
     getTypeCase(): Recent.TypeCase;
 
@@ -1986,14 +1996,12 @@ export namespace Recent {
     export type AsObject = {
         singlehop?: LocationConstraint.AsObject,
         multihop?: MultihopRecent.AsObject,
-        automaticEntryMultihop?: LocationConstraint.AsObject,
     }
 
     export enum TypeCase {
         TYPE_NOT_SET = 0,
         SINGLEHOP = 1,
         MULTIHOP = 2,
-        AUTOMATIC_ENTRY_MULTIHOP = 3,
     }
 
 }
