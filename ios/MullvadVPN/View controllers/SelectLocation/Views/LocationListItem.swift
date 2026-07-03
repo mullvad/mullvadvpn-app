@@ -29,55 +29,82 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
 
     @ViewBuilder
     var locationListItem: some View {
-        let hasChildren = !childIndices.isEmpty
+        let hasChildren = !location.children.isEmpty
         let isExpanded = location.showsChildren
         let isDisabled = !location.isActive || location.isExcluded
+        let isCustomList = location.asCustomListNode != nil
 
-        if level == 0 {
-            Color.clear.frame(height: 4)
-        }
-
-        SegmentedListItem(
-            level: level,
-            isLastInList: isLastInList,
-            userInteraction: isDisabled ? .disabled : .enabled,
-            accessibilityIdentifier: .locationListItem(location.name),
-            accessibilityLabel: location.name,
-            leading: {
-                itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
-            },
-            segment: {
-                if hasChildren {
-                    itemFactory.segment(
-                        for: .expand(
-                            isExpanded: isExpanded,
-                            onSelect: {
-                                toggleChildren()
+        Group {
+            if level == 0 {
+                Color.clear.frame(height: 4)
+            }
+            if !hasChildren {
+                SegmentedListItem(
+                    level: level,
+                    isLastInList: isLastInList,
+                    userInteraction: isCustomList ? .enabledWithoutHighlight : (isDisabled ? .disabled : .enabled),
+                    accessibilityIdentifier: .locationListItem(location.name),
+                    accessibilityLabel: location.name,
+                    leading: {
+                        itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
+                            .contextMenu {
+                                contextMenu(location)
                             }
-                        )
-                    )
-                }
-            },
-            groupedContent: {
-                if isExpanded && hasChildren {
-                    ForEach(
-                        Array(childIndices.enumerated()),
-                        id: \.element
-                    ) { index, indexInChildrenList in
-                        let location = $location.children[indexInChildrenList]
-                        LocationListItem(
-                            location: location,
-                            isLastInList: isLastInList && index == (childIndices.count - 1),
-                            multihopContext: multihopContext,
-                            onSelect: onSelect,
-                            contextMenu: { location in contextMenu(location) },
-                            level: level + 1,
-                        )
+                    },
+                    onSelect: {
+                        guard !isDisabled else { return }
+                        onSelect(location)
                     }
-                }
-            },
-            onSelect: { onSelect(location) }
-        )
+                )
+
+            } else {
+                SegmentedListItem(
+                    level: level,
+                    isLastInList: isLastInList,
+                    userInteraction: isCustomList ? .enabledWithoutHighlight : (isDisabled ? .disabled : .enabled),
+                    accessibilityIdentifier: .locationListItem(location.name),
+                    accessibilityLabel: location.name,
+                    leading: {
+                        itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
+                            .contextMenu {
+                                contextMenu(location)
+                            }
+
+                    },
+                    segment: {
+                        itemFactory.segment(
+                            for: .expand(
+                                isExpanded: isExpanded,
+                                onSelect: {
+                                    toggleChildren()
+                                }
+                            )
+                        )
+                    },
+                    groupedContent: {
+                        if isExpanded {
+                            ForEach(
+                                Array(childIndices.enumerated()),
+                                id: \.element
+                            ) { index, indexInChildrenList in
+                                let location = $location.children[indexInChildrenList]
+                                LocationListItem(
+                                    location: location,
+                                    isLastInList: isLastInList && index == (childIndices.count - 1),
+                                    multihopContext: multihopContext,
+                                    onSelect: onSelect,
+                                    contextMenu: { location in contextMenu(location) },
+                                    level: level + 1,
+                                )
+                            }
+                        }
+                    },
+                    onSelect: {
+                        guard !isDisabled else { return }
+                        onSelect(location)
+                    })
+            }
+        }
         .if(hasChildren) { view in
             view
                 .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
@@ -86,9 +113,6 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 ) {
                     toggleChildren()
                 }
-        }
-        .contextMenu {
-            contextMenu(location)
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.id)  // to be able to scroll to this item programmatically
