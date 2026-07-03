@@ -67,6 +67,7 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
             case .enabledWithoutHighlight:
                 button
                     .buttonStyle(StaticButtonStyle())
+                    .opacity(0.7)
                     .disabled(false)
             case .disabled:
                 button
