@@ -243,7 +243,7 @@ mod tests {
         // Verify it's a valid IPv4 TCP SYN packet
         let first_pkt = packets.into_iter().next().unwrap();
         let raw_pkt = first_pkt.into_bytes();
-        let raw: &[u8] = &*raw_pkt;
+        let raw: &[u8] = &raw_pkt;
         assert!(
             raw.len() >= 40,
             "Packet should be at least IPv4 + TCP header"
@@ -300,7 +300,7 @@ mod tests {
 
         let first_pkt = packets.into_iter().next().unwrap();
         let raw_pkt = first_pkt.into_bytes();
-        let raw: &[u8] = &*raw_pkt;
+        let raw: &[u8] = &raw_pkt;
         assert_eq!(raw[0] >> 4, 4, "Should be IPv4");
         assert_eq!(raw[9], 1, "Should be ICMP (protocol 1)");
 
