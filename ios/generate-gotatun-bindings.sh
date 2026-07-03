@@ -42,6 +42,10 @@ cargo run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
 # include dir alongside the cbindgen header so the framework module exposes it.
 mv "$OUT_DIR/MullvadRustRuntimeProxy.h" ios/MullvadRustRuntime/include/mullvad_gotatunFFI.h
 
+# uniffi only emits a swiftlint directive; also exempt the generated file from
+# swift-format (ios/format.sh lint), matching the Maybenot.swift convention.
+sed -i '' '1s;^;// swift-format-ignore-file\n;' "$OUT_DIR/mullvad_gotatun.swift"
+
 echo "Done. Generated:"
 echo "  $OUT_DIR/mullvad_gotatun.swift"
 echo "  ios/MullvadRustRuntime/include/mullvad_gotatunFFI.h"
