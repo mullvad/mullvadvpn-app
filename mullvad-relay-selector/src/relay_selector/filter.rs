@@ -57,8 +57,9 @@ impl AutohopPartition {
             .exits
             .discards
             .into_iter()
-            .partition_map(|(relay, reasons)| {
+            .partition_map(|(mut relay, reasons)| {
                 if singlehop.matches.contains(&relay) {
+                    relay.needs_other_entry = true;
                     Either::Left(relay)
                 } else {
                     Either::Right((relay, reasons))
