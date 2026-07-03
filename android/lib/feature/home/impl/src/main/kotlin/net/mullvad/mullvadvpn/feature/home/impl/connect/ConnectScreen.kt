@@ -141,6 +141,7 @@ private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 private val SCREEN_HEIGHT_THRESHOLD = 700.dp
 private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
 private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
+private const val MIN_HOP_DISTANCE = 20f
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
@@ -508,7 +509,11 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     val hops =
         remember(state.hops) {
-            state.hops.toHops().map { Hop(it.first, it.second) }
+            state.hops
+                .toHops()
+                .map { Hop(it.first, it.second) }
+                // Ignore hops that are too close
+                .filter { it.from.seppDistanceTo(it.to) > MIN_HOP_DISTANCE }
         }
 
     InteractiveMap(
