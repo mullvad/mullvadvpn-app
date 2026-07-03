@@ -228,20 +228,17 @@ type RedeemVoucherAlertProps = {
   onOpenChange?: (open: boolean) => void;
 };
 
-export function RedeemVoucherAlert({
-  open,
-  onOpenChange: onOpenChangeProps,
-}: RedeemVoucherAlertProps) {
+export function RedeemVoucherAlert({ open, onOpenChange }: RedeemVoucherAlertProps) {
   const { submitting, response } = useContext(RedeemVoucherContext);
   const locale = useSelector((state) => state.userInterface.locale);
 
-  const onOpenChange = useCallback(
+  const handleOpenChangeForVoucherInputDialog = useCallback(
     (open: boolean) => {
       if (!submitting) {
-        onOpenChangeProps?.(open);
+        onOpenChange?.(open);
       }
     },
-    [submitting, onOpenChangeProps],
+    [submitting, onOpenChange],
   );
 
   if (response?.type === 'success') {
@@ -271,7 +268,7 @@ export function RedeemVoucherAlert({
     );
   } else {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChangeForVoucherInputDialog}>
         <Dialog.Portal>
           <Dialog.Popup>
             <Dialog.PopupContent>
