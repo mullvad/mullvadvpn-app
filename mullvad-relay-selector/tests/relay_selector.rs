@@ -537,6 +537,60 @@ mod relay_selection {
         );
     }
 
+    #[test]
+    fn test_selecting_over_shadowsocks_ipv6_extra_ip_without_wireguard_ipv6() {
+        let mut relay_list = RelayListBuilder::new();
+        relay_list
+            .add_relay("shadowsocks-ipv6-extra")
+            .endpoint_data
+            .shadowsocks_extra_addr_in = HashSet::from([IpAddr::V6(Ipv6Addr::LOCALHOST)]);
+
+        let relay_selector = RelaySelector::from(relay_list);
+        let query = RelayQueryBuilder::new()
+            .ip_version(IpVersion::V6)
+            .shadowsocks()
+            .build();
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) =
+            relay.obfuscator
+        else {
+            panic!("Relay selector expected Shadowsocks obfuscation")
+        };
+        assert_eq!(endpoint.ip(), IpAddr::V6(Ipv6Addr::LOCALHOST));
+    }
+
+    #[test]
+    fn test_selecting_over_shadowsocks_ipv6_keeps_wireguard_ipv6_when_available() {
+        let wireguard_ipv6 = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1);
+        let shadowsocks_ipv6 = Ipv6Addr::LOCALHOST;
+
+        let mut relay_list = RelayListBuilder::new();
+        let relay = relay_list.add_relay("shadowsocks-ipv6");
+        relay.ipv6_addr_in = Some(wireguard_ipv6);
+        relay.endpoint_data.shadowsocks_extra_addr_in =
+            HashSet::from([IpAddr::V6(shadowsocks_ipv6)]);
+
+        let relay_selector = RelaySelector::from(relay_list);
+        let query = RelayQueryBuilder::new()
+            .ip_version(IpVersion::V6)
+            .shadowsocks()
+            .build();
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        assert_eq!(
+            relay.endpoint.peer.endpoint.ip(),
+            IpAddr::V6(wireguard_ipv6)
+        );
+
+        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) =
+            relay.obfuscator
+        else {
+            panic!("Relay selector expected Shadowsocks obfuscation")
+        };
+        assert_eq!(endpoint.ip(), IpAddr::V6(shadowsocks_ipv6));
+    }
+
     /// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
     #[test]
     fn test_selecting_over_quic() {
@@ -557,6 +611,62 @@ mod relay_selection {
             obfuscator,
             Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
         )));
+    }
+
+    #[test]
+    fn test_selecting_over_quic_ipv6_without_wireguard_ipv6() {
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_relay("quic-ipv6").endpoint_data.quic = Some(Quic::new(
+            vec1![Ipv6Addr::LOCALHOST.into()],
+            "Bearer test".to_owned(),
+            "quic-ipv6.example".to_owned(),
+        ));
+
+        let relay_selector = RelaySelector::from(relay_list);
+        let query = RelayQueryBuilder::new()
+            .ip_version(IpVersion::V6)
+            .quic()
+            .build();
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let Some(Obfuscators::Single(ObfuscatorConfig::Quic { endpoint, .. })) = relay.obfuscator
+        else {
+            panic!("Relay selector expected QUIC obfuscation")
+        };
+        assert_eq!(endpoint.ip(), IpAddr::V6(Ipv6Addr::LOCALHOST));
+    }
+
+    #[test]
+    fn test_selecting_over_quic_ipv6_keeps_wireguard_ipv6_when_available() {
+        let wireguard_ipv6 = Ipv6Addr::new(0x2001, 0xdb8, 0, 0, 0, 0, 0, 1);
+        let quic_ipv6 = Ipv6Addr::LOCALHOST;
+
+        let mut relay_list = RelayListBuilder::new();
+        let relay = relay_list.add_relay("quic-ipv6");
+        relay.ipv6_addr_in = Some(wireguard_ipv6);
+        relay.endpoint_data.quic = Some(Quic::new(
+            vec1![quic_ipv6.into()],
+            "Bearer test".to_owned(),
+            "quic-ipv6.example".to_owned(),
+        ));
+
+        let relay_selector = RelaySelector::from(relay_list);
+        let query = RelayQueryBuilder::new()
+            .ip_version(IpVersion::V6)
+            .quic()
+            .build();
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        assert_eq!(
+            relay.endpoint.peer.endpoint.ip(),
+            IpAddr::V6(wireguard_ipv6)
+        );
+
+        let Some(Obfuscators::Single(ObfuscatorConfig::Quic { endpoint, .. })) = relay.obfuscator
+        else {
+            panic!("Relay selector expected QUIC obfuscation")
+        };
+        assert_eq!(endpoint.ip(), IpAddr::V6(quic_ipv6));
     }
 
     /// Test LWO relay selection
