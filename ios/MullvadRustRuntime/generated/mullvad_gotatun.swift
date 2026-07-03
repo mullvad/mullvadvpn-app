@@ -1219,74 +1219,67 @@ fileprivate struct UniffiCallbackInterfaceGotaTunCallback {
                 fatalError("Uniffi callback interface GotaTunCallback: handle missing in uniffiClone")
             }
         },
-        onConnected: {
-            (
-                uniffiHandle: UInt64,
-                uniffiOutReturn: UnsafeMutableRawPointer,
-                uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
-            ) in
+        onConnected: { (
+            uniffiHandle: UInt64,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
             let makeCall = {
-                () throws -> Void in
-                guard
-                    let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(
-                        handle: uniffiHandle)
-                else {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(handle: uniffiHandle) else {
                     throw UniffiInternalError.unexpectedStaleHandle
                 }
-                return uniffiObj.onConnected()
-            }
-
-            let writeReturn = { () }
-            uniffiTraitInterfaceCall(
-                callStatus: uniffiCallStatus,
-                makeCall: makeCall,
-                writeReturn: writeReturn
-            )
-        },
-        onTimeout: {
-            (
-                uniffiHandle: UInt64,
-                uniffiOutReturn: UnsafeMutableRawPointer,
-                uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
-            ) in
-            let makeCall = {
-                () throws -> Void in
-                guard
-                    let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(
-                        handle: uniffiHandle)
-                else {
-                    throw UniffiInternalError.unexpectedStaleHandle
-                }
-                return uniffiObj.onTimeout()
-            }
-
-            let writeReturn = { () }
-            uniffiTraitInterfaceCall(
-                callStatus: uniffiCallStatus,
-                makeCall: makeCall,
-                writeReturn: writeReturn
-            )
-        },
-        onError: {
-            (
-                uniffiHandle: UInt64,
-                message: RustBuffer,
-                uniffiOutReturn: UnsafeMutableRawPointer,
-                uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
-            ) in
-            let makeCall = {
-                () throws -> Void in
-                guard
-                    let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(
-                        handle: uniffiHandle)
-                else {
-                    throw UniffiInternalError.unexpectedStaleHandle
-                }
-                return uniffiObj.onError(
-                    message: try FfiConverterString.lift(message)
+                return uniffiObj.onConnected(
                 )
             }
 
+            
+            let writeReturn = { () }
+            uniffiTraitInterfaceCall(
+                callStatus: uniffiCallStatus,
+                makeCall: makeCall,
+                writeReturn: writeReturn
+            )
+        },
+        onTimeout: { (
+            uniffiHandle: UInt64,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
+            let makeCall = {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(handle: uniffiHandle) else {
+                    throw UniffiInternalError.unexpectedStaleHandle
+                }
+                return uniffiObj.onTimeout(
+                )
+            }
+
+            
+            let writeReturn = { () }
+            uniffiTraitInterfaceCall(
+                callStatus: uniffiCallStatus,
+                makeCall: makeCall,
+                writeReturn: writeReturn
+            )
+        },
+        onError: { (
+            uniffiHandle: UInt64,
+            message: RustBuffer,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
+            let makeCall = {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterCallbackInterfaceGotaTunCallback.handleMap.get(handle: uniffiHandle) else {
+                    throw UniffiInternalError.unexpectedStaleHandle
+                }
+                return uniffiObj.onError(
+                     message: try FfiConverterString.lift(message)
+                )
+            }
+
+            
             let writeReturn = { () }
             uniffiTraitInterfaceCall(
                 callStatus: uniffiCallStatus,
@@ -1315,67 +1308,68 @@ private func uniffiCallbackInitGotaTunCallback() {
 
 // FfiConverter protocol for callback interfaces
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterCallbackInterfaceGotaTunCallback {
+fileprivate struct FfiConverterCallbackInterfaceGotaTunCallback {
     fileprivate static let handleMap = UniffiHandleMap<GotaTunCallback>()
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-extension FfiConverterCallbackInterfaceGotaTunCallback: FfiConverter {
+extension FfiConverterCallbackInterfaceGotaTunCallback : FfiConverter {
     typealias SwiftType = GotaTunCallback
     typealias FfiType = UInt64
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lift(_ handle: UInt64) throws -> SwiftType {
         try handleMap.get(handle: handle)
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
         let handle: UInt64 = try readInt(&buf)
         return try lift(handle)
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func lower(_ v: SwiftType) -> UInt64 {
         return handleMap.insert(obj: v)
     }
 
-    #if swift(>=5.8)
-        @_documentation(visibility: private)
-    #endif
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
     public static func write(_ v: SwiftType, into buf: inout [UInt8]) {
         writeInt(&buf, lower(v))
     }
 }
 
+
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterCallbackInterfaceGotaTunCallback_lift(_ handle: UInt64) throws -> GotaTunCallback {
     return try FfiConverterCallbackInterfaceGotaTunCallback.lift(handle)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
 public func FfiConverterCallbackInterfaceGotaTunCallback_lower(_ v: GotaTunCallback) -> UInt64 {
     return FfiConverterCallbackInterfaceGotaTunCallback.lower(v)
 }
 
 #if swift(>=5.8)
-    @_documentation(visibility: private)
+@_documentation(visibility: private)
 #endif
-private struct FfiConverterOptionTypeGotaTunPeer: FfiConverterRustBuffer {
+fileprivate struct FfiConverterOptionTypeGotaTunPeer: FfiConverterRustBuffer {
     typealias SwiftType = GotaTunPeer?
 
     public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
@@ -1411,28 +1405,28 @@ private let initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets() != 48993 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets() != 48993) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuntunnel_stop() != 36600 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_stop() != 36600) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuntunnel_suspend() != 43665 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_suspend() != 43665) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake() != 47696 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake() != 47696) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_constructor_gotatuntunnel_start() != 62227 {
+    if (uniffi_mullvad_ios_checksum_constructor_gotatuntunnel_start() != 62227) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuncallback_on_connected() != 7147 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_connected() != 7147) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuncallback_on_timeout() != 47357 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_timeout() != 47357) {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_mullvad_ios_checksum_method_gotatuncallback_on_error() != 39076 {
+    if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_error() != 39076) {
         return InitializationResult.apiChecksumMismatch
     }
 
