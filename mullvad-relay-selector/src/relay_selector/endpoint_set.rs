@@ -224,9 +224,23 @@ impl RelayEndpointSet {
         } else {
             Constraint::Any
         };
+        // QUIC and Shadowsocks choose the public next-hop endpoint from their obfuscator config.
+        // Keep the requested WireGuard IP family when possible so endpoint metadata stays
+        // consistent, but fall back because the peer endpoint is patched to a local obfuscator
+        // before dialing.
+        let wireguard_ip_version = match query {
+            Constraint::Only(ObfuscationMode::Shadowsocks(_) | ObfuscationMode::Quic) => {
+                if self.wireguard.supports_ip_version(ip_version) {
+                    ip_version
+                } else {
+                    Constraint::Any
+                }
+            }
+            _ => ip_version,
+        };
         let wireguard_endpoint = self
             .wireguard
-            .random_endpoint(ip_version, port)
+            .random_endpoint(wireguard_ip_version, port)
             .ok_or(Error::NoMatchingAddresses)?;
 
         let mode = match query {

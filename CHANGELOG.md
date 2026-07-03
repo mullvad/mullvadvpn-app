@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
 - Fix infinite loop of account checks when account ran out of time.
+- Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 
 #### Linux
 - Fix issue where `gotatun` would fail to start on Linux systems where the
