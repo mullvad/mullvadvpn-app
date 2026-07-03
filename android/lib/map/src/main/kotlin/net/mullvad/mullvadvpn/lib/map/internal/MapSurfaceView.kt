@@ -30,6 +30,8 @@ internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
     init {
         // Create an OpenGL ES 2.0 context
         setEGLContextClientVersion(2)
+        // Configure GL
+        setEGLConfigChooser(8,8,8,8,24,0)
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(renderer)
