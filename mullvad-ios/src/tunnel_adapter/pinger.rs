@@ -17,11 +17,13 @@ pub struct SmoltcpPinger {
 }
 
 impl SmoltcpPinger {
-    pub fn new(socket: SmoltcpIcmpSocket, dest: Ipv4Addr) -> Self {
+    /// `id` must be the identifier the underlying ICMP socket is bound to,
+    /// or echo replies will not be delivered to it.
+    pub fn new(socket: SmoltcpIcmpSocket, dest: Ipv4Addr, id: u16) -> Self {
         Self {
             socket,
             dest,
-            id: rand::random(),
+            id,
             seq: 0,
         }
     }

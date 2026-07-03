@@ -589,14 +589,16 @@ impl IosTunnelAdapter {
         callback: &Arc<dyn TunnelCallbackHandler>,
         stop_notify: &Notify,
     ) -> bool {
-        let icmp_socket = match smoltcp_handle.icmp_socket(0).await {
+        // Bind the socket to the pinger's ident so echo replies reach it.
+        let ping_ident: u16 = rand::random();
+        let icmp_socket = match smoltcp_handle.icmp_socket(ping_ident).await {
             Ok(socket) => socket,
             Err(e) => {
                 Self::fire_error(stopped, callback, format!("ICMP socket: {e}"));
                 return false;
             }
         };
-        let mut pinger = SmoltcpPinger::new(icmp_socket, config.ipv4_gateway);
+        let mut pinger = SmoltcpPinger::new(icmp_socket, config.ipv4_gateway, ping_ident);
 
         let establish_timeout = config.establish_timeout();
         log::info!("Establishing connectivity (timeout: {establish_timeout:?})");
