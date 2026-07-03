@@ -600,18 +600,22 @@ message RelayOverride {
   optional string ipv6_addr_in = 3;
 }
 
-message Recents { repeated Recent recents = 1; }
+message Recents {
+  repeated Recent recents = 1;
+}
 
 message MultihopRecent {
-  LocationConstraint entry = 1;
-  LocationConstraint exit = 2;
+  oneof entry {
+    LocationConstraint some = 1;
+    google.protobuf.Empty automatic = 2;
+  }
+  LocationConstraint exit = 3;
 }
 
 message Recent {
   oneof type {
     LocationConstraint singlehop = 1;
     MultihopRecent multihop = 2;
-    LocationConstraint automatic_entry_multihop = 3;
   }
 }
 
