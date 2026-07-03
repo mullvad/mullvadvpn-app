@@ -31,13 +31,23 @@ const UTUN_HEADER_LEN: usize = 4;
 const AF_INET: u32 = 2;
 const AF_INET6: u32 = 30;
 
+/// Size of the per-handle I/O scratch buffers — comfortably larger than the
+/// utun header plus any IP packet we can be handed.
+const IO_BUF_SIZE: usize = 65000;
+
+fn io_buf() -> Box<[u8]> {
+    vec![0u8; IO_BUF_SIZE].into_boxed_slice()
+}
+
 /// The original fd (owned by iOS) is never modified or closed.
 /// We `dup()` it and own the copy as an [`OwnedFd`], which is closed when the
 /// last clone of the wrapping `Arc<AsyncFd<_>>` is dropped.
-#[derive(Clone)]
 pub struct IosTunDevice {
     async_fd: Arc<AsyncFd<OwnedFd>>,
     mtu: MtuWatcher,
+    /// Reusable I/O buffer, so the send/recv hot paths don't allocate per
+    /// packet.
+    io_buf: Box<[u8]>,
 }
 
 impl IosTunDevice {
@@ -66,7 +76,19 @@ impl IosTunDevice {
         Ok(Self {
             async_fd: Arc::new(async_fd),
             mtu: MtuWatcher::new(mtu),
+            io_buf: io_buf(),
         })
+    }
+}
+
+impl Clone for IosTunDevice {
+    fn clone(&self) -> Self {
+        Self {
+            async_fd: self.async_fd.clone(),
+            mtu: self.mtu.clone(),
+            // Fresh scratch buffers; their contents are per-call anyway.
+            io_buf: io_buf(),
+        }
     }
 }
 
@@ -81,16 +103,19 @@ impl IpSend for IosTunDevice {
             AF_INET
         };
 
-        // Prepend 4-byte utun header
-        let mut buf = Vec::with_capacity(UTUN_HEADER_LEN + ip_bytes.len());
-        buf.extend_from_slice(&af.to_ne_bytes());
-        buf.extend_from_slice(ip_bytes);
+        // Prepend the 4-byte utun header in the scratch buffer.
+        let len = UTUN_HEADER_LEN + ip_bytes.len();
+        let Some(buf) = self.io_buf.get_mut(..len) else {
+            return Err(io::Error::other("packet exceeds send buffer"));
+        };
+        buf[..UTUN_HEADER_LEN].copy_from_slice(&af.to_ne_bytes());
+        buf[UTUN_HEADER_LEN..].copy_from_slice(ip_bytes);
 
         loop {
             let mut guard = self.async_fd.writable().await?;
-            match guard
-                .try_io(|inner| nix::unistd::write(inner.get_ref(), &buf).map_err(Into::into))
-            {
+            match guard.try_io(|inner| {
+                nix::unistd::write(inner.get_ref(), &self.io_buf[..len]).map_err(Into::into)
+            }) {
                 Ok(result) => return result.map(drop),
                 Err(_would_block) => continue,
             }
@@ -103,12 +128,12 @@ impl IpRecv for IosTunDevice {
         &'a mut self,
         pool: &mut PacketBufPool,
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
-        let mut raw_buf = vec![0u8; UTUN_HEADER_LEN + self.mtu.clone().get() as usize];
+        let raw_buf = &mut self.io_buf;
 
         loop {
             let mut guard = self.async_fd.readable().await?;
             match guard.try_io(|inner| {
-                let n = nix::unistd::read(inner.get_ref(), &mut raw_buf)?;
+                let n = nix::unistd::read(inner.get_ref(), raw_buf)?;
                 if n == 0 {
                     return Err(io::Error::new(
                         io::ErrorKind::UnexpectedEof,
@@ -124,6 +149,10 @@ impl IpRecv for IosTunDevice {
                     // Strip the 4-byte utun header
                     let ip_data = &raw_buf[UTUN_HEADER_LEN..n];
                     let mut packet = pool.get();
+                    if ip_data.len() > packet.len() {
+                        log::warn!("dropping oversized TUN packet ({} bytes)", ip_data.len());
+                        continue;
+                    }
                     let ip_len = ip_data.len();
                     packet[..ip_len].copy_from_slice(ip_data);
                     packet.truncate(ip_len);
