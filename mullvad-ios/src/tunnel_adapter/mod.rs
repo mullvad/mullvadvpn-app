@@ -1,4 +1,3 @@
-//! iOS tunnel adapter — manages a single GotaTun connection attempt.
 //!
 //! Each instance drives one connection lifecycle:
 //! 1. Create TUN device from fd
@@ -52,12 +51,18 @@ use self::tun_device::IosTunDevice;
 /// Guard that aborts the obfuscation proxy task on drop.
 struct ObfuscationGuard {
     endpoint: SocketAddr,
-    _task: tokio::task::JoinHandle<()>,
+    task: tokio::task::JoinHandle<()>,
 }
 
 impl ObfuscationGuard {
     fn endpoint(&self) -> SocketAddr {
         self.endpoint
+    }
+}
+
+impl Drop for ObfuscationGuard {
+    fn drop(&mut self) {
+        self.task.abort();
     }
 }
 
@@ -745,10 +750,7 @@ impl IosTunnelAdapter {
         let task = tokio::spawn(async move {
             let _ = obfuscator.run().await;
         });
-        Ok(Some(ObfuscationGuard {
-            endpoint,
-            _task: task,
-        }))
+        Ok(Some(ObfuscationGuard { endpoint, task }))
     }
 
     /// Apply obfuscation to the config: replace the ingress peer's endpoint with the proxy address.
