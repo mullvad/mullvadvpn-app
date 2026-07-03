@@ -62,6 +62,16 @@ fn smoltcp_now(reference: &StdInstant) -> SmoltcpInstant {
     SmoltcpInstant::from_millis(reference.elapsed().as_millis() as i64)
 }
 
+/// Sleep until the smoltcp poll deadline, or forever if there is none. An idle
+/// stack needs no timer wakeups: commands, inbound packets, and `notify` all
+/// wake the poll loop on their own.
+async fn sleep_until(deadline: Option<Duration>) {
+    match deadline {
+        Some(delay) => tokio::time::sleep(delay).await,
+        None => std::future::pending().await,
+    }
+}
+
 fn to_smoltcp_endpoint(addr: SocketAddr) -> IpEndpoint {
     IpEndpoint {
         addr: match addr {
@@ -88,14 +98,14 @@ pub(super) async fn poll_loop(
 
     loop {
         // Block until there's something to do: a socket command, an inbound
-        // packet, an explicit wakeup, or smoltcp's next timer deadline.
-        let sleep = stack.poll_delay(now());
+        // packet, an explicit wakeup, or smoltcp's next timer deadline (if any).
+        let deadline = stack.poll_delay(now());
         tokio::select! {
             biased;
             Some(cmd) = cmd_rx.recv() => stack.handle_cmd(cmd, &notify),
             Some(pkt) = from_gotatun_rx.recv() => stack.enqueue_rx(pkt),
             _ = notify.notified() => {}
-            _ = tokio::time::sleep(sleep) => {}
+            _ = sleep_until(deadline) => {}
         }
 
         // Drain whatever else is already queued so a burst of commands or
@@ -169,12 +179,12 @@ impl SmoltcpStack {
         }
     }
 
-    /// How long the poll loop may sleep before smoltcp next needs servicing.
-    fn poll_delay(&mut self, now: SmoltcpInstant) -> Duration {
+    /// How long the poll loop may sleep before smoltcp next needs servicing,
+    /// or `None` if no timer is pending.
+    fn poll_delay(&mut self, now: SmoltcpInstant) -> Option<Duration> {
         self.iface
             .poll_delay(now, &self.sockets)
             .map(|d| Duration::from_millis(d.total_millis()))
-            .unwrap_or(Duration::from_millis(100))
     }
 
     /// Queue an inbound (decrypted) IP packet for smoltcp to process.
