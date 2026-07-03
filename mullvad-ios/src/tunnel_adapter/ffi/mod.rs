@@ -226,7 +226,6 @@ fn build_tunnel_config(
     tun_fd: i32,
     config: GotaTunConfig,
 ) -> Result<TunnelConfig, GotaTunFfiError> {
-    let ipv6_addr = Some(parse::<Ipv6Addr>(&config.ipv6_address, "IPv6 address")?);
     // The exit peer carries all user traffic (full internet). In multihop the entry
     // peer only carries the exit relay's encrypted UDP, so its single allowed IP is
     // the exit endpoint's address (a host route).
@@ -241,7 +240,7 @@ fn build_tunnel_config(
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
         ipv4_addr: parse::<Ipv4Addr>(&config.ipv4_address, "IPv4 address")?,
-        ipv6_addr,
+        ipv6_addr: parse::<Ipv6Addr>(&config.ipv6_address, "IPv6 address")?,
         mtu: config.mtu,
         exit_peer,
         entry_peer,

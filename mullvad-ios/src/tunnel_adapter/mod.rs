@@ -86,7 +86,7 @@ pub struct TunnelConfig {
     pub tun_fd: i32,
     pub private_key: [u8; 32],
     pub ipv4_addr: Ipv4Addr,
-    pub ipv6_addr: Option<Ipv6Addr>,
+    pub ipv6_addr: Ipv6Addr,
     pub mtu: u16,
     pub exit_peer: PeerConfig,
     pub entry_peer: Option<PeerConfig>,
@@ -244,7 +244,7 @@ impl IosTunnelAdapter {
         let (smoltcp_handle, ip_recv, ip_send, _smoltcp_guard) =
             smoltcp_network(SmoltcpNetworkConfig {
                 ipv4_addr: config.ipv4_addr,
-                ipv6_addr: config.ipv6_addr,
+                ipv6_addr: Some(config.ipv6_addr),
                 mtu: config.smoltcp_mtu(),
             });
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
@@ -374,15 +374,11 @@ impl IosTunnelAdapter {
 
         let (smoltcp_handle, ip_recv, ip_send, _guard) = smoltcp_network(SmoltcpNetworkConfig {
             ipv4_addr: config.ipv4_addr,
-            ipv6_addr: config.ipv6_addr,
+            ipv6_addr: Some(config.ipv6_addr),
             mtu: config.smoltcp_mtu(),
         });
-        let (ch_tx, ch_rx, udp_ch) = new_udp_tun_channel(
-            100,
-            config.ipv4_addr,
-            config.ipv6_addr.unwrap_or(Ipv6Addr::UNSPECIFIED),
-            entry_mtu,
-        );
+        let (ch_tx, ch_rx, udp_ch) =
+            new_udp_tun_channel(100, config.ipv4_addr, config.ipv6_addr, entry_mtu);
 
         // Exit device: smoltcp IP pair, UDP channeled through the entry.
         let pq2_exit = match DeviceBuilder::new()
@@ -516,12 +512,8 @@ impl IosTunnelAdapter {
         let entry_mtu = MtuWatcher::new(config.mtu)
             .increase(Self::multihop_overhead(entry_peer_config.endpoint))
             .expect("MTU overflow");
-        let (tun_channel_tx, tun_channel_rx, udp_channels) = new_udp_tun_channel(
-            100,
-            config.ipv4_addr,
-            config.ipv6_addr.unwrap_or(Ipv6Addr::UNSPECIFIED),
-            entry_mtu,
-        );
+        let (tun_channel_tx, tun_channel_rx, udp_channels) =
+            new_udp_tun_channel(100, config.ipv4_addr, config.ipv6_addr, entry_mtu);
 
         let exit_device = match DeviceBuilder::new()
             .with_udp(udp_channels)
@@ -635,7 +627,7 @@ impl IosTunnelAdapter {
 
         let (handle, ip_recv, ip_send, _guard) = smoltcp_network(SmoltcpNetworkConfig {
             ipv4_addr: config.ipv4_addr,
-            ipv6_addr: config.ipv6_addr,
+            ipv6_addr: Some(config.ipv6_addr),
             mtu: config.smoltcp_mtu(),
         });
 
@@ -1064,7 +1056,7 @@ mod tests {
             tun_fd: -1,
             private_key: [0u8; 32],
             ipv4_addr: Ipv4Addr::new(10, 0, 0, 2),
-            ipv6_addr: None,
+            ipv6_addr: "fd00::2".parse().unwrap(),
             mtu: 1280,
             exit_peer: peer("1.2.3.4:51820"),
             entry_peer: None,
