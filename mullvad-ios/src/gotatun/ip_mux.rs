@@ -109,13 +109,9 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
         };
 
         match result {
-            RecvResult::Primary(result) => result.map(|iter| {
-                let packets: Vec<_> = iter.collect();
-                MuxIter(packets.into_iter())
-            }),
+            RecvResult::Primary(result) => result.map(MuxIter::Primary),
             RecvResult::Secondary(result) => {
-                let iter = result?;
-                let packets: Vec<_> = iter.collect();
+                let packets: Vec<_> = result?.collect();
                 for pkt in &packets {
                     if let Some(event) = outbound_event((*pkt).as_bytes())
                         && self.events_tx.try_send(event).is_err()
@@ -126,7 +122,7 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
                         );
                     }
                 }
-                Ok(MuxIter(packets.into_iter()))
+                Ok(MuxIter::Secondary(packets.into_iter()))
             }
         }
     }
@@ -160,14 +156,27 @@ impl<P: IpSend, S: IpSend> IpSend for IpMuxSend<P, S> {
     }
 }
 
-/// Wrapper iterator over collected packets from either source.
-struct MuxIter(std::vec::IntoIter<Packet<Ip>>);
+/// Iterator over packets from either mux source. Lets the primary (TUN) branch
+/// pass its iterator through untouched — no per-recv collection on the hot
+/// path — while the secondary branch yields the packets it collected for event
+/// extraction.
+enum MuxIter<P, S> {
+    Primary(P),
+    Secondary(S),
+}
 
-impl Iterator for MuxIter {
+impl<P, S> Iterator for MuxIter<P, S>
+where
+    P: Iterator<Item = Packet<Ip>>,
+    S: Iterator<Item = Packet<Ip>>,
+{
     type Item = Packet<Ip>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.0.next()
+        match self {
+            MuxIter::Primary(iter) => iter.next(),
+            MuxIter::Secondary(iter) => iter.next(),
+        }
     }
 }
 
@@ -213,7 +222,7 @@ mod tests {
     impl IpSend for ChannelIpSend {
         async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
             let raw: Packet<[u8]> = packet.into_bytes();
-            let bytes: &[u8] = &*raw;
+            let bytes: &[u8] = &raw;
             self.tx
                 .send(bytes.to_vec())
                 .await
