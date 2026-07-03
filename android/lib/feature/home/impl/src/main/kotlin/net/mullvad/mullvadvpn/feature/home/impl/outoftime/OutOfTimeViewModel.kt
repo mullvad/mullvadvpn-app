@@ -37,7 +37,6 @@ class OutOfTimeViewModel(
     private val paymentUseCase: PaymentLogic,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
-    private val pollAccountExpiryAndPaymentVerification: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
 
@@ -68,14 +67,13 @@ class OutOfTimeViewModel(
 
     init {
         viewModelScope.launch {
-            while (pollAccountExpiryAndPaymentVerification) {
-                paymentUseCase.verifyPurchases()
+            while (true) {
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
         viewModelScope.launch {
-            while (pollAccountExpiryAndPaymentVerification) {
+            while (true) {
                 // We do not want to retry verification if it fails, since we are already polling
                 // for it.
                 if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {

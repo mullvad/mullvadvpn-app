@@ -37,7 +37,6 @@ class WelcomeViewModel(
     deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
-    private val pollAccountExpiryAndPaymentVerification: Boolean = true,
     private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -67,13 +66,13 @@ class WelcomeViewModel(
 
     init {
         viewModelScope.launch {
-            while (pollAccountExpiryAndPaymentVerification) {
+            while (true) {
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
         viewModelScope.launch {
-            while (pollAccountExpiryAndPaymentVerification) {
+            while (true) {
                 // We do not want to retry verification if it fails, since we are already polling
                 // for it.
                 if (paymentUseCase.verifyPurchases(maxAttempts = 0).isSuccess()) {
