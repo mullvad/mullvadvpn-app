@@ -261,6 +261,7 @@ impl From<mullvad_types::relay_list::WireguardRelay> for proto::Relay {
                     weight,
                     location,
                 },
+            needs_other_entry: _,
         } = relay;
         Self {
             hostname,

@@ -1,6 +1,6 @@
 use mullvad_types::{
     constraints::Constraint,
-    relay_list::Relay,
+    relay_list::WireguardRelay,
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
         Predicate, Reason, RelayPartitions,
@@ -140,14 +140,13 @@ impl From<RelayPartitions> for proto::RelayPartitions {
             .into_iter()
             .map(|(relay, _)| relay)
             .chain(matches)
-            .map(|relay| relay.inner)
             .map(proto::Relay::from)
             .collect();
 
         let discards = true_discards
             .into_iter()
             .map(|(relay, why)| proto::DiscardedRelay {
-                relay: Some(proto::Relay::from(relay.inner)),
+                relay: Some(proto::Relay::from(relay)),
                 why: Some(proto::IncompatibleConstraints::from(why)),
             })
             .collect();
@@ -155,11 +154,13 @@ impl From<RelayPartitions> for proto::RelayPartitions {
     }
 }
 
-impl From<Relay> for proto::Relay {
-    fn from(Relay { hostname, .. }: Relay) -> Self {
+impl From<WireguardRelay> for proto::Relay {
+    fn from(relay: WireguardRelay) -> Self {
         Self {
-            hostname,
-            metadata: None,
+            hostname: relay.inner.hostname,
+            metadata: Some(proto::relay::Metadata {
+                needs_other_entry: relay.needs_other_entry,
+            }),
         }
     }
 }

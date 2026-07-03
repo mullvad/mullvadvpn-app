@@ -82,6 +82,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         active: true,
                         weight: 1,
                     },
+                    needs_other_entry: false,
                 },
                 WireguardRelay {
                     overridden_ipv4: false,
@@ -101,6 +102,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
                     },
+                    needs_other_entry: false,
                 },
                 WireguardRelay {
                     overridden_ipv4: false,
@@ -121,6 +123,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a11f".parse().unwrap()),
                     },
+                    needs_other_entry: false,
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -203,6 +206,7 @@ static SHADOWSOCKS_RELAY: LazyLock<WireguardRelay> = LazyLock::new(|| WireguardR
         active: true,
         weight: 1,
     },
+    needs_other_entry: false,
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -364,6 +368,7 @@ mod relay_selection {
                                 weight: 1,
                                 location: DUMMY_LOCATION.clone(),
                             },
+                            needs_other_entry: false,
                         },
                         WireguardRelay {
                             overridden_ipv4: false,
@@ -382,6 +387,7 @@ mod relay_selection {
                                 location: DUMMY_LOCATION.clone(),
                                 weight: 1,
                             },
+                            needs_other_entry: false,
                         },
                     ],
                 }],
@@ -1031,6 +1037,7 @@ mod relay_selection {
                                     weight: 1,
                                     location: stockholm.clone(),
                                 },
+                                needs_other_entry: false,
                             },
                             WireguardRelay {
                                 overridden_ipv4: false,
@@ -1053,6 +1060,7 @@ mod relay_selection {
                                     ipv4_addr_in: "89.37.63.190".parse().unwrap(),
                                     ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
                                 },
+                                needs_other_entry: false,
                             },
                         ],
                     }],
@@ -2054,6 +2062,7 @@ mod relay_list_builder {
                         city_code: city.code.clone(),
                     },
                 },
+                needs_other_entry: false,
             });
             city.relays.last_mut().unwrap()
         }
