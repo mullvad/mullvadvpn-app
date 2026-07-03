@@ -1,9 +1,12 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import kotlin.math.absoluteValue
+import kotlinx.parcelize.Parcelize
 
 @JvmInline
-value class Latitude(val value: Float) {
+@Parcelize
+value class Latitude(val value: Float) : Parcelable {
     init {
         require(value in LATITUDE_RANGE) {
             "Latitude: '$value' must be between $MIN_LATITUDE_VALUE and $MAX_LATITUDE_VALUE"
@@ -35,14 +38,14 @@ value class Latitude(val value: Float) {
             return Latitude(unwoundValue)
         }
 
-        private fun unwind(value: Float): Float {
+        fun unwind(value: Float): Float {
             // Remove all 360 degrees
             val withoutRotations = value % COMPLETE_ANGLE
 
             // If we are above 180 or below -180, we wrapped half a turn and need to flip sign
             val partiallyUnwound =
-                if (withoutRotations.absoluteValue > COMPLETE_ANGLE / 2) {
-                    -withoutRotations % (COMPLETE_ANGLE / 2)
+                if (withoutRotations.absoluteValue > STRAIGHT_ANGLE) {
+                    -withoutRotations % STRAIGHT_ANGLE
                 } else withoutRotations
 
             return when {

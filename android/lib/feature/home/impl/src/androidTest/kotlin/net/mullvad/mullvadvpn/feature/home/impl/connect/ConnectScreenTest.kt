@@ -14,6 +14,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -117,12 +118,14 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked,
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         isPlayBuild = false,
                     )
             )
@@ -144,12 +147,14 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         isPlayBuild = false,
                     )
             )
@@ -168,12 +173,14 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         isPlayBuild = false,
                     )
             )
@@ -193,9 +200,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = mockSelectedRelayTitle,
                         tunnelState = TunnelState.Disconnected(),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -217,10 +226,12 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true)),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -246,10 +257,12 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -276,9 +289,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked,
@@ -302,9 +317,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked,
@@ -329,9 +346,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = mockSelectedRelayItemTitle,
                         tunnelState = TunnelState.Disconnected(),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -357,9 +376,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -385,9 +406,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -412,9 +435,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnected(),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -439,9 +464,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -489,10 +516,12 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -524,9 +553,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
@@ -551,9 +582,11 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -581,9 +614,11 @@ class ConnectScreenTest {
                 onOpenAppListing = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
@@ -609,9 +644,11 @@ class ConnectScreenTest {
                 onManageAccountClick = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -639,9 +676,11 @@ class ConnectScreenTest {
                 onChangelogClick = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.NewVersionChangelog,
@@ -702,10 +741,12 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -759,10 +800,12 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
@@ -804,7 +847,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(
@@ -812,6 +855,8 @@ class ConnectScreenTest {
                                 mockLocation,
                                 listOf(FeatureIndicator.MULTIHOP),
                             ),
+                        locations = emptyList(),
+                        hops = ConnectionPath(),
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,

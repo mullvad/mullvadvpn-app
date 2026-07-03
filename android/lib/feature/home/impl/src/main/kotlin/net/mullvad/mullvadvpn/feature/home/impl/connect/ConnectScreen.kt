@@ -90,11 +90,11 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKe
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
+import net.mullvad.mullvadvpn.lib.common.compose.CONNECTED_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.DEFAULT_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
-import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
-import net.mullvad.mullvadvpn.lib.common.compose.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.fallbackLatLong
@@ -104,8 +104,9 @@ import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
-import net.mullvad.mullvadvpn.lib.map.AnimatedMap
+import net.mullvad.mullvadvpn.lib.map.InteractiveMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -140,6 +141,7 @@ private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 private val SCREEN_HEIGHT_THRESHOLD = 700.dp
 private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
 private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
+private const val MIN_HOP_DISTANCE = 20f
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
@@ -494,27 +496,38 @@ private fun Content(
 @Composable
 private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
-    // Distance to marker when secure/unsecure
-    val baseZoom =
+    // Distance to marker when connected/not connected
+    val secureZoom =
         animateFloatAsState(
             targetValue =
-                if (state.tunnelState is TunnelState.Connected) SECURE_ZOOM else UNSECURE_ZOOM,
+                if (state.tunnelState is TunnelState.Connected) CONNECTED_ZOOM else DEFAULT_ZOOM,
             animationSpec = tween(SECURE_ZOOM_ANIMATION_MILLIS),
             label = "baseZoom",
         )
 
-    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+    val locationMarker = state.tunnelState.toMarker(state.internetLocation)
 
-    AnimatedMap(
-        modifier = Modifier,
-        cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
-        cameraBaseZoom = baseZoom.value,
-        cameraVerticalBias = progressIndicatorBias,
-        markers = markers,
+    val hops =
+        remember(state.hops) {
+            state.hops
+                .toHops()
+                .map { Hop(it.first, it.second) }
+                // Ignore hops that are too close
+                .filter { it.from.seppDistanceTo(it.to) > MIN_HOP_DISTANCE }
+        }
+
+    InteractiveMap(
+        currentLocation = state.internetLocation?.toLatLong() ?: fallbackLatLong,
+        secureZoom.value,
+        progressIndicatorBias,
+        markers = listOfNotNull(locationMarker),
+        locations = state.locations,
+        hops = hops,
         globeColors =
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
+                backgroundColor = MaterialTheme.colorScheme.tertiary,
             ),
     )
 }
@@ -547,7 +560,7 @@ private fun ConnectionCard(
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
         Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
-            ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
+            ConnectionCardHeader(state, state.internetLocation, expanded) { expanded = !expanded }
 
             AnimatedContent(
                 state.tunnelState.featureIndicators() to expanded,
@@ -773,7 +786,6 @@ fun TunnelState.toMarker(location: GeoIpLocation?): Marker? {
                 location.toLatLong(),
                 colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error),
             )
-
         is TunnelState.Disconnecting -> null
         is TunnelState.Error -> null
     }

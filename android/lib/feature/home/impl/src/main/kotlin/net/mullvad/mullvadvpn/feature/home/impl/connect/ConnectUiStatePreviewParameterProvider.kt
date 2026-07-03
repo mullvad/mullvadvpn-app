@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
+import net.mullvad.mullvadvpn.lib.model.ConnectionPath
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 
@@ -32,7 +33,7 @@ private val otherStates =
         )
         .mapIndexed { index, state ->
             ConnectUiState(
-                location =
+                internetLocation =
                     GeoIpLocation(
                         ipv4 = InetAddress.getLocalHost(),
                         ipv6 = null,
@@ -45,6 +46,8 @@ private val otherStates =
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,
+                hops = ConnectionPath(),
+                locations = emptyList(),
                 inAppNotification =
                     if (index == 0) InAppNotification.NewDevice("Test Device") else null,
                 deviceName = "Cool Beans",
