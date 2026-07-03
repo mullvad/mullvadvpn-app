@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.lib.map.internal.shapes
 import android.opengl.GLES20
 import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import net.mullvad.mullvadvpn.lib.map.data.Sphere
@@ -58,15 +57,8 @@ class HopArc(
         segments: Int,
     ): FloatArray {
         val vertices = FloatArray((segments + 1) * VERTEX_COMPONENT_SIZE)
-
-        // If the distance is short/zero we want a more drop like arc shape, where the curve goes
-        // in the opposite direction in the beginning to avoid it becoming a straight line up and
-        // down.
         val distance = start.distanceTo(end)
-        val isShortArc = distance < SHORT_ARC_CUTOFF_DISTANCE
-        val maxHeight = if (isShortArc) SHORT_ARC_MAX_HEIGHT else longArcMaxHeight(distance)
-        // If it is a short arc we create a baseTangentVector that is used to offset in width later
-        val shortArcTangentVector = if (isShortArc) baseTangentVector(start, end) else null
+        val maxHeight = longArcMaxHeight(distance)
 
         val hopVector = end - start
         val baseHeight =
@@ -79,15 +71,7 @@ class HopArc(
             val unitVector = point.normalize()
             val height = baseHeight + maxHeight * progress * (1.0f - progress)
 
-            var segmentPoint = unitVector * height
-            // If we have a short vector we need to apply the tangent vector to ensure
-            // we don't end up with a line that goes straight up and down. Here we add
-            // the drop shape
-            if (shortArcTangentVector != null) {
-                val angle = (PI * progress).toFloat()
-                val width = -SHORT_ARC_MAX_WIDTH * sin(angle) * cos(angle)
-                segmentPoint += (shortArcTangentVector * width)
-            }
+            val segmentPoint = unitVector * height
 
             val index = i * VERTEX_COMPONENT_SIZE
             vertices[index] = segmentPoint.x
@@ -95,26 +79,6 @@ class HopArc(
             vertices[index + 2] = segmentPoint.z
         }
         return vertices
-    }
-
-    /**
-     * Returns a unit vector tangent to the sphere at [start], pointing towards [end].
-     *
-     * Used to give the short-arc drop loop a stable sideways direction to bulge into. When [start]
-     * and [end] are the same point a tangent along the longitude lines are chosen.
-     */
-    private fun baseTangentVector(start: Vector3, end: Vector3): Vector3 {
-        val normal = start.normalize()
-        val diffVector = (end - start)
-        val towardsEnd = diffVector - normal * diffVector.dot(normal)
-
-        val tangent =
-            if (start == end)
-                // We don't care to handle if it is close to North/South Pole
-                normal.cross(Vector3(0f, 1f, 0f))
-            else towardsEnd
-
-        return tangent.normalize()
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, lineWidth: Float = 4f) {
@@ -160,7 +124,7 @@ class HopArc(
     }
 
     private fun longArcMaxHeight(distance: Float): Float =
-        (LONG_ARC_DISTANCE_FACTOR * distance).coerceIn(LONG_ARC_MIN_HEIGHT, LONG_ARC_MAX_HEIGHT)
+        (ARC_DISTANCE_FACTOR * distance).coerceIn(ARC_MIN_HEIGHT, ARC_MAX_HEIGHT)
 
     private data class AttribLocations(val vertexPosition: Int)
 
@@ -196,12 +160,8 @@ class HopArc(
                 .trimIndent()
 
         private const val DEFAULT_SEGMENT_SIZE = 48
-        private const val SHORT_ARC_CUTOFF_DISTANCE = 0.02f
-        private const val SHORT_ARC_MAX_HEIGHT = 0.08f
-        private const val SHORT_ARC_MAX_WIDTH = 0.03f
-
-        private const val LONG_ARC_DISTANCE_FACTOR = 0.1f
-        private const val LONG_ARC_MIN_HEIGHT = 0.08f
-        private const val LONG_ARC_MAX_HEIGHT = 0.40f
+        private const val ARC_DISTANCE_FACTOR = 0.1f
+        private const val ARC_MIN_HEIGHT = 0.04f
+        private const val ARC_MAX_HEIGHT = 0.40f
     }
 }
