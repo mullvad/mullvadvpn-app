@@ -403,10 +403,11 @@ mod tests {
         assert!(primary_out.try_recv().is_err());
     }
 
-    /// After a TCP FIN from secondary, the connection should be untracked
-    /// and subsequent return traffic goes to primary.
+    /// After a TCP FIN from secondary, the peer's FIN+ACK must still be routed
+    /// to the secondary (completing the close); only traffic after that goes to
+    /// primary.
     #[tokio::test]
-    async fn tcp_fin_untracks_connection() {
+    async fn tcp_close_routes_peer_fin_then_untracks() {
         let (_primary_inject, primary_recv) = channel_pair();
         let (secondary_inject, secondary_recv) = channel_pair();
         let (primary_send, mut primary_out) = channel_send_pair();
@@ -422,12 +423,21 @@ mod tests {
         inject(&secondary_inject, syn).await;
         let _: Vec<_> = mux_recv.recv(&mut pool).await.unwrap().collect();
 
-        // FIN
+        // FIN (our half of the close)
         let fin = make_tcp_packet([10, 0, 0, 1], [1, 1, 1, 1], 50000, 80, 0x01);
         inject(&secondary_inject, fin).await;
         let _: Vec<_> = mux_recv.recv(&mut pool).await.unwrap().collect();
 
-        // Return traffic should now go to primary (connection untracked)
+        // The peer's FIN+ACK completes the close and still goes to secondary.
+        let fin_ack = make_tcp_packet([1, 1, 1, 1], [10, 0, 0, 1], 80, 50000, 0x11);
+        let pkt = Packet::from_bytes(BytesMut::from(fin_ack.as_slice()))
+            .try_into_ip()
+            .unwrap();
+        mux_send.send(pkt).await.unwrap();
+        let routed = drain(&mut secondary_out).await;
+        assert_eq!(routed[33] & 0x01, 0x01, "Should be the peer's FIN");
+
+        // Anything after that goes to primary (connection untracked).
         let reply = make_tcp_packet([1, 1, 1, 1], [10, 0, 0, 1], 80, 50000, 0x10);
         let pkt = Packet::from_bytes(BytesMut::from(reply.as_slice()))
             .try_into_ip()
