@@ -4,6 +4,7 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
     enum UserInteraction {
         case enabled
         case enabledWithoutHighlight
+        case inactive
         case disabled
     }
 
@@ -68,6 +69,9 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                 button
                     .buttonStyle(StaticButtonStyle())
                     .disabled(false)
+            case .inactive:
+                button
+                    .buttonStyle(InactiveButtonStyle())
             case .disabled:
                 button
                     .buttonStyle(PlainButtonStyle())
