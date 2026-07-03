@@ -22,13 +22,7 @@ class RelayFilterCoordinator: Coordinator, Presentable {
         return navigationController
     }
 
-    var relayFilterViewController: RelayFilterSelection.ViewController? {
-        return navigationController.viewControllers.first {
-            $0 is RelayFilterSelection.ViewController
-        } as? RelayFilterSelection.ViewController
-    }
-
-    var didFinish: ((RelayFilterCoordinator, RelayFilter?) -> Void)?
+    var didFinish: (() -> Void)?
     var onFeatureChipTapped: ((SelectLocationFilter) -> Void)?
 
     init(
@@ -44,31 +38,32 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     }
 
     func start() {
-
-        let relayFilterViewModel = RelayFilterSelection.ViewModel(
+        let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
             multihopContext: multihopContext
         )
-        relayFilterViewModel.onFeatureChipTapped = { [weak self] feature in
-            self?.onFeatureChipTapped?(feature)
-        }
-        let relayFilterViewController = RelayFilterSelection.ViewController(viewModel: relayFilterViewModel)
+        let relayFilterView = RelayFilterView(viewModel: viewModel)
 
-        relayFilterViewController.onApplyFilter = { [weak self] filter, multihopContext in
+        viewModel.onApplyFilter = { [weak self] filter in
             guard let self else { return }
 
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
             tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
 
-            didFinish?(self, filter)
+            didFinish?()
         }
 
-        relayFilterViewController.didFinish = { [weak self] in
-            guard let self else { return }
-            didFinish?(self, nil)
+        viewModel.onCancel = { [weak self] in
+            self?.didFinish?()
         }
-        navigationController.pushViewController(relayFilterViewController, animated: false)
+
+        viewModel.onFeatureChipTapped = { [weak self] feature in
+            self?.onFeatureChipTapped?(feature)
+        }
+
+        let host = UIHostingRootController(rootView: relayFilterView)
+        navigationController.pushViewController(host, animated: false)
     }
 }
