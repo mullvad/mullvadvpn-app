@@ -3,10 +3,10 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var management_interface_pb = require('./management_interface_pb.js');
+var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js');
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
-var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js');
 
 function serialize_google_protobuf_BoolValue(arg) {
   if (!(arg instanceof google_protobuf_wrappers_pb.BoolValue)) {
