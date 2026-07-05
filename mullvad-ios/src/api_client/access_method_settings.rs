@@ -143,6 +143,7 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
         )
     };
 
+    // SAFETY: custom_methods_raw must be a valid pointer to an AccessMethodSetting.
     let custom =
         unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
@@ -185,7 +186,10 @@ impl SwiftAccessMethodSettingsWrapper {
         SwiftAccessMethodSettingsWrapper(Box::into_raw(Box::new(context)))
     }
 
+    /// SAFETY: self must be constructed via [`SwiftAccessMethodSettingsWrapper::new`].
     pub unsafe fn into_rust_context(self) -> Box<SwiftAccessMethodSettingsContext> {
+        // SAFETY: the self.0 pointer must be valid as per the callee guarantee that `self` was
+        // constructed by [`SwiftAccessMethodSettingsWrapper::new`]
         unsafe { Box::from_raw(self.0) }
     }
 }

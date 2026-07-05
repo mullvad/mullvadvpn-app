@@ -48,13 +48,16 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
     c_cipher: *const c_char,
 ) -> *const c_void {
     let endpoint: SocketAddr =
+        // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
         if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
             SocketAddr::new(ip_address, port)
         } else {
             return std::ptr::null();
         };
 
+    // SAFETY: `c_password` pointer must be a valid C string pointer
     let password = unsafe { get_string(c_password) };
+    // SAFETY: `c_cipher` pointer must be a valid C string pointer
     let cipher = unsafe { get_string(c_cipher) };
     let cipher = ShadowsocksCipher::new(&cipher).unwrap();
 
@@ -79,6 +82,7 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
     c_password: *const c_char,
 ) -> *const c_void {
     let endpoint: SocketAddr =
+        // SAFETY: caller guarantees that `address` is valid for at least `address_len` bytes
         if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
             SocketAddr::new(ip_address, port)
         } else {
@@ -89,7 +93,9 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
         if c_username.is_null() || c_password.is_null() {
             None
         } else {
+            // SAFETY: The caller must guarantee that `c_username` is a valid C string pointer
             let username = unsafe { get_string(c_username) };
+            // SAFETY: The caller must guarantee that `c_password` is a valid C string pointer
             let password = unsafe { get_string(c_password) };
             SocksAuth::new(username, password).ok()
         }
@@ -114,5 +120,6 @@ pub extern "C" fn get_shadowsocks_chipers() -> *mut libc::c_char {
 /// `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_cstring_drop(cstr_ptr: *mut libc::c_char) {
+    // SAFETY: caller guarantees that `cstr_ptr` is a valid C string pointer
     let _ = unsafe { CString::from_raw(cstr_ptr) };
 }

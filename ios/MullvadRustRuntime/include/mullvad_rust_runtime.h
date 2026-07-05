@@ -899,6 +899,14 @@ void log_redactor_free(struct LogRedactor *redactor);
  */
 void init_rust_logging(LogCallback callback, void *context);
 
+/**
+ * Start a udp2tcp obfuscator proxy.
+ *
+ * # SAFETY
+ * `peer_address` must be a valid pointer to `peer_address_len` bytes, these bytes will be
+ * interpreted  as an IP address. `proxy_handle` must be a valid pointer for a `ProxyHandle`
+ * struct. This function will initialize `proxy_handle` to contain a valid `ProxyHandle` instance.
+ */
 int32_t start_udp2tcp_obfuscator_proxy(const uint8_t *peer_address,
                                        uintptr_t peer_address_len,
                                        uint16_t peer_port,
