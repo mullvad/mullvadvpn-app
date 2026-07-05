@@ -144,6 +144,8 @@ impl SwiftMullvadApiResponse {
 /// is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse) {
+    // SAFETY: `response` must be a valid instance of `SwiftMullvadApiResponse`, i.e. it has to
+    // have been constructed by any of the static functions that create the struct.
     unsafe {
         if !response.body.is_null() {
             let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);

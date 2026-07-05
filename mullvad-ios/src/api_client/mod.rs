@@ -97,6 +97,8 @@ struct ForeignPtr {
     ptr: *const c_void,
 }
 /// allow this to be passed across thread boundaries
+/// SAFETY: the user of `ForeignPtr` must ensure that it is safe to use the pointer from different
+/// threads.
 unsafe impl Send for ForeignPtr {}
 
 /// Called by Swift to set the available access methods
@@ -105,6 +107,7 @@ pub unsafe extern "C" fn mullvad_api_update_access_methods(
     api_context: SwiftApiContext,
     settings_wrapper: SwiftAccessMethodSettingsWrapper,
 ) {
+    // SAFETY: `settings_wrapper` must be a valid instance of SwiftAccessMethodSettingsWrapper
     let access_methods = unsafe { settings_wrapper.into_rust_context().settings };
     api_context
         .rust_context()

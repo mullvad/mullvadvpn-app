@@ -124,8 +124,8 @@ pub enum SwiftAccessMethodKind {
 ///
 /// # SAFETY
 /// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
-/// resulting from a call to `convert_builtin_access_method_setting`
-/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
+/// resulting from a call to `convert_builtin_access_method_setting`.
+/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
@@ -134,7 +134,8 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     custom_methods_raw: *const c_void,
     custom_method_count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
-    // SAFETY: See `init_access_method_settings_wrapper`
+    // SAFETY: each of these pointers must be created by a call to
+    // `convert_builtin_access_method_setting`, as per the function docs.
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
         (
             *Box::from_raw(direct_method_raw as *mut _),
@@ -143,6 +144,7 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
         )
     };
 
+    // SAFETY: custom_methods_raw must be a valid pointer to an AccessMethodSetting.
     let custom =
         unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
     let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
@@ -185,7 +187,10 @@ impl SwiftAccessMethodSettingsWrapper {
         SwiftAccessMethodSettingsWrapper(Box::into_raw(Box::new(context)))
     }
 
+    /// SAFETY: self must be constructed via [`SwiftAccessMethodSettingsWrapper::new`].
     pub unsafe fn into_rust_context(self) -> Box<SwiftAccessMethodSettingsContext> {
+        // SAFETY: the self.0 pointer must be valid as per the callee guarantee that `self` was
+        // constructed by [`SwiftAccessMethodSettingsWrapper::new`]
         unsafe { Box::from_raw(self.0) }
     }
 }

@@ -16,6 +16,12 @@ macro_rules! throw_int_error {
     };
 }
 
+/// Start a udp2tcp obfuscator proxy.
+///
+/// # SAFETY
+/// `peer_address` must be a valid pointer to `peer_address_len` bytes, these bytes will be
+/// interpreted  as an IP address. `proxy_handle` must be a valid pointer for a `ProxyHandle`
+/// struct. This function will initialize `proxy_handle` to contain a valid `ProxyHandle` instance.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn start_udp2tcp_obfuscator_proxy(
     peer_address: *const u8,
@@ -23,10 +29,13 @@ pub unsafe extern "C" fn start_udp2tcp_obfuscator_proxy(
     peer_port: u16,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
+    // SAFETY: `peer_address` must be a valid pointer to `peer_address_len` bytes, representing an
+    // IP address
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_udp2tcp(peer_sock_addr).run();
 
+    // SAFETY: `proxy_handle` must be a valid pointer to enough memory for a `ProxyHandle` struct
     unsafe { start(proxy_handle, result) }
 }
 
@@ -37,10 +46,12 @@ pub unsafe extern "C" fn start_shadowsocks_obfuscator_proxy(
     peer_port: u16,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
+    // SAFETY: `peer_address` must be a valid pointer to `peer_address_len` bytes, representing an
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
     let result = TunnelObfuscatorRuntime::new_shadowsocks(peer_sock_addr).run();
 
+    // SAFETY: `proxy_handle` must be a valid pointer to enough memory for a `ProxyHandle` struct
     unsafe { start(proxy_handle, result) }
 }
 
@@ -53,12 +64,16 @@ pub unsafe extern "C" fn start_quic_obfuscator_proxy(
     token: *const c_char,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
+    // SAFETY: `peer_address` must be a valid pointer to `peer_address_len` bytes, representing an
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
+    // SAFETY: `hostname` must be a valid pointer to a C string
     let hostname = unsafe { get_string(hostname) };
+    // SAFETY: `token` must be a valid pointer to a C string
     let token = unsafe { get_string(token) };
     let result = TunnelObfuscatorRuntime::new_quic(peer_sock_addr, hostname, token).run();
 
+    // SAFETY: `proxy_handle` must be a valid pointer to enough memory for a `ProxyHandle` struct
     unsafe { start(proxy_handle, result) }
 }
 
@@ -71,12 +86,13 @@ pub unsafe extern "C" fn start_lwo_obfuscator_proxy(
     server_public_key: *const u8,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
+    // SAFETY: `peer_address` must be a valid pointer to `peer_address_len` bytes, representing an
     let peer_sock_addr =
         throw_int_error!(unsafe { get_socket_address(peer_address, peer_address_len, peer_port) });
 
-    // Safety: `client_public_key` must be a valid pointer to 32 bytes.
+    // SAFETY: `client_public_key` must be a valid pointer to 32 bytes.
     let client_key: [u8; 32] = unsafe { std::ptr::read(client_public_key as *const [u8; 32]) };
-    // Safety: `server_public_key` must be a valid pointer to 32 bytes.
+    // SAFETY: `server_public_key` must be a valid pointer to 32 bytes.
     let server_key: [u8; 32] = unsafe { std::ptr::read(server_public_key as *const [u8; 32]) };
 
     let result = TunnelObfuscatorRuntime::new_lwo(
@@ -86,6 +102,7 @@ pub unsafe extern "C" fn start_lwo_obfuscator_proxy(
     )
     .run();
 
+    // SAFETY: `proxy_handle` must be a valid pointer to enough memory for a `ProxyHandle` struct
     unsafe { start(proxy_handle, result) }
 }
 
