@@ -176,7 +176,7 @@ impl SmoltcpStack {
             sockets: SocketSet::new(Vec::new()),
             active_tcp: Vec::new(),
             active_icmp: Vec::new(),
-            next_local_port: 49152,
+            next_local_port: rand::random(),
         }
     }
 
