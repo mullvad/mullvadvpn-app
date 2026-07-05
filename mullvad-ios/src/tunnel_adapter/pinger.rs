@@ -8,6 +8,7 @@ use crate::gotatun::smoltcp_network::SmoltcpIcmpSocket;
 use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
 use std::{io, io::Write, net::Ipv4Addr};
+use zerocopy::IntoBytes;
 
 pub struct SmoltcpPinger {
     socket: SmoltcpIcmpSocket,
@@ -57,9 +58,9 @@ fn construct_icmpv4_packet(buffer: &mut [u8], id: u16, seq: u16) -> Result<(), (
     // Random payload
     rand::rng().fill(writer);
 
-    let checksum = internet_checksum::checksum(buffer);
+    let checksum = gotatun::packet::checksum(&[buffer]);
     (&mut buffer[ICMP_CHECKSUM_OFFSET..])
-        .write_all(&checksum)
+        .write_all(checksum.as_bytes())
         .unwrap();
 
     Ok(())
