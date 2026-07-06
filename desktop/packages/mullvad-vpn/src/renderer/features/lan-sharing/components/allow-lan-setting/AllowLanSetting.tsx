@@ -1,8 +1,11 @@
+import { useCallback } from 'react';
 import styled from 'styled-components';
 
+import { urls } from '../../../../../shared/constants';
 import { messages } from '../../../../../shared/gettext';
 import { Info } from '../../../../components/info';
 import { SettingsListItem } from '../../../../components/settings-list-item';
+import { useAppContext } from '../../../../context';
 import { ListItemProps } from '../../../../lib/components/list-item';
 import { spacings } from '../../../../lib/foundations';
 import { AllowLanSwitch } from '../allow-lan-switch/AllowLanSwitch';
@@ -15,6 +18,17 @@ const LanIpRanges = styled.ul({
 });
 
 export function AllowLanSetting(props: AllowLanSettingProps) {
+  const { openUrl } = useAppContext();
+
+  const openGuide = useCallback(() => openUrl(urls.lanShare), [openUrl]);
+
+  const button = [
+    <Info.Dialog.Button onClick={openGuide} key="1">
+      <Info.Dialog.Button.Text>{messages.gettext('Guide')}</Info.Dialog.Button.Text>
+      <Info.Dialog.Button.Icon icon="external" />
+    </Info.Dialog.Button>,
+  ];
+
   return (
     <SettingsListItem anchorId="allow-lan-setting" {...props}>
       <SettingsListItem.Item>
@@ -25,7 +39,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
           <SettingsListItem.Item.ActionGroup>
             <Info>
               <Info.Button />
-              <Info.Dialog>
+              <Info.Dialog buttons={button}>
                 <Info.Dialog.Text>
                   {messages.pgettext(
                     'vpn-settings-view',
@@ -45,6 +59,12 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
                     <li>fe80::/10</li>
                     <li>fc00::/7</li>
                   </LanIpRanges>
+                </Info.Dialog.Text>
+                <Info.Dialog.Text>
+                  {messages.pgettext(
+                    'vpn-settings-view',
+                    'If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route.',
+                  )}
                 </Info.Dialog.Text>
               </Info.Dialog>
             </Info>
