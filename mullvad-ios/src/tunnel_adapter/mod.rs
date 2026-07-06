@@ -66,10 +66,16 @@ impl Drop for ObfuscationGuard {
     }
 }
 
-/// Error from a PQ key exchange phase.
-enum PqExchangeError {
+/// Error from a phase of [`IosTunnelAdapter::run`].
+enum TunnelError {
     Timeout,
-    Failed(String),
+    Error(String),
+}
+
+impl TunnelError {
+    fn error(msg: impl std::fmt::Display) -> Self {
+        TunnelError::Error(msg.to_string())
+    }
 }
 
 /// Result of [`IosTunnelAdapter::negotiate_pq`]: the keys and peers to configure
@@ -209,41 +215,45 @@ impl IosTunnelAdapter {
         stopped: Arc<AtomicBool>,
         stop_notify: Arc<Notify>,
     ) {
-        let is_stopped = || stopped.load(Ordering::SeqCst);
+        // Every phase below returns a `Result`; the callback is fired exactly
+        // once, here, based on the final outcome.
+        match Self::run_inner(config, &callback, &stopped, &stop_notify).await {
+            Ok(()) => Self::fire_timeout(&stopped, &callback),
+            Err(TunnelError::Timeout) => Self::fire_timeout(&stopped, &callback),
+            Err(TunnelError::Error(msg)) => Self::fire_error(&stopped, &callback, msg),
+        }
+    }
 
+    async fn run_inner(
+        config: TunnelConfig,
+        callback: &Arc<dyn TunnelCallbackHandler>,
+        stopped: &AtomicBool,
+        stop_notify: &Notify,
+    ) -> Result<(), TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
-        let tun_dev = match IosTunDevice::new(config.tun_fd, config.mtu) {
-            Ok(dev) => dev,
-            Err(e) => return Self::fire_error(&stopped, &callback, format!("TUN device: {e}")),
-        };
+        let tun_dev = IosTunDevice::new(config.tun_fd, config.mtu)
+            .map_err(|e| TunnelError::error(format!("TUN device: {e}")))?;
 
         let mut config = config;
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
-        //    or fall back to the static device peer. On any terminal outcome the
-        //    callback has already fired, so we just return.
-        let pq = match Self::negotiate_pq(&mut config, &stopped, &callback).await {
-            Some(pq) => pq,
-            None => return,
-        };
-        if is_stopped() {
-            return;
+        //    or fall back to the static device peer.
+        let pq = Self::negotiate_pq(&mut config, stopped).await?;
+        if stopped.load(Ordering::SeqCst) {
+            // Cancelled externally; the outcome below is discarded since `run`
+            // no-ops when it sees the tunnel is already stopped.
+            return Err(TunnelError::Timeout);
         }
 
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so
         //    point LWO at it, then start the obfuscation proxy for the real device.
         Self::apply_lwo_ingress_key(&mut config, &pq);
-        let _final_obfuscation = match Self::start_obfuscation_proxy(&config).await {
-            Ok(ob) => {
-                if let Some(ref guard) = ob {
-                    Self::apply_obfuscation(&mut config, guard.endpoint());
-                }
-                ob
-            }
-            Err(e) => {
-                return Self::fire_error(&stopped, &callback, format!("Final obfuscation: {e}"));
-            }
-        };
+        let _final_obfuscation = Self::start_obfuscation_proxy(&config)
+            .await
+            .map_err(|e| TunnelError::error(format!("Final obfuscation: {e}")))?;
+        if let Some(ref guard) = _final_obfuscation {
+            Self::apply_obfuscation(&mut config, guard.endpoint());
+        }
 
         // 4. Build the user-traffic device(s) behind an IpMux (TUN + smoltcp).
         let (smoltcp_handle, ip_recv, ip_send, _smoltcp_guard) =
@@ -254,60 +264,52 @@ impl IosTunnelAdapter {
             });
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
 
-        let devices =
-            match Self::build_devices(&config, pq, mux_recv, mux_send, &stopped, &callback).await {
-                Some(devices) => devices,
-                None => return,
-            };
-        if is_stopped() {
+        let devices = Self::build_devices(&config, pq, mux_recv, mux_send).await?;
+        if stopped.load(Ordering::SeqCst) {
             devices.stop().await;
-            return;
+            return Err(TunnelError::Timeout);
         }
 
         // 5. Establish connectivity, then monitor it until it drops or we stop.
-        let connected = Self::establish_connectivity(
+        let connected = match Self::establish_connectivity(
             &devices,
             &smoltcp_handle,
             &config,
-            &stopped,
-            &callback,
-            &stop_notify,
+            stopped,
+            stop_notify,
         )
-        .await;
-
-        if is_stopped() {
-            devices.stop().await;
-            return;
-        }
+        .await
+        {
+            Ok(connected) => connected,
+            Err(e) => {
+                devices.stop().await;
+                return Err(e);
+            }
+        };
         if !connected {
             devices.stop().await;
-            return Self::fire_timeout(&stopped, &callback);
+            return Err(TunnelError::Timeout);
         }
 
         callback.on_connected();
         log::info!("Tunnel connected — starting ongoing monitoring");
-        Self::monitor_connectivity(&devices, &stopped, &stop_notify).await;
+        Self::monitor_connectivity(&devices, stopped, stop_notify).await;
         devices.stop().await;
-        Self::fire_timeout(&stopped, &callback);
+        Err(TunnelError::Timeout)
     }
 
     /// Negotiate the post-quantum / DAITA ephemeral peer(s).
     ///
     /// Returns the `(entry, exit_key, exit_peer)` triple to configure the final
-    /// device(s) with — `entry` is `Some` only for multihop PQ. Returns `None`
-    /// if a terminal callback already fired (error/timeout) or we were stopped,
-    /// in which case the caller should just return.
+    /// device(s) with — `entry` is `Some` only for multihop PQ.
     async fn negotiate_pq(
         config: &mut TunnelConfig,
         stopped: &AtomicBool,
-        callback: &Arc<dyn TunnelCallbackHandler>,
-    ) -> Option<PqResult> {
-        let is_stopped = || stopped.load(Ordering::SeqCst);
-
+    ) -> Result<PqResult, TunnelError> {
         // No PQ/DAITA: the device peer is just the static configured exit peer.
         if !(config.enable_pq || config.enable_daita) {
             let private_key = StaticSecret::from(config.private_key);
-            return Some((None, private_key, Self::build_peer(&config.exit_peer)));
+            return Ok((None, private_key, Self::build_peer(&config.exit_peer)));
         }
 
         let pq_timeout = config.establish_timeout();
@@ -323,30 +325,15 @@ impl IosTunnelAdapter {
             config.enable_daita
         );
 
-        let (first_key, mut first_peer) = match Self::run_pq_exchange(
-            config,
-            first_peer_config,
-            parent_pubkey.clone(),
-            pq_timeout,
-        )
-        .await
-        {
-            Ok(result) => result,
-            Err(PqExchangeError::Timeout) => {
-                Self::fire_timeout(stopped, callback);
-                return None;
-            }
-            Err(PqExchangeError::Failed(e)) => {
-                Self::fire_error(stopped, callback, e);
-                return None;
-            }
-        };
+        let (first_key, mut first_peer) =
+            Self::run_pq_exchange(config, first_peer_config, parent_pubkey.clone(), pq_timeout)
+                .await?;
 
         if !is_multihop {
-            return Some((None, first_key, first_peer));
+            return Ok((None, first_key, first_peer));
         }
-        if is_stopped() {
-            return None;
+        if stopped.load(Ordering::SeqCst) {
+            return Err(TunnelError::Timeout);
         }
 
         // --- Phase 2: reach the exit relay through the entry, using the phase-1
@@ -361,13 +348,9 @@ impl IosTunnelAdapter {
         {
             *client_public_key = gotatun::x25519::PublicKey::from(&first_key).to_bytes();
         }
-        let obfuscation_p2 = match Self::start_obfuscation_proxy(config).await {
-            Ok(ob) => ob,
-            Err(e) => {
-                Self::fire_error(stopped, callback, format!("PQ2 obfuscation: {e}"));
-                return None;
-            }
-        };
+        let obfuscation_p2 = Self::start_obfuscation_proxy(config)
+            .await
+            .map_err(|e| TunnelError::error(format!("PQ2 obfuscation: {e}")))?;
         if let Some(ref ob) = obfuscation_p2 {
             first_peer = first_peer.with_endpoint(ob.endpoint());
         }
@@ -386,18 +369,12 @@ impl IosTunnelAdapter {
             new_udp_tun_channel(100, config.ipv4_addr, config.ipv6_addr, entry_mtu);
 
         // Exit device: smoltcp IP pair, UDP channeled through the entry.
-        let pq2_exit = match DeviceBuilder::new()
+        let pq2_exit = DeviceBuilder::new()
             .with_udp(udp_ch)
             .with_ip_pair(ip_send, ip_recv)
             .build()
             .await
-        {
-            Ok(dev) => dev,
-            Err(e) => {
-                Self::fire_error(stopped, callback, format!("PQ2 exit device: {e}"));
-                return None;
-            }
-        };
+            .map_err(|e| TunnelError::error(format!("PQ2 exit device: {e}")))?;
         // Entry device: real UDP, channel IP pair.
         let pq2_entry = match DeviceBuilder::new()
             .with_udp(UdpSocketFactory::default())
@@ -408,8 +385,7 @@ impl IosTunnelAdapter {
             Ok(dev) => dev,
             Err(e) => {
                 pq2_exit.stop().await;
-                Self::fire_error(stopped, callback, format!("PQ2 entry device: {e}"));
-                return None;
+                return Err(TunnelError::error(format!("PQ2 entry device: {e}")));
             }
         };
 
@@ -427,8 +403,7 @@ impl IosTunnelAdapter {
         if let Err(e) = configured {
             pq2_entry.stop().await;
             pq2_exit.stop().await;
-            Self::fire_error(stopped, callback, format!("Configure PQ phase 2: {e}"));
-            return None;
+            return Err(TunnelError::error(format!("Configure PQ phase 2: {e}")));
         }
 
         // Now 10.64.0.1:1337 reaches the EXIT relay's config service.
@@ -464,53 +439,38 @@ impl IosTunnelAdapter {
                 if let Some(ref psk) = exit_ephemeral.psk {
                     exit_peer = exit_peer.with_preshared_key(*psk.as_bytes());
                 }
-                Some((Some((first_key, first_peer)), exit_secret, exit_peer))
+                Ok((Some((first_key, first_peer)), exit_secret, exit_peer))
             }
-            Ok(Err(e)) => {
-                Self::fire_error(stopped, callback, format!("PQ phase 2: {e}"));
-                None
-            }
-            Err(_) => {
-                Self::fire_timeout(stopped, callback);
-                None
-            }
+            Ok(Err(e)) => Err(TunnelError::error(format!("PQ phase 2: {e}"))),
+            Err(_) => Err(TunnelError::Timeout),
         }
     }
 
     /// Build the final GotaTun device(s) carrying user traffic and configure
-    /// their peers. Returns `None` (after firing the error callback) on failure.
+    /// their peers.
     async fn build_devices(
         config: &TunnelConfig,
         pq: PqResult,
         mux_recv: tun_device::IosTunIpRecv,
         mux_send: tun_device::IosTunIpSend,
-        stopped: &AtomicBool,
-        callback: &Arc<dyn TunnelCallbackHandler>,
-    ) -> Option<Devices> {
+    ) -> Result<Devices, TunnelError> {
         let (pq_entry, pq_exit_key, pq_exit_peer) = pq;
 
         let Some(entry_peer_config) = config.entry_peer.as_ref() else {
             // Singlehop: one device, mux'd IP pair, real UDP.
-            let device = match DeviceBuilder::new()
+            let device = DeviceBuilder::new()
                 .with_udp(UdpSocketFactory::default())
                 .with_ip_pair(mux_send, mux_recv)
                 .build()
                 .await
-            {
-                Ok(dev) => dev,
-                Err(e) => {
-                    Self::fire_error(stopped, callback, format!("GotaTun device: {e}"));
-                    return None;
-                }
-            };
+                .map_err(|e| TunnelError::error(format!("GotaTun device: {e}")))?;
             // Endpoint must match the (possibly obfuscated) config endpoint.
             let pq_exit_peer = pq_exit_peer.with_endpoint(config.exit_peer.endpoint);
             if let Err(e) = Self::configure_device(&device, pq_exit_key, pq_exit_peer).await {
                 device.stop().await;
-                Self::fire_error(stopped, callback, format!("Configure peers: {e}"));
-                return None;
+                return Err(TunnelError::error(format!("Configure peers: {e}")));
             }
-            return Some(Devices::Singlehop(device));
+            return Ok(Devices::Singlehop(device));
         };
 
         // Multihop: exit device tunnels its UDP through the entry device.
@@ -520,18 +480,12 @@ impl IosTunnelAdapter {
         let (tun_channel_tx, tun_channel_rx, udp_channels) =
             new_udp_tun_channel(100, config.ipv4_addr, config.ipv6_addr, entry_mtu);
 
-        let exit_device = match DeviceBuilder::new()
+        let exit_device = DeviceBuilder::new()
             .with_udp(udp_channels)
             .with_ip_pair(mux_send, mux_recv)
             .build()
             .await
-        {
-            Ok(dev) => dev,
-            Err(e) => {
-                Self::fire_error(stopped, callback, format!("Exit device: {e}"));
-                return None;
-            }
-        };
+            .map_err(|e| TunnelError::error(format!("Exit device: {e}")))?;
         let entry_device = match DeviceBuilder::new()
             .with_udp(UdpSocketFactory::default())
             .with_ip_pair(tun_channel_tx, tun_channel_rx)
@@ -541,8 +495,7 @@ impl IosTunnelAdapter {
             Ok(dev) => dev,
             Err(e) => {
                 exit_device.stop().await;
-                Self::fire_error(stopped, callback, format!("Entry device: {e}"));
-                return None;
+                return Err(TunnelError::error(format!("Entry device: {e}")));
             }
         };
 
@@ -569,11 +522,10 @@ impl IosTunnelAdapter {
         if let Err(e) = configured {
             entry_device.stop().await;
             exit_device.stop().await;
-            Self::fire_error(stopped, callback, format!("Configure peers: {e}"));
-            return None;
+            return Err(TunnelError::error(format!("Configure peers: {e}")));
         }
 
-        Some(Devices::Multihop {
+        Ok(Devices::Multihop {
             entry: entry_device,
             exit: exit_device,
         })
@@ -586,18 +538,14 @@ impl IosTunnelAdapter {
         smoltcp_handle: &SmoltcpHandle,
         config: &TunnelConfig,
         stopped: &AtomicBool,
-        callback: &Arc<dyn TunnelCallbackHandler>,
         stop_notify: &Notify,
-    ) -> bool {
+    ) -> Result<bool, TunnelError> {
         // Bind the socket to the pinger's ident so echo replies reach it.
         let ping_ident: u16 = rand::random();
-        let icmp_socket = match smoltcp_handle.icmp_socket(ping_ident).await {
-            Ok(socket) => socket,
-            Err(e) => {
-                Self::fire_error(stopped, callback, format!("ICMP socket: {e}"));
-                return false;
-            }
-        };
+        let icmp_socket = smoltcp_handle
+            .icmp_socket(ping_ident)
+            .await
+            .map_err(|e| TunnelError::error(format!("ICMP socket: {e}")))?;
         let mut pinger = SmoltcpPinger::new(icmp_socket, config.ipv4_gateway, ping_ident);
 
         let establish_timeout = config.establish_timeout();
@@ -607,11 +555,11 @@ impl IosTunnelAdapter {
             log::warn!("Initial ping failed: {e}");
         }
 
-        tokio::select! {
+        Ok(tokio::select! {
             result = Self::wait_for_connectivity(devices, &mut pinger, stopped) => result,
             _ = tokio::time::sleep(establish_timeout) => false,
             _ = stop_notify.notified() => false,
-        }
+        })
     }
 
     /// Run a single PQ exchange phase: start obfuscation proxy, build smoltcp-only device,
@@ -621,11 +569,11 @@ impl IosTunnelAdapter {
         peer_config: &PeerConfig,
         parent_pubkey: PublicKey,
         timeout: Duration,
-    ) -> Result<(StaticSecret, Peer), PqExchangeError> {
+    ) -> Result<(StaticSecret, Peer), TunnelError> {
         // Start a fresh obfuscation proxy for this PQ device
         let _obfuscation = Self::start_obfuscation_proxy(config)
             .await
-            .map_err(|e| PqExchangeError::Failed(format!("PQ obfuscation proxy: {e}")))?;
+            .map_err(|e| TunnelError::error(format!("PQ obfuscation proxy: {e}")))?;
 
         let peer_endpoint = _obfuscation
             .as_ref()
@@ -643,7 +591,7 @@ impl IosTunnelAdapter {
             .with_ip_pair(ip_send, ip_recv)
             .build()
             .await
-            .map_err(|e| PqExchangeError::Failed(format!("PQ device: {e}")))?;
+            .map_err(|e| TunnelError::error(format!("PQ device: {e}")))?;
 
         let private_key = StaticSecret::from(config.private_key);
         // PQ negotiation only talks to the relay's config service, so restrict the
@@ -654,7 +602,7 @@ impl IosTunnelAdapter {
 
         if let Err(e) = Self::configure_device(&pq_device, private_key, initial_peer).await {
             pq_device.stop().await;
-            return Err(PqExchangeError::Failed(format!("PQ device configure: {e}")));
+            return Err(TunnelError::error(format!("PQ device configure: {e}")));
         }
 
         let ephemeral_private = PrivateKey::new_from_random();
@@ -685,8 +633,8 @@ impl IosTunnelAdapter {
 
                 Ok((ephemeral_secret, peer))
             }
-            Ok(Err(e)) => Err(PqExchangeError::Failed(format!("PQ exchange: {e}"))),
-            Err(_) => Err(PqExchangeError::Timeout),
+            Ok(Err(e)) => Err(TunnelError::error(format!("PQ exchange: {e}"))),
+            Err(_) => Err(TunnelError::Timeout),
         }
     }
 
