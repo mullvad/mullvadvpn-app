@@ -16,7 +16,7 @@ public func initMullvadShadowsocksBridgeProvider(provider: SwiftShadowsocksBridg
 }
 
 @_cdecl("swift_get_shadowsocks_bridges")
-func getShadowsocksBridges(rawBridgeProvider: UnsafeMutableRawPointer) -> UnsafeRawPointer? {
+func getShadowsocksBridges(rawBridgeProvider: UnsafeMutableRawPointer) -> UnsafeMutableRawPointer? {
     let bridgeProvider = Unmanaged<SwiftShadowsocksBridgeProvider>.fromOpaque(rawBridgeProvider).takeUnretainedValue()
     guard let bridge = bridgeProvider.bridge() else { return nil }
     let bridgeAddress = bridge.address.rawValue.map { $0 }

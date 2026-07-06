@@ -46,13 +46,13 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
     port: u16,
     c_password: *const c_char,
     c_cipher: *const c_char,
-) -> *const c_void {
+) -> *mut c_void {
     let endpoint: SocketAddr =
         // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
         if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
             SocketAddr::new(ip_address, port)
         } else {
-            return std::ptr::null();
+            return std::ptr::null_mut();
         };
 
     // SAFETY: `c_password` pointer must be a valid C string pointer
@@ -80,13 +80,13 @@ pub unsafe extern "C" fn new_socks5_access_method_setting(
     port: u16,
     c_username: *const c_char,
     c_password: *const c_char,
-) -> *const c_void {
+) -> *mut c_void {
     let endpoint: SocketAddr =
         // SAFETY: caller guarantees that `address` is valid for at least `address_len` bytes
         if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
             SocketAddr::new(ip_address, port)
         } else {
-            return std::ptr::null();
+            return std::ptr::null_mut();
         };
 
     let auth = {

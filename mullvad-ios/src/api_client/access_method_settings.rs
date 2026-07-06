@@ -28,7 +28,7 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
     name: *const c_char,
     is_enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: *const c_void,
+    proxy_configuration: *mut c_void,
 ) -> *mut c_void {
     match convert_builtin_access_method_setting_inner(
         unique_identifier,
@@ -51,7 +51,7 @@ fn convert_builtin_access_method_setting_inner(
     name: *const c_char,
     enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: *const c_void,
+    proxy_configuration: *mut c_void,
 ) -> Option<AccessMethodSetting> {
     // SAFETY: See `convert_builtin_access_method_setting`
     let id = unsafe { Id::from_string(get_string(unique_identifier))? };
@@ -128,19 +128,19 @@ pub enum SwiftAccessMethodKind {
 /// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
-    direct_method_raw: *const c_void,
-    bridges_method_raw: *const c_void,
-    encrypted_dns_method_raw: *const c_void,
-    custom_methods_raw: *const c_void,
+    direct_method_raw: *mut c_void,
+    bridges_method_raw: *mut c_void,
+    encrypted_dns_method_raw: *mut c_void,
+    custom_methods_raw: *mut c_void,
     custom_method_count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
     // SAFETY: each of these pointers must be created by a call to
     // `convert_builtin_access_method_setting`, as per the function docs.
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
         (
-            *Box::from_raw(direct_method_raw as *mut _),
-            *Box::from_raw(bridges_method_raw as *mut _),
-            *Box::from_raw(encrypted_dns_method_raw as *mut _),
+            *Box::from_raw(direct_method_raw as *mut AccessMethodSetting),
+            *Box::from_raw(bridges_method_raw as *mut AccessMethodSetting),
+            *Box::from_raw(encrypted_dns_method_raw as *mut AccessMethodSetting),
         )
     };
 
