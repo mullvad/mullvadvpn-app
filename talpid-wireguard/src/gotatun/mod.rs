@@ -44,14 +44,21 @@ use gotatun::tun::{
 
 mod conversions;
 mod obfuscation;
+#[cfg(target_os = "linux")]
+mod udp;
 
 use conversions::to_gotatun_peer;
 use obfuscation::MaybeObfuscatingTransportFactory;
+#[cfg(target_os = "linux")]
+use udp::LinuxUdpSocketFactory;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
 
-#[cfg(not(target_os = "android"))]
+#[cfg(target_os = "linux")]
+type UdpFactory = LinuxUdpSocketFactory;
+
+#[cfg(not(any(target_os = "android", target_os = "linux")))]
 type UdpFactory = UdpSocketFactory;
 
 type TransportFactory = MaybeObfuscatingTransportFactory<UdpFactory>;
@@ -797,6 +804,9 @@ fn udp_obfuscator_factory(
                 tun: android_tun,
                 udp: udp_socket_factory(optimize_buffer_size),
             }
+        },
+        target_os = "linux" => {
+            LinuxUdpSocketFactory::new(udp_socket_factory(optimize_buffer_size))
         },
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
