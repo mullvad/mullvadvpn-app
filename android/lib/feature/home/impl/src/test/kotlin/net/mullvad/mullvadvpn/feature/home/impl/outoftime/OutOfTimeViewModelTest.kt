@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.outoftime
 
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
@@ -31,7 +32,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
-import net.mullvad.mullvadvpn.lib.repository.LifecycleRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import org.junit.jupiter.api.AfterEach
@@ -59,7 +59,7 @@ class OutOfTimeViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk(relaxed = true)
     private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
     private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
-    private val mockLifecycleRepository: LifecycleRepository = mockk(relaxed = true)
+    private val mockActivityLifecycle: Lifecycle = mockk(relaxed = true)
 
     private lateinit var viewModel: OutOfTimeViewModel
 
@@ -84,7 +84,7 @@ class OutOfTimeViewModelTest {
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 connectionProxy = mockConnectionProxy,
-                lifecycleRepository = mockLifecycleRepository,
+                activityLifecycle = mockActivityLifecycle,
                 isPlayBuild = false,
             )
     }

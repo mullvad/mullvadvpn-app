@@ -40,7 +40,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
 import org.koin.core.context.loadKoinModules
-import org.koin.dsl.module
+import org.koin.core.parameter.parametersOf
 
 class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override val scope by activityScope()
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         registerForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
 
     private val apiEndpointFromIntentHolder by inject<ApiEndpointFromIntentHolder>()
-    private val mullvadAppViewModel by inject<MullvadAppViewModel>()
+    private val mullvadAppViewModel by inject<MullvadAppViewModel> { parametersOf(lifecycle) }
     private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
@@ -58,15 +58,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private var isReadyNextDraw: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadKoinModules(
-            listOf(
-                uiModule,
-                paymentModule,
-                module {
-                    single { lifecycle }
-                },
-            )
-        )
+        loadKoinModules(listOf(uiModule, paymentModule))
 
         installSplashScreen().setKeepOnScreenCondition {
             val isReady = isReadyNextDraw

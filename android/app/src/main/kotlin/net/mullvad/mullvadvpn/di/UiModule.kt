@@ -346,13 +346,13 @@ val uiModule = module {
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
     viewModel { params -> LocalNetworkSharingViewModel(isModal = params.get(), get()) }
-    viewModel {
+    viewModel { params ->
         WelcomeViewModel(
             accountRepository = get(),
             deviceRepository = get(),
             paymentUseCase = get(),
             connectionProxy = get(),
-            activityLifecycle = get(),
+            activityLifecycle = params.get(),
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
@@ -365,14 +365,14 @@ val uiModule = module {
         )
     }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel {
+    viewModel { params ->
         OutOfTimeViewModel(
             accountRepository = get(),
             deviceRepository = get(),
             paymentUseCase = get(),
             outOfTimeUseCase = get(),
             connectionProxy = get(),
-            activityLifecycle = get(),
+            activityLifecycle = params.get(),
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
@@ -477,14 +477,13 @@ val uiModule = module {
         )
     }
 
-    viewModel {
+    viewModel { params ->
         MullvadAppViewModel(
             connectionProxy = get(),
             managementService = get(),
-            activityLifecycle = get(),
+            activityLifecycle = params.get(),
         )
     }
-
 }
 
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
