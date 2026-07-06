@@ -227,11 +227,20 @@ pub async fn request_ephemeral_peer_with(
         None
     };
 
-    let daita = response.daita.map(parse_daita_response).transpose()?;
-    if daita.is_none() && enable_daita {
-        return Err(Error::MissingDaitaResponse);
-    }
+    let daita = parse_daita_response_if_requested(response.daita, enable_daita)?;
     Ok(EphemeralPeer { psk, daita })
+}
+
+fn parse_daita_response_if_requested(
+    daita: Option<proto::DaitaResponseV2>,
+    enable_daita: bool,
+) -> Result<Option<DaitaSettings>, Error> {
+    if !enable_daita {
+        return Ok(None);
+    }
+
+    let daita = daita.ok_or(Error::MissingDaitaResponse)?;
+    parse_daita_response(daita).map(Some)
 }
 
 fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, Error> {
@@ -348,6 +357,42 @@ mod tests {
             Ok(_) => panic!("expected DAITA response parsing to fail"),
             Err(error) => error,
         }
+    }
+
+    fn parse_daita_response_if_requested_error(
+        daita: Option<proto::DaitaResponseV2>,
+        enable_daita: bool,
+    ) -> Error {
+        match parse_daita_response_if_requested(daita, enable_daita) {
+            Ok(_) => panic!("expected optional DAITA response parsing to fail"),
+            Err(error) => error,
+        }
+    }
+
+    #[test]
+    fn parse_daita_response_if_requested_ignores_unrequested_response() {
+        let daita =
+            parse_daita_response_if_requested(Some(daita_response(f64::NAN, f64::INFINITY)), false)
+                .unwrap();
+
+        assert!(daita.is_none());
+    }
+
+    #[test]
+    fn parse_daita_response_if_requested_requires_requested_response() {
+        let error = parse_daita_response_if_requested_error(None, true);
+
+        assert!(matches!(error, Error::MissingDaitaResponse));
+    }
+
+    #[test]
+    fn parse_daita_response_if_requested_parses_requested_response() {
+        let settings = parse_daita_response_if_requested(Some(daita_response(0.25, 0.75)), true)
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(settings.max_decoy_frac, 0.25);
+        assert_eq!(settings.max_delay_frac, 0.75);
     }
 
     #[test]
