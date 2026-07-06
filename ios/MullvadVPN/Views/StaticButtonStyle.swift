@@ -13,3 +13,12 @@ struct StaticButtonStyle: ButtonStyle {
         configuration.label
     }
 }
+
+struct InactiveButtonStyle: ButtonStyle {
+    let isInactive: Bool = true
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(isInactive ? 0.4 : (configuration.isPressed ? 0.7 : 1.0))
+    }
+}
