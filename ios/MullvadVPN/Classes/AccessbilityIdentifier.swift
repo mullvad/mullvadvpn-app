@@ -21,7 +21,7 @@ public enum AccessibilityIdentifier: Equatable {
     case alertOkButton
     case appLogsDoneButton
     case appLogsShareButton
-    case applyButton
+    case applyFilterButton
     case cancelButton
     case continueWithLoginButton
     case collapseButton

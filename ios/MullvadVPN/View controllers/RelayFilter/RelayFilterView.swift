@@ -63,6 +63,7 @@ struct RelayFilterView: View {
                     viewModel.applyFilter()
                     viewModel.onApplyFilter?(viewModel.relayFilter)
                 }
+                .accessibilityIdentifier(.applyFilterButton)
                 .disabled(relayCount == 0)
                 .padding(.bottom, 24)
             }

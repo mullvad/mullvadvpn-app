@@ -27,22 +27,22 @@ class SelectLocationFilterPage: Page {
     }
 
     @discardableResult func tapAnyOwnershipCell() -> Self {
-        app.cells[AccessibilityIdentifier.ownershipAnyCell].tap()
+        app.buttons[AccessibilityIdentifier.ownershipAnyCell].tap()
         return self
     }
 
     @discardableResult func tapMullvadOwnershipCell() -> Self {
-        app.cells[AccessibilityIdentifier.ownershipMullvadOwnedCell].tap()
+        app.buttons[AccessibilityIdentifier.ownershipMullvadOwnedCell].tap()
         return self
     }
 
     @discardableResult func tapRentedOwnershipCell() -> Self {
-        app.cells[AccessibilityIdentifier.ownershipRentedCell].tap()
+        app.buttons[AccessibilityIdentifier.ownershipRentedCell].tap()
         return self
     }
 
     @discardableResult func tapApplyButton() -> Self {
-        app.buttons[AccessibilityIdentifier.applyButton].tap()
+        app.buttons[AccessibilityIdentifier.applyFilterButton].tap()
         return self
     }
 }
