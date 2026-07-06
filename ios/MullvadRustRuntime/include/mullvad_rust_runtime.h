@@ -252,7 +252,7 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
                                             const char *name,
                                             bool is_enabled,
                                             SwiftAccessMethodKind method_kind,
-                                            const void *proxy_configuration);
+                                            void *proxy_configuration);
 
 /**
  * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
@@ -262,10 +262,10 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
  * resulting from a call to `convert_builtin_access_method_setting`
  * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
  */
-struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
-                                                                            const void *bridges_method_raw,
-                                                                            const void *encrypted_dns_method_raw,
-                                                                            const void *custom_methods_raw,
+struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void *direct_method_raw,
+                                                                            void *bridges_method_raw,
+                                                                            void *encrypted_dns_method_raw,
+                                                                            void *custom_methods_raw,
                                                                             uintptr_t custom_method_count);
 
 /**
@@ -563,11 +563,11 @@ struct SwiftCancelHandle mullvad_ios_rotate_device_key(struct SwiftApiContext ap
  * `address` must be a pointer to at least `address_len` bytes.
  * `c_password` and `c_cipher` must be pointers to null terminated strings
  */
-const void *new_shadowsocks_access_method_setting(const uint8_t *address,
-                                                  uintptr_t address_len,
-                                                  uint16_t port,
-                                                  const char *c_password,
-                                                  const char *c_cipher);
+void *new_shadowsocks_access_method_setting(const uint8_t *address,
+                                            uintptr_t address_len,
+                                            uint16_t port,
+                                            const char *c_password,
+                                            const char *c_cipher);
 
 /**
  * Converts parameters into a boxed `Socks5Remote` configuration that is safe
@@ -578,11 +578,11 @@ const void *new_shadowsocks_access_method_setting(const uint8_t *address,
  * `address` must be a pointer to at least `address_len` bytes.
  * `c_username` and `c_password` must be pointers to null terminated strings, or null
  */
-const void *new_socks5_access_method_setting(const uint8_t *address,
-                                             uintptr_t address_len,
-                                             uint16_t port,
-                                             const char *c_username,
-                                             const char *c_password);
+void *new_socks5_access_method_setting(const uint8_t *address,
+                                       uintptr_t address_len,
+                                       uint16_t port,
+                                       const char *c_username,
+                                       const char *c_password);
 
 char *get_shadowsocks_chipers(void);
 
