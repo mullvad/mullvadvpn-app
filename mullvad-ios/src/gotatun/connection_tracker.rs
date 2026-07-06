@@ -41,50 +41,76 @@ enum ConnectionUpdate {
 /// Inspect a secondary *outbound* packet and produce the tracking event it
 /// implies, if any. Runs on the writer (outbound) side, off the read path.
 pub(crate) fn outbound_event(packet: &[u8]) -> Option<ConnectionTrackerEvent> {
-    let event = if let Ok(ipv4) = Ipv4Packet::new_checked(packet) {
-        outbound_event_v4(&ipv4)
-    } else if let Ok(ipv6) = Ipv6Packet::new_checked(packet) {
-        outbound_event_v6(&ipv6)
-    } else {
-        None
+    let ip = ParsedIp::parse(packet)?;
+
+    let event = match ip.proto {
+        IpProtocol::Tcp => tcp_event(ip.payload, ip.src, ip.dst),
+        IpProtocol::Icmp => {
+            icmpv4_echo_request_ident(ip.payload).map(|ident| ConnectionUpdate::TrackIcmp {
+                dest: ip.dst,
+                ident,
+            })
+        }
+        IpProtocol::Icmpv6 => {
+            icmpv6_echo_request_ident(ip.payload).map(|ident| ConnectionUpdate::TrackIcmp {
+                dest: ip.dst,
+                ident,
+            })
+        }
+        _ => None,
     };
 
     event.map(ConnectionTrackerEvent)
 }
 
-fn outbound_event_v4(ip: &Ipv4Packet<&[u8]>) -> Option<ConnectionUpdate> {
-    let src_ip = IpAddr::from(ip.src_addr());
-    let dst_ip = IpAddr::from(ip.dst_addr());
-    let payload = ip.payload();
-
-    match ip.next_header() {
-        IpProtocol::Tcp => tcp_event(payload, src_ip, dst_ip),
-        IpProtocol::Icmp => {
-            let icmp = Icmpv4Packet::new_checked(payload).ok()?;
-            (icmp.msg_type() == Icmpv4Message::EchoRequest).then(|| ConnectionUpdate::TrackIcmp {
-                dest: dst_ip,
-                ident: icmp.echo_ident(),
-            })
-        }
-        _ => None,
-    }
+fn icmpv4_echo_request_ident(payload: &[u8]) -> Option<u16> {
+    let icmp = Icmpv4Packet::new_checked(payload).ok()?;
+    (icmp.msg_type() == Icmpv4Message::EchoRequest).then(|| icmp.echo_ident())
 }
 
-fn outbound_event_v6(ip: &Ipv6Packet<&[u8]>) -> Option<ConnectionUpdate> {
-    let src_ip = IpAddr::from(ip.src_addr());
-    let dst_ip = IpAddr::from(ip.dst_addr());
-    let payload = ip.payload();
+fn icmpv6_echo_request_ident(payload: &[u8]) -> Option<u16> {
+    let icmp = Icmpv6Packet::new_checked(payload).ok()?;
+    (icmp.msg_type() == Icmpv6Message::EchoRequest).then(|| icmp.echo_ident())
+}
 
-    match ip.next_header() {
-        IpProtocol::Tcp => tcp_event(payload, src_ip, dst_ip),
-        IpProtocol::Icmpv6 => {
-            let icmp = Icmpv6Packet::new_checked(payload).ok()?;
-            (icmp.msg_type() == Icmpv6Message::EchoRequest).then(|| ConnectionUpdate::TrackIcmp {
-                dest: dst_ip,
-                ident: icmp.echo_ident(),
+fn icmpv4_echo_reply_ident(payload: &[u8]) -> Option<u16> {
+    let icmp = Icmpv4Packet::new_checked(payload).ok()?;
+    (icmp.msg_type() == Icmpv4Message::EchoReply).then(|| icmp.echo_ident())
+}
+
+fn icmpv6_echo_reply_ident(payload: &[u8]) -> Option<u16> {
+    let icmp = Icmpv6Packet::new_checked(payload).ok()?;
+    (icmp.msg_type() == Icmpv6Message::EchoReply).then(|| icmp.echo_ident())
+}
+
+/// The header fields shared by v4/v6 packets, extracted once so the
+/// protocol-level matching below is written a single time.
+struct ParsedIp<'a> {
+    src: IpAddr,
+    dst: IpAddr,
+    proto: IpProtocol,
+    payload: &'a [u8],
+}
+
+impl<'a> ParsedIp<'a> {
+    fn parse(packet: &'a [u8]) -> Option<Self> {
+        if let Ok(ip) = Ipv4Packet::new_checked(packet) {
+            Some(ParsedIp {
+                src: IpAddr::from(ip.src_addr()),
+                dst: IpAddr::from(ip.dst_addr()),
+                proto: ip.next_header(),
+                payload: ip.payload(),
             })
+        } else if let Ok(ip) = Ipv6Packet::new_checked(packet) {
+            Some(ParsedIp {
+                src: IpAddr::from(ip.src_addr()),
+                dst: IpAddr::from(ip.dst_addr()),
+                proto: ip.next_header(),
+                payload: ip.payload(),
+            })
+        } else {
+            None
         }
-        _ => None,
     }
 }
 
@@ -154,61 +180,33 @@ impl ConnectionTracker {
     /// parse entirely when nothing of the packet's protocol is tracked (the
     /// common steady-state download case).
     pub(crate) fn is_secondary_return(&mut self, packet: &[u8]) -> bool {
-        if let Ok(ipv4) = Ipv4Packet::new_checked(packet) {
-            self.is_secondary_return_v4(&ipv4)
-        } else if let Ok(ipv6) = Ipv6Packet::new_checked(packet) {
-            self.is_secondary_return_v6(&ipv6)
-        } else {
-            false
-        }
-    }
+        let Some(ip) = ParsedIp::parse(packet) else {
+            return false;
+        };
 
-    fn is_secondary_return_v4(&mut self, ip: &Ipv4Packet<&[u8]>) -> bool {
-        let src_ip = IpAddr::from(ip.src_addr());
-        let dst_ip = IpAddr::from(ip.dst_addr());
-        let payload = ip.payload();
-
-        match ip.next_header() {
-            IpProtocol::Tcp => self.tcp_return(payload, src_ip, dst_ip),
-            IpProtocol::Icmp => {
-                if self.icmp.is_empty() {
-                    return false;
-                }
-                let Ok(icmp) = Icmpv4Packet::new_checked(payload) else {
-                    return false;
-                };
-                if icmp.msg_type() == Icmpv4Message::EchoReply {
-                    self.icmp.contains(&(src_ip, icmp.echo_ident()))
-                } else {
-                    false
-                }
-            }
+        match ip.proto {
+            IpProtocol::Tcp => self.tcp_return(ip.payload, ip.src, ip.dst),
+            IpProtocol::Icmp => self.icmp_return(ip.payload, ip.src, icmpv4_echo_reply_ident),
+            IpProtocol::Icmpv6 => self.icmp_return(ip.payload, ip.src, icmpv6_echo_reply_ident),
             _ => false,
         }
     }
 
-    fn is_secondary_return_v6(&mut self, ip: &Ipv6Packet<&[u8]>) -> bool {
-        let src_ip = IpAddr::from(ip.src_addr());
-        let dst_ip = IpAddr::from(ip.dst_addr());
-        let payload = ip.payload();
-
-        match ip.next_header() {
-            IpProtocol::Tcp => self.tcp_return(payload, src_ip, dst_ip),
-            IpProtocol::Icmpv6 => {
-                if self.icmp.is_empty() {
-                    return false;
-                }
-                let Ok(icmp) = Icmpv6Packet::new_checked(payload) else {
-                    return false;
-                };
-                if icmp.msg_type() == Icmpv6Message::EchoReply {
-                    self.icmp.contains(&(src_ip, icmp.echo_ident()))
-                } else {
-                    false
-                }
-            }
-            _ => false,
+    /// Check an inbound ICMP(v6) packet against the tracked idents, without
+    /// parsing it at all when nothing is tracked (the common case).
+    fn icmp_return(
+        &self,
+        payload: &[u8],
+        src_ip: IpAddr,
+        echo_reply_ident: impl FnOnce(&[u8]) -> Option<u16>,
+    ) -> bool {
+        if self.icmp.is_empty() {
+            return false;
         }
+        let Some(ident) = echo_reply_ident(payload) else {
+            return false;
+        };
+        self.icmp.contains(&(src_ip, ident))
     }
 
     /// Match an inbound TCP packet against the tracked connections and advance
