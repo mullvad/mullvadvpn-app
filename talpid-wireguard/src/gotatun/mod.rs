@@ -215,8 +215,9 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
     ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
         let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.udp.bind(params).await?;
 
-        self.tun.bypass(&udp_v4_tx).unwrap();
-        self.tun.bypass(&udp_v6_tx).unwrap();
+        use std::os::fd::AsFd;
+        self.tun.bypass(&udp_v4_tx.socket()?.as_fd()).unwrap();
+        self.tun.bypass(&udp_v6_tx.socket()?.as_fd()).unwrap();
 
         Ok(((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)))
     }

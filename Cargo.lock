@@ -1888,9 +1888,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.7.1"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08e81edfb0f5289200018c31d9aeaa1090ae7575fdb499073dd1b24ea8874c60"
+checksum = "87942cf21be131088380c8b3cb3dc9a8528a7f840a8230bed0e79b2e202d0629"
 dependencies = [
  "aead",
  "base64",
@@ -1909,7 +1909,6 @@ dependencies = [
  "ip_network_table",
  "ipnetwork",
  "libc",
- "log",
  "maybenot",
  "nix 0.31.3",
  "parking_lot",
@@ -1922,6 +1921,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-util 0.7.18",
+ "tracing",
  "tun 0.8.11",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
