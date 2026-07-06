@@ -124,8 +124,8 @@ pub enum SwiftAccessMethodKind {
 ///
 /// # SAFETY
 /// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
-/// resulting from a call to `convert_builtin_access_method_setting`
-/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
+/// resulting from a call to `convert_builtin_access_method_setting`.
+/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *mut c_void,
@@ -134,7 +134,8 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
     custom_methods_raw: *mut c_void,
     custom_method_count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
-    // SAFETY: See `init_access_method_settings_wrapper`
+    // SAFETY: each of these pointers must be created by a call to
+    // `convert_builtin_access_method_setting`, as per the function docs.
     let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
         (
             *Box::from_raw(direct_method_raw as *mut AccessMethodSetting),
