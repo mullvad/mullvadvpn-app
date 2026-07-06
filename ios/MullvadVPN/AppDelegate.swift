@@ -79,6 +79,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
         configureLogging()
 
+        // Can be removed in 2027.1, see `FileCacheMaintenance`.
+        Task.detached(priority: .utility) { [containerURL, logger] in
+            let removedOrphanCount = FileCacheMaintenance.removeStaleCacheFiles(in: containerURL)
+            if removedOrphanCount > 0 {
+                logger?.warning("Removed \(removedOrphanCount) orphaned file cache temporary file(s).")
+            }
+        }
+
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: ipOverrideRepository

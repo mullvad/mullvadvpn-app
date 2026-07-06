@@ -105,6 +105,58 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
     }
 }
 
+/// One-shot maintenance for directories containing `FileCache`-backed files, meant to be run once
+/// on app launch.
+///
+/// This code can be removed in 2027.1: by then every install has run a version that no longer
+/// creates `.lock` and `.tmp` files, and orphaned `.tmp-<UUID>` files accumulate slowly enough
+/// (one small file per process death mid-write) that a year of sweeps is plenty.
+public enum FileCacheMaintenance {
+    /// Deletes auxiliary files that `FileCache` instances leave behind in `directory`:
+    /// `.lock` and `.tmp` files created by versions up to 2026.3, and uniquely named
+    /// `.tmp-<UUID>` files orphaned when a process died mid-write. The UUID-named files are
+    /// only deleted when older than a day, so that another process's in-flight write is never
+    /// swept away.
+    ///
+    /// Returns the number of deleted orphaned `.tmp-<UUID>` files. Unlike the expected legacy
+    /// leftovers, each of those marks a process death mid-write, so callers should log them.
+    @discardableResult
+    public static func removeStaleCacheFiles(
+        in directory: URL,
+        olderThan staleAge: TimeInterval = 24 * 60 * 60
+    ) -> Int {
+        let fileManager = FileManager.default
+
+        guard
+            let files = try? fileManager.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: [.contentModificationDateKey]
+            )
+        else { return 0 }
+
+        let staleCutoff = Date(timeIntervalSinceNow: -staleAge)
+        var removedOrphanCount = 0
+
+        for url in files {
+            let name = url.lastPathComponent
+
+            if name.hasSuffix(".lock") || name.hasSuffix(".tmp") {
+                try? fileManager.removeItem(at: url)
+            } else if let uuidRange = name.range(of: ".tmp-", options: .backwards),
+                UUID(uuidString: String(name[uuidRange.upperBound...])) != nil
+            {
+                let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
+                    .contentModificationDate
+                if let modified, modified < staleCutoff, (try? fileManager.removeItem(at: url)) != nil {
+                    removedOrphanCount += 1
+                }
+            }
+        }
+
+        return removedOrphanCount
+    }
+}
+
 /// Errors specific to `FileCache` operations.
 public enum FileCacheError: LocalizedError {
     /// Atomic rename of temporary file failed.
