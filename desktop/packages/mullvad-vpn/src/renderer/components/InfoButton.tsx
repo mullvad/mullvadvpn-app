@@ -7,10 +7,22 @@ export interface InfoButtonProps extends Omit<IconButtonProps, 'icon'> {
   title?: string;
   message?: string | Array<string>;
   children?: React.ReactNode;
+  buttons?: React.ReactNode[];
 }
 
-export default function InfoButton({ title, message, children, ...props }: InfoButtonProps) {
+export default function InfoButton({
+  title,
+  message,
+  children,
+  buttons,
+  ...props
+}: InfoButtonProps) {
   const [isOpen, show, hide] = useBoolean(false);
+  const buttons = (buttons ?? []).concat([
+    <Button key="back" onClick={hide}>
+      <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+    </Button>,
+  ]);
 
   return (
     <>
@@ -25,11 +37,7 @@ export default function InfoButton({ title, message, children, ...props }: InfoB
         title={title}
         message={message}
         type={ModalAlertType.info}
-        buttons={[
-          <Button key="back" onClick={hide}>
-            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
-          </Button>,
-        ]}
+        buttons={buttons}
         close={hide}>
         {children}
       </ModalAlert>

@@ -1,5 +1,8 @@
 import styled from 'styled-components';
+import { useCallback } from 'react';
 
+import { urls } from '../../../../../shared/constants';
+import { useAppContext } from '../../../../context';
 import { messages } from '../../../../../shared/gettext';
 import InfoButton from '../../../../components/InfoButton';
 import { ModalMessage } from '../../../../components/Modal';
@@ -7,6 +10,7 @@ import { SettingsListItem } from '../../../../components/settings-list-item';
 import { ListItemProps } from '../../../../lib/components/list-item';
 import { spacings } from '../../../../lib/foundations';
 import { AllowLanSwitch } from '../allow-lan-switch/AllowLanSwitch';
+import { Button } from '../../../../lib/components/button';
 
 export type AllowLanSettingProps = Omit<ListItemProps, 'children'>;
 
@@ -16,6 +20,17 @@ const LanIpRanges = styled.ul({
 });
 
 export function AllowLanSetting(props: AllowLanSettingProps) {
+  const { openUrl } = useAppContext();
+
+  const openGuide = useCallback(() => openUrl(urls.lanShare), [openUrl]);
+
+  const buttons = [
+    <Button onClick={openGuide}>
+      <Button.Text>{messages.gettext('Guide')}</Button.Text>
+      <Button.Icon icon="external" />
+    </Button>,
+  ];
+
   return (
     <SettingsListItem anchorId="allow-lan-setting" {...props}>
       <SettingsListItem.Item>
@@ -24,7 +39,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
             {messages.pgettext('vpn-settings-view', 'Local network sharing')}
           </AllowLanSwitch.Label>
           <SettingsListItem.Item.ActionGroup>
-            <InfoButton>
+            <InfoButton buttons={buttons}>
               <ModalMessage>
                 {messages.pgettext(
                   'vpn-settings-view',
@@ -44,6 +59,13 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
                   <li>fe80::/10</li>
                   <li>fc00::/7</li>
                 </LanIpRanges>
+              </ModalMessage>
+
+              <ModalMessage>
+                {messages.pgettext(
+                  'vpn-settings-view',
+                  "If you can't connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route.",
+                )}
               </ModalMessage>
             </InfoButton>
 
