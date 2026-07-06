@@ -54,3 +54,41 @@ pub fn keypair() -> Keypair {
         secret_key,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn decapsulate_roundtrips_shared_secret() {
+        let keypair = keypair();
+        let (shared_secret, ciphertext) = hqc256::encapsulate(&keypair.public_key);
+        let expected_shared_secret: [u8; 32] = Sha256::digest(shared_secret.as_bytes()).into();
+
+        let decapsulated_shared_secret = keypair.decapsulate(ciphertext.as_bytes()).unwrap();
+
+        assert_eq!(decapsulated_shared_secret, expected_shared_secret);
+    }
+
+    #[test]
+    fn decapsulate_rejects_invalid_ciphertext_length() {
+        let keypair = keypair();
+
+        for invalid_ciphertext in [&[][..], &[0u8][..]] {
+            let error = keypair.decapsulate(invalid_ciphertext).unwrap_err();
+
+            match error {
+                crate::Error::InvalidCiphertextLength {
+                    algorithm,
+                    actual,
+                    expected,
+                } => {
+                    assert_eq!(algorithm, ALGORITHM_NAME);
+                    assert_eq!(actual, invalid_ciphertext.len());
+                    assert_eq!(expected, hqc256::ciphertext_bytes());
+                }
+                error => panic!("unexpected error: {error:?}"),
+            }
+        }
+    }
+}
