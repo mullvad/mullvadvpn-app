@@ -123,10 +123,9 @@ impl Display for StringValue {
 
 impl<'de> Deserialize<'de> for StringValue {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw_string = String::deserialize(deserializer)?;
-        let string_with_collapsed_newlines = Self::collapse_line_breaks(raw_string);
-
-        Ok(StringValue(string_with_collapsed_newlines))
+        let deserialized = String::deserialize(deserializer)?;
+        let trimmed = deserialized.trim().to_string();
+        Ok(StringValue(Self::collapse_line_breaks(trimmed)))
     }
 }
 
