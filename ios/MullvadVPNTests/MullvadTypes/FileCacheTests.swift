@@ -12,17 +12,18 @@ import XCTest
 @testable import MullvadTypes
 
 class FileCacheTests: XCTestCase {
+    var testDirectoryURL: URL!
     var testFileURL: URL!
 
-    override func setUp() {
-        testFileURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("FileCacheTest-\(UUID().uuidString)", isDirectory: false)
+    override func setUpWithError() throws {
+        testDirectoryURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("FileCacheTests-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: testDirectoryURL, withIntermediateDirectories: false)
+        testFileURL = testDirectoryURL.appendingPathComponent("cache.json", isDirectory: false)
     }
 
-    override func tearDown() {
-        try? FileManager.default.removeItem(at: testFileURL)
-        try? FileManager.default.removeItem(at: testFileURL.appendingPathExtension("lock"))
-        try? FileManager.default.removeItem(at: testFileURL.appendingPathExtension("tmp"))
+    override func tearDownWithError() throws {
+        try FileManager.default.removeItem(at: testDirectoryURL)
     }
 
     func testRead() throws {
@@ -123,6 +124,59 @@ class FileCacheTests: XCTestCase {
         XCTAssertEqual(try freshCache.read(), "original")
 
         try? FileManager.default.removeItem(at: tempURL)
+    }
+
+    // MARK: - Stale sibling cleanup
+
+    func testCleanupRemovesLegacyLockAndTempFiles() throws {
+        let lockURL = testFileURL.appendingPathExtension("lock")
+        let tempURL = testFileURL.appendingPathExtension("tmp")
+        try Data().write(to: lockURL)
+        try Data().write(to: tempURL)
+
+        let removedOrphanCount = FileCacheMaintenance.removeStaleCacheFiles(in: testDirectoryURL)
+
+        XCTAssertEqual(removedOrphanCount, 0, "Legacy files are not orphaned temporary files")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: lockURL.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: tempURL.path))
+    }
+
+    func testCleanupRemovesOnlyStaleUUIDTempFiles() throws {
+        let staleURL = testFileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
+        let freshURL = testFileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
+        try Data().write(to: staleURL)
+        try Data().write(to: freshURL)
+
+        // Backdate the stale file past the one-day threshold.
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date(timeIntervalSinceNow: -25 * 60 * 60)],
+            ofItemAtPath: staleURL.path
+        )
+
+        let removedOrphanCount = FileCacheMaintenance.removeStaleCacheFiles(in: testDirectoryURL)
+
+        XCTAssertEqual(removedOrphanCount, 1)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: staleURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: freshURL.path))
+    }
+
+    func testCleanupLeavesUnrelatedFilesAlone() throws {
+        let cacheData = try JSONEncoder().encode("content")
+        try cacheData.write(to: testFileURL)
+
+        // Non-UUID suffix after "tmp-" must not be treated as an orphaned temporary file.
+        let nonUUIDURL = testFileURL.appendingPathExtension("tmp-not-a-uuid")
+        try Data().write(to: nonUUIDURL)
+        try FileManager.default.setAttributes(
+            [.modificationDate: Date(timeIntervalSinceNow: -25 * 60 * 60)],
+            ofItemAtPath: nonUUIDURL.path
+        )
+
+        let removedOrphanCount = FileCacheMaintenance.removeStaleCacheFiles(in: testDirectoryURL)
+
+        XCTAssertEqual(removedOrphanCount, 0)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: testFileURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: nonUUIDURL.path))
     }
 
     // MARK: - Thundering herd
