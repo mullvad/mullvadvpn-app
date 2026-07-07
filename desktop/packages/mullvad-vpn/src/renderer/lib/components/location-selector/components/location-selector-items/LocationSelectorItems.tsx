@@ -18,7 +18,7 @@ export const StyledLocationSelectorItems = styled(AnimatedList)<{
       display: flex;
       align-items: center;
       flex-direction: column;
-      background-color: ${$variant === 'primary' ? colors.darkerBlue10 : colors.darkerBlue10};
+      background-color: ${$variant === 'primary' ? colors.darkBlue : colors.darkerBlue10};
       padding-top: ${spacings.tiny};
       border-radius: ${Radius.radius16};
       transition: background-color 0.15s ease-in-out;
