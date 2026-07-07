@@ -94,14 +94,8 @@ impl Clone for IosTunDevice {
 
 impl IpSend for IosTunDevice {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
+        let af: u32 = packet.header.version().into();
         let ip_bytes: &[u8] = &packet.into_bytes();
-
-        // Determine address family from IP version (first nibble)
-        let af: u32 = if !ip_bytes.is_empty() && (ip_bytes[0] >> 4) == 6 {
-            AF_INET6
-        } else {
-            AF_INET
-        };
 
         // Prepend the 4-byte utun header in the scratch buffer.
         let len = UTUN_HEADER_LEN + ip_bytes.len();
