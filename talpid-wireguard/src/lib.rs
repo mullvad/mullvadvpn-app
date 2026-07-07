@@ -23,7 +23,6 @@ use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
 use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
-#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     BoxedError, ErrorExt,
@@ -1069,12 +1068,10 @@ pub enum TunnelError {
     LoggingError(#[source] logging::Error),
 
     /// Failed to start DAITA
-    #[cfg(daita)]
     #[error("Failed to start DAITA")]
     StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
-    #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
 
