@@ -19,58 +19,45 @@ public protocol FileCacheProtocol<Content> {
 
 /// File cache implementation that can read and write any `Codable` content.
 ///
-/// Uses `flock()` for cross-process synchronization (shared locks for reads, exclusive locks for writes)
-/// and an in-memory cache keyed by file modification time to skip I/O when the file hasn't changed.
+/// Cross-process coordination relies on atomic whole-file replacement instead of file locks:
+/// writes go to a uniquely named temporary file that is then `rename(2)`d into place. A reader
+/// always observes either the previous or the new complete file, never a partial write, and the
+/// in-memory cache keyed by file modification time guarantees that content replaced by another
+/// process is picked up on the next read.
 ///
-/// Writes are crash-safe: data is written to a temporary file first, then atomically renamed into place
-/// while holding the exclusive lock. If a process crashes mid-write, the original file remains intact
-/// and the lock is automatically released by the kernel when the file descriptor is closed.
-///
-/// A separate lock file (`.lock` extension) is used as the locking point so that atomic renames
-/// don't invalidate held locks.
-///
-/// Multiple `FileCache` instances backed by the same file are safe — they all coordinate through the
-/// same lock file.
+/// Multiple `FileCache` instances backed by the same file are safe — writes are atomic and each
+/// instance detects external changes through the file modification time. But we should use a shared
+/// instance instead. There is no reason for a single file to be backed by multiple file caches in the same process.
 public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Sendable {
     public let fileURL: URL
-    private let lockFileURL: URL
 
-    /// Lock protecting `cachedContent` and `cachedMtime` against data races.
+    /// Lock protecting `cachedContent` and `contentModified` against data races.
     private let cacheLock = NSLock()
     private var cachedContent: Content?
     private var contentModified: Date?
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
-        self.lockFileURL = fileURL.appendingPathExtension("lock")
     }
 
     public func read() throws -> Content {
         cacheLock.lock()
         defer { cacheLock.unlock() }
 
-        // Fast path: if the file modification time hasn't changed, return the cached content.
-        let currentModificationTime = fileModificationTime()
-        if let cachedContent, let contentModified, contentModified == currentModificationTime,
-            currentModificationTime != nil
+        // Stat before reading, so that a concurrent replacement between the stat and the read can
+        // only mark the cache as stale and cause an extra re-read, never serve stale content.
+        let modificationTime = fileModificationTime(at: fileURL)
+        if let cachedContent, let contentModified, modificationTime != nil,
+            contentModified == modificationTime
         {
             return cachedContent
         }
-
-        // Slow path: acquire a shared lock and read from disk.
-        let lockFd = try openLockFile()
-        defer { close(lockFd) }
-
-        guard flock(lockFd, LOCK_SH) == 0 else {
-            throw FileCacheError.lockFailed(errno)
-        }
-        defer { flock(lockFd, LOCK_UN) }
 
         let data = try Data(contentsOf: fileURL)
         let content = try JSONDecoder().decode(Content.self, from: data)
 
         cachedContent = content
-        contentModified = fileModificationTime()
+        contentModified = modificationTime
 
         return content
     }
@@ -79,20 +66,18 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
         cacheLock.lock()
         defer { cacheLock.unlock() }
 
-        // Encode before acquiring the lock to minimize exclusive lock hold time.
         let data = try JSONEncoder().encode(content)
 
-        let lockFd = try openLockFile()
-        defer { close(lockFd) }
-
-        guard flock(lockFd, LOCK_EX) == 0 else {
-            throw FileCacheError.lockFailed(errno)
-        }
-        defer { flock(lockFd, LOCK_UN) }
-
-        // Write to a temporary file then atomically rename, both under the exclusive lock.
-        let tempURL = fileURL.appendingPathExtension("tmp")
+        // Write to a uniquely named temporary file, then atomically rename into place. The unique
+        // name prevents concurrent writers in this or another process from clobbering each other's
+        // in-progress writes.
+        let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
         try data.write(to: tempURL)
+
+        // Capture the modification time before the rename, which preserves it. If another process
+        // replaces the file afterwards, the stored time no longer matches and the next read
+        // re-reads from disk.
+        let writtenModificationTime = fileModificationTime(at: tempURL)
 
         if rename(tempURL.path, fileURL.path) != 0 {
             try? FileManager.default.removeItem(at: tempURL)
@@ -100,20 +85,12 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
         }
 
         cachedContent = content
-        contentModified = fileModificationTime()
+        contentModified = writtenModificationTime
     }
 
     public func clear() throws {
         cacheLock.lock()
         defer { cacheLock.unlock() }
-
-        let lockFd = try openLockFile()
-        defer { close(lockFd) }
-
-        guard flock(lockFd, LOCK_EX) == 0 else {
-            throw FileCacheError.lockFailed(errno)
-        }
-        defer { flock(lockFd, LOCK_UN) }
 
         try FileManager.default.removeItem(at: fileURL)
 
@@ -123,35 +100,70 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
     // MARK: - Private
 
-    private func openLockFile() throws -> Int32 {
-        // Open a file path that is to be used with `flock` to synchronize access to the actual caching file.
-        let fd = open(lockFileURL.path, O_RDWR | O_CREAT, 0o644)
-        guard fd >= 0 else {
-            throw FileCacheError.openFailed(errno)
-        }
-        return fd
+    private func fileModificationTime(at url: URL) -> Date? {
+        (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
     }
+}
 
-    private func fileModificationTime() -> Date? {
-        (try? FileManager.default.attributesOfItem(atPath: fileURL.path))?[.modificationDate] as? Date
+/// One-shot maintenance for directories containing `FileCache`-backed files, meant to be run once
+/// on app launch.
+///
+/// This code can be removed in 2027.1: by then every install has run a version that no longer
+/// creates `.lock` and `.tmp` files, and orphaned `.tmp-<UUID>` files accumulate slowly enough
+/// (one small file per process death mid-write) that a year of sweeps is plenty.
+public enum FileCacheMaintenance {
+    /// Deletes auxiliary files that `FileCache` instances leave behind in `directory`:
+    /// `.lock` and `.tmp` files created by versions up to 2026.3, and uniquely named
+    /// `.tmp-<UUID>` files orphaned when a process died mid-write. The UUID-named files are
+    /// only deleted when older than a day, so that another process's in-flight write is never
+    /// swept away.
+    ///
+    /// Returns the number of deleted orphaned `.tmp-<UUID>` files. Unlike the expected legacy
+    /// leftovers, each of those marks a process death mid-write, so callers should log them.
+    @discardableResult
+    public static func removeStaleCacheFiles(
+        in directory: URL,
+        olderThan staleAge: TimeInterval = 24 * 60 * 60
+    ) -> Int {
+        let fileManager = FileManager.default
+
+        guard
+            let files = try? fileManager.contentsOfDirectory(
+                at: directory,
+                includingPropertiesForKeys: [.contentModificationDateKey]
+            )
+        else { return 0 }
+
+        let staleCutoff = Date(timeIntervalSinceNow: -staleAge)
+        var removedOrphanCount = 0
+
+        for url in files {
+            let name = url.lastPathComponent
+
+            if name.hasSuffix(".lock") || name.hasSuffix(".tmp") {
+                try? fileManager.removeItem(at: url)
+            } else if let uuidRange = name.range(of: ".tmp-", options: .backwards),
+                UUID(uuidString: String(name[uuidRange.upperBound...])) != nil
+            {
+                let modified = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
+                    .contentModificationDate
+                if let modified, modified < staleCutoff, (try? fileManager.removeItem(at: url)) != nil {
+                    removedOrphanCount += 1
+                }
+            }
+        }
+
+        return removedOrphanCount
     }
 }
 
 /// Errors specific to `FileCache` operations.
 public enum FileCacheError: LocalizedError {
-    /// `flock()` failed with the given `errno`.
-    case lockFailed(Int32)
-    /// Could not open or create the lock file.
-    case openFailed(Int32)
     /// Atomic rename of temporary file failed.
     case renameFailed(Int32)
 
     public var errorDescription: String? {
         switch self {
-        case let .lockFailed(code):
-            return "Failed to acquire file lock: \(String(cString: strerror(code)))"
-        case let .openFailed(code):
-            return "Failed to open lock file: \(String(cString: strerror(code)))"
         case let .renameFailed(code):
             return "Failed to rename temporary file: \(String(cString: strerror(code)))"
         }
