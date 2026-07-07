@@ -70,60 +70,28 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
         &'a mut self,
         pool: &mut PacketBufPool,
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
-        // Race the two sources. The secondary gets its own `secondary_pool`
-        // (which it ignores anyway), so neither branch borrows `pool` twice and
-        // a plain `select!` suffices.
-        //
-        // The bias is deliberately toward the secondary, even though the primary
-        // (TUN) carries the bulk of the traffic. `biased` polls the branches in
-        // order on every call, and each `recv` returns as soon as one branch is
-        // ready, so the order only decides the winner when both have data at the
-        // same instant; the loser's future is dropped, but its data is not lost
-        // (the TUN fd and the smoltcp mpsc are both cancel-safe and keep it
-        // buffered for the next call).
-        //
-        // Given that, polling the primary first would starve the secondary: when
-        // the TUN is saturated `self.primary.recv()` is ready on essentially
-        // every poll, so it would win every tie and the low-volume smoltcp
-        // control traffic (connectivity pings, the negotiation stack) would never
-        // get serviced — precisely when we most need the monitor to keep working.
-        // Polling the secondary first costs only a single cheap mpsc poll that
-        // almost always returns `Pending` (so the primary is not meaningfully
-        // delayed), while guaranteeing the scarce control stream is never buried
-        // under the bulk data stream.
         let result = tokio::select! {
-            biased;
-            result = self.secondary.recv(&mut self.secondary_pool) => RecvResult::Secondary(result),
-            result = self.primary.recv(pool) => RecvResult::Primary(result),
+            result = self.secondary.recv(&mut self.secondary_pool) => result,
+            result = self.primary.recv(pool) => return result.map(MuxIter::Primary),
         };
 
-        match result {
-            RecvResult::Primary(result) => result.map(MuxIter::Primary),
-            RecvResult::Secondary(result) => {
-                let packets: Vec<_> = result?.collect();
-                for pkt in &packets {
-                    if let Some(event) = outbound_conntrack_event(pkt)
-                        && self.conntrack_event_tx.try_send(event).is_err()
-                    {
-                        log::warn!(
-                            "ip_mux: connection-tracker event channel full or closed, \
-                                 dropping event"
-                        );
-                    }
-                }
-                Ok(MuxIter::Secondary(packets.into_iter()))
+        let packets: Vec<_> = result?.collect();
+        for pkt in &packets {
+            if let Some(event) = outbound_conntrack_event(pkt)
+                && self.conntrack_event_tx.try_send(event).is_err()
+            {
+                log::warn!(
+                    "ip_mux: connection-tracker event channel full or closed, \
+                         dropping event"
+                );
             }
         }
+        Ok(MuxIter::Secondary(packets.into_iter()))
     }
 
     fn mtu(&self) -> MtuWatcher {
         self.primary.mtu()
     }
-}
-
-enum RecvResult<P, S> {
-    Primary(P),
-    Secondary(S),
 }
 
 impl<P: IpSend, S: IpSend> IpSend for IpMuxSend<P, S> {
