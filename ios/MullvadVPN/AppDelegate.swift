@@ -742,16 +742,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                     settingsResolver.resolve(store: self.settingsManager.store) { [self] result in
                         switch result {
-                        case let .migrated(old, new):
+                        case let .migrated(old, new, changes):
                             // Tell the tunnel to re-read tunnel configuration after migration.
                             logger.debug("Successful resolving deprecated settings from UI Process")
                             appPreferences.migratedSettingsState = MigratedSettingsState(
                                 preMigrationSettings: old,
                                 lastInstalledVersion: Bundle.main.productVersion,
                                 lastMigratedVersion: MigratedVersion.current.rawValue,
-                                hasCompletedMigrationWizard: false,
-                                shouldShowMigratedSettingsMenuItem: true)
-                            migratedSettingsListener.onMigratedSettingsHandler?(.migrated)
+                                hasCompletedMigrationWizard: changes.isEmpty,
+                                shouldShowMigratedSettingsMenuItem: !changes.isEmpty)
+                            migratedSettingsListener.onMigratedSettingsHandler?(
+                                changes.isEmpty ? .noChanges : .migrated)
                             tunnelManager.updateSettings([.all(new)])
                             finish(nil)
 
@@ -760,11 +761,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                                 "Attempted resolving deprecated settings from UI Process, but It's already up to date, so nothing to do"
                             )
                             migratedSettingsListener.onMigratedSettingsHandler?(.noChanges)
-                            finish(nil)
-                        case .noChanges:
-                            logger.debug(
-                                "Successful resolving deprecated settings from UI Process, No changes were required")
-                            resetVisibility()
                             finish(nil)
                         case let .failure(error):
                             logger.error("Failed resolving deprecated settings from UI Process: \(error)")
