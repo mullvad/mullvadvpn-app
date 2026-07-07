@@ -13,7 +13,6 @@ crate-type = ["staticlib"]
 [target.'cfg(any(target_os = "ios", target_os = "macos"))'.dependencies]
 bytes = { workspace = true }
 futures = { workspace = true }
-byteorder = "1"
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 ipnetwork = { workspace = true }

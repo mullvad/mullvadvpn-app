@@ -5,10 +5,16 @@
 //! produces IP packets that flow through IpMux into GotaTun for encryption.
 
 use crate::gotatun::smoltcp_network::SmoltcpIcmpSocket;
-use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
-use std::{io, io::Write, net::Ipv4Addr};
-use zerocopy::IntoBytes;
+use smoltcp::{
+    phy::ChecksumCapabilities,
+    wire::{Icmpv4Packet, Icmpv4Repr},
+};
+use std::{io, net::Ipv4Addr};
+
+/// Random payload carried in each echo request, matching common `ping` implementations.
+const PAYLOAD_LEN: usize = 42;
+const PACKET_LEN: usize = 8 + PAYLOAD_LEN; // ICMPv4 echo header + payload
 
 pub struct SmoltcpPinger {
     socket: SmoltcpIcmpSocket,
@@ -30,38 +36,20 @@ impl SmoltcpPinger {
     }
 
     pub async fn send_icmp(&mut self) -> Result<(), io::Error> {
-        let mut message = [0u8; 50];
-        construct_icmpv4_packet(&mut message, self.id, self.seq)
-            .map_err(|()| io::Error::other("ICMP buffer too small"))?;
+        let mut data = [0u8; PAYLOAD_LEN];
+        rand::rng().fill(&mut data);
+
+        let repr = Icmpv4Repr::EchoRequest {
+            ident: self.id,
+            seq_no: self.seq,
+            data: &data,
+        };
         self.seq = self.seq.wrapping_add(1);
-        self.socket.send_to_v4(&message, self.dest).await
+
+        let mut buffer = [0u8; PACKET_LEN];
+        let mut packet = Icmpv4Packet::new_unchecked(&mut buffer[..]);
+        repr.emit(&mut packet, &ChecksumCapabilities::default());
+
+        self.socket.send_to_v4(&buffer, self.dest).await
     }
-}
-
-fn construct_icmpv4_packet(buffer: &mut [u8], id: u16, seq: u16) -> Result<(), ()> {
-    const ICMP_CHECKSUM_OFFSET: usize = 2;
-    if buffer.len() < 14 {
-        return Err(());
-    }
-
-    let mut writer = &mut buffer[..];
-    // ICMP type: Echo Request
-    writer.write_u8(0x08).unwrap();
-    // Code: 0
-    writer.write_u8(0x00).unwrap();
-    // Checksum placeholder
-    writer.write_u16::<NetworkEndian>(0x0000).unwrap();
-    // Identifier
-    writer.write_u16::<NetworkEndian>(id).unwrap();
-    // Sequence number
-    writer.write_u16::<NetworkEndian>(seq).unwrap();
-    // Random payload
-    rand::rng().fill(writer);
-
-    let checksum = gotatun::packet::checksum(&[buffer]);
-    (&mut buffer[ICMP_CHECKSUM_OFFSET..])
-        .write_all(checksum.as_bytes())
-        .unwrap();
-
-    Ok(())
 }
