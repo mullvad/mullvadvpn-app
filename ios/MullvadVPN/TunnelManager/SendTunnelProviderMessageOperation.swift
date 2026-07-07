@@ -75,6 +75,12 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     override func execute() async throws -> Output {
         try Task.checkCancellation()
 
+        defer {
+            removeVPNStatusObserver()
+            timeoutTask?.cancel()
+            waitForConnectingStateTask?.cancel()
+        }
+
         return try await withCheckedThrowingContinuation { continuation in
             guard !Task.isCancelled else {
                 complete(.failure(CancellationError()))
