@@ -68,7 +68,6 @@ impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
                 allowed_ips,
                 endpoint,
                 psk: None,
-                #[cfg(daita)]
                 constant_packet_size: false,
             },
             exit_peer: None,

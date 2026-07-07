@@ -74,7 +74,6 @@ fn wireguard_singlehop_endpoint(
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
-        #[cfg(daita)]
         constant_packet_size: false,
     };
     MullvadEndpoint {
@@ -120,7 +119,6 @@ fn wireguard_multihop_endpoint(
         // This will be filled in later, not the relay selector's problem
         psk: None,
         // This will be filled in later
-        #[cfg(daita)]
         constant_packet_size: false,
     };
 
@@ -132,8 +130,6 @@ fn wireguard_multihop_endpoint(
         allowed_ips: vec![IpNetwork::from(exit.endpoint.ip())],
         // This will be filled in later
         psk: None,
-        // This will be filled in later
-        #[cfg(daita)]
         constant_packet_size: false,
     };
 
