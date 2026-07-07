@@ -8,6 +8,7 @@ use super::SmoltcpNetworkConfig;
 use super::device::SmoltcpDevice;
 use super::icmp_socket::SmoltcpIcmpSocket;
 use super::tcp_stream::SmoltcpTcpStream;
+use bytes::BytesMut;
 use gotatun::packet::{Ip, Packet};
 use smoltcp::{
     iface::{Config as IfaceConfig, Interface, SocketHandle, SocketSet},
@@ -49,7 +50,7 @@ pub(super) enum SocketCmd {
 
 struct ActiveTcpSocket {
     socket_handle: SocketHandle,
-    read_tx: mpsc::Sender<io::Result<Vec<u8>>>,
+    read_tx: mpsc::Sender<io::Result<BytesMut>>,
     write_rx: mpsc::Receiver<Vec<u8>>,
     write_buf: VecDeque<u8>,
 }
@@ -278,7 +279,7 @@ impl SmoltcpStack {
                 match tcp_sock.read_tx.try_reserve() {
                     Ok(permit) => {
                         let queue_len = socket.recv_queue();
-                        let mut buf = vec![0u8; queue_len];
+                        let mut buf = BytesMut::zeroed(queue_len);
                         match socket.recv_slice(&mut buf) {
                             Ok(n) => {
                                 if n > 0 {
@@ -607,7 +608,7 @@ mod tests {
         // out of smoltcp's receive buffer. Nothing may be lost. ---
         let mut received: Vec<u8> = Vec::new();
         for _ in 0..(TOTAL * 4) {
-            while let Ok(msg) = stream.read_rx.try_recv() {
+            while let Ok(msg) = stream.upstream_rx.try_recv() {
                 received.extend(msg.expect("no io error on the stream"));
             }
             if received.len() >= TOTAL {

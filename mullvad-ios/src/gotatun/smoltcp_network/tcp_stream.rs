@@ -1,9 +1,8 @@
 //! A TCP stream backed by a smoltcp TCP socket, surfaced to async consumers as
 //! [`AsyncRead`]/[`AsyncWrite`].
 
-use bytes::BytesMut;
+use bytes::{Buf, BytesMut};
 use std::{
-    future::Future,
     io,
     pin::Pin,
     sync::Arc,
@@ -13,33 +12,34 @@ use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
     sync::{Notify, mpsc},
 };
+use tokio_util::sync::PollSender;
 
 /// A TCP stream backed by a smoltcp TCP socket.
 ///
-/// Implements [`AsyncRead`] and [`AsyncWrite`] for use with tonic/gRPC
-/// (ephemeral peer exchange) or any other async TCP consumer.
+/// Implements [`AsyncRead`] and [`AsyncWrite`]
 pub struct SmoltcpTcpStream {
-    /// Visible to the poll loop's tests, which assert on delivered data.
-    pub(super) read_rx: mpsc::Receiver<io::Result<Vec<u8>>>,
-    write_tx: mpsc::Sender<Vec<u8>>,
+    /// Channel on which data from upstream TCP peer is delivered
+    pub(super) upstream_rx: mpsc::Receiver<io::Result<BytesMut>>,
+    /// Channel used to deliver data to upstream TCP peer
+    upstream_tx: PollSender<Vec<u8>>,
+    /// Notifies smoltcp's _device_ about new writes to [[`upstream_tx]]
     notify: Arc<Notify>,
+    /// Buffer received bytes
     read_buf: BytesMut,
-    in_flight_write: Option<Pin<Box<dyn Future<Output = io::Result<usize>> + Send>>>,
 }
 
 impl SmoltcpTcpStream {
     /// Create a stream over the channels wired to an active smoltcp TCP socket.
     pub(super) fn new(
-        read_rx: mpsc::Receiver<io::Result<Vec<u8>>>,
+        read_rx: mpsc::Receiver<io::Result<BytesMut>>,
         write_tx: mpsc::Sender<Vec<u8>>,
         notify: Arc<Notify>,
     ) -> Self {
         Self {
-            read_rx,
-            write_tx,
+            upstream_rx: read_rx,
+            upstream_tx: PollSender::new(write_tx),
             notify,
             read_buf: BytesMut::new(),
-            in_flight_write: None,
         }
     }
 }
@@ -59,24 +59,24 @@ impl AsyncRead for SmoltcpTcpStream {
             return Poll::Ready(Ok(()));
         }
 
-        match this.read_rx.poll_recv(cx) {
-            Poll::Ready(Some(Ok(data))) => {
+        match this.upstream_rx.poll_recv(cx) {
+            Poll::Ready(Some(Ok(mut data))) => {
                 // Freed a slot in the read channel; wake the poll loop so it can
                 // promptly refill it from smoltcp's receive buffer rather than
                 // waiting for the next inbound packet or poll-delay tick.
                 this.notify.notify_one();
                 let n = std::cmp::min(buf.remaining(), data.len());
                 buf.put_slice(&data[..n]);
-                if n < data.len() {
-                    this.read_buf.extend_from_slice(&data[n..]);
+                // `read_buf` is empty here (we only poll the channel once it is),
+                // so retain any tail by moving the buffer rather than copying it.
+                data.advance(n);
+                if !data.is_empty() {
+                    this.read_buf = data;
                 }
                 Poll::Ready(Ok(()))
             }
             Poll::Ready(Some(Err(e))) => Poll::Ready(Err(e)),
-            Poll::Ready(None) => Poll::Ready(Err(io::Error::new(
-                io::ErrorKind::BrokenPipe,
-                "connection closed",
-            ))),
+            Poll::Ready(None) => Poll::Ready(Err(broken_pipe())),
             Poll::Pending => Poll::Pending,
         }
     }
@@ -90,32 +90,29 @@ impl AsyncWrite for SmoltcpTcpStream {
     ) -> Poll<io::Result<usize>> {
         let this = self.get_mut();
 
-        if let Some(ref mut fut) = this.in_flight_write {
-            let result = ready!(fut.as_mut().poll(cx));
-            this.in_flight_write = None;
-            return Poll::Ready(result);
-        }
-
-        let data = buf.to_vec();
-        let len = data.len();
-        let tx = this.write_tx.clone();
-        let notify = this.notify.clone();
-        this.in_flight_write = Some(Box::pin(async move {
-            tx.send(data)
-                .await
-                .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "connection closed"))?;
-            notify.notify_one();
-            Ok(len)
-        }));
-        cx.waker().wake_by_ref();
-        Poll::Pending
+        ready!(this.upstream_tx.poll_reserve(cx)).map_err(|_| broken_pipe())?;
+        let n = buf.len();
+        this.upstream_tx
+            .send_item(buf.to_vec())
+            .map_err(|_| broken_pipe())?;
+        this.notify.notify_one();
+        Poll::Ready(Ok(n))
     }
 
     fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        // Writes are handed off to the channel synchronously in `poll_write`;
+        // there is nothing buffered in the stream itself to flush.
         Poll::Ready(Ok(()))
     }
 
     fn poll_shutdown(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        // Dropping the sender closes the write half; the poll loop observes the
+        // closed channel and closes the smoltcp socket.
+        self.get_mut().upstream_tx.close();
         Poll::Ready(Ok(()))
     }
+}
+
+fn broken_pipe() -> io::Error {
+    io::Error::new(io::ErrorKind::BrokenPipe, "connection closed")
 }

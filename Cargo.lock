@@ -3356,6 +3356,7 @@ dependencies = [
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
+ "tokio-util 0.7.18",
  "tonic",
  "tower",
  "tracing",

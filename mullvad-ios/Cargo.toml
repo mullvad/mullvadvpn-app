@@ -40,6 +40,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 rand = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
+tokio-util = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
 tracing = "0.1"
