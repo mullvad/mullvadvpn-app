@@ -256,7 +256,6 @@ impl RelayQuery {
                     wireguard_constraints: WireguardConstraints {
                         ip_version: entry.entry_specific.ip_version,
                         allowed_ips,
-                        // TODO: Check which variant is true here.
                         multihop: Multihop::Always,
                         entry_location: entry.general.location,
                         entry_providers: entry.general.providers,
