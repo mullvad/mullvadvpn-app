@@ -1598,7 +1598,7 @@ mod partition_relays {
         }
     }
 
-    /// "Daita + Autohop + Provider. Providers only affects exit relays, while DAITA only affects entry relays.
+    /// "Daita + Autohop + Provider. Providers only affect exit relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
         // "100TB" does not have any DAITA relays, and because filters should apply for both entry
