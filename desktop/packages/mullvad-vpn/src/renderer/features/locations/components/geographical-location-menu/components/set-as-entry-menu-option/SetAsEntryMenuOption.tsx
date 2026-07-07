@@ -42,7 +42,7 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
   ]);
 
   const isDaitaEnabledWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
-  const isExitSelectedWithoutMultihop = !multihop && isExitSelected;
+  const isExitSelectedWithoutMultihop = multihop === 'never' && isExitSelected;
 
   const disabled = isDaitaEnabledWithoutDirectOnly || isExitSelectedWithoutMultihop;
 
