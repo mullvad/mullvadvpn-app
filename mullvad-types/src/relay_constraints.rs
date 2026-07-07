@@ -391,7 +391,7 @@ pub enum Multihop {
     #[default]
     #[serde(rename = "auto")]
     Auto,
-    /// Never route VPN traffic through more than one relays.
+    /// Never route VPN traffic through more than one relay.
     #[serde(rename = "never")]
     Never,
 }
