@@ -53,7 +53,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
           <Menu.Option.Item.Label>
             {
               // TRANSLATORS: Text for button that sets a location as exit relay
-              messages.gettext('Set as multihop exit')
+              messages.gettext('Set as exit')
             }
           </Menu.Option.Item.Label>
         </Menu.Option.Item>

@@ -46,20 +46,17 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
 
   const disabled = isDaitaEnabledWithoutDirectOnly || isExitSelectedWithoutMultihop;
 
-  const label = disabled
-    ? // This line is here to prevent the following one to be moved up here by prettier
-      // TRANSLATORS: Text for button that sets a location as entry relay
-      messages.gettext('Set as multihop entry (incompatible)')
-    : // This line is here to prevent the following one to be moved up here by prettier
-      // TRANSLATORS: Text for button that sets a location as entry relay when button is disabled.
-      messages.gettext('Set as multihop entry');
-
   return (
     <Menu.Option disabled={disabled} {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />
-          <Menu.Option.Item.Label>{label}</Menu.Option.Item.Label>
+          <Menu.Option.Item.Label>
+            {
+              // TRANSLATORS: Text for button that sets a location as entry relay.
+              messages.gettext('Set as entry')
+            }
+          </Menu.Option.Item.Label>
         </Menu.Option.Item>
       </Menu.Option.Trigger>
     </Menu.Option>
