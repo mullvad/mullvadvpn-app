@@ -51,8 +51,8 @@ export function LocationSelectorItemProvider({
 
   const value = React.useMemo(
     () => ({
-      inputRef: inputRefProp ? inputRefProp : inputRef,
-      triggerRef: triggerRefProp ? triggerRefProp : triggerRef,
+      inputRef: inputRefProp ?? inputRef,
+      triggerRef: triggerRefProp ?? triggerRef,
       textFieldRef,
       selectedItem,
       onSelectedItemChange,
