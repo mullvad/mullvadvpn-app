@@ -1,4 +1,6 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-Only point out the major changes.
+Add "When needed" multihop mode - app will only use multihop in cases where required features are not supported by exit server.
+Add automatic entry server connection - it will select an entry server that is close to the exit.
+Removed "Direct only" setting from DAITA - "When needed" and automatic entry selection have replaced it.
+Fix URLs to our blog posts and FAQ page.
+Improved search behavior in location view.
+Allow connecting to servers over IPv6.

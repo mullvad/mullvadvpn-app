@@ -21,14 +21,18 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## UNRELEASED
-### Added
+## Unreleased
+
+
+## [2026.4]
+### Added
 - Add support for connecting over IPv6.
 - Add automatic entry location selection.
 - Add "When needed" multihop mode.
 
 ### Fixed
 - Fix URLs to FAQ pages and blog posts when using some locales
+- Fix deadlocks when reading relay list
 
 ### Removed
 - Remove “Direct only” from Daita
@@ -37,7 +41,7 @@ Line wrap the file at 100 chars.                                              Th
 - "When needed" is now the default multihop setting
 - Improve search behaviour in select location view
 
-## [2026.3]
+## [2026.3 - 2026-06-15]
 ### Fixed
 - Stop logging access method credentials in logs.
 - UI crash when interacting with the tunnel.
