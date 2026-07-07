@@ -19,21 +19,31 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
   const { multihop, setMultihop } = useMultihop();
   const { entry, exit } = useSelectedLocations();
 
+  const isEntrySingleRelay = entry && 'hostname' in entry;
+  const isEntrySelected = isLocationSelected(location.details, entry);
+
   const handleClick = React.useCallback(async () => {
-    if (!multihop) {
-      await setMultihop({ enabled: true, exitLocation: location.details });
-    }
-    if (multihop) {
-      const isEntrySelected = isLocationSelected(location.details, entry);
-      if (isEntrySelected) {
-        // Swap entry and exit location
-        await setMultihop({ enabled: true, entryLocation: exit, exitLocation: location.details });
-      } else {
-        await selectExitRelayLocation(location.details);
-      }
+    if (isEntrySingleRelay && isEntrySelected) {
+      // Swap entry and exit location
+      await setMultihop({
+        multihop,
+        entryLocation: exit,
+        exitLocation: location.details,
+      });
+    } else {
+      await selectExitRelayLocation(location.details);
     }
     onOpenChange?.(false);
-  }, [entry, exit, location.details, multihop, onOpenChange, selectExitRelayLocation, setMultihop]);
+  }, [
+    exit,
+    isEntrySelected,
+    isEntrySingleRelay,
+    location.details,
+    multihop,
+    onOpenChange,
+    selectExitRelayLocation,
+    setMultihop,
+  ]);
 
   return (
     <Menu.Option {...props}>
@@ -43,7 +53,7 @@ export function SetAsExitMenuOption({ location, ...props }: SetAsExitMenuOptionP
           <Menu.Option.Item.Label>
             {
               // TRANSLATORS: Text for button that sets a location as exit relay
-              messages.gettext('Set as multihop exit')
+              messages.gettext('Set as exit')
             }
           </Menu.Option.Item.Label>
         </Menu.Option.Item>

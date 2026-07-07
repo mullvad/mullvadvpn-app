@@ -152,7 +152,10 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
     ManagementInterface.WireguardConstraints.newBuilder()
-        .setUseMultihop(isMultihopEnabled)
+        .setMultihop(
+            if (isMultihopEnabled) ManagementInterface.WireguardConstraints.Multihop.Always
+            else ManagementInterface.WireguardConstraints.Multihop.Never
+        )
         .setEntryLocation(entryLocation.fromDomain())
         .let {
             when (val ipVersion = ipVersion) {

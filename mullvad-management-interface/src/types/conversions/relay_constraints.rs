@@ -3,7 +3,7 @@ use mullvad_types::{
     constraints::Constraint,
     custom_list::Id,
     relay_constraints::{
-        GeographicLocationConstraint,
+        GeographicLocationConstraint, Multihop,
         allowed_ip::{self, AllowedIps},
     },
 };
@@ -38,7 +38,7 @@ impl TryFrom<&proto::WireguardConstraints>
         Ok(mullvad_constraints::WireguardConstraints {
             ip_version: Constraint::from(ip_version),
             allowed_ips,
-            use_multihop: constraints.use_multihop,
+            multihop: Multihop::from(constraints.multihop()),
             entry_location: constraints
                 .entry_location
                 .clone()
@@ -49,6 +49,26 @@ impl TryFrom<&proto::WireguardConstraints>
             entry_providers: providers_constraint_from_proto(&constraints.entry_providers),
             entry_ownership: try_ownership_constraint_from_i32(constraints.entry_ownership)?,
         })
+    }
+}
+
+impl From<Multihop> for proto::wireguard_constraints::Multihop {
+    fn from(value: Multihop) -> Self {
+        match value {
+            Multihop::Always => proto::wireguard_constraints::Multihop::Always,
+            Multihop::Never => proto::wireguard_constraints::Multihop::Never,
+            Multihop::Auto => proto::wireguard_constraints::Multihop::Auto,
+        }
+    }
+}
+
+impl From<proto::wireguard_constraints::Multihop> for Multihop {
+    fn from(value: proto::wireguard_constraints::Multihop) -> Self {
+        match value {
+            proto::wireguard_constraints::Multihop::Always => Multihop::Always,
+            proto::wireguard_constraints::Multihop::Never => Multihop::Never,
+            proto::wireguard_constraints::Multihop::Auto => Multihop::Auto,
+        }
     }
 }
 
@@ -92,23 +112,11 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                 let providers = providers_constraint_from_proto(&settings.providers);
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
 
-                let mut wireguard_constraints =
-                    mullvad_constraints::WireguardConstraints::try_from(
-                        &settings.wireguard_constraints.ok_or(
-                            FromProtobufTypeError::invalid_argument(
-                                "missing wireguard constraints",
-                            ),
-                        )?,
-                    )?;
-
-                // TODO Remove this block when the frontends support setting multihop entry filters.
-                // This is needed in order to not change the current behavior (which
-                // is that the ownership and providers from `RelaySettings` apply to both the entry
-                // and exit multihop relays).
-                {
-                    wireguard_constraints.entry_ownership = ownership;
-                    wireguard_constraints.entry_providers = providers.clone();
-                }
+                let wireguard_constraints = mullvad_constraints::WireguardConstraints::try_from(
+                    &settings.wireguard_constraints.ok_or(
+                        FromProtobufTypeError::invalid_argument("missing wireguard constraints"),
+                    )?,
+                )?;
 
                 Ok(mullvad_constraints::RelaySettings::Normal(
                     mullvad_constraints::RelayConstraints {
@@ -229,14 +237,16 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .option()
                             .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
                         allowed_ips: allowed_ip::resolve_from_constraint(
-                            &constraints.wireguard_constraints.allowed_ips,
+                            constraints.wireguard_constraints.allowed_ips.as_ref(),
                             None,
                             None,
                         )
                         .into_iter()
                         .map(|ip| ip.to_string())
                         .collect(),
-                        use_multihop: constraints.wireguard_constraints.multihop(),
+                        multihop: i32::from(proto::wireguard_constraints::Multihop::from(
+                            constraints.wireguard_constraints.multihop,
+                        )),
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location
