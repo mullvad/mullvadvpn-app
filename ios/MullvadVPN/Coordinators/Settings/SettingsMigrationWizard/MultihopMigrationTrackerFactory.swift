@@ -21,7 +21,7 @@ enum MultihopMigrationTrackerFactory {
     > {
 
         let scenario1A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
-            name: "Scenario1 A"
+            name: "Scenario 1A"
         ) { input in
             input.tunnelMultihopState == .never && !input.daita.isEnabled
                 && input.relayConstraints.exitFilter == .any
@@ -36,7 +36,7 @@ enum MultihopMigrationTrackerFactory {
         }
 
         let scenario1B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
-            name: "Scenario1 B"
+            name: "Scenario 1B"
         ) { input in
             input.tunnelMultihopState == .never && !input.daita.isEnabled
                 && input.relayConstraints.exitFilter != .any
@@ -58,7 +58,7 @@ enum MultihopMigrationTrackerFactory {
         }
 
         let scenario2 = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
-            name: "Scenario2"
+            name: "Scenario 2"
         ) { input in
             input.tunnelMultihopState == .never && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter == .any
