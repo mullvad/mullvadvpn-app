@@ -416,7 +416,7 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        isMultihopEnabled = useMultihop,
+        isMultihopEnabled = multihop == ManagementInterface.WireguardConstraints.Multihop.Always,
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
@@ -765,8 +765,8 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
-        ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
-        ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
+        ManagementInterface.FeatureIndicator.MULTIHOP,
+        ManagementInterface.FeatureIndicator.MULTIHOP_AUTO -> FeatureIndicator.MULTIHOP
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT
