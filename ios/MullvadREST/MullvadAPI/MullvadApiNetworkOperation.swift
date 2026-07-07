@@ -57,59 +57,69 @@ extension REST {
             networkTask = nil
         }
 
-        override public func main() {
-            startRequest()
+        override func execute() async throws -> Success {
+            try await startRequest()
         }
 
-        func startRequest() {
-            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+        private func startRequest() async throws -> Success {
 
-            guard !isCancelled else {
-                finish(result: .failure(OperationError.cancelled))
-                return
-            }
+            try Task.checkCancellation()
 
             let transport = transportProvider.makeTransport()
 
-            do {
-                logger.info("\(#function): using transport=\(transport?.name ?? "Unknown")")
-                networkTask = try transport?.sendRequest(request) { [weak self] response in
-                    guard let self else { return }
+            logger.info("\(#function): using transport=\(transport?.name ?? "Unknown")")
 
-                    logger.debug("\(#function): \(request.name) API response received")
+            return try await withCheckedThrowingContinuation { continuation in
+                do {
+                    networkTask = try transport?.sendRequest(request) { [weak self] response in
+                        guard let self else {
+                            continuation.resume(throwing: CancellationError())
+                            return
+                        }
 
-                    if let apiError = response.error {
-                        logger
-                            .error(
+                        logger.debug("\(#function): \(request.name) API response received")
+
+                        if let apiError = response.error {
+                            logger.error(
                                 "Response contained error code \(apiError.statusCode), error: \(apiError.errorDescription)"
                             )
-                        finish(result: .failure(restError(apiError: apiError)))
-                        return
-                    }
 
-                    let decodedResponse = responseHandler.handleResponse(response)
-
-                    switch decodedResponse {
-                    case let .success(value):
-                        logger.debug("API response decoded successfully")
-                        finish(result: .success(value))
-                    case let .decoding(block):
-                        do {
-                            let value = try block()
-                            logger.debug("API response decoded via block")
-                            finish(result: .success(value))
-                        } catch {
-                            logger.error("Response decoding failed error=\(error)")
-                            finish(result: .failure(REST.Error.unhandledResponse(0, nil)))
+                            continuation.resume(
+                                throwing: restError(apiError: apiError)
+                            )
+                            return
                         }
-                    case let .unhandledResponse(error):
-                        logger.error("Unhandled API response error=\(String(describing: error))")
-                        finish(result: .failure(REST.Error.unhandledResponse(0, error)))
+
+                        switch responseHandler.handleResponse(response) {
+
+                        case .success(let value):
+                            logger.debug("API response decoded successfully")
+                            continuation.resume(returning: value)
+
+                        case .decoding(let block):
+                            do {
+                                let value = try block()
+                                logger.debug("API response decoded via block")
+                                continuation.resume(returning: value)
+                            } catch {
+                                logger.error("Response decoding failed error=\(error)")
+                                continuation.resume(
+                                    throwing: REST.Error.unhandledResponse(0, nil)
+                                )
+                            }
+
+                        case .unhandledResponse(let error):
+                            logger.error("Unhandled API response error=\(String(describing: error))")
+                            continuation.resume(
+                                throwing: REST.Error.unhandledResponse(0, error)
+                            )
+                        }
                     }
+
+                } catch {
+                    logger.error("Request failed to send error=\(error)")
+                    continuation.resume(throwing: error)
                 }
-            } catch {
-                logger.error("Request failed to send error=\(error)")
-                finish(result: .failure(error))
             }
         }
 

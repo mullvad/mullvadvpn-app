@@ -16,8 +16,8 @@ import UIKit
 protocol RelayCacheTrackerProtocol: RelayCacheTrackerProviding {
     func startPeriodicUpdates()
     func stopPeriodicUpdates()
-    func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
-    func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func fetchRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
     func removeObserver(_ observer: RelayCacheTrackerObserver)
@@ -174,13 +174,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         timerSource = nil
     }
 
-    func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
+    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable
     {
         performUpdate(shouldThrottle: true, completionHandler: completionHandler)
     }
 
-    func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
+    func fetchRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable
     {
         performUpdate(shouldThrottle: false, completionHandler: completionHandler)
@@ -232,7 +232,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
     private func performUpdate(
         shouldThrottle: Bool,
-        completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil
+        completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)? = nil
     ) -> Cancellable {
         let operation = ResultBlockOperation<RelaysFetchResult> { finish in
             let cachedRelays = try? self.getCachedRelays()

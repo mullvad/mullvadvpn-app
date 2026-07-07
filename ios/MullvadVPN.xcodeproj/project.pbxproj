@@ -1008,6 +1008,8 @@
 		F02F41A12B9723AF00625A4F /* AddLocationsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */; };
 		F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
+		F03901992FFCFFD10029DD48 /* AsyncExecutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03901982FFCFFBD0029DD48 /* AsyncExecutable.swift */; };
+		F039019B2FFD00120029DD48 /* OperationAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F039019A2FFD00110029DD48 /* OperationAdapter.swift */; };
 		F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */; };
 		F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */; };
 		F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */; };
@@ -2621,6 +2623,8 @@
 		F02F419B2B9723AE00625A4F /* AddLocationsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsDataSource.swift; sourceTree = "<group>"; };
 		F02F419C2B9723AF00625A4F /* AddLocationsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
+		F03901982FFCFFBD0029DD48 /* AsyncExecutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncExecutable.swift; sourceTree = "<group>"; };
+		F039019A2FFD00110029DD48 /* OperationAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationAdapter.swift; sourceTree = "<group>"; };
 		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		F03B95342E4A3280005A80C9 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -4346,6 +4350,7 @@
 		58D223A6294C8A490029F5F8 /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				F03901972FFCFFAB0029DD48 /* NewConcurrency */,
 				58D223A7294C8A490029F5F8 /* Operations.h */,
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
@@ -4991,6 +4996,15 @@
 				F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */,
 			);
 			path = RedeemVoucher;
+			sourceTree = "<group>";
+		};
+		F03901972FFCFFAB0029DD48 /* NewConcurrency */ = {
+			isa = PBXGroup;
+			children = (
+				F039019A2FFD00110029DD48 /* OperationAdapter.swift */,
+				F03901982FFCFFBD0029DD48 /* AsyncExecutable.swift */,
+			);
+			path = NewConcurrency;
 			sourceTree = "<group>";
 		};
 		F059197A2C45404500C301F3 /* PostQuantum */ = {
@@ -7222,6 +7236,8 @@
 				58D223B2294C8A630029F5F8 /* OperationError.swift in Sources */,
 				58D223AF294C8A630029F5F8 /* NoFailedDependenciesCondition.swift in Sources */,
 				58D223B9294C8A630029F5F8 /* AsyncOperationQueue.swift in Sources */,
+				F039019B2FFD00120029DD48 /* OperationAdapter.swift in Sources */,
+				F03901992FFCFFD10029DD48 /* AsyncExecutable.swift in Sources */,
 				58D223B8294C8A630029F5F8 /* ResultOperation.swift in Sources */,
 				58D223AE294C8A630029F5F8 /* OutputOperation.swift in Sources */,
 				58D223BD294C8A630029F5F8 /* AsyncOperation.swift in Sources */,

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import Operations
@@ -31,8 +32,12 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     private let decoderHandler: DecoderHandler
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private var timeoutWork: DispatchWorkItem?
-    private var waitForConnectingStateWork: DispatchWorkItem?
+    private var timeoutTask: Task<Void, Never>?
+    private var waitForConnectingStateTask: Task<Void, Never>?
+
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Output, Error>?
+    private var logger = Logger(label: "SendTunnelProviderMessageOperation")
 
     private var messageSent = false
 
@@ -67,30 +72,50 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         )
     }
 
-    override func main() {
-        setTimeoutTimer(connectingStateWaitDelay: .zero)
+    override func execute() async throws -> Output {
+        try Task.checkCancellation()
 
-        statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
-            self?.handleVPNStatus(status)
+        return try await withCheckedThrowingContinuation { continuation in
+            guard !Task.isCancelled else {
+                complete(.failure(CancellationError()))
+                return
+            }
+
+            self.continuation = continuation
+
+            setTimeoutTimer(connectingStateWaitDelay: .zero)
+
+            statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
+                self?.handleVPNStatus(status)
+            }
+
+            handleVPNStatus(tunnel.status)
+        }
+    }
+
+    private func complete(_ result: Result<Output, Error>) {
+        lock.lock()
+        guard let continuation else {
+            lock.unlock()
+            return
         }
 
-        handleVPNStatus(tunnel.status)
-    }
+        self.continuation = nil
 
-    override func operationDidCancel() {
-        finish(result: .failure(OperationError.cancelled))
-    }
+        lock.unlock()
 
-    override func finish(result: Result<Output, Error>) {
-        // Release status observer.
         removeVPNStatusObserver()
 
-        // Cancel pending work.
-        timeoutWork?.cancel()
-        waitForConnectingStateWork?.cancel()
+        timeoutTask?.cancel()
+        waitForConnectingStateTask?.cancel()
 
-        // Finish operation.
-        super.finish(result: result)
+        switch result {
+        case .success(let output):
+            continuation.resume(returning: output)
+
+        case .failure(let error):
+            continuation.resume(throwing: error)
+        }
     }
 
     private func removeVPNStatusObserver() {
@@ -99,20 +124,20 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     }
 
     private func setTimeoutTimer(connectingStateWaitDelay delay: Duration) {
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.finish(result: .failure(SendTunnelProviderMessageError.timeout))
+        timeoutTask?.cancel()
+
+        timeoutTask = Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await Task.sleep(for: timeout + delay)
+                complete(.failure(SendTunnelProviderMessageError.timeout))
+            } catch is CancellationError {
+                logger.log(level: .info, "Timer was cancelled.")
+            } catch {
+                logger.log(level: .error, "Unexpected error: \(error)")
+            }
         }
-
-        // Cancel pending timeout work.
-        timeoutWork?.cancel()
-
-        // Assign new timeout work.
-        timeoutWork = workItem
-
-        // Schedule timeout work.
-        let deadline: DispatchWallTime = .now() + timeout + delay
-
-        dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
@@ -140,38 +165,39 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         }
     }
 
-    private func waitForConnectingState(block: @escaping () -> Void) {
-        // Compute amount of time elapsed since the tunnel was launched.
-        let timeElapsed: TimeInterval
+    private func waitForConnectingState(_ block: @escaping @Sendable () -> Void) {
+        let timeElapsed: Duration
+
         if let startDate = tunnel.startDate {
-            timeElapsed = Date().timeIntervalSince(startDate)
+            timeElapsed = .seconds(Date().timeIntervalSince(startDate))
         } else {
-            timeElapsed = 0
+            timeElapsed = .zero
         }
 
-        // Cancel pending work.
-        waitForConnectingStateWork?.cancel()
-        waitForConnectingStateWork = nil
+        waitForConnectingStateTask?.cancel()
 
-        // Execute right away if enough time passed since the tunnel was launched.
         guard timeElapsed < connectingStateWaitDelay else {
             block()
             return
         }
 
         let waitDelay = connectingStateWaitDelay - timeElapsed
-        let workItem = DispatchWorkItem(block: block)
 
-        // Assign new work.
-        waitForConnectingStateWork = workItem
-
-        // Reschedule the timeout work.
         setTimeoutTimer(connectingStateWaitDelay: waitDelay)
 
-        // Schedule delayed work.
-        let deadline: DispatchWallTime = .now() + waitDelay
+        waitForConnectingStateTask = Task { [weak self] in
+            guard let self else { return }
 
-        dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
+            do {
+                try await Task.sleep(for: waitDelay)
+                guard !Task.isCancelled else { return }
+                block()
+            } catch is CancellationError {
+                logger.log(level: .info, "Waiting for connecting state was cancelled.")
+            } catch {
+                logger.log(level: .error, "Unexpected error: \(error)")
+            }
+        }
     }
 
     private func sendMessage() {
@@ -182,7 +208,7 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         removeVPNStatusObserver()
 
         // Cancel pending delayed work.
-        waitForConnectingStateWork?.cancel()
+        waitForConnectingStateTask?.cancel()
 
         // Encode message.
         let messageData: Data

@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// Base class for operations producing result.
-open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, @unchecked Sendable {
-    public typealias CompletionHandler = (sending Result<Success, Error>) -> Void
+open class ResultOperation<Success: Sendable>: AsyncOperation, AsyncExecutable, OutputOperation, @unchecked Sendable {
+
+    public typealias CompletionHandler = @Sendable (Result<Success, Error>) -> Void
 
     private let nslock = NSLock()
     private var _output: Success?
@@ -18,31 +18,40 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
     private var _completionHandler: CompletionHandler?
     private var pendingFinish = false
 
+    // MARK: - Result
+
     public var result: Result<Success, Error>? {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return _output.map { .success($0) } ?? error.map { .failure($0) }
+        if let output = _output {
+            return .success(output)
+        }
+
+        if let error {
+            return .failure(error)
+        }
+
+        return nil
     }
 
     public var output: Success? {
         nslock.lock()
         defer { nslock.unlock() }
-
         return _output
     }
+
+    // MARK: - Completion
 
     public var completionQueue: DispatchQueue? {
         get {
             nslock.lock()
             defer { nslock.unlock() }
-
             return _completionQueue
         }
         set {
             nslock.lock()
             defer { nslock.unlock() }
-
             _completionQueue = newValue
         }
     }
@@ -51,17 +60,18 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
         get {
             nslock.lock()
             defer { nslock.unlock() }
-
             return _completionHandler
         }
         set {
             nslock.lock()
             defer { nslock.unlock() }
-            if !pendingFinish {
-                _completionHandler = newValue
-            }
+
+            guard !pendingFinish else { return }
+            _completionHandler = newValue
         }
     }
+
+    // MARK: - Initializers
 
     override public init(dispatchQueue: DispatchQueue?) {
         super.init(dispatchQueue: dispatchQueue)
@@ -78,64 +88,83 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
         super.init(dispatchQueue: dispatchQueue)
     }
 
-    @available(*, unavailable)
+    // MARK: - AsyncExecutable
+
+    /// Subclasses should override this instead of `main()`.
+    open func execute() async throws -> Success {
+        fatalError("Subclasses must override execute()")
+    }
+
+    // MARK: - AsyncOperation
+
+    open override func main() {
+        Task {
+            do {
+                let value = try await execute()
+                finish(result: .success(value))
+            } catch {
+                finish(result: .failure(error))
+            }
+        }
+    }
+
+    // Prevent subclasses from using the old API.
+    @available(*, unavailable, message: "Override execute() instead.")
     override public func finish() {
-        _finish(result: .failure(OperationError.cancelled))
+        fatalError()
     }
 
-    @available(*, unavailable)
+    @available(*, unavailable, message: "Override execute() instead.")
     override public func finish(error: Error?) {
-        _finish(result: .failure(error ?? OperationError.cancelled))
+        fatalError()
     }
 
-    open func finish(result: Result<Success, Error>) {
-        _finish(result: result)
-    }
+    // MARK: - Finish
 
-    private func _finish(result: Result<Success, Error>) {
+    public final func finish(result: Result<Success, Error>) {
         nslock.lock()
-        // Bail if operation is already finishing.
+
         guard !pendingFinish else {
             nslock.unlock()
             return
         }
 
-        // Mark that operation is pending finish.
         pendingFinish = true
 
-        // Copy completion handler.
-        nonisolated(unsafe) let completionHandler = _completionHandler
-
-        // Unset completion handler.
+        let completionHandler = _completionHandler
         _completionHandler = nil
 
-        // Copy completion value.
+        let completionQueue = _completionQueue
+
         if case let .success(output) = result {
             _output = output
         }
 
-        // Copy completion queue.
-        let completionQueue = _completionQueue
         nslock.unlock()
 
-        dispatchAsyncOn(completionQueue) {
+        dispatchAsync(on: completionQueue) {
             completionHandler?(result)
 
-            var error: Error?
-            if case let .failure(failure) = result {
-                error = failure
-            }
+            switch result {
+            case .success:
+                super.finish(error: nil)
 
-            // Finish operation.
-            super.finish(error: error)
+            case .failure(let error):
+                super.finish(error: error)
+            }
         }
     }
 
-    private func dispatchAsyncOn(_ queue: DispatchQueue?, _ block: @escaping @Sendable () -> Void) {
-        guard let queue else {
+    // MARK: - Helpers
+
+    private func dispatchAsync(
+        on queue: DispatchQueue?,
+        _ block: @escaping @Sendable () -> Void
+    ) {
+        if let queue {
+            queue.async(execute: block)
+        } else {
             block()
-            return
         }
-        queue.async(execute: block)
     }
 }

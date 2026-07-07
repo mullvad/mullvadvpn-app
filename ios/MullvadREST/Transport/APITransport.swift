@@ -15,6 +15,23 @@ public protocol APITransportProtocol {
     func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void) throws
         -> Cancellable
 }
+extension APITransportProtocol {
+    func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse {
+        try await withCheckedThrowingContinuation { continuation in
+            do {
+                _ = try sendRequest(request) { response in
+                    if let error = response.error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(returning: response)
+                    }
+                }
+            } catch {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+}
 
 public final class APITransport: APITransportProtocol {
     public var name: String {

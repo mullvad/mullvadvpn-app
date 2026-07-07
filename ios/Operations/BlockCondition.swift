@@ -8,8 +8,10 @@
 
 import Foundation
 
-public final class BlockCondition: OperationCondition {
-    public typealias HandlerBlock = (Operation, @escaping (Bool) -> Void) -> Void
+public final class BlockCondition: OperationCondition, @unchecked Sendable {
+
+    public typealias HandlerBlock =
+        @Sendable (Operation, @escaping @Sendable (Bool) -> Void) -> Void
 
     public var name: String {
         "BlockCondition"
@@ -20,11 +22,15 @@ public final class BlockCondition: OperationCondition {
     }
 
     public let block: HandlerBlock
+
     public init(block: @escaping HandlerBlock) {
         self.block = block
     }
 
-    public func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void) {
+    public func evaluate(
+        for operation: Operation,
+        completion: @escaping @Sendable (Bool) -> Void
+    ) {
         block(operation, completion)
     }
 }

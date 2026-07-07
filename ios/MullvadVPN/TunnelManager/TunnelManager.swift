@@ -223,7 +223,7 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(loadTunnelOperation)
     }
 
-    func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
+    func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -257,7 +257,7 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
-    func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: ((Error?) -> Void)? = nil) {
+    func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)

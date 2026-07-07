@@ -8,11 +8,11 @@
 
 import Foundation
 
-public protocol OperationCondition {
+public protocol OperationCondition: Sendable {
     var name: String { get }
     var isMutuallyExclusive: Bool { get }
 
-    func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void)
+    func evaluate(for operation: Operation, completion: @escaping @Sendable (Bool) -> Void)
 }
 
 public extension OperationCondition {

@@ -199,21 +199,29 @@ open class AsyncOperation: Operation, @unchecked Sendable {
 
         state = .evaluatingConditions
 
-        nonisolated(unsafe) var results = [Bool](repeating: false, count: _conditions.count)
-        let group = DispatchGroup()
+        Task { [weak self] in
+            guard let self else { return }
 
-        for (index, condition) in _conditions.enumerated() {
-            group.enter()
-            condition.evaluate(for: self) { [weak self] isSatisfied in
-                self?.dispatchQueue.async {
-                    results[index] = isSatisfied
-                    group.leave()
+            let results = await withTaskGroup(of: Bool.self) { group in
+                for condition in self._conditions {
+                    group.addTask {
+                        await condition.evaluate(for: self)
+                    }
                 }
-            }
-        }
 
-        group.notify(queue: dispatchQueue) { [weak self] in
-            self?.didEvaluateConditions(results)
+                var results: [Bool] = []
+                results.reserveCapacity(self._conditions.count)
+
+                for await result in group {
+                    results.append(result)
+                }
+
+                return results
+            }
+
+            self.dispatchQueue.async {
+                self.didEvaluateConditions(results)
+            }
         }
     }
 

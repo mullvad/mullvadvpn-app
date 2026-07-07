@@ -352,9 +352,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     func manuallyFetchRelayList() {
         _ = relayCacheTracker.fetchRelays { [weak self] _ in
             guard let self else { return }
-            reloadAllDataSources()
-            updateSelections()
-            updateConnectedLocations(tunnelManager.tunnelStatus)
+            //            reloadAllDataSources()
+            //            updateSelections()
+            //            updateConnectedLocations(tunnelManager.tunnelStatus)
         }
     }
 
