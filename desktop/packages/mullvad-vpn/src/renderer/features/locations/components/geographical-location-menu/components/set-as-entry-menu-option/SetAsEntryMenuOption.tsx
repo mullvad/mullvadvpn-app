@@ -4,7 +4,6 @@ import { messages } from '../../../../../../../shared/gettext';
 import { Menu } from '../../../../../../lib/components/menu';
 import { useMenuContext } from '../../../../../../lib/components/menu/MenuContext';
 import type { MenuOptionProps } from '../../../../../../lib/components/menu-option';
-import { useIsDaitaEnabledWithoutDirectOnly } from '../../../../../daita/hooks';
 import { useMultihop } from '../../../../../multihop/hooks';
 import { useRelayLocations, useSelectedLocations } from '../../../../hooks';
 import type { GeographicalLocation } from '../../../../types';
@@ -41,13 +40,8 @@ export function SetAsEntryMenuOption({ location, ...props }: SetAsEntryMenuOptio
     selectEntryRelayLocation,
   ]);
 
-  const isDaitaEnabledWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
-  const isExitSelectedWithoutMultihop = !multihop && isExitSelected;
-
-  const disabled = isDaitaEnabledWithoutDirectOnly || isExitSelectedWithoutMultihop;
-
   return (
-    <Menu.Option disabled={disabled} {...props}>
+    <Menu.Option {...props}>
       <Menu.Option.Trigger onClick={handleClick}>
         <Menu.Option.Item>
           <Menu.Option.Item.Icon icon="location-add" />
