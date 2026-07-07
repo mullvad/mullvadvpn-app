@@ -1,10 +1,9 @@
-//! Multiplexer for [`IpSend`]/[`IpRecv`] that combines traffic from a primary
-//! (TUN device) and secondary (smoltcp) source.
+//! Multiplexer for [`IpSend`]/[`IpRecv`] that combines traffic from a primary (TUN device) and
+//! secondary (smoltcp) source.
 //!
-//! The [`IpMux`] tracks outbound connections from the secondary interface
-//! (TCP by 4-tuple, ICMP by identifier) and routes matching return traffic
-//! back to it. All other traffic goes to the primary interface.
-
+//! The [`IpMux`] tracks outbound connections from the secondary interface (TCP by 4-tuple, ICMP by
+//! identifier and address) and routes matching return traffic back to it. All other traffic goes
+//! to the primary interface.
 use super::connection_tracker::{ConnectionTracker, ConnectionTrackerEvent, outbound_event};
 use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
