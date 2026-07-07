@@ -801,7 +801,8 @@ resetSettings: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
-  setDaitaSettings: {
+  // This is exactly the same as SetEnableDaita.
+setDaitaSettings: {
     path: '/mullvad_daemon.management_interface.ManagementService/SetDaitaSettings',
     requestStream: false,
     responseStream: false,
