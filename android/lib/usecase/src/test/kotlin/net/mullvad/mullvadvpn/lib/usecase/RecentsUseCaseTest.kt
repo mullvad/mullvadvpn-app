@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Recent
+import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -125,7 +126,7 @@ class RecentsUseCaseTest {
             useCase(RelayListType.Single).test {
                 val hops = awaitItem()
 
-                val expectedHops = listOf(STOCKHOLM)
+                val expectedHops = listOf(RecentItem.Relay(STOCKHOLM))
                 assertLists(expectedHops, hops!!)
             }
         }
@@ -156,7 +157,7 @@ class RecentsUseCaseTest {
         useCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
             val hops = awaitItem()
 
-            val expectedHops = listOf(CUSTOM_LIST_SWE_NO)
+            val expectedHops = listOf(RecentItem.Relay(CUSTOM_LIST_SWE_NO))
             assertLists(expectedHops, hops!!)
         }
     }

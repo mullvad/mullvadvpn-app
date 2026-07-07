@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
+import net.mullvad.mullvadvpn.lib.repository.FilterActiveState
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
@@ -81,6 +82,13 @@ class SelectLocationViewModelTest {
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
     private val multihopActive = MutableStateFlow(MultihopInEffectStatus.WhenNeededInEffect)
     private val lastKnownDisconnectedLocation = MutableStateFlow<GeoIpLocation?>(null)
+    private val filterFlow =
+        MutableStateFlow<FilterActiveState>(
+            FilterActiveState(
+                hasAnyEntryFilter = false,
+                hasAnyExitFilter = false,
+            )
+        )
 
     @BeforeEach
     fun setup() {
@@ -95,9 +103,7 @@ class SelectLocationViewModelTest {
         every { mockMultihopInEffectUseCase() } returns multihopActive
         every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns
             lastKnownDisconnectedLocation
-        every { mockRelayListFilterRepository.hasAnyEntryFilter() } returns true
-        every { mockRelayListFilterRepository.hasAnyExitFilter() } returns true
-
+        every { mockRelayListFilterRepository.hasAnyFilterFlow() } returns filterFlow
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
         mockkStatic(CUSTOM_LIST_EXTENSIONS)
