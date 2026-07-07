@@ -56,7 +56,6 @@ struct ActiveFilterView: View {
             .scrollIndicators(.never)
 
             if shouldShowAutomaticFilterOverrideNotice {
-            //if automaticLocationIsActive && activeFilter.contains(where: { $0.isOverriddenByAutomaticLocation }) {
                 HStack(spacing: 4) {
                     ResizableImageView(image: .mullvadIconInfo, dimension: .width(14), tint: Color.mullvadTextSecondary)
                     Text("Filters are overridden when using an automatic location")
