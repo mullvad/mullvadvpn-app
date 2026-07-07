@@ -14,3 +14,13 @@ public protocol OperationCondition {
 
     func evaluate(for operation: Operation, completion: @escaping (Bool) -> Void)
 }
+
+public extension OperationCondition {
+    func evaluate(for operation: Operation) async -> Bool {
+        await withCheckedContinuation { continuation in
+            evaluate(for: operation) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+}

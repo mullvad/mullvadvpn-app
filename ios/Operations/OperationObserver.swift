@@ -8,6 +8,15 @@
 
 import Foundation
 
+
+public protocol AsyncOperationObserver {
+    func operationDidStart(_ operation: Operation) async
+    func operationDidCancel(_ operation: Operation) async
+    func operationDidFinish(_ operation: Operation, error: Error?) async
+}
+
+
+
 public protocol OperationObserver {
     func didAttach(to operation: Operation)
     func operationDidStart(_ operation: Operation)
