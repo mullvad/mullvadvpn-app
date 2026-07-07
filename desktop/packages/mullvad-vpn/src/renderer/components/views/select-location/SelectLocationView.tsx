@@ -6,7 +6,6 @@ import { messages } from '../../../../shared/gettext';
 import { useIsDaitaEnabledWithoutDirectOnly } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { useMultihop } from '../../../features/multihop/hooks';
 import { Carousel } from '../../../lib/components/carousel';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
