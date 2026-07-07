@@ -4,20 +4,17 @@
 //! The [`IpMux`] tracks outbound connections from the secondary interface (TCP by 4-tuple, ICMP by
 //! identifier and address) and routes matching return traffic back to it. All other traffic goes
 //! to the primary interface.
-use super::connection_tracker::{ConnectionTracker, ConnectionTrackerEvent, outbound_event};
+use super::connection_tracker::{
+    ConnectionTracker, ConnectionTrackerEvent, outbound_conntrack_event,
+};
 use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher},
 };
 use std::io;
 use tokio::sync::mpsc;
-use zerocopy::IntoBytes;
 
-/// Capacity of the channel carrying connection-tracking events from the receive
-/// (writer) half to the send (reader) half. This is control-plane only (a SYN /
-/// FIN per smoltcp connection, an echo request every few seconds), so a modest
-/// buffer is generous.
-const EVENT_CHANNEL_CAPACITY: usize = 128;
+const CONNTRACK_EVENT_CHANNEL_CAPACITY: usize = 128;
 
 /// The receive half of an [`IpMux`]. Merges packets from primary and secondary
 /// [`IpRecv`] sources, forwarding secondary outbound connection events to the
@@ -25,24 +22,17 @@ const EVENT_CHANNEL_CAPACITY: usize = 128;
 pub struct IpMuxRecv<P: IpRecv, S: IpRecv> {
     primary: P,
     secondary: S,
-    events_tx: mpsc::Sender<ConnectionTrackerEvent>,
-    /// Throwaway pool handed to the secondary's `recv`. The secondary (smoltcp)
-    /// ignores the pool and allocates its own buffers, so this exists only to
-    /// satisfy the `IpRecv::recv` signature and to keep `pool` from being
-    /// borrowed by both branches of the `select!` below.
+    conntrack_event_tx: mpsc::Sender<ConnectionTrackerEvent>,
     secondary_pool: PacketBufPool,
 }
 
 /// The send half of an [`IpMux`]. Routes return traffic to the secondary
 /// interface if it matches a tracked connection, otherwise to the primary.
-///
-/// Owns the [`ConnectionTracker`] outright — no shared state. It applies the
-/// events streamed from [`IpMuxRecv`] before each lookup.
 pub struct IpMuxSend<P: IpSend, S: IpSend> {
     primary: P,
     secondary: S,
     tracker: ConnectionTracker,
-    events_rx: mpsc::Receiver<ConnectionTrackerEvent>,
+    conntrack_event_rx: mpsc::Receiver<ConnectionTrackerEvent>,
 }
 
 /// Create a matched pair of [`IpMuxRecv`] and [`IpMuxSend`].
@@ -58,19 +48,19 @@ where
     PS: IpSend,
     SS: IpSend,
 {
-    let (events_tx, events_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
+    let (conntrack_event_tx, conntrack_event_rx) = mpsc::channel(CONNTRACK_EVENT_CHANNEL_CAPACITY);
     (
         IpMuxRecv {
             primary: primary_recv,
             secondary: secondary_recv,
-            events_tx,
+            conntrack_event_tx,
             secondary_pool: PacketBufPool::new(1),
         },
         IpMuxSend {
             primary: primary_send,
             secondary: secondary_send,
             tracker: ConnectionTracker::default(),
-            events_rx,
+            conntrack_event_rx,
         },
     )
 }
@@ -112,8 +102,8 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
             RecvResult::Secondary(result) => {
                 let packets: Vec<_> = result?.collect();
                 for pkt in &packets {
-                    if let Some(event) = outbound_event((*pkt).as_bytes())
-                        && self.events_tx.try_send(event).is_err()
+                    if let Some(event) = outbound_conntrack_event(pkt)
+                        && self.conntrack_event_tx.try_send(event).is_err()
                     {
                         log::warn!(
                             "ip_mux: connection-tracker event channel full or closed, \
@@ -141,11 +131,11 @@ impl<P: IpSend, S: IpSend> IpSend for IpMuxSend<P, S> {
         // Apply any pending connection events first. A connection is registered
         // before its SYN is transmitted, so by the time its return traffic
         // arrives here (a round trip later) the event is already queued.
-        while let Ok(event) = self.events_rx.try_recv() {
+        while let Ok(event) = self.conntrack_event_rx.try_recv() {
             self.tracker.apply(event);
         }
 
-        let is_secondary = self.tracker.is_secondary_return((*packet).as_bytes());
+        let is_secondary = self.tracker.is_secondary_return(&packet);
 
         if is_secondary {
             self.secondary.send(packet).await
