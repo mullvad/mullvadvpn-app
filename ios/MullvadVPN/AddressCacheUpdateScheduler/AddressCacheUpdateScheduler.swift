@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 import UIKit
 
-final class AddressCacheUpdateScheduler: @unchecked Sendable {
+final actor AddressCacheUpdateScheduler: @unchecked Sendable {
     /// Update interval.
     private static let updateInterval: Duration = .days(1)
 
@@ -42,9 +42,6 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     /// Operation queue.
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
-    /// Lock used for synchronizing member access.
-    private let nslock = NSLock()
-
     private let apiContext: MullvadApiContext
 
     /// Designated initializer
@@ -55,9 +52,6 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func startPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
         guard !isPeriodicUpdatesEnabled else {
             return
         }
@@ -74,9 +68,6 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func stopPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
         guard isPeriodicUpdatesEnabled else { return }
 
         logger.debug("Stop periodic address cache updates.")
@@ -91,18 +82,26 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
         mullvad_api_update_address_cache(apiContext.context)
         recordUpdateRequestTime()
     }
+    
+    func updateEndpoints() async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            self.updateEndpoints { result in
+                continuation.resume(with: result)
+            
+            }
+        }
+    }
 
     func nextScheduleDate() -> Date {
-        nslock.lock()
-        defer { nslock.unlock() }
-
         return _nextScheduleDate()
     }
 
     private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {
         let newTimer = DispatchSource.makeTimerSource()
         newTimer.setEventHandler { [weak self] in
-            self?.handleTimer()
+            Task { [self] in
+                await self?.handleTimer()
+            }
         }
 
         newTimer.schedule(wallDeadline: startTime)
@@ -114,9 +113,6 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
 
     private func handleTimer() {
         updateEndpoints { _ in
-            self.nslock.lock()
-            defer { self.nslock.unlock() }
-
             guard self.isPeriodicUpdatesEnabled else { return }
 
             let scheduleDate = self._nextScheduleDate()
@@ -137,8 +133,6 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     private func recordUpdateRequestTime() {
-        nslock.lock()
-        defer { nslock.unlock() }
         lastUpdateRequestDate = Date()
     }
 }
