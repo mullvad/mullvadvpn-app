@@ -32,7 +32,7 @@ function SelectLocationSelectorImpl() {
       </LocationSelector.Row>
       <LocationSelector.Items>{items}</LocationSelector.Items>
       <LocationSelector.Row position="bottom">
-        <LocationSelector.Row.Icon icon="device" />
+        <LocationSelector.Row.Icon icon="internet" />
         <LocationSelector.Row.Label>{messages.gettext('Internet')}</LocationSelector.Row.Label>
       </LocationSelector.Row>
     </LocationSelector>
