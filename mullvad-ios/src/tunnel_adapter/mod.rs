@@ -1,13 +1,3 @@
-//!
-//! Each instance drives one connection lifecycle:
-//! 1. Create TUN device from fd
-//! 2. Set up smoltcp network stack + IP mux
-//! 3. Build and configure a GotaTun Device with WireGuard peers
-//! 4. Run connectivity monitor (pinger + stats)
-//! 5. Call back to Swift: onConnected / onTimeout / onError
-//!
-//! After a terminal callback fires, the instance is considered dead.
-
 #[cfg(target_os = "ios")]
 pub(crate) mod ffi;
 mod pinger;
@@ -417,7 +407,7 @@ impl IosTunnelAdapter {
                 parent_pubkey.clone(),
                 exit_ephemeral_pubkey,
                 config.enable_pq,
-                config.enable_daita,
+                false,
             ),
         )
         .await;
