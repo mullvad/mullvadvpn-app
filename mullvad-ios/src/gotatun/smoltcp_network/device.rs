@@ -1,47 +1,46 @@
+use bytes::BytesMut;
+use gotatun::packet::{Ip, Packet};
 use smoltcp::phy::{self, Device, DeviceCapabilities, Medium};
 use smoltcp::time::Instant;
 use std::collections::VecDeque;
+use tokio::sync::mpsc;
 
-/// Maximum number of packets buffered in each direction before tail-drop.
+/// Maximum number of inbound packets buffered before tail-drop.
 const MAX_QUEUE_DEPTH: usize = 512;
 
-/// A virtual smoltcp device backed by in-memory queues.
+/// A virtual smoltcp device.
 ///
-/// Packets enqueued into `rx_queue` are delivered to the smoltcp stack on the
-/// next poll. Packets transmitted by smoltcp are collected in `tx_queue`.
+/// Inbound packets are staged in `rx_queue` and delivered to the stack on the next poll.
+///
+/// Outbound packets are handed sent on a blocking channel as soon as `smoltcp` creates them.
 pub struct SmoltcpDevice {
-    rx_queue: VecDeque<Vec<u8>>,
-    tx_queue: VecDeque<Vec<u8>>,
+    rx_queue: VecDeque<Packet<[u8]>>,
+    tx: mpsc::Sender<Packet<Ip>>,
     mtu: usize,
 }
 
 impl SmoltcpDevice {
-    pub fn new(mtu: u16) -> Self {
+    pub fn new(mtu: u16, tx: mpsc::Sender<Packet<Ip>>) -> Self {
         Self {
             rx_queue: VecDeque::with_capacity(64),
-            tx_queue: VecDeque::with_capacity(64),
+            tx,
             mtu: mtu as usize,
         }
     }
 
-    /// Enqueue a raw IP packet for smoltcp to process on the next poll.
+    /// Enqueue an IP packet for smoltcp to process on the next poll.
     /// Drops the packet if the queue is full.
-    pub fn enqueue_rx(&mut self, packet: Vec<u8>) {
+    pub fn enqueue_rx(&mut self, packet: Packet<[u8]>) {
         if self.rx_queue.len() >= MAX_QUEUE_DEPTH {
             log::warn!("smoltcp rx queue full, dropping packet");
             return;
         }
         self.rx_queue.push_back(packet);
     }
-
-    /// Drain all transmitted packets from smoltcp.
-    pub fn drain_tx(&mut self) -> impl Iterator<Item = Vec<u8>> + '_ {
-        self.tx_queue.drain(..)
-    }
 }
 
 pub struct SmoltcpRxToken {
-    buf: Vec<u8>,
+    packet: Packet<[u8]>,
 }
 
 impl phy::RxToken for SmoltcpRxToken {
@@ -49,12 +48,12 @@ impl phy::RxToken for SmoltcpRxToken {
     where
         F: FnOnce(&[u8]) -> R,
     {
-        f(&self.buf)
+        f(&self.packet)
     }
 }
 
 pub struct SmoltcpTxToken<'a> {
-    queue: &'a mut VecDeque<Vec<u8>>,
+    tx: &'a mpsc::Sender<Packet<Ip>>,
 }
 
 impl phy::TxToken for SmoltcpTxToken<'_> {
@@ -62,9 +61,18 @@ impl phy::TxToken for SmoltcpTxToken<'_> {
     where
         F: FnOnce(&mut [u8]) -> R,
     {
-        let mut buf = vec![0u8; len];
+        let mut buf = BytesMut::zeroed(len);
         let result = f(&mut buf);
-        self.queue.push_back(buf);
+
+        match Packet::from_bytes(buf).try_into_ip() {
+            Ok(ip) => {
+                if self.tx.try_send(ip).is_err() {
+                    log::warn!("smoltcp: to_gotatun channel full or closed, dropping packet");
+                }
+            }
+            Err(err) => log::error!("smoltcp emitted an unparseable IP packet, dropping: {err}"),
+        }
+
         result
     }
 }
@@ -74,19 +82,12 @@ impl Device for SmoltcpDevice {
     type TxToken<'a> = SmoltcpTxToken<'a>;
 
     fn receive(&mut self, _timestamp: Instant) -> Option<(Self::RxToken<'_>, Self::TxToken<'_>)> {
-        let buf = self.rx_queue.pop_front()?;
-        Some((
-            SmoltcpRxToken { buf },
-            SmoltcpTxToken {
-                queue: &mut self.tx_queue,
-            },
-        ))
+        let packet = self.rx_queue.pop_front()?;
+        Some((SmoltcpRxToken { packet }, SmoltcpTxToken { tx: &self.tx }))
     }
 
     fn transmit(&mut self, _timestamp: Instant) -> Option<Self::TxToken<'_>> {
-        Some(SmoltcpTxToken {
-            queue: &mut self.tx_queue,
-        })
+        Some(SmoltcpTxToken { tx: &self.tx })
     }
 
     fn capabilities(&self) -> DeviceCapabilities {

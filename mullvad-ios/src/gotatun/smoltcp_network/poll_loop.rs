@@ -96,7 +96,7 @@ pub(super) async fn poll_loop(
     let reference = StdInstant::now();
     let now = || smoltcp_now(&reference);
 
-    let mut stack = SmoltcpStack::new(&config, now());
+    let mut stack = SmoltcpStack::new(&config, now(), to_gotatun_tx);
 
     loop {
         // Block until there's something to do: a socket command, an inbound
@@ -124,7 +124,6 @@ pub(super) async fn poll_loop(
         stack.pump_tcp_writes();
         stack.pump_icmp_sends();
         stack.poll(now());
-        stack.drain_tx_to_gotatun(&to_gotatun_tx);
         stack.reap_tcp();
         stack.reap_icmp();
     }
@@ -143,8 +142,12 @@ struct SmoltcpStack {
 }
 
 impl SmoltcpStack {
-    fn new(config: &SmoltcpNetworkConfig, now: SmoltcpInstant) -> Self {
-        let mut device = SmoltcpDevice::new(config.mtu);
+    fn new(
+        config: &SmoltcpNetworkConfig,
+        now: SmoltcpInstant,
+        to_gotatun_tx: mpsc::Sender<Packet<Ip>>,
+    ) -> Self {
+        let mut device = SmoltcpDevice::new(config.mtu, to_gotatun_tx);
         let iface_config = IfaceConfig::new(smoltcp::wire::HardwareAddress::Ip);
         let mut iface = Interface::new(iface_config, &mut device, now);
 
@@ -159,7 +162,6 @@ impl SmoltcpStack {
             }
         });
 
-        // Default routes — the actual routing happens through GotaTun.
         iface
             .routes_mut()
             .add_default_ipv4_route(smoltcp::wire::Ipv4Address::new(0, 0, 0, 1))
@@ -191,30 +193,12 @@ impl SmoltcpStack {
 
     /// Queue an inbound (decrypted) IP packet for smoltcp to process.
     fn enqueue_rx(&mut self, packet: Packet<Ip>) {
-        self.device.enqueue_rx(packet.into_bytes().to_vec());
+        self.device.enqueue_rx(packet.into_bytes());
     }
 
     /// Advance smoltcp: process all queued ingress and generate egress.
     fn poll(&mut self, now: SmoltcpInstant) {
         let _ = self.iface.poll(now, &mut self.device, &mut self.sockets);
-    }
-
-    /// Move packets smoltcp emitted into the channel bound for GotaTun.
-    fn drain_tx_to_gotatun(&mut self, to_gotatun_tx: &mpsc::Sender<Packet<Ip>>) {
-        for pkt_bytes in self.device.drain_tx() {
-            let packet = Packet::<[u8]>::copy_from(pkt_bytes.as_slice());
-            let ip_packet = match packet.try_into_ip() {
-                Ok(ip) => ip,
-                Err(err) => {
-                    log::error!("Failed to parse IP packet, dropping: {err}");
-                    continue;
-                }
-            };
-
-            if to_gotatun_tx.try_send(ip_packet).is_err() {
-                log::warn!("smoltcp: to_gotatun channel full or closed, dropping packet");
-            }
-        }
     }
 
     /// Feed buffered writes from the TCP stream handles into their sockets.
@@ -269,12 +253,8 @@ impl SmoltcpStack {
         self.active_tcp.retain_mut(|tcp_sock| {
             let socket = sockets.get_mut::<tcp::Socket<'_>>(tcp_sock.socket_handle);
 
-            // Push received data to the stream handle. Reserve a channel slot
-            // *before* draining smoltcp: `recv_slice` advances the TCP window
-            // (ACKing the peer), so draining into a full channel would discard
-            // already-ACKed bytes — a silent data-loss bug. By reserving first,
-            // a backed-up consumer leaves the data in smoltcp's receive buffer,
-            // and its shrinking window applies backpressure to the peer instead.
+            // Push received data to the stream handle. Reserve a channel slot *before* draining
+            // smoltcp.
             if socket.can_recv() && socket.recv_queue() > 0 {
                 match tcp_sock.read_tx.try_reserve() {
                     Ok(permit) => {
@@ -399,6 +379,7 @@ impl SmoltcpStack {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gotatun::packet::Ipv4;
     use std::net::Ipv4Addr;
 
     /// Retransmissions are driven by the timestamps fed to `poll`, not by real
@@ -409,20 +390,21 @@ mod tests {
     /// being read (the stream is created but never polled).
     #[test]
     fn stack_retransmits_syn_on_virtual_clock() {
-        fn count_syns(stack: &mut SmoltcpStack) -> u32 {
-            stack
-                .device
-                .drain_tx()
-                .filter(|p| {
-                    p.len() >= 40 && p[0] >> 4 == 4 && p[9] == 6 && {
-                        let ihl = (p[0] & 0x0f) as usize * 4;
-                        p.len() > ihl + 13 && p[ihl + 13] & 0x02 != 0
-                    }
-                })
-                .count() as u32
+        fn count_syns(rx: &mut mpsc::Receiver<Packet<Ip>>) -> u32 {
+            let mut syns = 0;
+            while let Ok(pkt) = rx.try_recv() {
+                let is_syn = Packet::<Ipv4>::try_from(pkt)
+                    .and_then(|v4| v4.try_into_tcp())
+                    .is_ok_and(|tcp| tcp.payload.header.syn());
+                if is_syn {
+                    syns += 1;
+                }
+            }
+            syns
         }
 
         let mut now_ms: i64 = 0;
+        let (tx, mut rx) = mpsc::channel(1024);
         let mut stack = SmoltcpStack::new(
             &SmoltcpNetworkConfig {
                 ipv4_addr: Ipv4Addr::new(10, 0, 0, 1),
@@ -430,6 +412,7 @@ mod tests {
                 mtu: 1420,
             },
             SmoltcpInstant::from_millis(now_ms),
+            tx,
         );
 
         let notify = std::sync::Arc::new(tokio::sync::Notify::new());
@@ -446,14 +429,14 @@ mod tests {
 
         // Initial poll emits the first SYN; no SYN-ACK ever comes back.
         stack.poll(SmoltcpInstant::from_millis(now_ms));
-        let mut syns = count_syns(&mut stack);
+        let mut syns = count_syns(&mut rx);
 
         // Jump the virtual clock well past each (backing-off) RTO; every poll
         // past a pending retransmit deadline re-emits the SYN.
         for _ in 0..5 {
             now_ms += 2_000;
             stack.poll(SmoltcpInstant::from_millis(now_ms));
-            syns += count_syns(&mut stack);
+            syns += count_syns(&mut rx);
         }
 
         assert!(
@@ -464,11 +447,12 @@ mod tests {
 
     /// The [`SmoltcpStack`] can be driven synchronously, without the async poll
     /// loop or any timeouts: issuing a `TcpConnect` and polling once makes
-    /// smoltcp emit a SYN into the device TX queue. This exercises the
-    /// `handle_cmd` → `poll` → `drain_tx` seam directly.
+    /// smoltcp emit a SYN onto the outbound channel. This exercises the
+    /// `handle_cmd` → `poll` → `transmit` seam directly.
     #[test]
     fn stack_connect_emits_syn() {
         let now = SmoltcpInstant::from_millis(0);
+        let (tx, mut rx) = mpsc::channel(64);
         let mut stack = SmoltcpStack::new(
             &SmoltcpNetworkConfig {
                 ipv4_addr: Ipv4Addr::new(10, 0, 0, 1),
@@ -476,6 +460,7 @@ mod tests {
                 mtu: 1420,
             },
             now,
+            tx,
         );
         let notify = std::sync::Arc::new(tokio::sync::Notify::new());
         let (resp_tx, _resp_rx) = tokio::sync::oneshot::channel();
@@ -489,13 +474,14 @@ mod tests {
         );
         stack.poll(now);
 
-        let packets: Vec<Vec<u8>> = stack.device.drain_tx().collect();
-        let syn = packets
-            .iter()
-            .find(|p| p.len() >= 40 && p[0] >> 4 == 4 && p[9] == 6)
-            .expect("a TCP/IPv4 packet should have been emitted");
-        let ihl = (syn[0] & 0x0f) as usize * 4;
-        assert_eq!(syn[ihl + 13] & 0x02, 0x02, "SYN flag should be set");
+        let saw_syn = std::iter::from_fn(|| rx.try_recv().ok())
+            .filter_map(|pkt| {
+                Packet::<Ipv4>::try_from(pkt)
+                    .and_then(|v4| v4.try_into_tcp())
+                    .ok()
+            })
+            .any(|tcp| tcp.payload.header.syn());
+        assert!(saw_syn, "a TCP SYN packet should have been emitted");
     }
 
     /// Regression test for silent TCP data loss under read backpressure.
@@ -503,9 +489,7 @@ mod tests {
     /// A real smoltcp "server" interface is wired to our [`SmoltcpStack`] by
     /// shuttling packets between their devices. After the handshake, the server
     /// sends more distinct segments than the read channel can hold while the
-    /// consumer never reads the stream. Every byte must still be delivered, in
-    /// order — `reap_tcp` must leave un-deliverable bytes in smoltcp rather than
-    /// draining (and ACKing) and then dropping them.
+    /// consumer never reads the stream.
     #[test]
     fn reap_tcp_does_not_drop_bytes_under_backpressure() {
         use smoltcp::{
@@ -515,14 +499,15 @@ mod tests {
         };
 
         // Move all packets server -> client.
-        fn server_to_client(client: &mut SmoltcpStack, srv_device: &mut SmoltcpDevice) {
-            for p in srv_device.drain_tx().collect::<Vec<_>>() {
-                client.device.enqueue_rx(p);
+        fn server_to_client(client: &mut SmoltcpStack, srv_rx: &mut mpsc::Receiver<Packet<Ip>>) {
+            while let Ok(p) = srv_rx.try_recv() {
+                client.device.enqueue_rx(p.into_bytes());
             }
         }
 
         // --- Client: the stack under test (10.0.0.1), connecting out ---
         let client_ref = StdInstant::now();
+        let (client_tx, mut client_rx) = mpsc::channel(2048);
         let mut client = SmoltcpStack::new(
             &SmoltcpNetworkConfig {
                 ipv4_addr: Ipv4Addr::new(10, 0, 0, 1),
@@ -530,6 +515,7 @@ mod tests {
                 mtu: 1420,
             },
             smoltcp_now(&client_ref),
+            client_tx,
         );
         let notify = std::sync::Arc::new(tokio::sync::Notify::new());
         let (resp_tx, mut resp_rx) = tokio::sync::oneshot::channel();
@@ -544,7 +530,8 @@ mod tests {
 
         // --- Server: a plain smoltcp interface (10.0.0.2) with a listener ---
         let srv_ref = StdInstant::now();
-        let mut srv_device = SmoltcpDevice::new(1420);
+        let (srv_tx, mut srv_rx) = mpsc::channel(2048);
+        let mut srv_device = SmoltcpDevice::new(1420, srv_tx);
         let mut srv_iface = Interface::new(
             IfaceConfig::new(HardwareAddress::Ip),
             &mut srv_device,
@@ -571,11 +558,11 @@ mod tests {
         // --- Handshake: shuttle SYN / SYN-ACK / ACK back and forth ---
         for _ in 0..16 {
             client.poll(smoltcp_now(&client_ref));
-            for p in client.device.drain_tx().collect::<Vec<_>>() {
-                srv_device.enqueue_rx(p);
+            while let Ok(p) = client_rx.try_recv() {
+                srv_device.enqueue_rx(p.into_bytes());
             }
             srv_iface.poll(smoltcp_now(&srv_ref), &mut srv_device, &mut srv_sockets);
-            server_to_client(&mut client, &mut srv_device);
+            server_to_client(&mut client, &mut srv_rx);
         }
         assert_eq!(
             srv_sockets.get::<tcp::Socket<'_>>(srv_handle).state(),
@@ -595,13 +582,13 @@ mod tests {
             let srv = srv_sockets.get_mut::<tcp::Socket<'_>>(srv_handle);
             assert_eq!(srv.send_slice(&[i as u8]).unwrap(), 1);
             srv_iface.poll(smoltcp_now(&srv_ref), &mut srv_device, &mut srv_sockets);
-            server_to_client(&mut client, &mut srv_device);
+            server_to_client(&mut client, &mut srv_rx);
 
             client.poll(smoltcp_now(&client_ref));
             client.reap_tcp();
             // Discard the client's outgoing ACKs; the server doesn't need them
             // to keep sending within the open window.
-            let _ = client.device.drain_tx();
+            while client_rx.try_recv().is_ok() {}
         }
 
         // --- Now drain the consumer. Each freed slot lets `reap_tcp` move more
@@ -615,7 +602,7 @@ mod tests {
                 break;
             }
             client.reap_tcp();
-            let _ = client.device.drain_tx();
+            while client_rx.try_recv().is_ok() {}
         }
 
         let expected: Vec<u8> = (0..TOTAL).map(|i| i as u8).collect();
