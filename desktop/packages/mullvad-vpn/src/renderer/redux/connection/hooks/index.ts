@@ -1,2 +1,2 @@
-export * from './useConnectionIsBlocked';
-export * from './useConnectionStatus';
+export * from './use-connection-is-blocked';
+export * from './use-connection-status';
