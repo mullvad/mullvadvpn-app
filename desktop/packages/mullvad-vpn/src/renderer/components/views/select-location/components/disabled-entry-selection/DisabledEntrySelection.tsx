@@ -15,7 +15,7 @@ export function DisabledEntrySelection() {
   const directOnly = messages.gettext('Direct only');
 
   const navigateToDaitaSettings = useCallback(() => {
-    push(RoutePath.daitaSettings);
+    push(RoutePath.daita);
   }, [push]);
 
   return (

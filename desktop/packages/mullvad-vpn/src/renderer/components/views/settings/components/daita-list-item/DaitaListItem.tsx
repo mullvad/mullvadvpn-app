@@ -11,7 +11,7 @@ export function DaitaListItem(props: DaitaListItemProps) {
   const isOn = useIsOn();
 
   return (
-    <SettingsNavigationListItem to={RoutePath.daitaSettings} {...props}>
+    <SettingsNavigationListItem to={RoutePath.daita} {...props}>
       <SettingsNavigationListItem.Item>
         <SettingsNavigationListItem.Item.Label>
           {strings.daita}

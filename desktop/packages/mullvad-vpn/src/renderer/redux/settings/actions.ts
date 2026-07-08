@@ -3,7 +3,6 @@ import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
   CustomLists,
-  IDaitaSettings,
   IDnsOptions,
   IWireguardEndpointData,
   ObfuscationSettings,
@@ -71,7 +70,7 @@ export interface IUpdateWireguardQuantumResistantAction {
 
 export interface IUpdateWireguardDaitaAction {
   type: 'UPDATE_WIREGUARD_DAITA';
-  daita?: IDaitaSettings;
+  daita: boolean;
 }
 
 export interface IUpdateAutoStartAction {
@@ -245,7 +244,7 @@ function updateWireguardQuantumResistant(
   };
 }
 
-function updateWireguardDaita(daita?: IDaitaSettings): IUpdateWireguardDaitaAction {
+function updateWireguardDaita(daita: boolean): IUpdateWireguardDaitaAction {
   return {
     type: 'UPDATE_WIREGUARD_DAITA',
     daita,
