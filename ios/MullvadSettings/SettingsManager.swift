@@ -103,6 +103,46 @@ public struct SettingsManager: Sendable {
         }
     }
 
+    /// Reads settings, upgrading them to the latest schema version in memory without writing back to the store.
+    public func readSettingsUpgradingSchemaInMemory() throws -> LatestTunnelSettings {
+        let storedVersion: Int
+        let data: Data
+        let parser = makeParser()
+
+        do {
+            data = try store.read(key: .settings)
+            storedVersion = try parser.parseVersion(data: data)
+        } catch {
+            throw ReadSettingsVersionError(underlyingError: error)
+        }
+
+        guard storedVersion != SchemaVersion.current.rawValue else {
+            return try parser.parsePayload(as: LatestTunnelSettings.self, from: data)
+        }
+
+        guard var schema = SchemaVersion(rawValue: storedVersion) else {
+            throw UnsupportedSettingsVersionError(
+                storedVersion: storedVersion,
+                currentVersion: SchemaVersion.current
+            )
+        }
+
+        var settings = try parser.parsePayload(as: schema.settingsType, from: data)
+        while schema.rawValue < SchemaVersion.current.rawValue {
+            settings = settings.upgradeToNextVersion()
+            schema = schema.nextVersion
+        }
+
+        guard let latestSettings = settings as? LatestTunnelSettings else {
+            throw UnsupportedSettingsVersionError(
+                storedVersion: storedVersion,
+                currentVersion: SchemaVersion.current
+            )
+        }
+
+        return latestSettings
+    }
+
     public func writeSettings(_ settings: LatestTunnelSettings) throws {
         let parser = makeParser()
         let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)

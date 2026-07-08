@@ -25,8 +25,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var deviceChecker: DeviceChecker!
     private var newAppVersionSystemNoticationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
-    private var migrationManager: MigrationManager
-    let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
 
@@ -53,11 +51,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
 
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
-        migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
 
         super.init()
 
-        performSettingsMigration()
+        waitUntilSettingsAreReadable()
 
         let settingsReader = TunnelSettingsManager(settingsReader: SettingsReader(settingsManager: settingsManager)) {
             [weak self] settings in
@@ -186,37 +183,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         implementation.wake()
     }
 
-    private func performSettingsMigration() {
-        nonisolated(unsafe) var hasNotMigrated = true
+    /// Blocks tunnel startup until the settings keychain is readable.
+    ///
+    /// After a reboot the keychain is sealed until the device is first unlocked, thus to prevent thrashing, this function will wait until the settings are readable.
+    private func waitUntilSettingsAreReadable() {
+        let delayIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
+        var isReadable = false
         repeat {
-            migrationManager.migrateSettings(
-                store: settingsManager.store,
-                migrationCompleted: { [unowned self] migrationResult in
-                    switch migrationResult {
-                    case .success:
-                        providerLogger.debug("Successful migration from PacketTunnel")
-                        hasNotMigrated = false
-                    case .nothing:
-                        hasNotMigrated = false
-                        providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
-                    case let .failure(error):
-                        providerLogger
-                            .error(
-                                "Failed migration from PacketTunnel: \(error)"
-                            )
-                    }
+            do {
+                _ = try settingsManager.readSettingsUpgradingSchemaInMemory()
+                isReadable = true
+            } catch {
+                guard let keychainError = (error as? WrappingError)?.underlyingError as? KeychainError,
+                    keychainError == .interactionNotAllowed
+                else {
+                    // The keychain is available; there is nothing to wait for.
+                    return
                 }
-            )
-            if hasNotMigrated {
-                // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
-                guard let delay = migrationFailureIterator.next() else { continue }
+                // `next` returns an Optional value, but this iterator is guaranteed to always have a next value.
+                guard let delay = delayIterator.next() else { continue }
 
-                providerLogger.error("Retrying migration in \(delay.timeInterval) seconds")
-                // Block the launch of the Packet Tunnel for as long as the settings migration fail.
-                // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
+                providerLogger.error("Settings keychain unavailable, retrying read in \(delay.timeInterval) seconds")
                 Thread.sleep(forTimeInterval: delay.timeInterval)
             }
-        } while hasNotMigrated
+        } while !isReadable
     }
 
     private func setUpApiContextAndAccessMethodReceiver(

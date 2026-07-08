@@ -16,7 +16,7 @@ struct SettingsReader: SettingsReaderProtocol {
         self.settingsManager = settingsManager
     }
     func read() throws -> Settings {
-        let settings = try settingsManager.readSettings()
+        let settings = try settingsManager.readSettingsUpgradingSchemaInMemory()
         let deviceState = try settingsManager.readDeviceState()
         let deviceData = try deviceState.getDeviceData()
 
