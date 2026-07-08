@@ -2,7 +2,8 @@
 source: mullvad-relay-selector/tests/relay_selector.rs
 expression: "snapshot(Predicate::Exit(MultihopConstraints::default()))"
 ---
-al-tia-wg-003: Match
+al-tia-wg-001: Match
+al-tia-wg-003: Discarded(Inactive)
 al-tia-wg-004: Match
 ar-bue-wg-001: Match
 ar-bue-wg-002: Match
@@ -17,9 +18,8 @@ au-adl-wg-303: Match
 au-bne-wg-301: Match
 au-bne-wg-302: Match
 au-bne-wg-303: Match
-au-mel-wg-302: Discarded(Inactive)
 au-mel-wg-401: Match
-au-mel-wg-402: Match
+au-mel-wg-402: Discarded(Inactive)
 au-mel-wg-403: Match
 au-per-wg-301: Match
 au-per-wg-302: Match
@@ -63,11 +63,11 @@ ca-mtr-wg-308: Match
 ca-tor-wg-001: Match
 ca-tor-wg-002: Match
 ca-tor-wg-201: Match
-ca-tor-wg-202: Discarded(Inactive)
-ca-tor-wg-203: Discarded(Inactive)
-ca-tor-wg-204: Discarded(Inactive)
-ca-tor-wg-205: Discarded(Inactive)
-ca-tor-wg-206: Discarded(Inactive)
+ca-tor-wg-202: Match
+ca-tor-wg-203: Match
+ca-tor-wg-204: Match
+ca-tor-wg-205: Match
+ca-tor-wg-206: Match
 ca-tor-wg-207: Match
 ca-van-wg-201: Match
 ca-van-wg-202: Match
@@ -78,22 +78,18 @@ ca-yyc-wg-202: Match
 ch-zrh-wg-001: Match
 ch-zrh-wg-002: Match
 ch-zrh-wg-003: Match
-ch-zrh-wg-004: Match
+ch-zrh-wg-004: Discarded(Inactive)
 ch-zrh-wg-005: Match
 ch-zrh-wg-006: Match
 ch-zrh-wg-201: Match
 ch-zrh-wg-202: Match
 ch-zrh-wg-401: Match
 ch-zrh-wg-402: Match
-ch-zrh-wg-403: Match
+ch-zrh-wg-403: Discarded(Inactive)
 ch-zrh-wg-404: Match
-ch-zrh-wg-501: Match
 ch-zrh-wg-502: Match
-ch-zrh-wg-503: Match
-ch-zrh-wg-504: Match
-ch-zrh-wg-505: Match
-ch-zrh-wg-506: Match
-ch-zrh-wg-507: Match
+ch-zrh-wg-503: Discarded(Inactive)
+ch-zrh-wg-504: Discarded(Inactive)
 cl-scl-wg-001: Match
 cl-scl-wg-002: Match
 co-bog-wg-001: Match
@@ -129,7 +125,7 @@ de-fra-wg-102: Match
 de-fra-wg-103: Match
 de-fra-wg-104: Match
 de-fra-wg-301: Match
-de-fra-wg-302: Match
+de-fra-wg-302: Discarded(Inactive)
 de-fra-wg-303: Match
 de-fra-wg-304: Discarded(Inactive)
 de-fra-wg-401: Match
@@ -137,9 +133,9 @@ de-fra-wg-402: Match
 de-fra-wg-403: Match
 dk-cph-wg-001: Match
 dk-cph-wg-002: Match
-dk-cph-wg-101: Match
+dk-cph-wg-101: Discarded(Inactive)
 dk-cph-wg-102: Match
-dk-cph-wg-103: Match
+dk-cph-wg-103: Discarded(Inactive)
 dk-cph-wg-401: Match
 dk-cph-wg-402: Match
 ee-tll-wg-001: Match
@@ -173,11 +169,12 @@ fr-par-wg-001: Match
 fr-par-wg-002: Match
 fr-par-wg-003: Match
 fr-par-wg-004: Match
-fr-par-wg-005: Match
+fr-par-wg-005: Discarded(Inactive)
 fr-par-wg-006: Match
 fr-par-wg-007: Match
 fr-par-wg-101: Match
-fr-par-wg-102: Match
+fr-par-wg-102: Discarded(Inactive)
+fr-par-wg-103: Match
 fr-par-wg-301: Match
 fr-par-wg-302: Match
 gb-glw-wg-001: Discarded(IncludeInCountry)
@@ -194,24 +191,17 @@ gb-lon-wg-201: Match
 gb-lon-wg-202: Match
 gb-lon-wg-203: Match
 gb-lon-wg-204: Match
-gb-lon-wg-301: Match
-gb-lon-wg-302: Match
-gb-lon-wg-304: Match
-gb-mnc-wg-001: Discarded(IncludeInCountry)
-gb-mnc-wg-002: Discarded(IncludeInCountry)
-gb-mnc-wg-003: Discarded(IncludeInCountry)
-gb-mnc-wg-004: Discarded(IncludeInCountry)
-gb-mnc-wg-005: Discarded(IncludeInCountry)
-gb-mnc-wg-006: Discarded(IncludeInCountry)
-gb-mnc-wg-007: Discarded(IncludeInCountry)
-gb-mnc-wg-008: Match
-gb-mnc-wg-009: Match
+gb-lon-wg-305: Match
+gb-lon-wg-306: Match
+gb-lon-wg-308: Match
+gb-mnc-wg-001: Discarded(Inactive IncludeInCountry)
+gb-mnc-wg-002: Discarded(Inactive IncludeInCountry)
 gb-mnc-wg-201: Discarded(IncludeInCountry)
 gb-mnc-wg-202: Discarded(IncludeInCountry)
 gr-ath-wg-101: Match
 gr-ath-wg-102: Match
 hk-hkg-wg-201: Match
-hk-hkg-wg-202: Discarded(Inactive)
+hk-hkg-wg-202: Discarded(Inactive IncludeInCountry)
 hk-hkg-wg-301: Match
 hk-hkg-wg-302: Match
 hk-hkg-wg-303: Match
@@ -302,7 +292,7 @@ se-got-wg-002: Match
 se-got-wg-003: Match
 se-got-wg-004: Match
 se-got-wg-005: Match
-se-got-wg-006: Match
+se-got-wg-006: Discarded(Inactive)
 se-got-wg-007: Match
 se-got-wg-008: Match
 se-got-wg-101: Match
@@ -328,6 +318,7 @@ se-sto-wg-010: Match
 se-sto-wg-011: Match
 se-sto-wg-012: Match
 se-sto-wg-013: Match
+se-sto-wg-014: Match
 se-sto-wg-201: Match
 se-sto-wg-202: Match
 se-sto-wg-203: Match
@@ -354,12 +345,6 @@ ua-iev-wg-001: Match
 ua-iev-wg-002: Match
 us-atl-wg-001: Discarded(IncludeInCountry)
 us-atl-wg-002: Discarded(IncludeInCountry)
-us-atl-wg-301: Match
-us-atl-wg-302: Match
-us-atl-wg-303: Match
-us-atl-wg-304: Match
-us-atl-wg-305: Match
-us-atl-wg-306: Match
 us-atl-wg-401: Match
 us-atl-wg-402: Match
 us-atl-wg-403: Match
@@ -373,7 +358,7 @@ us-bos-wg-002: Discarded(Inactive)
 us-bos-wg-101: Match
 us-bos-wg-102: Match
 us-chi-wg-201: Match
-us-chi-wg-202: Discarded(Inactive)
+us-chi-wg-202: Match
 us-chi-wg-203: Match
 us-chi-wg-301: Match
 us-chi-wg-302: Match
@@ -397,14 +382,8 @@ us-dal-wg-003: Match
 us-dal-wg-401: Match
 us-dal-wg-402: Match
 us-dal-wg-403: Match
-us-dal-wg-502: Discarded(IncludeInCountry)
-us-dal-wg-503: Discarded(IncludeInCountry)
-us-dal-wg-504: Discarded(IncludeInCountry)
-us-dal-wg-505: Discarded(IncludeInCountry)
-us-dal-wg-506: Discarded(Inactive IncludeInCountry)
-us-dal-wg-507: Discarded(IncludeInCountry)
 us-dal-wg-601: Match
-us-dal-wg-602: Match
+us-dal-wg-602: Discarded(Inactive)
 us-dal-wg-603: Match
 us-dal-wg-604: Match
 us-dal-wg-701: Match
@@ -426,8 +405,8 @@ us-den-wg-205: Match
 us-den-wg-206: Match
 us-den-wg-207: Match
 us-den-wg-208: Match
-us-det-wg-001: Discarded(Inactive)
-us-det-wg-002: Discarded(Inactive)
+us-det-wg-001: Match
+us-det-wg-002: Match
 us-hou-wg-001: Match
 us-hou-wg-002: Match
 us-hou-wg-003: Match
@@ -435,14 +414,11 @@ us-hou-wg-004: Match
 us-lax-wg-001: Match
 us-lax-wg-002: Match
 us-lax-wg-003: Match
-us-lax-wg-004: Discarded(Inactive)
-us-lax-wg-005: Discarded(Inactive)
-us-lax-wg-006: Discarded(Inactive)
-us-lax-wg-007: Discarded(Inactive)
+us-lax-wg-004: Match
+us-lax-wg-005: Match
+us-lax-wg-006: Match
+us-lax-wg-007: Match
 us-lax-wg-008: Match
-us-lax-wg-101: Discarded(Inactive IncludeInCountry)
-us-lax-wg-102: Discarded(Inactive IncludeInCountry)
-us-lax-wg-103: Discarded(Inactive IncludeInCountry)
 us-lax-wg-201: Discarded(IncludeInCountry)
 us-lax-wg-202: Discarded(IncludeInCountry)
 us-lax-wg-203: Match
@@ -469,9 +445,6 @@ us-lax-wg-704: Match
 us-mia-wg-001: Match
 us-mia-wg-002: Match
 us-mia-wg-003: Match
-us-mia-wg-101: Match
-us-mia-wg-102: Match
-us-mia-wg-103: Match
 us-mkc-wg-001: Match
 us-mkc-wg-002: Match
 us-mkc-wg-003: Match
@@ -500,13 +473,13 @@ us-nyc-wg-603: Match
 us-nyc-wg-604: Match
 us-nyc-wg-605: Match
 us-nyc-wg-606: Match
-us-nyc-wg-701: Match
+us-nyc-wg-701: Discarded(Inactive)
 us-nyc-wg-702: Match
-us-nyc-wg-703: Match
-us-nyc-wg-801: Discarded(Inactive)
-us-nyc-wg-802: Discarded(Inactive)
-us-nyc-wg-803: Discarded(Inactive)
-us-nyc-wg-804: Discarded(Inactive)
+us-nyc-wg-703: Discarded(Inactive)
+us-nyc-wg-801: Match
+us-nyc-wg-802: Match
+us-nyc-wg-803: Match
+us-nyc-wg-804: Match
 us-nyc-wg-805: Match
 us-nyc-wg-806: Match
 us-nyc-wg-807: Match
@@ -519,10 +492,6 @@ us-phx-wg-205: Match
 us-phx-wg-206: Match
 us-phx-wg-207: Match
 us-phx-wg-208: Match
-us-qas-wg-001: Discarded(Inactive)
-us-qas-wg-002: Discarded(Inactive IncludeInCountry)
-us-qas-wg-003: Discarded(Inactive IncludeInCountry)
-us-qas-wg-004: Discarded(Inactive IncludeInCountry)
 us-qas-wg-101: Match
 us-qas-wg-102: Match
 us-qas-wg-103: Match
@@ -545,7 +514,7 @@ us-rag-wg-204: Match
 us-rag-wg-205: Match
 us-rag-wg-206: Match
 us-rag-wg-207: Match
-us-rag-wg-208: Match
+us-rag-wg-208: Discarded(Inactive)
 us-sea-wg-001: Match
 us-sea-wg-002: Match
 us-sea-wg-003: Match
@@ -557,6 +526,8 @@ us-sea-wg-405: Match
 us-sea-wg-406: Match
 us-sea-wg-407: Match
 us-sea-wg-408: Match
+us-sfo-wg-001: Match
+us-sfo-wg-002: Match
 us-sjc-wg-302: Match
 us-sjc-wg-303: Match
 us-sjc-wg-401: Match
@@ -569,10 +540,6 @@ us-sjc-wg-505: Match
 us-sjc-wg-506: Match
 us-sjc-wg-507: Match
 us-sjc-wg-508: Match
-us-slc-wg-201: Match
-us-slc-wg-202: Match
-us-slc-wg-203: Match
-us-slc-wg-204: Match
 us-slc-wg-301: Match
 us-slc-wg-302: Match
 us-slc-wg-303: Match

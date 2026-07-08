@@ -2,7 +2,8 @@
 source: mullvad-relay-selector/tests/relay_selector.rs
 expression: "snapshot(Predicate::Singlehop(EntryConstraints::default().obfuscation(ObfuscationMode::Quic)))"
 ---
-al-tia-wg-003: Match
+al-tia-wg-001: Match
+al-tia-wg-003: Discarded(Inactive)
 al-tia-wg-004: Match
 ar-bue-wg-001: Match
 ar-bue-wg-002: Match
@@ -17,9 +18,8 @@ au-adl-wg-303: Discarded(Obfuscation)
 au-bne-wg-301: Discarded(Obfuscation)
 au-bne-wg-302: Discarded(Obfuscation)
 au-bne-wg-303: Discarded(Obfuscation)
-au-mel-wg-302: Discarded(Inactive Obfuscation)
 au-mel-wg-401: Match
-au-mel-wg-402: Match
+au-mel-wg-402: Discarded(Inactive)
 au-mel-wg-403: Match
 au-per-wg-301: Discarded(Obfuscation)
 au-per-wg-302: Discarded(Obfuscation)
@@ -63,11 +63,11 @@ ca-mtr-wg-308: Match
 ca-tor-wg-001: Discarded(Obfuscation)
 ca-tor-wg-002: Discarded(Obfuscation)
 ca-tor-wg-201: Match
-ca-tor-wg-202: Discarded(Inactive)
-ca-tor-wg-203: Discarded(Inactive)
-ca-tor-wg-204: Discarded(Inactive)
-ca-tor-wg-205: Discarded(Inactive)
-ca-tor-wg-206: Discarded(Inactive)
+ca-tor-wg-202: Match
+ca-tor-wg-203: Match
+ca-tor-wg-204: Match
+ca-tor-wg-205: Match
+ca-tor-wg-206: Match
 ca-tor-wg-207: Match
 ca-van-wg-201: Discarded(Obfuscation)
 ca-van-wg-202: Discarded(Obfuscation)
@@ -78,22 +78,18 @@ ca-yyc-wg-202: Discarded(Obfuscation)
 ch-zrh-wg-001: Match
 ch-zrh-wg-002: Discarded(Obfuscation)
 ch-zrh-wg-003: Discarded(Obfuscation)
-ch-zrh-wg-004: Discarded(Obfuscation)
+ch-zrh-wg-004: Discarded(Inactive Obfuscation)
 ch-zrh-wg-005: Discarded(Obfuscation)
 ch-zrh-wg-006: Discarded(Obfuscation)
 ch-zrh-wg-201: Discarded(Obfuscation)
 ch-zrh-wg-202: Discarded(Obfuscation)
 ch-zrh-wg-401: Discarded(Obfuscation)
 ch-zrh-wg-402: Discarded(Obfuscation)
-ch-zrh-wg-403: Discarded(Obfuscation)
+ch-zrh-wg-403: Discarded(Inactive Obfuscation)
 ch-zrh-wg-404: Discarded(Obfuscation)
-ch-zrh-wg-501: Discarded(Obfuscation)
-ch-zrh-wg-502: Discarded(Obfuscation)
-ch-zrh-wg-503: Discarded(Obfuscation)
-ch-zrh-wg-504: Discarded(Obfuscation)
-ch-zrh-wg-505: Discarded(Obfuscation)
-ch-zrh-wg-506: Discarded(Obfuscation)
-ch-zrh-wg-507: Discarded(Obfuscation)
+ch-zrh-wg-502: Match
+ch-zrh-wg-503: Discarded(Inactive)
+ch-zrh-wg-504: Discarded(Inactive)
 cl-scl-wg-001: Discarded(Obfuscation)
 cl-scl-wg-002: Discarded(Obfuscation)
 co-bog-wg-001: Discarded(Obfuscation)
@@ -129,7 +125,7 @@ de-fra-wg-102: Match
 de-fra-wg-103: Match
 de-fra-wg-104: Match
 de-fra-wg-301: Discarded(Obfuscation)
-de-fra-wg-302: Discarded(Obfuscation)
+de-fra-wg-302: Discarded(Inactive Obfuscation)
 de-fra-wg-303: Discarded(Obfuscation)
 de-fra-wg-304: Discarded(Inactive Obfuscation)
 de-fra-wg-401: Discarded(Obfuscation)
@@ -137,9 +133,9 @@ de-fra-wg-402: Discarded(Obfuscation)
 de-fra-wg-403: Discarded(Obfuscation)
 dk-cph-wg-001: Match
 dk-cph-wg-002: Discarded(Obfuscation)
-dk-cph-wg-101: Match
+dk-cph-wg-101: Discarded(Inactive)
 dk-cph-wg-102: Match
-dk-cph-wg-103: Match
+dk-cph-wg-103: Discarded(Inactive)
 dk-cph-wg-401: Discarded(Obfuscation)
 dk-cph-wg-402: Discarded(Obfuscation)
 ee-tll-wg-001: Discarded(Obfuscation)
@@ -173,11 +169,12 @@ fr-par-wg-001: Discarded(Obfuscation)
 fr-par-wg-002: Discarded(Obfuscation)
 fr-par-wg-003: Discarded(Obfuscation)
 fr-par-wg-004: Discarded(Obfuscation)
-fr-par-wg-005: Discarded(Obfuscation)
+fr-par-wg-005: Discarded(Inactive Obfuscation)
 fr-par-wg-006: Discarded(Obfuscation)
 fr-par-wg-007: Discarded(Obfuscation)
-fr-par-wg-101: Discarded(Obfuscation)
-fr-par-wg-102: Discarded(Obfuscation)
+fr-par-wg-101: Match
+fr-par-wg-102: Discarded(Inactive)
+fr-par-wg-103: Match
 fr-par-wg-301: Discarded(Obfuscation)
 fr-par-wg-302: Discarded(Obfuscation)
 gb-glw-wg-001: Discarded(IncludeInCountry Obfuscation)
@@ -194,24 +191,17 @@ gb-lon-wg-201: Discarded(Obfuscation)
 gb-lon-wg-202: Discarded(Obfuscation)
 gb-lon-wg-203: Discarded(Obfuscation)
 gb-lon-wg-204: Discarded(Obfuscation)
-gb-lon-wg-301: Discarded(Obfuscation)
-gb-lon-wg-302: Discarded(Obfuscation)
-gb-lon-wg-304: Discarded(Obfuscation)
-gb-mnc-wg-001: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-002: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-003: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-004: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-005: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-006: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-007: Discarded(IncludeInCountry Obfuscation)
-gb-mnc-wg-008: Discarded(Obfuscation)
-gb-mnc-wg-009: Discarded(Obfuscation)
+gb-lon-wg-305: Match
+gb-lon-wg-306: Match
+gb-lon-wg-308: Match
+gb-mnc-wg-001: Discarded(Inactive IncludeInCountry)
+gb-mnc-wg-002: Discarded(Inactive IncludeInCountry)
 gb-mnc-wg-201: Discarded(IncludeInCountry Obfuscation)
 gb-mnc-wg-202: Discarded(IncludeInCountry Obfuscation)
 gr-ath-wg-101: Discarded(Obfuscation)
 gr-ath-wg-102: Discarded(Obfuscation)
 hk-hkg-wg-201: Discarded(Obfuscation)
-hk-hkg-wg-202: Discarded(Inactive Obfuscation)
+hk-hkg-wg-202: Discarded(Inactive IncludeInCountry Obfuscation)
 hk-hkg-wg-301: Match
 hk-hkg-wg-302: Discarded(Obfuscation)
 hk-hkg-wg-303: Discarded(Obfuscation)
@@ -302,7 +292,7 @@ se-got-wg-002: Discarded(Obfuscation)
 se-got-wg-003: Match
 se-got-wg-004: Discarded(Obfuscation)
 se-got-wg-005: Match
-se-got-wg-006: Match
+se-got-wg-006: Discarded(Inactive)
 se-got-wg-007: Match
 se-got-wg-008: Match
 se-got-wg-101: Discarded(Obfuscation)
@@ -328,6 +318,7 @@ se-sto-wg-010: Discarded(Obfuscation)
 se-sto-wg-011: Discarded(Obfuscation)
 se-sto-wg-012: Discarded(Obfuscation)
 se-sto-wg-013: Discarded(Obfuscation)
+se-sto-wg-014: Discarded(Obfuscation)
 se-sto-wg-201: Match
 se-sto-wg-202: Match
 se-sto-wg-203: Match
@@ -354,12 +345,6 @@ ua-iev-wg-001: Discarded(Obfuscation)
 ua-iev-wg-002: Discarded(Obfuscation)
 us-atl-wg-001: Discarded(IncludeInCountry)
 us-atl-wg-002: Discarded(IncludeInCountry Obfuscation)
-us-atl-wg-301: Discarded(Obfuscation)
-us-atl-wg-302: Discarded(Obfuscation)
-us-atl-wg-303: Discarded(Obfuscation)
-us-atl-wg-304: Discarded(Obfuscation)
-us-atl-wg-305: Discarded(Obfuscation)
-us-atl-wg-306: Discarded(Obfuscation)
 us-atl-wg-401: Discarded(Obfuscation)
 us-atl-wg-402: Discarded(Obfuscation)
 us-atl-wg-403: Discarded(Obfuscation)
@@ -373,7 +358,7 @@ us-bos-wg-002: Discarded(Inactive Obfuscation)
 us-bos-wg-101: Discarded(Obfuscation)
 us-bos-wg-102: Discarded(Obfuscation)
 us-chi-wg-201: Discarded(Obfuscation)
-us-chi-wg-202: Discarded(Inactive Obfuscation)
+us-chi-wg-202: Discarded(Obfuscation)
 us-chi-wg-203: Discarded(Obfuscation)
 us-chi-wg-301: Discarded(Obfuscation)
 us-chi-wg-302: Discarded(Obfuscation)
@@ -397,14 +382,8 @@ us-dal-wg-003: Discarded(Obfuscation)
 us-dal-wg-401: Discarded(Obfuscation)
 us-dal-wg-402: Discarded(Obfuscation)
 us-dal-wg-403: Discarded(Obfuscation)
-us-dal-wg-502: Discarded(IncludeInCountry Obfuscation)
-us-dal-wg-503: Discarded(IncludeInCountry Obfuscation)
-us-dal-wg-504: Discarded(IncludeInCountry Obfuscation)
-us-dal-wg-505: Discarded(IncludeInCountry Obfuscation)
-us-dal-wg-506: Discarded(Inactive IncludeInCountry Obfuscation)
-us-dal-wg-507: Discarded(IncludeInCountry Obfuscation)
 us-dal-wg-601: Discarded(Obfuscation)
-us-dal-wg-602: Discarded(Obfuscation)
+us-dal-wg-602: Discarded(Inactive Obfuscation)
 us-dal-wg-603: Discarded(Obfuscation)
 us-dal-wg-604: Discarded(Obfuscation)
 us-dal-wg-701: Match
@@ -426,8 +405,8 @@ us-den-wg-205: Discarded(Obfuscation)
 us-den-wg-206: Discarded(Obfuscation)
 us-den-wg-207: Discarded(Obfuscation)
 us-den-wg-208: Discarded(Obfuscation)
-us-det-wg-001: Discarded(Inactive Obfuscation)
-us-det-wg-002: Discarded(Inactive Obfuscation)
+us-det-wg-001: Discarded(Obfuscation)
+us-det-wg-002: Discarded(Obfuscation)
 us-hou-wg-001: Discarded(Obfuscation)
 us-hou-wg-002: Discarded(Obfuscation)
 us-hou-wg-003: Discarded(Obfuscation)
@@ -435,14 +414,11 @@ us-hou-wg-004: Discarded(Obfuscation)
 us-lax-wg-001: Match
 us-lax-wg-002: Match
 us-lax-wg-003: Match
-us-lax-wg-004: Discarded(Inactive)
-us-lax-wg-005: Discarded(Inactive)
-us-lax-wg-006: Discarded(Inactive)
-us-lax-wg-007: Discarded(Inactive)
+us-lax-wg-004: Match
+us-lax-wg-005: Match
+us-lax-wg-006: Match
+us-lax-wg-007: Match
 us-lax-wg-008: Match
-us-lax-wg-101: Discarded(Inactive IncludeInCountry Obfuscation)
-us-lax-wg-102: Discarded(Inactive IncludeInCountry Obfuscation)
-us-lax-wg-103: Discarded(Inactive IncludeInCountry Obfuscation)
 us-lax-wg-201: Discarded(IncludeInCountry Obfuscation)
 us-lax-wg-202: Discarded(IncludeInCountry Obfuscation)
 us-lax-wg-203: Discarded(Obfuscation)
@@ -469,9 +445,6 @@ us-lax-wg-704: Discarded(Obfuscation)
 us-mia-wg-001: Discarded(Obfuscation)
 us-mia-wg-002: Discarded(Obfuscation)
 us-mia-wg-003: Discarded(Obfuscation)
-us-mia-wg-101: Discarded(Obfuscation)
-us-mia-wg-102: Discarded(Obfuscation)
-us-mia-wg-103: Discarded(Obfuscation)
 us-mkc-wg-001: Discarded(Obfuscation)
 us-mkc-wg-002: Discarded(Obfuscation)
 us-mkc-wg-003: Discarded(Obfuscation)
@@ -500,13 +473,13 @@ us-nyc-wg-603: Discarded(Obfuscation)
 us-nyc-wg-604: Discarded(Obfuscation)
 us-nyc-wg-605: Discarded(Obfuscation)
 us-nyc-wg-606: Discarded(Obfuscation)
-us-nyc-wg-701: Discarded(Obfuscation)
+us-nyc-wg-701: Discarded(Inactive Obfuscation)
 us-nyc-wg-702: Discarded(Obfuscation)
-us-nyc-wg-703: Discarded(Obfuscation)
-us-nyc-wg-801: Discarded(Inactive)
-us-nyc-wg-802: Discarded(Inactive)
-us-nyc-wg-803: Discarded(Inactive)
-us-nyc-wg-804: Discarded(Inactive)
+us-nyc-wg-703: Discarded(Inactive Obfuscation)
+us-nyc-wg-801: Match
+us-nyc-wg-802: Match
+us-nyc-wg-803: Match
+us-nyc-wg-804: Match
 us-nyc-wg-805: Match
 us-nyc-wg-806: Match
 us-nyc-wg-807: Match
@@ -519,10 +492,6 @@ us-phx-wg-205: Discarded(Obfuscation)
 us-phx-wg-206: Discarded(Obfuscation)
 us-phx-wg-207: Discarded(Obfuscation)
 us-phx-wg-208: Discarded(Obfuscation)
-us-qas-wg-001: Discarded(Inactive Obfuscation)
-us-qas-wg-002: Discarded(Inactive IncludeInCountry Obfuscation)
-us-qas-wg-003: Discarded(Inactive IncludeInCountry Obfuscation)
-us-qas-wg-004: Discarded(Inactive IncludeInCountry Obfuscation)
 us-qas-wg-101: Discarded(Obfuscation)
 us-qas-wg-102: Discarded(Obfuscation)
 us-qas-wg-103: Discarded(Obfuscation)
@@ -545,7 +514,7 @@ us-rag-wg-204: Discarded(Obfuscation)
 us-rag-wg-205: Discarded(Obfuscation)
 us-rag-wg-206: Discarded(Obfuscation)
 us-rag-wg-207: Discarded(Obfuscation)
-us-rag-wg-208: Discarded(Obfuscation)
+us-rag-wg-208: Discarded(Inactive Obfuscation)
 us-sea-wg-001: Discarded(Obfuscation)
 us-sea-wg-002: Discarded(Obfuscation)
 us-sea-wg-003: Discarded(Obfuscation)
@@ -557,6 +526,8 @@ us-sea-wg-405: Match
 us-sea-wg-406: Match
 us-sea-wg-407: Match
 us-sea-wg-408: Match
+us-sfo-wg-001: Match
+us-sfo-wg-002: Match
 us-sjc-wg-302: Discarded(Obfuscation)
 us-sjc-wg-303: Discarded(Obfuscation)
 us-sjc-wg-401: Discarded(Obfuscation)
@@ -569,10 +540,6 @@ us-sjc-wg-505: Discarded(Obfuscation)
 us-sjc-wg-506: Discarded(Obfuscation)
 us-sjc-wg-507: Discarded(Obfuscation)
 us-sjc-wg-508: Discarded(Obfuscation)
-us-slc-wg-201: Discarded(Obfuscation)
-us-slc-wg-202: Discarded(Obfuscation)
-us-slc-wg-203: Discarded(Obfuscation)
-us-slc-wg-204: Discarded(Obfuscation)
 us-slc-wg-301: Discarded(Obfuscation)
 us-slc-wg-302: Discarded(Obfuscation)
 us-slc-wg-303: Discarded(Obfuscation)
