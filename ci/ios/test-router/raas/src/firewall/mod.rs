@@ -12,4 +12,4 @@ pub use linux::BlockList;
 pub use macos::BlockList;
 
 #[cfg(target_os = "macos")]
-pub use macos::{apply_dnat, cleanup_dnat};
+pub use macos::setup_utun;

@@ -1,5 +1,7 @@
 use std::{fs, io, net::SocketAddr, path::Path, time::Duration};
 
+use smoltcp::wire::Ipv4Packet;
+
 mod capture;
 mod firewall;
 mod web;
@@ -12,20 +14,19 @@ async fn main() {
     let args = parse_args();
 
     #[cfg(target_os = "macos")]
-    if let Some(host_ip) = args.dnat_host_ip {
-        firewall::apply_dnat(host_ip).expect("Failed to apply DNAT rules");
-    }
+    let tun_device =
+        firewall::setup_utun(args.client_ip).expect("Failed to create a tunnel device");
 
-    let interface = args.interface.unwrap_or_else(|| {
+    let interface = {
         #[cfg(target_os = "linux")]
         {
-            "any".to_string()
+            args.interface.clone()
         }
         #[cfg(target_os = "macos")]
         {
-            panic!("--interface is required on macOS");
+            tun_device.name().expect("Failed to read device name")
         }
-    });
+    };
 
     let router = web::router(Default::default(), interface)
         .into_make_service_with_connect_info::<SocketAddr>();
@@ -39,6 +40,17 @@ async fn main() {
             .expect("Failed to get local address of TCP socket")
     );
 
+    #[cfg(target_os = "macos")]
+    tokio::spawn(async move {
+        let mut read_buf = vec![0u8; 2000];
+        while let Ok(bytes_received) = tun_device.recv(&mut read_buf).await {
+            let packet = Ipv4Packet::new_unchecked(&read_buf[..bytes_received]);
+            let src = packet.src_addr();
+            let dst = packet.dst_addr();
+            println!("Received packet from utun - with src {src} and dst {dst}");
+        }
+    });
+
     tokio::spawn(async {
         loop {
             tokio::time::sleep(Duration::from_hours(24)).await;
@@ -50,19 +62,17 @@ async fn main() {
     });
 
     axum::serve(listener, router).await.unwrap();
-
-    #[cfg(target_os = "macos")]
-    firewall::cleanup_dnat();
 }
 
 struct Args {
     bind_address: String,
     interface: Option<String>,
     #[cfg(target_os = "macos")]
-    dnat_host_ip: Option<std::net::Ipv4Addr>,
+    client_ip: std::net::Ipv4Addr,
 }
 
 fn parse_args() -> Args {
+    // TODO: use clap for parsing args instead
     let mut args_iter = std::env::args().skip(1);
     let bind_address = args_iter
         .next()
@@ -70,25 +80,21 @@ fn parse_args() -> Args {
 
     let mut interface = None;
     #[cfg(target_os = "macos")]
-    let mut dnat_host_ip = None;
+    let mut client_ip = None;
 
     while let Some(arg) = args_iter.next() {
         match arg.as_str() {
             "--interface" => {
-                interface = Some(
-                    args_iter
-                        .next()
-                        .expect("--interface requires an argument"),
-                );
+                interface = Some(args_iter.next().expect("--interface requires an argument"));
             }
             #[cfg(target_os = "macos")]
-            "--host-ip" => {
-                dnat_host_ip = Some(
+            "--client-ip" => {
+                client_ip = Some(
                     args_iter
                         .next()
-                        .expect("--host-ip requires an argument")
+                        .expect("--client-ip requires an argument")
                         .parse()
-                        .expect("--host-ip must be a valid IPv4 address"),
+                        .expect("--client-ip must be a valid IPv4 address"),
                 );
             }
             other => {
@@ -101,7 +107,7 @@ fn parse_args() -> Args {
         bind_address,
         interface,
         #[cfg(target_os = "macos")]
-        dnat_host_ip,
+        client_ip: client_ip.unwrap(),
     }
 }
 

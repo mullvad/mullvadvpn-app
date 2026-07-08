@@ -1,10 +1,16 @@
-use std::{collections::BTreeMap, io, net::Ipv4Addr};
+use std::{
+    collections::BTreeMap,
+    io,
+    net::Ipv4Addr,
+    process::{Command, Stdio},
+};
 
 use ipnetwork::IpNetwork;
 use pfctl::{
     AnchorChange, AnchorKind, FilterRuleAction, FilterRuleBuilder, PfCtl, RedirectRuleAction,
     RedirectRuleBuilder,
 };
+use tun_rs::{AsyncDevice, DeviceBuilder};
 
 use super::rule::{BlockRule, Endpoints};
 use crate::web::routes::TransportProtocol;
@@ -236,4 +242,34 @@ pub fn cleanup_dnat() {
 
 fn pfctl_to_io(err: pfctl::Error) -> io::Error {
     io::Error::new(io::ErrorKind::Other, err.to_string())
+}
+
+pub fn setup_utun(client_ip: Ipv4Addr) -> Result<AsyncDevice, io::Error> {
+    let device = DeviceBuilder::new()
+        .ipv4("10.0.0.1", 24, None)
+        .packet_information(false)
+        .build_async()?;
+    // .mtu(1500): TODO figure out if we want to dynamically determine MTU to make it equal to
+    // the current default route
+    execute_setup_script(client_ip, device.name()?)?;
+    Ok(device)
+}
+
+fn execute_setup_script(client_ip: Ipv4Addr, device_name: String) -> Result<(), io::Error> {
+    let status = Command::new("zsh")
+        .arg("./poc/post_up.sh")
+        .arg(client_ip.to_string())
+        .arg(device_name)
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .status()?;
+    if let Some(exit_code) = status.code()
+        && exit_code != 0
+    {
+        return Err(io::Error::other(format!(
+            "post_up.sh script failed with exit code {exit_code}"
+        )));
+    }
+
+    Ok(())
 }
