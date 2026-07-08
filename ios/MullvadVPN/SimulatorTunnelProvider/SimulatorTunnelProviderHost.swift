@@ -180,7 +180,7 @@
         }
 
         private func pickRelays() throws -> SelectedRelays {
-            let settings = try settingsManager.readSettings()
+            let settings = try settingsManager.readSettingsUpgradingSchemaInMemory()
             return try relaySelector.selectRelays(
                 tunnelSettings: settings,
                 connectionAttemptCount: 0
@@ -191,7 +191,7 @@
             guard let selectedRelays = selectedRelays else { return }
 
             do {
-                let settings = try settingsManager.readSettings()
+                let settings = try settingsManager.readSettingsUpgradingSchemaInMemory()
                 observedState = .reconnecting(
                     ObservedConnectionState(
                         selectedRelays: selectedRelays,
@@ -216,7 +216,7 @@
             self.selectedRelays = selectedRelays
 
             do {
-                let settings = try settingsManager.readSettings()
+                let settings = try settingsManager.readSettingsUpgradingSchemaInMemory()
                 observedState = .connected(
                     ObservedConnectionState(
                         selectedRelays: selectedRelays,
