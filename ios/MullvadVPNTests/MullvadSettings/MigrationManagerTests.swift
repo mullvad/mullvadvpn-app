@@ -370,6 +370,84 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(latestSettings.tunnelQuantumResistance, .on)
     }
 
+    // MARK: - In-memory schema upgrade
+
+    /// The read path upgrades the settings schema in place
+    func testReadUpgradingSchemaInMemoryUpgradesOldSchema() throws {
+        var settingsV7 = TunnelSettingsV7()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+        settingsV7.relayConstraints = relayConstraints
+        settingsV7.tunnelQuantumResistance = .off
+        settingsV7.tunnelMultihopState = .off
+        settingsV7.daita = .init(daitaState: .on)
+
+        try write(settings: settingsV7, version: SchemaVersion.v7.rawValue, in: store)
+
+        let upgraded = try settingsManager.readSettingsUpgradingSchemaInMemory()
+
+        XCTAssertEqual(upgraded.relayConstraints, settingsV7.relayConstraints)
+        XCTAssertEqual(upgraded.tunnelQuantumResistance, settingsV7.tunnelQuantumResistance)
+        XCTAssertEqual(upgraded.tunnelMultihopState, .never)
+        XCTAssertEqual(upgraded.daita, settingsV7.daita)
+    }
+
+    func testReadUpgradingSchemaInMemoryIsIdenticalToRead() throws {
+        var settingsV7 = TunnelSettingsV7()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+        settingsV7.relayConstraints = relayConstraints
+        settingsV7.tunnelQuantumResistance = .off
+        settingsV7.tunnelMultihopState = .off
+        settingsV7.daita = .init(daitaState: .on)
+        try write(settings: settingsV7, version: SchemaVersion.v7.rawValue, in: store)
+
+        let ephemeral = try settingsManager.readSettingsUpgradingSchemaInMemory()
+        manager
+            .migrateSettings(store: store) { _ in return }
+        let persisted = try settingsManager.readSettings()
+
+        XCTAssertEqual(ephemeral, persisted)
+    }
+
+    /// The stored settings must remain at its original schema version.
+    func testReadUpgradingSchemaInMemoryDoesNotPersist() throws {
+        var settingsV7 = TunnelSettingsV7()
+        settingsV7.tunnelMultihopState = .off
+        try write(settings: settingsV7, version: SchemaVersion.v7.rawValue, in: store)
+
+        _ = try settingsManager.readSettingsUpgradingSchemaInMemory()
+
+        let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        let storedData = try store.read(key: .settings)
+        let storedVersion = try parser.parseVersion(data: storedData)
+        XCTAssertEqual(storedVersion, SchemaVersion.v7.rawValue)
+    }
+
+    /// Current-schema settings are unchanged
+    func testReadUpgradingSchemaInMemoryReturnsCurrentSchemaSettings() throws {
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+        try settingsManager.writeSettings(settings)
+
+        let read = try settingsManager.readSettingsUpgradingSchemaInMemory()
+
+        XCTAssertEqual(read, settings)
+    }
+
+    /// An unknown (e.g. downgraded / future) schema version cannot be upgraded and fails to be read
+    func testReadUpgradingSchemaInMemoryThrowsOnUnsupportedVersion() throws {
+        try write(settings: FutureVersionSettings(), version: Int.max - 1, in: store)
+
+        XCTAssertThrowsError(try settingsManager.readSettingsUpgradingSchemaInMemory()) { error in
+            XCTAssertTrue(error is UnsupportedSettingsVersionError)
+        }
+    }
+
     private func migrateToLatest(_ settings: any TunnelSettings, version: SchemaVersion) throws {
         try write(settings: settings, version: version.rawValue, in: settingsManager.store)
 
