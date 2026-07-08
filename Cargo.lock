@@ -3255,6 +3255,7 @@ dependencies = [
  "log",
  "log-panics",
  "mullvad-api",
+ "mullvad-daemon-relay-selector",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
  "mullvad-leak-checker",
@@ -3294,6 +3295,23 @@ dependencies = [
  "windows-service",
  "windows-sys 0.61.2",
  "winres",
+]
+
+[[package]]
+name = "mullvad-daemon-relay-selector"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "log",
+ "mullvad-api",
+ "mullvad-management-interface",
+ "mullvad-relay-selector",
+ "mullvad-types",
+ "serde_json",
+ "talpid-future",
+ "talpid-types",
+ "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]

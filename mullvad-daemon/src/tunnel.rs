@@ -4,6 +4,7 @@ use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
+use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
@@ -13,11 +14,9 @@ use mullvad_types::{
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{obfuscation::Obfuscators, wireguard};
-
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
-use crate::relay_selector::RelaySelectorIO;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

@@ -1,0 +1,28 @@
+[package]
+name = "mullvad-daemon-relay-selector"
+edition.workspace = true
+rust-version.workspace = true
+description = "TODO"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+futures = { workspace = true }
+log = { workspace = true }
+mullvad-api = { path = "../mullvad-api" }
+mullvad-management-interface = { path = "../mullvad-management-interface" }
+mullvad-relay-selector = { path = "../mullvad-relay-selector" }
+mullvad-types = { path = "../mullvad-types" }
+serde_json = { workspace = true, features = ["std"] }
+talpid-future = { path = "../talpid-future/" }
+talpid-types = { path = "../talpid-types" }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["fs"] }
+
+[features]
+default = []
+# Allow the API server to use to be configured
+api-override = ["mullvad-api/api-override"]
+
+[lints]
+workspace = true
