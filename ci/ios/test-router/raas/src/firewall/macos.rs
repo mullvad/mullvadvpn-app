@@ -246,12 +246,14 @@ fn pfctl_to_io(err: pfctl::Error) -> io::Error {
 
 pub fn setup_utun(client_ip: Ipv4Addr) -> Result<AsyncDevice, io::Error> {
     let device = DeviceBuilder::new()
-        .ipv4("10.0.0.1", 24, None)
+        .ipv4("10.0.0.2", 24, Some("10.0.0.1"))
         .packet_information(false)
         .build_async()?;
     // .mtu(1500): TODO figure out if we want to dynamically determine MTU to make it equal to
     // the current default route
-    execute_setup_script(client_ip, device.name()?)?;
+    let name = device.name()?;
+    println!("using utun with name {name}");
+    execute_setup_script(client_ip, name)?;
     Ok(device)
 }
 
