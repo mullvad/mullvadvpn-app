@@ -1,16 +1,16 @@
 // use packet::ip::{v4, v6, Packet};
 use pcap_file_tokio::{
-    pcap::{PcapPacket, PcapReader},
     PcapError,
+    pcap::{PcapPacket, PcapReader},
 };
 use pnet_packet::{
+    Packet,
     ethernet::EthernetPacket,
     ip::{IpNextHeaderProtocol, IpNextHeaderProtocols},
     ipv4::Ipv4Packet,
     ipv6::Ipv6Packet,
     tcp::TcpPacket,
     udp::UdpPacket,
-    Packet,
 };
 use std::{
     collections::{BTreeMap, BTreeSet},
