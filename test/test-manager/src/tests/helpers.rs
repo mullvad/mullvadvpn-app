@@ -13,15 +13,16 @@ use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
-    GetRelay, Predicate, WireguardConfig,
-    query::{Hops, RelayQuery},
+    ExitConstraints, GetRelay, Predicate, WireguardConfig,
+    query::{Hops, RelayQuery, obfuscation_to_settings},
 };
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
     custom_list::CustomList,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
+        GeographicLocationConstraint, LocationConstraint, Multihop, ObfuscationSettings,
+        RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_list::{BridgeList, Relay, WireguardRelay},
     relay_selector::{MultihopConstraints, ResolvedLocationConstraint},
@@ -579,7 +580,7 @@ pub async fn apply_settings_from_relay_query(
         .with_context(|| {
             format!("Failed to join query with current daemon settings. Query: {query:#?}")
         })?;
-    let (constraints, obfuscation) = intersected_relay_query.into_settings();
+    let (constraints, obfuscation) = into_settings(intersected_relay_query);
 
     mullvad_client
         .set_relay_settings(constraints.into())
@@ -697,7 +698,7 @@ pub async fn constrain_to_relay(
     let intersect_query = intersect_with_current_location(mullvad_client, query.clone()).await?;
     let (exit, relay_constraints) =
         get_single_relay_location_contraint(mullvad_client, intersect_query.clone()).await?;
-    let (_relay_constraints, obfuscation) = intersect_query.into_settings();
+    let (_relay_constraints, obfuscation) = into_settings(intersect_query);
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))
         .await
@@ -768,8 +769,7 @@ pub async fn get_all_pickable_relays(
         BridgeList::default(),
     );
 
-    let query =
-        RelayQuery::try_from(settings).context("Failed to convert settings to relay query")?;
+    let query = RelayQuery::from(settings);
     let predicate = match query.hops {
         Hops::Single(entry_constraints) => Predicate::Singlehop(entry_constraints),
         Hops::Auto(entry_constraints) => Predicate::Autohop(entry_constraints),
@@ -800,7 +800,7 @@ async fn get_single_relay_location_contraint(
             bail!("Expected singlehop")
         };
         let location = into_constraint(&exit);
-        let (mut relay_constraints, ..) = query.into_settings();
+        let (mut relay_constraints, ..) = into_settings(query);
         relay_constraints.location = location;
         Ok((exit, relay_constraints))
     }
@@ -1360,4 +1360,75 @@ pub async fn find_custom_list(
         .into_iter()
         .find(|list| list.name == name)
         .ok_or(anyhow!("List '{name}' not found"))
+}
+
+pub fn into_settings(
+    RelayQuery {
+        hops,
+        allowed_ips,
+        quantum_resistant: _,
+    }: RelayQuery,
+) -> (RelayConstraints, ObfuscationSettings) {
+    let location_constraint = |exit: &ExitConstraints| {
+        exit
+            .location
+            .clone()
+            // HACK: RelayQuery does not deal with custom lists so there is only one underlying
+            // location constraint. i.e. next().unwrap() is safe.
+            .map(|c| c.iter().next().unwrap().clone().into())
+    };
+
+    match hops {
+        Hops::Single(entry) => {
+            let constraints = RelayConstraints {
+                location: location_constraint(&entry.general),
+                providers: entry.general.providers,
+                ownership: entry.general.ownership,
+                wireguard_constraints: WireguardConstraints {
+                    ip_version: entry.entry_specific.ip_version,
+                    allowed_ips,
+                    multihop: Multihop::Never,
+                    entry_location: Constraint::Any,
+                    entry_providers: Constraint::Any,
+                    entry_ownership: Constraint::Any,
+                },
+            };
+            let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+            (constraints, obfuscation)
+        }
+        Hops::Auto(entry) => {
+            let constraints = RelayConstraints {
+                location: location_constraint(&entry.general),
+                providers: entry.general.providers,
+                ownership: entry.general.ownership,
+                wireguard_constraints: WireguardConstraints {
+                    ip_version: entry.entry_specific.ip_version,
+                    allowed_ips,
+                    multihop: Multihop::Auto,
+                    entry_location: Constraint::Any,
+                    entry_providers: Constraint::Any,
+                    entry_ownership: Constraint::Any,
+                },
+            };
+            let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+            (constraints, obfuscation)
+        }
+        Hops::Multi(MultihopConstraints { entry, exit }) => {
+            let constraints = RelayConstraints {
+                location: location_constraint(&exit),
+                providers: exit.providers,
+                ownership: exit.ownership,
+                wireguard_constraints: WireguardConstraints {
+                    ip_version: entry.entry_specific.ip_version,
+                    allowed_ips,
+                    multihop: Multihop::Always,
+                    entry_location: location_constraint(&entry.general),
+                    entry_providers: entry.general.providers,
+                    entry_ownership: entry.general.ownership,
+                },
+            };
+            let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+            (constraints, obfuscation)
+        }
+    }
 }
