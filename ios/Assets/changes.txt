@@ -1,5 +1,5 @@
-Add "When needed" multihop mode - app will only use multihop in cases where required features are not supported by exit server.
-Add automatic entry server connection - it will select an entry server that is close to the exit.
+Default multihop mode to "When needed". The app will, by default, pick an entry server automatically if the selected exit doesn't support all the required features.
+Add automatic entry server selection - this allows the app select an entry server that is close to the exit and supports the necessary obfuscation features.
 Removed "Direct only" setting from DAITA - "When needed" and automatic entry selection have replaced it.
 Fix URLs to our blog posts and FAQ page.
 Improved search behavior in location view.
