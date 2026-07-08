@@ -1,5 +1,7 @@
-use nftnl::{expr, nft_expr, nft_expr_payload, Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table};
 use mnl::mnl_sys::libc;
+use nftnl::{
+    Batch, Chain, FinalizedBatch, ProtoFamily, Rule, Table, expr, nft_expr, nft_expr_payload,
+};
 use once_cell::sync::Lazy;
 use std::{collections::BTreeMap, ffi::CString, io};
 

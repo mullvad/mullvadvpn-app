@@ -202,7 +202,11 @@ fn log_rule(rule: &BlockRule, label: &Uuid) {
         } => {
             log::info!(
                 "Successfully added a rule to {} {src} to {dst} for protocols {protocols:?} [test: {label}]",
-                if *invert_dst { "allow only traffic from" } else { "block" },
+                if *invert_dst {
+                    "allow only traffic from"
+                } else {
+                    "block"
+                },
             );
         }
         BlockRule::WireGuard {

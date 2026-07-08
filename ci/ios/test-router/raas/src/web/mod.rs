@@ -1,8 +1,8 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{
-    routing::{delete, get, post, put},
     Router,
+    routing::{delete, get, post, put},
 };
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
