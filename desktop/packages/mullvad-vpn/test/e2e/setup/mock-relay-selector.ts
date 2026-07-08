@@ -237,7 +237,7 @@ export function getRelayPartitions(
 
       return {
         ...partitions,
-        matches: [...partitions.matches, { hostname }],
+        matches: [...partitions.matches, { hostname, needsOtherEntry: false }],
       };
     },
     {

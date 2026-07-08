@@ -7,6 +7,7 @@ import {
   RelaySelectorPredicateGeneralConstraints,
   RelaySelectorPredicateMultihopConstraints,
   RelaySelectorProvider,
+  RelaySelectorRelay,
   RelaySelectorRelayDiscard,
   RelaySelectorRelayDiscardWhy,
   RelaySelectorRelayMatch,
@@ -126,21 +127,26 @@ export function convertToRelaySelectorPredicate({
 }
 
 export function convertFromRelaySelectorRelay(
-  relayMatch: grpcTypesRelaySelector.Relay,
-): RelaySelectorRelayMatch {
+  relay: grpcTypesRelaySelector.Relay,
+): RelaySelectorRelay {
   return {
-    hostname: relayMatch.getHostname(),
+    hostname: relay.getHostname(),
   };
 }
 
 export function convertFromRelaySelectorRelayMatch(
-  relayMatch: grpcTypesRelaySelector.Relay,
+  relayMatch: grpcTypesRelaySelector.MatchingRelay,
 ): RelaySelectorRelayMatch {
-  return convertFromRelaySelectorRelay(relayMatch);
+  const relay = relayMatch.getRelay();
+  const metadata = relayMatch.getMetadata();
+  return {
+    hostname: relay?.getHostname() ?? '',
+    needsOtherEntry: metadata?.getNeedsOtherEntry() ?? false,
+  };
 }
 
 export function convertFromRelaySelectorRelayMatchesList(
-  relayMatchesList: grpcTypesRelaySelector.Relay[],
+  relayMatchesList: grpcTypesRelaySelector.MatchingRelay[],
 ): RelaySelectorRelayMatch[] {
   return relayMatchesList.map((relayMatch) => convertFromRelaySelectorRelayMatch(relayMatch));
 }
