@@ -3,5 +3,5 @@ import { IRelayLocationRelayRedux } from '../../../redux/settings/reducers';
 
 export function getRelayLocationsFilteredMatchesFilter(relayMatches: RelaySelectorRelayMatch[]) {
   return (relay: IRelayLocationRelayRedux) =>
-    relayMatches.some(({ hostname }) => relay.hostname === hostname);
+    relayMatches.some(({ relay: { hostname } }) => relay.hostname === hostname);
 }

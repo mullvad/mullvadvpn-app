@@ -1,12 +1,14 @@
 import * as grpcTypesRelaySelector from 'management-interface/relay-selector/grpc-types';
 
 import {
+  RelaySelectorMetadata,
   RelaySelectorPartitions,
   RelaySelectorPredicate,
   RelaySelectorPredicateEntryConstraints,
   RelaySelectorPredicateGeneralConstraints,
   RelaySelectorPredicateMultihopConstraints,
   RelaySelectorProvider,
+  RelaySelectorRelay,
   RelaySelectorRelayDiscard,
   RelaySelectorRelayDiscardWhy,
   RelaySelectorRelayMatch,
@@ -126,23 +128,45 @@ export function convertToRelaySelectorPredicate({
 }
 
 export function convertFromRelaySelectorRelay(
-  relayMatch: grpcTypesRelaySelector.Relay,
-): RelaySelectorRelayMatch {
+  relay: grpcTypesRelaySelector.Relay,
+): RelaySelectorRelay {
   return {
-    hostname: relayMatch.getHostname(),
+    hostname: relay.getHostname(),
+  };
+}
+
+export function convertFromRelaySelectorMetadata(
+  metadata: grpcTypesRelaySelector.Metadata,
+): RelaySelectorMetadata {
+  return {
+    needsOtherEntry: metadata.getNeedsOtherEntry(),
   };
 }
 
 export function convertFromRelaySelectorRelayMatch(
-  relayMatch: grpcTypesRelaySelector.Relay,
-): RelaySelectorRelayMatch {
-  return convertFromRelaySelectorRelay(relayMatch);
+  relayMatch: grpcTypesRelaySelector.MatchingRelay,
+): RelaySelectorRelayMatch | null {
+  const relayMatchRelay = relayMatch.getRelay();
+  const relayMatchMetadata = relayMatch.getMetadata();
+  if (relayMatchRelay && relayMatchMetadata) {
+    const relay = convertFromRelaySelectorRelay(relayMatchRelay);
+    const metadata = convertFromRelaySelectorMetadata(relayMatchMetadata);
+
+    return {
+      relay,
+      metadata,
+    };
+  }
+
+  return null;
 }
 
 export function convertFromRelaySelectorRelayMatchesList(
-  relayMatchesList: grpcTypesRelaySelector.Relay[],
+  relayMatchesList: grpcTypesRelaySelector.MatchingRelay[],
 ): RelaySelectorRelayMatch[] {
-  return relayMatchesList.map((relayMatch) => convertFromRelaySelectorRelayMatch(relayMatch));
+  return relayMatchesList
+    .map((relayMatch) => convertFromRelaySelectorRelayMatch(relayMatch))
+    .filter((v) => v !== null);
 }
 
 export function convertFromRelaySelectorDiscardWhy(
