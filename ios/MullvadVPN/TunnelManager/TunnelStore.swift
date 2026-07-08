@@ -51,7 +51,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
         return persistentTunnels
     }
     
-    private func setPersistentTunnelsFromManagers(_ managers: [NETunnelProviderManager]) {
+    private func setPersistentTunnelsFromManagers(_ managers: [TunnelProviderManagerType]) {
         self.lock.lock()
         defer {
             self.lock.unlock()
