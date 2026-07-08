@@ -148,17 +148,9 @@ impl __Settings {
             .get_mut("normal")
     }
 
-    /// A lens to the current wireguard constraints in the existing settings blob.
-    ///
-    /// This can safely be cast to [`WireguardConstraints`]
-    pub fn wireguard_constraints(settings: &mut Value) -> Option<&mut Value> {
-        // relay_settings -> normal -> wireguard_constraints
-        Self::relay_settings(settings)?.get_mut("wireguard_constraints")
-    }
-
     /// A lens to the current wireguard / tunnel settings in the existing settings blob.
     ///
-    /// This can safely be cast to [`WireguardSettings`]
+    /// This can safely be cast to [`__WireguardSettings`]
     pub fn wireguard_settings(settings: &mut Value) -> &mut Value {
         // tunnel_options -> wireguard -> daita
         settings

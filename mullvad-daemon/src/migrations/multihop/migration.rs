@@ -66,7 +66,7 @@ pub(crate) fn migrate(settings: &mut Value, scenario: Scenario) {
 
 /// Detect which scenario we are dealing with based on the previous settings.
 ///
-/// See [scenario].
+/// See [crate::migrations::multihop::scenario].
 pub(crate) fn detect(settings: &v17::__Settings) -> Scenario {
     use Scenario::*;
     let (multihop, daita, direct_only, magic_multihop, filters) = (
