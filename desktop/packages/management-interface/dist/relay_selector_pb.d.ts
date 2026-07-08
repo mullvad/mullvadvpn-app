@@ -162,9 +162,9 @@ export namespace MultiHopConstraints {
 
 export class RelayPartitions extends jspb.Message { 
     clearMatchesList(): void;
-    getMatchesList(): Array<Relay>;
-    setMatchesList(value: Array<Relay>): RelayPartitions;
-    addMatches(value?: Relay, index?: number): Relay;
+    getMatchesList(): Array<MatchingRelay>;
+    setMatchesList(value: Array<MatchingRelay>): RelayPartitions;
+    addMatches(value?: MatchingRelay, index?: number): MatchingRelay;
     clearDiscardsList(): void;
     getDiscardsList(): Array<DiscardedRelay>;
     setDiscardsList(value: Array<DiscardedRelay>): RelayPartitions;
@@ -182,7 +182,7 @@ export class RelayPartitions extends jspb.Message {
 
 export namespace RelayPartitions {
     export type AsObject = {
-        matchesList: Array<Relay.AsObject>,
+        matchesList: Array<MatchingRelay.AsObject>,
         discardsList: Array<DiscardedRelay.AsObject>,
     }
 }
@@ -190,11 +190,6 @@ export namespace RelayPartitions {
 export class Relay extends jspb.Message { 
     getHostname(): string;
     setHostname(value: string): Relay;
-
-    hasMetadata(): boolean;
-    clearMetadata(): void;
-    getMetadata(): Relay.Metadata | undefined;
-    setMetadata(value?: Relay.Metadata): Relay;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Relay.AsObject;
@@ -209,30 +204,56 @@ export class Relay extends jspb.Message {
 export namespace Relay {
     export type AsObject = {
         hostname: string,
-        metadata?: Relay.Metadata.AsObject,
     }
+}
 
+export class MatchingRelay extends jspb.Message { 
 
-    export class Metadata extends jspb.Message { 
-        getNeedsOtherEntry(): boolean;
-        setNeedsOtherEntry(value: boolean): Metadata;
+    hasRelay(): boolean;
+    clearRelay(): void;
+    getRelay(): Relay | undefined;
+    setRelay(value?: Relay): MatchingRelay;
 
-        serializeBinary(): Uint8Array;
-        toObject(includeInstance?: boolean): Metadata.AsObject;
-        static toObject(includeInstance: boolean, msg: Metadata): Metadata.AsObject;
-        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-        static serializeBinaryToWriter(message: Metadata, writer: jspb.BinaryWriter): void;
-        static deserializeBinary(bytes: Uint8Array): Metadata;
-        static deserializeBinaryFromReader(message: Metadata, reader: jspb.BinaryReader): Metadata;
+    hasMetadata(): boolean;
+    clearMetadata(): void;
+    getMetadata(): Metadata | undefined;
+    setMetadata(value?: Metadata): MatchingRelay;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): MatchingRelay.AsObject;
+    static toObject(includeInstance: boolean, msg: MatchingRelay): MatchingRelay.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: MatchingRelay, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): MatchingRelay;
+    static deserializeBinaryFromReader(message: MatchingRelay, reader: jspb.BinaryReader): MatchingRelay;
+}
+
+export namespace MatchingRelay {
+    export type AsObject = {
+        relay?: Relay.AsObject,
+        metadata?: Metadata.AsObject,
     }
+}
 
-    export namespace Metadata {
-        export type AsObject = {
-            needsOtherEntry: boolean,
-        }
+export class Metadata extends jspb.Message { 
+    getNeedsOtherEntry(): boolean;
+    setNeedsOtherEntry(value: boolean): Metadata;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): Metadata.AsObject;
+    static toObject(includeInstance: boolean, msg: Metadata): Metadata.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: Metadata, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): Metadata;
+    static deserializeBinaryFromReader(message: Metadata, reader: jspb.BinaryReader): Metadata;
+}
+
+export namespace Metadata {
+    export type AsObject = {
+        needsOtherEntry: boolean,
     }
-
 }
 
 export class DiscardedRelay extends jspb.Message { 
