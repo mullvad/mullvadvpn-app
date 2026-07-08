@@ -44,6 +44,11 @@ pub static RETRY_ORDER: LazyLock<Vec<EntrySpecificConstraints>> = LazyLock::new(
     ]
 });
 
+/// A [RelaySelector] instance backed by a relay list on-disk.
+///
+/// The queries run against this relay selector is automatically derived from the mullvad-daemon settings.
+/// This underpins the [RETRY_ORDER] mechanism where different queries may be run for consecutive
+/// connection attempts. See [Config] for details.
 #[derive(Clone)]
 pub struct RelaySelectorIO {
     inner: RelaySelector,
@@ -59,6 +64,18 @@ impl Deref for RelaySelectorIO {
 }
 
 impl RelaySelectorIO {
+    /// Create a new [RelaySelectorIO] with an empty relay list.
+    pub fn new(custom_lists: CustomListsSettings) -> Self {
+        let inner = {
+            let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
+                Default::default();
+            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
+        };
+        let config = Config::from(custom_lists);
+        RelaySelectorIO { inner, config }
+    }
+
+    /// Try to initialize [RelaySelectorIO] from cached relay list.
     pub fn load(
         custom_lists: CustomListsSettings,
         cache_dir: impl AsRef<Path>,
@@ -86,68 +103,6 @@ impl RelaySelectorIO {
             .unwrap_or_else(|_| Self::new(custom_lists))
     }
 
-    /// Create a new [RelaySelectorIO] with an empty relay list.
-    pub fn new(custom_lists: CustomListsSettings) -> Self {
-        let inner = {
-            let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
-                Default::default();
-            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
-        };
-        let config = Config::from(custom_lists);
-        RelaySelectorIO { inner, config }
-    }
-}
-
-/// Relay selector configuration. This datastructure keeps the relay selector in sync with
-/// mullvad-daemon.
-///
-/// Carries the pre-computed [`RelayQuery`] derived from the user's settings together with the
-/// custom lists needed for location filtering. When the user has configured a custom tunnel
-/// endpoint the relay selector is never queried, so a dormant default config is used.
-#[derive(Debug, Clone, Default)]
-pub struct Config {
-    query: Arc<Mutex<RelayQuery>>,
-    custom_lists: Arc<Mutex<CustomListsSettings>>,
-}
-
-impl Config {
-    fn custom_lists(&self) -> CustomListsSettings {
-        self.custom_lists.lock().unwrap().clone()
-    }
-}
-
-impl From<CustomListsSettings> for Config {
-    fn from(custom_lists: CustomListsSettings) -> Self {
-        Self {
-            query: Default::default(),
-            custom_lists: Arc::new(Mutex::new(custom_lists)),
-        }
-    }
-}
-
-impl From<Settings> for Config {
-    fn from(settings: Settings) -> Self {
-        let custom_lists = Arc::new(Mutex::new(settings.custom_lists.clone()));
-        let query = Arc::new(Mutex::new(RelayQuery::from(settings)));
-        Self {
-            query,
-            custom_lists,
-        }
-    }
-}
-
-impl From<RelayQuery> for Config {
-    fn from(query: RelayQuery) -> Self {
-        let query = Arc::new(Mutex::new(query));
-        let custom_lists = Arc::new(Mutex::new(CustomListsSettings::default()));
-        Config {
-            query,
-            custom_lists,
-        }
-    }
-}
-
-impl RelaySelectorIO {
     pub fn from_settings(
         settings: Settings,
         relays: RelayList,
@@ -210,6 +165,55 @@ impl RelaySelectorIO {
             // If no retry merged with `user_query` yields a relay, fall back to the user's
             // preferences alone.
             None => self.get_relay_by_query(user_query),
+        }
+    }
+}
+
+/// Relay selector configuration. This datastructure keeps the relay selector in sync with
+/// mullvad-daemon.
+///
+/// Carries the pre-computed [`RelayQuery`] derived from the user's settings together with the
+/// custom lists needed for location filtering. When the user has configured a custom tunnel
+/// endpoint the relay selector is never queried, so a dormant default config is used.
+#[derive(Debug, Clone, Default)]
+pub struct Config {
+    query: Arc<Mutex<RelayQuery>>,
+    custom_lists: Arc<Mutex<CustomListsSettings>>,
+}
+
+impl Config {
+    fn custom_lists(&self) -> CustomListsSettings {
+        self.custom_lists.lock().unwrap().clone()
+    }
+}
+
+impl From<CustomListsSettings> for Config {
+    fn from(custom_lists: CustomListsSettings) -> Self {
+        Self {
+            query: Default::default(),
+            custom_lists: Arc::new(Mutex::new(custom_lists)),
+        }
+    }
+}
+
+impl From<Settings> for Config {
+    fn from(settings: Settings) -> Self {
+        let custom_lists = Arc::new(Mutex::new(settings.custom_lists.clone()));
+        let query = Arc::new(Mutex::new(RelayQuery::from(settings)));
+        Self {
+            query,
+            custom_lists,
+        }
+    }
+}
+
+impl From<RelayQuery> for Config {
+    fn from(query: RelayQuery) -> Self {
+        let query = Arc::new(Mutex::new(query));
+        let custom_lists = Arc::new(Mutex::new(CustomListsSettings::default()));
+        Config {
+            query,
+            custom_lists,
         }
     }
 }
