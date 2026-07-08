@@ -19,6 +19,33 @@ use std::{
     time::Duration,
 };
 
+/// Deserialize a `Vec<T>` from a JSON sequence, skipping any individual entries that fail to parse.
+///
+/// This is intended to be used with `#[serde(deserialize_with = "...")]` on fields holding
+/// lists of relay entries so that malformed relays do not corrupt the entire relay list.
+fn deserialize_valid_entries<'de, T, D>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+    T: serde::Deserialize<'de> + core::any::Any,
+{
+    // Deserialize as generic JSON values first so that one bad item does not abort the whole sequence.
+    let raw_values = Vec::<serde_json::Value>::deserialize(deserializer)?;
+
+    let mut result = Vec::with_capacity(raw_values.len());
+    for value in raw_values {
+        match T::deserialize(value) {
+            Ok(entry) => result.push(entry),
+            Err(err) => {
+                log::error!(
+                    "Discarding malformed relay list entry of type '{}'.\nError: {err}",
+                    std::any::type_name::<T>()
+                );
+            }
+        }
+    }
+    Ok(result)
+}
+
 /// Fetches relay list from <https://api.mullvad.net/app/v1/relays>
 #[derive(Clone)]
 pub struct RelayListProxy {
@@ -292,6 +319,7 @@ struct Wireguard {
     /// Shadowsocks port ranges available on all WireGuard relays
     #[serde(default)]
     shadowsocks_port_ranges: Vec<(u16, u16)>,
+    #[serde(deserialize_with = "deserialize_valid_entries")]
     relays: Vec<WireGuardRelay>,
 }
 
@@ -464,6 +492,7 @@ struct Lwo {}
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
     /// The physical bridge servers and generic connnection details.
+    #[serde(deserialize_with = "deserialize_valid_entries")]
     relays: Vec<Relay>,
 }
 
@@ -506,5 +535,146 @@ impl Bridges {
                 shadowsocks: self.shadowsocks,
             },
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Verify that a malformed entry in `wireguard.relays` is skipped and does not abort
+    /// deserialization of the remaining valid entries.
+    #[test]
+    fn malformed_wireguard_relay_is_skipped() {
+        // One valid entry and one missing the mandatory `public_key` field.
+        let json = r#"{
+            "locations": {},
+            "wireguard": {
+                "port_ranges": [[53,53]],
+                "ipv4_gateway": "10.64.0.1",
+                "ipv6_gateway": "fc00:bbbb::1",
+                "relays": [
+                    {
+                        "hostname": "se-got-test-001",
+                        "active": true,
+                        "owned": true,
+                        "location": "se-got",
+                        "provider": "provider",
+                        "ipv4_addr_in": "1.2.3.4",
+                        "ipv6_addr_in": "::1",
+                        "weight": 1,
+                        "include_in_country": true,
+                        "public_key": "ylcRkwdcalOkZEf+v+jz2qBbw22X0v+wZdPmoa6w+FI="
+                    },
+                    {
+                        "hostname": "se-got-broken-002"
+                    }
+                ]
+            },
+            "bridge": {
+                "shadowsocks": [],
+                "relays": []
+            }
+        }"#;
+
+        let list: ServerRelayList = serde_json::from_str(json).unwrap();
+        assert_eq!(list.wireguard.relays.len(), 1);
+        assert_eq!(list.wireguard.relays[0].relay.hostname, "se-got-test-001");
+    }
+
+    /// Verify that a malformed entry in `bridge.relays` is skipped and does not abort
+    /// deserialization of the remaining valid entries.
+    #[test]
+    fn malformed_bridge_relay_is_skipped() {
+        // One valid bridge entry and one missing the mandatory `ipv4_addr_in` field.
+        let json = r#"{
+            "locations": {},
+            "wireguard": {
+                "port_ranges": [],
+                "ipv4_gateway": "10.64.0.1",
+                "ipv6_gateway": "fc00:bbbb::1",
+                "relays": []
+            },
+            "bridge": {
+                "shadowsocks": [],
+                "relays": [
+                    {
+                        "hostname": "us-nyc-bridge-001",
+                        "active": true,
+                        "owned": true,
+                        "location": "us-nyc",
+                        "provider": "provider",
+                        "ipv4_addr_in": "2.3.4.5",
+                        "ipv6_addr_in": "::1",
+                        "weight": 1,
+                        "include_in_country": true
+                    },
+                    {
+                        "hostname": "us-nyc-broken-002",
+                        "active": false
+                    }
+                ]
+            }
+        }"#;
+
+        let list: ServerRelayList = serde_json::from_str(json).unwrap();
+        assert_eq!(list.bridge.relays.len(), 1);
+        assert_eq!(list.bridge.relays[0].hostname, "us-nyc-bridge-001");
+    }
+
+    /// Verify that a completely valid relay list deserializes normally.
+    #[test]
+    fn fully_valid_relay_list_deserializes() {
+        let json = r#"{
+            "locations": {},
+            "wireguard": {
+                "port_ranges": [[53,53]],
+                "ipv4_gateway": "10.64.0.1",
+                "ipv6_gateway": "fc00:bbbb::1",
+                "relays": [
+                    {
+                        "hostname": "se-got-001",
+                        "active": true,
+                        "owned": true,
+                        "location": "se-got",
+                        "provider": "provider",
+                        "ipv4_addr_in": "1.2.3.4",
+                        "weight": 1,
+                        "include_in_country": true,
+                        "public_key": "ylcRkwdcalOkZEf+v+jz2qBbw22X0v+wZdPmoa6w+FI="
+                    },
+                    {
+                        "hostname": "us-nyc-001",
+                        "active": true,
+                        "owned": true,
+                        "location": "us-nyc",
+                        "provider": "provider",
+                        "ipv4_addr_in": "2.3.4.5",
+                        "weight": 1,
+                        "include_in_country": true,
+                        "public_key": "ylcRkwdcalOkZEf+v+jz2qBbw22X0v+wZdPmoa6w+FI="
+                    }
+                ]
+            },
+            "bridge": {
+                "shadowsocks": [],
+                "relays": [
+                    {
+                        "hostname": "br1",
+                        "active": true,
+                        "owned": true,
+                        "location": "us-nyc",
+                        "provider": "provider",
+                        "ipv4_addr_in": "3.4.5.6",
+                        "weight": 1,
+                        "include_in_country": true
+                    }
+                ]
+            }
+        }"#;
+
+        let list: ServerRelayList = serde_json::from_str(json).unwrap();
+        assert_eq!(list.wireguard.relays.len(), 2);
+        assert_eq!(list.bridge.relays.len(), 1);
     }
 }
