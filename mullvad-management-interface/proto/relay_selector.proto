@@ -94,7 +94,7 @@ message Relay {
   string hostname = 1;
 }
 
-// A relay that matched a given predicate, wit
+// A relay that matched a given predicate, with extra metadata.
 message MatchingRelay {
   // Relay that was accepted.
   Relay relay = 1;
