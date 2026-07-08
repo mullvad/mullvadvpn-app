@@ -1140,12 +1140,26 @@ mod partition_relays {
         let exit_constraints = [
             ExitConstraints::default().ownership(Ownership::MullvadOwned),
             ExitConstraints::default().ownership(Ownership::Rented),
-            ExitConstraints::default().providers(Providers::new(["100TB"]).unwrap()),
-            ExitConstraints::default().providers(Providers::new(["100TB", "31173"]).unwrap()),
+            ExitConstraints::default().providers(Providers::new(["ProviderA"]).unwrap()),
             ExitConstraints::default()
-                .providers(Providers::new(["31173"]).unwrap())
+                .providers(Providers::new(["ProviderA", "ProviderB"]).unwrap()),
+            ExitConstraints::default()
+                .providers(Providers::new(["ProviderB"]).unwrap())
                 .ownership(Ownership::MullvadOwned),
         ];
+
+        let mut relay_list = RelayListBuilder::new();
+        // Two MullvadOwned + ProviderB relays.
+        relay_list.add_relay("owned-providerb-1").provider = "ProviderB".into();
+        relay_list.add_relay("owned-providerb-2").provider = "ProviderB".into();
+        // Two Rented + ProviderA relays.
+        let r1 = relay_list.add_relay("rented-providera-1");
+        r1.owned = false;
+        r1.provider = "ProviderA".into();
+        let r2 = relay_list.add_relay("rented-providera-2");
+        r2.owned = false;
+        r2.provider = "ProviderA".into();
+        let relay_selector = RelaySelector::from(relay_list);
 
         // Test all combinations of entry and exit constraints.
         for (entry_general, exit_constraints) in exit_constraints
@@ -1171,7 +1185,7 @@ mod partition_relays {
                     | Predicate::Entry(MultihopConstraints { entry, .. }) => &entry.general,
                 };
 
-                let relays = relay_selector().partition_relays(scenario.clone());
+                let relays = relay_selector.partition_relays(scenario.clone());
                 assert!(!relays.matches.is_empty());
 
                 for relay in &relays.matches {
