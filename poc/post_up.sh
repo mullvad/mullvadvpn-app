@@ -10,7 +10,7 @@ sudo sysctl -w net.inet.ip.forwarding=1
 read -e -i "utun4" -p "Interface name: " IFACE
 
 echo "Bringing $IFACE up, requires sudo"
-sudo ifconfig "$IFACE" 10.0.0.1 10.0.0.2 up
+sudo ifconfig "$IFACE" 10.0.0.1 up
 
 # Derive local subnet from wireless interface
 WIRELESS_IP=$(ifconfig -f address:cidr en0 inet | awk '/inet/{print $2}')
