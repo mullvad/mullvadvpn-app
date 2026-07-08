@@ -1,12 +1,12 @@
-use crate::{
-    DaemonCommand, DaemonCommandSender, account_history, device,
-    relay_selector::{RelaySelectorIO, grpc_service::RelaySelectorServer},
-};
+use crate::{DaemonCommand, DaemonCommandSender, account_history, device};
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{StatusCode, rest::Error as RestError};
+use mullvad_daemon_relay_selector::relay_selector::{
+    RelaySelectorIO, grpc_service::RelaySelectorServer,
+};
 use mullvad_management_interface::types::FromProtobufTypeError;
 use mullvad_management_interface::{
     Code, Request, Response, ServerJoinHandle, Status,
