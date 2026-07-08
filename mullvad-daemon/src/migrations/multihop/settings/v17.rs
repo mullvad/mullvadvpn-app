@@ -4,8 +4,8 @@ use crate::migrations::multihop::settings::{
     __AllowedIps, __Constraint, __CustomListsSettings, __GeographicLocationConstraint, __IpVersion,
     __LocationConstraint, __Ownership, __Providers,
 };
-use crate::relay_selector::RelaySelectorIO;
 
+use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_relay_selector::query::{Hops, RelayQuery};
 use mullvad_relay_selector::{GetRelay, WireguardConfig};

@@ -1,18 +1,16 @@
 //! Relay list updater
 
-pub mod error;
-pub(crate) mod parsed_relays;
-
-use error::Error;
-use mullvad_types::relay_constraints::RelayOverride;
-
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use futures::channel::mpsc;
 use futures::future::{Fuse, FusedFuture};
 use futures::{Future, FutureExt, SinkExt, StreamExt};
+use mullvad_types::relay_constraints::RelayOverride;
 use tokio::fs::File;
+
+use super::RELAYS_FILENAME;
+use super::error::Error;
 
 use mullvad_api::{
     CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
@@ -33,9 +31,6 @@ const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
 const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
     ExponentialBackoff::new(Duration::from_secs(16), 8).max_delay(Some(Duration::from_hours(2))),
 );
-
-/// Where the relay list is cached on disk.
-const RELAYS_FILENAME: &str = "relays.json";
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
@@ -74,7 +69,7 @@ impl RelayListUpdaterHandle {
     }
 }
 
-pub(crate) struct RelayListUpdater {
+pub struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,

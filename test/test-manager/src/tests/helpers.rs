@@ -763,11 +763,12 @@ pub async fn get_all_pickable_relays(
 ) -> anyhow::Result<Vec<WireguardRelay>> {
     let settings = mullvad_client.get_settings().await?;
     let relay_list = mullvad_client.get_relay_locations().await?;
-    let relay_selector = mullvad_daemon::relay_selector::RelaySelectorIO::from_settings(
-        settings.clone(),
-        relay_list,
-        BridgeList::default(),
-    );
+    let relay_selector =
+        mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO::from_settings(
+            settings.clone(),
+            relay_list,
+            BridgeList::default(),
+        );
 
     let query = RelayQuery::from(settings);
     let predicate = match query.hops {
@@ -820,8 +821,8 @@ pub fn get_daemon_relay_selector(
     settings: mullvad_types::settings::Settings,
     relay_list: mullvad_types::relay_list::RelayList,
     bridge_list: mullvad_types::relay_list::BridgeList,
-) -> mullvad_daemon::relay_selector::RelaySelectorIO {
-    mullvad_daemon::relay_selector::RelaySelectorIO::from_settings(
+) -> mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO {
+    mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO::from_settings(
         settings,
         relay_list,
         bridge_list,

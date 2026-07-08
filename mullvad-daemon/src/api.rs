@@ -4,7 +4,6 @@ use std::net::SocketAddr;
 use crate::DaemonCommand;
 #[cfg(target_os = "android")]
 use crate::DaemonEventSender;
-use crate::relay_selector::RelaySelectorIO;
 use futures::{StreamExt, channel::mpsc};
 use mullvad_api::AddressCache;
 use mullvad_api::FileAddressCacheBacking;
@@ -13,6 +12,7 @@ use mullvad_api::{
     availability::ApiAvailability,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
+use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_management_interface::async_trait;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
