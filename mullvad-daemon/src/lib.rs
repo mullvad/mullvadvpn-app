@@ -19,8 +19,6 @@ pub mod logging;
 mod macos;
 pub mod management_interface;
 mod migrations;
-mod relay_list;
-pub mod relay_selector;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
@@ -30,10 +28,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::{
-    relay_list::parsed_relays::parse_relays_from_file, relay_selector::RelaySelectorIO,
-    target_state::PersistentTargetState,
-};
+use crate::target_state::PersistentTargetState;
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
@@ -46,6 +41,13 @@ use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
 use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
+};
+use mullvad_daemon_relay_selector::{
+    relay_list::{
+        parsed_relays::parse_relays_from_file,
+        update::{RelayListUpdater, RelayListUpdaterHandle},
+    },
+    relay_selector::RelaySelectorIO,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 #[cfg(target_os = "android")]
@@ -78,7 +80,6 @@ use mullvad_types::{
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::rollout::Rollout;
-use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
