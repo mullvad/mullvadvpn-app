@@ -8,7 +8,7 @@ import {
 } from './daemon-rpc-types';
 
 export type RelaySelectorRelayDiscard = {
-  relay: RelaySelectorRelayMatch;
+  relay: RelaySelectorRelay;
   why: RelaySelectorRelayDiscardWhy;
 };
 
@@ -38,7 +38,9 @@ export type RelaySelectorRelay = {
   hostname: string;
 };
 
-export type RelaySelectorRelayMatch = RelaySelectorRelay;
+export type RelaySelectorRelayMatch = RelaySelectorRelay & {
+  needsOtherEntry: boolean;
+};
 
 export type RelaySelectorPartitions = {
   matches: RelaySelectorRelayMatch[];
