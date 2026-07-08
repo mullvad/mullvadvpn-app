@@ -174,8 +174,7 @@ pub struct WireguardRelay {
     pub owned: bool,
     pub provider: String,
     pub endpoint_data: WireguardRelayEndpointData,
-    /// This relay can be used with "Multihop: when needed"/
-    /// [mullvad_relay_selector::relay_selector::query::Hops::Auto],
+    /// This relay can be used with "Multihop: when needed" (i.e., `Hops::Auto`),
     /// given that it is used as an exit relay with an automatically
     /// chosen entry.
     pub needs_other_entry: bool,
