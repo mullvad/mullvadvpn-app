@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.test.e2e.api.connectioncheck.ConnectionCheckApi
 import net.mullvad.mullvadvpn.test.e2e.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
+import net.mullvad.mullvadvpn.test.e2e.misc.LocalNetworkPermission
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -48,6 +49,10 @@ class ConnectionTest : EndToEndTest() {
     @RegisterExtension
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
+
+    // Required on Android 17+ to allow access to the RASS router API.
+    // It does not use the GrantPermissionExtension due to a crash.
+    @RegisterExtension @JvmField val localNetworkPermission = LocalNetworkPermission()
 
     private val connCheckClient = ConnectionCheckApi()
     private val relayClient = RelayApi()
@@ -190,6 +195,7 @@ class ConnectionTest : EndToEndTest() {
         }
 
     @Test
+    @Disabled("Disabled due to daita auto being removed")
     fun testDaita() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)

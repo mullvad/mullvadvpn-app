@@ -14,7 +14,9 @@ annotation class ClearFirewallRules {
         val firewallClient = FirewallClient()
 
         override fun beforeTestExecution(context: ExtensionContext?) {
-            runBlocking { firewallClient.removeAllRules() }
+            runBlocking {
+                firewallClient.removeAllRules()
+            }
         }
 
         override fun afterTestExecution(context: ExtensionContext?) {

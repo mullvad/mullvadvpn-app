@@ -4,6 +4,7 @@
                      tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
                      tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Permission for 30 and below -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
                      tools:ignore="ScopedStorage" />
