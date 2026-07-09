@@ -119,3 +119,105 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         }
     }
 }
+
+final class StartTunnelTask: @unchecked Sendable, AsyncExecutable {
+    private let interactor: TunnelInteractor
+    private let logger = Logger(label: "StartTunnelTask")
+
+    init(interactor: TunnelInteractor) {
+        self.interactor = interactor
+    }
+
+    func execute() async throws {
+        try Task.checkCancellation()
+
+        guard case .loggedIn = interactor.deviceState else {
+            throw InvalidDeviceStateError()
+        }
+
+        switch interactor.tunnelStatus.state {
+        case .disconnecting(.nothing):
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .disconnecting(.reconnect)
+            }
+
+        case .disconnected, .pendingReconnect, .waitingForConnectivity:
+            let tunnel = try await makeTunnelProvider()
+
+            try Task.checkCancellation()
+            try startTunnel(tunnel: tunnel)
+
+        default:
+            break
+        }
+    }
+
+    private func makeTunnelProvider() async throws -> any TunnelProtocol {
+        let persistentTunnels = interactor.getPersistentTunnels()
+        let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
+
+        let configuration = TunnelConfiguration(
+            includeAllNetworks: interactor.settings
+                .includeAllNetworks
+                .includeAllNetworksIsEnabled,
+            excludeLocalNetworks: interactor.settings
+                .includeAllNetworks
+                .localNetworkSharingIsEnabled
+        )
+
+        tunnel.setConfiguration(configuration)
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            tunnel.saveToPreferences { error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else {
+                    continuation.resume()
+                }
+            }
+        }
+
+        return tunnel
+    }
+
+    private func startTunnel(
+        tunnel: any TunnelProtocol
+    ) throws {
+        let selectedRelays = try? interactor.selectRelays()
+        var tunnelOptions = PacketTunnelOptions()
+
+        do {
+            if let selectedRelays {
+                try tunnelOptions.setSelectedRelays(selectedRelays)
+            }
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to encode the selector result."
+            )
+        }
+
+        interactor.setTunnel(
+            tunnel,
+            shouldRefreshTunnelState: false
+        )
+
+        interactor.updateTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state = .connecting(
+                selectedRelays,
+                isPostQuantum: interactor.settings
+                    .tunnelQuantumResistance
+                    .isEnabled,
+                isDaita: interactor.settings
+                    .daita
+                    .isEnabled
+            )
+        }
+
+        try tunnel.start(
+            options: tunnelOptions.rawOptions()
+        )
+    }
+}

@@ -223,38 +223,39 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(loadTunnelOperation)
     }
 
-    func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let operation = StartTunnelOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            completionHandler: { [weak self] result in
-                guard let self else { return }
-                if let error = result.error {
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to start the tunnel."
+    private let tunnelSerialExecutor = AsyncSerialExecutor()
+    func startTunnel() async {
+        do {
+            try await tunnelSerialExecutor.run {
+                try await withBackgroundTask(
+                    backgroundTaskProvider: self.backgroundTaskProvider,
+                    name: "Start tunnel",
+                    cancelUponExpiration: true
+                ) {
+                    let task = StartTunnelTask(
+                        interactor: TunnelInteractorProxy(self)
                     )
 
-                    let tunnelError = StartTunnelError(underlyingError: error)
-
-                    self.observerList.notify { observer in
-                        observer.tunnelManager(self, didFailWithError: tunnelError)
-                    }
+                    try await task.execute()
                 }
-
-                completionHandler?(result.error)
             }
-        )
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to start the tunnel."
+            )
 
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Start tunnel",
-                cancelUponExpiration: true
-            ))
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
+            let tunnelError = StartTunnelError(
+                underlyingError: error
+            )
 
-        operationQueue.addOperation(operation)
+            observerList.notify { observer in
+                observer.tunnelManager(
+                    self,
+                    didFailWithError: tunnelError
+                )
+            }
+        }
     }
 
     func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
@@ -357,7 +358,9 @@ final class TunnelManager: @unchecked Sendable {
                             self.removeObserver(observer)
                             self.observer = nil
                         }
-                        self.startTunnel()
+                        Task {
+                            await self.startTunnel()
+                        }
                     }
                 }
             )
@@ -1024,8 +1027,9 @@ final class TunnelManager: @unchecked Sendable {
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .pendingReconnect
             }
-            startTunnel()
-
+            Task {
+                await startTunnel()
+            }
         default:
             setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
         }
@@ -1462,7 +1466,9 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     func startTunnel() {
-        tunnelManager.startTunnel()
+        Task {
+            await tunnelManager.startTunnel()
+        }
     }
 
     func prepareForVPNConfigurationDeletion() {

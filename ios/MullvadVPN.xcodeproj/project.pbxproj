@@ -997,6 +997,7 @@
 		F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */; };
 		F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01DAE322C2B032A00521E46 /* RelaySelection.swift */; };
 		F01FE62A2FDBFD550008E85C /* DynamicImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01FE6292FDBFD4E0008E85C /* DynamicImageView.swift */; };
+		F0203ED82FFFA90F00CD0B4E /* AsyncSerialExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0203ED72FFFA90C00CD0B4E /* AsyncSerialExecutor.swift */; };
 		F022EBA62CF0C6AE009484B9 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
 		F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */; };
@@ -1072,6 +1073,9 @@
 		F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919782C45402E00C301F3 /* SingleHopEphemeralPeerExchanger.swift */; };
 		F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05919762C453FAF00C301F3 /* EphemeralPeerExchangingPipeline.swift */; };
 		F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F059197C2C454C9200C301F3 /* MultiHopEphemeralPeerExchanger.swift */; };
+		F08EC36F2FFFA2E2009B43E8 /* AsyncTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08EC36E2FFFA2DF009B43E8 /* AsyncTaskObserver.swift */; };
+		F08EC3712FFFA523009B43E8 /* AsyncTaskBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08EC3702FFFA522009B43E8 /* AsyncTaskBlockObserver.swift */; };
+		F08EC3732FFFA562009B43E8 /* BackgroundAsyncTaskObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F08EC3722FFFA560009B43E8 /* BackgroundAsyncTaskObserver.swift */; };
 		F09035B32FAB708D004635A3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F09035B22FAB708D004635A3 /* SystemConfiguration.framework */; };
 		F09035B52FAB724C004635A3 /* LogRedactorComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09035B42FAB724C004635A3 /* LogRedactorComparisonTests.swift */; };
 		F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */; };
@@ -2611,6 +2615,7 @@
 		F01765962E4A324F00262F54 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F01DAE322C2B032A00521E46 /* RelaySelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
 		F01FE6292FDBFD4E0008E85C /* DynamicImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicImageView.swift; sourceTree = "<group>"; };
+		F0203ED72FFFA90C00CD0B4E /* AsyncSerialExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncSerialExecutor.swift; sourceTree = "<group>"; };
 		F027E0982E4A325C00090D26 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
@@ -2678,6 +2683,9 @@
 		F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDeviceNotificationProvider.swift; sourceTree = "<group>"; };
 		F07F1BD42E4A361E003FB336 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		F08096FA2E4A325600D8B0CF /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F08EC36E2FFFA2DF009B43E8 /* AsyncTaskObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncTaskObserver.swift; sourceTree = "<group>"; };
+		F08EC3702FFFA522009B43E8 /* AsyncTaskBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncTaskBlockObserver.swift; sourceTree = "<group>"; };
+		F08EC3722FFFA560009B43E8 /* BackgroundAsyncTaskObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAsyncTaskObserver.swift; sourceTree = "<group>"; };
 		F09035B22FAB708D004635A3 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		F09035B42FAB724C004635A3 /* LogRedactorComparisonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorComparisonTests.swift; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
@@ -4351,6 +4359,7 @@
 			isa = PBXGroup;
 			children = (
 				F03901972FFCFFAB0029DD48 /* NewConcurrency */,
+				F08EC3702FFFA522009B43E8 /* AsyncTaskBlockObserver.swift */,
 				58D223A7294C8A490029F5F8 /* Operations.h */,
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
@@ -5001,6 +5010,9 @@
 		F03901972FFCFFAB0029DD48 /* NewConcurrency */ = {
 			isa = PBXGroup;
 			children = (
+				F08EC3722FFFA560009B43E8 /* BackgroundAsyncTaskObserver.swift */,
+				F0203ED72FFFA90C00CD0B4E /* AsyncSerialExecutor.swift */,
+				F08EC36E2FFFA2DF009B43E8 /* AsyncTaskObserver.swift */,
 				F039019A2FFD00110029DD48 /* OperationAdapter.swift */,
 				F03901982FFCFFBD0029DD48 /* AsyncExecutable.swift */,
 			);
@@ -7226,11 +7238,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				58D223B6294C8A630029F5F8 /* BlockCondition.swift in Sources */,
+				F0203ED82FFFA90F00CD0B4E /* AsyncSerialExecutor.swift in Sources */,
 				58D223BA294C8A630029F5F8 /* BackgroundObserver.swift in Sources */,
 				58D223AD294C8A630029F5F8 /* AsyncBlockOperation.swift in Sources */,
 				58D223AC294C8A630029F5F8 /* GroupOperation.swift in Sources */,
 				58D223BB294C8A630029F5F8 /* NoCancelledDependenciesCondition.swift in Sources */,
+				F08EC3712FFFA523009B43E8 /* AsyncTaskBlockObserver.swift in Sources */,
 				58D223B3294C8A630029F5F8 /* OperationObserver.swift in Sources */,
+				F08EC3732FFFA562009B43E8 /* BackgroundAsyncTaskObserver.swift in Sources */,
 				58D223B7294C8A630029F5F8 /* MutuallyExclusive.swift in Sources */,
 				7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */,
 				58D223B2294C8A630029F5F8 /* OperationError.swift in Sources */,
@@ -7238,6 +7253,7 @@
 				58D223B9294C8A630029F5F8 /* AsyncOperationQueue.swift in Sources */,
 				F039019B2FFD00120029DD48 /* OperationAdapter.swift in Sources */,
 				F03901992FFCFFD10029DD48 /* AsyncExecutable.swift in Sources */,
+				F08EC36F2FFFA2E2009B43E8 /* AsyncTaskObserver.swift in Sources */,
 				58D223B8294C8A630029F5F8 /* ResultOperation.swift in Sources */,
 				58D223AE294C8A630029F5F8 /* OutputOperation.swift in Sources */,
 				58D223BD294C8A630029F5F8 /* AsyncOperation.swift in Sources */,

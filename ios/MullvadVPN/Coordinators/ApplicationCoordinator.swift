@@ -1241,7 +1241,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             tunnelManager.reconnectTunnel(selectNewRelay: true)
 
         case .disconnecting, .disconnected:
-            tunnelManager.startTunnel()
+            Task {
+                await tunnelManager.startTunnel()
+            }
 
         case .pendingReconnect, .waitingForConnectivity(.noNetwork):
             break

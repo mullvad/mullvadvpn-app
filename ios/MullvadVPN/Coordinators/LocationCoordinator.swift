@@ -204,8 +204,10 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+            Task {
+                await self?.tunnelManager.startTunnel()
+            }
         }
     }
 
@@ -225,8 +227,10 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+            Task {
+                await self?.tunnelManager.startTunnel()
+            }
         }
     }
 }
