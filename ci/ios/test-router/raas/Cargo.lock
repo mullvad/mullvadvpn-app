@@ -1071,6 +1071,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
+name = "ping-tokio"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "778a74482db2a141e189d06d8bb4c5ca1852e34ff709ffa816b17e368e86fc4b"
+dependencies = [
+ "libc",
+ "socket2",
+ "tokio",
+]
+
+[[package]]
 name = "piper"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1169,6 +1180,7 @@ dependencies = [
  "pcap",
  "pcap-file-tokio",
  "pfctl",
+ "ping-tokio",
  "pnet_packet",
  "serde",
  "smoltcp",
