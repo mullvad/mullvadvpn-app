@@ -7,6 +7,7 @@
 use super::connection_tracker::{
     ConnectionTracker, ConnectionTrackerEvent, outbound_conntrack_event,
 };
+use either::Either;
 use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher},
@@ -72,7 +73,7 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
         let result = tokio::select! {
             result = self.secondary.recv(&mut self.secondary_pool) => result,
-            result = self.primary.recv(pool) => return result.map(MuxIter::Primary),
+            result = self.primary.recv(pool) => return result.map(Either::Left),
         };
 
         let packets: Vec<_> = result?.collect();
@@ -86,7 +87,7 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
                 );
             }
         }
-        Ok(MuxIter::Secondary(packets.into_iter()))
+        Ok(Either::Right(packets.into_iter()))
     }
 
     fn mtu(&self) -> MtuWatcher {
@@ -109,30 +110,6 @@ impl<P: IpSend, S: IpSend> IpSend for IpMuxSend<P, S> {
             self.secondary.send(packet).await
         } else {
             self.primary.send(packet).await
-        }
-    }
-}
-
-/// Iterator over packets from either mux source. Lets the primary (TUN) branch
-/// pass its iterator through untouched (no per-recv collection on the hot
-/// path) while the secondary branch yields the packets it collected for event
-/// extraction.
-enum MuxIter<P, S> {
-    Primary(P),
-    Secondary(S),
-}
-
-impl<P, S> Iterator for MuxIter<P, S>
-where
-    P: Iterator<Item = Packet<Ip>>,
-    S: Iterator<Item = Packet<Ip>>,
-{
-    type Item = Packet<Ip>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            MuxIter::Primary(iter) => iter.next(),
-            MuxIter::Secondary(iter) => iter.next(),
         }
     }
 }
