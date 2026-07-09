@@ -894,8 +894,6 @@ fn localhost_wg_endpoint(peer: SocketAddr) -> SocketAddr {
     }
 }
 
-// MARK: - Device container
-
 /// Holds either a single device or an entry+exit pair for multihop.
 enum Devices {
     Singlehop(

@@ -8,7 +8,7 @@
 /**
  * WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
  */
-#define WIREGUARD_HEADER_SIZE (8 + 32)
+#define WIREGUARD_OVERHEAD (8 + 32)
 
 /**
  * Used by Swift to instruct which access method kind it is trying to convert

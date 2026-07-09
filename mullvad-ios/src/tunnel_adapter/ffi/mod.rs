@@ -13,8 +13,6 @@ use ipnetwork::IpNetwork;
 
 use super::{IosTunnelAdapter, ObfuscationConfig, PeerConfig, TunnelCallbackHandler, TunnelConfig};
 
-// MARK: - Records
-
 /// A WireGuard peer (entry or exit).
 #[derive(uniffi::Record)]
 pub struct GotaTunPeer {
@@ -67,8 +65,6 @@ pub enum GotaTunObfuscation {
     },
 }
 
-// MARK: - Error
-
 /// Error returned when starting a tunnel.
 #[derive(Debug, uniffi::Error)]
 pub enum GotaTunFfiError {
@@ -88,8 +84,6 @@ impl std::fmt::Display for GotaTunFfiError {
 }
 
 impl std::error::Error for GotaTunFfiError {}
-
-// MARK: - Callback interface
 
 /// Callbacks from the tunnel adapter to Swift. Implemented on the Swift side and
 /// invoked from Rust-owned threads. Each method fires at most once per adapter,
@@ -118,8 +112,6 @@ impl TunnelCallbackHandler for CallbackBridge {
         self.0.on_error(message);
     }
 }
-
-// MARK: - Tunnel object
 
 /// A running GotaTun tunnel. Dropping it stops the tunnel (via
 /// [`IosTunnelAdapter`]'s `Drop`); `stop` is exposed for deterministic teardown.
@@ -167,8 +159,6 @@ impl GotaTunTunnel {
         self.adapter.wake();
     }
 }
-
-// MARK: - Validation helpers
 
 fn key32(bytes: &[u8], what: &str) -> Result<[u8; 32], GotaTunFfiError> {
     bytes.try_into().map_err(|_| {
