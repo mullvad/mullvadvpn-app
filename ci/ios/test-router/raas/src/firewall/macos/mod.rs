@@ -2,7 +2,7 @@ use std::{
     collections::BTreeMap,
     io,
     net::Ipv4Addr,
-    process::{Command, Stdio},
+    process::{Command, Stdio}, sync::Arc,
 };
 
 use ipnetwork::IpNetwork;
@@ -10,6 +10,7 @@ use pfctl::{
     AnchorChange, AnchorKind, FilterRuleAction, FilterRuleBuilder, PfCtl, RedirectRuleAction,
     RedirectRuleBuilder,
 };
+use tokio::net::UdpSocket;
 use tun_rs::{AsyncDevice, DeviceBuilder};
 
 use super::rule::{BlockRule, Endpoints};
@@ -17,12 +18,20 @@ use crate::web::routes::TransportProtocol;
 
 const ANCHOR_NAME: &str = "raas";
 
+mod utun_router;
+
 #[derive(Default)]
 pub struct BlockList {
     rules: BTreeMap<uuid::Uuid, Vec<BlockRule>>,
 }
 
 impl BlockList {
+    pub(crate) fn new(tunnel_device: AsyncDevice) -> Self {
+
+        utun_router::Router::spawn(tunnel_device);
+        Self { rules: Default::default() }
+    }
+
     pub fn add_rules(&mut self, rules: &[BlockRule], label: uuid::Uuid) -> io::Result<()> {
         let rules_for_label = self.rules.entry(label).or_default();
         rules_for_label.extend_from_slice(rules);
@@ -58,6 +67,7 @@ impl BlockList {
 
         Ok(())
     }
+
 }
 
 fn create_pf_filter_rules(block_rule: &BlockRule) -> Vec<pfctl::FilterRule> {
@@ -94,6 +104,9 @@ fn create_pf_filter_rules(block_rule: &BlockRule) -> Vec<pfctl::FilterRule> {
         }
     }
 }
+
+
+
 
 fn create_host_rules(
     src: IpNetwork,

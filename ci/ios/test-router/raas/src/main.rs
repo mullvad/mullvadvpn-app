@@ -6,6 +6,8 @@ mod capture;
 mod firewall;
 mod web;
 
+use firewall::BlockList;
+
 #[tokio::main]
 async fn main() {
     init_logging();
@@ -14,7 +16,7 @@ async fn main() {
     let args = parse_args();
 
     #[cfg(target_os = "macos")]
-    let tun_device =
+    let tunnel_device =
         firewall::setup_utun(args.client_ip).expect("Failed to create a tunnel device");
 
     let interface = {
@@ -24,12 +26,19 @@ async fn main() {
         }
         #[cfg(target_os = "macos")]
         {
-            tun_device.name().expect("Failed to read device name")
+            tunnel_device.name().expect("Failed to read device name")
         }
     };
 
-    let router = web::router(Default::default(), interface)
-        .into_make_service_with_connect_info::<SocketAddr>();
+    let router = web::router(
+        create_block_list(
+            #[cfg(target_os = "macos")]
+            tunnel_device,
+        ),
+        interface,
+    )
+    .into_make_service_with_connect_info::<SocketAddr>();
+
     let listener = tokio::net::TcpListener::bind(&args.bind_address)
         .await
         .expect("Failed to bind to listening socket");
@@ -39,17 +48,6 @@ async fn main() {
             .local_addr()
             .expect("Failed to get local address of TCP socket")
     );
-
-    #[cfg(target_os = "macos")]
-    tokio::spawn(async move {
-        let mut read_buf = vec![0u8; 2000];
-        while let Ok(bytes_received) = tun_device.recv(&mut read_buf).await {
-            let packet = Ipv4Packet::new_unchecked(&read_buf[..bytes_received]);
-            let src = packet.src_addr();
-            let dst = packet.dst_addr();
-            println!("Received packet from utun - with src {src} and dst {dst}");
-        }
-    });
 
     tokio::spawn(async {
         loop {
@@ -138,4 +136,14 @@ fn create_dir_if_not_exist<P: AsRef<Path>>(path: P) -> io::Result<()> {
 
     fs::create_dir(path)?;
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn create_block_list() -> BlockList {
+    Default::default()
+}
+
+#[cfg(target_os = "macos")]
+fn create_block_list(tunnel_device: tun_rs::AsyncDevice) -> BlockList {
+    BlockList::new(tunnel_device)
 }
