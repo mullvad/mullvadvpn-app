@@ -28,7 +28,8 @@ function LocationSelectorTextField({
   onFocusExit,
   ...props
 }: LocationSelectorTextFieldProps) {
-  const { id, textFieldRef, inputRef, setFocusInsideTextField } = useLocationSelectorItemContext();
+  const { id, textFieldRef, triggerRef, setFocusInsideTextField } =
+    useLocationSelectorItemContext();
 
   const handleOnValueChange = React.useCallback(
     (value: string) => {
@@ -43,13 +44,18 @@ function LocationSelectorTextField({
 
   const handleOnBlurCapture = React.useCallback(
     (e: React.FocusEvent<HTMLDivElement>) => {
-      const focusInsideTextField = inputRef.current?.contains(e.relatedTarget) ?? false;
+      const focusWillBeWithinTextField = triggerRef.current?.contains(e.relatedTarget) ?? false;
+      const focusWillBeOnTriggerElement = triggerRef.current == e.relatedTarget;
+      // If the triggerRef element is the next element which will receive focus,
+      // then the focus is no longer "inside" the text field in the strictest sense.
+      const focusInsideTextField = !focusWillBeOnTriggerElement && focusWillBeWithinTextField;
+
       setFocusInsideTextField(focusInsideTextField);
       if (!focusInsideTextField) {
         onFocusExit?.();
       }
     },
-    [inputRef, setFocusInsideTextField, onFocusExit],
+    [triggerRef, setFocusInsideTextField, onFocusExit],
   );
 
   return (
