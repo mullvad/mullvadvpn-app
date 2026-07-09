@@ -69,7 +69,7 @@ impl TunnelError {
 }
 
 /// Result of [`IosTunnelAdapter::negotiate_pq`]: the keys and peers to configure
-/// the final device(s) with — `(entry, exit_key, exit_peer)`. `entry` is `Some`
+/// the final device(s) with `(entry, exit_key, exit_peer)`. `entry` is `Some`
 /// only for multihop PQ.
 type PqResult = (Option<(StaticSecret, Peer)>, StaticSecret, Peer);
 
@@ -282,7 +282,7 @@ impl IosTunnelAdapter {
         }
 
         callback.on_connected();
-        log::info!("Tunnel connected — starting ongoing monitoring");
+        log::info!("Tunnel connected - starting ongoing monitoring");
         Self::monitor_connectivity(&devices, stopped, stop_notify).await;
         devices.stop().await;
         Err(TunnelError::Timeout)
@@ -291,7 +291,7 @@ impl IosTunnelAdapter {
     /// Negotiate the post-quantum / DAITA ephemeral peer(s).
     ///
     /// Returns the `(entry, exit_key, exit_peer)` triple to configure the final
-    /// device(s) with — `entry` is `Some` only for multihop PQ.
+    /// device(s) with - `entry` is `Some` only for multihop PQ.
     async fn negotiate_pq(
         config: &mut TunnelConfig,
         stopped: &AtomicBool,
@@ -776,7 +776,7 @@ impl IosTunnelAdapter {
             }
 
             if devices.has_rx().await {
-                log::debug!("Connectivity established — rx_bytes > 0");
+                log::debug!("Connectivity established - rx_bytes > 0");
                 return true;
             }
 
@@ -812,7 +812,7 @@ impl IosTunnelAdapter {
                 last_rx_bytes = total_rx;
                 last_rx_time = Instant::now();
             } else if last_rx_time.elapsed() > MONITOR_TIMEOUT {
-                log::warn!("No RX for {:?} — connection lost", last_rx_time.elapsed());
+                log::warn!("No RX for {:?} - connection lost", last_rx_time.elapsed());
                 return;
             }
         }
@@ -840,7 +840,7 @@ impl IosTunnelAdapter {
     }
 
     /// Allowed IPs that restrict a PQ-negotiation device to just the relay's
-    /// in-tunnel config service ([`CONFIG_SERVICE_ADDR`]) — negotiation must not be
+    /// in-tunnel config service ([`CONFIG_SERVICE_ADDR`]) - negotiation must not be
     /// able to reach the wider internet.
     fn config_service_allowed_ips() -> Vec<IpNetwork> {
         let ip = CONFIG_SERVICE_ADDR
@@ -928,7 +928,7 @@ impl Devices {
         }
     }
 
-    /// Peer stats of the ingress device — the one whose rx reflects tunnel
+    /// Peer stats of the ingress device - the one whose rx reflects tunnel
     /// liveness (the entry device in multihop, the only device in singlehop).
     async fn ingress_peers(&self) -> Vec<gotatun::device::configure::PeerStats> {
         match self {

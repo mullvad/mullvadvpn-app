@@ -32,7 +32,7 @@ const UTUN_HEADER_LEN: usize = 4;
 const AF_INET: u32 = 2;
 const AF_INET6: u32 = 30;
 
-/// Size of the per-handle I/O scratch buffers — comfortably larger than the
+/// Size of the per-handle I/O scratch buffers - comfortably larger than the
 /// utun header plus any IP packet we can be handed.
 const IO_BUF_SIZE: usize = 65000;
 

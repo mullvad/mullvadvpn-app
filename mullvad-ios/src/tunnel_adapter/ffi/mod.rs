@@ -5,8 +5,6 @@
 //! foreign-implemented [`GotaTunCallback`]. All validation/parsing happens in
 //! [`GotaTunTunnel::start`]; the object owns the running [`IosTunnelAdapter`] and
 //! stops it on drop.
-//!
-//! Only this module uses uniffi — the rest of the crate's FFI is cbindgen.
 
 use std::net::{Ipv4Addr, Ipv6Addr};
 use std::sync::Arc;
@@ -74,7 +72,7 @@ pub enum GotaTunObfuscation {
 /// Error returned when starting a tunnel.
 #[derive(Debug, uniffi::Error)]
 pub enum GotaTunFfiError {
-    /// A field in the config was malformed (bad key length, unparseable address, …).
+    /// A field in the config was malformed (bad key length, unparseable address, ...).
     InvalidConfig(String),
     /// An internal failure (e.g. the async runtime was unavailable).
     Internal(String),
