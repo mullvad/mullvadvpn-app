@@ -1,0 +1,135 @@
+---
+name: Android - Benchmark Tests
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - '.github/workflows/android-benchmark.yml'
+      - 'android/test/benchmark/**'
+  schedule:
+    # At 00:00 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      benchmark_test_repeat:
+        description: Speed test repeat
+        default: '1'
+        required: true
+        type: string
+      android_device_runner:
+        description: 'Choose which device to run on'
+        required: true
+        default: 'android-device'
+        type: choice
+        options:
+          - android-device
+          - android-bender-05
+          - android-bender-06
+          - android-bender-07
+          - android-bender-08
+      username:
+        description: 'Username for iPerf3 server'
+        required: false
+        default: ''
+        type: string
+      password:
+        description: 'Password for iPerf3 server'
+        required: false
+        default: ''
+        type: string
+
+permissions: {}
+
+jobs:
+  build-app:
+    name: Build app
+    runs-on: ['android-build']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Prepare build tasks
+        id: build-tasks
+        run: |
+          tasks=":app:assemblePlayStagemoleDebug :test:benchmark:assemble"
+          properties="-Pmullvad.app.build.cargo.forceReleaseBuild=true"
+          echo "tasks=$tasks" >> $GITHUB_OUTPUT
+          echo "properties=$properties" >> $GITHUB_OUTPUT
+
+      - name: Build apks
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
+          "${{ steps.build-tasks.outputs.tasks }} ${{ steps.build-tasks.outputs.properties }}"
+
+      - name: Upload apks
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: apks
+          path: android/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  benchmark-tests:
+    name: Run benchmark tests
+    runs-on: ["${{ inputs.android_device_runner || 'android-device' }}"]
+    needs: [build-app]
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Prepare environment
+        id: prepare-environment
+        run: |
+          echo "username=${{ github.event.inputs.username || vars.IPERF_USERNAME }}" \
+          >> $GITHUB_OUTPUT
+          echo "password=${{ github.event.inputs.password || secrets.IPERF_PASSWORD }}" \
+          >> $GITHUB_OUTPUT
+          echo "runs=${{ github.event.inputs.benchmark_test_repeat || '1' }}" \
+          >> $GITHUB_OUTPUT
+
+      - name: Prepare report dir
+        id: prepare-report-dir
+        env:
+          INNER_REPORT_DIR: /tmp/benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_REPORT_DIR
+          echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: apks
+          path: android
+
+      - name: Calculate timeout
+        id: calculate-timeout
+        run: |
+          echo "timeout=$(( ${{ steps.prepare-environment.outputs.runs }} * 10 ))" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Run instrumented test script
+        timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
+        shell: bash -ieo pipefail {0}
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+          TEST_TYPE: benchmark
+          BILLING_FLAVOR: play
+          INFRA_FLAVOR: stagemole
+          PARTNER_AUTH: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          IPERF_USERNAME: ${{ steps.prepare-environment.outputs.username }}
+          IPERF_PASSWORD: ${{ steps.prepare-environment.outputs.password }}
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ steps.prepare-environment.outputs.runs }}
+
+      - name: Upload instrumentation report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: benchmark-instrumentation-report
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+          if-no-files-found: ignore
+          retention-days: 90

@@ -302,7 +302,8 @@ junitPlatform {
 }
 
 cargo {
-    val isReleaseBuild = isReleaseBuild()
+    val isReleaseBuild =
+        isReleaseBuild() || getBooleanProperty("mullvad.app.build.cargo.forceReleaseBuild")
     val generateDebugSymbolsForReleaseBuilds =
         getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
     val enableApiOverride = !isReleaseBuild || appVersion.isDev || appVersion.isAlpha
