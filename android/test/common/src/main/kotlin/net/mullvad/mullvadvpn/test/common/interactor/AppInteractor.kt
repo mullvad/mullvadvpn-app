@@ -94,7 +94,6 @@ class AppInteractor(
         obfuscationMode: ObfuscationMode? = null,
         wireguardPort: Constraint<Port>? = null,
         localNetworkSharing: Boolean? = null,
-        daita: DaitaOption? = null,
         multihop: MultihopMode? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
         location: RelayItemId? = null,
@@ -114,12 +113,6 @@ class AppInteractor(
                 localNetworkSharing?.let { service.setAllowLan(it) }
                 multihop?.let { service.setMultihop(it) }
                 deviceIpVersion?.let { service.setDeviceIpVersion(deviceIpVersion) }
-                daita?.let {
-                    when (it) {
-                        is DaitaOption.Auto -> service.setDaitaEnabled(it.enabled)
-                        is DaitaOption.DirectOnly -> service.setDaitaDirectOnly(it.enabled)
-                    }
-                }
                 location?.let { service.setRelayLocation(it) }
                 cancel()
             }

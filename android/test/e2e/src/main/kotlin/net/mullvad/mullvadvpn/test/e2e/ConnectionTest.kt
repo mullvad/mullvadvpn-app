@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.test.api.connectioncheck.ConnectionCheckApi
 import net.mullvad.mullvadvpn.test.api.relay.RelayApi
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
-import net.mullvad.mullvadvpn.test.common.interactor.DaitaOption
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
@@ -200,11 +199,10 @@ class ConnectionTest : EndToEndTest() {
         }
 
     @Test
-    @Disabled("Disabled due to daita auto being removed")
     fun testDaita() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(daita = DaitaOption.Auto(true))
+            app.applySettings(multihop = MultihopMode.WHEN_NEEDED)
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -217,10 +215,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> {
                 waitForConnectedLabel()
-                app.applySettings(
-                    daita = DaitaOption.DirectOnly(true),
-                    multihop = MultihopMode.NEVER,
-                )
+                app.applySettings(multihop = MultihopMode.NEVER)
                 waitForBlockedLabel()
                 clickSelectLocation()
             }
