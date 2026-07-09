@@ -11,9 +11,9 @@ fun Bundle.getPartnerAuth() = getString("mullvad.test.e2e.${BuildConfig.FLAVOR}.
 fun Bundle.getValidAccountNumber() =
     getRequiredArgument("mullvad.test.e2e.${BuildConfig.FLAVOR}.accountNumber.valid")
 
-fun Bundle.getTargetIp() = getRequiredArgument("mullvad.test.benchmark.target.ip")
+fun Bundle.getTargetIp(): String = getString("mullvad.test.benchmark.target.ip", "10.64.0.1")
 
-fun Bundle.getTargetPort() = getRequiredArgument("mullvad.test.benchmark.target.port")
+fun Bundle.getTargetPort(): String = getString("mullvad.test.benchmark.target.port", "5201")
 
 fun Bundle.getTargetUsername() = getString("mullvad.test.benchmark.target.username") ?: ""
 
