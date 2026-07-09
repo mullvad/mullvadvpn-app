@@ -32,19 +32,20 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   }, [onOpenChange, setEnabledRecents]);
 
   const handleMultihopAlways = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'always' });
-  }, [onOpenChange, setMultihop]);
+    onOpenChange?.(false);
+    setLocationType(LocationType.exit);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopNever = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'never' });
+    onOpenChange?.(false);
     setLocationType(LocationType.exit);
   }, [onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopWhenNeeded = useCallback(async () => {
-    onOpenChange?.(false);
     await setMultihop({ multihop: 'when-needed' });
+    onOpenChange?.(false);
     setLocationType(LocationType.exit);
   }, [onOpenChange, setLocationType, setMultihop]);
 
