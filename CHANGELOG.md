@@ -46,9 +46,6 @@ Line wrap the file at 100 chars.                                              Th
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
 
-#### Linux
-- Allow GotaTun to start when IPv6 is unavailable.
-
 #### Windows
 - Fix misleading "split tunneling" error when offline.
 
