@@ -17,11 +17,13 @@ use gotatun::{
 };
 use nix::fcntl::{FcntlArg, OFlag, fcntl};
 use std::{
-    io, iter,
+    io::{self, IoSlice},
+    iter,
     os::fd::{AsRawFd, BorrowedFd, OwnedFd, RawFd},
     sync::Arc,
 };
 use tokio::io::{Interest, unix::AsyncFd};
+use zerocopy::IntoBytes;
 
 /// Type aliases for the muxed IP pair used by GotaTun devices on iOS.
 pub type IosTunIpSend = IpMuxSend<IosTunDevice, SmoltcpIpSend>;
@@ -32,23 +34,12 @@ const UTUN_HEADER_LEN: usize = 4;
 const AF_INET: u32 = 2;
 const AF_INET6: u32 = 30;
 
-/// Size of the per-handle I/O scratch buffers - comfortably larger than the
-/// utun header plus any IP packet we can be handed.
-const IO_BUF_SIZE: usize = 65000;
-
-fn io_buf() -> Box<[u8]> {
-    vec![0u8; IO_BUF_SIZE].into_boxed_slice()
-}
-
 /// The original fd (owned by iOS) is never modified or closed.
 /// We `dup()` it and own the copy as an [`OwnedFd`], which is closed when the
 /// last clone of the wrapping `Arc<AsyncFd<_>>` is dropped.
 pub struct IosTunDevice {
     async_fd: Arc<AsyncFd<OwnedFd>>,
     mtu: MtuWatcher,
-    /// Reusable I/O buffer, so the send/recv hot paths don't allocate per
-    /// packet.
-    io_buf: Box<[u8]>,
 }
 
 impl IosTunDevice {
@@ -77,7 +68,6 @@ impl IosTunDevice {
         Ok(Self {
             async_fd: Arc::new(async_fd),
             mtu: MtuWatcher::new(mtu),
-            io_buf: io_buf(),
         })
     }
 }
@@ -87,32 +77,26 @@ impl Clone for IosTunDevice {
         Self {
             async_fd: self.async_fd.clone(),
             mtu: self.mtu.clone(),
-            // Fresh scratch buffers; their contents are per-call anyway.
-            io_buf: io_buf(),
         }
     }
 }
 
 impl IpSend for IosTunDevice {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
-        let af: u32 = packet.header.version().into();
-        let ip_bytes: &[u8] = &packet.into_bytes();
+        let ip_version: u32 = packet.header.version().into();
+        let utun_header = ip_version.to_ne_bytes();
 
-        // Prepend the 4-byte utun header in the scratch buffer.
-        let len = UTUN_HEADER_LEN + ip_bytes.len();
-        let Some(buf) = self.io_buf.get_mut(..len) else {
-            return Err(io::Error::other("packet exceeds send buffer"));
-        };
-        buf[..UTUN_HEADER_LEN].copy_from_slice(&af.to_ne_bytes());
-        buf[UTUN_HEADER_LEN..].copy_from_slice(ip_bytes);
+        // Prepend the 4-byte utun header (address family).
+        let iov = [&utun_header, packet.as_bytes()].map(IoSlice::new);
 
         let n = self
             .async_fd
             .async_io(Interest::WRITABLE, |tun_fd| {
-                nix::unistd::write(tun_fd, &self.io_buf[..len]).map_err(Into::into)
+                nix::sys::uio::writev(tun_fd, &iov).map_err(Into::into)
             })
             .await?;
 
+        let len = UTUN_HEADER_LEN + packet.as_bytes().len();
         debug_assert_eq!(n, len, "the entire packet must be written");
 
         Ok(())
