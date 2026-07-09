@@ -709,7 +709,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ccc2776f0c61eca1ca32528f85548abd1a4be8fb53d1b21c013e4f18da1e7090"
 dependencies = [
  "data-encoding",
- "syn 1.0.109",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -1235,9 +1235,9 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "gotatun"
-version = "0.6.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee896ae91b1a90a10642d58ced8721560dc399ceeaba66d9cab14ad1db846936"
+checksum = "af09aa1725e33bf1b186267f939fe629316da3df8e00ddeba7e446a264832bb4"
 dependencies = [
  "aead",
  "aws-lc-rs",
@@ -1257,7 +1257,6 @@ dependencies = [
  "ip_network_table",
  "ipnetwork 0.21.1",
  "libc",
- "log",
  "nix 0.31.3",
  "parking_lot",
  "rand 0.9.4",
@@ -1267,6 +1266,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-util",
+ "tracing",
  "tun",
  "typed-builder",
  "windows-sys 0.61.2",
@@ -2597,9 +2597,9 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "044b1fa4f259f4df9ad5078e587b208f5d288a25407575fcddb9face30c7c692"
 dependencies = [
- "rand 0.8.6",
+ "rand 0.9.4",
  "socket2 0.6.3",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
