@@ -30,9 +30,7 @@ pub type IosTunIpSend = IpMuxSend<IosTunDevice, SmoltcpIpSend>;
 pub type IosTunIpRecv = IpMuxRecv<IosTunDevice, SmoltcpIpRecv>;
 
 /// 4-byte utun header: protocol family as uint32 in host byte order.
-const UTUN_HEADER_LEN: usize = 4;
-const AF_INET: u32 = 2;
-const AF_INET6: u32 = 30;
+const UTUN_HEADER_LEN: usize = size_of::<u32>();
 
 /// The original fd (owned by iOS) is never modified or closed.
 /// We `dup()` it and own the copy as an [`OwnedFd`], which is closed when the
@@ -83,8 +81,11 @@ impl Clone for IosTunDevice {
 
 impl IpSend for IosTunDevice {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
-        let ip_version: u32 = packet.header.version().into();
-        let utun_header = ip_version.to_ne_bytes();
+        let utun_header = match packet.header.version() {
+            4 => libc::AF_INET.to_ne_bytes(),
+            6 => libc::AF_INET6.to_ne_bytes(),
+            _ => return Err(io::ErrorKind::InvalidInput.into()),
+        };
 
         // Prepend the 4-byte utun header (address family).
         let iov = [&utun_header, packet.as_bytes()].map(IoSlice::new);
