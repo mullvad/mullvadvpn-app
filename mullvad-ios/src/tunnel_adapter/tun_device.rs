@@ -10,8 +10,9 @@ use crate::gotatun::{
     ip_mux::{IpMuxRecv, IpMuxSend},
     smoltcp_network::{SmoltcpIpRecv, SmoltcpIpSend},
 };
+use bytes::Buf;
 use gotatun::{
-    packet::{Ip, Packet, PacketBufPool},
+    packet::{Ip, Ipv4Header, Packet, PacketBufPool},
     tun::{IpRecv, IpSend, MtuWatcher},
 };
 use nix::fcntl::{FcntlArg, OFlag, fcntl};
@@ -20,7 +21,7 @@ use std::{
     os::fd::{AsRawFd, BorrowedFd, OwnedFd, RawFd},
     sync::Arc,
 };
-use tokio::io::unix::AsyncFd;
+use tokio::io::{Interest, unix::AsyncFd};
 
 /// Type aliases for the muxed IP pair used by GotaTun devices on iOS.
 pub type IosTunIpSend = IpMuxSend<IosTunDevice, SmoltcpIpSend>;
@@ -105,15 +106,16 @@ impl IpSend for IosTunDevice {
         buf[..UTUN_HEADER_LEN].copy_from_slice(&af.to_ne_bytes());
         buf[UTUN_HEADER_LEN..].copy_from_slice(ip_bytes);
 
-        loop {
-            let mut guard = self.async_fd.writable().await?;
-            match guard.try_io(|inner| {
-                nix::unistd::write(inner.get_ref(), &self.io_buf[..len]).map_err(Into::into)
-            }) {
-                Ok(result) => return result.map(drop),
-                Err(_would_block) => continue,
-            }
-        }
+        let n = self
+            .async_fd
+            .async_io(Interest::WRITABLE, |tun_fd| {
+                nix::unistd::write(tun_fd, &self.io_buf[..len]).map_err(Into::into)
+            })
+            .await?;
+
+        debug_assert_eq!(n, len, "the entire packet must be written");
+
+        Ok(())
     }
 }
 
@@ -122,44 +124,38 @@ impl IpRecv for IosTunDevice {
         &'a mut self,
         pool: &mut PacketBufPool,
     ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
-        let raw_buf = &mut self.io_buf;
+        let mut buf = pool.get();
 
-        loop {
-            let mut guard = self.async_fd.readable().await?;
-            match guard.try_io(|inner| {
-                let n = nix::unistd::read(inner.get_ref(), raw_buf)?;
-                if n == 0 {
-                    return Err(io::Error::new(
-                        io::ErrorKind::UnexpectedEof,
-                        "TUN read returned 0",
-                    ));
-                }
-                Ok(n)
-            }) {
-                Ok(Ok(n)) => {
-                    if n <= UTUN_HEADER_LEN {
-                        continue;
-                    }
-                    // Strip the 4-byte utun header
-                    let ip_data = &raw_buf[UTUN_HEADER_LEN..n];
-                    let mut packet = pool.get();
-                    if ip_data.len() > packet.len() {
-                        log::warn!("dropping oversized TUN packet ({} bytes)", ip_data.len());
-                        continue;
-                    }
-                    let ip_len = ip_data.len();
-                    packet[..ip_len].copy_from_slice(ip_data);
-                    packet.truncate(ip_len);
+        debug_assert!(buf.len() >= usize::from(self.mtu.get()));
 
-                    return match packet.try_into_ip() {
-                        Ok(packet) => Ok(iter::once(packet)),
-                        Err(e) => Err(io::Error::other(e.to_string())),
-                    };
-                }
-                Ok(Err(e)) => return Err(e),
-                Err(_would_block) => continue,
-            }
+        let n = self
+            .async_fd
+            .async_io(Interest::READABLE, |tun_fd| {
+                nix::unistd::read(tun_fd, &mut buf[..]).map_err(Into::into)
+            })
+            .await?;
+
+        if n == 0 {
+            return Err(io::ErrorKind::UnexpectedEof.into());
         }
+
+        const MIN_LEN: usize = Ipv4Header::LEN + UTUN_HEADER_LEN;
+        if n < MIN_LEN {
+            return Err(io::Error::other("TUN read: Too few bytes"));
+        }
+
+        if n == buf.len() {
+            log::warn!("Buffer capacify reached ({n}). Excess bytes may have been dropped.");
+        }
+
+        // Truncate buffer and strip the 4-byte utun header
+        buf.buf_mut().truncate(n);
+        buf.buf_mut().advance(UTUN_HEADER_LEN);
+
+        return match buf.try_into_ip() {
+            Ok(packet) => Ok(iter::once(packet)),
+            Err(e) => Err(io::Error::other(e.to_string())),
+        };
     }
 
     fn mtu(&self) -> MtuWatcher {
