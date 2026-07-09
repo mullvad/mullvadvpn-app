@@ -24,6 +24,7 @@ fn spawn_udp_receiver(
             upstream_socket.recv_from(&mut buffer).await
         {
 
+            println!("receiving return traffic for {}", local_socket_address);
             let IpAddr::V4(upstream_ip) = upstream_address.ip() else {
                 log::error!("Received IPv6 upstream address from an IPv4 socket");
                 continue;
