@@ -4,9 +4,11 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { DisableRecentsDialog } from '../../../../../features/locations/components';
 import { useRecents } from '../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../features/locations/types';
 import { useMultihop } from '../../../../../features/multihop/hooks';
 import { Menu, type MenuProps } from '../../../../../lib/components/menu';
 import { useHistory } from '../../../../../lib/history';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export type HeaderMenuProps = MenuProps;
 
@@ -14,6 +16,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
   const { hasRecents, setEnabledRecents } = useRecents();
   const { multihop, setMultihop } = useMultihop();
+  const { setLocationType } = useSelectLocationViewContext();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -26,19 +29,26 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const enableRecents = React.useCallback(async () => {
     await setEnabledRecents(true);
     onOpenChange?.(false);
-  }, [onOpenChange, setEnabledRecents]);
+    setLocationType(LocationType.exit);
+  }, [onOpenChange, setEnabledRecents, setLocationType]);
 
-  const handleMultihopAlways = useCallback(
-    () => setMultihop({ multihop: 'always' }),
-    [setMultihop],
-  );
+  const handleMultihopAlways = useCallback(async () => {
+    await setMultihop({ multihop: 'always' });
+    onOpenChange?.(false);
+    setLocationType(LocationType.entry);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
-  const handleMultihopNever = useCallback(() => setMultihop({ multihop: 'never' }), [setMultihop]);
+  const handleMultihopNever = useCallback(async () => {
+    await setMultihop({ multihop: 'never' });
+    setLocationType(LocationType.exit);
+    onOpenChange?.(false);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
-  const handleMultihopWhenNeeded = useCallback(
-    () => setMultihop({ multihop: 'when-needed' }),
-    [setMultihop],
-  );
+  const handleMultihopWhenNeeded = useCallback(async () => {
+    await setMultihop({ multihop: 'when-needed' });
+    setLocationType(LocationType.exit);
+    onOpenChange?.(false);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
   return (
     <>
