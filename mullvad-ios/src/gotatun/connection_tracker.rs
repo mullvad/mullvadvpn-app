@@ -240,6 +240,8 @@ struct SockAddrPair {
 
 #[cfg(test)]
 mod tests {
+    use crate::gotatun::tcp_packet;
+
     use super::*;
 
     /// View raw bytes as an [`Ip`] packet for the tracker entry points.
@@ -248,21 +250,6 @@ mod tests {
     }
 
     /// Minimal IPv4 TCP packet with the given addresses, ports, and flags.
-    fn tcp_packet(src: [u8; 4], dst: [u8; 4], sp: u16, dp: u16, flags: u8) -> Vec<u8> {
-        let mut pkt = vec![0u8; 40]; // 20 IPv4 + 20 TCP
-        pkt[0] = 0x45;
-        pkt[2..4].copy_from_slice(&40u16.to_be_bytes());
-        pkt[8] = 64;
-        pkt[9] = 6; // TCP
-        pkt[12..16].copy_from_slice(&src);
-        pkt[16..20].copy_from_slice(&dst);
-        pkt[20..22].copy_from_slice(&sp.to_be_bytes());
-        pkt[22..24].copy_from_slice(&dp.to_be_bytes());
-        pkt[32] = 0x50; // data offset = 5 words
-        pkt[33] = flags;
-        pkt
-    }
-
     fn apply_outbound(tracker: &mut ConnectionTracker, packet: &[u8]) {
         if let Some(event) = outbound_conntrack_event(as_ip(packet)) {
             tracker.apply(event);

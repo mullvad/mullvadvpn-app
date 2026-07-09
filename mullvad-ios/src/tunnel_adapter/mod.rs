@@ -14,7 +14,6 @@ use std::{
 };
 
 use crate::gotatun::{
-    WIREGUARD_HEADER_SIZE,
     ip_mux::ip_mux,
     smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
 };
@@ -37,6 +36,9 @@ use tunnel_obfuscation::create_obfuscator;
 
 use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
+
+/// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
+pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;
 
 /// Guard that aborts the obfuscation proxy task on drop.
 struct ObfuscationGuard {
@@ -101,7 +103,7 @@ pub struct TunnelConfig {
 impl TunnelConfig {
     /// MTU available to the inner smoltcp stack after WireGuard overhead.
     fn smoltcp_mtu(&self) -> u16 {
-        self.mtu.saturating_sub(WIREGUARD_HEADER_SIZE)
+        self.mtu.saturating_sub(WIREGUARD_OVERHEAD)
     }
 
     /// Timeout for establishing connectivity, clamped to at least one second.
@@ -1053,7 +1055,7 @@ mod tests {
     fn smoltcp_mtu_subtracts_wireguard_overhead_and_saturates() {
         let mut c = config();
         c.mtu = 1280;
-        assert_eq!(c.smoltcp_mtu(), 1280 - WIREGUARD_HEADER_SIZE);
+        assert_eq!(c.smoltcp_mtu(), 1280 - WIREGUARD_OVERHEAD);
         c.mtu = 10; // smaller than the overhead
         assert_eq!(c.smoltcp_mtu(), 0);
     }
