@@ -218,7 +218,7 @@ mod tests {
     async fn tcp_connect_produces_syn_packet() {
         let (handle, mut ip_recv, _ip_send, _guard) = make_network(Ipv4Addr::new(10, 0, 0, 1));
 
-        // Start a connection (don't await — no peer to respond)
+        // Start a TCP connection to trigger a SYN packet send
         let connect_task =
             tokio::spawn(async move { handle.tcp_connect("10.0.0.2:1337".parse().unwrap()).await });
 

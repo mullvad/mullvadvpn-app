@@ -114,8 +114,8 @@ impl<P: IpSend, S: IpSend> IpSend for IpMuxSend<P, S> {
 }
 
 /// Iterator over packets from either mux source. Lets the primary (TUN) branch
-/// pass its iterator through untouched — no per-recv collection on the hot
-/// path — while the secondary branch yields the packets it collected for event
+/// pass its iterator through untouched (no per-recv collection on the hot
+/// path) while the secondary branch yields the packets it collected for event
 /// extraction.
 enum MuxIter<P, S> {
     Primary(P),
