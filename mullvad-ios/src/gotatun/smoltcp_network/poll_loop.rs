@@ -19,7 +19,9 @@ use smoltcp::{
 use std::{
     collections::VecDeque,
     io,
+    iter::Cycle,
     net::SocketAddr,
+    ops::Range,
     sync::Arc,
     time::{Duration, Instant as StdInstant},
 };
@@ -138,8 +140,10 @@ struct SmoltcpStack {
     active_tcp: Vec<ActiveTcpSocket>,
     active_icmp: Vec<ActiveIcmpSocket>,
     /// Next ephemeral source port to hand out for outgoing TCP connections.
-    next_local_port: u16,
+    next_local_port: Cycle<Range<u16>>,
 }
+
+const LINUX_HIGH_PORT_RANGE: Range<u16> = 32768..61000;
 
 impl SmoltcpStack {
     fn new(
@@ -179,7 +183,7 @@ impl SmoltcpStack {
             sockets: SocketSet::new(Vec::new()),
             active_tcp: Vec::new(),
             active_icmp: Vec::new(),
-            next_local_port: rand::random(),
+            next_local_port: LINUX_HIGH_PORT_RANGE.cycle(),
         }
     }
 
@@ -307,8 +311,10 @@ impl SmoltcpStack {
                 let tx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
                 let mut tcp_socket = tcp::Socket::new(rx_buffer, tx_buffer);
 
-                let local_port = self.next_local_port;
-                self.next_local_port = self.next_local_port.wrapping_add(1).max(49152);
+                let local_port = self
+                    .next_local_port
+                    .next()
+                    .expect("Cycle<Range> is expected to repeat forever");
 
                 let local_endpoint = IpListenEndpoint {
                     addr: None,
