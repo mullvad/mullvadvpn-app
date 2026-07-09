@@ -240,10 +240,10 @@ impl IosTunnelAdapter {
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so
         //    point LWO at it, then start the obfuscation proxy for the real device.
         Self::apply_lwo_ingress_key(&mut config, &pq);
-        let _final_obfuscation = Self::start_obfuscation_proxy(&config)
+        let final_obfuscation = Self::start_obfuscation_proxy(&config)
             .await
             .map_err(|e| TunnelError::error(format!("Final obfuscation: {e}")))?;
-        if let Some(ref guard) = _final_obfuscation {
+        if let Some(ref guard) = final_obfuscation {
             Self::apply_obfuscation(&mut config, guard.endpoint());
         }
 
@@ -360,17 +360,34 @@ impl IosTunnelAdapter {
         let (ch_tx, ch_rx, udp_ch) =
             new_udp_tun_channel(100, config.ipv4_addr, config.ipv6_addr, entry_mtu);
 
+        // Entry uses the phase-1 ephemeral key; exit uses the device key. Phase 2
+        // only reaches the exit relay's config service through the entry, so the exit
+        // peer is restricted to the config service and the entry keeps its
+        // exit-endpoint route (carried over in `first_peer`).
+        let pq2_exit_peer = Peer::new(config.exit_peer.public_key.into())
+            .with_allowed_ips(config.exit_peer.allowed_ips.clone())
+            .with_endpoint(config.exit_peer.endpoint)
+            .with_allowed_ips(Self::config_service_allowed_ips());
+
         // Exit device: smoltcp IP pair, UDP channeled through the entry.
         let pq2_exit = DeviceBuilder::new()
             .with_udp(udp_ch)
             .with_ip_pair(ip_send, ip_recv)
+            .with_peer(pq2_exit_peer)
+            .with_private_key(StaticSecret::from(config.private_key))
             .build()
             .await
             .map_err(|e| TunnelError::error(format!("PQ2 exit device: {e}")))?;
+
+        let mut entry_peer = first_peer.clone();
+        entry_peer.allowed_ips = vec![config.exit_peer.endpoint.ip().into()];
+
         // Entry device: real UDP, channel IP pair.
         let pq2_entry = match DeviceBuilder::new()
             .with_udp(UdpSocketFactory::default())
             .with_ip_pair(ch_tx, ch_rx)
+            .with_peer(entry_peer)
+            .with_private_key(first_key.clone())
             .build()
             .await
         {
@@ -380,23 +397,6 @@ impl IosTunnelAdapter {
                 return Err(TunnelError::error(format!("PQ2 entry device: {e}")));
             }
         };
-
-        // Entry uses the phase-1 ephemeral key; exit uses the device key. Phase 2
-        // only reaches the exit relay's config service through the entry, so the exit
-        // peer is restricted to the config service and the entry keeps its
-        // exit-endpoint route (carried over in `first_peer`).
-        let device_key = StaticSecret::from(config.private_key);
-        let exit_initial = Self::build_peer(&config.exit_peer)
-            .with_allowed_ips(Self::config_service_allowed_ips());
-        let configured = tokio::try_join!(
-            Self::configure_device(&pq2_entry, first_key.clone(), first_peer.clone()),
-            Self::configure_device(&pq2_exit, device_key, exit_initial),
-        );
-        if let Err(e) = configured {
-            pq2_entry.stop().await;
-            pq2_exit.stop().await;
-            return Err(TunnelError::error(format!("Configure PQ phase 2: {e}")));
-        }
 
         // Now 10.64.0.1:1337 reaches the EXIT relay's config service.
         let exit_ephemeral_private = PrivateKey::new_from_random();
@@ -588,9 +588,9 @@ impl IosTunnelAdapter {
         let private_key = StaticSecret::from(config.private_key);
         // PQ negotiation only talks to the relay's config service, so restrict the
         // peer's allowed IPs accordingly rather than routing the whole internet.
-        let initial_peer = Self::build_peer(peer_config)
-            .with_endpoint(peer_endpoint)
-            .with_allowed_ips(Self::config_service_allowed_ips());
+        let mut initial_peer = Self::build_peer(peer_config).with_endpoint(peer_endpoint);
+
+        initial_peer.allowed_ips = Self::config_service_allowed_ips();
 
         if let Err(e) = Self::configure_device(&pq_device, private_key, initial_peer).await {
             pq_device.stop().await;
