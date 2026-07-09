@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
 import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorPort
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
+import net.mullvad.mullvadvpn.test.e2e.misc.LocalNetworkPermission
 import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
 import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToHostRule
@@ -41,6 +42,10 @@ class LeakTest : EndToEndTest() {
     @RegisterExtension
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
+
+    // Required on Android 17+ to allow access to the RASS router API.
+    // It does not use the GrantPermissionExtension due to a crash.
+    @RegisterExtension @JvmField val localNetworkPermission = LocalNetworkPermission()
 
     val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
