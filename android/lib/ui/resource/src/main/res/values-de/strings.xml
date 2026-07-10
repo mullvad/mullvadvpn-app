@@ -105,6 +105,7 @@
     <string name="connection_details_in">Eingehend</string>
     <string name="connection_details_out">Ausgehend</string>
     <string name="cont">Fortfahren</string>
+    <string name="contact_support">Support kontaktieren</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
     <string name="copied_logs_to_clipboard">Protokolle in Zwischenablage kopiert</string>
     <string name="copied_mullvad_account_number">Mullvad-Kontonummer wurde in die Zwischenablage kopiert</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
     <string name="hide_account_number">Kontonummer verbergen</string>
     <string name="hint_default">Standard</string>
+    <string name="how_it_works">So funktioniert es</string>
     <string name="icon_and_title">Symbol und Titel</string>
     <string name="import_override_textfield_placeholder">Zu importierende Überschreibungen einfügen oder eingeben</string>
     <string name="import_overrides_bottom_sheet_override_warning">Der Import neuer Überschreibungen kann einige zuvor importierte Überschreibungen ersetzen.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Durch Anhängen Ihres Konto-Tokens wird diese Meldung mit Ihrem Konto verknüpft, wodurch wir Ihr Problem schneller lösen können. Alle Meldungen werden nach einiger Zeit automatisch gelöscht.</string>
     <string name="include_account_token_warning_message_second">Weitere Informationen finden Sie in unserer %1$s.</string>
     <string name="include_account_token_warning_title">Dies wirkt sich auf Ihre Anonymität aus</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Geben Sie bitte eine IP-Adresse ein</string>
     <string name="invalid_address_invalid_warning">Ungültige IP-Adresse</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Produkte werden geladen</string>
     <string name="loading_verifying">Kauf verifizieren …</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
+    <string name="local_network_sharing_info">Aktivieren Sie diese Option, damit Dienste wie Dateifreigabe, Drucken, Medien-Streaming und Gerätereerkennung funktionieren, während Sie mit dem VPN verbunden sind.</string>
+    <string name="local_network_sharing_info2"><b>Dies kann Ihre Anonymität beeinträchtigen.</b> Aktivieren Sie diese Option nicht in öffentlichen oder nicht vertrauenswürdigen Netzwerken, da Ihr Gerät sonst für andere sichtbar werden könnte.</string>
+    <string name="local_network_sharing_info3">Die App ermöglicht lokalen Multicast- und Broadcast-Netzwerk-Traffic sowie Traffic zu und von privaten IP-Bereichen, um den VPN-Tunnel zu umgehen.</string>
+    <string name="local_network_sharing_info4"><b>Private IP-Bereiche</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Achtung:</b> Die Freigabe über das lokale Netzwerk ist nicht mit der Funktion „Verbindungen ohne VPN blockieren“ kompatibel.</string>
     <string name="location_added">%1$s (hinzugefügt)</string>
     <string name="location_was_added_to_list">%1$s wurde zu „%2$s“ hinzugefügt</string>
     <string name="location_was_removed_from_list">%1$s wurde von „%2$s“ entfernt</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Aus</string>
     <string name="on">Ein</string>
+    <string name="ongoing_verification_warning">Ihr letzter Kauf wird noch verifiziert. Wenn Sie sich bei einem anderen Konto anmelden, schlägt die Verifizierung fehl. Möchten Sie sich trotzdem abmelden?</string>
     <string name="open_app_details">App-Details öffnen</string>
     <string name="open_feature_settings">%1$s-Einstellungen öffnen</string>
     <string name="open_url">URL öffnen</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Wir verifizieren gerade noch Ihren Kauf, dies kann einige Zeit dauern. Ihre Zeit wird hinzugefügt, wenn die Verifizierung erfolgreich ist.</string>
     <string name="payment_status_pending_long">Google-Play-Zahlung ausstehend, es könnte eine Weile dauern</string>
     <string name="payment_status_pending_short">Google-Play-Zahlung ausstehend</string>
+    <string name="payment_status_verification_failed">Verifizierung der Google-Play-Zahlung fehlgeschlagen</string>
     <string name="please_enter_a_valid_ip_address">Bitte geben Sie eine gültige IPv4- oder IPv6-Adresse ein</string>
     <string name="please_enter_a_valid_remote_server_port">Bitte geben Sie einen gültigen Remote-Server-Port ein</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
     <string name="username">Benutzername</string>
+    <string name="verification_failed_dialog_message">Wir konnten Ihren letzten Kauf nicht verifizieren. Überprüfen Sie bitte Ihre Internetverbindung und versuchen Sie es erneut. Wenden Sie sich an den Support, falls das Problem weiterhin besteht.</string>
     <string name="verifying_api_method">API-Methode verifizieren …</string>
     <string name="verifying_purchase">Kauf verifizieren</string>
+    <string name="verifying_purchase_error">Kauf konnte nicht verifiziert werden</string>
+    <string name="verifying_purchase_recoverable_error">Wir konnten Ihren Kauf nicht verifizieren. Überprüfen Sie bitte Ihre Internetverbindung und versuchen Sie es erneut.</string>
+    <string name="verifying_purchase_unrecoverable_error">Bei der Verifizierung Ihres Kaufs ist ein Fehler aufgetreten. Wenden Sie sich bitte an den Support.</string>
     <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="version">Version</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="voucher_too_short">Gutscheincode ist zu kurz</string>
+    <string name="vpn_dialog_activity_not_found">Das Dialogfeld für VPN-Berechtigungen kann nicht geöffnet werden. Überprüfen Sie bitte Ihre Betriebssystemkonfiguration</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigung wurde abgelehnt oder bei einer anderen App ist „Alway-on VPN“ aktiviert</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-Berechtigung wurde abgelehnt</string>
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>

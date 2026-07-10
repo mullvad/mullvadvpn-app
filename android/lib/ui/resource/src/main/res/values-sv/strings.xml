@@ -105,6 +105,7 @@
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Ut</string>
     <string name="cont">Fortsätt</string>
+    <string name="contact_support">Kontakta supporten</string>
     <string name="continue_login">Fortsätt med inloggning</string>
     <string name="copied_logs_to_clipboard">Loggarna har kopierats till urklipp</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
     <string name="hide_account_number">Dölj kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="how_it_works">Så fungerar det</string>
     <string name="icon_and_title">Ikon och titel</string>
     <string name="import_override_textfield_placeholder">Klistra in eller skriv åsidosättningar som ska importeras</string>
     <string name="import_overrides_bottom_sheet_override_warning">Om du importerar nya åsidosättningar kan tidigare importerade åsidosättningar ersättas.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Om du bifogar din kontotoken länkas den här rapporten till ditt konto, vilket hjälper oss att lösa problemet snabbare. Alla rapporter tas bort automatiskt efter ett tag.</string>
     <string name="include_account_token_warning_message_second">Du hittar mer information i vår %1$s.</string>
     <string name="include_account_token_warning_title">Detta påverkar din anonymitet</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Ange en IP-adress</string>
     <string name="invalid_address_invalid_warning">Ogiltig IP-adress</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Läser in produkter</string>
     <string name="loading_verifying">Verifierar köp ...</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
+    <string name="local_network_sharing_info">Aktivera detta för att tjänster som fildelning, utskrifter, medieströmning och enhetsupptäckt ska fungera när du är ansluten till en VPN.</string>
+    <string name="local_network_sharing_info2"><b>Det här kan påverka din anonymitet.</b> Undvik att aktivera det här på offentliga eller opålitliga nätverk eftersom din enhet kan bli synlig för andra.</string>
+    <string name="local_network_sharing_info3">Appen tillåter lokal multisändning och sändning av nätverkstrafik samt trafik till och från privata IP-intervall för att kringgå VPN-tunneln.</string>
+    <string name="local_network_sharing_info4"><b>Privata IP-intervall</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Obs!</b> Lokal nätverksdelning är inte kompatibel med \"Blockera anslutningar utan VPN\".</string>
     <string name="location_added">%1$s (har lagts till)</string>
     <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Av</string>
     <string name="on">På</string>
+    <string name="ongoing_verification_warning">Ditt senaste köp bekräftas fortfarande. Om du loggar in på ett annat konto kommer bekräftelsen att misslyckas. Vill du fortfarande logga ut?</string>
     <string name="open_app_details">Öppna appinformation</string>
     <string name="open_feature_settings">Öppna %1$s-inställningarna</string>
     <string name="open_url">Öppna URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Vi verifierar fortfarande ditt köp och det kan ta en stund. Din tid läggs till om verifieringen slutförs.</string>
     <string name="payment_status_pending_long">Det gick inte att behandla Google Play-betalningen, det kan ta en stund</string>
     <string name="payment_status_pending_short">Google Play-betalning väntar</string>
+    <string name="payment_status_verification_failed">Det gick inte att bekräfta Google Pay-betalningen</string>
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
     <string name="user_message_hint">Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre.</string>
     <string name="username">Användarnamn</string>
+    <string name="verification_failed_dialog_message">Vi kunde inte bekräfta ditt senaste köp. Kontrollera internetanslutningen och försök igen. Kontakta supporten om problemet kvarstår.</string>
     <string name="verifying_api_method">Verifierar API-metod ...</string>
     <string name="verifying_purchase">Verifierar köp</string>
+    <string name="verifying_purchase_error">Det gick inte att bekräfta köpet</string>
+    <string name="verifying_purchase_recoverable_error">Vi kunde inte bekräfta ditt köp. Kontrollera internetanslutningen och försök igen.</string>
+    <string name="verifying_purchase_unrecoverable_error">Något gick fel när ditt köp skulle bekräftas. Kontakta supporten.</string>
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="version">Version</string>
     <string name="view_logs">Visa appens loggar</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="voucher_too_short">Kupongkoden är för kort</string>
+    <string name="vpn_dialog_activity_not_found">Det går inte att öppna dialogrutan för VPN-behörighet, kontrollera anslutningen</string>
     <string name="vpn_permission_denied_error">VPN-behörighet avvisades eller så har en annan app aktiverat \"Alltid på-VPN\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-behörighet har nekats</string>
     <string name="vpn_permission_error_notification_message">Tryck på anslut för att begära VPN-behörighet</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-07-10 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -292,6 +292,18 @@ msgstr "Hae sijainteja tai palvelimia"
 
 msgid "SECURE CONNECTION"
 msgstr "SUOJATTU YHTEYS"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Aseta multihopin tulopaikaksi"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Aseta multihopin tulopaikaksi (epäyhteensopiva)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Aseta multihopin lähtöpaikaksi"
 
 msgid "Settings"
 msgstr "Asetukset"
@@ -1152,7 +1164,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (lisätty)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1907,7 +1919,6 @@ msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muo
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)s ei onnistunut käynnistymään. Poista %(splitTunneling)s käytöstä, jotta voit poistaa verkkoliikenteen eston."
@@ -1967,10 +1978,6 @@ msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kol
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Kokeile ytimesi päivittämistä tai lähetä ongelmaraportti."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Kommunikoiminen Mullvad-ytimen ajurin kanssa ei onnistu. Kokeile muodostaa yhteys uudelleen tai lähetä ongelmaraportti."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2084,6 +2091,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Mukautetut luettelot"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "Poista multihop käytöstä"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Poista viimeisimmät käytöstä"
@@ -2092,6 +2104,11 @@ msgstr "Poista viimeisimmät käytöstä"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Tyhjä"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "Ota multihop käyttöön"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2340,8 +2357,8 @@ msgstr "Käynnistä Mullvad Service uudelleen"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "%(splitTunneling)s on käytettävissä, kun päivität cgroup v2:ta tukevaan Linuxin ydinversioon."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "Vaihda Linuxin ydinversioon, joka tukee cgroup v1:tä, jotta %(splitTunneling)s on käytettävissä."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2572,12 +2589,20 @@ msgid "Language"
 msgstr "Kieli"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "Yksivärinen valikkopalkin kuvake"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Yksivärinen ilmaisinalueen kuvake"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Ilmoitukset"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "Näytä vain valikkopalkin kuvake, kun sovellus käynnistyy."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2587,9 +2612,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Käynnistä pienennettynä"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "Poista sovelluksen kiinnitys valikkopalkista"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Poista sovelluksen kiinnitys tehtäväpalkista"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "Käytä yksiväristä valikkopalkin kuvaketta värikkään asemesta."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3006,6 +3041,9 @@ msgstr "<b>Tilin palauttaminen ei ole mahdollista.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Huomio: uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>Huomio:</b> paikallisen verkon jakaminen ei sovi yhteen Estä yhteydet ilman VPN:ää -asetuksen kanssa."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä."
 
@@ -3018,8 +3056,14 @@ msgstr "<b>DNS-sisällönestotoiminnot</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>Yksityiset IP-alueet</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>Tätä toimintoa ei voi kumota.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>Tämä saattaa vaikuttaa anonymiteettiisi.</b> Vältä asetuksen käyttämistä julkisissa tai epäluotettavissa verkoissa, sillä laitteesi saattaa näkyä muille."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Varoitus:</b>"
@@ -3111,9 +3155,6 @@ msgstr "Haluatko varmasti kirjata laitteen <b>%s</b> ulos?"
 msgid "At least one method needs to be enabled"
 msgstr "Vähintään yhden menetelmän on oltava käytössä"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski."
 
@@ -3162,6 +3203,9 @@ msgstr "Muodosta yhteys toiseen verkkoon"
 msgid "Connecting..."
 msgstr "Yhdistetään..."
 
+msgid "Contact support"
+msgstr "Ota yhteyttä tukeen"
+
 msgid "Continue"
 msgstr "Jatka"
 
@@ -3192,9 +3236,6 @@ msgstr "Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä"
 msgid "DNS settings"
 msgstr "DNS-asetukset"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi"
-
 msgid "Delete \"%s\"?"
 msgstr "Poistetaanko \"%s\"?"
 
@@ -3218,9 +3259,6 @@ msgstr "Suora"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Ota tämä asetus käyttöön poistamalla kaikki %s käytöstä yllä."
-
-msgid "Disable multihop"
-msgstr "Poista multihop käytöstä"
 
 msgid "Discard"
 msgstr "Hylkää"
@@ -3261,8 +3299,8 @@ msgstr "Ota kaikki käyttötavat käyttöön sovelluksessa"
 msgid "Enable method"
 msgstr "Ota menetelmä käyttöön"
 
-msgid "Enable multihop"
-msgstr "Ota multihop käyttöön"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "Tätä asetusta käyttämällä palvelut, kuten tiedostojen jakaminen, tulostaminen, median suoratoisto ja laitteiden havaitseminen toimivat, kun olet yhteydessä VPN:ään."
 
 msgid "Enter MTU"
 msgstr "Syötä MTU"
@@ -3327,8 +3365,14 @@ msgstr "Google Play -maksu odottaa"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play -maksu odottaa. Tässä voi kestää jonkin aikaa."
 
+msgid "Google Play payment verification failed"
+msgstr "Google Playn maksun vahvistus epäonnistui"
+
 msgid "Google Play unavailable"
 msgstr "Google Play ei ole käytettävissä"
+
+msgid "How it works"
+msgstr "Näin se toimii"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus."
@@ -3362,6 +3406,9 @@ msgstr "Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, et
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin liittyvissä ongelmissa"
+
+msgid "Info"
+msgstr "Tietoa"
 
 msgid "Internet"
 msgstr "Internet"
@@ -3576,15 +3623,6 @@ msgstr "Lähetä sähköpostia"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d."
 
-msgid "Set as multihop entry"
-msgstr "Aseta multihopin tulopaikaksi"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Aseta multihopin tulopaikaksi (epäyhteensopiva)"
-
-msgid "Set as multihop exit"
-msgstr "Aseta multihopin lähtöpaikaksi"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Aseta multihopin lähtöpaikaksi (epäyhteensopiva)"
 
@@ -3605,6 +3643,9 @@ msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "Jokin meni vikaan ostostasi vahvistettaessa. Ota yhteyttä tukeen."
 
 msgid "Submit"
 msgstr "Lähetä"
@@ -3635,6 +3676,9 @@ msgstr "Lukitustila löytyy Android-järjestelmäasetuksista nimellä \"Estä yh
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Nykyinen\" menetelmä edustaa sitä, mitä menetelmää sovellus käyttää APIn tavoittamiseen."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "Sovellus sallii VPN-tunnelin ohittamisen paikalliselle lähetys- ja monilähetysverkkoliikenteelle sekä liikenteelle yksityisille IP-alueille ja yksityisiltä IP-alueilta."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Sovellus estää internetyhteyden, katkaise sen yhteys ensin"
@@ -3696,6 +3740,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Palomuurisääntöjä ei voida käyttää. Suorita vianetsintä tai lähetä ongelmaraportti."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "VPN-käyttöoikeusvalintaikkunan avaaminen ei onnistu, tarkista käyttöjärjestelmäsi määritys"
+
 msgid "Unable to parse patch"
 msgstr "Muutostiedoston jäsentäminen ei onnistu"
 
@@ -3713,6 +3760,9 @@ msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva
 
 msgid "Unable to verify account number, please contact support"
 msgstr "Tilin numeron vahvistaminen ei onnistu. Ota yhteyttä tukeen."
+
+msgid "Unable to verify purchase"
+msgstr "Oston vahvistaminen ei onnistunut"
 
 msgid "Unavailable"
 msgstr "Ei saatavilla"
@@ -3780,6 +3830,12 @@ msgstr "Varoitus"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vahvistamme vielä ostostasi. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "Viimeisimmän ostosi vahvistaminen ei onnistunut. Tarkista internetyhteytesi ja yritä uudelleen. Jos ongelma jatkuu, ota yhteyttä tukeen."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "Ostosi vahvistaminen ei onnistunut. Tarkista internetyhteytesi ja yritä uudelleen."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota."
 
@@ -3818,6 +3874,9 @@ msgstr "Menetät jäljellä olevat"
 
 msgid "Your device"
 msgstr "Laitteesi"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "Viimeisintä ostostasi vahvistetaan edelleen. Kirjautuminen toiselle tilille johtaa vahvistuksen epäonnistumiseen. Haluatko silti kirjautua ulos?"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" luotiin"

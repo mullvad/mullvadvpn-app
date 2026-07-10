@@ -105,6 +105,7 @@
     <string name="connection_details_in">Ricezione</string>
     <string name="connection_details_out">Invio</string>
     <string name="cont">Continua</string>
+    <string name="contact_support">Contatta l\'assistenza</string>
     <string name="continue_login">Continua con il login</string>
     <string name="copied_logs_to_clipboard">Log copiati negli appunti</string>
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
+    <string name="how_it_works">Come funziona</string>
     <string name="icon_and_title">Icona e titolo</string>
     <string name="import_override_textfield_placeholder">Incolla o scrivi le sovrascritture da importare</string>
     <string name="import_overrides_bottom_sheet_override_warning">L\'importazione di nuove sovrascritture potrebbe sostituire alcune sovrascritture precedentemente importate.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Se associ il token del tuo account, questa segnalazione verrà collegata al tuo account, aiutandoci a risolvere il problema più rapidamente. Tutte le segnalazioni vengono eliminate automaticamente dopo un certo periodo di tempo.</string>
     <string name="include_account_token_warning_message_second">Per i dettagli, consulta la nostra %1$s.</string>
     <string name="include_account_token_warning_title">Questo ha un impatto sul tuo anonimato</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Inserisci un indirizzo IP</string>
     <string name="invalid_address_invalid_warning">Indirizzo IP non valido</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Caricamento prodotti</string>
     <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
+    <string name="local_network_sharing_info">Abilita questa opzione per consentire il funzionamento di servizi come la condivisione di file, la stampa, lo streaming multimediale e il rilevamento dei dispositivi mentre sei connesso alla VPN.</string>
+    <string name="local_network_sharing_info2"><b>Questa impostazione può compromettere il tuo anonimato.</b> Evita di abilitarla su reti pubbliche o non attendibili, poiché il tuo dispositivo potrebbe diventare visibile ad altri.</string>
+    <string name="local_network_sharing_info3">L\'app consente al traffico di rete multicast e broadcast locale, nonché al traffico da e verso gli intervalli di IP privati, di bypassare il tunnel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Intervalli di IP privati</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Attenzione:</b> la condivisione sulla rete locale non è compatibile con \"Blocca le connessioni senza VPN\".</string>
     <string name="location_added">%1$s (aggiunto)</string>
     <string name="location_was_added_to_list">Aggiunta di %1$s a \"%2$s\"</string>
     <string name="location_was_removed_from_list">Rimozione di %1$s da \"%2$s\"</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Off</string>
     <string name="on">On</string>
+    <string name="ongoing_verification_warning">La verifica del tuo ultimo acquisto è ancora in corso. Se accedi a un altro account, la verifica non andrà a buon fine. Vuoi comunque uscire?</string>
     <string name="open_app_details">Apri dettagli app</string>
     <string name="open_feature_settings">Apri le impostazioni %1$s</string>
     <string name="open_url">Apri URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Stiamo ancora verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
     <string name="payment_status_pending_long">Pagamento Google Play in sospeso, potrebbe richiedere del tempo</string>
     <string name="payment_status_pending_short">Pagamento Google Play in sospeso</string>
+    <string name="payment_status_verification_failed">Verifica del pagamento tramite Google Play non riuscita</string>
     <string name="please_enter_a_valid_ip_address">Inserisci un indirizzo IPv4 o IPv6 valido</string>
     <string name="please_enter_a_valid_remote_server_port">Inserisci una porta di server remoto valida</string>
     <string name="port">Porta</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">La tua e-mail (opzionale)</string>
     <string name="user_message_hint">Per consentirci di assisterti meglio, scrivi in ​​inglese o in svedese e indica da quale Paese ti stai connettendo.</string>
     <string name="username">Nome utente</string>
+    <string name="verification_failed_dialog_message">Non è stato possibile verificare il tuo ultimo acquisto. Controlla la connessione a Internet e riprova. Se il problema persiste, contatta l\'assistenza.</string>
     <string name="verifying_api_method">Verifica del metodo API...</string>
     <string name="verifying_purchase">Verifica dell\'acquisto</string>
+    <string name="verifying_purchase_error">Impossibile verificare l\'acquisto</string>
+    <string name="verifying_purchase_recoverable_error">Non è stato possibile verificare il tuo acquisto. Controlla la connessione a Internet e riprova.</string>
+    <string name="verifying_purchase_unrecoverable_error">Si è verificato un problema durante la verifica del tuo acquisto. Contatta l\'assistenza.</string>
     <string name="verifying_voucher">Verifica del voucher…</string>
     <string name="version">Versione</string>
     <string name="view_logs">Visualizza registri app</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Hai inserito un numero di account anziché un codice voucher. Se vuoi modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
     <string name="voucher_too_short">Il codice del voucher è troppo breve</string>
+    <string name="vpn_dialog_activity_not_found">Impossibile aprire la finestra di dialogo per l\'autorizzazione della VPN. Controlla la configurazione del sistema operativo</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata o un\'altra app ha abilitato \"VPN sempre attiva\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Autorizzazione VPN negata</string>
     <string name="vpn_permission_error_notification_message">Premi Connetti per richiedere l\'autorizzazione VPN</string>

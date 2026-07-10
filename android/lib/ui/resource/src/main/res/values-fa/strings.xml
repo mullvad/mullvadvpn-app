@@ -105,6 +105,7 @@
     <string name="connection_details_in">ورودی</string>
     <string name="connection_details_out">خروجی</string>
     <string name="cont">ادامه</string>
+    <string name="contact_support">تماس با پشتیبانی</string>
     <string name="continue_login">ادامه با ورود</string>
     <string name="copied_logs_to_clipboard">گزارش‌ها در کلیپ‌بورد کپی شدند</string>
     <string name="copied_mullvad_account_number">شمارهٔ حساب Mullvad در کلیپ‌بورد کپی شد</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">این هم شمارهٔ حساب شما. آن را ذخیره کنید!</string>
     <string name="hide_account_number">پنهان کردن شمارهٔ حساب</string>
     <string name="hint_default">پیش‌فرض</string>
+    <string name="how_it_works">نحوه عملکرد</string>
     <string name="icon_and_title">آیکون و عنوان</string>
     <string name="import_override_textfield_placeholder">جایگزینی‌هایی را که می‌خواهید وارد کنید، جایگذاری کنید یا بنویسید</string>
     <string name="import_overrides_bottom_sheet_override_warning">وارد کردن جایگزین‌های جدید ممکن است جایگزین برخی از جایگزین‌های قبلاً وارد شده شود.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">با پیوست کردن توکن حساب‌تان، این گزارش به حساب شما متصل می‌شود و به ما کمک می‌کند مشکل‌تان را سریع‌تر حل کنیم. همهٔ گزارش‌ها پس از مدتی به‌صورت خودکار حذف می‌شوند.</string>
     <string name="include_account_token_warning_message_second">برای بررسی جزئیات، لطفاً %1$s ما را ببینید.</string>
     <string name="include_account_token_warning_title">این مورد بر ناشناس‌ماندن شما تأثیر می‌گذارد</string>
+    <string name="info">اطلاعات</string>
     <string name="internet">اینترنت</string>
     <string name="invalid_address_blank_warning">لطفاً یک آدرس IP معتبر را وارد کنید</string>
     <string name="invalid_address_invalid_warning">آدرس IP نامعتبر است</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">در حال بارگذاری محصولات</string>
     <string name="loading_verifying">در حال تأیید خرید...</string>
     <string name="local_network_sharing">اشتراک‌گذاری شبکهٔ محلی</string>
+    <string name="local_network_sharing_info">این گزینه را فعال کنید تا سرویس‌هایی مانند اشتراک‌گذاری فایل، چاپ، پخش رسانه و شناسایی دستگاه، هنگام اتصال به VPN به‌درستی کار کنند.</string>
+    <string name="local_network_sharing_info2"><b>این کار می‌تواند ناشناس‌ماندن شما را تحت تأثیر قرار دهد.</b> از فعال کردن این قابلیت در شبکه‌های عمومی یا غیرقابل‌اعتماد خودداری کنید، زیرا ممکن است دستگاه شما برای دیگران قابل مشاهده شود.</string>
+    <string name="local_network_sharing_info3">این برنامه به ترافیک شبکهٔ محلیِ چندپخشی (multicast) و پخشی (broadcast)، و همچنین ترافیک ورودی و خروجیِ محدوده‌های IP خصوصی، اجازه می‌دهد تونل VPN را دور بزنند.</string>
+    <string name="local_network_sharing_info4"><b>محدوده‌های IP خصوصی</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>توجه:</b> اشتراک‌گذاری در شبکهٔ محلی با گزینهٔ «مسدود کردن اتصال‌ها بدون VPN» سازگار نیست.</string>
     <string name="location_added">%1$s (اضافه شد)</string>
     <string name="location_was_added_to_list">%1$s به «%2$s» اضافه شد</string>
     <string name="location_was_removed_from_list">%1$s از «%2$s» حذف شد</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">خاموش</string>
     <string name="on">روشن</string>
+    <string name="ongoing_verification_warning">آخرین خرید شما همچنان در حال تأیید است. اگر به حساب کاربری دیگری وارد شوید، تأیید خرید ناموفق خواهد شد. آیا همچنان می‌خواهید از حساب خود خارج شوید؟</string>
     <string name="open_app_details">باز کردن جزئیات اپلیکیشن</string>
     <string name="open_feature_settings">باز کردن تنظیمات %1$s</string>
     <string name="open_url">باز کردن URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">ما همچنان در حال تأیید خرید شما هستیم؛ این فرایند ممکن است کمی زمان ببرد. اگر تأیید با موفقیت انجام شود، زمان به حساب شما اضافه خواهد شد.</string>
     <string name="payment_status_pending_long">پرداخت Google Play در انتظار است و ممکن است مدتی طول بکشد</string>
     <string name="payment_status_pending_short">پرداخت Google Play در حال انتظار است</string>
+    <string name="payment_status_verification_failed">تأیید پرداخت Google Play ناموفق بود</string>
     <string name="please_enter_a_valid_ip_address">لطفاً یک نشانی معتبر IPv4 یا IPv6 وارد کنید</string>
     <string name="please_enter_a_valid_remote_server_port">لطفاً یک پورت معتبرِ سرور راه‌دور وارد کنید</string>
     <string name="port">پورت</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">ایمیل شما (اختیاری)</string>
     <string name="user_message_hint">برای اینکه بتوانیم بهتر کمک کنیم، لطفاً به انگلیسی یا سوئدی بنویسید و کشوری را که از آن وصل می‌شوید ذکر کنید.</string>
     <string name="username">نام کاربری</string>
+    <string name="verification_failed_dialog_message">نتوانستیم آخرین خرید شما را تأیید کنیم. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید. اگر مشکل همچنان ادامه داشت، لطفاً با پشتیبانی تماس بگیرید.</string>
     <string name="verifying_api_method">در حال بررسی روش API...</string>
     <string name="verifying_purchase">در حال تأیید خرید</string>
+    <string name="verifying_purchase_error">تأیید خرید امکان‌پذیر نیست</string>
+    <string name="verifying_purchase_recoverable_error">نتوانستیم خرید شما را تأیید کنیم. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.</string>
+    <string name="verifying_purchase_unrecoverable_error">هنگام تأیید خرید شما خطایی رخ داد. لطفاً با پشتیبانی تماس بگیرید.</string>
     <string name="verifying_voucher">در حال تأیید ووچر…</string>
     <string name="version">نسخه</string>
     <string name="view_logs">نمایش لاگ‌های اپلیکیشن</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">به نظر می‌رسد که به جای کد ووچر، شمارهٔ حساب وارد کرده‌اید. اگر می‌خواهید حساب فعال را تغییر دهید، لطفاً ابتدا خارج شوید.</string>
     <string name="voucher_success_title">ووچر با موفقیت فعال شد.</string>
     <string name="voucher_too_short">کد ووچر بیش از حد کوتاه است</string>
+    <string name="vpn_dialog_activity_not_found">امکان باز کردن پنجره درخواست مجوز VPN وجود ندارد. لطفاً تنظیمات سیستم‌عامل خود را بررسی کنید</string>
     <string name="vpn_permission_denied_error">اجازهٔ VPN رد شده است یا یک اپلیکیشن دیگر گزینهٔ «VPN همیشه‌فعال» را فعال کرده است</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">اجازهٔ VPN رد شد</string>
     <string name="vpn_permission_error_notification_message">لطفاً برای درخواست اجازهٔ VPN دکمهٔ اتصال را فشار دهید</string>

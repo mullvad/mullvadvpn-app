@@ -105,6 +105,7 @@
     <string name="connection_details_in">内部</string>
     <string name="connection_details_out">外部</string>
     <string name="cont">继续</string>
+    <string name="contact_support">联系支持团队</string>
     <string name="continue_login">继续登录</string>
     <string name="copied_logs_to_clipboard">已将日志复制到剪贴板</string>
     <string name="copied_mullvad_account_number">已将 Mullvad 帐号复制到剪贴板</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>
     <string name="hide_account_number">隐藏帐号</string>
     <string name="hint_default">默认</string>
+    <string name="how_it_works">运作方式</string>
     <string name="icon_and_title">图标和标题</string>
     <string name="import_override_textfield_placeholder">粘贴或编写要导入的覆盖设置</string>
     <string name="import_overrides_bottom_sheet_override_warning">导入新覆盖设置可能会替换一些先前导入的覆盖设置。</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。</string>
     <string name="include_account_token_warning_message_second">有关详情，请参阅我们的%1$s。</string>
     <string name="include_account_token_warning_title">这会影响您的匿名性</string>
+    <string name="info">信息</string>
     <string name="internet">互联网</string>
     <string name="invalid_address_blank_warning">请输入 IP 地址</string>
     <string name="invalid_address_invalid_warning">IP 地址无效</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">正在加载商品</string>
     <string name="loading_verifying">正在验证购买…</string>
     <string name="local_network_sharing">本地网络共享</string>
+    <string name="local_network_sharing_info">启用此功能后，在连接 VPN 时，仍可正常使用文件共享、打印、媒体流式传输以及设备发现等服务。</string>
+    <string name="local_network_sharing_info2"><b>这可能会影响您的匿名性</b>。请避免在公共或不可信的网络上使用此功能，否则您的设备可能会对他人可见。</string>
+    <string name="local_network_sharing_info3">该应用允许本地组播、广播网络流量以及往返于私有 IP 范围的流量绕过 VPN 隧道。</string>
+    <string name="local_network_sharing_info4"><b>私有 IP 范围</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>注意</b>：“本地网络共享”与“屏蔽未使用 VPN 的所有连接”不兼容。</string>
     <string name="location_added">%1$s（已添加）</string>
     <string name="location_was_added_to_list">%1$s已添加到“%2$s”中</string>
     <string name="location_was_removed_from_list">%1$s已从“%2$s”中移除</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">关</string>
     <string name="on">开</string>
+    <string name="ongoing_verification_warning">您最近的购买仍在验证中。此时登录其他帐户将导致验证失败。是否仍要退出登录？</string>
     <string name="open_app_details">打开应用详细信息</string>
     <string name="open_feature_settings">打开 %1$s 设置</string>
     <string name="open_url">打开网址</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">我们目前仍在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将被添加。</string>
     <string name="payment_status_pending_long">Google Play 付款待处理，这可能需要一些时间</string>
     <string name="payment_status_pending_short">Google Play 付款待处理</string>
+    <string name="payment_status_verification_failed">Google Play 付款验证失败</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
     <string name="port">端口</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">您的电子邮件（可选）</string>
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
     <string name="username">用户名</string>
+    <string name="verification_failed_dialog_message">我们无法验证您最近的购买。请检查您的网络连接并重试。如果问题一直存在，请联系支持团队。</string>
     <string name="verifying_api_method">正在验证 API 方法…</string>
     <string name="verifying_purchase">正在验证购买</string>
+    <string name="verifying_purchase_error">无法验证购买</string>
+    <string name="verifying_purchase_recoverable_error">我们无法验证您的购买。请检查您的网络连接并重试。</string>
+    <string name="verifying_purchase_unrecoverable_error">验证您的购买时出错。请联系支持团队。</string>
     <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="version">版本</string>
     <string name="view_logs">查看应用日志</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="voucher_too_short">代金券代码过短</string>
+    <string name="vpn_dialog_activity_not_found">无法打开 VPN 权限对话框，请检查您的操作系统配置</string>
     <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 权限被拒绝</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>
