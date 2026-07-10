@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { spacings } from '../../../../../../foundations';
 import { AnimatedList } from '../../../../../animated-list';
 import type { AnimatedListItemProps } from '../../../../../animated-list/components';
+import { type LocationSelectorSelectedItem } from '../../../../LocationSelector';
 import {
   LocationSelectorTextField,
   LocationSelectorTrailingButton,
@@ -31,7 +32,7 @@ export type LocationSelectorItemType = 'entry' | 'entryAutomatic' | 'exit';
 
 export type LocationSelectorItemProps = Omit<AnimatedListItemProps, 'children'> &
   React.PropsWithChildren<{
-    id: string;
+    id: LocationSelectorSelectedItem;
     type: LocationSelectorItemType;
     inputRef?: React.RefObject<HTMLInputElement | null>;
     triggerRef?: React.RefObject<HTMLDivElement | null>;
