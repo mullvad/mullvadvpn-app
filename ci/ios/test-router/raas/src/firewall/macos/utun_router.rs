@@ -23,7 +23,6 @@ fn spawn_udp_receiver(
         while let Ok((bytes_received, upstream_address)) =
             upstream_socket.recv_from(&mut buffer).await
         {
-
             println!("receiving return traffic for {}", local_socket_address);
             let IpAddr::V4(upstream_ip) = upstream_address.ip() else {
                 log::error!("Received IPv6 upstream address from an IPv4 socket");
@@ -57,6 +56,10 @@ fn spawn_udp_receiver(
                 |udp_payload_buffer| udp_payload_buffer.copy_from_slice(payload),
                 &ChecksumCapabilities::default(),
             );
+
+            if let Err(err) = tunnel_device.send(return_packet.as_ref()).await {
+                log::error!("Failed to send return traffic back to utun: {err}");
+            }
         }
     });
 }
@@ -164,7 +167,10 @@ impl Router {
         destination_address: std::net::Ipv4Addr,
         udp_packet_bytes: &[u8], // [ UDP header, payload]
     ) -> anyhow::Result<()> {
-        println!("Processing packet from {} to {}", source_address, destination_address);
+        println!(
+            "Processing packet from {} to {}",
+            source_address, destination_address
+        );
         let udp_header = UdpPacket::new_checked(udp_packet_bytes)?;
         let local_socket_address = SocketAddrV4::new(source_address, udp_header.src_port());
         let remote_socket_address =
@@ -192,7 +198,10 @@ impl Router {
         let _ = socket
             .send_to(udp_header.payload(), remote_socket_address)
             .await?;
-        println!("Forwarded packet from {} to {}", local_socket_address, remote_socket_address);
+        println!(
+            "Forwarded packet from {} to {}",
+            local_socket_address, remote_socket_address
+        );
         Ok(())
     }
 
