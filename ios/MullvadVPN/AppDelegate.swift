@@ -521,18 +521,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // in the fullness of time, this section will grow and the latter will shrink to nothing
         
         // next: make a TaskGroup containing this and wipeSettings, and await that in one go
-        
+        `
         await doLoadTunnelStore()
+        doWipeSettingsIfNeeded()
+        await doGetDefaultLocation()
         
         // legacy concurrency code follows. We comment out the operations that have been converted.
         
-        let defaultLocationOperation = getDefaultLocationOperation()
+//        let defaultLocationOperation = getDefaultLocationOperation()
 //        let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
         let initTunnelManagerOperation = getInitTunnelManagerOperation()
         let deprecatedSettingsResolverOperation = getDeprecatedSettingsResolverOperation()
 
         var operations: [Operation] = [
-            defaultLocationOperation,
+//            defaultLocationOperation,
 //            loadTunnelStoreOperation,
         ]
 
@@ -540,11 +542,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let migrateSettingsOperation = getMigrateSettingsOperation(application: application)
 
         // Dependencies
-        defaultLocationOperation.addDependency(wipeSettingsOperation)
-        migrateSettingsOperation.addDependencies([
-            wipeSettingsOperation,
+//        defaultLocationOperation.addDependency(wipeSettingsOperation)
+//        migrateSettingsOperation.addDependencies([
+//            wipeSettingsOperation,
 //            loadTunnelStoreOperation,
-        ])
+//        ])
         deprecatedSettingsResolverOperation.addDependency(migrateSettingsOperation)
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
@@ -673,6 +675,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     let accountData = deviceState.accountData,
                     let deviceData = deviceState.deviceData
                 {
+                    // this part is asynchronous, but we don't await the result
                     _ = self.devicesProxy.deleteDevice(
                         accountNumber: accountData.number,
                         identifier: deviceData.identifier,
@@ -694,6 +697,43 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             settingsManager.setShouldWipeSettings()
         }
+    }
+    
+    private func doWipeSettingsIfNeeded() {
+        let appHasNeverBeenLaunched =
+            !self.appPreferences.hasDoneFirstTimeLaunch && !settingsManager.getShouldWipeSettings()
+        let appWasLaunchedAfterReinstall =
+            !self.appPreferences.hasDoneFirstTimeLaunch && settingsManager.getShouldWipeSettings()
+
+        if appHasNeverBeenLaunched {
+            try? settingsManager.writeSettings(LatestTunnelSettings())
+        } else if appWasLaunchedAfterReinstall {
+            if let deviceState = try? settingsManager.readDeviceState(),
+                let accountData = deviceState.accountData,
+                let deviceData = deviceState.deviceData
+            {
+                // this part is asynchronous, but we don't await the result
+                _ = self.devicesProxy.deleteDevice(
+                    accountNumber: accountData.number,
+                    identifier: deviceData.identifier,
+                    retryStrategy: .noRetry
+                ) { _ in
+                    // Do nothing.
+                }
+            }
+
+            settingsManager.resetStore(policy: .all)
+            try? settingsManager.writeSettings(LatestTunnelSettings())
+
+            // Default access methods need to be repopulated again after settings wipe.
+            self.accessMethodRepository.addDefaultsMethods()
+            // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
+            // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
+            try? self.relayCacheTracker.refreshCachedRelays()
+        }
+
+        settingsManager.setShouldWipeSettings()
+
     }
 
     private func getDefaultLocationOperation() -> AsyncBlockOperation {
@@ -729,6 +769,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
             }
+        }
+    }
+    
+    private func doGetDefaultLocation() async {
+        guard !self.appPreferences.hasDoneFirstTimeLaunch else {
+            return
+        }
+        self.appPreferences.hasDoneFirstTimeLaunch = true
+        _ = try? await relayCacheTracker.updateRelays()
+        guard let cachedRelays = try? relayCacheTracker.getCachedRelays() else { return }
+        let locationService = DefaultLocationService(
+            urlSession: URLSession.shared, relayCache: cachedRelays)
+        let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
+        let userSelectedRelays: UserSelectedRelays =
+            if let country = locationIdentifier?.country {
+                UserSelectedRelays(locations: [.country(country)])
+            } else {
+                .default
+            }
+
+        let constraint = RelayConstraint.only(userSelectedRelays)
+
+        if !self.appPreferences.hasDoneFirstTimeLogin {
+            self.tunnelManager.updateSettings([
+                .relayConstraints(RelayConstraints(entryLocations: constraint, exitLocations: constraint))
+            ])
         }
     }
 

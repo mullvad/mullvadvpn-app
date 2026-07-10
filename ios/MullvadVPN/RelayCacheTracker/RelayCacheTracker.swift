@@ -185,6 +185,22 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     {
         performUpdate(shouldThrottle: false, completionHandler: completionHandler)
     }
+    
+    func updateRelays() async throws -> RelaysFetchResult {
+        try await withCheckedThrowingContinuation { continuation in
+            _ = self.updateRelays { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+    
+    func fetchRelays() async throws -> RelaysFetchResult {
+        try await withCheckedThrowingContinuation { continuation in
+            _ = self.fetchRelays { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
 
     func getCachedRelays() throws -> CachedRelays {
         relayCacheLock.lock()
