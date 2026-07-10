@@ -28,8 +28,8 @@ struct ActiveFilterView: View {
                                     Text(filter.labelText(style: labelStyle))
                                         .foregroundStyle(
                                             automaticLocationIsActive && filter.isOverriddenByAutomaticLocation
-                                            ? Color.MullvadText.disabled
-                                            : Color.mullvadTextPrimary
+                                                ? Color.MullvadText.disabled
+                                                : Color.mullvadTextPrimary
                                         )
                                     if filter.isRemovable {
                                         Button {
