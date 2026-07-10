@@ -101,26 +101,34 @@ pub(super) fn deserialize_and_verify(
 
     let valid_keys: Vec<_> = keys.into_iter().map(|k| k.0).collect();
 
-    // Check if one of the keys matches
-    let Some((key, sig)) = partial_data.signatures.iter().find_map(|sig| match sig {
-        // Check if ed25519 key matches
-        ResponseSignature::Ed25519 { keyid, sig } if valid_keys.contains(&keyid.0) => {
-            Some((keyid, sig))
-        }
-        // Ignore all non-matching key
-        _ => None,
-    }) else {
-        anyhow::bail!("Unrecognized key");
-    };
-
     // Serialize to canonical json format
     let canon_data = json_canon::to_vec(&partial_data.signed)
         .context("Failed to serialize to canonical JSON")?;
 
-    // Check if the data is signed by our key
-    key.0
-        .verify_strict(&canon_data, &sig.0)
-        .context("Signature verification failed")?;
+    let mut signature_error = None;
+    let valid_signature = partial_data.signatures.iter().any(|signature| {
+        let ResponseSignature::Ed25519 { keyid, sig } = signature else {
+            return false;
+        };
+        if !valid_keys.contains(&keyid.0) {
+            return false;
+        }
+
+        match keyid.0.verify_strict(&canon_data, &sig.0) {
+            Ok(()) => true,
+            Err(error) => {
+                signature_error = Some(error);
+                false
+            }
+        }
+    });
+
+    if !valid_signature {
+        let Some(error) = signature_error else {
+            anyhow::bail!("Unrecognized key");
+        };
+        return Err(error).context("Signature verification failed");
+    }
 
     Ok(PartialSignedResponse {
         signatures: partial_data.signatures,

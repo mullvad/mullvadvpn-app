@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
   existing, invalid access method is removed with a settings migration.
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
+- Accept version metadata when any signature from a trusted key is valid.
 
 #### Windows
 - Fix misleading "split tunneling" error when offline.

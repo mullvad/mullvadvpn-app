@@ -154,4 +154,33 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn test_sign_multiple_accepts_later_valid_signature() -> anyhow::Result<()> {
+        let key = SecretKey::generate();
+        let pubkey = key.pubkey();
+        let key2 = SecretKey::generate();
+        let pubkey2 = key2.pubkey();
+
+        let data = json!({
+            "stuff": "I can prove that I wrote this"
+        });
+        let other_data = json!({
+            "stuff": "This is not the signed data"
+        });
+
+        let mut partial = sign(&key, &other_data).context("Signing failed")?;
+        let valid_partial = sign(&key2, &data).context("Signing failed")?;
+        partial.signed = valid_partial.signed;
+        partial.signatures.extend(valid_partial.signatures);
+
+        let bytes = serde_json::to_vec(&partial)?;
+
+        let error = deserialize_and_verify(&vec1![pubkey.clone()], &bytes).unwrap_err();
+        assert_eq!(error.to_string(), "Signature verification failed");
+        deserialize_and_verify(&vec1![pubkey2.clone()], &bytes)?;
+        deserialize_and_verify(&vec1![pubkey, pubkey2], &bytes)?;
+
+        Ok(())
+    }
 }
