@@ -105,6 +105,7 @@
     <string name="connection_details_in">داخل</string>
     <string name="connection_details_out">خارج</string>
     <string name="cont">استمرار</string>
+    <string name="contact_support">الاتصال بالدعم</string>
     <string name="continue_login">المتابعة بتسجيل الدخول</string>
     <string name="copied_logs_to_clipboard">تم نسخ السجلات إلى الحافظة</string>
     <string name="copied_mullvad_account_number">تم نسخ رقم حساب Mullvad إلى الحافظة</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">هذا هو رقم حسابك. احفظه!</string>
     <string name="hide_account_number">إخفاء رقم الحساب</string>
     <string name="hint_default">افتراضي</string>
+    <string name="how_it_works">كيف يعمل الأمر</string>
     <string name="icon_and_title">الرمز والعنوان</string>
     <string name="import_override_textfield_placeholder">الصق أو اكتب التجاوزات المراد استيرادها</string>
     <string name="import_overrides_bottom_sheet_override_warning">قد يحل استيراد التجاوزات الجديدة محل بعض التجاوزات التي تم استيرادها سابقًا.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">من خلال ربط رمز حسابك، يتم ربط هذا البلاغ بحسابك، مما يساعدنا على حل مشكلتك بشكلٍ أسرع. يتم حذف جميع البلاغات تلقائيًا بعد فترة زمنية مُحدَّدة.</string>
     <string name="include_account_token_warning_message_second">للحصول على التفاصيل، يُرجى الاطلاع على %1$s لدينا.</string>
     <string name="include_account_token_warning_title">يؤثر ذلك على إخفاء هويتك</string>
+    <string name="info">المعلومات</string>
     <string name="internet">الإنترنت</string>
     <string name="invalid_address_blank_warning">الرجاء إدخال عنوان IP</string>
     <string name="invalid_address_invalid_warning">عنوان IP غير صالح</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">جارٍ تحميل المنتجات</string>
     <string name="loading_verifying">جارٍ التحقُّق من عملية الشراء...</string>
     <string name="local_network_sharing">مشاركة الشبكة المحلية</string>
+    <string name="local_network_sharing_info">قم بتمكين هذا الإعداد مع خدمات مثل مشاركة الملفات والطباعة وبث الوسائط واكتشاف الأجهزة لكي تعمل أثناء الاتصال بـ VPN.</string>
+    <string name="local_network_sharing_info2"><b>قد يؤثر ذلك على إخفاء هويتك.</b> تجنب تمكين هذا الإعداد على الشبكات العامة أو غير الموثوق بها، نظرًا لأن جهازك قد يكون مرئيًا للآخرين.</string>
+    <string name="local_network_sharing_info3">يسمح التطبيق بحركة بيانات الشبكة المحلية للإرسال المتعدد والبث، بالإضافة إلى حركة البيانات إلى نطاقات IP الخاصة ومنها، لتجاوز قناة VPN.</string>
+    <string name="local_network_sharing_info4"><b>نطاقات عناوين IP الخاصة</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>تنبيه:</b> مشاركة الشبكة المحلية لا يتوافق مع ميزة “حظر الاتصالات من دون VPN”.</string>
     <string name="location_added">%1$s (تمت إضافته)</string>
     <string name="location_was_added_to_list">تمت إضافة %1$s إلى \"%2$s\"</string>
     <string name="location_was_removed_from_list">تمت إزالة %1$s من \"%2$s\"</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">إيقاف</string>
     <string name="on">تشغيل</string>
+    <string name="ongoing_verification_warning">ما يزال يجري التحقق من آخر عملية شراء أجريتها. سيترتب على تسجيل الدخول إلى حساب آخر فشل عملية التحقق. هل ما زلت تريد تسجيل الخروج؟</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
     <string name="open_feature_settings">فتح إعدادات ميزة %1$s</string>
     <string name="open_url">فتح عنوان URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">ما زلنا نتحقَّق من عملية الشراء، قد يستغرق ذلك بعض الوقت. ستتم إضافة مدتك في حال نجاح التحقُّق.</string>
     <string name="payment_status_pending_long">الدفع من خلال Google Play مُعلَّق، قد يستغرق هذا بعض الوقت</string>
     <string name="payment_status_pending_short">الدفع من خلال Google Play مُعلَّق</string>
+    <string name="payment_status_verification_failed">فشل التحقق من الدفع عبر Google Play</string>
     <string name="please_enter_a_valid_ip_address">يُرجى إدخال عنوان IPv4 أو IPv6 صالح</string>
     <string name="please_enter_a_valid_remote_server_port">يُرجى إدخال منفذ خادم بعيد صالح</string>
     <string name="port">المنفذ</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">بريدك الإلكتروني (اختياري)</string>
     <string name="user_message_hint">لمساعدتك بشكلٍ أفضل، يُرجى الكتابة باللغة الإنجليزية أو السويدية مع ذكر البلد الذي تتصل منه.</string>
     <string name="username">اسم المستخدم</string>
+    <string name="verification_failed_dialog_message">تعذر التحقق من آخر عملية شراء أجريتها. يرجى فحص اتصالك بالإنترنت وحاول مرة أخرى. إذا استمرت المشكلة، فيرجى الاتصال بالدعم.</string>
     <string name="verifying_api_method">جار التحقُّق من طريقة واجهة API...</string>
     <string name="verifying_purchase">جارٍ التحقُّق من عملية الشراء</string>
+    <string name="verifying_purchase_error">تعذر التحقق من الشراء</string>
+    <string name="verifying_purchase_recoverable_error">تعذر علينا التحقق من الشراء. برجاء فحص اتصالك بالإنترنت وإعادة المحاولة.</string>
+    <string name="verifying_purchase_unrecoverable_error">حدث خطأ ما أثناء التحقق من الشراء. برجاء الاتصال بالدعم.</string>
     <string name="verifying_voucher">جارٍ التحقُّق من القسيمة…</string>
     <string name="version">الإصدار</string>
     <string name="view_logs">عرض سجلات التطبيق</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">يبدو أنك أدخلت رقم حساب بدلًا من رمز قسيمة. لتغيير الحساب النشط، يُرجى تسجيل الخروج أولًا.</string>
     <string name="voucher_success_title">تم استرداد القسيمة بنجاح.</string>
     <string name="voucher_too_short">رمز القسيمة قصير جدًا</string>
+    <string name="vpn_dialog_activity_not_found">تعذر فتح مربع حوار إذن VPN، يرجى التحقق من تكوين نظام التشغيل لديك</string>
     <string name="vpn_permission_denied_error">تم رفض إذن شبكة VPN أو يوجد تطبيق آخر تم تفعيل خيار \"تشغيل VPN دائمًا\" عليه</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">تم رفض إذن شبكة VPN</string>
     <string name="vpn_permission_error_notification_message">يُرجى الضغط على \"اتصال\" لطلب إذن VPN</string>

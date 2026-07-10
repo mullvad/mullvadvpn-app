@@ -105,6 +105,7 @@
     <string name="connection_details_in">Ind</string>
     <string name="connection_details_out">Ud</string>
     <string name="cont">Fortsæt</string>
+    <string name="contact_support">Kontakt support</string>
     <string name="continue_login">Fortsæt med login</string>
     <string name="copied_logs_to_clipboard">Kopierede logfiler til udklipsholder</string>
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="how_it_works">Sådan fungerer det</string>
     <string name="icon_and_title">Ikon og titel</string>
     <string name="import_override_textfield_placeholder">Indsæt eller skriv tilsidesættelser, der skal importeres</string>
     <string name="import_overrides_bottom_sheet_override_warning">Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid.</string>
     <string name="include_account_token_warning_message_second">Se vores %1$s for at få flere oplysninger.</string>
     <string name="include_account_token_warning_title">Dette påvirker din anonymitet</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Indtast en IP-adresse</string>
     <string name="invalid_address_invalid_warning">Ugyldig IP-adresse</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
+    <string name="local_network_sharing_info">Aktivér dette for at tjenester som fildeling, udskrivning, mediestreaming og enhedsregistrering kan fungere, mens du er forbundet til VPN\'en.</string>
+    <string name="local_network_sharing_info2"><b>Dette kan påvirke din anonymitet.</b> Undgå at aktivere dette på offentlige eller upålidelige netværk, da din enhed kan blive synlig for andre.</string>
+    <string name="local_network_sharing_info3">Appen tillader lokal multicast- og broadcast-netværkstrafik samt trafik til og fra private IP-intervaller for at omgå VPN-tunnelen.</string>
+    <string name="local_network_sharing_info4"><b>Private IP-intervaller</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Bemærk:</b> Lokal netværksdeling er ikke kompatibel med \"Bloker forbindelser uden VPN\".</string>
     <string name="location_added">%1$s (tilføjet)</string>
     <string name="location_was_added_to_list">%1$s blev tilføjet til \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s blev fjernet fra \"%2$s\"</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Fra</string>
     <string name="on">Til</string>
+    <string name="ongoing_verification_warning">Dit seneste køb verificeres stadig. Hvis du logger ind på en anden konto, vil verifikationen mislykkes. Vil du stadig logge ud?</string>
     <string name="open_app_details">Se oplysninger om app</string>
     <string name="open_feature_settings">Åbn indstillinger for %1$s</string>
     <string name="open_url">Åbn URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Vi er stadig ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes.</string>
     <string name="payment_status_pending_long">Google Play-betaling afventer, det kan tage lidt tid</string>
     <string name="payment_status_pending_short">Google Play-betaling afventer</string>
+    <string name="payment_status_verification_failed">Bekræftelse af Google Play-betaling mislykkedes</string>
     <string name="please_enter_a_valid_ip_address">Indtast en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Indtast en gyldig fjernserverport</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
     <string name="user_message_hint">For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i.</string>
     <string name="username">Brugernavn</string>
+    <string name="verification_failed_dialog_message">Vi kunne ikke bekræfte dit seneste køb. Tjek din internetforbindelse, og prøv igen. Kontakt support, hvis problemet fortsætter.</string>
     <string name="verifying_api_method">Bekræfter API-metode...</string>
     <string name="verifying_purchase">Bekræfter køb</string>
+    <string name="verifying_purchase_error">Købet kunne ikke bekræftes</string>
+    <string name="verifying_purchase_recoverable_error">Vi kunne ikke bekræfte dit køb. Tjek din internetforbindelse, og prøv igen.</string>
+    <string name="verifying_purchase_unrecoverable_error">Noget gik galt under bekræftelsen af dit køb. Kontakt support.</string>
     <string name="verifying_voucher">Bekræfter kupon…</string>
     <string name="version">Version</string>
     <string name="view_logs">Se app-logfiler</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="voucher_too_short">Kuponkode er for kort</string>
+    <string name="vpn_dialog_activity_not_found">Kan ikke åbne dialogboksen for VPN-tilladelser. Kontrollér din OS-konfiguration</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-tilladelse blev afvist</string>
     <string name="vpn_permission_error_notification_message">Tryk på Opret forbindelse for at anmode om VPN-tilladelse</string>

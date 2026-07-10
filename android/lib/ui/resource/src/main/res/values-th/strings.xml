@@ -105,6 +105,7 @@
     <string name="connection_details_in">เข้า</string>
     <string name="connection_details_out">ออก</string>
     <string name="cont">ดำเนินการต่อ</string>
+    <string name="contact_support">ติดต่อฝ่ายสนับสนุน</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
     <string name="copied_logs_to_clipboard">คัดลอกบันทึกล็อกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hide_account_number">ซ่อนหมายเลขบัญชี</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
+    <string name="how_it_works">วิธีการทำงาน</string>
     <string name="icon_and_title">ไอคอนและชื่อ</string>
     <string name="import_override_textfield_placeholder">วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า</string>
     <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง</string>
     <string name="include_account_token_warning_message_second">สำหรับรายละเอียดเพิ่มเติม โปรดดูที่ %1$s ของเรา</string>
     <string name="include_account_token_warning_title">สิ่งนี้ส่งผลต่อความไม่เปิดเผยตัวตนของคุณ</string>
+    <string name="info">ข้อมูล</string>
     <string name="internet">อินเทอร์เน็ต</string>
     <string name="invalid_address_blank_warning">โปรดป้อนที่อยู่ IP</string>
     <string name="invalid_address_invalid_warning">ที่อยู่ IP ไม่ถูกต้อง</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">กำลังโหลดผลิตภัณฑ์</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
+    <string name="local_network_sharing_info">เปิดใช้งานรายการนี้เพื่อให้ส่วนบริการต่างๆ เช่น การแชร์ไฟล์ การพิมพ์ การสตรีมสื่อ และการตรวจหาอุปกรณ์ สามารถทำงานได้ในขณะที่เชื่อมต่อกับ VPN</string>
+    <string name="local_network_sharing_info2"><b>รายการนี้อาจส่งผลกระทบต่อการไม่ระบุตัวตนของคุณ</b> หลีกเลี่ยงการเปิดใช้งานรายการบนเครือข่ายสาธารณะหรือไม่น่าเชื่อถือ เนื่องจากอุปกรณ์ของคุณอาจปรากฏให้ผู้อื่นเห็นได้</string>
+    <string name="local_network_sharing_info3">แอปอนุญาตให้การรับส่งข้อมูลทางเครือข่ายมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการรับส่งข้อมูลเข้าและออกจากช่วง IP ส่วนตัว สามารถบายพาสอุโมงค์ VPN ได้</string>
+    <string name="local_network_sharing_info4"><b>ช่วง IP ส่วนตัว</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>ข้อควรระวัง:</b> การแชร์เครือข่ายท้องถิ่นไม่รองรับการใช้งานร่วมกับ \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\"</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
     <string name="location_was_added_to_list">เพิ่ม %1$s ลงใน \"%2$s\" แล้ว</string>
     <string name="location_was_removed_from_list">%1$s ถูกลบออกจาก \"%2$s” แล้ว</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
+    <string name="ongoing_verification_warning">การซื้อล่าสุดของคุณกำลังอยู่ในระหว่างการตรวจสอบ การเข้าสู่ระบบบัญชีอื่นจะทำให้การตรวจสอบล้มเหลว คุณยังต้องการออกจากระบบอยู่หรือไม่</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
     <string name="open_feature_settings">เปิดการตั้งค่า %1$s</string>
     <string name="open_url">Open URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">เรากำลังตรวจสอบการสั่งซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ หากการตรวจสอบเสร็จสมบูรณ์ เราจะเพิ่มเวลาของคุณ</string>
     <string name="payment_status_pending_long">การชำระเงินผ่าน Google Play อยู่ระหว่างดำเนินการ อาจใช้เวลาสักครู่</string>
     <string name="payment_status_pending_short">กำลังชำระเงิน Google Play</string>
+    <string name="payment_status_verification_failed">การตรวจสอบการชำระเงินของ Google Play ล้มเหลว</string>
     <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
     <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
     <string name="port">พอร์ต</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
     <string name="username">ชื่อผู้ใช้</string>
+    <string name="verification_failed_dialog_message">เราไม่สามารถตรวจสอบการซื้อล่าสุดของคุณได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง หากปัญหายังคงอยู่ โปรดติดต่อฝ่ายสนับสนุน</string>
     <string name="verifying_api_method">กำลังตรวจสอบยืนยันวิธีการ API...</string>
     <string name="verifying_purchase">กำลังตรวจสอบยืนยันการซื้อ</string>
+    <string name="verifying_purchase_error">ไม่สามารถตรวจสอบการซื้อได้</string>
+    <string name="verifying_purchase_recoverable_error">เราไม่สามารถตรวจสอบการซื้อของคุณได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง</string>
+    <string name="verifying_purchase_unrecoverable_error">เกิดข้อผิดพลาดขณะตรวจสอบยืนยันการซื้อของคุณ โปรดติดต่อฝ่ายสนับสนุน</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="version">เวอร์ชัน</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
     <string name="voucher_too_short">รหัสบัตรกำนัลสั้นเกินไป</string>
+    <string name="vpn_dialog_activity_not_found">ไม่สามารถเปิดกล่องโต้ตอบขออนุญาต VPN ได้ โปรดตรวจสอบการกำหนดค่าระบบปฏิบัติการของคุณ</string>
     <string name="vpn_permission_denied_error">สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">การอนุญาต VPN ถูกปฏิเสธ</string>
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>

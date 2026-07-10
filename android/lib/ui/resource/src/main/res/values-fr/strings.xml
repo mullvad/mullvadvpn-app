@@ -105,6 +105,7 @@
     <string name="connection_details_in">Entrante</string>
     <string name="connection_details_out">Sortante</string>
     <string name="cont">Continuer</string>
+    <string name="contact_support">Contacter l\'assistance</string>
     <string name="continue_login">Continuer avec la connexion</string>
     <string name="copied_logs_to_clipboard">Journaux copiés dans le presse-papiers</string>
     <string name="copied_mullvad_account_number">Numéro de compte Mullvad copié dans le presse-papiers</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>
     <string name="hide_account_number">Masquer le numéro de compte</string>
     <string name="hint_default">Par défaut</string>
+    <string name="how_it_works">Fonctionnement</string>
     <string name="icon_and_title">Icône et titre</string>
     <string name="import_override_textfield_placeholder">Collez ou saisissez les substitutions à importer</string>
     <string name="import_overrides_bottom_sheet_override_warning">L\'importation de nouvelles substitutions peut remplacer certaines substitutions importées précédemment.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Joindre votre jeton de compte rattachera ce rapport à votre compte, ce qui nous aidera à résoudre votre problème plus vite. Tous les rapports sont automatiquement supprimés après une certaine période.</string>
     <string name="include_account_token_warning_message_second">Pour plus d\'informations, veuillez consulter notre %1$s.</string>
     <string name="include_account_token_warning_title">Ceci affecte votre anonymat</string>
+    <string name="info">Informations</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Veuillez saisir une adresse IP</string>
     <string name="invalid_address_invalid_warning">Adresse IP non valide</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Chargement des produits</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
     <string name="local_network_sharing">Partage réseau local</string>
+    <string name="local_network_sharing_info">Activez cette option pour que les services tels que le partage de fichiers, l\'impression, la diffusion multimédia et la détection des périphériques fonctionnent quand le VPN est connecté.</string>
+    <string name="local_network_sharing_info2"><b>Ceci peut impacter votre anonymat.</b> Évitez d\'activer cette option sur des réseaux publics ou non fiables, car votre appareil pourrait devenir visible pour d\'autres utilisateurs.</string>
+    <string name="local_network_sharing_info3">L\'application permet au trafic réseau local de multidiffusion et de diffusion, ainsi qu\'au trafic à destination et en provenance de plages d\'adresses IP privées, de contourner le tunnel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Plages d\'IP privées</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Attention :</b> le partage sur réseau local n\'est pas compatible avec « Bloquer les connexions sans VPN ».</string>
     <string name="location_added">%1$s (ajouté)</string>
     <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
     <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
+    <string name="ongoing_verification_warning">Votre dernier achat est toujours en cours de vérification. Si vous vous connectez à un autre compte, la vérification échouera. Voulez-vous quand même vous déconnecter ?</string>
     <string name="open_app_details">Ouvrir les détails de l\'application</string>
     <string name="open_feature_settings">Ouvrir les paramètres %1$s</string>
     <string name="open_url">Ouvrir l\'URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Nous vérifions encore votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
     <string name="payment_status_pending_long">Paiement Google Play en attente. Cela peut prendre du temps</string>
     <string name="payment_status_pending_short">Paiement Google Play en attente</string>
+    <string name="payment_status_verification_failed">Échec de la vérification du paiement Google Play</string>
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
     <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
     <string name="username">Nom d\'utilisateur</string>
+    <string name="verification_failed_dialog_message">Nous n\'avons pas pu vérifier votre dernier achat. Veuillez vérifier votre connexion Internet et réessayer. Si le problème persiste, veuillez contacter le service d\'assistance.</string>
     <string name="verifying_api_method">Vérification de la méthode API...</string>
     <string name="verifying_purchase">Vérification de l\'achat</string>
+    <string name="verifying_purchase_error">Impossible de vérifier l\'achat</string>
+    <string name="verifying_purchase_recoverable_error">Nous n\'avons pas pu valider votre achat. Veuillez vérifier votre connexion Internet et réessayer.</string>
+    <string name="verifying_purchase_unrecoverable_error">Un problème est survenu lors de la vérification de votre achat. Veuillez contacter l\'assistance.</string>
     <string name="verifying_voucher">Vérification du bon…</string>
     <string name="version">Version</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="voucher_too_short">Le code du bon est trop court</string>
+    <string name="vpn_dialog_activity_not_found">Impossible d\'ouvrir la boîte de dialogue d\'autorisation VPN. Veuillez vérifier la configuration de votre système d\'exploitation</string>
     <string name="vpn_permission_denied_error">L\'autorisation VPN a été refusée ou une autre application a activé « Toujours exiger un VPN ».</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">L\'autorisation VPN a été refusée</string>
     <string name="vpn_permission_error_notification_message">Veuillez appuyer sur connexion pour demander l\'autorisation VPN</string>

@@ -105,6 +105,7 @@
     <string name="connection_details_in">Вход</string>
     <string name="connection_details_out">Выход</string>
     <string name="cont">Продолжить</string>
+    <string name="contact_support">Связаться с поддержкой</string>
     <string name="continue_login">Войти</string>
     <string name="copied_logs_to_clipboard">Журналы скопированы в буфер обмена</string>
     <string name="copied_mullvad_account_number">Номер учетной записи Mullvad скопирован в буфер обмена</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hide_account_number">Скрыть номер учетной записи</string>
     <string name="hint_default">По умолчанию</string>
+    <string name="how_it_works">Как это работает</string>
     <string name="icon_and_title">Значок и название</string>
     <string name="import_override_textfield_placeholder">Вставьте или напишите переопределения для импорта</string>
     <string name="import_overrides_bottom_sheet_override_warning">Импорт новых переопределений может заменить некоторые ранее импортированные переопределения.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени.</string>
     <string name="include_account_token_warning_message_second">Подробнее смотрите здесь: %1$s.</string>
     <string name="include_account_token_warning_title">Это влияет на вашу анонимность</string>
+    <string name="info">Информация</string>
     <string name="internet">Интернет</string>
     <string name="invalid_address_blank_warning">Введите IP-адрес</string>
     <string name="invalid_address_invalid_warning">Недопустимый IP-адрес</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Загрузка продуктов</string>
     <string name="loading_verifying">Идет проверка оплаты...</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
+    <string name="local_network_sharing_info">Включите эту функцию, чтобы общий доступ к файлам, печать, потоковая передача мультимедиа и обнаружение устройств работали при использовании VPN.</string>
+    <string name="local_network_sharing_info2"><b>Это может повлиять на вашу анонимность.</b> Не включайте эту функцию в общедоступных или ненадежных сетях, иначе ваше устройство могут увидеть другие пользователи.</string>
+    <string name="local_network_sharing_info3">Приложение позволяет обходить VPN-туннель многоадресному и широковещательному трафику в локальной сети, а также трафику к частным диапазонам IP-адресов и от них.</string>
+    <string name="local_network_sharing_info4"><b>Диапазоны частных IP-адресов</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Внимание:</b> обмен данными в локальной сети несовместим с функцией «Блокировать соединения без VPN».</string>
     <string name="location_added">%1$s (добавлено)</string>
     <string name="location_was_added_to_list">Местоположение %1$s добавлено в список «%2$s»</string>
     <string name="location_was_removed_from_list">Местоположение %1$s удалено из списка «%2$s»</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Выкл.</string>
     <string name="on">Вкл.</string>
+    <string name="ongoing_verification_warning">Проверка вашей последней покупки еще не завершена. Если вы войдете в другую учетную запись, проверка не будет пройдена. Все равно выйти?</string>
     <string name="open_app_details">Открыть сведения о приложении</string>
     <string name="open_feature_settings">Открыть настройки %1$s</string>
     <string name="open_url">Открыть URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Мы все еще проверяем, прошла ли оплата; нужно немного подождать. После успешного завершения проверки оплаченное время будет добавлено.</string>
     <string name="payment_status_pending_long">Ожидается оплата в Google Play. Это может занять некоторое время.</string>
     <string name="payment_status_pending_short">Ожидается оплата в Google Play</string>
+    <string name="payment_status_verification_failed">Не удалось подтвердить платеж через Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
     <string name="port">Порт</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Ваша электронная почта (необязательно)</string>
     <string name="user_message_hint">Чтобы мы могли быстрее решить проблему, напишите нам на английском или шведском и укажите, из какой страны вы подключаетесь.</string>
     <string name="username">Имя пользователя</string>
+    <string name="verification_failed_dialog_message">Не удалось подтвердить вашу последнюю покупку. Проверьте подключение к Интернету и повторите попытку. Если проблема не исчезнет, обратитесь в службу поддержки.</string>
     <string name="verifying_api_method">Проверяем метод доступа к API...</string>
     <string name="verifying_purchase">Идет проверка оплаты</string>
+    <string name="verifying_purchase_error">Не удалось подтвердить покупку</string>
+    <string name="verifying_purchase_recoverable_error">Не удалось подтвердить вашу покупку. Проверьте подключение к Интернету и повторите попытку.</string>
+    <string name="verifying_purchase_unrecoverable_error">При проверке покупки произошла ошибка. Обратитесь в службу поддержки.</string>
     <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="version">Версия</string>
     <string name="view_logs">Открыть журналы</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
     <string name="voucher_too_short">Код ваучера слишком короткий</string>
+    <string name="vpn_dialog_activity_not_found">Не удалось открыть диалоговое окно с запросом разрешения на VPN-подключение. Проверьте настройки операционной системы.</string>
     <string name="vpn_permission_denied_error">Нет разрешения на использование VPN или другое приложение работает в режиме «Постоянная VPN»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Нет разрешения на использование VPN</string>
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>

@@ -105,6 +105,7 @@
     <string name="connection_details_in">Giriş</string>
     <string name="connection_details_out">Çıkış</string>
     <string name="cont">İleri</string>
+    <string name="contact_support">Destek ekibiyle iletişime geçin</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
     <string name="copied_logs_to_clipboard">Günlükler panoya kopyalandı</string>
     <string name="copied_mullvad_account_number">Mullvad hesap numarası panoya kopyalandı</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
+    <string name="how_it_works">İşleyiş şekli</string>
     <string name="icon_and_title">Simge ve başlık</string>
     <string name="import_override_textfield_placeholder">İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın</string>
     <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir.</string>
     <string name="include_account_token_warning_message_second">Ayrıntılar için lütfen %1$s sayfamıza göz atın.</string>
     <string name="include_account_token_warning_title">Bu, anonimliğinizi etkileyebilir</string>
+    <string name="info">Bilgiler</string>
     <string name="internet">İnternet</string>
     <string name="invalid_address_blank_warning">Lütfen bir IP adresi girin</string>
     <string name="invalid_address_invalid_warning">Geçersiz IP adresi</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Ürünler yükleniyor</string>
     <string name="loading_verifying">Satın alma işlemi doğrulanıyor...</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
+    <string name="local_network_sharing_info">Dosya paylaşımı, yazdırma, medya akışı ve cihaz keşfi gibi hizmetlerin VPN\'e bağlıyken çalışması için bu özelliği etkinleştirin.</string>
+    <string name="local_network_sharing_info2"><b>Bu durum anonimliğinizi etkileyebilir.</b> Cihazınız başkaları tarafından görülebileceğinden bu özelliği güvenli olmayan veya herkese açık ağlarda etkinleştirmeyin.</string>
+    <string name="local_network_sharing_info3">Bu uygulama, yerel çok noktaya yayın ve yayın ağ trafiğinin yanı sıra özel IP aralıklarına giden ve bu aralıklardan gelen trafiğin VPN tünelini atlamasına olanak tanır.</string>
+    <string name="local_network_sharing_info4"><b>Özel IP aralıkları</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Dikkat:</b> Yerel ağ paylaşımı, \"VPN üzerinden olmayan bağlantıları engelle\" seçeneğiyle uyumlu değil.</string>
     <string name="location_added">%1$s (eklendi)</string>
     <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
     <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
+    <string name="ongoing_verification_warning">Son satın alma işleminiz hâlâ doğrulanıyor. Başka bir hesaba giriş yapmak doğrulamanın başarısız olmasına neden olur. Yine de çıkış yapmak istiyor musunuz?</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
     <string name="open_feature_settings">%1$s ayarlarını aç</string>
     <string name="open_url">URL\'yi aç</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Satın alma işleminiz doğrulanıyor. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
     <string name="payment_status_pending_long">Google Play ödemesi bekleniyor. Bu işlem biraz zaman alabilir</string>
     <string name="payment_status_pending_short">Google Play ödemesi bekleniyor</string>
+    <string name="payment_status_verification_failed">Google Play ödemesi doğrulanamadı</string>
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
     <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
     <string name="username">Kullanıcı adı</string>
+    <string name="verification_failed_dialog_message">Lütfen internet bağlantınızı kontrol ederek tekrar deneyin. Sorun devam ederse destek ekibiyle iletişime geçin.</string>
     <string name="verifying_api_method">API yöntemi doğrulanıyor...</string>
     <string name="verifying_purchase">Satın alma işlemi doğrulanıyor</string>
+    <string name="verifying_purchase_error">Satın alma işlemi doğrulanamadı</string>
+    <string name="verifying_purchase_recoverable_error">Satın alma işleminizi doğrulayamadık. Lütfen internet bağlantınızı kontrol ederek tekrar deneyin.</string>
+    <string name="verifying_purchase_unrecoverable_error">Satın alma işleminizi doğrularken bir sorun oluştu. Lütfen destek ekibiyle iletişime geçin.</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="version">Sürüm</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="voucher_too_short">Kupon kodu çok kısa</string>
+    <string name="vpn_dialog_activity_not_found">VPN izin iletişim kutusu açılamıyor, lütfen işletim sisteminizin yapılandırmasını kontrol edin</string>
     <string name="vpn_permission_denied_error">VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" seçeneği etkinleştirildi</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN izni reddedildi</string>
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>

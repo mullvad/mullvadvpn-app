@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-07-10 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "Nog %(amount)d..."
@@ -292,6 +292,18 @@ msgstr "Zoek locaties of servers"
 
 msgid "SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Instellen als multihop-ingang"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Instellen als multihop-ingang (incompatibel)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Instellen als multihop-uitgang"
 
 msgid "Settings"
 msgstr "Instellingen"
@@ -1152,7 +1164,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (Toegevoegd)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1907,7 +1919,6 @@ msgstr "Inschakelen van split tunneling mislukt. Probeer opnieuw verbinding te m
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "Starten van %(splitTunneling)s is mislukt. Schakel %(splitTunneling)s uit om het netwerkverkeer te deblokkeren."
@@ -1967,10 +1978,6 @@ msgstr "Kan niet alle netwerkverkeer blokkeren. Probeer antivirus- of beveiligin
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "Kan niet alle netwerkverkeer blokkeren. Probeer uw kernel te updaten of stuur een probleemrapport."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Kan niet communiceren met het Mullvad-kernelstuurprogramma. Probeer opnieuw verbinding te maken of stuur een probleemrapport."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2084,6 +2091,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Aangepaste lijsten"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "Multihop uitschakelen"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Recente uitschakelen"
@@ -2092,6 +2104,11 @@ msgstr "Recente uitschakelen"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Leeg"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "Multihop inschakelen"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2340,8 +2357,8 @@ msgstr "Mullvad-service opnieuw starten"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "Als u %(splitTunneling)s wilt gebruiken, moet u bijwerken naar een versie van de Linux-kernel die cgroup v2 ondersteunt."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "Als u %(splitTunneling)s wilt gebruiken, moet u overschakelen naar een versie van de Linux-kernel die cgroup v1 ondersteunt."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2572,12 +2589,20 @@ msgid "Language"
 msgstr "Taal"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "Monochroom menubalkpictogram"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochroom taakbalkpictogram"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Notificaties"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "Geef het menubalkpictogram alleen weer wanneer de app start."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2587,9 +2612,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Geminimaliseerd opstarten"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "App losmaken van menubalk"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "App losmaken van taakbalk"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "Gebruik een monochroom menubalkpictogram in plaats van een gekleurd pictogram."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3006,6 +3041,9 @@ msgstr "<b>Accountherstel is niet mogelijk.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Let op: De DNS-instellingen worden mogelijk niet onmiddellijk van kracht.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>Let op:</b> delen via lokaal netwerk is niet compatibel met \"Verbindingen zonder VPN blokkeren\"."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Let op:</b> alleen sommige servers ondersteunen het volledige poortbereik."
 
@@ -3018,8 +3056,14 @@ msgstr "<b>DNS-contentblokkeringen</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>Privé-IP-reeksen</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>Deze handeling kan niet ongedaan worden gemaakt.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>Dit kan gevolgen hebben voor je anonimiteit.</b> Schakel deze functie niet in op openbare of onbetrouwbare netwerken, want je apparaat kan dan zichtbaar worden voor anderen."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Waarschuwing:</b>"
@@ -3111,9 +3155,6 @@ msgstr "Weet u zeker dat u <b>%s</b> wilt afmelden?"
 msgid "At least one method needs to be enabled"
 msgstr "Er moet minimaal één methode ingeschakeld zijn"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Let op: Als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, hebben gesplitste apps geen internet. Houd er altijd rekening mee dat split tunneling een privacyrisico vormt."
 
@@ -3162,6 +3203,9 @@ msgstr "Verbinding maken met een ander netwerk"
 msgid "Connecting..."
 msgstr "Verbinden ..."
 
+msgid "Contact support"
+msgstr "Contact met ondersteuning"
+
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -3192,9 +3236,6 @@ msgstr "Aangepaste DNS-serveradressen %1$s zijn ongeldig"
 msgid "DNS settings"
 msgstr "DNS-instellingen"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS-instellingen worden mogelijk niet onmiddellijk van kracht"
-
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" verwijderen?"
 
@@ -3218,9 +3259,6 @@ msgstr "Rechtstreeks"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Schakel alle \"%s\" hierboven uit om deze instelling te activeren."
-
-msgid "Disable multihop"
-msgstr "Multihop uitschakelen"
 
 msgid "Discard"
 msgstr "Verwerpen"
@@ -3261,8 +3299,8 @@ msgstr "Schakel alle toegangsmethoden in de app in"
 msgid "Enable method"
 msgstr "Methode inschakelen"
 
-msgid "Enable multihop"
-msgstr "Multihop inschakelen"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "Schakel dit in zodat services zoals bestandsdeling, afdrukken, mediastreaming en apparaatdetectie blijven werken terwijl je verbonden bent met de VPN."
 
 msgid "Enter MTU"
 msgstr "Voer MTU in"
@@ -3327,8 +3365,14 @@ msgstr "Google Play-betaling in behandeling"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Wachten op betaling van Google Play. Dit kan even duren"
 
+msgid "Google Play payment verification failed"
+msgstr "Verifiëren van Google Play-betaling mislukt"
+
 msgid "Google Play unavailable"
 msgstr "Google Play niet beschikbaar"
+
+msgid "How it works"
+msgstr "Hoe het werkt"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen."
@@ -3362,6 +3406,9 @@ msgstr "Producten in de app zijn niet beschikbaar. Controleer dat u de nieuwste 
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Mijn accounttoken opnemen voor snellere hulp bij problemen rond betalingen of mijn account"
+
+msgid "Info"
+msgstr "Info"
 
 msgid "Internet"
 msgstr "Internet"
@@ -3576,15 +3623,6 @@ msgstr "E-mail versturen"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d."
 
-msgid "Set as multihop entry"
-msgstr "Instellen als multihop-ingang"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Instellen als multihop-ingang (incompatibel)"
-
-msgid "Set as multihop exit"
-msgstr "Instellen als multihop-uitgang"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Instellen als multihop-uitgang (incompatibel)"
 
@@ -3605,6 +3643,9 @@ msgstr "Toont de huidige status van de VPN-tunnel"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Toont herinneringen wanneer de accounttijd op het punt staat te verlopen"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "Er is iets misgegaan bij het verifiëren van uw aankoop. Neem contact op met de ondersteuning."
 
 msgid "Submit"
 msgstr "Verzenden"
@@ -3635,6 +3676,9 @@ msgstr "De Lockdownmodus heet \"Verbindingen zonder VPN blokkeren\" in de Androi
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "De \"Huidige\" methode geeft aan welke methode de app gebruikt om de API te benaderen."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "De app staat toe dat lokaal multicast- en broadcastnetwerkverkeer, evenals verkeer van en naar privé-IP-reeksen, de VPN-tunnel omzeilt."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "De app blokkeert internet. Verbreek eerst de verbinding"
@@ -3696,6 +3740,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "Het dialoogvenster voor VPN-toestemming kan niet worden geopend. Controleer de configuratie van uw besturingssysteem"
+
 msgid "Unable to parse patch"
 msgstr "Kan patch niet parsen"
 
@@ -3713,6 +3760,9 @@ msgstr "Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor <b
 
 msgid "Unable to verify account number, please contact support"
 msgstr "Accountnummer kan niet worden geverifieerd, neem contact op met de ondersteuning"
+
+msgid "Unable to verify purchase"
+msgstr "Aankoop kan niet worden geverifieerd"
 
 msgid "Unavailable"
 msgstr "Niet beschikbaar"
@@ -3780,6 +3830,12 @@ msgstr "Waarschuwing"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "We zijn nog bezig met het verifiëren van de aankoop, dit kan even duren. De tijd wordt toegevoegd als de verificatie is gelukt."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "We kunnen uw laatste aankoop niet verifiëren. Controleer uw internetverbinding en probeer het opnieuw. Als het probleem zich blijft voordoen, neem dan contact op met de ondersteuning."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "We kunnen uw aankoop niet verifiëren. Controleer uw internetverbinding en probeer het opnieuw."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "We kunnen het betalingsproces niet starten. Controleer of u de nieuwste versie van Google Play hebt."
 
@@ -3818,6 +3874,9 @@ msgstr "U verliest uw resterende"
 
 msgid "Your device"
 msgstr "Uw apparaat"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "Uw laatste aankoop wordt nog geverifieerd. Als u zich aanmeldt bij een ander account, mislukt de verificatie. Wilt u zich toch afmelden?"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" is gemaakt"

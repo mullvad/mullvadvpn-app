@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-07-10 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -292,6 +292,18 @@ msgstr "Suche nach Standorten oder Servern"
 
 msgid "SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Als Multihop-Eingang festlegen"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Als Multihop-Eingang festlegen (inkompatibel)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Als Multihop-Ausgang festlegen"
 
 msgid "Settings"
 msgstr "Einstellungen"
@@ -1152,7 +1164,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (Hinzugefügt)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1907,7 +1919,6 @@ msgstr "Split Tunneling konnte nicht aktiviert werden. Versuchen Sie, die Verbin
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)s konnte nicht gestartet werden. Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie %(splitTunneling)s deaktivieren."
@@ -1967,10 +1978,6 @@ msgstr "Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Versuchen 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Versuchen Sie, Ihren Kernel zu aktualisieren, oder senden Sie einen Problembericht."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Kommunikation mit dem Mullvad Kerneltreiber fehlgeschlagen. Versuchen Sie sich erneut zu verbinden oder senden Sie einen Problembericht."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2084,6 +2091,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Eigene Listen"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "Multihop deaktivieren"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Letzte deaktivieren"
@@ -2092,6 +2104,11 @@ msgstr "Letzte deaktivieren"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Leer"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "Multihop aktivieren"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2341,8 +2358,8 @@ msgstr "Mullvad-Dienst neu starten"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "Um %(splitTunneling)s zu verwenden, aktualisieren Sie bitte auf eine Linux-Kernel-Version, die cgroup v2 unterstützt."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "Um %(splitTunneling)s zu verwenden, wechseln Sie bitte zu einer Linux-Kernel-Version, die cgroup v1 unterstützt."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2573,12 +2590,20 @@ msgid "Language"
 msgstr "Sprache"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "Monochromatisches Menüleistensymbol"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monochromatisches Leistensymbol"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Benachrichtigungen"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "Beim Start der App nur das Menüleistensymbol anzeigen."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2588,9 +2613,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Minimiert starten"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "App von der Menüleiste lösen"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "App von der Taskleiste lösen"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "Monochromatisches Menüleistensymbol statt Farbsymbol nutzen."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3007,6 +3042,9 @@ msgstr "<b>Das Konto kann nicht wiederhergestellt werden.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Achtung: Die DNS-Einstellungen werden möglicherweise nicht sofort wirksam.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>Achtung:</b> Die Freigabe über das lokale Netzwerk ist nicht mit der Funktion „Verbindungen ohne VPN blockieren“ kompatibel."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Achtung:</b> Nicht alle Server unterstützen den gesamten Portbereich."
 
@@ -3019,8 +3057,14 @@ msgstr "<b>DNS-Inhaltssperren</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Bitte beachten Sie, dass diese Methoden die Leistung nicht verbessern und möglicherweise zu einem höheren Verbrauch von Systemressourcen und Akku führen.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>Private IP-Bereiche</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>Diese Aktion kann nicht rückgängig gemacht werden.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>Dies kann Ihre Anonymität beeinträchtigen.</b> Aktivieren Sie diese Option nicht in öffentlichen oder nicht vertrauenswürdigen Netzwerken, da Ihr Gerät sonst für andere sichtbar werden könnte."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Achtung:</b>"
@@ -3112,9 +3156,6 @@ msgstr "Möchten Sie <b>%s</b> wirklich abmelden?"
 msgid "At least one method needs to be enabled"
 msgstr "Mindestens eine Methode muss aktiviert sein"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Achtung: Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, funktioniert „Teilen im lokalen Netzwerk“ nicht."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Achtung! Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, haben Split-Apps keine Internetverbindung. Denken Sie immer daran, dass Split-Tunneling ein Datenschutzrisiko darstellt."
 
@@ -3163,6 +3204,9 @@ msgstr "Mit einem anderen Netzwerk verbinden"
 msgid "Connecting..."
 msgstr "Verbinden …"
 
+msgid "Contact support"
+msgstr "Support kontaktieren"
+
 msgid "Continue"
 msgstr "Fortfahren"
 
@@ -3193,9 +3237,6 @@ msgstr "Eigene DNS-Server Adressen %1$s sind ungültig"
 msgid "DNS settings"
 msgstr "DNS-Einstellungen"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "Die DNS-Einstellungen werden möglicherweise nicht sofort wirksam"
-
 msgid "Delete \"%s\"?"
 msgstr "„%s“ löschen?"
 
@@ -3219,9 +3260,6 @@ msgstr "Direkt"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktivieren Sie oben alle „%s“, um diese Einstellung zu aktivieren."
-
-msgid "Disable multihop"
-msgstr "Multihop deaktivieren"
 
 msgid "Discard"
 msgstr "Verwerfen"
@@ -3262,8 +3300,8 @@ msgstr "Alle Zugriffsmethoden in der App aktivieren"
 msgid "Enable method"
 msgstr "Methode aktivieren"
 
-msgid "Enable multihop"
-msgstr "Multihop aktivieren"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "Aktivieren Sie diese Option, damit Dienste wie Dateifreigabe, Drucken, Medien-Streaming und Gerätereerkennung funktionieren, während Sie mit dem VPN verbunden sind."
 
 msgid "Enter MTU"
 msgstr "MTU eingeben"
@@ -3328,8 +3366,14 @@ msgstr "Google-Play-Zahlung ausstehend"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google-Play-Zahlung ausstehend, es könnte eine Weile dauern"
 
+msgid "Google Play payment verification failed"
+msgstr "Verifizierung der Google-Play-Zahlung fehlgeschlagen"
+
 msgid "Google Play unavailable"
 msgstr "Google Play nicht verfügbar"
+
+msgid "How it works"
+msgstr "So funktioniert es"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Geräte-IP-Version“ zu ändern."
@@ -3363,6 +3407,9 @@ msgstr "In-App-Produkte nicht verfügbar, bitte vergewissern Sie sich, dass sie 
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Meinen Konto-Token hinzufügen, um schnellere Hilfe bei Zahlungen oder kontobezogenen Problemen zu erhalten"
+
+msgid "Info"
+msgstr "Info"
 
 msgid "Internet"
 msgstr "Internet"
@@ -3577,15 +3624,6 @@ msgstr "E-Mail senden"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d."
 
-msgid "Set as multihop entry"
-msgstr "Als Multihop-Eingang festlegen"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Als Multihop-Eingang festlegen (inkompatibel)"
-
-msgid "Set as multihop exit"
-msgstr "Als Multihop-Ausgang festlegen"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Als Multihop-Ausgang festlegen (inkompatibel)"
 
@@ -3606,6 +3644,9 @@ msgstr "Zeigt den aktuellen Status des VPN-Tunnels an"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Erinnerungen anzeigen, wenn die Kontozeit bald abläuft"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "Bei der Verifizierung Ihres Kaufs ist ein Fehler aufgetreten. Wenden Sie sich bitte an den Support."
 
 msgid "Submit"
 msgstr "Absenden"
@@ -3636,6 +3677,9 @@ msgstr "Der Sperrmodus heißt in den Android-Systemeinstellungen „Verbindungen
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "Die „aktuelle“ Methode gibt an, welche Methode die App verwendet, um die API zu erreichen."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "Die App ermöglicht lokalen Multicast- und Broadcast-Netzwerk-Traffic sowie Traffic zu und von privaten IP-Bereichen, um den VPN-Tunnel zu umgehen."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Die App blockiert das Internet, bitte trennen Sie zuerst die Verbindung"
@@ -3697,6 +3741,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "Das Dialogfeld für VPN-Berechtigungen kann nicht geöffnet werden. Überprüfen Sie bitte Ihre Betriebssystemkonfiguration"
+
 msgid "Unable to parse patch"
 msgstr "Patch konnte nicht geparst werden"
 
@@ -3714,6 +3761,9 @@ msgstr "Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Alw
 
 msgid "Unable to verify account number, please contact support"
 msgstr "Die Kontonummer kann nicht verifiziert werden. Wenden Sie sich bitte an den Support"
+
+msgid "Unable to verify purchase"
+msgstr "Kauf konnte nicht verifiziert werden"
 
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
@@ -3781,6 +3831,12 @@ msgstr "Warnung"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Wir verifizieren gerade noch Ihren Kauf, dies kann einige Zeit dauern. Ihre Zeit wird hinzugefügt, wenn die Verifizierung erfolgreich ist."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "Wir konnten Ihren letzten Kauf nicht verifizieren. Überprüfen Sie bitte Ihre Internetverbindung und versuchen Sie es erneut. Wenden Sie sich an den Support, falls das Problem weiterhin besteht."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "Wir konnten Ihren Kauf nicht verifizieren. Überprüfen Sie bitte Ihre Internetverbindung und versuchen Sie es erneut."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Wir konnten den Zahlungsvorgang nicht starten. Bitte vergewissern Sie sich, dass Sie die neueste Version von Google Play haben."
 
@@ -3819,6 +3875,9 @@ msgstr "Sie verlieren Ihre verbleibenden"
 
 msgid "Your device"
 msgstr "Ihr Gerät"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "Ihr letzter Kauf wird noch verifiziert. Wenn Sie sich bei einem anderen Konto anmelden, schlägt die Verifizierung fehl. Möchten Sie sich trotzdem abmelden?"
 
 msgid "\"%s\" was created"
 msgstr "„%s“ wurde erstellt"
