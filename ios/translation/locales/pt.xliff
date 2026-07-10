@@ -18,7 +18,12 @@
       <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
         <target state="final">%1$@ %2$@ requer reiniciar a ligação VPN, o que o irá desligar e expor temporariamente o seu tráfego. Para evitar isto, ative manualmente o Modo avião e desligue o Wi-Fi antes de continuar.</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action to be performed, and the second argument is the name of the feature that requires restarting the VPN.</note>
+      </trans-unit>
+      <trans-unit id="%@ (%@)" xml:space="preserve" approved="yes">
+        <source>%1$@ (%2$@)</source>
+        <target state="final">%1$@ (%2$@)</target>
+        <note>Selected location name, with country in parentheses</note>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
@@ -80,6 +85,11 @@
         <target state="final">Mais %lld...</target>
         <note/>
       </trans-unit>
+      <trans-unit id="**AirDrop, AirPlay, CarPlay, Continuity Camera, Handoff, Handover, NameDrop, iMessage, Screen Mirroring** and **Personal Hotspot**." xml:space="preserve" approved="yes">
+        <source>**AirDrop, AirPlay, CarPlay, Continuity Camera, Handoff, Handover, NameDrop, iMessage, Screen Mirroring** and **Personal Hotspot**.</source>
+        <target state="final">**AirDrop, AirPlay, CarPlay, Câmara de Continuidade, Handoff, Handover, NameDrop, iMessage, Projeção de ecrã** e **Hotspot pessoal**.</target>
+        <note>Feature names in **double asterisks** will be in semibold font.</note>
+      </trans-unit>
       <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="final">**Atenção: Isto aumenta o tráfego de rede e também afeta negativamente a velocidade, a latência e a utilização da bateria. Utilize com precaução em planos limitados.**</target>
@@ -95,9 +105,9 @@
         <target state="final">Acesso à API</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API access methods" xml:space="preserve">
+      <trans-unit id="API access methods" xml:space="preserve" approved="yes">
         <source>API access methods</source>
-        <target state="needs-translation">API access methods</target>
+        <target state="final">Métodos de acesso à API</target>
         <note from="auto-generated">Text for a button that navigates to a view showing all API access methods.</note>
       </trans-unit>
       <trans-unit id="API reachable" xml:space="preserve" approved="yes">
@@ -129,6 +139,11 @@
         <source>About Server IP override...</source>
         <target state="final">Sobre a substituição do IP do servidor...</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="About known issues..." xml:space="preserve" approved="yes">
+        <source>About known issues...</source>
+        <target state="final">Sobre problemas conhecidos...</target>
+        <note from="auto-generated">Link text that, when tapped, shows more information about known issues related to the feature.</note>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
         <source>Account</source>
@@ -250,15 +265,20 @@
         <target state="final">Todos os fornecedores</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Always connect via an entry server. The location can either be set manually or automatically in the &quot;Select location&quot; view." xml:space="preserve">
-        <source>Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</source>
-        <target state="needs-translation">Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</target>
-        <note/>
+      <trans-unit id="Always" xml:space="preserve" approved="yes">
+        <source>Always</source>
+        <target state="final">Sempre</target>
+        <note>The “Always“ multihop state</note>
       </trans-unit>
       <trans-unit id="Amsterdam" xml:space="preserve" approved="yes">
         <source>Amsterdam</source>
         <target state="final">Amesterdão</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="An additional server is used to match your settings for your selected location" xml:space="preserve" approved="yes">
+        <source>An additional server is used to match your settings for your selected location</source>
+        <target state="final">É utilizado um servidor adicional para aplicar as definições correspondentes à localização selecionada</target>
+        <note from="auto-generated">A description of how the automatic location feature works.</note>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve" approved="yes">
         <source>Any</source>
@@ -305,20 +325,35 @@
         <target state="final">Atlanta, GA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
-        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+      <trans-unit id="Attention: In this mode, filters are ignored for the additional server." xml:space="preserve" approved="yes">
+        <source>Attention: In this mode, filters are ignored for the additional server.</source>
+        <target state="final">Atenção: neste modo, os filtros são ignorados para o servidor adicional.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
+        <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
+        <target state="final">Atenção: com a localização "%@", os filtros não são aplicados ao servidor de entrada.</target>
+        <note from="auto-generated">A note about the effect of using the "Automatic" location on filter settings. The argument is the string “Automatic”.</note>
+      </trans-unit>
+      <trans-unit id="Attention: With the “Automatic” location, any enabled filters are ignored for the entry server." xml:space="preserve" approved="yes">
+        <source>Attention: With the “Automatic” location, any enabled filters are ignored for the entry server.</source>
+        <target state="final">Atenção: com a localização "Automática", os filtros ativados são ignorados para o servidor de entrada.</target>
+        <note from="auto-generated">Additional information about the "Automatic" location in the alert displayed when a user taps on the "Info" button in the list item.</note>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
         <target state="final">Atenção: esta definição não pode ser usada em combinação com **%@**</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Attention: toggling “%@” requires restarting the VPN connection." xml:space="preserve" approved="yes">
+        <source>Attention: toggling “%@” requires restarting the VPN connection.</source>
+        <target state="final">Atenção: ativar ou desativar a opção "%@" requer reiniciar a ligação VPN.</target>
+        <note from="auto-generated">A note about a feature that requires restarting the VPN connection when toggled. The argument is the string “Local network sharing”.</note>
+      </trans-unit>
       <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="final">Atenção: ativar ou desativar a opção "Partilha de rede local" requer o reinício da ligação à VPN.</target>
-        <note/>
+        <target state="final">Atenção: ativar ou desativar a opção "Partilha de rede local" requer reiniciar a ligação VPN.</target>
+        <note from="auto-generated">Attention message for the "Local network sharing" feature in the settings.</note>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
         <source>Auckland</source>
@@ -354,6 +389,11 @@
         <source>BLOCKING INTERNET</source>
         <target state="final">BLOQUEAR A INTERNET</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Back" xml:space="preserve" approved="yes">
+        <source>Back</source>
+        <target state="final">Retroceder</target>
+        <note from="auto-generated">Text for a button that takes the user back one page in the wizard.</note>
       </trans-unit>
       <trans-unit id="Bangkok" xml:space="preserve" approved="yes">
         <source>Bangkok</source>
@@ -450,14 +490,14 @@
         <target state="final">Bulgária</target>
         <note/>
       </trans-unit>
+      <trans-unit id="By %@ your connection will be blocked because the location selected is not compatible with your settings." xml:space="preserve" approved="yes">
+        <source>By %@ your connection will be blocked because the location selected is not compatible with your settings.</source>
+        <target state="final">Ao %@, a sua ligação será bloqueada porque a localização selecionada não é compatível com as suas definições.</target>
+        <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
+      </trans-unit>
       <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
         <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
         <target state="final">Ao anexar o token da sua conta, este relatório é associado à sua conta, o que nos ajuda a resolver o problema mais rapidamente. Todos os relatórios são automaticamente eliminados após um determinado período. Para mais detalhes, consulte a nossa </target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
-        <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="final">Ao ativar "%1$@", terá de selecionar manualmente um servidor compatível com a %2$@. O %3$@ não será utilizado automaticamente para ativar a DAITA em nenhum servidor.</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -475,9 +515,9 @@
         <target state="final">A LIGAR...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve">
+      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve" approved="yes">
         <source>CUSTOM API ACCESS METHOD IS INVALID</source>
-        <target state="needs-translation">CUSTOM API ACCESS METHOD IS INVALID</target>
+        <target state="final">O MÉTODO DE ACESSO À API PERSONALIZADO É INVÁLIDO</target>
         <note from="auto-generated">Title of an in-app notification that informs the user that the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Calgary" xml:space="preserve" approved="yes">
@@ -505,10 +545,25 @@
         <target state="final">Não é possível restaurar compras</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Change to “%@“" xml:space="preserve" approved="yes">
+        <source>Change to “%@“</source>
+        <target state="final">Alterar para "%@"</target>
+        <note>Variable refers to multihop mode</note>
+      </trans-unit>
+      <trans-unit id="Change to “%@”" xml:space="preserve" approved="yes">
+        <source>Change to “%@”</source>
+        <target state="final">Alterar para "%@"</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
         <source>Changing language will disconnect you from the VPN and restart the app</source>
         <target state="final">Alterar o idioma irá desligá-lo da VPN e reiniciar a aplicação</target>
         <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Changing mode..." xml:space="preserve" approved="yes">
+        <source>Changing mode...</source>
+        <target state="final">A alterar o modo...</target>
+        <note from="auto-generated">Title displayed while changing the multihop mode.</note>
       </trans-unit>
       <trans-unit id="Checked" xml:space="preserve" approved="yes">
         <source>Checked</source>
@@ -550,10 +605,20 @@
         <target state="final">Limpar todas as substituições?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Clear search" xml:space="preserve" approved="yes">
+        <source>Clear search</source>
+        <target state="final">Limpar pesquisa</target>
+        <note from="auto-generated">A label for a button that clears text from a search field.</note>
+      </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
         <target state="final">Limpar as substituições importadas altera os IPs dos servidores, na vista Selecionar local, para as definições padrão.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Close search" xml:space="preserve" approved="yes">
+        <source>Close search</source>
+        <target state="final">Fechar pesquisa</target>
+        <note from="auto-generated">A label for a button that closes a search interface.</note>
       </trans-unit>
       <trans-unit id="Collapse" xml:space="preserve" approved="yes">
         <source>Collapse</source>
@@ -614,6 +679,11 @@
         <source>Connection details</source>
         <target state="final">Detalhes da ligação</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Continue" xml:space="preserve" approved="yes">
+        <source>Continue</source>
+        <target state="final">Continuar</target>
+        <note from="auto-generated">Title of an action button in an alert that lets the user continue with a multihop configuration.</note>
       </trans-unit>
       <trans-unit id="Continue with login" xml:space="preserve" approved="yes">
         <source>Continue with login</source>
@@ -690,9 +760,9 @@
         <target state="final">Personalizado</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Custom API access method is invalid" xml:space="preserve">
+      <trans-unit id="Custom API access method is invalid" xml:space="preserve" approved="yes">
         <source>Custom API access method is invalid</source>
-        <target state="needs-translation">Custom API access method is invalid</target>
+        <target state="final">O método de acesso à API personalizado é inválido</target>
         <note from="auto-generated">A message displayed when the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Custom DNS" xml:space="preserve" approved="yes">
@@ -725,16 +795,6 @@
         <target state="final">DAITA</target>
         <note/>
       </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
-        <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="final">A DAITA não está disponível na localização atualmente selecionada. Após a ativar, aceda à vista "Selecionar localização" e selecione uma localização que suporte a DAITA.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
-        <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="final">A DAITA não está disponível no servidor de entrada atual. Após a ativar, aceda à vista "Selecionar localização" e selecione uma localização de entrada que suporte a DAITA.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
         <source>DISCONNECTED</source>
         <target state="final">DESLIGADO</target>
@@ -747,7 +807,7 @@
       </trans-unit>
       <trans-unit id="DNS content blockers" xml:space="preserve" approved="yes">
         <source>DNS content blockers</source>
-        <target state="final">Bloqueadores de conteúdo de DNS</target>
+        <target state="final">Bloqueadores de conteúdo DNS</target>
         <note/>
       </trans-unit>
       <trans-unit id="DNS settings" xml:space="preserve" approved="yes">
@@ -825,11 +885,6 @@
         <target state="final">Nome do dispositivo: %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Direct only" xml:space="preserve" approved="yes">
-        <source>Direct only</source>
-        <target state="final">Apenas direta</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disable" xml:space="preserve" approved="yes">
         <source>Disable</source>
         <target state="final">Desativar</target>
@@ -838,11 +893,6 @@
       <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
         <source>Disable all "%@" above to activate this setting.</source>
         <target state="final">Desative todos os "%@" acima para ativar esta definição.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Disable multihop" xml:space="preserve" approved="yes">
-        <source>Disable multihop</source>
-        <target state="final">Desativar multihop</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -950,24 +1000,19 @@
         <target state="final">Compre crédito no nosso site ou efetue uma compra na aplicação através do botão **Adicionar tempo** abaixo.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
-        <source>Either buy credit on our website or redeem a voucher.</source>
-        <target state="final">Compre crédito no nosso sítio da web ou reclame um voucher.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">Ativar</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable DAITA" xml:space="preserve" approved="yes">
+        <source>Enable DAITA</source>
+        <target state="final">Ativar DAITA</target>
+        <note from="auto-generated">Text for a button that enables DAITA.</note>
+      </trans-unit>
       <trans-unit id="Enable method" xml:space="preserve" approved="yes">
         <source>Enable method</source>
         <target state="final">Ativar método</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enable multihop" xml:space="preserve" approved="yes">
-        <source>Enable multihop</source>
-        <target state="final">Ativar multihop</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
@@ -984,6 +1029,11 @@
         <source>Enabling</source>
         <target state="final">Ativar</target>
         <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
+      <trans-unit id="Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." xml:space="preserve" approved="yes">
+        <source>Enabling %1$@ has shown to reduce the number of issues encountered when using %2$@, regardless if you are using WiFi or a cellular network.</source>
+        <target state="final">Ativar %1$@ tem demonstrado reduzir o número de problemas ao utilizar %2$@, tanto em redes WiFi como em redes móveis.</target>
+        <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1005,6 +1055,16 @@
         <target state="final">Entrada</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Entry filter" xml:space="preserve" approved="yes">
+        <source>Entry filter</source>
+        <target state="final">Filtro de entrada</target>
+        <note from="auto-generated">Title of the view controller when displaying the entry filter.</note>
+      </trans-unit>
+      <trans-unit id="Entry set to “%@”" xml:space="preserve" approved="yes">
+        <source>Entry set to “%@”</source>
+        <target state="final">Entrada definida como "%@"</target>
+        <note from="auto-generated">A success message that appears when the user successfully sets their entry preference to "Automatic". The argument is the string “Automatic”.</note>
+      </trans-unit>
       <trans-unit id="Estonia" xml:space="preserve" approved="yes">
         <source>Estonia</source>
         <target state="final">Estónia</target>
@@ -1014,6 +1074,11 @@
         <source>Exit</source>
         <target state="final">Saída</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Exit filter" xml:space="preserve" approved="yes">
+        <source>Exit filter</source>
+        <target state="final">Filtro de saída</target>
+        <note from="auto-generated">Title of the view controller for the exit filter.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve" approved="yes">
         <source>Expand</source>
@@ -1045,6 +1110,11 @@
         <target state="final">Perguntas frequentes e guias</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Failed to change mode" xml:space="preserve" approved="yes">
+        <source>Failed to change mode</source>
+        <target state="final">Erro ao alterar o modo</target>
+        <note from="auto-generated">Message displayed in the action sheet when changing the multihop mode fails.</note>
+      </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
         <source>Failed to load products, please try again</source>
         <target state="final">Erro ao carregar os produtos. Tente novamente</target>
@@ -1059,6 +1129,11 @@
         <source>Failed to send</source>
         <target state="final">Erro no envio</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Failed to set the Entry to “%@”" xml:space="preserve" approved="yes">
+        <source>Failed to set the Entry to “%@”</source>
+        <target state="final">Erro ao definir a entrada como "%@"</target>
+        <note from="auto-generated">A message displayed when an action fails. The argument is the string “Automatic”.</note>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
@@ -1095,15 +1170,15 @@
         <target state="final">A obter dispositivos...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filter" xml:space="preserve" approved="yes">
-        <source>Filter</source>
-        <target state="final">Filtrar</target>
+      <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve" approved="yes">
+        <source>Filters are overridden when using an automatic location</source>
+        <target state="final">Os filtros são substituídos ao utilizar uma localização automática</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filters" xml:space="preserve" approved="yes">
-        <source>Filters</source>
-        <target state="final">Filtros</target>
-        <note/>
+      <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve" approved="yes">
+        <source>Filters can now be set separately for entry and exit locations.</source>
+        <target state="final">Agora é possível definir filtros separadamente para as localizações de entrada e de saída.</target>
+        <note from="auto-generated">Text displayed in a notification when the setting for separate filters is updated.</note>
       </trans-unit>
       <trans-unit id="Finland" xml:space="preserve" approved="yes">
         <source>Finland</source>
@@ -1257,7 +1332,7 @@
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
-        <target state="final">Se tiver problemas em ligar-se aos servidores VPN, contacte o apoio.</target>
+        <target state="final">Se estiver a ter problemas em ligar-se a servidores VPN, contacte o suporte.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
@@ -1293,11 +1368,6 @@
       <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
         <target state="final">Se ainda tiver problemas, pode enviar um e-mail diretamente para o nosso suporte em **%@**. Anexe o registo da aplicação ao seu e-mail.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" xml:space="preserve">
-        <source>If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</source>
-        <target state="needs-translation">If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1359,6 +1429,11 @@
         <source>Indonesia</source>
         <target state="final">Indonésia</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Information" xml:space="preserve" approved="yes">
+        <source>Information</source>
+        <target state="final">Informações</target>
+        <note from="auto-generated">A button that provides more information about an item.</note>
       </trans-unit>
       <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
         <source>Install the latest app version to stay up to date.</source>
@@ -1444,6 +1519,11 @@
         <source>Kansas City, MO</source>
         <target state="final">Kansas City, MO</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Known issues" xml:space="preserve" approved="yes">
+        <source>Known issues</source>
+        <target state="final">Problemas conhecidos</target>
+        <note from="auto-generated">Header text for a view that presents information about known issues with Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="Kuala Lumpur" xml:space="preserve" approved="yes">
         <source>Kuala Lumpur</source>
@@ -1630,9 +1710,9 @@
         <target state="final">Melbourne</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Method settings" xml:space="preserve">
+      <trans-unit id="Method settings" xml:space="preserve" approved="yes">
         <source>Method settings</source>
-        <target state="needs-translation">Method settings</target>
+        <target state="final">Definições do método</target>
         <note from="auto-generated">Title of a view controller that allows the user to configure the settings of a specific access method.</note>
       </trans-unit>
       <trans-unit id="Mexico" xml:space="preserve" approved="yes">
@@ -1645,15 +1725,20 @@
         <target state="final">Miami, FL</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Migrated settings" xml:space="preserve" approved="yes">
+        <source>Migrated settings</source>
+        <target state="final">Definições migradas</target>
+        <note from="auto-generated">Title of a settings item that indicates that the user has migrated settings from an older version of the app.</note>
+      </trans-unit>
       <trans-unit id="Milan" xml:space="preserve" approved="yes">
         <source>Milan</source>
         <target state="final">Milão</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Mode" xml:space="preserve">
+      <trans-unit id="Mode" xml:space="preserve" approved="yes">
         <source>Mode</source>
-        <target state="needs-translation">Mode</target>
-        <note/>
+        <target state="final">Modo</target>
+        <note from="auto-generated">Title of a section in the settings view related to the mode of the multihop tunnel.</note>
       </trans-unit>
       <trans-unit id="Montreal" xml:space="preserve" approved="yes">
         <source>Montreal</source>
@@ -1670,15 +1755,50 @@
         <target state="final">Multihop</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Multihop entry set to “Automatic”" xml:space="preserve" approved="yes">
+        <source>Multihop entry set to “Automatic”</source>
+        <target state="final">Entrada multihop definida como "Automática"</target>
+        <note from="auto-generated">Description of a settings update when the multihop entry setting is set to "Automatic".</note>
+      </trans-unit>
       <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve" approved="yes">
         <source>Multihop is being used to enable DAITA for your selected location.</source>
         <target state="final">O Multihop está a ser usado para ativar DAITA na localização selecionada.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Multihop is disabled. Your selected location must support all active settings in order to establish a connection." xml:space="preserve" approved="yes">
+        <source>Multihop is disabled. Your selected location must support all active settings in order to establish a connection.</source>
+        <target state="final">O multihop está desativado. A localização selecionada tem de suportar todas as definições ativas para estabelecer uma ligação.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location." xml:space="preserve" approved="yes">
+        <source>Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location.</source>
+        <target state="final">O multihop está ativado. A sua ligação é encaminhada através de um servidor de entrada antes de sair pela localização selecionada.</target>
+        <note from="auto-generated">Text displayed in the settings view when multihop is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences." xml:space="preserve" approved="yes">
+        <source>Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences.</source>
+        <target state="final">O multihop está agora dividido em três modos: Quando necessário, Sempre e Nunca. Isto proporciona maior flexibilidade nas suas preferências de ligação.</target>
+        <note from="auto-generated">Description of the change that was made to the multihop setting.</note>
+      </trans-unit>
+      <trans-unit id="Multihop mode" xml:space="preserve" approved="yes">
+        <source>Multihop mode</source>
+        <target state="final">Modo multihop</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop mode changed" xml:space="preserve" approved="yes">
+        <source>Multihop mode changed</source>
+        <target state="final">Modo multihop alterado</target>
+        <note from="auto-generated">Message displayed in the action sheet when changing the VPN connection mode to "When needed".</note>
+      </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
         <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
         <target state="final">Multihop encaminha o tráfego para entrar num servidor WireGuard e sair por outro, dificultando o seguimento. Isto resulta em maior latência, mas aumenta o anonimato online.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never." xml:space="preserve" approved="yes">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never.</source>
+        <target state="final">O multihop encaminha o seu tráfego para um servidor WireGuard e, a partir daí, para outro servidor, tornando mais difícil rastreá-lo. Isto resulta numa maior latência, mas aumenta o anonimato online. O multihop dispõe de três modos diferentes: Quando necessário, Sempre e Nunca.</target>
+        <note from="auto-generated">Description of the Multihop feature, including its benefits and modes of operation.</note>
       </trans-unit>
       <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
@@ -1715,9 +1835,9 @@
         <target state="final">O nome já está a ser utilizado.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters</source>
-        <target state="needs-review-translation" state-qualifier="leveraged-tm">O nome não deve ter mais de %i caracteres</target>
+        <target state="final">O nome não deve ter mais de %i caracteres</target>
         <note from="auto-generated">Error message displayed when a user inputs a name that is too long. The argument is the maximum number of characters allowed in a name.</note>
       </trans-unit>
       <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
@@ -1735,6 +1855,11 @@
         <target state="final">Erro de rede: %@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Never" xml:space="preserve" approved="yes">
+        <source>Never</source>
+        <target state="final">Nunca</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
         <source>New York, NY</source>
         <target state="final">Nova Iorque, NY</target>
@@ -1749,6 +1874,11 @@
         <source>New list</source>
         <target state="final">Nova lista</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="New multihop modes" xml:space="preserve" approved="yes">
+        <source>New multihop modes</source>
+        <target state="final">Novos modos multihop</target>
+        <note from="auto-generated">Title of a settings update descriptor for when the multihop modes have been updated.</note>
       </trans-unit>
       <trans-unit id="Next" xml:space="preserve" approved="yes">
         <source>Next</source>
@@ -1767,12 +1897,12 @@
       </trans-unit>
       <trans-unit id="No DAITA compatible servers match your location settings. Try changing location." xml:space="preserve" approved="yes">
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
-        <target state="final">Nenhum servidor compatível com a DAITA que corresponda às suas definições de localização. Tente alterar a localização.</target>
+        <target state="final">Nenhum servidor compatível com DAITA que corresponda às suas definições de localização. Tente alterar a localização.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No longer supported" xml:space="preserve">
+      <trans-unit id="No longer supported" xml:space="preserve" approved="yes">
         <source>No longer supported</source>
-        <target state="needs-translation">No longer supported</target>
+        <target state="final">Já não é suportado</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1808,6 +1938,21 @@
       <trans-unit id="Norway" xml:space="preserve" approved="yes">
         <source>Norway</source>
         <target state="final">Noruega</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</source>
+        <target state="final">Nem todas as nossas localizações/servidores suportam todas as funcionalidades da aplicação. Se a localização/servidor que selecionou não suportar as funcionalidades que ativou, a aplicação irá utilizar automaticamente o multihop através de um servidor compatível.
+
+Isto garante que a sua ligação não é bloqueada devido a definições incompatíveis.
+
+Isto será indicado pelo símbolo %@.
+</target>
         <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
@@ -1873,11 +2018,6 @@
       <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve" approved="yes">
         <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
         <target state="final">Em algumas redes, onde são utilizados vários tipos de censura, os servidores de API podem não ser diretamente alcançáveis.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Open %@ settings" xml:space="preserve" approved="yes">
-        <source>Open %@ settings</source>
-        <target state="final">Abrir definições %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
@@ -1990,19 +2130,24 @@
         <target state="final">Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Please select a compatible location after %@." xml:space="preserve" approved="yes">
+        <source>Please select a compatible location after %@.</source>
+        <target state="final">Selecione uma localização compatível após %@.</target>
+        <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
+      </trans-unit>
       <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
         <source>Please swipe through and read all information in order to activate this feature</source>
         <target state="final">Percorra e leia todas as informações para poder ativar esta funcionalidade</target>
         <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
-      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve">
+      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve" approved="yes">
         <source>Please update it or enable a different one to be able to reach the API using this method.</source>
-        <target state="needs-translation">Please update it or enable a different one to be able to reach the API using this method.</target>
+        <target state="final">Atualize o método ou ative outro para poder aceder à API através deste método.</target>
         <note from="auto-generated">A description of what to do if the custom API access method is invalid.</note>
       </trans-unit>
-      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve">
+      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve" approved="yes">
         <source>Please update it or enable a different one to be able to reach the API.</source>
-        <target state="needs-translation">Please update it or enable a different one to be able to reach the API.</target>
+        <target state="final">Atualize o método ou ative outro para poder aceder à API.</target>
         <note from="auto-generated">Text displayed in the body of the in-app notification when the user has an invalid custom API access method.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -2074,6 +2219,11 @@
         <source>RECONNECTING</source>
         <target state="final">A LIGAR NOVAMENTE</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="RESOLVE CONNECTION ISSUES" xml:space="preserve" approved="yes">
+        <source>RESOLVE CONNECTION ISSUES</source>
+        <target state="final">RESOLVER PROBLEMAS DE LIGAÇÃO</target>
+        <note from="auto-generated">Title of the in-app notification.</note>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
         <source>Raleigh, NC</source>
@@ -2162,9 +2312,19 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Roménia</target>
         <note/>
       </trans-unit>
+      <trans-unit id="SETTINGS MIGRATED" xml:space="preserve" approved="yes">
+        <source>SETTINGS MIGRATED</source>
+        <target state="final">DEFINIÇÕES MIGRADAS</target>
+        <note from="auto-generated">Title of a notification displayed when a user's settings have been updated.</note>
+      </trans-unit>
       <trans-unit id="Salt Lake City, UT" xml:space="preserve" approved="yes">
         <source>Salt Lake City, UT</source>
         <target state="final">Salt Lake City, UT</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="San Francisco, CA" xml:space="preserve" approved="yes">
+        <source>San Francisco, CA</source>
+        <target state="final">São Francisco, CA</target>
         <note/>
       </trans-unit>
       <trans-unit id="San Jose, CA" xml:space="preserve" approved="yes">
@@ -2192,10 +2352,15 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">A guardar alterações...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
-        <source>Search for locations or servers</source>
-        <target state="final">Pesquisar localizações ou servidores</target>
-        <note/>
+      <trans-unit id="Search location or server" xml:space="preserve" approved="yes">
+        <source>Search location or server</source>
+        <target state="final">Pesquisar localização ou servidor</target>
+        <note from="auto-generated">A placeholder text for the search bar.</note>
+      </trans-unit>
+      <trans-unit id="Search locations" xml:space="preserve" approved="yes">
+        <source>Search locations</source>
+        <target state="final">Pesquisar localizações</target>
+        <note from="auto-generated">A button label that says "Search locations".</note>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
         <source>Seattle, WA</source>
@@ -2210,7 +2375,7 @@ Pretende remover o número de conta guardado?</target>
       <trans-unit id="Select %@" xml:space="preserve" approved="yes">
         <source>Select %@</source>
         <target state="final">Selecionar %@</target>
-        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+        <note>Variable refers to obfuscation method</note>
       </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
@@ -2222,9 +2387,9 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Selecionado</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected cipher no longer supported" xml:space="preserve">
+      <trans-unit id="Selected cipher no longer supported" xml:space="preserve" approved="yes">
         <source>Selected cipher no longer supported</source>
-        <target state="needs-translation">Selected cipher no longer supported</target>
+        <target state="final">A cifra selecionada já não é suportada</target>
         <note from="auto-generated">Error message displayed when a selected cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -2245,6 +2410,11 @@ Pretende remover o número de conta guardado?</target>
       <trans-unit id="Sent" xml:space="preserve" approved="yes">
         <source>Sent</source>
         <target state="final">Enviado</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Separate filters" xml:space="preserve" approved="yes">
+        <source>Separate filters</source>
+        <target state="final">Filtros separados</target>
         <note/>
       </trans-unit>
       <trans-unit id="Serbia" xml:space="preserve" approved="yes">
@@ -2277,10 +2447,20 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Nomes de anfitrião dos servidores: %1$@ via %2$@</target>
         <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
       </trans-unit>
+      <trans-unit id="Set entry to “%@”" xml:space="preserve" approved="yes">
+        <source>Set entry to “%@”</source>
+        <target state="final">Definir entrada como "%@"</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">Configurar notificações</target>
         <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
+      <trans-unit id="Setting entry..." xml:space="preserve" approved="yes">
+        <source>Setting entry...</source>
+        <target state="final">A definir entrada...</target>
+        <note from="auto-generated">Loading title for the action that sets the multihop entry server to "Automatic".</note>
       </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
@@ -2357,6 +2537,11 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Sófia</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Some iOS features are known to be affected when using Force all apps." xml:space="preserve" approved="yes">
+        <source>Some iOS features are known to be affected when using Force all apps.</source>
+        <target state="final">Algumas funcionalidades do iOS são conhecidas por serem afetadas ao utilizar Forçar todas as aplicações.</target>
+        <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
         <source>South Africa</source>
         <target state="final">África do Sul</target>
@@ -2385,6 +2570,16 @@ Pretende remover o número de conta guardado?</target>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">Estocolmo</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Suggested action" xml:space="preserve" approved="yes">
+        <source>Suggested action</source>
+        <target state="final">Ação sugerida</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Suggested multihop entry" xml:space="preserve" approved="yes">
+        <source>Suggested multihop entry</source>
+        <target state="final">Entrada multihop sugerida</target>
         <note/>
       </trans-unit>
       <trans-unit id="Super!" xml:space="preserve" approved="yes">
@@ -2482,9 +2677,9 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Toque aqui para ir para a App Store</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
-      <trans-unit id="Tap to view API access methods" xml:space="preserve">
+      <trans-unit id="Tap to view API access methods" xml:space="preserve" approved="yes">
         <source>Tap to view API access methods</source>
-        <target state="needs-translation">Tap to view API access methods</target>
+        <target state="final">Toque para ver os métodos de acesso à API</target>
         <note from="auto-generated">Action title for the in-app notification that informs the user to tap to view API access methods.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2515,6 +2710,11 @@ Pretende remover o número de conta guardado?</target>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
         <source>Thanks!</source>
         <target state="final">Obrigado!</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting." xml:space="preserve" approved="yes">
+        <source>The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting.</source>
+        <target state="final">A subdefinição "Apenas direto" do DAITA foi removida e simplificada para evitar o bloqueio de ligações. Agora, com o DAITA ativado, esta opção passa a ser definida através da definição de multihop.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
@@ -2562,9 +2762,14 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Os servidores de entrada e saída não podem ser os mesmos. Tente alterar um deles para um novo servidor ou localização.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve" approved="yes">
-        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</source>
-        <target state="final">O servidor de entrada para %1$@ está a ser substituído pela %2$@. Para selecionar um servidor de entrada, primeiro ative "%3$@" ou desative a "%4$@" nas definições.</target>
+      <trans-unit id="The entry server is currently selected automatically to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
+        <source>The entry server is currently selected automatically to ensure your current settings work with your selected location.</source>
+        <target state="final">O servidor de entrada está selecionado automaticamente para garantir que as suas definições atuais funcionam com a sua localização selecionada.</target>
+        <note from="auto-generated">Description of the feature that automatically selects an entry server based on the user's location.</note>
+      </trans-unit>
+      <trans-unit id="The multihop mode “Always” now features an “Automatic” location for the entry server selection." xml:space="preserve" approved="yes">
+        <source>The multihop mode “Always” now features an “Automatic” location for the entry server selection.</source>
+        <target state="final">O modo multihop "Sempre" inclui agora uma localização "Automática" para a seleção do servidor de entrada.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
@@ -2602,6 +2807,11 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Este dispositivo chama-se agora **%@**. Veja mais em "Gerir dispositivos" na conta.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
+        <source>This ensures your connection does not get blocked due to incompatible settings.</source>
+        <target state="final">Garante que a sua ligação não é bloqueada devido a definições incompatíveis.</target>
+        <note from="auto-generated">A description of the when-needed multihop feature.</note>
+      </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
         <target state="final">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</target>
@@ -2637,15 +2847,35 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Pode causar problemas em alguns sites, serviços e apps.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve">
+      <trans-unit id="This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
+        <source>This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location.</source>
+        <target state="final">Este modo permite que a aplicação utilize automaticamente um servidor adicional se necessário, para garantir que as suas definições atuais funcionam com a sua localização selecionada.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve" approved="yes">
         <source>This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</source>
-        <target state="needs-translation">This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</target>
+        <target state="final">Esta definição controla se a aplicação se liga a servidores VPN utilizando IPv4 ou IPv6. A configuração automática permite que a aplicação escolha entre ambos, mas atualmente a aplicação utilizará apenas IPv4.</target>
         <note from="auto-generated">Description of a setting in the VPN settings screen that allows the user to choose between IPv4 and IPv6 connections.</note>
       </trans-unit>
       <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
         <source>This will also disable “%@“.</source>
         <target state="final">Isto também irá desativar "%@".</target>
         <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the %@ symbol" xml:space="preserve" approved="yes">
+        <source>This will be indicated by the %@ symbol</source>
+        <target state="final">Isto será indicado pelo símbolo %@</target>
+        <note from="auto-generated">A description of the "When needed" feature, including a</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the %@ symbol." xml:space="preserve" approved="yes">
+        <source>This will be indicated by the %@ symbol.</source>
+        <target state="final">Isto será indicado pelo símbolo %@.</target>
+        <note from="auto-generated">A description of what the when-needed symbol means. The symbol is a small, monochrome image that looks like a question mark with a slash through it.</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the “Multihop when needed“ symbol" xml:space="preserve" approved="yes">
+        <source>This will be indicated by the “Multihop when needed“ symbol</source>
+        <target state="final">Isto será indicado pelo símbolo "Multihop quando necessário"</target>
+        <note from="auto-generated">A description of the accessibility label for the multihop when needed icon.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
@@ -2672,9 +2902,19 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Para o ajudar melhor, escreva em inglês ou sueco e indique o país de onde está a efetuar a ligação.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="To avoid getting blocked, we recommend that you set your multihop mode to “%@”." xml:space="preserve" approved="yes">
+        <source>To avoid getting blocked, we recommend that you set your multihop mode to “%@”.</source>
+        <target state="final">Para evitar ser bloqueado, recomendamos que defina o seu modo multihop como "%@".</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”." xml:space="preserve" approved="yes">
+        <source>To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”.</source>
+        <target state="final">Para evitar ter de alterar manualmente o servidor de entrada, recomendamos que defina o servidor de entrada multihop como "%@".</target>
+        <note from="auto-generated">A suggestion to set the multihop entry server to "Automatic". The argument is the string “Automatic”.</note>
+      </trans-unit>
       <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve" approved="yes">
         <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
-        <target state="final">Para contornar esta situação, pode importar um ficheiro ou texto, fornecido pela nossa equipa de apoio, com novos endereços IP que substituem os endereços padrão dos servidores na vista Selecionar local.</target>
+        <target state="final">Para contornar esta situação, pode importar um ficheiro ou texto, fornecido pela nossa equipa de suporte, com novos endereços IP que substituem os endereços padrão dos servidores na vista Selecionar local.</target>
         <note/>
       </trans-unit>
       <trans-unit id="To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools." xml:space="preserve" approved="yes">
@@ -2746,6 +2986,11 @@ Pretende remover o número de conta guardado?</target>
         <source>UDP</source>
         <target state="final">UDP</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="UDP over TCP" xml:space="preserve" approved="yes">
+        <source>UDP over TCP</source>
+        <target state="final">UDP sobre TCP</target>
+        <note from="auto-generated">Description of a WireGuard obfuscation method when using UDP over TCP.</note>
       </trans-unit>
       <trans-unit id="UDP-over-TCP" xml:space="preserve" approved="yes">
         <source>UDP-over-TCP</source>
@@ -2922,15 +3167,40 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Novidades</target>
         <note/>
       </trans-unit>
+      <trans-unit id="When multihop is set to “Always” or “Never” you must manually select a DAITA server." xml:space="preserve" approved="yes">
+        <source>When multihop is set to “Always” or “Never” you must manually select a DAITA server.</source>
+        <target state="final">Quando o multihop está definido como "Sempre" ou "Nunca", tem de selecionar manualmente um servidor DAITA.</target>
+        <note from="auto-generated">Description of a setting update when the multihop mode is set to "Always" or "Never" and a DAITA server must be manually selected.</note>
+      </trans-unit>
+      <trans-unit id="When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA." xml:space="preserve" approved="yes">
+        <source>When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA.</source>
+        <target state="final">Quando o multihop está definido como "Quando necessário", a aplicação pode utilizar um servidor adicional para garantir que se liga à localização selecionada utilizando o DAITA.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When needed" xml:space="preserve" approved="yes">
+        <source>When needed</source>
+        <target state="final">Quando necessário</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance." xml:space="preserve" approved="yes">
+        <source>When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</source>
+        <target state="final">Quando selecionada, a aplicação escolhe automaticamente um servidor aleatório, dando prioridade aos que se encontram mais próximos da localização de saída, para melhor desempenho.</target>
+        <note from="auto-generated">Description of the automatic location in the multihop mode “Always”.</note>
+      </trans-unit>
+      <trans-unit id="When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance" xml:space="preserve" approved="yes">
+        <source>When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance</source>
+        <target state="final">Quando a localização "Automática" está selecionada, a aplicação escolhe automaticamente um servidor de entrada aleatório, dando prioridade aos que se encontram mais próximos da localização de saída, para melhor desempenho</target>
+        <note from="auto-generated">Description of a feature in the Automatic location section of the app.</note>
+      </trans-unit>
       <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve" approved="yes">
         <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</source>
         <target state="final">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
-        <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="final">Ao utilizar a DAITA, é necessário um fornecedor com servidores compatíveis com a DAITA.</target>
-        <note/>
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
+        <target state="final">Ao utilizar o DAITA, é necessário um fornecedor com servidores compatíveis com o DAITA</target>
+        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
@@ -3002,6 +3272,11 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Pode adicionar mais tempo através da vista da conta ou do site para continuar a usar a VPN.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You can buy time in the app, or you can go to our website where you can also redeem vouchers." xml:space="preserve" approved="yes">
+        <source>You can buy time in the app, or you can go to our website where you can also redeem vouchers.</source>
+        <target state="final">Pode comprar tempo na aplicação ou aceder ao nosso site, onde também pode utilizar vouchers.</target>
+        <note from="auto-generated">Description of how users can purchase time for their Mullvad VPN account.</note>
+      </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
         <source>You can have up to 5 devices logged in on one Mullvad account.</source>
         <target state="final">Pode ter até 5 dispositivos com sessão iniciada numa só conta Mullvad.</target>
@@ -3016,6 +3291,11 @@ Pretende remover o número de conta guardado?</target>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Pode usar a função "restaurar compras" para verificar se houve algum pagamento na aplicação efetuado através dos serviços da Apple. Se existir um pagamento que ainda não tenha sido creditado, o tempo será adicionado à conta Mullvad com sessão iniciada atualmente.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
+        <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="final">Tem atualmente filtros de entrada aplicados. Ao mudar para "%@", a aplicação irá ignorar as definições dos filtros do servidor de entrada selecionado automaticamente.</target>
+        <note>Variable refers to multihop mode</note>
       </trans-unit>
       <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
         <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
@@ -3060,6 +3340,11 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
         <target state="final">Tem alterações não guardadas.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Your current filters were applied to both entry and exit locations." xml:space="preserve" approved="yes">
+        <source>Your current filters were applied to both entry and exit locations.</source>
+        <target state="final">Os seus filtros atuais foram aplicados às localizações de entrada e de saída.</target>
+        <note from="auto-generated">Text displayed in a notification when a user's settings have been updated, explaining that the change affected both entry and exit locations.</note>
+      </trans-unit>
       <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
         <target state="final">O seu dispositivo</target>
@@ -3084,6 +3369,11 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
         <source>Your email (optional)</source>
         <target state="final">O seu email (opcional)</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Your multihop setting was migrated from “%@” to “%@”." xml:space="preserve" approved="yes">
+        <source>Your multihop setting was migrated from “%1$@” to “%2$@”.</source>
+        <target state="final">A sua definição de multihop foi atualizada de "%1$@" para "%2$@".</target>
+        <note from="auto-generated">A text describing a migration from one multihop setting to another. The first argument is the string “%arg”. The second argument is the string “%arg”.</note>
       </trans-unit>
       <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
@@ -3115,6 +3405,11 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
         <target state="final">Zurique</target>
         <note/>
       </trans-unit>
+      <trans-unit id="changing mode" xml:space="preserve" approved="yes">
+        <source>changing mode</source>
+        <target state="final">alterar o modo</target>
+        <note>Multihop mode</note>
+      </trans-unit>
       <trans-unit id="disable" xml:space="preserve" approved="yes">
         <source>disable</source>
         <target state="final">desativar</target>
@@ -3125,10 +3420,25 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
         <target state="final">ativar</target>
         <note from="auto-generated">The action to perform when continuing.</note>
       </trans-unit>
+      <trans-unit id="enabling DAITA" xml:space="preserve" approved="yes">
+        <source>enabling DAITA</source>
+        <target state="final">ativar DAITA</target>
+        <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
+      </trans-unit>
+      <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
+        <source>iOS features known to be affected:</source>
+        <target state="final">Funcionalidades do iOS afetadas:</target>
+        <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
         <target state="final">política de privacidade</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="selecting this method" xml:space="preserve" approved="yes">
+        <source>selecting this method</source>
+        <target state="final">selecionar este método</target>
+        <note>Obfuscation method</note>
       </trans-unit>
       <trans-unit id="value" xml:space="preserve" approved="yes">
         <source>value</source>
@@ -3144,6 +3454,11 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
         <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
         <target state="final">"%@" está ativado. Desative-o ou desligue-se antes de atualizar ou perderá a ligação à rede.</target>
         <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“Direct only” removed" xml:space="preserve" approved="yes">
+        <source>“Direct only” removed</source>
+        <target state="final">"Apenas direto" removido</target>
+        <note from="auto-generated">Description of a settings update when the "Direct only" option is removed from the multihop settings.</note>
       </trans-unit>
     </body>
   </file>
