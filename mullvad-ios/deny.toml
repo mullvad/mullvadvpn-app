@@ -13,6 +13,7 @@ allow = [
   "ISC",
   "BSD-3-Clause",
   "BSD-2-Clause",
+  "0BSD",
   "CC0-1.0",
   "Unicode-DFS-2016",
   "Unicode-3.0",
