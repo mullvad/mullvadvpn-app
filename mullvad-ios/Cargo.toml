@@ -25,6 +25,7 @@ mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-logging = { path = "../mullvad-logging" }
 mullvad-types = { path = "../mullvad-types" }
+nix = { workspace = true, features = ["uio"] }
 rand = { workspace = true }
 regex = "1"
 shadowsocks = { workspace = true }

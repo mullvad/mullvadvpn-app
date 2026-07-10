@@ -21,7 +21,7 @@ impl SmoltcpIcmpSocket {
 
     /// Send a raw ICMP packet to the given IPv4 destination.
     pub async fn send_to_v4(&self, data: &[u8], dest: Ipv4Addr) -> io::Result<()> {
-        self.send_raw(data, IpAddress::Ipv4(dest.into())).await
+        self.send_raw(data, IpAddress::Ipv4(dest)).await
     }
 
     /// Send a raw ICMP packet to the given destination.
