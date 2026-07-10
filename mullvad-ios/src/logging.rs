@@ -85,6 +85,10 @@ struct SwiftLayer {
 // by the Swift side for the lifetime of the program. The callback is a static
 // function pointer. Both are safe to send across threads.
 unsafe impl Send for SwiftLayer {}
+
+// SAFETY: The context pointer points to a Swift Logger instance that is retained
+// by the Swift side for the lifetime of the program. The callback is a static
+// function pointer. Both are safe to send across threads.
 unsafe impl Sync for SwiftLayer {}
 
 impl SwiftLayer {

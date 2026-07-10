@@ -37,6 +37,7 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
@@ -111,6 +112,7 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 

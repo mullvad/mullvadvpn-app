@@ -158,6 +158,7 @@ unsafe fn ptr_array_to_vec(ptr: *const *const libc::c_char, count: usize) -> Vec
         return Vec::new();
     }
 
+    // SAFETY: as per the caller docs, `ptr` must be a valid array for at least `count` pointers
     unsafe { std::slice::from_raw_parts(ptr, count) }
         .iter()
         .filter_map(|&p| {
@@ -165,7 +166,7 @@ unsafe fn ptr_array_to_vec(ptr: *const *const libc::c_char, count: usize) -> Vec
                 return None;
             }
 
-            // # Safety
+            // SAFETY:
             // - `p` must point to a valid, null-terminated C string.
             // - The pointed-to string must contain valid UTF-8.
             unsafe { CStr::from_ptr(p) }
@@ -191,7 +192,9 @@ pub unsafe extern "C" fn log_redactor_redact(
         return std::ptr::null_mut();
     }
 
+    // SAFETY: `redactor` pointer must point to a valid `LogRedactor` instance
     let redactor = unsafe { &*redactor };
+    // SAFETY: `input` must be a valid C string pointer
     let input_str = match unsafe { CStr::from_ptr(input) }.to_str() {
         Ok(s) => s,
         Err(_) => return std::ptr::null_mut(),
@@ -215,6 +218,7 @@ pub unsafe extern "C" fn log_redactor_redact(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn log_redactor_free_string(ptr: *mut libc::c_char) {
     if !ptr.is_null() {
+        // SAFETY: `ptr` must be a valid C string pointer
         drop(unsafe { CString::from_raw(ptr) });
     }
 }
@@ -233,7 +237,9 @@ pub extern "C" fn log_redactor_add_custom_string(
         return;
     }
 
+    // SAFETY: `redactor` must be a valid pointer to a [`LogRedactor`] instance
     let redactor = unsafe { &mut *redactor };
+    // SAFETY: `input` must be a valid C string pointer
     let Ok(input_str) = unsafe { CStr::from_ptr(input) }.to_str() else {
         return;
     };
@@ -250,6 +256,7 @@ pub extern "C" fn log_redactor_add_custom_string(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn log_redactor_free(redactor: *mut LogRedactor) {
     if !redactor.is_null() {
+        // SAFETY: `redactor` must be a valid pointer to a `Box<LogRedactor>`
         drop(unsafe { Box::from_raw(redactor) });
     }
 }

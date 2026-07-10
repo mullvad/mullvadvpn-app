@@ -42,6 +42,7 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     retry_strategy: SwiftRetryStrategy,
     request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
     let completion = completion_handler.clone();
@@ -123,8 +124,11 @@ struct ProblemReportRequest {
 impl ProblemReportRequest {
     // SAFETY: the members of `SwiftProblemReportRequest` must point to null-terminated strings
     unsafe fn from_swift_parameters(request: SwiftProblemReportRequest) -> Option<Self> {
+        // SAFETY: caller guarantees that `request.address` is a valid C string pointer
         let address = unsafe { get_string(request.address) };
+        // SAFETY: caller guarantees that `request.message` is a valid C string pointer
         let message = unsafe { get_string(request.message) };
+        // SAFETY: caller guarantees that `request.log` is a valid C string pointer
         let log = unsafe { get_string(request.log) }.into();
 
         let metadata = if request.metadata.inner.is_null() {
@@ -133,6 +137,7 @@ impl ProblemReportRequest {
             let swift_map = &request.metadata;
             let mut converted_map = BTreeMap::new();
 
+            // SAFETY: caller guarantees that `swift_map.inner` is a valid pointer to a [`Map`]
             if let Some(inner) = unsafe { swift_map.inner.as_ref() } {
                 for (key, value) in &inner.0 {
                     converted_map.insert(key.clone(), value.clone());
