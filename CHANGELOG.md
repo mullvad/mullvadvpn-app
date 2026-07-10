@@ -49,7 +49,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix misleading "split tunneling" error when offline.
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
-  enabled, instead of toggle switches and other custom-styled controls becoming invisible.
+  enabled in order to prevent toggle switches and other custom-styled controls from becoming
+  invisible.
 
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
