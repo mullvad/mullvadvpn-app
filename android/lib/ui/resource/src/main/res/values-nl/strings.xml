@@ -105,6 +105,7 @@
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Uit</string>
     <string name="cont">Doorgaan</string>
+    <string name="contact_support">Contact met ondersteuning</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
     <string name="hint_default">Standaard</string>
+    <string name="how_it_works">Hoe het werkt</string>
     <string name="icon_and_title">Pictogram en titel</string>
     <string name="import_override_textfield_placeholder">Plak of schrijf overschrijvingen om te importeren</string>
     <string name="import_overrides_bottom_sheet_override_warning">Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Als u uw accounttoken bijvoegt, wordt dit rapport gekoppeld aan uw account. We kunnen het probleem dan sneller oplossen. Alle rapporten worden automatisch na een bepaalde tijd verwijderd.</string>
     <string name="include_account_token_warning_message_second">Zie ons %1$s voor meer informatie.</string>
     <string name="include_account_token_warning_title">Dit heeft gevolgen voor uw anonimiteit</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Voer een IP-adres in</string>
     <string name="invalid_address_invalid_warning">Ongeldig IP-adres</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Producten worden geladen</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
+    <string name="local_network_sharing_info">Schakel dit in zodat services zoals bestandsdeling, afdrukken, mediastreaming en apparaatdetectie blijven werken terwijl je verbonden bent met de VPN.</string>
+    <string name="local_network_sharing_info2"><b>Dit kan gevolgen hebben voor je anonimiteit.</b> Schakel deze functie niet in op openbare of onbetrouwbare netwerken, want je apparaat kan dan zichtbaar worden voor anderen.</string>
+    <string name="local_network_sharing_info3">De app staat toe dat lokaal multicast- en broadcastnetwerkverkeer, evenals verkeer van en naar privé-IP-reeksen, de VPN-tunnel omzeilt.</string>
+    <string name="local_network_sharing_info4"><b>Privé-IP-reeksen</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Let op:</b> delen via lokaal netwerk is niet compatibel met \"Verbindingen zonder VPN blokkeren\".</string>
     <string name="location_added">%1$s (toegevoegd)</string>
     <string name="location_was_added_to_list">%1$s is toegevoegd aan \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s is verwijderd uit \"%2$s\"</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Uit</string>
     <string name="on">Aan</string>
+    <string name="ongoing_verification_warning">Uw laatste aankoop wordt nog geverifieerd. Als u zich aanmeldt bij een ander account, mislukt de verificatie. Wilt u zich toch afmelden?</string>
     <string name="open_app_details">Appgegevens openen</string>
     <string name="open_feature_settings">%1$s-instellingen openen</string>
     <string name="open_url">URL openen</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">We zijn nog bezig met het verifiëren van de aankoop, dit kan even duren. De tijd wordt toegevoegd als de verificatie is gelukt.</string>
     <string name="payment_status_pending_long">Wachten op betaling van Google Play. Dit kan even duren</string>
     <string name="payment_status_pending_short">Google Play-betaling in behandeling</string>
+    <string name="payment_status_verification_failed">Verifiëren van Google Play-betaling mislukt</string>
     <string name="please_enter_a_valid_ip_address">Voer een geldig IPv4- of IPv6-adres in</string>
     <string name="please_enter_a_valid_remote_server_port">Voer een geldige poort op de externe server in</string>
     <string name="port">Poort</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
     <string name="username">Gebruikersnaam</string>
+    <string name="verification_failed_dialog_message">We kunnen uw laatste aankoop niet verifiëren. Controleer uw internetverbinding en probeer het opnieuw. Als het probleem zich blijft voordoen, neem dan contact op met de ondersteuning.</string>
     <string name="verifying_api_method">API-methode verifiëren ...</string>
     <string name="verifying_purchase">Aankoop verifiëren</string>
+    <string name="verifying_purchase_error">Aankoop kan niet worden geverifieerd</string>
+    <string name="verifying_purchase_recoverable_error">We kunnen uw aankoop niet verifiëren. Controleer uw internetverbinding en probeer het opnieuw.</string>
+    <string name="verifying_purchase_unrecoverable_error">Er is iets misgegaan bij het verifiëren van uw aankoop. Neem contact op met de ondersteuning.</string>
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="version">Versie</string>
     <string name="view_logs">Applogboeken weergeven</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Het lijkt erop dat u een rekeningnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
     <string name="voucher_too_short">Vouchercode is te kort</string>
+    <string name="vpn_dialog_activity_not_found">Het dialoogvenster voor VPN-toestemming kan niet worden geopend. Controleer de configuratie van uw besturingssysteem</string>
     <string name="vpn_permission_denied_error">VPN-toegang is geweigerd of \"VPN altijd aan\" is geactiveerd in een andere app</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-toestemming is geweigerd</string>
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>

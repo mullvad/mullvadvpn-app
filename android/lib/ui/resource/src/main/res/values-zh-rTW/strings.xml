@@ -105,6 +105,7 @@
     <string name="connection_details_in">入境</string>
     <string name="connection_details_out">出境</string>
     <string name="cont">繼續</string>
+    <string name="contact_support">聯絡支援團隊</string>
     <string name="continue_login">繼續登入</string>
     <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
+    <string name="how_it_works">運作方式</string>
     <string name="icon_and_title">圖示與標題</string>
     <string name="import_override_textfield_placeholder">貼上或撰寫要匯入的覆寫設定</string>
     <string name="import_overrides_bottom_sheet_override_warning">匯入新的覆寫設定，可能會取代一部分先前已匯入的覆寫設定。</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">附加您的帳戶權杖後，此回報就會和您的帳戶相連，這能讓我們更快為您解決問題。所有回報都會在一段時間後自動刪除。</string>
     <string name="include_account_token_warning_message_second">如需詳細資訊，請參閱我們的 %1$s。</string>
     <string name="include_account_token_warning_title">這會影響您的匿名性</string>
+    <string name="info">資訊</string>
     <string name="internet">網際網路</string>
     <string name="invalid_address_blank_warning">請輸入 IP 位址</string>
     <string name="invalid_address_invalid_warning">IP 位址無效</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">正在載入產品</string>
     <string name="loading_verifying">正在驗證購買…</string>
     <string name="local_network_sharing">本機網路分享</string>
+    <string name="local_network_sharing_info">啟用後，在連至 VPN 時仍能使用檔案共享、列印、媒體串流與裝置探索等服務。</string>
+    <string name="local_network_sharing_info2"><b>這可能會影響您的匿名性。</b>若使用公開或不受信任的網路，請避免啟用此功能，否則其他人可能會看到您的裝置。</string>
+    <string name="local_network_sharing_info3">此應用程式允許本機多點傳送與廣播網路流量，以及往返私人 IP 範圍的流量繞過 VPN 通道。</string>
+    <string name="local_network_sharing_info4"><b>私人 IP 範圍</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>注意：</b>本機網路共享與「在沒有 VPN 的情況下封鎖連線」不相容。</string>
     <string name="location_added">%1$s (已新增)</string>
     <string name="location_was_added_to_list">已將 %1$s 新增至「%2$s」</string>
     <string name="location_was_removed_from_list">已將 %1$s 從「%2$s」中移除</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">關閉</string>
     <string name="on">開啟</string>
+    <string name="ongoing_verification_warning">您最近一次的購買仍在驗證中。此時登入其他帳戶會導致驗證失敗。您仍要登出嗎？</string>
     <string name="open_app_details">開啟應用程式詳細資訊</string>
     <string name="open_feature_settings">開啟 %1$s 設定</string>
     <string name="open_url">開啟 URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">我們仍在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。</string>
     <string name="payment_status_pending_long">Google Play 付款待處理，這可能需要花一些時間</string>
     <string name="payment_status_pending_short">Google Play 付款尚待處理</string>
+    <string name="payment_status_verification_failed">Google Play 付款驗證失敗</string>
     <string name="please_enter_a_valid_ip_address">請輸入有效的 IPv4 或 IPv6 位址。</string>
     <string name="please_enter_a_valid_remote_server_port">請輸入有效的遠端伺服器連接埠</string>
     <string name="port">連接埠</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">您的電子郵件 (選填)</string>
     <string name="user_message_hint">為了給您提供更完善的協助，請您使用英語或瑞典語書寫，並註明您是從哪個國家/地區進行連線。</string>
     <string name="username">使用者名稱</string>
+    <string name="verification_failed_dialog_message">我們無法驗證您最近一次的購買。請檢查您的網際網路連線並再試一次。如果問題持續發生，請聯絡支援團隊。</string>
     <string name="verifying_api_method">正在驗證 API 方式…</string>
     <string name="verifying_purchase">正在驗證購買</string>
+    <string name="verifying_purchase_error">無法驗證購買</string>
+    <string name="verifying_purchase_recoverable_error">我們無法驗證您的購買。請檢查您的網際網路連線並再試一次。</string>
+    <string name="verifying_purchase_unrecoverable_error">驗證購買流程時發生問題。請聯絡支援團隊。</string>
     <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="version">版本</string>
     <string name="view_logs">檢視應用程式日誌</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">您輸入的似乎是帳戶號碼，而不是優惠券兌換碼。如果您想變更啟用中帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="voucher_too_short">優惠券兌換碼太短</string>
+    <string name="vpn_dialog_activity_not_found">無法開啟 VPN 權限對話方塊，請檢查您的作業系統組態</string>
     <string name="vpn_permission_denied_error">VPN 權限遭到拒絕，或者已有其他應用程式啟用「一律啟用 VPN」</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 權限遭拒</string>
     <string name="vpn_permission_error_notification_message">請按「連線」請求 VPN 權限</string>
