@@ -46,10 +46,34 @@ if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
   TARGET=aarch64-apple-ios-sim
 fi
 
+# To make GotaTun fast enough to not be bothersome in DEBUG builds, lets
+# disable debug assertions, overflow checks and set the optimization level to 3
+# for the relevant crates. Relevant being on the data path for traffic between
+# the tunnel device and the UDP socket.
+OPT_CONFIG=(
+    --config 'profile.dev.package.gotatun.opt-level=3'
+    --config 'profile.dev.package.gotatun.debug-assertions=false'
+    --config 'profile.dev.package.gotatun.overflow-checks=false'
+    --config 'profile.dev.package.smoltcp.opt-level=3'
+    --config 'profile.dev.package.smoltcp.debug-assertions=false'
+    --config 'profile.dev.package.smoltcp.overflow-checks=false'
+    --config 'profile.dev.package.ring.opt-level=3'
+    --config 'profile.dev.package.chacha20poly1305.opt-level=3'
+    --config 'profile.dev.package.chacha20poly1305.debug-assertions=false'
+    --config 'profile.dev.package.chacha20poly1305.overflow-checks=false'
+    --config 'profile.dev.package.chacha20.opt-level=3'
+    --config 'profile.dev.package.chacha20.overflow-checks=false'
+    --config 'profile.dev.package.poly1305.opt-level=3'
+    --config 'profile.dev.package.poly1305.overflow-checks=false'
+    --config 'profile.dev.package.mullvad-ios.debug-assertions=false'
+    --config 'profile.dev.package.mullvad-ios.overflow-checks=false'
+    --config 'profile.dev.package.mullvad-ios.opt-level=2'
+)
+
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
             ;;
     esac
 done
