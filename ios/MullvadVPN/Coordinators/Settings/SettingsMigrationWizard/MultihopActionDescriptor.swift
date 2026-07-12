@@ -128,12 +128,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                         "Change to “%@”",
                         comment: ""
                     ),
-                    arguments: [
-                        NSLocalizedString(
-                            MultihopStateV2.whenNeeded.description,
-                            comment: ""
-                        )
-                    ]
+                    arguments: [MultihopStateV2.whenNeeded.description]
                 ))
 
         case .automaticEntry:
