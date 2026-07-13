@@ -26842,8 +26842,8 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.seriali
  */
 proto.mullvad_daemon.management_interface.SplitFilterMigration.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getScenario();
-  if (f !== 0.0) {
+  f = /** @type {!proto.mullvad_daemon.management_interface.SplitFilterMigration.Scenario} */ (jspb.Message.getField(message, 1));
+  if (f != null) {
     writer.writeEnum(
       1,
       f
@@ -26885,7 +26885,25 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.getScen
  * @return {!proto.mullvad_daemon.management_interface.SplitFilterMigration} returns this
  */
 proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.setScenario = function(value) {
-  return jspb.Message.setProto3EnumField(this, 1, value);
+  return jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.SplitFilterMigration} returns this
+ */
+proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.clearScenario = function() {
+  return jspb.Message.setField(this, 1, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.hasScenario = function() {
+  return jspb.Message.getField(this, 1) != null;
 };
 
 

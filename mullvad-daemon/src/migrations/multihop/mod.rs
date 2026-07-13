@@ -18,6 +18,9 @@ use std::path::Path;
 const SETTING: SettingsVersion = SettingsVersion::V18;
 const PREVIOUS_SETTING: SettingsVersion = SettingsVersion::V17;
 
+/// Path to split-filter/multihop migration cache on disk.
+pub const CACHE: &str = "split-filter-migration.json";
+
 /// NOTE: This migration has been closed.
 ///
 /// If `Ok(none)` is returned, the migration has already run.

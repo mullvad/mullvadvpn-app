@@ -35,7 +35,7 @@
 
 /// Each scenario which a [*previous* settings](crate::migrations::multihop::settings::v17) object maps to.
 /// Exactly how the migration is executed depends on this scenario.
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Scenario {
     OneA,   // 1A
     OneB,   // 1B
