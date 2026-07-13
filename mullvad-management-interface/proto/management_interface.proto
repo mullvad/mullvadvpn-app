@@ -1009,5 +1009,5 @@ message SplitFilterMigration {
     SevenB = 12;
   }
 
-  Scenario scenario = 1;
+  optional Scenario scenario = 1;
 }
