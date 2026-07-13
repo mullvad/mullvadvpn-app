@@ -14,4 +14,3 @@ pub enum Error {
     #[error(transparent)]
     Serialize(#[from] serde_json::Error),
 }
-
