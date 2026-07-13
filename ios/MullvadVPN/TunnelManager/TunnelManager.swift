@@ -63,6 +63,8 @@ final class TunnelManager: @unchecked Sendable {
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
 
+    var onInAppLogEntries: (([InAppLogEntry]) -> Void)?
+
     private var _isConfigurationLoaded = false
     private var _deviceState: DeviceState = .loggedOut
     private var _tunnelSettings = LatestTunnelSettings()
@@ -345,6 +347,14 @@ final class TunnelManager: @unchecked Sendable {
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
+    }
+
+    func getInAppLogs(completionHandler: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void) {
+        guard let tunnel else {
+            completionHandler(.success([]))
+            return
+        }
+        _ = tunnel.getInAppLogs(completionHandler: completionHandler)
     }
 
     func reapplyTunnelConfiguration() {
@@ -1059,6 +1069,14 @@ final class TunnelManager: @unchecked Sendable {
                 }
             }
         }
+
+        #if DEBUG
+            _ = tunnel.getInAppLogs { [weak self] result in
+                if case let .success(entries) = result, !entries.isEmpty {
+                    self?.onInAppLogEntries?(entries)
+                }
+            }
+        #endif
     }
 
     /// Returns true if the tunnel is in an active state based on NEVPNStatus.
