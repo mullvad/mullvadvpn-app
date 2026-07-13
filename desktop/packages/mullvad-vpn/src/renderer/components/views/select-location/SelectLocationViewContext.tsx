@@ -7,6 +7,7 @@ import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
 type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'children'> & {
+  viewRef: React.RefObject<HTMLDivElement | null>;
   locationType: LocationType;
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
@@ -34,6 +35,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const [searchTerm, setSearchTerm] = React.useState('');
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
+  const viewRef = React.useRef<HTMLDivElement | null>(null);
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = multihop !== 'never';
@@ -46,12 +48,13 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
 
   const value = React.useMemo(
     () => ({
+      viewRef,
       locationType,
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
     }),
-    [locationType, searchTerm, setSearchTerm, setSelectLocationView],
+    [locationType, searchTerm, setSelectLocationView, viewRef],
   );
 
   return (

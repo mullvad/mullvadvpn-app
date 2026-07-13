@@ -29,7 +29,7 @@ import {
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { locationType } = useSelectLocationViewContext();
+  const { viewRef, locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
   const onClose = useCallback(() => history.pop(), [history]);
@@ -45,7 +45,7 @@ export function SelectLocationViewImpl() {
   const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
-    <View backgroundColor="darkBlue">
+    <View backgroundColor="darkBlue" ref={viewRef}>
       <BackAction action={onClose}>
         <NavigationContainer>
           <AppNavigationHeader
