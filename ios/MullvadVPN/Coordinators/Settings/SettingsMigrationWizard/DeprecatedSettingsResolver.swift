@@ -10,16 +10,13 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
-public enum DeprecatedSettingsResolverResult: Sendable {
+enum DeprecatedSettingsResolverResult: Sendable {
 
     // Nothing to migrate
     case nothing
 
-    // Migration completed successfully, but no changes were required.
-    case noChanges
-
     /// Successfully performed migration.
-    case migrated(from: LatestTunnelSettings, to: LatestTunnelSettings)
+    case migrated(from: LatestTunnelSettings, to: LatestTunnelSettings, changes: [Change])
 
     /// Failure when migrating store.
     case failure(Error)
@@ -81,8 +78,7 @@ struct DeprecatedSettingsResolver: Sendable {
             let currentSettings = try parser.parsePayload(as: LatestTunnelSettings.self, from: settingsData)
             var copy = currentSettings
             let migrationOutput = try MultihopMigrationTrackerFactory.make(relaySelector).run(input: &copy)
-            migrationCompleted(
-                migrationOutput.changes.isEmpty ? .noChanges : .migrated(from: currentSettings, to: copy))
+            migrationCompleted(.migrated(from: currentSettings, to: copy, changes: migrationOutput.changes))
         } catch {
             migrationCompleted(.failure(error))
         }

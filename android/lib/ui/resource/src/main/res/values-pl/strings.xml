@@ -105,6 +105,7 @@
     <string name="connection_details_in">Wejście</string>
     <string name="connection_details_out">Wyjście</string>
     <string name="cont">Kontynuuj</string>
+    <string name="contact_support">Skontaktuj się z pomocą techniczną</string>
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>
     <string name="hide_account_number">Ukryj numer konta</string>
     <string name="hint_default">Domyślnie</string>
+    <string name="how_it_works">Jak to działa</string>
     <string name="icon_and_title">Ikona i tytuł</string>
     <string name="import_override_textfield_placeholder">Wklej lub wpisz zastąpienia do zaimportowania</string>
     <string name="import_overrides_bottom_sheet_override_warning">Wskutek importu nowych zastąpień zastąpione mogą zostać niektóre wcześniej zaimportowane zastąpienia.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Dołączenie tokena konta powoduje połączenie raportu z kontem, co pomaga nam szybciej rozwiązać problem. Wszystkie raporty są automatycznie usuwane po pewnym czasie.</string>
     <string name="include_account_token_warning_message_second">Szczegółowe informacje znajdziesz w naszej %1$s.</string>
     <string name="include_account_token_warning_title">Ma to wpływ na anonimowość</string>
+    <string name="info">Informacje</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Wprowadź adres IP</string>
     <string name="invalid_address_invalid_warning">Nieprawidłowy adres IP</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Ładowanie produktów</string>
     <string name="loading_verifying">Weryfikowanie zakupu...</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
+    <string name="local_network_sharing_info">Włącz tę opcję, aby usługi takie jak udostępnianie plików, drukowanie, strumieniowa transmisja multimediów i wykrywanie urządzeń działały podczas połączenia z VPN.</string>
+    <string name="local_network_sharing_info2"><b>Może to mieć wpływ na Twoją anonimowość.</b> Unikaj włączania tej opcji w sieciach publicznych lub niezaufanych, ponieważ Twoje urządzenie może być widoczne dla innych.</string>
+    <string name="local_network_sharing_info3">Aplikacja pozwala lokalnemu ruchowi sieciowemu multiemisji i emisji oraz ruchowi do i z prywatnych zakresów adresów IP omijać tunel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Prywatne zakresy adresów IP</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Uwaga:</b> Udostępnianie w sieci lokalnej nie jest kompatybilne z opcją „Blokuj połączenia bez VPN”.</string>
     <string name="location_added">%1$s (dodano)</string>
     <string name="location_was_added_to_list">Dodano lokalizację %1$s do listy „%2$s”</string>
     <string name="location_was_removed_from_list">Usunięto %1$s z „%2$s”</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
+    <string name="ongoing_verification_warning">Twój najnowszy zakup jest nadal weryfikowany. Zalogowanie się na inne konto spowoduje niepowodzenie weryfikacji. Czy nadal chcesz się wylogować?</string>
     <string name="open_app_details">Otwórz szczegóły aplikacji</string>
     <string name="open_feature_settings">Otwórz ustawienia %1$s</string>
     <string name="open_url">Otwórz adres URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Nadal weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
     <string name="payment_status_pending_long">Płatność w Google Play oczekuje na realizację. Może to chwilę potrwać</string>
     <string name="payment_status_pending_short">Oczekiwanie na płatność Google Play</string>
+    <string name="payment_status_verification_failed">Weryfikacja płatności Google Play nie powiodła się</string>
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Twój adres e-mail (opcjonalnie)</string>
     <string name="user_message_hint">Abyśmy mogli lepiej Ci pomóc, napisz w języku angielskim lub szwedzkim i podaj kraj, z którego się łączysz.</string>
     <string name="username">Nazwa użytkownika</string>
+    <string name="verification_failed_dialog_message">Nie udało nam się zweryfikować Twojego najnowszego zakupu. Sprawdź połączenie internetowe i spróbuj ponownie. Jeśli problem nie ustąpi, skontaktuj się z pomocą techniczną.</string>
     <string name="verifying_api_method">Weryfikowanie metody interfejsu API...</string>
     <string name="verifying_purchase">Weryfikowanie zakupu</string>
+    <string name="verifying_purchase_error">Nie można zweryfikować zakupu</string>
+    <string name="verifying_purchase_recoverable_error">Nie udało nam się zweryfikować Twojego zakupu. Sprawdź połączenie internetowe i spróbuj ponownie.</string>
+    <string name="verifying_purchase_unrecoverable_error">Podczas weryfikowania zakupu wystąpił błąd. Skontaktuj się z pomocą techniczną.</string>
     <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="version">Wersja</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="voucher_too_short">Kod kuponu jest zbyt krótki</string>
+    <string name="vpn_dialog_activity_not_found">Nie można otworzyć okna uprawnień VPN, sprawdź konfigurację systemu operacyjnego</string>
     <string name="vpn_permission_denied_error">Odmówiono uprawnienia VPN lub inna aplikacja ma włączoną funkcję „Zawsze włączony VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Odmowa uprawnienia do VPN</string>
     <string name="vpn_permission_error_notification_message">Naciśnij przycisk Połącz, aby zażądać uprawnienia VPN</string>

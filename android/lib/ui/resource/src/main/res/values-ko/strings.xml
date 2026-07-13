@@ -105,6 +105,7 @@
     <string name="connection_details_in">인</string>
     <string name="connection_details_out">아웃</string>
     <string name="cont">계속</string>
+    <string name="contact_support">지원팀에 문의</string>
     <string name="continue_login">로그인 계속하기</string>
     <string name="copied_logs_to_clipboard">로그를 클립보드에 복사했습니다.</string>
     <string name="copied_mullvad_account_number">클립보드에 Mullvad 계정 번호 복사됨</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
     <string name="hide_account_number">계정 번호 숨기기</string>
     <string name="hint_default">기본값</string>
+    <string name="how_it_works">사용 방법</string>
     <string name="icon_and_title">아이콘 및 타이틀</string>
     <string name="import_override_textfield_placeholder">가져올 재정의를 붙여넣거나 작성하세요</string>
     <string name="import_overrides_bottom_sheet_override_warning">새로운 재정의를 가져오면 이전에 가져온 일부 재정의가 교체될 수 있습니다.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">계정 토큰을 첨부하여 이 보고서를 계정에 연결하며, 이는 문제를 더 빨리 해결하는 데 도움이 됩니다. 모든 보고서는 일정 시간 후 자동으로 삭제됩니다.</string>
     <string name="include_account_token_warning_message_second">자세한 내용은 %1$s에서 확인해 주시기 바랍니다.</string>
     <string name="include_account_token_warning_title">이는 사용자의 익명성에 영향을 미칩니다</string>
+    <string name="info">정보</string>
     <string name="internet">인터넷</string>
     <string name="invalid_address_blank_warning">IP 주소를 입력하세요</string>
     <string name="invalid_address_invalid_warning">유효하지 않은 IP 주소</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">제품을 로드하는 중</string>
     <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
+    <string name="local_network_sharing_info">파일 공유, 인쇄, 미디어 스트리밍 및 장치 검색 등의 서비스에 이 기능을 활성화하여 VPN을 연결한 상태로 업무를 진행하세요.</string>
+    <string name="local_network_sharing_info2"><b>이 기능은 익명성에 영향을 미칠 수 있습니다.</b> 사용 중인 장치가 다른 사람들에게 표시될 수 있으므로 공공 네트워크 또는 신뢰할 수 없는 네트워크에서 활성화하지 마세요.</string>
+    <string name="local_network_sharing_info3">본 앱은 사설 IP 대역을 오가는 트래픽은 물론 로컬 멀티캐스트 및 브로드캐스트 네트워크 트래픽을 허용하여 VPN 터널을 우회합니다.</string>
+    <string name="local_network_sharing_info4"><b>사설 IP 대역</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>주의:</b> 로컬 네트워크 공유는 \"VPN 없이 연결 차단\"과 호환되지 않습니다.</string>
     <string name="location_added">%1$s(추가됨)</string>
     <string name="location_was_added_to_list">%1$s이(가) \"%2$s\"에 추가되었습니다</string>
     <string name="location_was_removed_from_list">%1$s이(가) \"%2$s\"에서 제거되었습니다</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">끄기</string>
     <string name="on">켜기</string>
+    <string name="ongoing_verification_warning">아직 최신 구매 내역을 확인하고 있습니다. 다른 계정으로 로그인하면 확인 작업에 실패합니다. 그래도 로그아웃하시겠습니까?</string>
     <string name="open_app_details">앱 세부 정보 열기</string>
     <string name="open_feature_settings">%1$s 설정 열기</string>
     <string name="open_url">URL 열기</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다.</string>
     <string name="payment_status_pending_long">Google Play 결제가 보류 중입니다. 다소 시간이 소요될 수 있습니다</string>
     <string name="payment_status_pending_short">Google Play 결제 보류 중</string>
+    <string name="payment_status_verification_failed">Google Play 결제 인증 실패</string>
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
     <string name="port">포트</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">이메일(선택 사항)</string>
     <string name="user_message_hint">더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요.</string>
     <string name="username">사용자 이름</string>
+    <string name="verification_failed_dialog_message">최신 구매 내역을 확인하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. 문제가 계속되는 경우 지원팀으로 문의해 주시기 바랍니다.</string>
     <string name="verifying_api_method">API 방법 확인 중...</string>
     <string name="verifying_purchase">구매 확인 중</string>
+    <string name="verifying_purchase_error">구매를 확인할 수 없습니다</string>
+    <string name="verifying_purchase_recoverable_error">구매 내역을 확인하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.</string>
+    <string name="verifying_purchase_unrecoverable_error">구매를 확인하는 중에 문제가 발생했습니다. 지원팀에 문의하세요.</string>
     <string name="verifying_voucher">바우처 확인 중…</string>
     <string name="version">버전</string>
     <string name="view_logs">앱 로그 보기</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요.</string>
     <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
     <string name="voucher_too_short">바우처 코드가 너무 짧습니다</string>
+    <string name="vpn_dialog_activity_not_found">VPN 권한 관련 대화창을 열 수 없습니다. OS 구성을 확인하세요</string>
     <string name="vpn_permission_denied_error">VPN 권한이 거부되었거나 다른 앱에 \"상시 접속 VPN\"이 활성화되어 있을 수 있습니다</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 권한이 거부되었습니다</string>
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>

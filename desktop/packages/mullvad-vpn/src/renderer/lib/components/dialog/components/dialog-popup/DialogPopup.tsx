@@ -32,7 +32,7 @@ export const StyledDialogPopup = styled(Popup)`
   transition-behavior: allow-discrete;
 
   &&[open] {
-    display: block;
+    display: flex;
     opacity: 1;
     scale: 1;
 

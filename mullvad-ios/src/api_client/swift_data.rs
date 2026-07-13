@@ -30,6 +30,7 @@ impl Drop for SwiftData {
     // SAFETY: swift_data_drop is a deterministic function that releases and
     // zeroes the pointer to any data held, if present. It is idempotent.
     fn drop(&mut self) {
+        // SAFETY: `self` must be a valid instance of `SwiftData`
         unsafe { swift_data_drop(self) }
     }
 }

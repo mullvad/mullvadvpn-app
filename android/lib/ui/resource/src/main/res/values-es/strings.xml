@@ -105,6 +105,7 @@
     <string name="connection_details_in">Entrada</string>
     <string name="connection_details_out">Salida</string>
     <string name="cont">Continuar</string>
+    <string name="contact_support">Contactar con asistencia</string>
     <string name="continue_login">Iniciar sesión</string>
     <string name="copied_logs_to_clipboard">Registros copiados en el portapapeles</string>
     <string name="copied_mullvad_account_number">El número de cuenta de Mullvad se copió en el Portapapeles</string>
@@ -255,6 +256,7 @@
     <string name="here_is_your_account_number">Este es un número de cuenta. ¡Guárdelo bien!</string>
     <string name="hide_account_number">Ocultar número de cuenta</string>
     <string name="hint_default">Predeterminado</string>
+    <string name="how_it_works">Cómo funciona</string>
     <string name="icon_and_title">Icono y título</string>
     <string name="import_override_textfield_placeholder">Pegue o escriba las anulaciones que se deben importar</string>
     <string name="import_overrides_bottom_sheet_override_warning">Importar nuevas anulaciones podría reemplazar algunas anulaciones anteriormente importadas.</string>
@@ -266,6 +268,7 @@
     <string name="include_account_token_warning_message_first">Al adjuntar el token de su cuenta, vincula este informe con su cuenta, lo que nos ayuda a resolver su problema más rápidamente. Todos los informes se eliminan automáticamente tras un periodo de tiempo.</string>
     <string name="include_account_token_warning_message_second">Para más información, consulte nuestra %1$s.</string>
     <string name="include_account_token_warning_title">Esto afecta a su anonimato</string>
+    <string name="info">Información</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Introduzca una dirección IP</string>
     <string name="invalid_address_invalid_warning">Dirección IP no válida</string>
@@ -288,6 +291,11 @@
     <string name="loading_products">Cargando productos</string>
     <string name="loading_verifying">Verificando la compra…</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
+    <string name="local_network_sharing_info">Active esta opción para que servicios como el uso compartido de archivos, la impresión, la transmisión multimedia y la detección de dispositivos funcionen mientras esté conectado a la red VPN.</string>
+    <string name="local_network_sharing_info2"><b>Esto puede afectar a su anonimato.</b> Evite activar esta opción en redes públicas o que no sean de confianza, ya que otros usuarios podrían ver su dispositivo.</string>
+    <string name="local_network_sharing_info3">La aplicación permite que el tráfico de red local de difusión y multidifusión, así como el tráfico desde y hacia intervalos de IP privadas, sortee el túnel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Intervalos de IP privadas</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Atención:</b> El uso compartido en la red local no es compatible con la opción «Bloquear conexiones sin VPN».</string>
     <string name="location_added">%1$s (añadido)</string>
     <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
     <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>
@@ -350,6 +358,7 @@
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Desactivado</string>
     <string name="on">Activado</string>
+    <string name="ongoing_verification_warning">Aún se está verificando su última compra. Si inicia sesión en otra cuenta, no se podrá completar la verificación. ¿Seguro que quiere cerrar la sesión?</string>
     <string name="open_app_details">Abrir detalles de la aplicación</string>
     <string name="open_feature_settings">Abrir la configuración de %1$s</string>
     <string name="open_url">Abrir URL</string>
@@ -369,6 +378,7 @@
     <string name="payment_pending_dialog_message">Seguimos verificando su compra. Esto podría tardar algún tiempo. Su tiempo se añadirá si pasa la verificación.</string>
     <string name="payment_status_pending_long">Pago de Google Play pendiente. Esto puede tardar algún tiempo</string>
     <string name="payment_status_pending_short">Pago a Google Play pendiente</string>
+    <string name="payment_status_verification_failed">No se ha podido verificar el pago de Google Play</string>
     <string name="please_enter_a_valid_ip_address">Escriba una dirección IPv4 o IPv6 válida</string>
     <string name="please_enter_a_valid_remote_server_port">Introduzca un puerto de servidor remoto válido</string>
     <string name="port">Puerto</string>
@@ -494,8 +504,12 @@
     <string name="user_email_hint">Su correo electrónico (opcional)</string>
     <string name="user_message_hint">Para ayudarle mejor, escriba en inglés o sueco e indique desde qué país se está conectando.</string>
     <string name="username">Nombre de usuario</string>
+    <string name="verification_failed_dialog_message">No hemos podido verificar su última compra. Compruebe la conexión a internet y vuelva a intentarlo. Si el problema persiste, contacte con el servicio de asistencia.</string>
     <string name="verifying_api_method">Verificando método de API...</string>
     <string name="verifying_purchase">Verificando la compra</string>
+    <string name="verifying_purchase_error">No se puede verificar la compra</string>
+    <string name="verifying_purchase_recoverable_error">No hemos podido verificar su compra. Compruebe la conexión a internet y vuelva a intentarlo.</string>
+    <string name="verifying_purchase_unrecoverable_error">Se ha producido un problema al verificar su compra. Contacte con el servicio de asistencia.</string>
     <string name="verifying_voucher">Verificando el cupón…</string>
     <string name="version">Versión</string>
     <string name="view_logs">Ver registros de la aplicación</string>
@@ -503,6 +517,7 @@
     <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="voucher_too_short">Código de cupón demasiado corto</string>
+    <string name="vpn_dialog_activity_not_found">No se puede abrir el cuadro de diálogo de permiso de la VPN. Compruebe la configuración de su sistema operativo</string>
     <string name="vpn_permission_denied_error">Se ha denegado el permiso de VPN u otra aplicación tiene habilitada la opción «VPN siempre activa»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Se ha denegado el permiso de VPN</string>
     <string name="vpn_permission_error_notification_message">Pulse conectar para solicitar el permiso de VPN</string>

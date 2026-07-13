@@ -37,6 +37,7 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
@@ -93,6 +94,7 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
@@ -141,6 +143,7 @@ pub unsafe extern "C" fn mullvad_ios_delete_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion_handler =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 

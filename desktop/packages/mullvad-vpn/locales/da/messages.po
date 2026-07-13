@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-07-10 07:35\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
@@ -292,6 +292,18 @@ msgstr "Søg placeringer eller servere"
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILSLUTNING"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Angiv som multihop-indgang"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Angiv som multihop-indgang (inkompatibel)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Angiv som multihop-udgang"
 
 msgid "Settings"
 msgstr "Indstillinger"
@@ -1152,7 +1164,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (Tilføjet)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1907,7 +1919,6 @@ msgstr "Kunne ikke aktivere split tunneling. Prøv at oprette forbindelse igen e
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "Kunne ikke starte %(splitTunneling)s. Deaktiver %(splitTunneling)s for at ophæve blokeringen af netværkstrafik."
@@ -1967,10 +1978,6 @@ msgstr "Kan ikke blokere al netværkstrafik. Prøv midlertidigt at deaktivere an
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "Kan ikke blokere al netværkstrafik. Prøv at opdatere din kerne, eller indsend en problemrapport."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Kan ikke kommunikere med Mullvad-kernedriveren. Prøv at oprette forbindelse igen, eller indsend en problemrapport."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2084,6 +2091,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Brugerdefinerede lister"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "Deaktiver multihop"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Deaktiver nylige"
@@ -2092,6 +2104,11 @@ msgstr "Deaktiver nylige"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Tom"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "Aktivér multihop"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2340,8 +2357,8 @@ msgstr "Genstart Mullvad-tjenesten"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "For at bruge %(splitTunneling)s, skal du opdatere til en Linux-kerneversion, der understøtter cgroup v2."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "For at bruge %(splitTunneling)s skal du skifte til en Linux-kerneversion, der understøtter cgroup v1."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2572,12 +2589,20 @@ msgid "Language"
 msgstr "Sprog"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "Monokromatisk menulinje-ikon"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monokromatisk bakkeikon"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Meddelelser"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "Vis kun menulinjen, når appen starter."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2587,9 +2612,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Start minimeret"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "Fjern app fra menulinjen"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Fjern app fra proceslinjen"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "Brug en monokromatisk menulinje i stedet for et farvet."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3006,6 +3041,9 @@ msgstr "<b>Kontogendannelse er ikke mulig.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Bemærk: DNS-indstillinger træder muligvis ikke i kraft med det samme.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>Bemærk:</b> Lokal netværksdeling er ikke kompatibel med \"Bloker forbindelser uden VPN\"."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Bemærk:</b> Kun nogle servere understøtter hele portintervallet."
 
@@ -3018,8 +3056,14 @@ msgstr "<b>DNS-indholdsblokkere</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>Private IP-intervaller</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>Denne handling kan ikke fortrydes.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>Dette kan påvirke din anonymitet.</b> Undgå at aktivere dette på offentlige eller upålidelige netværk, da din enhed kan blive synlig for andre."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Advarsel:</b>"
@@ -3111,9 +3155,6 @@ msgstr "Er du sikker på, at du vil logge <b>%s</b> af?"
 msgid "At least one method needs to be enabled"
 msgstr "Mindst én metode skal aktiveres"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil delte apps ikke have internet. Husk altid, at delt tunnelføring er en risiko for privatlivets fred."
 
@@ -3162,6 +3203,9 @@ msgstr "Opret forbindelse til et andet netværk"
 msgid "Connecting..."
 msgstr "Tilslutter..."
 
+msgid "Contact support"
+msgstr "Kontakt support"
+
 msgid "Continue"
 msgstr "Fortsæt"
 
@@ -3192,9 +3236,6 @@ msgstr "Tilpassede DNS-serveradresser %1$s er ugyldige"
 msgid "DNS settings"
 msgstr "DNS-indstillinger"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS-indstillinger træder muligvis ikke i kraft med det samme"
-
 msgid "Delete \"%s\"?"
 msgstr "Vil du slette \"%s\"?"
 
@@ -3218,9 +3259,6 @@ msgstr "Direkte"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Deaktiver alle \"%s\" ovenfor for at aktivere denne indstilling."
-
-msgid "Disable multihop"
-msgstr "Deaktiver multihop"
 
 msgid "Discard"
 msgstr "Kassér"
@@ -3261,8 +3299,8 @@ msgstr "Aktiver alle adgangsmetoder i appen"
 msgid "Enable method"
 msgstr "Aktiver metode"
 
-msgid "Enable multihop"
-msgstr "Aktivér multihop"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "Aktivér dette for at tjenester som fildeling, udskrivning, mediestreaming og enhedsregistrering kan fungere, mens du er forbundet til VPN'en."
 
 msgid "Enter MTU"
 msgstr "Indtast MTU"
@@ -3327,8 +3365,14 @@ msgstr "Google Play-betaling afventer"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play-betaling afventer, det kan tage lidt tid"
 
+msgid "Google Play payment verification failed"
+msgstr "Bekræftelse af Google Play-betaling mislykkedes"
+
 msgid "Google Play unavailable"
 msgstr "Google Play er ikke tilgængelig"
+
+msgid "How it works"
+msgstr "Sådan fungerer det"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\"."
@@ -3362,6 +3406,9 @@ msgstr "Produkter i appen er ikke tilgængelige, sørg for at du har den nyeste 
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Inkluder min konto-token for hurtigere hjælp med betalings- eller kontorelaterede problemer"
+
+msgid "Info"
+msgstr "Info"
 
 msgid "Internet"
 msgstr "Internet"
@@ -3576,15 +3623,6 @@ msgstr "Send e-mail"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d."
 
-msgid "Set as multihop entry"
-msgstr "Angiv som multihop-indgang"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Angiv som multihop-indgang (inkompatibel)"
-
-msgid "Set as multihop exit"
-msgstr "Angiv som multihop-udgang"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Angiv som multihop-udgang (inkompatibel)"
 
@@ -3605,6 +3643,9 @@ msgstr "Viser den aktuelle VPN-tunnelstatus"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Viser påmindelser, når kontotiden er ved at udløbe"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "Noget gik galt under bekræftelsen af dit køb. Kontakt support."
 
 msgid "Submit"
 msgstr "Indsend"
@@ -3635,6 +3676,9 @@ msgstr "Lockdown-tilstanden kaldes \"Bloker forbindelser uden VPN\" i Android-sy
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "Den \"aktuelle\" metode er den metode, som appen bruger til at nå API'en."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "Appen tillader lokal multicast- og broadcast-netværkstrafik samt trafik til og fra private IP-intervaller for at omgå VPN-tunnelen."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Appen blokerer for internet, afbryd først forbindelsen"
@@ -3696,6 +3740,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Kan ikke anvende firewallregler. Fejlfind eller send en problemrapport."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "Kan ikke åbne dialogboksen for VPN-tilladelser. Kontrollér din OS-konfiguration"
+
 msgid "Unable to parse patch"
 msgstr "Kan ikke fortolke patch"
 
@@ -3713,6 +3760,9 @@ msgstr "Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for <b>%s</
 
 msgid "Unable to verify account number, please contact support"
 msgstr "Kan ikke bekræfte kontonummeret. Kontakt support"
+
+msgid "Unable to verify purchase"
+msgstr "Købet kunne ikke bekræftes"
 
 msgid "Unavailable"
 msgstr "Ikke tilgængelig"
@@ -3780,6 +3830,12 @@ msgstr "Advarsel"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vi er stadig ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "Vi kunne ikke bekræfte dit seneste køb. Tjek din internetforbindelse, og prøv igen. Kontakt support, hvis problemet fortsætter."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "Vi kunne ikke bekræfte dit køb. Tjek din internetforbindelse, og prøv igen."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste version af Google Play."
 
@@ -3818,6 +3874,9 @@ msgstr "Du vil miste det resterende"
 
 msgid "Your device"
 msgstr "Din enhed"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "Dit seneste køb verificeres stadig. Hvis du logger ind på en anden konto, vil verifikationen mislykkes. Vil du stadig logge ud?"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" blev oprettet"
