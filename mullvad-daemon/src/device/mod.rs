@@ -1332,8 +1332,10 @@ impl TunnelStateChangeHandler {
     /// Handle state transitions and optionally check the device/account validity. This should be
     /// called during every tunnel state transition.
     pub fn handle_state_transition(&mut self, new_state: &TunnelStateTransition) {
-        self.wg_retry_attempt = Self::update_retry_counter(new_state, self.wg_retry_attempt);
-        Self::update_retry_bool(new_state, self.can_retry.clone());
+        if let Some(attempt) = Self::update_retry_counter(new_state, self.wg_retry_attempt) {
+            self.wg_retry_attempt = attempt;
+            Self::update_retry_bool(new_state, self.can_retry.clone());
+        }
         // Check if a device-check should be triggered
         if Self::should_check_device_validity(self.wg_retry_attempt, self.can_retry.clone()) {
             let handle = self.manager.clone();
@@ -1380,14 +1382,17 @@ impl TunnelStateChangeHandler {
     /// attempt, otherwise `retry_attempt` is returned.
     ///
     /// Reset to the counter to `0` when we manage to successfully connect to a Wireguard relay.
-    fn update_retry_counter(new_state: &TunnelStateTransition, retry_attempt: usize) -> usize {
+    fn update_retry_counter(
+        new_state: &TunnelStateTransition,
+        retry_attempt: usize,
+    ) -> Option<usize> {
         match new_state {
             // Increment the counter if this is another connection attempt
-            TunnelStateTransition::Connecting(_) => retry_attempt.wrapping_add(1),
+            TunnelStateTransition::Connecting(_) => Some(retry_attempt.wrapping_add(1)),
             // Reset the counter when successfully connected
-            TunnelStateTransition::Connected(_) => 0,
+            TunnelStateTransition::Connected(_) => Some(0),
             // Any other state transition doesn't affect the counter
-            _ => retry_attempt,
+            _ => None,
         }
     }
 
