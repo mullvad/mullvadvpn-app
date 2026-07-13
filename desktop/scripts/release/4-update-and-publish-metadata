@@ -99,11 +99,5 @@ function publish_metadata {
     ./publish-metadata-to-api "$upload_dir" "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
-function remove_release_artifacts {
-    log_header "Cleaning up $ARTIFACT_DIR"
-    rm -r "$ARTIFACT_DIR"
-}
-
 ./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
 publish_metadata
-remove_release_artifacts
