@@ -1719,10 +1719,16 @@ impl Daemon {
                         self.connect_tunnel();
                     }
                 } else {
-                    log::debug!("Entering blocking state since the account is out of time");
-                    self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
-                        Some(AuthFailed::ExpiredAccount.as_str().to_string()),
-                    )))
+                    let already_blocked = matches!(
+                        &self.tunnel_state,
+                        TunnelState::Error(state) if matches!(state.cause(), ErrorStateCause::AuthFailed(_))
+                    );
+                    if !already_blocked {
+                        log::debug!("Entering blocking state since the account is out of time");
+                        self.send_tunnel_command(TunnelCommand::Block(ErrorStateCause::AuthFailed(
+                            Some(AuthFailed::ExpiredAccount.as_str().to_string()),
+                        )))
+                    }
                 }
             }
             _ => (),
