@@ -217,7 +217,7 @@ private fun DescriptionPager(pagerState: PagerState) {
 private fun DescriptionText(
     firstParagraph: String,
     secondParagraph: String,
-    thirdParagraph: String,
+    thirdParagraph: String?,
 ) {
     ScreenDescription(
         modifier =
@@ -228,7 +228,9 @@ private fun DescriptionText(
                 appendLine()
                 appendLine(secondParagraph)
                 appendLine()
-                append(thirdParagraph)
+                if (thirdParagraph != null) {
+                    append(thirdParagraph)
+                }
             },
     )
 }
@@ -270,7 +272,7 @@ private enum class DaitaPages(
     val image: Int,
     val textFirstParagraph: @Composable () -> String,
     val textSecondParagraph: @Composable () -> String,
-    val textThirdParagraph: @Composable () -> String,
+    val textThirdParagraph: @Composable () -> String? = { null },
 ) {
     FIRST(
         image = R.drawable.daita_illustration_1,
@@ -300,13 +302,6 @@ private enum class DaitaPages(
             @Composable {
                 stringResource(
                     R.string.daita_description_slide_2_second_paragraph,
-                    stringResource(id = R.string.daita),
-                )
-            },
-        textThirdParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_2_third_paragraph,
                     stringResource(id = R.string.daita),
                 )
             },

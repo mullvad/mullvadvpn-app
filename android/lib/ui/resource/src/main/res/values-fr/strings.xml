@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observateur surveille ces paquets de données, %1$s rend beaucoup plus difficile l\'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</string>
-    <string name="daita_description_slide_2_third_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %1$s avec n\'importe quel serveur.</string>
     <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="daita_multihop">%1$s : multihop</string>
     <string name="days_were_added_30">30 jours ont été ajoutés à votre compte.</string>
