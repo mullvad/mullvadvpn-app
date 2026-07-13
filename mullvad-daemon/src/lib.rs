@@ -28,7 +28,10 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::target_state::PersistentTargetState;
+use crate::{
+    migrations::{MigrationData, multihop::scenario::Scenario},
+    target_state::PersistentTargetState,
+};
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
@@ -81,11 +84,11 @@ use mullvad_types::{
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::rollout::Rollout;
 use settings::SettingsPersister;
-use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
+use std::{collections::BTreeSet, path::Path};
 use std::{
     marker::PhantomData,
     path::PathBuf,
@@ -463,6 +466,13 @@ pub enum DaemonCommand {
     AppUpgradeAbort(ResponseTx<(), version::Error>),
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
+    // Split-filter / multihop migration
+    /// Return the outcome of the split-filter / multihop migration. This event will always
+    /// return _something_ (i.e. it is always valid to request a response).
+    GetMultihopMigration(oneshot::Sender<Option<Scenario>>),
+    /// TODO
+    /// After this event, GetMultihopMigration will indefinitely return a None-value.
+    DeleteMultihopMigration,
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -737,25 +747,8 @@ impl Daemon {
         })
         .unwrap_or_default();
 
-        // If split filter / multihop migration ran, cache the result to disk. The result will need
-        // to be persisted until a client has acknowledged the migration, which could happen after a
-        // daemon restart.
         // NOTE: This code may be removed once app versions prior to mid 2026 are unsupported.
-        if let Some(scenario) = migration_data.multihop_split_filter_migration
-            && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
-            && let Err(err) = SettingsPersister::save_bytes(
-                config.cache_dir.join("split-filter-migration.json"),
-                &scenario,
-            )
-            .await
-        {
-            log::error!(
-                "{}",
-                err.display_chain_with_msg(&format!(
-                    "Failed to save split-filter migration ({scenario}) to disk: {err}"
-                ))
-            );
-        }
+        persist_split_filter_migration_scenario(&migration_data, &config.cache_dir).await;
 
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
 
@@ -1669,6 +1662,8 @@ impl Daemon {
             GetBridges(tx) => self.on_get_bridges(tx),
             #[cfg(target_os = "android")]
             DeleteAccount(tx) => self.on_delete_account(tx),
+            GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
+            DeleteMultihopMigration => self.on_delete_multihop_migration().await,
         }
     }
 
@@ -3533,6 +3528,20 @@ impl Daemon {
         };
     }
 
+    async fn on_get_multihop_migration(&mut self, tx: oneshot::Sender<Option<Scenario>>) {
+        let scenario = read_split_filter_migration_scenario(&self.cache_dir).await;
+        Self::oneshot_send(tx, scenario, "split-filter / multihop migration scenario");
+    }
+
+    async fn on_delete_multihop_migration(&mut self) {
+        if let Err(err) = delete_split_filter_migration_scenario(&self.cache_dir).await {
+            let err = err.display_chain_with_msg(
+                "Error while deleting split-filter / multihop migration scenario",
+            );
+            log::error!("{err}");
+        }
+    }
+
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     /// Returns a bool representing whether a state change was initiated.
@@ -3628,5 +3637,66 @@ pub async fn cleanup_old_rpc_socket(rpc_socket_path: impl AsRef<std::path::Path>
         && err.kind() != std::io::ErrorKind::NotFound
     {
         log::error!("Failed to remove old RPC socket: {}", err);
+    }
+}
+
+/// If split filter / multihop migration ran, cache the result to disk. The result will need
+/// to be persisted until a client has acknowledged the migration, which could happen after a
+/// daemon restart.
+///
+/// If the result was cached to disk, return the path to the result. This may be deserialized to a
+/// [Scenario].
+async fn persist_split_filter_migration_scenario(
+    migration_data: &MigrationData,
+    cache_dir: impl AsRef<Path>,
+) {
+    let output = cache_dir.as_ref().join(migrations::multihop::CACHE);
+    if let Some(scenario) = migration_data.multihop_split_filter_migration
+        && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
+        && let Err(err) = SettingsPersister::save_bytes(&output, &scenario).await
+    {
+        log::error!(
+            "{}",
+            err.display_chain_with_msg(&format!(
+                "Failed to save split-filter migration ({scenario}) to disk: {err}"
+            ))
+        );
+    }
+}
+
+/// Read [Scenario] from disk after [persist_split_filter_migration_scenario] has been called at
+/// least once.
+async fn read_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> Option<Scenario> {
+    match tokio::fs::read(cache_dir.as_ref().join(migrations::multihop::CACHE)).await {
+        Ok(scenario) => match serde_json::from_slice(&scenario) {
+            Ok(scenario) => Some(scenario),
+            Err(err) => {
+                let err = err.display_chain_with_msg(
+                    "Failed to deserialize split-filter / multihop migration scenario",
+                );
+                log::error!("{err}");
+                None
+            }
+        },
+        // The scenario has most likely been deleted.
+        Err(err) if matches!(err.kind(), io::ErrorKind::NotFound) => None,
+        Err(err) => {
+            let err = err.display_chain_with_msg(
+                "Failed to parse split-filter / multihop migration scenario from disk",
+            );
+            log::error!("{err}");
+            None
+        }
+    }
+}
+
+/// Delete [Scenario] from disk after [persist_split_filter_migration_scenario] has been called at
+/// least once.
+async fn delete_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> io::Result<()> {
+    match tokio::fs::remove_file(cache_dir.as_ref().join(migrations::multihop::CACHE)).await {
+        Ok(()) => Ok(()),
+        // It's fine if the file has already been deleted once.
+        Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err),
     }
 }
