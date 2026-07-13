@@ -5,6 +5,7 @@ export const urls = {
   faq: 'https://mullvad.net/help/tag/mullvad-app/',
   privacyGuide: 'https://mullvad.net/help/first-steps-towards-online-privacy/',
   download: 'https://mullvad.net/download/vpn/',
+  lanShare: 'https://mullvad.net/help/using-mullvad-vpn-app#lan-share',
 } as const;
 
 type BaseUrl = (typeof urls)[keyof typeof urls];

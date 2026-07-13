@@ -186,6 +186,9 @@ msgstr ""
 msgid "Got it!"
 msgstr ""
 
+msgid "Guide"
+msgstr ""
+
 msgid "Import"
 msgstr ""
 
@@ -2727,6 +2730,10 @@ msgstr ""
 #. Label for settings that enables block of gamling related websites.
 msgctxt "vpn-settings-view"
 msgid "Gambling"
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
 msgstr ""
 
 #. Title of in-tunnel IPv6 setting.

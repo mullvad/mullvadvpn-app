@@ -20,6 +20,7 @@ function InfoDialog({ children, ...props }: InfoDialogProps) {
 const InfoDialogNamespace = Object.assign(InfoDialog, {
   Text: StatusDialog.Text,
   Title: StatusDialog.Title,
+  Button: StatusDialog.Button,
 });
 
 export { InfoDialogNamespace as InfoDialog };
