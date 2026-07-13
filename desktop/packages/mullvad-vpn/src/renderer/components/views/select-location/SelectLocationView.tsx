@@ -31,7 +31,8 @@ import {
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { locationType } = useSelectLocationViewContext();
+  const { entryLocationListsContainerRef, exitLocationListsContainerRef, locationType } =
+    useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
   const onClose = useCallback(() => history.pop(), [history]);
@@ -81,6 +82,7 @@ export function SelectLocationViewImpl() {
                         <AnimatePresence>
                           {locationType === LocationType.entry && (
                             <motion.div
+                              ref={entryLocationListsContainerRef}
                               key="entry"
                               initial={{ opacity: 1 }}
                               exit={{ opacity: 0.4 }}
@@ -98,6 +100,7 @@ export function SelectLocationViewImpl() {
                         <AnimatePresence>
                           {locationType === LocationType.exit && (
                             <motion.div
+                              ref={exitLocationListsContainerRef}
                               key="exit"
                               initial={{ opacity: 1 }}
                               exit={{ opacity: 0.4 }}
