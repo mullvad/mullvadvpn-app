@@ -47,7 +47,7 @@ use crate::{DaemonEventSender, InternalDaemonEvent, migrations::multihop::scenar
 
 mod account_history;
 mod device;
-mod multihop;
+pub(crate) mod multihop;
 mod v1;
 mod v10;
 mod v11;

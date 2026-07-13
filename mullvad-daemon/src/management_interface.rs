@@ -1,4 +1,7 @@
-use crate::{DaemonCommand, DaemonCommandSender, account_history, device};
+use crate::{
+    DaemonCommand, DaemonCommandSender, account_history, device,
+    migrations::multihop::scenario::Scenario,
+};
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
@@ -1325,12 +1328,35 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         _: Request<()>,
     ) -> ServiceResult<types::SplitFilterMigration> {
-        // TODO: Implement this function after the migration exists.
-        Ok(Response::new(types::SplitFilterMigration::default()))
+        let scenario = |scenario: Option<Scenario>| {
+            use types::split_filter_migration::Scenario::*;
+            let scenario = scenario.map(|scenario| match scenario {
+                Scenario::OneA => OneA,
+                Scenario::OneB => OneB,
+                Scenario::Two => Two,
+                Scenario::ThreeA => ThreeA,
+                Scenario::ThreeB => ThreeB,
+                Scenario::FourA => FourA,
+                Scenario::FourB => FourB,
+                Scenario::FiveA => FiveA,
+                Scenario::FiveB => FiveB,
+                Scenario::SixA => SixA,
+                Scenario::SixB => SixB,
+                Scenario::SevenA => SevenA,
+                Scenario::SevenB => SevenB,
+            } as i32);
+            types::SplitFilterMigration { scenario }
+        };
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetMultihopMigration(tx))?;
+        self.wait_for_result(rx)
+            .await
+            .map(scenario)
+            .map(Response::new)
     }
 
     async fn clear_migration_message(&self, _: Request<()>) -> ServiceResult<()> {
-        // TODO: Implement this function after the migration exists.
+        self.send_command_to_daemon(DaemonCommand::DeleteMultihopMigration)?;
         Ok(Response::new(()))
     }
 }
