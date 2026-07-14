@@ -1332,10 +1332,10 @@ impl TunnelStateChangeHandler {
     /// Handle state transitions and optionally check the device/account validity. This should be
     /// called during every tunnel state transition.
     pub fn handle_state_transition(&mut self, new_state: &TunnelStateTransition) {
-        let prev_attempt = self.wg_retry_attempt;
-        self.wg_retry_attempt = Self::update_retry_counter(new_state, self.wg_retry_attempt);
-        let retry_count_changed = prev_attempt != self.wg_retry_attempt;
-        Self::update_retry_bool(retry_count_changed, new_state, self.can_retry.clone());
+        if let Some(attempt) = Self::update_retry_counter(new_state, self.wg_retry_attempt) {
+            self.wg_retry_attempt = attempt;
+            Self::update_retry_bool(new_state, self.can_retry.clone());
+        }
         // Check if a device-check should be triggered
         if Self::should_check_device_validity(self.wg_retry_attempt, self.can_retry.clone()) {
             let handle = self.manager.clone();
@@ -1382,14 +1382,17 @@ impl TunnelStateChangeHandler {
     /// attempt, otherwise `retry_attempt` is returned.
     ///
     /// Reset to the counter to `0` when we manage to successfully connect to a Wireguard relay.
-    fn update_retry_counter(new_state: &TunnelStateTransition, retry_attempt: usize) -> usize {
+    fn update_retry_counter(
+        new_state: &TunnelStateTransition,
+        retry_attempt: usize,
+    ) -> Option<usize> {
         match new_state {
             // Increment the counter if this is another connection attempt
-            TunnelStateTransition::Connecting(_) => retry_attempt.wrapping_add(1),
+            TunnelStateTransition::Connecting(_) => Some(retry_attempt.wrapping_add(1)),
             // Reset the counter when successfully connected
-            TunnelStateTransition::Connected(_) => 0,
+            TunnelStateTransition::Connected(_) => Some(0),
             // Any other state transition doesn't affect the counter
-            _ => retry_attempt,
+            _ => None,
         }
     }
 
@@ -1399,14 +1402,7 @@ impl TunnelStateChangeHandler {
     /// # Note
     /// The following state transition counts as breaking a connecting-loop: `Connected`,
     /// `Disconnected` and `Error`.
-    fn update_retry_bool(
-        retry_count_changed: bool,
-        new_state: &TunnelStateTransition,
-        can_retry: Arc<AtomicBool>,
-    ) {
-        if !retry_count_changed {
-            return;
-        }
+    fn update_retry_bool(new_state: &TunnelStateTransition, can_retry: Arc<AtomicBool>) {
         match new_state {
             TunnelStateTransition::Disconnected { .. }
             | TunnelStateTransition::Connected(_)
@@ -1450,7 +1446,7 @@ mod test {
         Arc,
         atomic::{AtomicBool, Ordering},
     };
-    use talpid_types::tunnel::{ErrorState, TunnelStateTransition};
+    use talpid_types::tunnel::TunnelStateTransition;
 
     use super::{Error, TunnelStateChangeHandler, WG_DEVICE_CHECK_THRESHOLD};
 
@@ -1473,45 +1469,11 @@ mod test {
         let can_retry = Arc::new(AtomicBool::new(false));
         // Transitioning to the 'Disconnected' state counts as breaking the 'connection loop'
         let new_tunnel_state = TunnelStateTransition::Disconnected { locked_down: false };
-        TunnelStateChangeHandler::update_retry_bool(true, &new_tunnel_state, can_retry.clone());
+        TunnelStateChangeHandler::update_retry_bool(&new_tunnel_state, can_retry.clone());
 
         assert!(
             can_retry.load(Ordering::SeqCst),
             "expected retry state to be reset on first connection attempt"
-        );
-    }
-
-    /// Same retry count should not reset `can_retry`
-    #[test]
-    fn test_device_check_no_reset_on_same_retry_count() {
-        let can_retry = Arc::new(AtomicBool::new(false));
-        // Transitioning to the 'Error' state counts as breaking the 'connection loop'
-        let new_tunnel_state = TunnelStateTransition::Error(ErrorState::new(
-            talpid_types::tunnel::ErrorStateCause::Ipv6Unavailable,
-            None,
-        ));
-        TunnelStateChangeHandler::update_retry_bool(true, &new_tunnel_state, can_retry.clone());
-
-        assert!(
-            can_retry.load(Ordering::SeqCst),
-            "expected `can_retry` to be reset"
-        );
-
-        can_retry.store(false, Ordering::SeqCst);
-
-        TunnelStateChangeHandler::update_retry_bool(true, &new_tunnel_state, can_retry.clone());
-        assert!(
-            can_retry.load(Ordering::SeqCst),
-            "expected `can_retry` to be reset"
-        );
-
-        can_retry.store(false, Ordering::SeqCst);
-
-        // Do not reset if the retry_count has not changed
-        TunnelStateChangeHandler::update_retry_bool(false, &new_tunnel_state, can_retry.clone());
-        assert!(
-            !can_retry.load(Ordering::SeqCst),
-            "expected `can_retry` to be kept"
         );
     }
 
