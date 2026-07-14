@@ -157,9 +157,13 @@ extension SettingsMultihopView {
                     .fontWeight(.bold)
                 VStack(alignment: .leading, spacing: 16) {
                     Text(
-                        "Not all our locations/servers support every feature in the app. "
-                            + "If your selected location/server doesn't support the features you’ve enabled, "
-                            + "the app will automatically multihop via a compatible server.")
+                        NSLocalizedString(
+                            "Not all our locations/servers support every feature in the app. "
+                                + "If your selected location/server doesn’t support the features you’ve enabled, "
+                                + "the app will automatically multihop via a compatible server.",
+                            comment: ""
+                        )
+                    )
                     Text("This ensures your connection does not get blocked due to incompatible settings.")
                     Text(
                         "This will be indicated by the \(UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 14, to: .subheadline, offset: .init(x: 0, y: 2))) symbol"
@@ -179,8 +183,11 @@ extension SettingsMultihopView {
                 Text("Always")
                     .fontWeight(.bold)
                 Text(
-                    "Multihop is enabled. Your connection is routed through an entry server before "
-                        + "exiting through the selected location."
+                    NSLocalizedString(
+                        "Multihop is enabled. Your connection is routed through an entry server before "
+                            + "exiting through the selected location.",
+                        comment: ""
+                    )
                 )
             }
             .font(.mullvadTiny)
@@ -194,8 +201,11 @@ extension SettingsMultihopView {
                 Text("Never")
                     .fontWeight(.bold)
                 Text(
-                    "Multihop is disabled. Your selected location must support all active settings in "
-                        + "order to establish a connection."
+                    NSLocalizedString(
+                        "Multihop is disabled. Your selected location must support all active settings in "
+                            + "order to establish a connection.",
+                        comment: ""
+                    )
                 )
             }
             .font(.mullvadTiny)
@@ -207,9 +217,12 @@ extension SettingsMultihopView {
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
                 Text(
-                    "Not all our locations/servers support every feature in the app. If your selected"
-                        + " location/server doesn’t support the features you’ve enabled, the app will"
-                        + "automatically multihop via a compatible server."
+                    NSLocalizedString(
+                        "Not all our locations/servers support every feature in the app. "
+                            + "If your selected location/server doesn’t support the features you’ve enabled, "
+                            + "the app will automatically multihop via a compatible server.",
+                        comment: ""
+                    )
                 )
                 Text("This ensures your connection does not get blocked due to incompatible settings.")
                 Text(
@@ -217,8 +230,11 @@ extension SettingsMultihopView {
                 )
                 .accessibilityLabel("This will be indicated by the “Multihop when needed“ symbol")
                 Text(
-                    "Attention: This will ignore filter settings for the entry server that is "
-                        + "being automatically selected."
+                    NSLocalizedString(
+                        "Attention: This will ignore filter settings for the entry server that is "
+                            + "being automatically selected.",
+                        comment: ""
+                    )
                 )
             }
             .font(.mullvadSmall)
