@@ -77,7 +77,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
             tunnelQuantumResistance: tunnelQuantumResistance,
             tunnelMultihopState: tunnelMultihopState.upgradeToNextVersion() as! MultihopStateV2,
             daita: daita,
-            includeAllNetworks: IncludeAllNetworksSettings(),
+            includeAllNetworks: includeAllNetworks,
             ipVersion: .automatic
         )
     }
