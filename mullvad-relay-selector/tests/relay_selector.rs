@@ -82,6 +82,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         active: true,
                         weight: 1,
                     },
+                    needs_other_entry: false,
                 },
                 WireguardRelay {
                     overridden_ipv4: false,
@@ -101,6 +102,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
                     },
+                    needs_other_entry: false,
                 },
                 WireguardRelay {
                     overridden_ipv4: false,
@@ -121,6 +123,7 @@ static RELAYS: LazyLock<RelayList> = LazyLock::new(|| RelayList {
                         ipv4_addr_in: "185.213.154.69".parse().unwrap(),
                         ipv6_addr_in: Some("2a03:1b20:5:f011::a11f".parse().unwrap()),
                     },
+                    needs_other_entry: false,
                 },
                 SHADOWSOCKS_RELAY.clone(),
             ],
@@ -203,6 +206,7 @@ static SHADOWSOCKS_RELAY: LazyLock<WireguardRelay> = LazyLock::new(|| WireguardR
         active: true,
         weight: 1,
     },
+    needs_other_entry: false,
 });
 const SHADOWSOCKS_RELAY_IPV4: Ipv4Addr = Ipv4Addr::new(123, 123, 123, 1);
 const SHADOWSOCKS_RELAY_IPV6: Ipv6Addr = Ipv6Addr::new(0x123, 0, 0, 0, 0, 0, 0, 2);
@@ -364,6 +368,7 @@ mod relay_selection {
                                 weight: 1,
                                 location: DUMMY_LOCATION.clone(),
                             },
+                            needs_other_entry: false,
                         },
                         WireguardRelay {
                             overridden_ipv4: false,
@@ -382,6 +387,7 @@ mod relay_selection {
                                 location: DUMMY_LOCATION.clone(),
                                 weight: 1,
                             },
+                            needs_other_entry: false,
                         },
                     ],
                 }],
@@ -1031,6 +1037,7 @@ mod relay_selection {
                                     weight: 1,
                                     location: stockholm.clone(),
                                 },
+                                needs_other_entry: false,
                             },
                             WireguardRelay {
                                 overridden_ipv4: false,
@@ -1053,6 +1060,7 @@ mod relay_selection {
                                     ipv4_addr_in: "89.37.63.190".parse().unwrap(),
                                     ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
                                 },
+                                needs_other_entry: false,
                             },
                         ],
                     }],
@@ -1124,6 +1132,13 @@ mod partition_relays {
             .collect()
     }
 
+    fn matches_set(RelayPartitions { matches, .. }: &RelayPartitions) -> HashSet<&str> {
+        matches
+            .iter()
+            .map(|relay| relay.hostname.as_str())
+            .collect()
+    }
+
     /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
     /// for the entry and exit in multihop case, is reflected in the chosen relay and in the
     /// "reasons" of the discarded relays.
@@ -1132,12 +1147,26 @@ mod partition_relays {
         let exit_constraints = [
             ExitConstraints::default().ownership(Ownership::MullvadOwned),
             ExitConstraints::default().ownership(Ownership::Rented),
-            ExitConstraints::default().providers(Providers::new(["100TB"]).unwrap()),
-            ExitConstraints::default().providers(Providers::new(["100TB", "31173"]).unwrap()),
+            ExitConstraints::default().providers(Providers::new(["ProviderA"]).unwrap()),
             ExitConstraints::default()
-                .providers(Providers::new(["31173"]).unwrap())
+                .providers(Providers::new(["ProviderA", "ProviderB"]).unwrap()),
+            ExitConstraints::default()
+                .providers(Providers::new(["ProviderB"]).unwrap())
                 .ownership(Ownership::MullvadOwned),
         ];
+
+        let mut relay_list = RelayListBuilder::new();
+        // Two MullvadOwned + ProviderB relays.
+        relay_list.add_relay("owned-providerb-1").provider = "ProviderB".into();
+        relay_list.add_relay("owned-providerb-2").provider = "ProviderB".into();
+        // Two Rented + ProviderA relays.
+        let r1 = relay_list.add_relay("rented-providera-1");
+        r1.owned = false;
+        r1.provider = "ProviderA".into();
+        let r2 = relay_list.add_relay("rented-providera-2");
+        r2.owned = false;
+        r2.provider = "ProviderA".into();
+        let relay_selector = RelaySelector::from(relay_list);
 
         // Test all combinations of entry and exit constraints.
         for (entry_general, exit_constraints) in exit_constraints
@@ -1163,7 +1192,7 @@ mod partition_relays {
                     | Predicate::Entry(MultihopConstraints { entry, .. }) => &entry.general,
                 };
 
-                let relays = relay_selector().partition_relays(scenario.clone());
+                let relays = relay_selector.partition_relays(scenario.clone());
                 assert!(!relays.matches.is_empty());
 
                 for relay in &relays.matches {
@@ -1601,29 +1630,29 @@ mod partition_relays {
     /// "Daita + Autohop + Provider. Providers only affect exit relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
-        // "100TB" does not have any DAITA relays, and because filters should apply for both entry
-        // and exit even if we're autohoppin', we should not show any matching relays.
-        let providers = Providers::new(["100TB"]).unwrap();
+        let mut relay_list = RelayListBuilder::new();
+        // A DAITA relay with the target provider.
+        let daita_relay = relay_list.add_relay("daita-relay");
+        daita_relay.endpoint_data.daita = true;
+        daita_relay.provider = "ProviderA".into();
+        // A non-DAITA relay with the same provider (usable as an autohop exit).
+        let non_daita_relay = relay_list.add_relay("non-daita-relay");
+        non_daita_relay.provider = "ProviderA".into();
+        // A relay with a different provider (will be discarded).
+        relay_list.add_relay("other-provider").provider = "ProviderB".into();
+        let relay_selector = RelaySelector::from(relay_list);
 
+        let providers = Providers::new(["ProviderA"]).unwrap();
         let constraints = EntryConstraints::default().providers(providers).daita(true);
 
-        let query = relay_selector().partition_relays(Predicate::Autohop(constraints));
-        assert!(!query.matches.is_empty());
+        let partition = relay_selector.partition_relays(Predicate::Autohop(constraints));
 
-        // Assert that a relay was discarded because we could not select an entry because of
-        // DAITA and provider constraints not making sense.
-        //
-        // Note that some relays will be discarded simply because they lack DAITA OR are operated
-        // by the wrong provider.
-        let reasons = unique_reasons(query);
-        assert!(
-            reasons.is_subset(&HashSet::from([
-                Reason::Providers,
-                Reason::Inactive,
-                Reason::IncludeInCountry,
-            ])),
-            "{reasons:#?}"
-        );
+        let matches = matches_set(&partition);
+        assert_eq!(matches, HashSet::from(["daita-relay", "non-daita-relay"]));
+
+        // Relay was discarded only because of its provider
+        let reasons = unique_reasons(partition);
+        assert_eq!(reasons, HashSet::from([Reason::Providers]), "{reasons:#?}");
     }
 
     /// Autohopping through an alternate entry relay should only be done iff the settings force us
@@ -2054,6 +2083,7 @@ mod relay_list_builder {
                         city_code: city.code.clone(),
                     },
                 },
+                needs_other_entry: false,
             });
             city.relays.last_mut().unwrap()
         }

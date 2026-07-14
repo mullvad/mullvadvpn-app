@@ -80,7 +80,7 @@ message MultiHopConstraints {
 // that were discarded when evaluating a predicate.
 message RelayPartitions {
   // List of relays matching a predicate.
-  repeated Relay matches = 1;
+  repeated MatchingRelay matches = 1;
   // List of relays that were discarded when evaluating the same predicate.
   repeated DiscardedRelay discards = 2;
 }
@@ -92,6 +92,19 @@ message Relay {
   // It is the full hostname, e.g. `se-got-wg-101`.
   // This can *NOT* be a location, e.g. `se` or `se-got`.
   string hostname = 1;
+}
+
+// A relay that matched a given predicate, with extra metadata.
+message MatchingRelay {
+  // Relay that was accepted.
+  Relay relay = 1;
+  Metadata metadata = 2;
+}
+
+// Metadata for the accepted relay.
+message Metadata {
+  // The relay is only valid as an exit relay if a separate entry relay is exists.
+  bool needs_other_entry = 1;
 }
 
 // A relay which was discarded when evaluating some predicate, and why.

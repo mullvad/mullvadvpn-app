@@ -174,6 +174,10 @@ pub struct WireguardRelay {
     pub owned: bool,
     pub provider: String,
     pub endpoint_data: WireguardRelayEndpointData,
+    /// This relay can be used with "Multihop: when needed" (i.e., `Hops::Auto`),
+    /// given that it is used as an exit relay with an automatically
+    /// chosen entry.
+    pub needs_other_entry: bool,
     pub inner: Relay,
 }
 
@@ -194,6 +198,7 @@ impl WireguardRelay {
             owned,
             provider,
             endpoint_data,
+            needs_other_entry: false,
             inner,
         }
     }
@@ -592,6 +597,7 @@ mod test {
                             PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
                         ),
+                        needs_other_entry: false,
                     }],
                 }],
             },
@@ -622,6 +628,7 @@ mod test {
                             PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=")
                                 .unwrap(),
                         ),
+                        needs_other_entry: false,
                     }],
                 }],
             },

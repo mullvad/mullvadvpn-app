@@ -805,7 +805,7 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.map { it.hostname },
+        matches = matchesList.map { it.relay.hostname },
         discards = discardsList.map { it.toDomain() },
     )
 
