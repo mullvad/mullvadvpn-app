@@ -4,6 +4,7 @@ import { useStyledRef } from '../../utility-hooks';
 import { getSlides } from './utils/get-slides';
 
 type CarouselContextextProps = {
+  disableScroll: boolean;
   slideIndex: number;
   setSlideIndex: React.Dispatch<React.SetStateAction<number>>;
   numberOfSlides: number;
@@ -26,9 +27,14 @@ export const useCarouselContext = (): CarouselContextextProps => {
   return context;
 };
 
-type CarouselProviderProps = React.PropsWithChildren;
+export type CarouselProviderProps = React.PropsWithChildren<{
+  disableScroll?: boolean;
+}>;
 
-export function CarouselProvider({ children }: CarouselProviderProps) {
+export function CarouselProvider({
+  children,
+  disableScroll: disableScrollProp,
+}: CarouselProviderProps) {
   const carouselRef = React.useRef<HTMLDivElement | null>(null);
   const slidesRef = useStyledRef<HTMLDivElement>();
   const nextButtonRef = React.useRef<HTMLButtonElement | null>(null);
@@ -45,6 +51,7 @@ export function CarouselProvider({ children }: CarouselProviderProps) {
   return (
     <CarouselContextext.Provider
       value={{
+        disableScroll: disableScrollProp ?? false,
         slideIndex,
         setSlideIndex,
         numberOfSlides: slides.length,

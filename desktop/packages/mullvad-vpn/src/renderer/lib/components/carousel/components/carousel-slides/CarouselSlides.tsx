@@ -1,25 +1,34 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
+import type { TransientProps } from '../../../../types';
 import { useCarouselContext } from '../../CarouselContext';
 import { useGetSlideIndex } from '../../hooks';
 import { CarouselSlide } from './components';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
-const StyledSlides = styled.div`
-  white-space: nowrap;
-  overflow: scroll hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
+type StyledSlidesProps = TransientProps<{
+  disableScroll: boolean;
+}>;
 
-  &&::-webkit-scrollbar {
-    display: none;
-  }
+const StyledSlides = styled.div<StyledSlidesProps>`
+  ${({ $disableScroll }) => {
+    return css`
+      white-space: nowrap;
+      overflow: ${$disableScroll ? 'hidden' : 'scroll hidden'};
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+
+      &&::-webkit-scrollbar {
+        display: none;
+      }
+    `;
+  }};
 `;
 
 function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
-  const { slidesRef, setSlideIndex } = useCarouselContext();
+  const { disableScroll, slidesRef, setSlideIndex } = useCarouselContext();
   const getSlideIndex = useGetSlideIndex();
 
   // Update slide number after scrolling.
@@ -31,6 +40,7 @@ function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
     <StyledSlides
       ref={slidesRef}
       onScrollEnd={handleScroll}
+      $disableScroll={disableScroll}
       aria-live="polite"
       aria-atomic="true"
       tabIndex={-1}

@@ -10,6 +10,7 @@ export const StyledCarousel = styled.section``;
 
 export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
   slideIndex?: number;
+  disableScroll?: boolean;
 };
 
 function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
@@ -39,9 +40,9 @@ function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
   );
 }
 
-function Carousel({ children, ...props }: CarouselProps) {
+function Carousel({ children, disableScroll, ...props }: CarouselProps) {
   return (
-    <CarouselProvider>
+    <CarouselProvider disableScroll={disableScroll}>
       <CarouselImpl {...props}>{children}</CarouselImpl>
     </CarouselProvider>
   );
