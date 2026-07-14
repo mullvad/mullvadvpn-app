@@ -32,7 +32,7 @@ function LocationsListsImpl() {
           <RecentLocations />
         </Expandable.Content>
       </Expandable>
-      <FlexColumn gap="large">
+      <FlexColumn flexGrow={1} gap="large">
         {showCustomListLocationLists && <CustomListLocations />}
         {showCountryLocations && <CountryLocations />}
         {showNoSearchResult && <NoSearchResult />}

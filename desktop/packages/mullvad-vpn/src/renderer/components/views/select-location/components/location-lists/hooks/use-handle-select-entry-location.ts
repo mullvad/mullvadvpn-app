@@ -1,4 +1,4 @@
-import React, { startTransition } from 'react';
+import React from 'react';
 
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import { type AnyLocation, LocationType } from '../../../../../../features/locations/types';
@@ -6,15 +6,26 @@ import { waitForAnimations } from '../../../../../../lib/utils';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
-  const { entryLocationListsContainerRef, setLocationType, searchTerm, setSearchTerm } =
-    useSelectLocationViewContext();
+  const {
+    entryLocationListsContainerRef,
+    setLocationType,
+    searchTerm,
+    setSearchTerm,
+    setIsolatedItem,
+  } = useSelectLocationViewContext();
   const { selectEntryRelayLocation } = useRelayLocations();
 
   const handleSelectEntryLocation = React.useCallback(
-    async (entryLocation: AnyLocation) => {
+    (entryLocation: AnyLocation) => {
       if (!searchTerm) {
-        setLocationType(LocationType.exit);
-        await selectEntryRelayLocation(entryLocation.details);
+        React.startTransition(async () => {
+          await selectEntryRelayLocation(entryLocation.details);
+          await waitForAnimations(entryLocationListsContainerRef.current);
+
+          React.startTransition(() => {
+            setLocationType(LocationType.exit);
+          });
+        });
       } else {
         // If the user selects a location from a search, we can't immediately switch
         // to show the `exit` locations as the view contents would jump around
@@ -22,11 +33,15 @@ export function useHandleSelectEntryLocation() {
         // entry, which will cause an animation to mark it in the location lists
         // as selected, and when that animation has finished we can switch to show
         // `exit` locations.
-        startTransition(async () => {
+        React.startTransition(async () => {
           await selectEntryRelayLocation(entryLocation.details);
           await waitForAnimations(entryLocationListsContainerRef.current);
           setSearchTerm('');
-          setLocationType(LocationType.exit);
+          setIsolatedItem(undefined);
+
+          React.startTransition(() => {
+            setLocationType(LocationType.exit);
+          });
         });
       }
     },
@@ -34,6 +49,7 @@ export function useHandleSelectEntryLocation() {
       entryLocationListsContainerRef,
       searchTerm,
       selectEntryRelayLocation,
+      setIsolatedItem,
       setLocationType,
       setSearchTerm,
     ],

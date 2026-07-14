@@ -57,6 +57,7 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
       min-width: 60px;
       border-radius: var(--radius);
       background: var(--background);
+      transition: color 2s ease;
 
       ${() => {
         if ($width === 'fill') {

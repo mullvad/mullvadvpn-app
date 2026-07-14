@@ -29,8 +29,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const enableRecents = React.useCallback(async () => {
     await setEnabledRecents(true);
     onOpenChange?.(false);
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setEnabledRecents, setLocationType]);
+  }, [onOpenChange, setEnabledRecents]);
 
   const handleMultihopAlways = useCallback(async () => {
     await setMultihop({ multihop: 'always' });

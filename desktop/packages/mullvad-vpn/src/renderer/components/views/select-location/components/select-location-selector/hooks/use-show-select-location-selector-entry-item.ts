@@ -1,10 +1,10 @@
 import { useMultihop } from '../../../../../../features/multihop/hooks';
-import { useSelectLocationSelectorContext } from '../SelectLocationSelectorContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 import { useIsEntryAutomatic } from './use-is-entry-automatic';
 
 export function useShowSelectLocationSelectorEntryItem() {
   const { multihop } = useMultihop();
-  const { isolatedItem } = useSelectLocationSelectorContext();
+  const { isolatedItem } = useSelectLocationViewContext();
   const isEntryAutomatic = useIsEntryAutomatic();
 
   if (multihop === 'when-needed') {

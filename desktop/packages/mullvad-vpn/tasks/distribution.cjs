@@ -172,10 +172,10 @@ function newConfig() {
           target: 'deb',
           arch: getLinuxTargetArch(),
         },
-        {
-          target: 'rpm',
-          arch: getLinuxTargetArch(),
-        },
+        // {
+        //   target: 'rpm',
+        //   arch: getLinuxTargetArch(),
+        // },
       ],
       executableName: 'mullvad-vpn',
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',

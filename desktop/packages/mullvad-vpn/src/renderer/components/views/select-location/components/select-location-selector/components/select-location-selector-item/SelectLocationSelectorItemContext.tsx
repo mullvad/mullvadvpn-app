@@ -4,6 +4,7 @@ import {
   useTextField,
   type UseTextFieldState,
 } from '../../../../../../../lib/components/text-field';
+import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
 
 type SelectLocationSelectorItemContextProps = Omit<
   SelectLocationSelectorItemProviderProps,
@@ -39,7 +40,7 @@ type SelectLocationSelectorItemProviderProps = React.PropsWithChildren<{
 
 export function SelectLocationSelectorItemProvider({
   defaultValue,
-  delay = 200,
+  delay = 0,
   triggerRef: triggerRefProp,
   children,
 }: SelectLocationSelectorItemProviderProps) {
@@ -47,6 +48,7 @@ export function SelectLocationSelectorItemProvider({
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const [searching, setSearching] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+  const { searchTerm } = useSelectLocationViewContext();
 
   const {
     handleOnValueChange,
@@ -74,23 +76,19 @@ export function SelectLocationSelectorItemProvider({
   const handleBlur = React.useCallback(() => {
     handleBlurTextField();
 
-    if (valueTextField === '') {
-      reset();
-    }
-
     // Clear the selection to ensure we can re-select the text next time the input gets focused.
     // Note that this clears every selection across the entire page, but seeing as the input
     // element is the only thing that can be focused right now, in effect it only removes
     // the selection for the input field.
     window.getSelection()?.removeAllRanges();
-  }, [handleBlurTextField, reset, valueTextField]);
+  }, [handleBlurTextField]);
 
-  // If selected location is changed, update text field value to match the new selected location.
+  // If selected location is changed, update text field value to match the selected location.
   React.useEffect(() => {
-    if (!searching) {
+    if (!focused && !searchTerm) {
       handleOnValueChange(defaultValue ?? '');
     }
-  }, [defaultValue, handleOnValueChange, searching]);
+  }, [defaultValue, focused, handleOnValueChange, searchTerm, searching]);
 
   const value = React.useMemo(
     () => ({
