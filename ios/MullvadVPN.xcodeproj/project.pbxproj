@@ -75,6 +75,7 @@
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870842D809C980038972F /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
+		440DA5C5300540F60057069A /* ModularButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440DA5C4300540F10057069A /* ModularButton.swift */; };
 		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
 		4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8A2D2826E5001B13C9 /* DetailsView.swift */; };
@@ -1825,6 +1826,7 @@
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
+		440DA5C4300540F10057069A /* ModularButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModularButton.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
 		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
 		4419AA8A2D2826E5001B13C9 /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
@@ -3638,6 +3640,7 @@
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
+				440DA5C4300540F10057069A /* ModularButton.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */,
 				F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */,
@@ -6854,6 +6857,7 @@
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
+				440DA5C5300540F60057069A /* ModularButton.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
 				F91B94A72DC9EB5E00132C28 /* MullvadInfoView.swift in Sources */,
