@@ -18,7 +18,12 @@
       <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
         <target state="final">%2$@ ကို %1$@ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action to be performed, and the second argument is the name of the feature that requires restarting the VPN.</note>
+      </trans-unit>
+      <trans-unit id="%@ (%@)" xml:space="preserve" approved="yes">
+        <source>%1$@ (%2$@)</source>
+        <target state="final">%1$@ (%2$@)</target>
+        <note>Selected location name, with country in parentheses</note>
       </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
@@ -80,6 +85,11 @@
         <target state="final">နောက်ထပ် %lld ...</target>
         <note/>
       </trans-unit>
+      <trans-unit id="**AirDrop, AirPlay, CarPlay, Continuity Camera, Handoff, Handover, NameDrop, iMessage, Screen Mirroring** and **Personal Hotspot**." xml:space="preserve" approved="yes">
+        <source>**AirDrop, AirPlay, CarPlay, Continuity Camera, Handoff, Handover, NameDrop, iMessage, Screen Mirroring** and **Personal Hotspot**.</source>
+        <target state="final">**AirDrop၊ AirPlay၊ CarPlay၊ Continuity Camera၊ Handoff၊ Handover၊ NameDrop၊ iMessage၊ မျက်နှာပြင် ထုတ်လွှင့်ပြသမှု** နှင့် **ကိုယ်ပိုင် ဟော့စပေါ့**။</target>
+        <note>Feature names in **double asterisks** will be in semibold font.</note>
+      </trans-unit>
       <trans-unit id="**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**" xml:space="preserve" approved="yes">
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="final">**သတိပြုရန်—ယင်းသည် ကွန်ရက်အသုံးပြုမှုကို တိုးမြှင့်စေပြီး၊ အမြန်နှုန်း၊ နောက်ကျမှုနှင့် မိုဘိုင်းဘက်ထရီအသုံးစွဲမှုတို့အပေါ် ဆိုးကျိုးများ ဖြစ်စေနိုင်ပါသည်။ ကန့်သတ်မှုရှိသော မိုဘိုင်းပလန်များတွင် သတိထား၍ အသုံးပြုပါ။**</target>
@@ -95,9 +105,9 @@
         <target state="final">API ရယူသုံးစွဲခွင့်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="API access methods" xml:space="preserve">
+      <trans-unit id="API access methods" xml:space="preserve" approved="yes">
         <source>API access methods</source>
-        <target state="needs-translation">API access methods</target>
+        <target state="final">API ဝင်ရောက်သုံးစွဲနည်းများ</target>
         <note from="auto-generated">Text for a button that navigates to a view showing all API access methods.</note>
       </trans-unit>
       <trans-unit id="API reachable" xml:space="preserve" approved="yes">
@@ -129,6 +139,11 @@
         <source>About Server IP override...</source>
         <target state="final">ဆာဗာ IP ကို ကျော်လွန် ပယ်ဖျက်မှု အကြောင်း…</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="About known issues..." xml:space="preserve" approved="yes">
+        <source>About known issues...</source>
+        <target state="final">သိရှိထားသော ပြဿနာများအကြောင်း...</target>
+        <note from="auto-generated">Link text that, when tapped, shows more information about known issues related to the feature.</note>
       </trans-unit>
       <trans-unit id="Account" xml:space="preserve" approved="yes">
         <source>Account</source>
@@ -250,15 +265,20 @@
         <target state="final">ပံ့ပိုးသူအားလုံး</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Always connect via an entry server. The location can either be set manually or automatically in the &quot;Select location&quot; view." xml:space="preserve">
-        <source>Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</source>
-        <target state="needs-translation">Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</target>
-        <note/>
+      <trans-unit id="Always" xml:space="preserve" approved="yes">
+        <source>Always</source>
+        <target state="final">အမြဲတမ်း</target>
+        <note>The “Always“ multihop state</note>
       </trans-unit>
       <trans-unit id="Amsterdam" xml:space="preserve" approved="yes">
         <source>Amsterdam</source>
         <target state="final">အမ်စတာဒမ်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="An additional server is used to match your settings for your selected location" xml:space="preserve" approved="yes">
+        <source>An additional server is used to match your settings for your selected location</source>
+        <target state="final">သင်ရွေးချယ်ထားသော တည်နေရာအတွက် သင့်ဆက်တင်များနှင့် ကိုက်ညီစေရန် ထပ်ဆောင်းဆာဗာကို သုံးသည်</target>
+        <note from="auto-generated">A description of how the automatic location feature works.</note>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve" approved="yes">
         <source>Any</source>
@@ -305,20 +325,35 @@
         <target state="final">အတ္တလန်တာ၊ ဂျော်ဂျီယာ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
-        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+      <trans-unit id="Attention: In this mode, filters are ignored for the additional server." xml:space="preserve" approved="yes">
+        <source>Attention: In this mode, filters are ignored for the additional server.</source>
+        <target state="final">သတိပြုရန်- ဤမုဒ်တွင် ထပ်ဆောင်းဆာဗာအတွက် စစ်ထုတ်ချက်များကို လျစ်လျူရှုသည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
+        <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
+        <target state="final">သတိပြုရန်- “%@”တည်နေရာ ဖြစ်ပါက အဝင်ဆာဗာအတွက် စစ်ထုတ်ချက်များကို လျစ်လျူရှုသည်။</target>
+        <note from="auto-generated">A note about the effect of using the "Automatic" location on filter settings. The argument is the string “Automatic”.</note>
+      </trans-unit>
+      <trans-unit id="Attention: With the “Automatic” location, any enabled filters are ignored for the entry server." xml:space="preserve" approved="yes">
+        <source>Attention: With the “Automatic” location, any enabled filters are ignored for the entry server.</source>
+        <target state="final">သတိပြုရန်- “အလိုအလျောက်” တည်နေရာ ဖြစ်ပါက အဝင်ဆာဗာအတွက် ဖွင့်ထားသော စစ်ထုတ်ချက်အားလုံးကို လျစ်လျူရှုသည်။</target>
+        <note from="auto-generated">Additional information about the "Automatic" location in the alert displayed when a user taps on the "Info" button in the list item.</note>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
         <target state="final">သတိပြုရန်- ဤဆက်တင်ကို **%@** နှင့် ပေါင်းစပ်၍ အသုံးမပြုနိုင်ပါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Attention: toggling “%@” requires restarting the VPN connection." xml:space="preserve" approved="yes">
+        <source>Attention: toggling “%@” requires restarting the VPN connection.</source>
+        <target state="final">သတိပြုရန်- “%@” ကို ဖွင့်/ပိတ်ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်စရန် လိုသည်။</target>
+        <note from="auto-generated">A note about a feature that requires restarting the VPN connection when toggled. The argument is the string “Local network sharing”.</note>
+      </trans-unit>
       <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
         <target state="final">သတိပြုရန်- “လိုကယ် ကွန်ရက် ဝေမျှမှု” သို့ ပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပါသည်။</target>
-        <note/>
+        <note from="auto-generated">Attention message for the "Local network sharing" feature in the settings.</note>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
         <source>Auckland</source>
@@ -354,6 +389,11 @@
         <source>BLOCKING INTERNET</source>
         <target state="final">အင်တာနက် ပိတ်ဆို့နေပါသည်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Back" xml:space="preserve" approved="yes">
+        <source>Back</source>
+        <target state="final">နောက်သို့</target>
+        <note from="auto-generated">Text for a button that takes the user back one page in the wizard.</note>
       </trans-unit>
       <trans-unit id="Bangkok" xml:space="preserve" approved="yes">
         <source>Bangkok</source>
@@ -450,14 +490,14 @@
         <target state="final">ဘူလ်ဂေးရီးယား</target>
         <note/>
       </trans-unit>
+      <trans-unit id="By %@ your connection will be blocked because the location selected is not compatible with your settings." xml:space="preserve" approved="yes">
+        <source>By %@ your connection will be blocked because the location selected is not compatible with your settings.</source>
+        <target state="final">%@ ဖြစ်ပါက ရွေးချယ်ထားသော တည်နေရာသည် သင့်ဆက်တင်များနှင့် ကိုက်ညီမှုမရှိလျှင် သင့်ချိတ်ဆက်မှုကို ပိတ်ပင်ပါမည်။</target>
+        <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
+      </trans-unit>
       <trans-unit id="By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our " xml:space="preserve" approved="yes">
         <source>By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our </source>
         <target state="final">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။ အသေးစိတ်ကို ဖော်ပြပါတွင် ကြည့်ပါ </target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." xml:space="preserve" approved="yes">
-        <source>By enabling “%1$@” you will have to manually select a server that is %2$@-enabled. %3$@ won't automatically be used to enable DAITA with any server.</source>
-        <target state="final">“%1$@” ကို ဖွင့်ခြင်းအားဖြင့် %2$@ ဖွင့်ထားသော ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရပါမည်။ ဆာဗာတစ်ခုခုအတွက် DAITA ကို ဖွင့်ရန် %3$@ ကို အော်တို အသုံးပြုမည် မဟုတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)." xml:space="preserve" approved="yes">
@@ -475,9 +515,9 @@
         <target state="final">ချိတ်ဆက်နေဆဲ...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve">
+      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve" approved="yes">
         <source>CUSTOM API ACCESS METHOD IS INVALID</source>
-        <target state="needs-translation">CUSTOM API ACCESS METHOD IS INVALID</target>
+        <target state="final">စိတ်ကြိုက် API ဝင်ရောက်သုံးစွဲနည်း မှားယွင်းနေသည်</target>
         <note from="auto-generated">Title of an in-app notification that informs the user that the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Calgary" xml:space="preserve" approved="yes">
@@ -505,10 +545,25 @@
         <target state="final">ဝယ်ယူမှုများကို ပြန်လည်ရယူ၍ မရပါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Change to “%@“" xml:space="preserve" approved="yes">
+        <source>Change to “%@“</source>
+        <target state="final">“%@“ သို့ ပြောင်းမည်</target>
+        <note>Variable refers to multihop mode</note>
+      </trans-unit>
+      <trans-unit id="Change to “%@”" xml:space="preserve" approved="yes">
+        <source>Change to “%@”</source>
+        <target state="final">“%@” သို့ ပြောင်းမည်</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
         <source>Changing language will disconnect you from the VPN and restart the app</source>
         <target state="final">ဘာသာစကား ပြောင်းလဲခြင်းခြင့် VPN နှင့် ချိတ်ဆက်မှု ပြတ်တောက်သွားမည်ဖြစ်ပြီး စက်ကို ပြန်လည်စတင်ပါမည်</target>
         <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Changing mode..." xml:space="preserve" approved="yes">
+        <source>Changing mode...</source>
+        <target state="final">မုဒ်ပြောင်းနေသည်...</target>
+        <note from="auto-generated">Title displayed while changing the multihop mode.</note>
       </trans-unit>
       <trans-unit id="Checked" xml:space="preserve" approved="yes">
         <source>Checked</source>
@@ -550,10 +605,20 @@
         <target state="final">ကျော်လွန် ပယ်ဖျက်မှုအားလုံးကို ရှင်းမည်လား။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Clear search" xml:space="preserve" approved="yes">
+        <source>Clear search</source>
+        <target state="final">ရှာဖွေမှုကို ရှင်းလင်းရန်</target>
+        <note from="auto-generated">A label for a button that clears text from a search field.</note>
+      </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
         <target state="final">ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှုများကို ရှင်းလင်းခြင်းဖြင့် တည်နေရာ ရွေးရန် ပြသမှုတွင် ဆာဗာ IP များကို ပုံသေအဖြစ် ပြန်ပြောင်းလိုက်ပါမည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Close search" xml:space="preserve" approved="yes">
+        <source>Close search</source>
+        <target state="final">ရှာဖွေမှုကို ပိတ်ရန်</target>
+        <note from="auto-generated">A label for a button that closes a search interface.</note>
       </trans-unit>
       <trans-unit id="Collapse" xml:space="preserve" approved="yes">
         <source>Collapse</source>
@@ -614,6 +679,11 @@
         <source>Connection details</source>
         <target state="final">ချိတ်ဆက်မှု အသေးစိတ်အချက်များ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Continue" xml:space="preserve" approved="yes">
+        <source>Continue</source>
+        <target state="final">ဆက်လုပ်မည်</target>
+        <note from="auto-generated">Title of an action button in an alert that lets the user continue with a multihop configuration.</note>
       </trans-unit>
       <trans-unit id="Continue with login" xml:space="preserve" approved="yes">
         <source>Continue with login</source>
@@ -690,9 +760,9 @@
         <target state="final">စိတ်ကြိုက်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Custom API access method is invalid" xml:space="preserve">
+      <trans-unit id="Custom API access method is invalid" xml:space="preserve" approved="yes">
         <source>Custom API access method is invalid</source>
-        <target state="needs-translation">Custom API access method is invalid</target>
+        <target state="final">စိတ်ကြိုက် API ဝင်ရောက်သုံးစွဲနည်း မှားယွင်းနေသည်</target>
         <note from="auto-generated">A message displayed when the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Custom DNS" xml:space="preserve" approved="yes">
@@ -723,16 +793,6 @@
       <trans-unit id="DAITA" xml:space="preserve" approved="yes">
         <source>DAITA</source>
         <target state="final">DAITA</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="DAITA isn't available at the currently selected location. After enabling, please go to the &quot;Select location&quot; view and select a location that supports DAITA." xml:space="preserve" approved="yes">
-        <source>DAITA isn't available at the currently selected location. After enabling, please go to the "Select location" view and select a location that supports DAITA.</source>
-        <target state="final">DAITA ကို လက်ရှိရွေးချယ်ထားသောနေရာတွင် ရရှိနိုင်ခြင်း မရှိပါ။ ဖွင့်ပြီးနောက် "တည်နေရာရွေးချယ်ရန်" ပြသမှုသို့ သွားပြီး DAITA ကို ပံ့ပိုးပေးသော တည်နေရာကို ရွေးချယ်ပါ။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="DAITA isn't available on the current entry server. After enabling, please go to the &quot;Select location&quot; view and select an entry location that supports DAITA." xml:space="preserve" approved="yes">
-        <source>DAITA isn't available on the current entry server. After enabling, please go to the "Select location" view and select an entry location that supports DAITA.</source>
-        <target state="final">လက်ရှိ အဝင်ဆာဗာတွင် DAITA ကို မရရှိနိုင်ပါ။ DAITA ကို ဖွင့်ပြီးနောက် “တည်နေရာ ရွေးချယ်ရန်” ပြသမှုသို့ သွားပြီး DAITA ကို လုပ်ဆောင်နိုင်သော အဝင် တည်နေရာတစ်ခုကို ရွေးချယ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="DISCONNECTED" xml:space="preserve" approved="yes">
@@ -825,11 +885,6 @@
         <target state="final">စက်အမည်- %@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Direct only" xml:space="preserve" approved="yes">
-        <source>Direct only</source>
-        <target state="final">တိုက်ရိုက်သာ</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disable" xml:space="preserve" approved="yes">
         <source>Disable</source>
         <target state="final">ပိတ်ရန်</target>
@@ -838,11 +893,6 @@
       <trans-unit id="Disable all &quot;%@&quot; above to activate this setting." xml:space="preserve" approved="yes">
         <source>Disable all "%@" above to activate this setting.</source>
         <target state="final">ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ "%@" အားလုံးကို ပိတ်ပါ။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Disable multihop" xml:space="preserve" approved="yes">
-        <source>Disable multihop</source>
-        <target state="final">မာလ်တီဟော့ပ်ကို ပိတ်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Disable recents" xml:space="preserve" approved="yes">
@@ -950,24 +1000,19 @@
         <target state="final">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်မှ ခရက်ဒစ် ဝယ်ယူခြင်း သို့မဟုတ် အောက်ရှိ **အချိန်တိုးရန်** ခလုတ်ကို အသုံးပြု၍ အက်ပ်အတွင်း ငွေပေးချေမှု ပြုလုပ်နိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Either buy credit on our website or redeem a voucher." xml:space="preserve" approved="yes">
-        <source>Either buy credit on our website or redeem a voucher.</source>
-        <target state="final">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Enable" xml:space="preserve" approved="yes">
         <source>Enable</source>
         <target state="final">ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable DAITA" xml:space="preserve" approved="yes">
+        <source>Enable DAITA</source>
+        <target state="final">DAITA ဖွင့်ရန်</target>
+        <note from="auto-generated">Text for a button that enables DAITA.</note>
+      </trans-unit>
       <trans-unit id="Enable method" xml:space="preserve" approved="yes">
         <source>Enable method</source>
         <target state="final">နည်းလမ်းကို ဖွင့်ရန်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enable multihop" xml:space="preserve" approved="yes">
-        <source>Enable multihop</source>
-        <target state="final">မာလ်တီဟော့ပ်ကို ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
@@ -984,6 +1029,11 @@
         <source>Enabling</source>
         <target state="final">ဖွင့်</target>
         <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
+      <trans-unit id="Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." xml:space="preserve" approved="yes">
+        <source>Enabling %1$@ has shown to reduce the number of issues encountered when using %2$@, regardless if you are using WiFi or a cellular network.</source>
+        <target state="final">%1$@ ကို ဖွင့်လိုက်ပါက သင် WiFi သုံးသည်ဖြစ်စေ၊ ဆယ်လူလာကွန်ရက် သုံးသည်ဖြစ်စေ ထည့်မတွက်ဘဲ %2$@ အသုံးပြုစဉ် တွေ့ကြုံရသည့် ပြဿနာအရေအတွက်ကို လျှော့ချပေးကြောင်း တွေ့ရှိရသည်။</target>
+        <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1005,6 +1055,16 @@
         <target state="final">အဝင်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Entry filter" xml:space="preserve" approved="yes">
+        <source>Entry filter</source>
+        <target state="final">အဝင်နေရာ စစ်ထုတ်ချက်</target>
+        <note from="auto-generated">Title of the view controller when displaying the entry filter.</note>
+      </trans-unit>
+      <trans-unit id="Entry set to “%@”" xml:space="preserve" approved="yes">
+        <source>Entry set to “%@”</source>
+        <target state="final">အဝင်နေရာကို “%@” ဟု သတ်မှတ်လိုက်ပြီ</target>
+        <note from="auto-generated">A success message that appears when the user successfully sets their entry preference to "Automatic". The argument is the string “Automatic”.</note>
+      </trans-unit>
       <trans-unit id="Estonia" xml:space="preserve" approved="yes">
         <source>Estonia</source>
         <target state="final">အက်စ်တိုးနီးယား</target>
@@ -1014,6 +1074,11 @@
         <source>Exit</source>
         <target state="final">အထွက်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Exit filter" xml:space="preserve" approved="yes">
+        <source>Exit filter</source>
+        <target state="final">အထွက်နေရာ စစ်ထုတ်ချက်</target>
+        <note from="auto-generated">Title of the view controller for the exit filter.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve" approved="yes">
         <source>Expand</source>
@@ -1045,6 +1110,11 @@
         <target state="final">မေးလေ့ရှိသည့် မေးခွန်းများ&amp; လမ်းညွှန်များ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Failed to change mode" xml:space="preserve" approved="yes">
+        <source>Failed to change mode</source>
+        <target state="final">မုဒ်ပြောင်း၍ မရခဲ့ပါ</target>
+        <note from="auto-generated">Message displayed in the action sheet when changing the multihop mode fails.</note>
+      </trans-unit>
       <trans-unit id="Failed to load products, please try again" xml:space="preserve" approved="yes">
         <source>Failed to load products, please try again</source>
         <target state="final">ထုတ်ကုန်များကို လုပ်ဆောင်၍ မရပါ၊ ထပ်ကြိုးစားကြည့်ပါ</target>
@@ -1059,6 +1129,11 @@
         <source>Failed to send</source>
         <target state="final">ပို့ရန် မအောင်မြင်ခဲ့ပါ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Failed to set the Entry to “%@”" xml:space="preserve" approved="yes">
+        <source>Failed to set the Entry to “%@”</source>
+        <target state="final">အဝင်နေရာကို “%@” ဟု သတ်မှတ်၍ မရခဲ့ပါ</target>
+        <note from="auto-generated">A message displayed when an action fails. The argument is the string “Automatic”.</note>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
         <source>Failed to start the tunnel.</source>
@@ -1095,15 +1170,15 @@
         <target state="final">စက်များကို ရယူနေသည်...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filter" xml:space="preserve" approved="yes">
-        <source>Filter</source>
-        <target state="final">စစ်ထုတ်မှု</target>
+      <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve" approved="yes">
+        <source>Filters are overridden when using an automatic location</source>
+        <target state="final">အလိုအလျောက် တည်နေရာကို အသုံးပြုသည့်အခါ စစ်ထုတ်ချက်များကို ပယ်ဖျက်သည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Filters" xml:space="preserve" approved="yes">
-        <source>Filters</source>
-        <target state="final">စစ်ထုတ်မှုများ</target>
-        <note/>
+      <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve" approved="yes">
+        <source>Filters can now be set separately for entry and exit locations.</source>
+        <target state="final">ယခုအခါ အဝင်နေရာနှင့် အထွက်နေရာအတွက် စစ်ထုတ်ချက်များကို သီးခြားစီ သတ်မှတ်နိုင်ပါပြီ။</target>
+        <note from="auto-generated">Text displayed in a notification when the setting for separate filters is updated.</note>
       </trans-unit>
       <trans-unit id="Finland" xml:space="preserve" approved="yes">
         <source>Finland</source>
@@ -1295,11 +1370,6 @@
         <target state="final">ပြဿနာများ ဆက်လက်ကြုံတွေ့နေပါက ကျွန်ုပ်တို့၏ သုံးစွဲသူ အကူအညီပေးရေး အဖွဲ့ထံသို့ **%@** မှတစ်ဆင့် တိုက်ရိုက်အီးမေးလ်ပေးပို့နိုင်ပါသည်။ အီးမေးလ်တွင် သင်၏ အက်ပ်မှတ်တမ်းကို တွဲချိတ်ပေးပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" xml:space="preserve">
-        <source>If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</source>
-        <target state="needs-translation">If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
         <source>Import</source>
         <target state="final">ထည့်ရန်</target>
@@ -1359,6 +1429,11 @@
         <source>Indonesia</source>
         <target state="final">အင်ဒိုနီးရှား</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Information" xml:space="preserve" approved="yes">
+        <source>Information</source>
+        <target state="final">သတင်းအချက်အလက်</target>
+        <note from="auto-generated">A button that provides more information about an item.</note>
       </trans-unit>
       <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
         <source>Install the latest app version to stay up to date.</source>
@@ -1444,6 +1519,11 @@
         <source>Kansas City, MO</source>
         <target state="final">Kansas City, MO</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Known issues" xml:space="preserve" approved="yes">
+        <source>Known issues</source>
+        <target state="final">သိရှိထားသော ပြဿနာများ</target>
+        <note from="auto-generated">Header text for a view that presents information about known issues with Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="Kuala Lumpur" xml:space="preserve" approved="yes">
         <source>Kuala Lumpur</source>
@@ -1630,9 +1710,9 @@
         <target state="final">မဲလ်ဘုန်း</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Method settings" xml:space="preserve">
+      <trans-unit id="Method settings" xml:space="preserve" approved="yes">
         <source>Method settings</source>
-        <target state="needs-translation">Method settings</target>
+        <target state="final">နည်းလမ်း ဆက်တင်များ</target>
         <note from="auto-generated">Title of a view controller that allows the user to configure the settings of a specific access method.</note>
       </trans-unit>
       <trans-unit id="Mexico" xml:space="preserve" approved="yes">
@@ -1645,15 +1725,20 @@
         <target state="final">မိုင်ယာမီ၊ ဖလော်ရီဒါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Migrated settings" xml:space="preserve" approved="yes">
+        <source>Migrated settings</source>
+        <target state="final">ပြောင်းရွှေ့ထားသော ဆက်တင်များ</target>
+        <note from="auto-generated">Title of a settings item that indicates that the user has migrated settings from an older version of the app.</note>
+      </trans-unit>
       <trans-unit id="Milan" xml:space="preserve" approved="yes">
         <source>Milan</source>
         <target state="final">မီလန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Mode" xml:space="preserve">
+      <trans-unit id="Mode" xml:space="preserve" approved="yes">
         <source>Mode</source>
-        <target state="needs-translation">Mode</target>
-        <note/>
+        <target state="final">မုဒ်</target>
+        <note from="auto-generated">Title of a section in the settings view related to the mode of the multihop tunnel.</note>
       </trans-unit>
       <trans-unit id="Montreal" xml:space="preserve" approved="yes">
         <source>Montreal</source>
@@ -1670,15 +1755,50 @@
         <target state="final">မာလ်တီဟော့ပ်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Multihop entry set to “Automatic”" xml:space="preserve" approved="yes">
+        <source>Multihop entry set to “Automatic”</source>
+        <target state="final">Multihop အဝင်နေရာကို “အလိုအလျောက်” ဟု သတ်မှတ်လိုက်ပြီ</target>
+        <note from="auto-generated">Description of a settings update when the multihop entry setting is set to "Automatic".</note>
+      </trans-unit>
       <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve" approved="yes">
         <source>Multihop is being used to enable DAITA for your selected location.</source>
         <target state="final">သင်ရွေးချယ်ထားသော ဒေသအတွက် DAITA ကို ဖွင့်ရန် Multihop ကို သုံးနေသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Multihop is disabled. Your selected location must support all active settings in order to establish a connection." xml:space="preserve" approved="yes">
+        <source>Multihop is disabled. Your selected location must support all active settings in order to establish a connection.</source>
+        <target state="final">Multihop ကို ပိတ်ထားသည်။ ချိတ်ဆက်မှုပြုလုပ်ရန် သင်ရွေးချယ်ထားသော တည်နေရာသည် လက်ရှိအသက်ဝင်နေသော ဆက်တင်အားလုံးကို ပံ့ပိုးပေးရမည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location." xml:space="preserve" approved="yes">
+        <source>Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location.</source>
+        <target state="final">Multihop ကို ဖွင့်ထားသည်။ ရွေးချယ်ထားသော တည်နေရာကိုဖြတ်ပြီး မထွက်ခွာမီ သင့်ချိတ်ဆက်မှုကို အဝင်ဆာဗာမှတစ်ဆင့် ပို့ပေးသည်။</target>
+        <note from="auto-generated">Text displayed in the settings view when multihop is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences." xml:space="preserve" approved="yes">
+        <source>Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences.</source>
+        <target state="final">ယခုအခါ Multihop ကို မုဒ်သုံးခုအဖြစ် ခွဲထုတ်နိုင်သည်- ၎င်းတို့မှာ လိုအပ်သည့်အခါ၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။ ယင်းက သင်၏ ချိတ်ဆက်မှု ဦးစားပေးများနှင့်အညီ ပြောင်းလွယ်ပြင်လွယ် အသုံးပြုနိုင်စေသည်။</target>
+        <note from="auto-generated">Description of the change that was made to the multihop setting.</note>
+      </trans-unit>
+      <trans-unit id="Multihop mode" xml:space="preserve" approved="yes">
+        <source>Multihop mode</source>
+        <target state="final">Multihop မုဒ်</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Multihop mode changed" xml:space="preserve" approved="yes">
+        <source>Multihop mode changed</source>
+        <target state="final">Multihop မုဒ်ကို ပြောင်းလိုက်ပြီ</target>
+        <note from="auto-generated">Message displayed in the action sheet when changing the VPN connection mode to "When needed".</note>
+      </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
         <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</source>
         <target state="final">မာလ်တီဟော့ပ်သည် သင်၏အသွားအလာကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပေးပြီး အခြားတစ်နေရာမှ ထွက်စေသောကြောင့် ခြေရာခံရန် ပိုမိုခက်ခဲစေသည်။ ၎င်းသည် အချိန်ကို ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် ပို၍ သိုသိုသိပ်သိပ်ဖြစ်စေသည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never." xml:space="preserve" approved="yes">
+        <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never.</source>
+        <target state="final">Multihop သည် သင့်ဒေတာစီးဆင်းမှုကို WireGuard ဆာဗာတစ်ခုထဲသို့ ပို့ပေးပြီး အခြားတစ်ခုမှ ထွက်သွားစေ၍ ခြေရာခံရန် ပိုခက်ခဲစေသည်။ ယင်းက ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် အမည်ဝှက်ခြင်းကို မြှင့်တင်ပေးသည်။ Multihop ရွေးချယ်စရာ မတူညီသော မုဒ်သုံးခုရှိပြီး ၎င်းတို့မှာ လိုအပ်သည့်အခါ၊ အမြဲတမ်းနှင့် ဘယ်တော့မှ ဖြစ်သည်။</target>
+        <note from="auto-generated">Description of the Multihop feature, including its benefits and modes of operation.</note>
       </trans-unit>
       <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
         <source>NETWORK ISSUES</source>
@@ -1715,9 +1835,9 @@
         <target state="final">အမည်သည် ရှိနှင့်ပြီး ဖြစ်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve">
+      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters</source>
-        <target state="needs-translation">Name should be no longer than %i characters</target>
+        <target state="final">အမည်သည် အက္ခရာ %i လုံးထက် မပိုရပါ</target>
         <note from="auto-generated">Error message displayed when a user inputs a name that is too long. The argument is the maximum number of characters allowed in a name.</note>
       </trans-unit>
       <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
@@ -1735,6 +1855,11 @@
         <target state="final">ကွန်ရက် ချို့ယွင်းချက်- %@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Never" xml:space="preserve" approved="yes">
+        <source>Never</source>
+        <target state="final">ဘယ်တော့မှ</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="New York, NY" xml:space="preserve" approved="yes">
         <source>New York, NY</source>
         <target state="final">နယူးယောက်</target>
@@ -1749,6 +1874,11 @@
         <source>New list</source>
         <target state="final">စာရင်းသစ်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="New multihop modes" xml:space="preserve" approved="yes">
+        <source>New multihop modes</source>
+        <target state="final">Multihop မုဒ်အသစ်များ</target>
+        <note from="auto-generated">Title of a settings update descriptor for when the multihop modes have been updated.</note>
       </trans-unit>
       <trans-unit id="Next" xml:space="preserve" approved="yes">
         <source>Next</source>
@@ -1770,9 +1900,9 @@
         <target state="final">သင့်တည်နေရာ ဆက်တင်နှင့် ကိုက်ညီပြီး DAITA တွဲဖက်သုံးနိုင်သော ဆာဗာ မရှိပါ။ တည်နေရာ ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="No longer supported" xml:space="preserve">
+      <trans-unit id="No longer supported" xml:space="preserve" approved="yes">
         <source>No longer supported</source>
-        <target state="needs-translation">No longer supported</target>
+        <target state="final">ပံ့ပိုးမပေးတော့ပါ</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
@@ -1808,6 +1938,20 @@
       <trans-unit id="Norway" xml:space="preserve" approved="yes">
         <source>Norway</source>
         <target state="final">နော်ဝေး</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</source>
+        <target state="final">ကျွန်ုပ်တို့၏ တည်နေရာများ/ဆာဗာများ အားလုံးသည် အက်ပ်အတွင်းရှိ လုပ်ဆောင်ချက်တိုင်းကို မပံ့ပိုးပေးပါ။ သင်ရွေးချယ်ထားသော တည်နေရာ/ဆာဗာသည် သင်ဖွင့်ထားသည့် လုပ်ဆောင်ချက်များကို ပံ့ပိုးမပေးပါက အက်ပ်သည် ကိုက်ညီမှုရှိသော ဆာဗာမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်ဆောင်ပါမည်။
+
+ဤနည်းအားဖြင့် မကိုက်ညီသော ဆက်တင်များကြောင့် သင့်ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမခံရစေရန် သေချာစေပါသည်။
+
+၎င်းကို %@ သင်္ကေတဖြင့် ပြသမည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
@@ -1873,11 +2017,6 @@
       <trans-unit id="On some networks, where various types of censorship are being used, the API servers might not be directly reachable." xml:space="preserve" approved="yes">
         <source>On some networks, where various types of censorship are being used, the API servers might not be directly reachable.</source>
         <target state="final">စိစစ်ဖြတ်တောက်မှု အမျိုးအစားများစွာကို သုံးထားသော အချို့ကွန်ရက်များတွင် API ဆာဗာများသည် တိုက်ရိုက် ဝင်ရောက် သုံးစွဲနိုင်စွမ်း မရှိပါ။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Open %@ settings" xml:space="preserve" approved="yes">
-        <source>Open %@ settings</source>
-        <target state="final">%@ ဆက်တင်များကို ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
@@ -1990,19 +2129,24 @@
         <target state="final">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Please select a compatible location after %@." xml:space="preserve" approved="yes">
+        <source>Please select a compatible location after %@.</source>
+        <target state="final">%@ ပေါ်လာပြီးနောက် ကိုက်ညီမည့် တည်နေရာတစ်ခုကို ရွေးချယ်ပါ။</target>
+        <note>Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method</note>
+      </trans-unit>
       <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
         <source>Please swipe through and read all information in order to activate this feature</source>
         <target state="final">ဤလုပ်ဆောင်ချက်ကို သက်ဝင်လုပ်ဆောင်ရန်အလို့ငှာ အချက်အလက်အပြည့်အစုံ အဆုံးထိ ဆွဲ၍ ဖတ်ပေးပါ</target>
         <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
-      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve">
+      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve" approved="yes">
         <source>Please update it or enable a different one to be able to reach the API using this method.</source>
-        <target state="needs-translation">Please update it or enable a different one to be able to reach the API using this method.</target>
+        <target state="final">ဤနည်းလမ်းကို အသုံးပြု၍ API ကို ချိတ်ဆက်နိုင်ရန် ၎င်းကို အပ်ဒိတ်လုပ်ပါ သို့မဟုတ် အခြားတစ်ခုကို ဖွင့်ပါ။</target>
         <note from="auto-generated">A description of what to do if the custom API access method is invalid.</note>
       </trans-unit>
-      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve">
+      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve" approved="yes">
         <source>Please update it or enable a different one to be able to reach the API.</source>
-        <target state="needs-translation">Please update it or enable a different one to be able to reach the API.</target>
+        <target state="final">API ကို ချိတ်ဆက်နိုင်ရန် ၎င်းကို အပ်ဒိတ်လုပ်ပါ သို့မဟုတ် အခြားတစ်ခုကို ဖွင့်ပါ။</target>
         <note from="auto-generated">Text displayed in the body of the in-app notification when the user has an invalid custom API access method.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
@@ -2074,6 +2218,11 @@
         <source>RECONNECTING</source>
         <target state="final">ပြန်ချိတ်ဆက်နေပါသည်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="RESOLVE CONNECTION ISSUES" xml:space="preserve" approved="yes">
+        <source>RESOLVE CONNECTION ISSUES</source>
+        <target state="final">ချိတ်ဆက်မှု ပြဿနာများကို ဖြေရှင်းရန်</target>
+        <note from="auto-generated">Title of the in-app notification.</note>
       </trans-unit>
       <trans-unit id="Raleigh, NC" xml:space="preserve" approved="yes">
         <source>Raleigh, NC</source>
@@ -2162,9 +2311,19 @@ Do you want to remove the saved account number?</source>
         <target state="final">ရိုမေးနီးယား</target>
         <note/>
       </trans-unit>
+      <trans-unit id="SETTINGS MIGRATED" xml:space="preserve" approved="yes">
+        <source>SETTINGS MIGRATED</source>
+        <target state="final">ဆက်တင်များကို ပြောင်းရွှေ့ပြီးပါပြီ</target>
+        <note from="auto-generated">Title of a notification displayed when a user's settings have been updated.</note>
+      </trans-unit>
       <trans-unit id="Salt Lake City, UT" xml:space="preserve" approved="yes">
         <source>Salt Lake City, UT</source>
         <target state="final">ဆော့တ်လိတ်ခ်စီးတီး၊ ယူတာ</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="San Francisco, CA" xml:space="preserve" approved="yes">
+        <source>San Francisco, CA</source>
+        <target state="final">ဆန်ဖရန်စစ္စကို၊ ကယ်လီဖိုးနီးယား</target>
         <note/>
       </trans-unit>
       <trans-unit id="San Jose, CA" xml:space="preserve" approved="yes">
@@ -2192,10 +2351,15 @@ Do you want to remove the saved account number?</source>
         <target state="final">ပြောင်းလဲမှုများကို သိမ်းဆည်းနေသည်...</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Search for locations or servers" xml:space="preserve" approved="yes">
-        <source>Search for locations or servers</source>
-        <target state="final">တည်နေရာများ သို့မဟုတ် ဆာဗာများ ရှာဖွေရန်</target>
-        <note/>
+      <trans-unit id="Search location or server" xml:space="preserve" approved="yes">
+        <source>Search location or server</source>
+        <target state="final">တည်နေရာ သို့မဟုတ် ဆာဗာ ရှာရန်</target>
+        <note from="auto-generated">A placeholder text for the search bar.</note>
+      </trans-unit>
+      <trans-unit id="Search locations" xml:space="preserve" approved="yes">
+        <source>Search locations</source>
+        <target state="final">တည်နေရာများ ရှာရန်</target>
+        <note from="auto-generated">A button label that says "Search locations".</note>
       </trans-unit>
       <trans-unit id="Seattle, WA" xml:space="preserve" approved="yes">
         <source>Seattle, WA</source>
@@ -2210,7 +2374,7 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Select %@" xml:space="preserve" approved="yes">
         <source>Select %@</source>
         <target state="final">%@ ကို ရွေးချယ်ရန်</target>
-        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+        <note>Variable refers to obfuscation method</note>
       </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
@@ -2222,9 +2386,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">ရွေးချယ်ထားသည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Selected cipher no longer supported" xml:space="preserve">
+      <trans-unit id="Selected cipher no longer supported" xml:space="preserve" approved="yes">
         <source>Selected cipher no longer supported</source>
-        <target state="needs-translation">Selected cipher no longer supported</target>
+        <target state="final">ရွေးချယ်ထားသော ကုဒ်ဝှက်စနစ်ကို ပံ့ပိုးမပေးတော့ပါ</target>
         <note from="auto-generated">Error message displayed when a selected cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
@@ -2245,6 +2409,11 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Sent" xml:space="preserve" approved="yes">
         <source>Sent</source>
         <target state="final">ပို့ပြီး</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Separate filters" xml:space="preserve" approved="yes">
+        <source>Separate filters</source>
+        <target state="final">သီးခြားစစ်ထုတ်ချက်များ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Serbia" xml:space="preserve" approved="yes">
@@ -2277,10 +2446,20 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဆာဗာ၏ Hostname များ- %2$@ မှတစ်ဆင့် %1$@</target>
         <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
       </trans-unit>
+      <trans-unit id="Set entry to “%@”" xml:space="preserve" approved="yes">
+        <source>Set entry to “%@”</source>
+        <target state="final">အဝင်နေရာကို “%@” ဟု သတ်မှတ်ပါ</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">အသိပေးချက်များ သတ်မှတ်ရန်</target>
         <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
+      <trans-unit id="Setting entry..." xml:space="preserve" approved="yes">
+        <source>Setting entry...</source>
+        <target state="final">အဝင်နေရာကို သတ်မှတ်နေသည်...</target>
+        <note from="auto-generated">Loading title for the action that sets the multihop entry server to "Automatic".</note>
       </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
@@ -2357,6 +2536,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဆိုဖီယာ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Some iOS features are known to be affected when using Force all apps." xml:space="preserve" approved="yes">
+        <source>Some iOS features are known to be affected when using Force all apps.</source>
+        <target state="final">အက်ပ်အားလုံး အတင်းရပ်တန့်ရန်ကို အသုံးပြုသည့်အခါ iOS လုပ်ဆောင်ချက်အချို့ ထိခိုက်နိုင်ကြောင်း သိရှိရသည်။</target>
+        <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
         <source>South Africa</source>
         <target state="final">တောင်အာဖရိက</target>
@@ -2385,6 +2569,16 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">စတော့ဟုမ်း</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Suggested action" xml:space="preserve" approved="yes">
+        <source>Suggested action</source>
+        <target state="final">အကြံပြုထားသော လုပ်ဆောင်ချက်</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Suggested multihop entry" xml:space="preserve" approved="yes">
+        <source>Suggested multihop entry</source>
+        <target state="final">အကြံပြုထားသော multihop အဝင်နေရာ</target>
         <note/>
       </trans-unit>
       <trans-unit id="Super!" xml:space="preserve" approved="yes">
@@ -2482,9 +2676,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">AppStore သို့ သွားရန် ဤနေရာကို နှိပ်ပါ</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
-      <trans-unit id="Tap to view API access methods" xml:space="preserve">
+      <trans-unit id="Tap to view API access methods" xml:space="preserve" approved="yes">
         <source>Tap to view API access methods</source>
-        <target state="needs-translation">Tap to view API access methods</target>
+        <target state="final">API ဝင်ရောက်သုံးစွဲနည်းများကို ကြည့်ရန် နှိပ်ပါ</target>
         <note from="auto-generated">Action title for the in-app notification that informs the user to tap to view API access methods.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2515,6 +2709,11 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Thanks!" xml:space="preserve" approved="yes">
         <source>Thanks!</source>
         <target state="final">ကျေးဇူးတင်ပါသည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting." xml:space="preserve" approved="yes">
+        <source>The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting.</source>
+        <target state="final">ချိတ်ဆက်မှုများ ပိတ်ဆို့ခံရခြင်းမရှိစေရန် DAITA ဆက်တင်အခွဲ “တိုက်ရိုက်သာ” ကို ဖယ်ရှားပြီး ရိုးရှင်းအောင် ပြုလုပ်ထားသည်။ ယင်းအစား DAITA ကို ဖွင့်ထားပါက multihop ဆက်တင်ဖြင့် ဤရွေးချယ်မှုကို ပြုလုပ်နိုင်သည်။</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
@@ -2562,9 +2761,14 @@ Do you want to remove the saved account number?</source>
         <target state="final">အဝင်ဆာဗာနှင့် အထွက်ဆာဗာသည် တစ်ခုတည်းဖြစ်၍မရပါ။ ဆာဗာသစ်တစ်ခု သို့မဟုတ် တည်နေရာအသစ်တစ်ခုသို့ ပြောင်းကြည့်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The entry server for %@ is currently overridden by %@. To select an entry server, please first enable “%@” or disable “%@” in the settings." xml:space="preserve" approved="yes">
-        <source>The entry server for %1$@ is currently overridden by %2$@. To select an entry server, please first enable “%3$@” or disable “%4$@” in the settings.</source>
-        <target state="final">လက်ရှိတွင် %1$@ အတွက် အဝင်ဆာဗာကို %2$@ က ကျော်လွန် ပယ်ဖျက်ထားပါသည်။ အဝင်ဆာဗာတစ်ခု ရွေးချယ်ရန် ဦးစွာ ဆက်တင်တွင် “%3$@” ကို ဖွင့်ပါ သို့မဟုတ် “%4$@“ ကို ပိတ်ပါ။</target>
+      <trans-unit id="The entry server is currently selected automatically to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
+        <source>The entry server is currently selected automatically to ensure your current settings work with your selected location.</source>
+        <target state="final">သင်၏ လက်ရှိဆက်တင်များမှာ သင်ရွေးချယ်ထားသော တည်နေရာနှင့် ကိုက်ညီကြောင်း သေချာစေရန် လက်ရှိတွင် အဝင်ဆာဗာကို အလိုအလျောက် ရွေးချယ်ပေးထားသည်။</target>
+        <note from="auto-generated">Description of the feature that automatically selects an entry server based on the user's location.</note>
+      </trans-unit>
+      <trans-unit id="The multihop mode “Always” now features an “Automatic” location for the entry server selection." xml:space="preserve" approved="yes">
+        <source>The multihop mode “Always” now features an “Automatic” location for the entry server selection.</source>
+        <target state="final">ယခုအခါ multihop မုဒ် “အမြဲတမ်း” တွင် အဝင်ဆာဗာ ရွေးချယ်မှုအတွက် “အလိုအလျောက်” တည်နေရာ ပါဝင်လာပါပြီ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
@@ -2602,6 +2806,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">ယခုအခါ ဤစက်ကို **%@**.ဟု အမည်ပေးထားသည်။ အကောင့်ရှိ "စက်များ စီမံရန်" အောက်တွင် ပိုမိုကြည့်ရှုပါ။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="This ensures your connection does not get blocked due to incompatible settings." xml:space="preserve" approved="yes">
+        <source>This ensures your connection does not get blocked due to incompatible settings.</source>
+        <target state="final">ဤနည်းအားဖြင့် မကိုက်ညီသော ဆက်တင်များကြောင့် သင့်ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမခံရစေရန် သေချာစေပါသည်။</target>
+        <note from="auto-generated">A description of the when-needed multihop feature.</note>
+      </trans-unit>
       <trans-unit id="This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc." xml:space="preserve" approved="yes">
         <source>This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</source>
         <target state="final">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</target>
@@ -2637,15 +2846,35 @@ Do you want to remove the saved account number?</source>
         <target state="final">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve">
+      <trans-unit id="This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
+        <source>This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location.</source>
+        <target state="final">သင်၏ လက်ရှိဆက်တင်များမှာ သင်ရွေးချယ်ထားသော တည်နေရာနှင့် ကိုက်ညီကြောင်း သေချာစေရန် လိုအပ်ပါက ဤမုဒ်သည် အက်ပ်အား ထပ်ဆောင်းဆာဗာမှတစ်ဆင့် အလိုအလျောက် multihop လုပ်ဆောင်ခွင့်ပြုပါသည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve" approved="yes">
         <source>This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</source>
-        <target state="needs-translation">This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</target>
+        <target state="final">ဤဆက်တင်သည် အက်ပ်က VPN ဆာဗာများသို့ IPv4 သို့မဟုတ် IPv6 ကို အသုံးပြု၍ ချိတ်ဆက်ခြင်းရှိ၊ မရှိ ထိန်းချုပ်ပေးသည်။ အလိုအလျောက် ဆက်တင်သည် နှစ်မျိုးစလုံးကို ရွေးချယ်ခွင့်ပေးထားသော်လည်း လက်ရှိတွင် အက်ပ်သည် IPv4 ကိုသာ အသုံးပြုပါမည်။</target>
         <note from="auto-generated">Description of a setting in the VPN settings screen that allows the user to choose between IPv4 and IPv6 connections.</note>
       </trans-unit>
       <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
         <source>This will also disable “%@“.</source>
         <target state="final">၎င်းက "%@" ကိုလည်း ပိတ်ပါမည်။</target>
         <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the %@ symbol" xml:space="preserve" approved="yes">
+        <source>This will be indicated by the %@ symbol</source>
+        <target state="final">၎င်းကို %@ သင်္ကေတဖြင့် ပြသပါမည်</target>
+        <note from="auto-generated">A description of the "When needed" feature, including a</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the %@ symbol." xml:space="preserve" approved="yes">
+        <source>This will be indicated by the %@ symbol.</source>
+        <target state="final">၎င်းကို %@ သင်္ကေတဖြင့် ပြသပါမည်။</target>
+        <note from="auto-generated">A description of what the when-needed symbol means. The symbol is a small, monochrome image that looks like a question mark with a slash through it.</note>
+      </trans-unit>
+      <trans-unit id="This will be indicated by the “Multihop when needed“ symbol" xml:space="preserve" approved="yes">
+        <source>This will be indicated by the “Multihop when needed“ symbol</source>
+        <target state="final">၎င်းကို “လိုအပ်သည့်အခါ Multihop လုပ်ဆောင်ရန်” သင်္ကေတဖြင့် ပြသပါမည်</target>
+        <note from="auto-generated">A description of the accessibility label for the multihop when needed icon.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
@@ -2671,6 +2900,16 @@ Do you want to remove the saved account number?</source>
         <source>To assist you better, please write in English or Swedish and include which country you are connecting from.</source>
         <target state="final">သင့်အား ပို၍ အကူအညီပေးနိုင်ရန် အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ရေးပြီး မည်သည့်နိုင်ငံမှ သင်ချိတ်ဆက်နေသည်ကို ထည့်သွင်းဖော်ပြပါ။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="To avoid getting blocked, we recommend that you set your multihop mode to “%@”." xml:space="preserve" approved="yes">
+        <source>To avoid getting blocked, we recommend that you set your multihop mode to “%@”.</source>
+        <target state="final">ပိတ်ဆို့ခြင်းမခံရစေရန်အတွက် သင့် multihop မုဒ်ကို “%@” ဟု သတ်မှတ်ရန် အကြံပြုပါသည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”." xml:space="preserve" approved="yes">
+        <source>To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”.</source>
+        <target state="final">အဝင်ဆာဗာကို ကိုယ်တိုင် မပြောင်းလဲရစေရန်အတွက် multihop အဝင်ဆာဗာကို “%@” ဟု သတ်မှတ်ရန် အကြံပြုပါသည်။</target>
+        <note from="auto-generated">A suggestion to set the multihop entry server to "Automatic". The argument is the string “Automatic”.</note>
       </trans-unit>
       <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve" approved="yes">
         <source>To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.</source>
@@ -2746,6 +2985,11 @@ Do you want to remove the saved account number?</source>
         <source>UDP</source>
         <target state="final">UDP</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="UDP over TCP" xml:space="preserve" approved="yes">
+        <source>UDP over TCP</source>
+        <target state="final">TCP မှတစ်ဆင့် UDP</target>
+        <note from="auto-generated">Description of a WireGuard obfuscation method when using UDP over TCP.</note>
       </trans-unit>
       <trans-unit id="UDP-over-TCP" xml:space="preserve" approved="yes">
         <source>UDP-over-TCP</source>
@@ -2922,15 +3166,40 @@ Do you want to remove the saved account number?</source>
         <target state="final">အသစ်ပါလာသော အကြောင်းအရာများ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="When multihop is set to “Always” or “Never” you must manually select a DAITA server." xml:space="preserve" approved="yes">
+        <source>When multihop is set to “Always” or “Never” you must manually select a DAITA server.</source>
+        <target state="final">multihop ကို “အမြဲတမ်း” သို့မဟုတ် “ဘယ်တော့မှ” ဟု သတ်မှတ်ထားချိန်တွင် DAITA ဆာဗာတစ်ခုကို ကိုယ်တိုင် ရွေးချယ်ရမည်။</target>
+        <note from="auto-generated">Description of a setting update when the multihop mode is set to "Always" or "Never" and a DAITA server must be manually selected.</note>
+      </trans-unit>
+      <trans-unit id="When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA." xml:space="preserve" approved="yes">
+        <source>When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA.</source>
+        <target state="final">multihop ကို “လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်” ဟု သတ်မှတ်ထားချိန်တွင် သင်ရွေးချယ်ထားသော တည်နေရာသို့ DAITA အသုံးပြု၍ ချိတ်ဆက်ထားကြောင်း သေချာစေရန် အက်ပ်က ထပ်ဆောင်းဆာဗာကို အသုံးပြုနိုင်သည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When needed" xml:space="preserve" approved="yes">
+        <source>When needed</source>
+        <target state="final">လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance." xml:space="preserve" approved="yes">
+        <source>When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</source>
+        <target state="final">ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်။</target>
+        <note from="auto-generated">Description of the automatic location in the multihop mode “Always”.</note>
+      </trans-unit>
+      <trans-unit id="When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance" xml:space="preserve" approved="yes">
+        <source>When the “Automatic” location is selected, the app automatically picks a random entry server, prioritizing those closer to the exit location for better performance</source>
+        <target state="final">“အလိုအလျောက်” တည်နေရာကို ရွေးချယ်ထားသည့်အခါ အက်ပ်သည် စွမ်းဆောင်ရည်ပိုကောင်းစေရန် အထွက်နေရာနှင့်ပိုနီးသော ဆာဗာများကို ဦးစားပေး၍ ကျပန်းအဝင်ဆာဗာတစ်ခုကို အလိုအလျောက် ရွေးချယ်သည်</target>
+        <note from="auto-generated">Description of a feature in the Automatic location section of the app.</note>
+      </trans-unit>
       <trans-unit id="When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." xml:space="preserve" approved="yes">
         <source>When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</source>
         <target state="final">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required." xml:space="preserve" approved="yes">
-        <source>When using DAITA, one provider with DAITA-enabled servers is required.</source>
-        <target state="final">DAITA ကိုအသုံးပြုသည့်အခါ DAITA ဖွင့်ထားသည့် ဆာဗာများရှိသော ပံ့ပိုးသူတစ်ဦး လိုအပ်ပါသည်။</target>
-        <note/>
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
+        <target state="final">DAITA ကို အသုံးပြုသည့်အခါ DAITA ဖွင့်ထားသော ဆာဗာများရှိသည့် ဝန်ဆောင်မှုပံ့ပိုးရေးစနစ်ကို လိုအပ်ပါသည်</target>
+        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
       </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
@@ -3003,6 +3272,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှု သို့မဟုတ် ဝက်ဘ်ဆိုက်မှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="You can buy time in the app, or you can go to our website where you can also redeem vouchers." xml:space="preserve" approved="yes">
+        <source>You can buy time in the app, or you can go to our website where you can also redeem vouchers.</source>
+        <target state="final">သင်သည် အက်ပ်ထဲတွင် သုံးစွဲချိန် ဝယ်ယူနိုင်သည် သို့မဟုတ် ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်သို့ သွားရောက်၍လည်း ဘောက်ချာများကို လဲလှယ်နိုင်သည်။</target>
+        <note from="auto-generated">Description of how users can purchase time for their Mullvad VPN account.</note>
+      </trans-unit>
       <trans-unit id="You can have up to 5 devices logged in on one Mullvad account." xml:space="preserve" approved="yes">
         <source>You can have up to 5 devices logged in on one Mullvad account.</source>
         <target state="final">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</target>
@@ -3017,6 +3291,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Apple ဝန်ဆောင်မှုများမှတစ်ဆင့် လုပ်ဆောင်သော အက်ပ်တွင်း ပေးချေမှုမှန်သမျှကို ရှာကြည့်ရန်အတွက် "ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်" လုပ်ဆောင်ချက်ကို သုံးနိုင်ပါသည်။ ငွေပေးချေမှုတစ်ခုခုအတွက် ရသင့်သည့် အချိန်ကို အကောင့်တွင် မထည့်သေးပါက ထိုသို့လုပ်ဆောင်ခြင်းဖြင့် လက်ရှိဝင်ရောက်ထားသော Mullvat အကောင့်တွင် အချိန်ထပ်တိုးပေးပါမည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
+        <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="final">လက်ရှိတွင် အဝင်နေရာ စစ်ထုတ်ချက်များကို အသုံးပြုထားသည်။ “%@“ သို့ ပြောင်းပါက အလိုအလျောက် ရွေးချယ်ထားသော အဝင်ဆာဗာအတွက် စစ်ထုတ်ချက် ဆက်တင်များကို အက်ပ်က လျစ်လျူရှုပါမည်။</target>
+        <note>Variable refers to multihop mode</note>
       </trans-unit>
       <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
         <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
@@ -3061,6 +3340,11 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">သင် မသိမ်းဆည်းရသေးသော ပြောင်းလဲမှုများ ရှိပါသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Your current filters were applied to both entry and exit locations." xml:space="preserve" approved="yes">
+        <source>Your current filters were applied to both entry and exit locations.</source>
+        <target state="final">သင်၏ လက်ရှိ စစ်ထုတ်ချက်များကို အဝင်နေရာနှင့် အထွက်နေရာ နှစ်ခုစလုံးအတွက် အသုံးပြုထားသည်။</target>
+        <note from="auto-generated">Text displayed in a notification when a user's settings have been updated, explaining that the change affected both entry and exit locations.</note>
+      </trans-unit>
       <trans-unit id="Your device" xml:space="preserve" approved="yes">
         <source>Your device</source>
         <target state="final">သင့်စက်</target>
@@ -3085,6 +3369,11 @@ We strongly believe in retaining as little data as possible because we want you 
         <source>Your email (optional)</source>
         <target state="final">သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Your multihop setting was migrated from “%@” to “%@”." xml:space="preserve" approved="yes">
+        <source>Your multihop setting was migrated from “%1$@” to “%2$@”.</source>
+        <target state="final">သင်၏ multihop ဆက်တင်ကို “%1$@” မှ “%2$@” သို့ ပြောင်းရွှေ့ထားသည်။</target>
+        <note from="auto-generated">A text describing a migration from one multihop setting to another. The first argument is the string “%arg”. The second argument is the string “%arg”.</note>
       </trans-unit>
       <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
         <source>Your previous purchases have already been added to this account.</source>
@@ -3116,6 +3405,11 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ဇူးရစ်ချ်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="changing mode" xml:space="preserve" approved="yes">
+        <source>changing mode</source>
+        <target state="final">မုဒ်ပြောင်းနေသည်</target>
+        <note>Multihop mode</note>
+      </trans-unit>
       <trans-unit id="disable" xml:space="preserve" approved="yes">
         <source>disable</source>
         <target state="final">ပိတ်ရန်</target>
@@ -3126,10 +3420,25 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ဖွင့်ရန်</target>
         <note from="auto-generated">The action to perform when continuing.</note>
       </trans-unit>
+      <trans-unit id="enabling DAITA" xml:space="preserve" approved="yes">
+        <source>enabling DAITA</source>
+        <target state="final">DAITA ကို ဖွင့်နေသည်</target>
+        <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
+      </trans-unit>
+      <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
+        <source>iOS features known to be affected:</source>
+        <target state="final">iOS လုပ်ဆောင်ချက်များ ထိခိုက်နိုင်ကြောင်း သိရှိရသည်-</target>
+        <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
         <target state="final">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="selecting this method" xml:space="preserve" approved="yes">
+        <source>selecting this method</source>
+        <target state="final">ဤနည်းလမ်းကို ရွေးချယ်နေသည်</target>
+        <note>Obfuscation method</note>
       </trans-unit>
       <trans-unit id="value" xml:space="preserve" approved="yes">
         <source>value</source>
@@ -3145,6 +3454,11 @@ We strongly believe in retaining as little data as possible because we want you 
         <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
         <target state="final">"%@" ကို ဖွင့်ထားသည်၊ အပ်ဒိတ်မလုပ်မီ ၎င်းကို ပိတ်ပါ သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်ပါ၊ သို့မဟုတ်ပါက ကွန်ရက်ချိတ်ဆက်နိုင်စွမ်း ဆုံးရှုံးပါမည်။</target>
         <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“Direct only” removed" xml:space="preserve" approved="yes">
+        <source>“Direct only” removed</source>
+        <target state="final">“တိုက်ရိုက်သာ” ကို ဖယ်ရှားထားသည်</target>
+        <note from="auto-generated">Description of a settings update when the "Direct only" option is removed from the multihop settings.</note>
       </trans-unit>
     </body>
   </file>

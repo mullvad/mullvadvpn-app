@@ -44,10 +44,11 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
                 title: NSLocalizedString("RESOLVE CONNECTION ISSUES", comment: ""),
                 body: createNotificationBody(
                     [
-                        """
-                        Some of your settings have been migrated, please review the changes and resolve any issues.
-                        """,
-                        "**Tap here to read more**",
+                        NSLocalizedString(
+                            """
+                            Some of your settings have been migrated, please review the changes and resolve any issues.
+                            """, comment: ""),
+                        NSLocalizedString("**Tap here to read more**", comment: ""),
                     ].joinedParagraphs(lineBreaks: 1)),
                 button: createCloseButtonAction(),
                 tapAction: createTapAction())
@@ -58,8 +59,9 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
                 title: NSLocalizedString("SETTINGS MIGRATED", comment: ""),
                 body: createNotificationBody(
                     [
-                        "Some of your settings have been migrated, please review the changes.",
-                        "**Tap here to read more**",
+                        NSLocalizedString(
+                            "Some of your settings have been migrated, please review the changes.", comment: ""),
+                        NSLocalizedString("**Tap here to read more**", comment: ""),
                     ].joinedParagraphs(lineBreaks: 1)),
                 button: createCloseButtonAction(),
                 tapAction: createTapAction())
