@@ -1,9 +1,9 @@
 import { useScrollPositionContext } from '../../../ScrollPositionContext';
-import { useSelectLocationSelectorContext } from '../SelectLocationSelectorContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useIsLocationSelectorExpanded(): boolean {
   const { scrollTop } = useScrollPositionContext();
-  const { isolatedItem } = useSelectLocationSelectorContext();
+  const { isolatedItem } = useSelectLocationViewContext();
 
   if (isolatedItem !== undefined) {
     return false;

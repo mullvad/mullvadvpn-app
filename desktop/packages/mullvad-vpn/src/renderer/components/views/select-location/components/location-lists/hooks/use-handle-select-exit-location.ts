@@ -1,4 +1,4 @@
-import React, { startTransition } from 'react';
+import React from 'react';
 
 import { RoutePath } from '../../../../../../../shared/routes';
 import { useAppContext } from '../../../../../../context';
@@ -9,35 +9,55 @@ import { waitForAnimations } from '../../../../../../lib/utils';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectExitLocation() {
-  const { exitLocationListsContainerRef, searchTerm } = useSelectLocationViewContext();
+  const { exitLocationListsContainerRef, searchTerm, setIsolatedItem, setSearchTerm } =
+    useSelectLocationViewContext();
   const { selectExitRelayLocation } = useRelayLocations();
   const history = useHistory();
   const { connectTunnel } = useAppContext();
 
   const handleSelectExitLocation = React.useCallback(
-    async (location: AnyLocation) => {
+    (location: AnyLocation) => {
       if (!searchTerm) {
-        history.push(RoutePath.main, {
-          transition: TransitionType.dismiss,
+        React.startTransition(async () => {
+          await selectExitRelayLocation(location.details);
+          await waitForAnimations(exitLocationListsContainerRef.current);
+
+          React.startTransition(async () => {
+            history.push(RoutePath.main, {
+              transition: TransitionType.dismiss,
+            });
+            await connectTunnel();
+          });
         });
-        await selectExitRelayLocation(location.details);
-        await connectTunnel();
       } else {
         // When the user selects an `exit` location from a search we want to
         // wait for the location to be marked as selected in the list before
         // we go to the `main` Route. This is added to mirror the behavior of
         // the `entry` selection handler.
-        startTransition(async () => {
+        React.startTransition(async () => {
           await selectExitRelayLocation(location.details);
+          setSearchTerm('');
+          setIsolatedItem(undefined);
           await waitForAnimations(exitLocationListsContainerRef.current);
-          history.push(RoutePath.main, {
-            transition: TransitionType.dismiss,
+
+          React.startTransition(async () => {
+            history.push(RoutePath.main, {
+              transition: TransitionType.dismiss,
+            });
+            await connectTunnel();
           });
-          await connectTunnel();
         });
       }
     },
-    [connectTunnel, exitLocationListsContainerRef, history, searchTerm, selectExitRelayLocation],
+    [
+      connectTunnel,
+      exitLocationListsContainerRef,
+      history,
+      searchTerm,
+      selectExitRelayLocation,
+      setIsolatedItem,
+      setSearchTerm,
+    ],
   );
 
   return handleSelectExitLocation;

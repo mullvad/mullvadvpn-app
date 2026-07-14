@@ -1,35 +1,33 @@
 import React from 'react';
 
+import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 import { useSelectLocationSelectorItemContext } from '../SelectLocationSelectorItemContext';
+import { useFocusFirstFocusableHeading } from './use-focus-first-focusable-heading';
+import { useHandleReset } from './use-handle-reset';
 
 export function useHandleInputKeyDown() {
   const {
-    triggerRef,
-    focused,
-    setFocused,
-    textField: { reset },
+    setSearching,
+    textField: { value },
   } = useSelectLocationSelectorItemContext();
-
-  const focusFirstFocusableHeading = React.useCallback(() => {
-    const firstFocusableHeading = document.querySelector<HTMLElement>('[data-focusable-heading]');
-    firstFocusableHeading?.focus();
-  }, []);
+  const { setSearchTerm } = useSelectLocationViewContext();
+  const handleReset = useHandleReset();
+  const focusFirstFocusableHeading = useFocusFirstFocusableHeading();
 
   return React.useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
         event.preventDefault();
+        setSearchTerm(value);
+        setSearching(false);
         focusFirstFocusableHeading();
       }
+
       if (event.key === 'Escape') {
         event.preventDefault();
-        if (focused) {
-          reset();
-          setFocused(false);
-          triggerRef.current?.focus();
-        }
+        handleReset();
       }
     },
-    [focusFirstFocusableHeading, focused, reset, setFocused, triggerRef],
+    [setSearchTerm, value, setSearching, focusFirstFocusableHeading, handleReset],
   );
 }

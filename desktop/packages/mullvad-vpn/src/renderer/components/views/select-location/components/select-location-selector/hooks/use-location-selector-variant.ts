@@ -1,10 +1,10 @@
 import { useMultihop } from '../../../../../../features/multihop/hooks';
 import { LocationSelectorVariant } from '../../../../../../lib/components/location-selector';
-import { useSelectLocationSelectorContext } from '../SelectLocationSelectorContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useLocationSelectorVariant(): LocationSelectorVariant {
   const { multihop } = useMultihop();
-  const { isolatedItem } = useSelectLocationSelectorContext();
+  const { isolatedItem } = useSelectLocationViewContext();
 
   if (isolatedItem) {
     return 'primary';

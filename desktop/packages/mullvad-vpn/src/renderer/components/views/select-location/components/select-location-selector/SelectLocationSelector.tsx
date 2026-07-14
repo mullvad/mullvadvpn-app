@@ -10,9 +10,8 @@ import {
   useShowSelectLocationSelectorEntryItem,
   useShowSelectLocationSelectorExitItem,
 } from './hooks';
-import { SelectLocationSelectorProvider } from './SelectLocationSelectorContext';
 
-function SelectLocationSelectorImpl() {
+export function SelectLocationSelector() {
   const { locationType } = useSelectLocationViewContext();
   const expanded = useIsLocationSelectorExpanded();
   const handleSelectedItemChange = useHandleSelectedItemChange();
@@ -50,13 +49,5 @@ function SelectLocationSelectorImpl() {
         <LocationSelector.Row.Label>{messages.gettext('Internet')}</LocationSelector.Row.Label>
       </LocationSelector.Row>
     </LocationSelector>
-  );
-}
-
-export function SelectLocationSelector() {
-  return (
-    <SelectLocationSelectorProvider>
-      <SelectLocationSelectorImpl />
-    </SelectLocationSelectorProvider>
   );
 }

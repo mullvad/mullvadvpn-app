@@ -1,7 +1,7 @@
-import { useSelectLocationSelectorContext } from '../SelectLocationSelectorContext';
+import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useShowSelectLocationSelectorExitItem() {
-  const { isolatedItem } = useSelectLocationSelectorContext();
+  const { isolatedItem } = useSelectLocationViewContext();
 
   const showSelectLocationSelectorExitItem = isolatedItem !== 'entry';
 
