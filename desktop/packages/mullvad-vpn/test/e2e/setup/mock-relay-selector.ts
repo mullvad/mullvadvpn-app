@@ -15,6 +15,7 @@ import {
   RelaySelectorPredicateEntryConstraints,
   RelaySelectorProvider,
   RelaySelectorRelayDiscardWhy,
+  RelaySelectorRelayMatch,
 } from '../../../src/shared/relay-selector-rpc-types';
 
 function getDiscardCausedByAntiCensorship(
@@ -235,9 +236,14 @@ export function getRelayPartitions(
         };
       }
 
+      const relayMatch: RelaySelectorRelayMatch = {
+        relay: { hostname },
+        metadata: { needsOtherEntry: false },
+      };
+
       return {
         ...partitions,
-        matches: [...partitions.matches, { hostname, needsOtherEntry: false }],
+        matches: [...partitions.matches, relayMatch],
       };
     },
     {

@@ -38,8 +38,13 @@ export type RelaySelectorRelay = {
   hostname: string;
 };
 
-export type RelaySelectorRelayMatch = RelaySelectorRelay & {
+export type RelaySelectorMetadata = {
   needsOtherEntry: boolean;
+};
+
+export type RelaySelectorRelayMatch = {
+  relay: RelaySelectorRelay;
+  metadata: RelaySelectorMetadata;
 };
 
 export type RelaySelectorPartitions = {
