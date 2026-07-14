@@ -6,42 +6,26 @@ environment.
 
 ## Build process
 
-The build process consist of two main steps. First building the native libraries (`mullvad-daemon`)
-and then building the Android app/project which will bundle the previously built native libraries.
+The app uses Gradle to build the app. It also relies on native libraries (`mullvad-daemon`).
+Building these is included in the gradle build process using the [rust-android-gradle](https://github.com/mullvad/rust-android-gradle) plugin.
 Building the native libraries requires some specific toolchains and packages to be installed, so
 it's recommended to build using the provided build script and container image.
-
-The native libraries doesn't have to be rebuilt very often, only when including daemon changes or
-after cleaning the project, so apart from that it's possible to build the Android app/project using
-the Gradle CLI or the Android Studio GUI.
 
 ## Build with provided container (recommended)
 
 > __*NOTE:*__ Build with provided container is only supported on Linux and may not work on other
 > platforms.
 
-Building both the native libraries and Android project can easily be achieved by running the
+Building the the app can easily be done by running the
 [containerized-build.sh](../../building/containerized-build.sh) script, which helps using the correct
 tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
 by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
 can be used by setting the `CONTAINER_RUNNER` environment variable.
 
-After the native libraries have been built, subsequent builds can that doesn't rely on changes to
-the native libraries can be ran using the Gradle CLI or the Android Studio GUI. This requires
-either:
-* Rust to be installed, since a tooled called `mullvad-version` is used to resolved the version
-  information for the Android app.
-
-or
-
-* Specifying custom version information by following [these instructions](#override-version-code-and-version-name).
-
 ### Setup:
 
 - Install [podman](https://podman.io/getting-started/installation.html) and make sure it's
   configured to run in rootless mode.
-
-- OPTIONAL: Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
 ### Debug build
 Run the following command to trigger a full debug build:
