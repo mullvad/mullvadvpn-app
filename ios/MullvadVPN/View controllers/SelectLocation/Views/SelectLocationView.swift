@@ -32,7 +32,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         // down of the scrolling during the animation. Instead of changing the size of the scroll
         // view, the top margin of the content is changed which solves the animation issues.
         ZStack(alignment: .topLeading) {
-            VStack(spacing: 16) {
+            VStack(spacing: 0) {
                 MultihopSelectionView(
                     hops: (viewModel.isMultihopActive ? MultihopContext.allCases : [MultihopContext.exit])
                         .map {
@@ -69,7 +69,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 .padding(.horizontal, 16)
                 if headerIsExpanded {
                     VStack {
-                        if viewModel.multihopContext == .entry && viewModel.multihopState != .whenNeeded {
+                        if !viewModel.visibleFilterChips.isEmpty {
+                            Spacer().frame(height: 16)
+                        }
+                        if viewModel.multihopContext == .entry {
                             activeFilterView(locationContext: viewModel.entryContext, transition: .move(edge: .leading))
                         } else {
                             activeFilterView(locationContext: viewModel.exitContext, transition: .move(edge: .trailing))
@@ -80,7 +83,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     )
                 }
             }
-            .padding(.vertical)
+            .padding(.vertical, 8)
             .background(Color.mullvadDarkBackground)
             .zIndex(1)
             .sizeOfView { size in

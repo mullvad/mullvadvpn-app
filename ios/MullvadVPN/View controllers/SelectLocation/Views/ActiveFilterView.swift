@@ -18,38 +18,40 @@ struct ActiveFilterView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: sortedFilters.isEmpty ? 8 : 16) {
             ScrollView(.horizontal) {
-                HStack {
-                    ForEach(sortedFilters, id: \.hashValue) { filter in
-                        Button {
-                            onSelect(filter)
-                        } label: {
-                            HStack {
-                                Text(filter.labelText(style: labelStyle))
-                                    .foregroundStyle(
-                                        automaticLocationIsActive && filter.isOverriddenByAutomaticLocation
-                                            ? Color.MullvadText.disabled
-                                            : Color.mullvadTextPrimary
-                                    )
-                                if filter.isRemovable {
-                                    Button {
-                                        onRemove(filter)
-                                    } label: {
-                                        ResizableImageView(image: .mullvadIconCross, dimension: .width(18))
+                if !activeFilter.isEmpty {
+                    HStack {
+                        ForEach(sortedFilters, id: \.hashValue) { filter in
+                            Button {
+                                onSelect(filter)
+                            } label: {
+                                HStack {
+                                    Text(filter.labelText(style: labelStyle))
+                                        .foregroundStyle(
+                                            automaticLocationIsActive && filter.isOverriddenByAutomaticLocation
+                                                ? Color.MullvadText.disabled
+                                                : Color.mullvadTextPrimary
+                                        )
+                                    if filter.isRemovable {
+                                        Button {
+                                            onRemove(filter)
+                                        } label: {
+                                            ResizableImageView(image: .mullvadIconCross, dimension: .width(18))
+                                        }
+                                        .accessibilityIdentifier(.relayFilterChipCloseButton)
                                     }
-                                    .accessibilityIdentifier(.relayFilterChipCloseButton)
+                                }
+                                .font(.mullvadMiniSemiBold)
+                                .padding(8)
+                                .background {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .foregroundStyle(Color.MullvadButton.primary)
                                 }
                             }
-                            .font(.mullvadMiniSemiBold)
-                            .padding(8)
-                            .background {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .foregroundStyle(Color.MullvadButton.primary)
-                            }
+                            .accessibilityIdentifier(filter.accessibilityIdentifier)
                         }
-                        .accessibilityIdentifier(filter.accessibilityIdentifier)
                     }
+                    .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 16)
             }
             .scrollIndicators(.never)
 
