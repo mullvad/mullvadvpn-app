@@ -56,12 +56,14 @@ jobs:
         id: build-tasks
         run: |
           tasks=":app:assemblePlayStagemoleDebug :test:benchmark:assemble"
+          properties="-Pmullvad.app.build.cargo.forceReleaseBuild=true"
           echo "tasks=$tasks" >> $GITHUB_OUTPUT
+          echo "properties=$properties" >> $GITHUB_OUTPUT
 
       - name: Build apks
         run: >
           ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
-          "${{ steps.build-tasks.outputs.tasks }}"
+          "${{ steps.build-tasks.outputs.tasks }} ${{ steps.build-tasks.outputs.properties }}"
 
       - name: Upload apks
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
