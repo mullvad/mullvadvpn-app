@@ -47,7 +47,7 @@ zerocopy = { workspace = true, features = ["derive"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.150"
-nix = { workspace = true, features = ["fs", "socket"] }
+nix = { workspace = true, features = ["fs"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"

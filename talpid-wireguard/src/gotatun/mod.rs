@@ -21,25 +21,15 @@ use gotatun::{
     },
     x25519::StaticSecret,
 };
-#[cfg(target_os = "android")]
-use gotatun::{
-    packet::{Packet, PacketBufPool},
-    udp::{UdpRecv, UdpSend},
-};
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
-use nix::sys::socket::{MsgFlags, MultiHeaders, SockaddrStorage};
+use std::os::fd::IntoRawFd;
 use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
     sync::{Arc, Mutex},
-};
-#[cfg(target_os = "android")]
-use std::{
-    io::{self, IoSlice},
-    os::fd::{AsFd, AsRawFd, BorrowedFd, IntoRawFd},
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
@@ -57,9 +47,6 @@ mod obfuscation;
 
 use conversions::to_gotatun_peer;
 use obfuscation::MaybeObfuscatingTransportFactory;
-
-#[cfg(target_os = "android")]
-const ANDROID_UDP_MAX_PACKET_COUNT: usize = 100;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -217,222 +204,22 @@ struct AndroidUdpSocketFactory {
 
 #[cfg(target_os = "android")]
 impl UdpTransportFactory for AndroidUdpSocketFactory {
-    type SendV4 = AndroidUdpSocket;
-    type SendV6 = AndroidUdpSocket;
-    type RecvV4 = AndroidUdpSocket;
-    type RecvV6 = AndroidUdpSocket;
+    type SendV4 = <UdpSocketFactory as UdpTransportFactory>::SendV4;
+    type SendV6 = <UdpSocketFactory as UdpTransportFactory>::SendV6;
+    type RecvV4 = <UdpSocketFactory as UdpTransportFactory>::RecvV4;
+    type RecvV6 = <UdpSocketFactory as UdpTransportFactory>::RecvV6;
 
     async fn bind(
         &mut self,
         params: &gotatun::udp::UdpTransportFactoryParams,
     ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let (udp_v4_tx, udp_v6_tx) = bind_android_udp_sockets(params, &self.udp)?;
+        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.udp.bind(params).await?;
 
-        self.tun
-            .bypass(&udp_v4_tx)
-            .map_err(|error| io::Error::other(error.to_string()))?;
-        self.tun
-            .bypass(&udp_v6_tx)
-            .map_err(|error| io::Error::other(error.to_string()))?;
-
-        let udp_v4_rx = udp_v4_tx.clone();
-        let udp_v6_rx = udp_v6_tx.clone();
+        self.tun.bypass(&udp_v4_tx).unwrap();
+        self.tun.bypass(&udp_v6_tx).unwrap();
 
         Ok(((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)))
     }
-}
-
-#[cfg(target_os = "android")]
-#[derive(Clone)]
-struct AndroidUdpSocket {
-    inner: Arc<tokio::net::UdpSocket>,
-}
-
-#[cfg(target_os = "android")]
-impl AndroidUdpSocket {
-    fn bind(addr: std::net::SocketAddr, factory: &UdpSocketFactory) -> io::Result<Self> {
-        let domain = match addr {
-            std::net::SocketAddr::V4(..) => socket2::Domain::IPV4,
-            std::net::SocketAddr::V6(..) => socket2::Domain::IPV6,
-        };
-
-        let socket =
-            socket2::Socket::new(domain, socket2::Type::DGRAM, Some(socket2::Protocol::UDP))?;
-        socket.set_nonblocking(true)?;
-        socket.set_reuse_address(true)?;
-
-        if let Some(recv_buffer_size) = factory.recv_buffer_size
-            && let Err(error) = socket.set_recv_buffer_size(recv_buffer_size)
-        {
-            if cfg!(debug_assertions) {
-                return Err(error);
-            }
-            log::error!("Failed to change UDP socket receive buffer size: {error}");
-        }
-
-        if let Some(send_buffer_size) = factory.send_buffer_size
-            && let Err(error) = socket.set_send_buffer_size(send_buffer_size)
-        {
-            if cfg!(debug_assertions) {
-                return Err(error);
-            }
-            log::error!("Failed to change UDP socket send buffer size: {error}");
-        }
-
-        socket.bind(&socket2::SockAddr::from(addr))?;
-        let socket = tokio::net::UdpSocket::from_std(socket.into())?;
-
-        Ok(Self {
-            inner: Arc::new(socket),
-        })
-    }
-
-    fn local_addr(&self) -> io::Result<std::net::SocketAddr> {
-        self.inner.local_addr()
-    }
-}
-
-#[cfg(target_os = "android")]
-impl AsFd for AndroidUdpSocket {
-    fn as_fd(&self) -> BorrowedFd<'_> {
-        self.inner.as_fd()
-    }
-}
-
-#[cfg(target_os = "android")]
-impl UdpSend for AndroidUdpSocket {
-    type SendManyBuf = AndroidSendmmsgBuf;
-
-    async fn send_to(&self, packet: Packet, destination: std::net::SocketAddr) -> io::Result<()> {
-        self.inner.send_to(&packet, destination).await?;
-        Ok(())
-    }
-
-    async fn send_many_to(
-        &self,
-        buf: &mut AndroidSendmmsgBuf,
-        packets: &mut Vec<(Packet, std::net::SocketAddr)>,
-    ) -> io::Result<()> {
-        debug_assert!(packets.len() <= ANDROID_UDP_MAX_PACKET_COUNT);
-        if packets.len() > ANDROID_UDP_MAX_PACKET_COUNT {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                format!(
-                    "send_many_to: Number of packets may not exceed {ANDROID_UDP_MAX_PACKET_COUNT}"
-                ),
-            ));
-        }
-
-        let socket = &self.inner;
-        let fd = socket.as_raw_fd();
-
-        buf.targets.clear();
-
-        let mut packets_buf = [[IoSlice::new(&[])]; ANDROID_UDP_MAX_PACKET_COUNT];
-        for ((packet, target), packets_buf) in packets.iter().zip(&mut packets_buf) {
-            buf.targets.push(Some(SockaddrStorage::from(*target)));
-            *packets_buf = [IoSlice::new(&packet[..])];
-        }
-
-        let len = buf.targets.len();
-        let pkts = &packets_buf[..len];
-        let mut packet_buf_start = 0;
-        while packet_buf_start < len {
-            let result = socket
-                .async_io(tokio::io::Interest::WRITABLE, || {
-                    let mut multiheaders =
-                        MultiHeaders::preallocate(pkts[packet_buf_start..].len(), None);
-                    let multiresult = nix::sys::socket::sendmmsg(
-                        fd,
-                        &mut multiheaders,
-                        &pkts[packet_buf_start..],
-                        &buf.targets[packet_buf_start..],
-                        [],
-                        MsgFlags::MSG_DONTWAIT,
-                    )?;
-                    Ok(multiresult.count())
-                })
-                .await;
-            let n = result?;
-            packet_buf_start += n;
-        }
-
-        packets.clear();
-        Ok(())
-    }
-
-    fn max_number_of_packets_to_send(&self) -> usize {
-        ANDROID_UDP_MAX_PACKET_COUNT
-    }
-
-    fn local_addr(&self) -> io::Result<Option<std::net::SocketAddr>> {
-        AndroidUdpSocket::local_addr(self).map(Some)
-    }
-}
-
-#[cfg(target_os = "android")]
-#[derive(Default)]
-struct AndroidSendmmsgBuf {
-    targets: Vec<Option<SockaddrStorage>>,
-}
-
-#[cfg(target_os = "android")]
-impl UdpRecv for AndroidUdpSocket {
-    type RecvManyBuf = ();
-
-    async fn recv_from(
-        &mut self,
-        pool: &mut PacketBufPool,
-    ) -> io::Result<(Packet, std::net::SocketAddr)> {
-        let mut packet = pool.get();
-        let (length, source) = self.inner.recv_from(&mut packet).await?;
-        packet.truncate(length);
-        Ok((packet, source))
-    }
-}
-
-#[cfg(target_os = "android")]
-fn bind_android_udp_sockets(
-    params: &gotatun::udp::UdpTransportFactoryParams,
-    factory: &UdpSocketFactory,
-) -> io::Result<(AndroidUdpSocket, AndroidUdpSocket)> {
-    let udp_v4 = AndroidUdpSocket::bind((params.addr_v4, params.port).into(), factory)?;
-
-    match params.port {
-        0 => bind_android_ipv6_with_retry(params.addr_v4, params.addr_v6, udp_v4, factory),
-        port => {
-            let udp_v6 = AndroidUdpSocket::bind((params.addr_v6, port).into(), factory)?;
-            Ok((udp_v4, udp_v6))
-        }
-    }
-}
-
-#[cfg(target_os = "android")]
-fn bind_android_ipv6_with_retry(
-    addr_v4: Ipv4Addr,
-    addr_v6: Ipv6Addr,
-    mut udp_v4: AndroidUdpSocket,
-    factory: &UdpSocketFactory,
-) -> io::Result<(AndroidUdpSocket, AndroidUdpSocket)> {
-    const MAX_RETRIES: u32 = 10;
-
-    let mut port = udp_v4.local_addr()?.port();
-    let mut retries = 0u32;
-
-    let udp_v6 = loop {
-        match AndroidUdpSocket::bind((addr_v6, port).into(), factory) {
-            Ok(socket) => break socket,
-            Err(error) if error.kind() == io::ErrorKind::AddrInUse && retries < MAX_RETRIES => {
-                retries += 1;
-                log::debug!("IPv6 port {port} already in use, retrying ({retries}/{MAX_RETRIES})");
-                udp_v4 = AndroidUdpSocket::bind((addr_v4, 0).into(), factory)?;
-                port = udp_v4.local_addr()?.port();
-            }
-            Err(error) => return Err(error),
-        }
-    };
-
-    Ok((udp_v4, udp_v6))
 }
 
 /// Configure and start a gotatun tunnel.
