@@ -25,6 +25,10 @@ const GlobalStyle = createGlobalStyle`
       ...fontWeights,
       ...lineHeights,
     }).reduce((styleString, [key, value]) => ({ ...styleString, [key]: value }), {})}
+
+    // Keep the app's own theme under Windows forced-colors (high contrast) mode, since it
+    // otherwise strips colors from custom-styled controls like the switch, making them invisible.
+    forced-color-adjust: none;
   }
 
   body {
