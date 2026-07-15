@@ -1663,7 +1663,7 @@ impl Daemon {
             #[cfg(target_os = "android")]
             DeleteAccount(tx) => self.on_delete_account(tx),
             GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
-            DeleteMultihopMigration => self.on_delete_multihop_migration(),
+            DeleteMultihopMigration => self.on_delete_multihop_migration().await,
         }
     }
 
@@ -3533,8 +3533,13 @@ impl Daemon {
         Self::oneshot_send(tx, scenario, "split-filter / multihop migration scenario");
     }
 
-    fn on_delete_multihop_migration(&mut self) {
-        todo!()
+    async fn on_delete_multihop_migration(&mut self) {
+        if let Err(err) = delete_split_filter_migration_scenario(&self.cache_dir).await {
+            let err = err.display_chain_with_msg(
+                "Error while deleting split-filter / multihop migration scenario",
+            );
+            log::error!("{err}");
+        }
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
@@ -3682,5 +3687,16 @@ async fn read_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> Op
             log::error!("{err}");
             None
         }
+    }
+}
+
+/// Delete [Scenario] from disk after [persist_split_filter_migration_scenario] has been called at
+/// least once.
+async fn delete_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> io::Result<()> {
+    match tokio::fs::remove_file(cache_dir.as_ref().join(migrations::multihop::CACHE)).await {
+        Ok(()) => Ok(()),
+        // It's fine if the file has already been deleted once.
+        Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err),
     }
 }
