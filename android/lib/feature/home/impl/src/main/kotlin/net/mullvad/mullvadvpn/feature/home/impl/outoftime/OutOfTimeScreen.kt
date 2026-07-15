@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.feature.home.impl.outoftime
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,6 +62,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Disconnected|Connecting|Error|Loading")
 @Composable
@@ -82,7 +85,11 @@ private fun PreviewOutOfTimeScreen(
 
 @Composable
 fun OutOfTime(navigator: Navigator) {
-    val vm = koinViewModel<OutOfTimeViewModel>()
+    val activity = LocalActivity.current as ComponentActivity
+    val vm =
+        koinViewModel<OutOfTimeViewModel> {
+            parametersOf(activity.lifecycle)
+        }
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
