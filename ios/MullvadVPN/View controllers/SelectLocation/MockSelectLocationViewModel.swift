@@ -181,6 +181,18 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         customListName: String
     ) {}
 
+    func fetch(by id: UUID) -> CustomList? { nil }
+
+    func fetchAll() -> [CustomList] { [] }
+
+    func save(list: CustomList) throws {}
+
+    func delete(customList: CustomList) {}
+
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {}
+
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws {}
+
     func deleteCustomList(name: String) {}
 
     func showEditCustomList(name: String) {}

@@ -106,10 +106,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: CustomListInteractor(
-                tunnelManager: tunnelManager,
-                repository: customListRepository
-            ),
+            interactor: selectLocationViewModel,
             nodes: nodes
         )
 
@@ -125,17 +122,23 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private func showEditCustomLists(nodes: [LocationNode]) {
         let coordinator = ListCustomListCoordinator(
             navigationController: InterceptibleNavigationController(),
-            interactor: CustomListInteractor(
-                tunnelManager: tunnelManager,
-                repository: customListRepository
-            ),
+            interactor: selectLocationViewModel,
             tunnelManager: tunnelManager,
-            nodes: nodes
+            nodes: nodes,
         )
 
-        coordinator.didFinish = { [weak self] listCustomListCoordinator in
+        coordinator.didFinish = { [weak self] listCustomListCoordinator, action in
+            guard let self else { return }
             listCustomListCoordinator.dismiss(animated: true)
-            self?.selectLocationViewModel?.customListsChanged()
+
+            switch action {
+            case .didDelete(let list):
+                self.selectLocationViewModel.delete(customList: list)
+            case .didSave(let list):
+                try? self.selectLocationViewModel.save(list: list)
+            case .noAction:
+                self.selectLocationViewModel.customListsChanged()
+            }
         }
 
         coordinator.start()
@@ -147,10 +150,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private func showEditCustomList(list: CustomList, nodes: [LocationNode]) {
         let coordinator = EditCustomListCoordinator(
             navigationController: InterceptibleNavigationController(),
-            customListInteractor: CustomListInteractor(
-                tunnelManager: tunnelManager,
-                repository: customListRepository
-            ),
+            customListInteractor: selectLocationViewModel,
             customList: list,
             nodes: nodes
         )

@@ -22,7 +22,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: ((ListCustomListCoordinator) -> Void)?
+    var didFinish: ((ListCustomListCoordinator, CustomListAction) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -39,9 +39,9 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        listViewController.didFinish = { [weak self] in
+        listViewController.didFinish = { [weak self] action in
             guard let self else { return }
-            didFinish?(self)
+            didFinish?(self, action)
         }
         listViewController.didSelectItem = { [weak self] in
             self?.edit(list: $0)
@@ -58,16 +58,16 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, action in
             guard let self else { return }
 
-            popToList()
+            popToList(action)
             editCustomListCoordinator.removeFromParent()
         }
 
-        coordinator.didCancel = { [weak self] editCustomListCoordinator in
+        coordinator.didCancel = { [weak self] editCustomListCoordinator, action in
             guard let self else { return }
-            popToList()
+            popToList(action)
             editCustomListCoordinator.removeFromParent()
         }
 
@@ -75,10 +75,10 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         addChild(coordinator)
     }
 
-    private func popToList() {
+    private func popToList(_ action: CustomListAction) {
         if interactor.fetchAll().isEmpty {
             navigationController.dismiss(animated: true)
-            didFinish?(self)
+            didFinish?(self, action)
         } else if let listController = navigationController.viewControllers
             .first(where: { $0 is ListCustomListViewController })
         {

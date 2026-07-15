@@ -5,7 +5,7 @@ import MullvadTypes
 import SwiftUI
 
 @MainActor
-protocol SelectLocationViewModel: ObservableObject {
+protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol {
     var exitContext: LocationContext { get set }
     var entryContext: LocationContext { get set }
     var multihopContext: MultihopContext { get set }
@@ -274,6 +274,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
     }
 
+    func fetchAllCustomLists() -> [CustomList] {
+        customListInteractor.fetchAll()
+    }
+
     func deleteCustomList(name: String) {
         guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
             return
@@ -315,6 +319,35 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 relayLocations: location.locations,
                 customListName: customListName
             )
+        customListsChanged()
+    }
+
+    func fetch(by id: UUID) -> CustomList? {
+        customListInteractor.fetch(by: id)
+    }
+
+    func fetchAll() -> [CustomList] {
+        customListInteractor.fetchAll()
+    }
+
+    func save(list: CustomList) throws {
+        try customListInteractor.save(list: list)
+        customListsChanged()
+    }
+
+    func delete(customList: CustomList) {
+        customListInteractor.delete(customList: customList)
+        customListsChanged()
+    }
+
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.addLocationToCustomList(relayLocations: relayLocations, customListName: customListName)
+        customListsChanged()
+    }
+
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.removeLocationFromCustomList(
+            relayLocations: relayLocations, customListName: customListName)
         customListsChanged()
     }
 

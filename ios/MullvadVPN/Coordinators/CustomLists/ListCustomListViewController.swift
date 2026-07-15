@@ -35,7 +35,7 @@ class ListCustomListViewController: UIViewController {
     private var fetchedItems: [CustomList] = []
     private var tableView = UITableView(frame: .zero, style: .plain)
     var didSelectItem: ((CustomList) -> Void)?
-    var didFinish: (() -> Void)?
+    var didFinish: ((CustomListAction) -> Void)?
 
     init(interactor: CustomListInteractorProtocol) {
         self.interactor = interactor
@@ -97,7 +97,7 @@ class ListCustomListViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
             primaryAction: UIAction(handler: { [weak self] _ in
-                self?.didFinish?()
+                self?.didFinish?(.noAction)
             })
         )
 

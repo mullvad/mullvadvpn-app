@@ -9,6 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
+@MainActor
 protocol CustomListInteractorProtocol {
     func fetch(by id: UUID) -> CustomList?
     func fetchAll() -> [CustomList]
