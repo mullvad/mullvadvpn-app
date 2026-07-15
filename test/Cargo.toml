@@ -24,7 +24,7 @@ colored = "2.0.0"
 dirs = "6.0.0"
 env_logger = "0.11.7"
 futures = "0.3"
-gotatun = { version = "0.6", default-features = false, features = ["aws-lc-rs"] }
+gotatun = { version = "0.8", default-features = false, features = ["aws-lc-rs"] }
 http-body-util = "0.1.2"
 hyper = { version = "1.4.1", default-features = false }
 hyper-rustls = { version = "0.27.3", default-features = false }

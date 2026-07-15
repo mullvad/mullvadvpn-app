@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 
 ### Changed
+- Update `gotatun` to 0.8.1.
+
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
@@ -37,6 +39,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
+
+#### Linux
+- Fix issue where `gotatun` would fail to start on Linux systems where the
+  IPv6 stack had been disabled.
 
 #### Windows
 - Fix misleading "split tunneling" error when offline.
