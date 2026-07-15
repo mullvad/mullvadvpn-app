@@ -287,7 +287,11 @@ impl Multiplexer {
 
         let rx_task = tokio::spawn(async move {
             loop {
-                let (n, _src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
+                let (n, src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
+                if src != proxy_address {
+                    log::trace!("Ignoring data from unselected obfuscator {src}");
+                    continue;
+                }
                 client_socket.send(&obfuscator_recv_buf[..n]).await?;
             }
         });
@@ -436,7 +440,8 @@ mod tests {
         assert_eq!(&server_buf[..bytes_received], test_data);
 
         // Our second socket should also receive this packet
-        let (bytes_received, _) = server_socket2.recv_from(&mut server_buf).await.unwrap();
+        let (bytes_received, second_server_client_addr) =
+            server_socket2.recv_from(&mut server_buf).await.unwrap();
         assert_eq!(&server_buf[..bytes_received], test_data);
 
         // Send a response back from the first server
@@ -451,6 +456,24 @@ mod tests {
         let (bytes_received, _) = client_socket.recv_from(&mut client_buf).await.unwrap();
 
         assert_eq!(&client_buf[..bytes_received], response_data);
+
+        // Packets from unselected transports should not be forwarded after the
+        // multiplexer has picked a transport.
+        let unexpected_data = b"Wrong server";
+        server_socket2
+            .send_to(unexpected_data, second_server_client_addr)
+            .await
+            .unwrap();
+        tokio::task::yield_now().await;
+
+        let selected_data = b"Selected server";
+        server_socket
+            .send_to(selected_data, client_addr)
+            .await
+            .unwrap();
+
+        let (bytes_received, _) = client_socket.recv_from(&mut client_buf).await.unwrap();
+        assert_eq!(&client_buf[..bytes_received], selected_data);
 
         // Test that packets are now forwarded directly (connected mode)
         let second_test_data = b"Connected!";
