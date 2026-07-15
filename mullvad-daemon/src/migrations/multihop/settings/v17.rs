@@ -117,12 +117,11 @@ impl __Settings {
         // entry might be needed to unblock the user post-migration.
         let query = RelayQuery::from(self.clone());
         if !matches!(query.hops, Hops::Auto(_)) {
-            log::debug!("{query:#?} does not need autohop");
+            log::trace!("{query:#?} does not need autohop");
             return Ok(self);
         }
 
         let relay = relay_selector.get_relay_by_query(query.clone());
-
         if let Ok(GetRelay {
             inner: WireguardConfig::Multihop { entry, .. },
             ..
@@ -134,9 +133,10 @@ impl __Settings {
                 entry.inner.location.country_code.clone(),
             ));
             self.magic_multihop = Some(entry);
+        } else {
+            log::trace!("{query:#?} does not need multihop. Yielded {relay:#?}");
         };
 
-        log::debug!("{query:#?} does not need multihop. Yielded {relay:#?}");
         Ok(self)
     }
 
