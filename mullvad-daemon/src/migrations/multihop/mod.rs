@@ -157,7 +157,7 @@ mod test {
             .filters(true)
             .build();
         let scenario = migration::detect(&settings);
-        assert_eq!(scenario, Scenario::ThreeB);
+        assert!(matches!(scenario, Scenario::ThreeB { .. }));
         let mut settings = json!(settings);
         insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
         migration::migrate(&mut settings, scenario);
