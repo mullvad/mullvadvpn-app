@@ -3485,7 +3485,10 @@ export namespace LogMessage {
 }
 
 export class SplitFilterMigration extends jspb.Message { 
-    getScenario(): SplitFilterMigration.Scenario;
+
+    hasScenario(): boolean;
+    clearScenario(): void;
+    getScenario(): SplitFilterMigration.Scenario | undefined;
     setScenario(value: SplitFilterMigration.Scenario): SplitFilterMigration;
 
     serializeBinary(): Uint8Array;
@@ -3500,7 +3503,7 @@ export class SplitFilterMigration extends jspb.Message {
 
 export namespace SplitFilterMigration {
     export type AsObject = {
-        scenario: SplitFilterMigration.Scenario,
+        scenario?: SplitFilterMigration.Scenario,
     }
 
     export enum Scenario {
