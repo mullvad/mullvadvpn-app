@@ -17,6 +17,7 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
     let tunnelManager: TunnelManager
     let listViewController: ListCustomListViewController
     let nodes: [LocationNode]
+    let recentConnectionsRepository: RecentConnectionsRepositoryProtocol
 
     var presentedViewController: UIViewController {
         navigationController
@@ -28,12 +29,14 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController: UINavigationController,
         interactor: CustomListInteractorProtocol,
         tunnelManager: TunnelManager,
-        nodes: [LocationNode]
+        nodes: [LocationNode],
+        recentConnections: RecentConnectionsRepositoryProtocol
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
         self.tunnelManager = tunnelManager
         self.nodes = nodes
+        self.recentConnectionsRepository = recentConnections
 
         listViewController = ListCustomListViewController(interactor: interactor)
     }
@@ -55,7 +58,8 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             navigationController: navigationController,
             customListInteractor: interactor,
             customList: list,
-            nodes: nodes
+            nodes: nodes,
+            recentConnections: recentConnectionsRepository
         )
 
         coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
