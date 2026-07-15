@@ -7,7 +7,7 @@ environment.
 ## Build process
 
 The app uses Gradle to build the app. It also relies on native libraries (`mullvad-daemon`).
-Building these is included in the gradle build process using the [rust-android-gradle](https://github.com/mullvad/rust-android-gradle) plugin.
+Building these are included in the Gradle build process using the [rust-android-gradle](https://github.com/mullvad/rust-android-gradle) plugin.
 Building the native libraries requires some specific toolchains and packages to be installed, so
 it's recommended to build using the provided build script and container image.
 
@@ -16,13 +16,13 @@ it's recommended to build using the provided build script and container image.
 > __*NOTE:*__ Build with provided container is only supported on Linux and may not work on other
 > platforms.
 
-Building the the app can easily be done by running the
+Building the app can easily be done by running the
 [containerized-build.sh](../../building/containerized-build.sh) script, which helps using the correct
 tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
 by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
 can be used by setting the `CONTAINER_RUNNER` environment variable.
 
-### Setup:
+### Setup
 
 - Install [podman](https://podman.io/getting-started/installation.html) and make sure it's
   configured to run in rootless mode.
@@ -53,7 +53,7 @@ Building without the provided container requires installing multiple Sdk:s and t
 therefore more complex.
 
 ### Setup build environment
-These steps explain how to manually setup the build environment on a Linux system.
+These steps explain how to manually set up the build environment on a Linux system.
 
 #### 1. Install `protobuf-compiler`
 Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros via
@@ -78,7 +78,7 @@ Linux distro:
   This directory should be exported as the `$ANDROID_HOME` environment variable.
 
   Note: if `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
-  to the command above.
+  to the command below.
 
   ```bash
   cd /opt/android     # Or some other directory to place the Android SDK
@@ -124,7 +124,7 @@ environment variables:
 - (Optional) Run the following to install a git `post-checkout` hook that will automatically
   run the `setup-rust` script when the Rust version specified in the `rust-toolchain.toml` file changes:
   ```bash
-  .scripts/setup-rust install-hook
+  ./scripts/setup-rust install-hook
   ```
 
 ### Debug build
@@ -187,7 +187,7 @@ version files, and add as commits.
 Continue by following the instructions provided by the script.
 
 ## Gradle dependency metadata verification lockfile
-This lockfile helps ensuring the integrity of the gradle dependencies in the project.
+This lockfile helps ensure the integrity of the Gradle dependencies in the project.
 
 ### Update lockfile
 When adding or updating dependencies, it's necessary to also update the lockfile. This can be done
@@ -209,7 +209,7 @@ rm ./gradle/verification-metadata.xml
 ```
 
 ## Gradle properties
-Some gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
+Some Gradle properties can be set to simplify development, for the full list see `android/gradle.properties`.
 In order to override them, add the properties in `<USER_GRADLE_HOME>/gradle.properties`. See the
 [gradle documentation](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties)
 for more info of the prioritization of properties.
@@ -232,7 +232,7 @@ mullvad.app.config.inAppVersionNotifications.enable=false
 ### Run tests highly affected by rate limiting
 To avoid being rate limited we avoid running tests sending requests that are highly rate limited
 too often. If you want to run these tests you can override the
-`mullvad.test.e2e.config.runHighlyRateLimitedTests` gradle properties. The default value is `false`.
+`mullvad.test.e2e.config.runHighlyRateLimitedTests` Gradle properties. The default value is `false`.
 
 ## Reproducible builds
 
@@ -240,7 +240,7 @@ Reproducible builds are a way to verify that the app was built from the exact so
 
 The Mullvad Android app is by default reproducible when built using our build container, as the container ensures a consistent build environment with fixed versions of all tools and dependencies.
 
-When building without the container on Linux systems, reproducibility depends on having the exact same versions of system tools (compilers, build tools, etc) installed. Small differences in tool versions or configurations can lead to different build outputs even when using the same source code.
+When building without the container on Linux systems, reproducibility depends on having the exact same versions of system tools (compilers, build tools, etc.) installed. Small differences in tool versions or configurations can lead to different build outputs even when using the same source code.
 
 > **Make sure that any `gradle.properties` has not changed or been overridden it will affect the reproducibility of the build such as changing `mullvad.app.build.cargo.targets` and `mullvad.app.config.inAppVersionNotifications.enable`.**
 
@@ -255,7 +255,7 @@ To maximize reproducibility when building without the container:
 A simple way to check that a build is reproducible across environments is to build the release version of the app with and without the container and comparing the checksums of the produced APKs.
 
 1. Build the app with the container: `../building/containerized-build.sh android assembleOssProdRelease`
-1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk release-container.apk`
+1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `cp app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk release-container.apk`
 1. Build the app locally without the container: `./gradlew assembleOssProdRelease`
 1. Compare the checksums of the two APKs: `sha256sum release-container.apk app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk`
 
@@ -275,4 +275,4 @@ If two APKs built from the same commit have different checksums the build is not
 1. There is a bug that breaks the build reproducibility.
 1. The APK built is a version prior to `2025.2-beta1`, which is the first version that supports reproducible builds.
 
-If you suspect that a bug is causing the build to not be reproducible, please open a Github issue.
+If you suspect that a bug is causing the build to not be reproducible, please open a GitHub issue.
