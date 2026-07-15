@@ -17,6 +17,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let customList: CustomList
     let nodes: [LocationNode]
     let subject: CurrentValueSubject<CustomListViewModel, Never>
+    let recentConnectionsRepository: RecentConnectionsRepositoryProtocol
     private lazy var alertPresenter: AlertPresenter = {
         AlertPresenter(context: self)
     }()
@@ -32,12 +33,14 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController: UINavigationController,
         customListInteractor: CustomListInteractorProtocol,
         customList: CustomList,
-        nodes: [LocationNode]
+        nodes: [LocationNode],
+        recentConnections: RecentConnectionsRepositoryProtocol
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
         self.customList = customList
         self.nodes = nodes
+        self.recentConnectionsRepository = recentConnections
         self.subject = CurrentValueSubject(
             CustomListViewModel(
                 id: customList.id,
@@ -122,6 +125,7 @@ extension EditCustomListCoordinator: @preconcurrency CustomListViewControllerDel
     }
 
     func customListDidDelete(_ list: CustomList) {
+        recentConnectionsRepository.deleteCustomList(list.id)
         didFinish?(self, list)
     }
 

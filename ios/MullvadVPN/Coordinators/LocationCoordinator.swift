@@ -130,7 +130,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 repository: customListRepository
             ),
             tunnelManager: tunnelManager,
-            nodes: nodes
+            nodes: nodes,
+            recentConnections: recentConnectionsRepository
         )
 
         coordinator.didFinish = { [weak self] listCustomListCoordinator in
@@ -152,7 +153,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 repository: customListRepository
             ),
             customList: list,
-            nodes: nodes
+            nodes: nodes,
+            recentConnections: recentConnectionsRepository
         )
 
         coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
