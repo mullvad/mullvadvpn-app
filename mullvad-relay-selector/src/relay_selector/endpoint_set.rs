@@ -224,10 +224,9 @@ impl RelayEndpointSet {
         } else {
             Constraint::Any
         };
-        // QUIC and Shadowsocks choose the public next-hop endpoint from their obfuscator config.
-        // Keep the requested WireGuard IP family when possible so endpoint metadata stays
-        // consistent, but fall back because the peer endpoint is patched to a local obfuscator
-        // before dialing.
+        // QUIC and Shadowsocks do not use the selected WireGuard endpoint, so it does not
+        // need to match the requested IP version. Use the same family when possible so IP
+        // overrides are derived correctly; otherwise, loosen the constraint.
         let wireguard_ip_version = match query {
             Constraint::Only(ObfuscationMode::Shadowsocks(_) | ObfuscationMode::Quic) => {
                 if self.wireguard.supports_ip_version(ip_version) {
