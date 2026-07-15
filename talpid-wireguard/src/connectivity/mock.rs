@@ -1,5 +1,7 @@
+use std::sync::Arc;
 use std::future::Future;
 use std::pin::Pin;
+use gotatun::tun::IpSink;
 use talpid_tunnel_config_client::DaitaSettings;
 use tokio::time::Instant;
 
@@ -98,6 +100,8 @@ impl Tunnel for MockTunnel {
         &mut self,
         _config: Config,
         _daita: Option<DaitaSettings>,
+        #[cfg(target_os = "android")]
+        _ip_sink: Option<Arc<dyn IpSink>>
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         Box::pin(async { Ok(()) })
     }

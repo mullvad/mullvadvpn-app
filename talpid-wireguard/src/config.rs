@@ -1,4 +1,7 @@
+use std::fmt::{Debug, Formatter};
 use std::net::{Ipv4Addr, Ipv6Addr};
+use std::sync::Arc;
+use gotatun::tun::IpSink;
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
 /// Name to use for the tunnel device
@@ -32,6 +35,19 @@ pub struct Config {
     pub quantum_resistant: bool,
     /// Enable DAITA
     pub daita: bool,
+    /// Ip sink handle for LAN packets on Android
+    #[cfg(target_os = "android")]
+    pub ip_sink: Option<IpSinkHandle>,
+}
+
+/// Ip sink handle for LAN packets on Android
+#[derive(Clone)]
+pub struct IpSinkHandle(pub Arc<dyn IpSink>);
+
+impl Debug for IpSinkHandle {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "IpSinkHandle")
+    }
 }
 
 /// Configuration errors
@@ -51,6 +67,8 @@ impl Config {
     pub fn from_parameters(
         params: &wireguard::TunnelParameters,
         default_mtu: u16,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<IpSinkHandle>,
     ) -> Result<Config, Error> {
         Self::new(
             &params.connection,
@@ -58,6 +76,8 @@ impl Config {
             &params.generic_options,
             &params.obfuscation,
             default_mtu,
+            #[cfg(target_os = "android")]
+            ip_sink,
         )
     }
 
@@ -68,6 +88,8 @@ impl Config {
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<IpSinkHandle>,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
 
@@ -98,6 +120,8 @@ impl Config {
             obfuscator_config: obfuscator_config.to_owned(),
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
+            #[cfg(target_os = "android")]
+            ip_sink,
         };
 
         for peer in config.peers_mut() {

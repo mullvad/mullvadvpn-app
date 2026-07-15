@@ -28,6 +28,7 @@ use crate::resolver::LOCAL_DNS_RESOLVER;
 use crate::tunnel_state_machine::tunnel_monitor::{self, TunnelMonitor};
 #[cfg(target_os = "macos")]
 use talpid_dns::DnsConfig;
+use talpid_wireguard::config::IpSinkHandle;
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
@@ -148,6 +149,10 @@ impl ConnectingState {
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
+                        shared_values
+                            .lan_packet_handler
+                            .as_ref()
+                            .map(|handler| IpSinkHandle(handler.clone())),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -230,6 +235,7 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
+        #[cfg(target_os = "android")] ip_sink: Option<IpSinkHandle>,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
@@ -272,34 +278,35 @@ impl ConnectingState {
                 }
             }
 
-            let block_reason = match TunnelMonitor::start(&tunnel_parameters, &log_dir, args) {
-                Ok(monitor) => {
-                    let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
-                    log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
-                    reason
-                }
-                Err(error) if should_retry(&error, retry_attempt) => {
-                    log::warn!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Retrying to connect after failing to start tunnel"
-                        )
-                    );
-                    #[cfg(target_os = "windows")]
-                    runtime2.block_on(async {
-                        maybe_dump_device_logs(log_dir.as_deref(), &error).await;
-                    });
-                    None
-                }
-                Err(error) => {
-                    log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
-                    #[cfg(target_os = "windows")]
-                    runtime2.block_on(async {
-                        maybe_dump_device_logs(log_dir.as_deref(), &error).await;
-                    });
-                    Some(error.into())
-                }
-            };
+            let block_reason =
+                match TunnelMonitor::start(&tunnel_parameters, &log_dir, args, ip_sink) {
+                    Ok(monitor) => {
+                        let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
+                        log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
+                        reason
+                    }
+                    Err(error) if should_retry(&error, retry_attempt) => {
+                        log::warn!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Retrying to connect after failing to start tunnel"
+                            )
+                        );
+                        #[cfg(target_os = "windows")]
+                        runtime2.block_on(async {
+                            maybe_dump_device_logs(log_dir.as_deref(), &error).await;
+                        });
+                        None
+                    }
+                    Err(error) => {
+                        log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
+                        #[cfg(target_os = "windows")]
+                        runtime2.block_on(async {
+                            maybe_dump_device_logs(log_dir.as_deref(), &error).await;
+                        });
+                        Some(error.into())
+                    }
+                };
 
             if block_reason.is_none()
                 && let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed())

@@ -10,6 +10,7 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
     time::Duration,
 };
+use gotatun::tun::IpSink;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 

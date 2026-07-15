@@ -52,7 +52,7 @@ use talpid_types::{
     net::{AllowedEndpoint, Connectivity, IpAvailability, wireguard::TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
-
+use talpid_wireguard::IpSink;
 #[cfg(target_os = "android")]
 use crate::connectivity_listener::ConnectivityListener;
 
@@ -112,6 +112,8 @@ pub struct InitialTunnelState {
     /// Apps to exclude from the tunnel.
     #[cfg(target_os = "android")]
     pub exclude_paths: Vec<String>,
+    #[cfg(target_os = "android")]
+    pub lan_packet_handler: Option<Arc<dyn IpSink>>,
 }
 
 /// Identifiers for various network resources that should be unique to a given instance of a tunnel
@@ -481,6 +483,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
+            #[cfg(target_os = "android")]
+            lan_packet_handler: args.settings.lan_packet_handler,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -587,6 +591,9 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
+
+    #[cfg(target_os = "android")]
+    lan_packet_handler: Option<Arc<dyn IpSink>>
 }
 
 impl SharedTunnelStateValues {

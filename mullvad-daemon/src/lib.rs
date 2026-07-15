@@ -13,6 +13,7 @@ pub mod device;
 mod dns;
 pub mod exception_logging;
 mod geoip;
+mod lan_packet_handler;
 mod leak_checker;
 pub mod logging;
 #[cfg(target_os = "macos")]
@@ -28,6 +29,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
+use crate::lan_packet_handler::LanPacketHandler;
 use crate::{
     migrations::{MigrationData, multihop::scenario::Scenario},
     target_state::PersistentTargetState,
@@ -101,6 +103,7 @@ use talpid_core::connectivity_listener::ConnectivityListener;
 #[cfg(not(target_os = "android"))]
 use talpid_core::tunnel_state_machine::LockdownMode;
 use talpid_core::{
+    IpSink,
     mpsc::Sender,
     split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
@@ -238,6 +241,10 @@ pub enum Error {
     #[cfg(target_os = "android")]
     #[error("Failed to verify play purchase")]
     VerifyPlayPurchase(#[source] device::Error),
+
+    #[cfg(target_os = "android")]
+    #[error("Unable to initialize LAN packet handler")]
+    InitLanPacketHandler(#[source] io::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -418,6 +425,9 @@ pub enum DaemonCommand {
     /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
+    /// Unconditionally bypass a socket used for LAN packet routing.
+    #[cfg(target_os = "android")]
+    BypassLanSocket(RawFd, oneshot::Sender<()>),
     /// Initialize a google play purchase through the API.
     #[cfg(target_os = "android")]
     InitPlayPurchase(ResponseTx<PlayExternalObfuscatedAccountId, Error>),
@@ -943,6 +953,11 @@ impl Daemon {
         .await
         .map_err(Error::RouteManager)?;
 
+        #[cfg(target_os = "android")]
+        let lan_packet_handler: Arc<dyn IpSink> = LanPacketHandler::new(internal_event_tx.clone())
+            .map(Arc::new)
+            .map_err(Error::InitLanPacketHandler)?;
+
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -960,6 +975,8 @@ impl Daemon {
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
                 exclude_paths,
+                #[cfg(target_os = "android")]
+                lan_packet_handler: Some(lan_packet_handler),
             },
             parameters_generator.clone(),
             config.log_dir,
@@ -1632,6 +1649,8 @@ impl Daemon {
             PrepareRestart { shutdown } => self.on_prepare_restart(shutdown),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
+            #[cfg(target_os = "android")]
+            BypassLanSocket(fd, tx) => self.on_bypass_lan_socket(fd, tx),
             #[cfg(target_os = "android")]
             InitPlayPurchase(tx) => self.on_init_play_purchase(tx),
             #[cfg(target_os = "android")]
@@ -3374,6 +3393,11 @@ impl Daemon {
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_bypass_lan_socket(&mut self, fd: RawFd, tx: oneshot::Sender<()>) {
+        self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
     }
 
     #[cfg(target_os = "android")]

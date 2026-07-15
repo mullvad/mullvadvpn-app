@@ -1,6 +1,8 @@
+use std::sync::Arc;
 use std::pin::Pin;
 
 use futures::Future;
+use gotatun::tun::IpSink;
 use talpid_tunnel_config_client::DaitaSettings;
 
 use crate::config::MULLVAD_INTERFACE_NAME;
@@ -121,6 +123,8 @@ impl Tunnel for NetlinkTunnel {
         &mut self,
         config: Config,
         daita: Option<DaitaSettings>,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<Arc<dyn IpSink>>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
         let mut wg = self.netlink_connections.wg_handle.clone();
         let interface_index = self.interface_index;

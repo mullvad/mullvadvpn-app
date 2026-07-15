@@ -6,6 +6,7 @@ use talpid_tunnel::TunnelArgs;
 use talpid_tunnel::tun_provider;
 use talpid_types::net::{wireguard as wireguard_types, wireguard::TunnelParameters};
 use talpid_types::tunnel::ErrorStateCause;
+use talpid_wireguard::config::IpSinkHandle;
 use talpid_wireguard::WireguardMonitor;
 
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
@@ -122,19 +123,23 @@ impl TunnelMonitor {
         tunnel_parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
         args: TunnelArgs<'_>,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<IpSinkHandle>,
     ) -> Result<Self> {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
         let log_file = Self::prepare_tunnel_log_file(log_dir.as_ref())?;
 
-        Self::start_wireguard_tunnel(tunnel_parameters, log_file, args)
+        Self::start_wireguard_tunnel(tunnel_parameters, log_file, args, ip_sink)
     }
 
     fn start_wireguard_tunnel(
         params: &wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,
         args: TunnelArgs<'_>,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<IpSinkHandle>,
     ) -> Result<Self> {
-        let monitor = talpid_wireguard::WireguardMonitor::start(params, args, log.as_deref())?;
+        let monitor = talpid_wireguard::WireguardMonitor::start(params, args, ip_sink, log.as_deref())?;
         Ok(TunnelMonitor { monitor })
     }
 

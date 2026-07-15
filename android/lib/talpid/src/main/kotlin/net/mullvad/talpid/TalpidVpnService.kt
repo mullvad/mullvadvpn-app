@@ -213,7 +213,9 @@ open class TalpidVpnService : LifecycleVpnService() {
     ): Either<ConfigError.InvalidIpv6, Builder> =
         if (config.validIpv6Routes()) {
             config.addresses.forEach { addAddress(it, it.prefixLength()) }
-            config.routes.forEach { addRoute(it.address, it.prefixLength.toInt()) }
+//            config.routes.forEach { addRoute(it.address, it.prefixLength.toInt()) }
+            addRoute(ROUTE_ALL_IPV4, 0)
+            addRoute(ROUTE_ALL_IPV6, 0)
             right()
         } else {
             Logger.e("Bad Ipv6 config provided!")

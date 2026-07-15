@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::config::MULLVAD_INTERFACE_NAME;
 
 use super::{
@@ -6,6 +7,7 @@ use super::{
 };
 use futures::Future;
 use std::{collections::HashMap, pin::Pin};
+use gotatun::tun::IpSink;
 use talpid_dbus::{
     dbus,
     network_manager::{
@@ -98,6 +100,8 @@ impl Tunnel for NetworkManagerTunnel {
         &mut self,
         config: Config,
         daita: Option<DaitaSettings>,
+        #[cfg(target_os = "android")]
+        ip_sink: Option<Arc<dyn IpSink>>,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
         let interface_name = self.interface_name.clone();
         let mut wg = self.netlink_connections.wg_handle.clone();

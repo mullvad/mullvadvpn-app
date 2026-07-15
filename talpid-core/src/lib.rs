@@ -35,3 +35,6 @@ pub(crate) mod resolver;
 /// Connectivity monitor for Android
 #[cfg(target_os = "android")]
 pub mod connectivity_listener;
+
+pub use talpid_wireguard::{IpSink, IpSend, BufferedIpSend};
+pub use talpid_wireguard::packet;

@@ -32,6 +32,12 @@ use tokio::sync::Mutex as AsyncMutex;
 
 mod gotatun;
 
+pub use gotatun::BufferedIpSend;
+pub use gotatun::IpSink;
+pub use gotatun::IpSend;
+pub use gotatun::packet;
+use crate::config::IpSinkHandle;
+
 /// WireGuard config data-types
 pub mod config;
 mod connectivity;
@@ -407,6 +413,7 @@ impl WireguardMonitor {
     pub fn start(
         params: &TunnelParameters,
         args: TunnelArgs<'_>,
+        ip_sink: Option<IpSinkHandle>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
@@ -418,7 +425,7 @@ impl WireguardMonitor {
         let userspace_multihop = true;
 
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
-        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
+        let mut config = crate::config::Config::from_parameters(params, tunnel_mtu, ip_sink)
             .map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();

@@ -73,6 +73,7 @@ anyhow = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 either = "1.11"
+etherparse = "0.20.2"
 futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
@@ -92,6 +93,7 @@ rand = { workspace = true }
 regex = "1.0"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
+socket2 = "0.6.4"
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
 talpid-future = { path = "../talpid-future" }
@@ -111,6 +113,7 @@ tokio = { workspace = true, features = [
 tokio-stream = { version = "0.1", features = ["sync"] }
 tracing-appender = { workspace = true }
 tracing-subscriber = { workspace = true, features = ["chrono"] }
+tun = { version = "0.8.6", default-features = false }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["json"] }
