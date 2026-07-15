@@ -21,7 +21,13 @@ expression: "serde_json::to_string_pretty(&settings)?"
       },
       "wireguard_constraints": {
         "allowed_ips": "any",
-        "entry_location": "any",
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        },
         "entry_ownership": {
           "only": "MullvadOwned"
         },

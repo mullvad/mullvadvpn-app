@@ -33,15 +33,21 @@
 //! [Always]: crate::migrations::multihop::settings::v18::__Multihop::Always
 //! [Never]: crate::migrations::multihop::settings::v18::__Multihop::Never
 
+use crate::migrations::multihop::settings::__LocationConstraint;
+
 /// Each scenario which a [*previous* settings](crate::migrations::multihop::settings::v17) object maps to.
 /// Exactly how the migration is executed depends on this scenario.
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Scenario {
     OneA,   // 1A
     OneB,   // 1B
     Two,    // 2
     ThreeA, // 3A
-    ThreeB, // 3B
+    // 3B
+    ThreeB {
+        #[serde(skip)]
+        last_known_working_location: __LocationConstraint,
+    },
     FourA,  // 4A
     FourB,  // 4B
     FiveA,  // 5A
