@@ -121,20 +121,22 @@ impl __Settings {
             return Ok(self);
         }
 
+        let relay = relay_selector.get_relay_by_query(query.clone());
+
         if let Ok(GetRelay {
             inner: WireguardConfig::Multihop { entry, .. },
             ..
-        }) = relay_selector.get_relay_by_query(query.clone())
+        }) = &relay
         {
             // There is atleast one relay in the country of the relay which was automatically
             // selected. Set it as the new entry relay constraint.
             let entry = __LocationConstraint::Location(__GeographicLocationConstraint::Country(
-                entry.inner.location.country_code,
+                entry.inner.location.country_code.clone(),
             ));
             self.magic_multihop = Some(entry);
         };
 
-        log::debug!("{query:#?} did not need multihop");
+        log::debug!("{query:#?} does not need multihop. Yielded {relay:#?}");
         Ok(self)
     }
 
