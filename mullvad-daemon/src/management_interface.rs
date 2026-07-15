@@ -1330,12 +1330,12 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<types::SplitFilterMigration> {
         let scenario = |scenario: Option<Scenario>| {
             use types::split_filter_migration::Scenario::*;
-            let scenario = scenario.map(|scenario| match scenario {
+            let scenario = scenario.map(|scenario| match scenario.clone() {
                 Scenario::OneA => OneA,
                 Scenario::OneB => OneB,
                 Scenario::Two => Two,
                 Scenario::ThreeA => ThreeA,
-                Scenario::ThreeB => ThreeB,
+                Scenario::ThreeB { .. } => ThreeB,
                 Scenario::FourA => FourA,
                 Scenario::FourB => FourB,
                 Scenario::FiveA => FiveA,

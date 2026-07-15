@@ -2,6 +2,7 @@
 
 use crate::migrations::Error;
 use crate::migrations::multihop::scenario::Scenario;
+use crate::migrations::multihop::settings::v18::__Entry;
 use crate::migrations::multihop::settings::{v17, v18};
 
 use serde::Deserialize;
@@ -21,43 +22,51 @@ pub(crate) fn run(
     // Detect which scenario the migration led to.
     let scenario = detect(&input);
     // Run the actual migration
-    migrate(settings, scenario);
+    migrate(settings, scenario.clone());
     Ok(scenario)
 }
 
 pub(crate) fn migrate(settings: &mut Value, scenario: Scenario) {
+    use v18::__Entry::*;
     use v18::__Multihop::*;
     match scenario {
-        Scenario::OneA => relay_settings_migration(settings, WhenNeeded, false, false),
+        Scenario::OneA => relay_settings_migration(settings, WhenNeeded, false, Automatic(false)),
         Scenario::OneB => {
-            relay_settings_migration(settings, Never, true, false);
+            relay_settings_migration(settings, Never, true, Automatic(false));
         }
-        Scenario::Two => relay_settings_migration(settings, WhenNeeded, false, false),
+        Scenario::Two => relay_settings_migration(settings, WhenNeeded, false, Automatic(false)),
         Scenario::ThreeA => {
-            relay_settings_migration(settings, Never, true, false);
+            relay_settings_migration(settings, Never, true, Automatic(false));
         }
-        Scenario::ThreeB => {
-            relay_settings_migration(settings, Always, true, false);
+        Scenario::ThreeB {
+            last_known_working_location,
+        } => {
+            relay_settings_migration(
+                settings,
+                Always,
+                true,
+                LastKnownWorking(last_known_working_location),
+            );
         }
-        Scenario::FourA => relay_settings_migration(settings, Never, false, false),
+        Scenario::FourA => relay_settings_migration(settings, Never, false, Automatic(false)),
         Scenario::FourB => {
-            relay_settings_migration(settings, Never, true, false);
+            relay_settings_migration(settings, Never, true, Automatic(false));
         }
-        Scenario::FiveA => relay_settings_migration(settings, Always, false, false),
+        Scenario::FiveA => relay_settings_migration(settings, Always, false, Automatic(false)),
         Scenario::FiveB => {
-            relay_settings_migration(settings, Always, true, false);
+            relay_settings_migration(settings, Always, true, Automatic(false));
         }
         Scenario::SixA => {
-            relay_settings_migration(settings, Always, false, true);
+            relay_settings_migration(settings, Always, false, Automatic(true));
         }
         Scenario::SixB => {
-            relay_settings_migration(settings, Always, true, false);
+            relay_settings_migration(settings, Always, true, Automatic(false));
         }
         Scenario::SevenA => {
-            relay_settings_migration(settings, Always, false, false);
+            relay_settings_migration(settings, Always, false, Automatic(false));
         }
         Scenario::SevenB => {
-            relay_settings_migration(settings, Always, true, false);
+            relay_settings_migration(settings, Always, true, Automatic(false));
         }
     };
     // Update DAITA settings value. Notably `use_multihop_if_necessary` is gone.
@@ -81,7 +90,9 @@ pub(crate) fn detect(settings: &v17::__Settings) -> Scenario {
         (false, false, _, _, true) => OneB,
         (false, true, false, _, false) => Two,
         (false, true, false, false, true) => ThreeA,
-        (false, true, false, true, true) => ThreeB,
+        (false, true, false, true, true) => ThreeB {
+            last_known_working_location: settings.magic_multihop.as_ref().unwrap().clone(),
+        },
         (false, true, true, _, false) => FourA,
         (false, true, true, _, true) => FourB,
         (true, false, _, _, false) => FiveA,
@@ -100,7 +111,7 @@ fn relay_settings_migration(
     settings: &mut Value,
     value: v18::__Multihop,
     filters: bool,
-    automatic_entry: bool,
+    automatic_entry: __Entry,
 ) {
     let Some(relay_settings) = v17::__Settings::relay_settings(settings) else {
         log::debug!("Did not update relay settings to {value:?}");

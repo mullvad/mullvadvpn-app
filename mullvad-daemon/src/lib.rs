@@ -3651,7 +3651,7 @@ async fn persist_split_filter_migration_scenario(
     cache_dir: impl AsRef<Path>,
 ) {
     let output = cache_dir.as_ref().join(migrations::multihop::CACHE);
-    if let Some(scenario) = migration_data.multihop_split_filter_migration
+    if let Some(scenario) = migration_data.multihop_split_filter_migration.clone()
         && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
         && let Err(err) = SettingsPersister::save_bytes(&output, &scenario).await
     {

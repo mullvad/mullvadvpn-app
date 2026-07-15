@@ -15,6 +15,11 @@ pub struct __RelaySettings {
     wireguard_constraints: __WireguardConstraints,
 }
 
+pub(crate) enum __Entry {
+    Automatic(bool),
+    LastKnownWorking(__LocationConstraint),
+}
+
 impl __RelaySettings {
     /// Update the multihop value of an existing settings blob to the new [`__Multihop`] kind.
     ///
@@ -26,7 +31,7 @@ impl __RelaySettings {
         from: v17::RelaySettingsInner,
         multihop: __Multihop,
         duplicate_exit_filters: bool,
-        automatic_entry: bool,
+        automatic_entry: __Entry,
     ) -> Self {
         let v17::RelaySettingsInner {
             location,
@@ -50,11 +55,13 @@ impl __RelaySettings {
             } else {
                 (entry_providers, entry_ownership)
             };
-            let entry_location = if automatic_entry {
-                __Constraint::Any
-            } else {
-                entry_location
+            // TODO:  Grab this from magic_multihop
+            let entry_location = match automatic_entry {
+                __Entry::Automatic(true) => __Constraint::Any,
+                __Entry::Automatic(false) => entry_location,
+                __Entry::LastKnownWorking(this_entry) => __Constraint::Only(this_entry),
             };
+
             __WireguardConstraints {
                 multihop,
                 entry_location,
