@@ -2088,6 +2088,10 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr ""
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2129,6 +2133,10 @@ msgstr ""
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "No result for: “%(searchTerm)s“"
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
