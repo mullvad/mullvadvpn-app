@@ -1,0 +1,88 @@
+package net.mullvad.mullvadvpn.test.api.partner
+
+import co.touchlab.kermit.Logger
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.delete
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.URLProtocol.Companion.HTTPS
+import io.ktor.http.contentType
+import io.ktor.http.path
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import net.mullvad.mullvadvpn.test.api.misc.KermitLogger
+
+class PartnerApi(base64AuthCredentials: String, private val baseDomain: String) {
+    private val client: HttpClient =
+        HttpClient(CIO) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+            install(Logging) {
+                logger = KermitLogger()
+                level = LogLevel.INFO
+                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+            }
+            install(HttpRequestRetry) {
+                retryOnException(maxRetries = MAX_RETRIES, retryOnTimeout = true)
+                retryOnServerErrors(maxRetries = MAX_RETRIES)
+                exponentialDelay()
+            }
+
+            defaultRequest {
+                url {
+                    protocol = HTTPS
+                    host = "partner.$baseDomain"
+                }
+                contentType(ContentType.Application.Json)
+
+                headers { append("Authorization", "Basic $base64AuthCredentials") }
+            }
+            expectSuccess = true
+        }
+
+    suspend fun createAccount(): String =
+        withContext(Dispatchers.IO) {
+            client.post { url { path(ACCOUNT_PATH) } }.body<CreateAccountResponse>().id
+        }
+
+    suspend fun addTime(accountNumber: String, daysToAdd: Int) =
+        withContext(Dispatchers.IO) {
+            val request = AddTimeRequest(daysToAdd)
+            client
+                .post {
+                    url { path("$ACCOUNT_PATH/$accountNumber/extend") }
+                    setBody(request)
+                }
+                .bodyAsText()
+        }
+
+    suspend fun deleteAccount(accountNumber: String) =
+        withContext(Dispatchers.IO) {
+            try {
+                client.delete { url { path("$ACCOUNT_PATH/$accountNumber") } }
+            } catch (e: Throwable) {
+                Logger.e("Could not delete account", e)
+            }
+        }
+
+    companion object {
+        private const val MAX_RETRIES = 3
+        private const val ACCOUNT_PATH = "v1/accounts"
+    }
+}
+
+@Serializable data class CreateAccountResponse(val id: String)
+
+@Serializable data class AddTimeRequest(val days: Int)
