@@ -304,6 +304,10 @@ echo ""
 echo "### Checking logs for success message ###"
 if grep -q -E "$LOG_SUCCESS_REGEX" "$INSTRUMENTATION_LOG_FILE_PATH"; then
     echo "Success, no failures!"
+    if [[ "$TEST_TYPE" == "benchmark" ]]; then
+        echo "Collecting benchmark report..."
+        adb pull "$DEVICE_TEST_ATTACHMENTS_PATH" "$LOCAL_TEST_ATTACHMENTS_PATH" || echo "No test attachments"
+    fi
 else
     echo "One or more tests failed, see logs for more details."
     echo "Collecting report..."
