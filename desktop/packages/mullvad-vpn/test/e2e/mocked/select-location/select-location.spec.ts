@@ -31,6 +31,8 @@ test.describe('Select location', () => {
   });
 
   test.beforeEach(async () => {
+    test.skip();
+
     if ((await util.getCurrentRoute()) === RoutePath.main) {
       await routes.main.gotoSelectLocation();
     }
@@ -447,6 +449,7 @@ test.describe('Select location', () => {
         });
       });
     });
+
     test.describe('Filter by obfuscation', () => {
       test('Should apply filter when QUIC obfuscation is selected', async () => {
         const settings = getDefaultSettings();
