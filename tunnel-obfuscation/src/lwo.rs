@@ -1,5 +1,7 @@
 //! LWO (Lightweight WireGuard Obfuscation)
 
+pub mod v2;
+
 use std::{
     net::{Ipv4Addr, SocketAddr},
     sync::Arc,

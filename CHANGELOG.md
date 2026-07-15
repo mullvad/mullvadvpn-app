@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
   `debug` and `trace`.
 
 ### Changed
+- Update LWO to improved v2 protocol.
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 
