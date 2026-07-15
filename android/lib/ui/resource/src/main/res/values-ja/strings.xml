@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_description_slide_2_first_paragraph">%1$sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。</string>
     <string name="daita_description_slide_2_second_paragraph">%1$sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
-    <string name="daita_description_slide_2_third_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%1$sが有効になるようにマルチホップを自動的に使用しています。</string>
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
     <string name="daita_multihop">%1$s: マルチホップ</string>
     <string name="days_were_added_30">アカウントに30日分が追加されました。</string>
