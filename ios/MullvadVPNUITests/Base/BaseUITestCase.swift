@@ -215,7 +215,7 @@ class BaseUITestCase: XCTestCase {
     func agreeToTermsOfServiceIfShown() {
         let timeout: XCUIElement.Timeout =
             Self.authenticationState == .forceLoggedOut && isLoggedIn()
-            ? .longerThanMullvadAPITimeout
+            ? .long
             : .short
 
         if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: timeout) {

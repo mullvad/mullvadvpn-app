@@ -27,7 +27,6 @@ class PaymentTests: LoggedOutUITestCase {
 
         accountPage
             .verifyPaidUntil(accountExpiry)
-            .finishUnfinishedSandboxPurchases()
             .tapAddTimeButton()
             .tapAdd30DaysTimeSheetButton()
 
@@ -50,7 +49,6 @@ class PaymentTests: LoggedOutUITestCase {
             .tapAccountButton()
 
         AccountPage(app)
-            .finishUnfinishedSandboxPurchases()
             .swipeDownToDismissModal()
 
         let welcomePage = WelcomePage(app)
@@ -79,7 +77,6 @@ class PaymentTests: LoggedOutUITestCase {
             .tapAccountButton()
 
         AccountPage(app)
-            .finishUnfinishedSandboxPurchases()
             .swipeDownToDismissModal()
 
         let outOfTimePage = OutOfTimePage(app)
@@ -118,7 +115,6 @@ class PaymentTests: LoggedOutUITestCase {
 
         accountPage
             .verifyPaidUntil(accountExpiry)
-            .finishUnfinishedSandboxPurchases()
             .tapRestorePurchasesButton()
             .dismissAlreadyRestoredPurchasesAlert()
             .verifyPaidUntil(accountExpiry)

@@ -141,35 +141,26 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    static func finishOutstandingSandboxAndOldAPITransactions() async {
+    static func cleanupUnfinishedTransactions() async {
         let logger = Logger(label: "StorePaymentManager")
 
-        logger.debug("Finishing outstanding sandbox and old transactions")
+        logger.debug("About to iterate Transaction.unfinished")
 
         for await verification in Transaction.unfinished {
-            guard let payload = try? verification.payloadValue else {
-                logger.debug("Verification is missing a valid payload")
-                continue
-            }
+            switch verification {
+            case .verified(let transaction):
+                logger.debug("Verified unfinished transaction: \(transaction.id)")
+                await transaction.finish()
 
-            logger.debug("Unfinished transaction environment is \(payload.environment)")
-
-            let isStagingEnvironment = payload.environment != .production
-            let isOldAPI = !StoreSubscription.allCases
-                .map { $0.rawValue }
-                .contains(payload.productID)
-
-            if isStagingEnvironment || isOldAPI {
-                logger.debug(
-                    "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)"
+            case .unverified(let transaction, let error):
+                logger.warning(
+                    "Unverified unfinished transaction \(transaction.id): \(error)"
                 )
-                await payload.finish()
-            } else {
-                logger.debug(
-                    "Skipping transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)"
-                )
+                await transaction.finish()
             }
         }
+
+        logger.debug("Completed Transaction.unfinished iteration")
     }
 
     // MARK: - Private methods
