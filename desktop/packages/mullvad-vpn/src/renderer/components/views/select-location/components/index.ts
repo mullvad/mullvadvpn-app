@@ -18,3 +18,4 @@ export * from './location-lists';
 export * from './recent-custom-list-location';
 export * from './recent-geographical-location';
 export * from './select-location-selector';
+export * from './space-allocation-shifter';
