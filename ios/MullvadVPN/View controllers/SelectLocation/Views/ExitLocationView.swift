@@ -202,8 +202,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             type: .warning,
             messages: [
                 LocalizedStringKey(
-                    "You currently have entry filters applied. Selecting the “Automatic” location, the app will "
-                        + "ignore filter settings for the entry server."
+                    "You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server."
                 )
             ],
             actions: [
