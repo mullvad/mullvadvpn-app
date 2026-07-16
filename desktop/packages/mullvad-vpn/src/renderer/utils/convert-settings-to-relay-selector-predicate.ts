@@ -93,7 +93,7 @@ function convertSettingsToRelaySelectorEntryConstraints({
   );
 
   const ipVersion = wrapConstraint(normalRelaySettings.wireguard.ipVersion);
-  const daita = settings.wireguard.daita ?? { enabled: false, directOnly: false };
+  const daita = settings.wireguard.daita
 
   return {
     antiCensorship: settings.obfuscationSettings,
