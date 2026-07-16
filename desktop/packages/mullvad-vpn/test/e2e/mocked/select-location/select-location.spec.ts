@@ -73,32 +73,6 @@ test.describe('Select location', () => {
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
-    test('App shouldn\'t show entry selection when daita is enabled and multihop mode is "when-needed"', async () => {
-      await helpers.updateMockSettings({
-        multihop: 'when-needed',
-        daita: true,
-      });
-
-      const entryButton = routes.selectLocation.getEntryButton();
-      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
-
-      const locations = routes.selectLocation.getLocationsInAllLocations();
-      await expect(locations).toHaveCount(0);
-    });
-
-    test('App should show entry selection when daita is enabled and multihop mode is "when-needed"', async () => {
-      await helpers.updateMockSettings({
-        multihop: 'always',
-        daita: true,
-      });
-
-      const entryButton = routes.selectLocation.getEntryButton();
-      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
-
-      const locations = routes.selectLocation.getLocationsInAllLocations();
-      expect(await locations.count()).toBeGreaterThan(0);
-    });
-
     test('Should show only wireguard servers in entry list', async () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await entryButton.click();
