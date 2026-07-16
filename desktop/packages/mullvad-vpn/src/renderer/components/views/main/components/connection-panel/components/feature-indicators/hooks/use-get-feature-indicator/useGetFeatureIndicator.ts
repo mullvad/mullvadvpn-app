@@ -11,7 +11,7 @@ export const useGetFeatureIndicator = () => {
   const history = useHistory();
 
   const gotoEnableDaitaFeature = React.useCallback(() => {
-    history.push(RoutePath.daita, {
+    history.push(RoutePath.daitaSettings, {
       transition: TransitionType.show,
       options: [
         {

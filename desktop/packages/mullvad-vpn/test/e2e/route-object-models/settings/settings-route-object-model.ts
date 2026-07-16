@@ -32,7 +32,7 @@ export class SettingsRouteObjectModel {
 
   async gotoDaitaSettings() {
     await this.selectors.daitaButton().click();
-    await this.utils.expectRoute(RoutePath.daita);
+    await this.utils.expectRoute(RoutePath.daitaSettings);
   }
 
   async gotoSplitTunnelingSettings() {

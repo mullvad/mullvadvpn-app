@@ -17,7 +17,7 @@ test.describe('DAITA settings', () => {
     await routes.main.waitForRoute();
     await routes.main.gotoSettings();
     await routes.settings.gotoDaitaSettings();
-    await routes.daita.setEnableDaitaSwitch(false);
+    await routes.daitaSettings.setEnableDaitaSwitch(false);
   };
 
   test.beforeAll(async () => {
@@ -29,15 +29,15 @@ test.describe('DAITA settings', () => {
   });
 
   test.afterEach(async () => {
-    await routes.daita.setEnableDaitaSwitch(false);
-    const daitaSwitch = routes.daita.getEnableDaitaSwitch();
+    await routes.daitaSettings.setEnableDaitaSwitch(false);
+    const daitaSwitch = routes.daitaSettings.getEnableDaitaSwitch();
 
     await expect(daitaSwitch).not.toBeChecked();
   });
 
   test('Should enable DAITA when clicking switch', async () => {
-    await routes.daita.setEnableDaitaSwitch(true);
-    const daitaSwitch = routes.daita.getEnableDaitaSwitch();
+    await routes.daitaSettings.setEnableDaitaSwitch(true);
+    const daitaSwitch = routes.daitaSettings.getEnableDaitaSwitch();
 
     await expect(daitaSwitch).toBeChecked();
   });

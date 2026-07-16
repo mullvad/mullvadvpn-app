@@ -53,7 +53,7 @@ const featureIndicatorWithOption: FeatureIndicatorWithOptionTestOption[] = [
   {
     testId: 'DAITA',
     featureIndicator: FeatureIndicator.daita,
-    route: RoutePath.daita,
+    route: RoutePath.daitaSettings,
     featureIndicatorLabel: 'DAITA',
     option: { name: 'Enable', type: 'switch' },
   },
