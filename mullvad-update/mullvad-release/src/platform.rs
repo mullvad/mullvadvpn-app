@@ -1,7 +1,7 @@
 //! Types for handling per-platform metadata
 
 use anyhow::{Context, anyhow, bail};
-use mullvad_update::api::{HttpVersionInfoProvider, MetaRepositoryPlatform};
+use mullvad_update::api::{HttpVersionInfoProvider, MetaRepository, MetaRepositoryPlatform};
 use mullvad_update::format::Architecture;
 use mullvad_update::format::installer::Installer;
 use mullvad_update::format::key;
@@ -17,11 +17,6 @@ use crate::{
     artifacts, get_data_dir,
     io_util::{create_dir_and_write, wait_for_confirm},
 };
-
-/// URL for version metadata repository.
-///
-/// Use 'releases.mullvad.net' instead of the API to make it less likely that the data is stale.
-const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Platform {
@@ -118,16 +113,13 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let url = format!("{METADATA_URL}{}", self.local_filename());
+        // Use 'releases.mullvad.net' instead of the API to make it less likely that the data is stale.
+        let repo = MetaRepository::releases(MetaRepositoryPlatform::from(*self));
+        let url = repo.url();
 
         println!("Pulling {self} metadata from {url}...");
 
-        let info_provider = HttpVersionInfoProvider {
-            url,
-            resolve: None,
-            pinned_certificate: None,
-            dump_to_path: None,
-        };
+        let info_provider = HttpVersionInfoProvider::from(repo);
 
         let response = info_provider
             .get_versions(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)

@@ -18,6 +18,40 @@ use mullvad_api_constants::*;
 
 /// Available platforms in the default metadata repository
 #[derive(Debug, Clone, Copy)]
+pub struct MetaRepository<'url> {
+    platform: MetaRepositoryPlatform,
+    base_url: &'url str,
+}
+
+impl<'url> MetaRepository<'url> {
+    /// Create a repository using the base URL [defaults::RELEASES_URL].
+    pub fn api(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::RELEASES_URL, platform)
+    }
+
+    /// Create a repository using the base URL [defaults::METADATA_URL].
+    ///
+    /// This will fetch the metadata from `releases.mullvad.net`. It does not pin the TLS
+    /// certificate. This may be useful as the data is less likely to be stale.
+    ///
+    /// You most likely want to use [MetaRepository::api] instead.
+    pub fn releases(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::METADATA_URL, platform)
+    }
+
+    /// Return repository based on the `base_url`.
+    fn new(base_url: &'url str, platform: MetaRepositoryPlatform) -> Self {
+        Self { base_url, platform }
+    }
+
+    /// Return complete URL used for the metadata
+    pub fn url(&self) -> String {
+        format!("{}/{}", self.base_url, self.platform.filename())
+    }
+}
+
+/// Available platforms in the default metadata repository
+#[derive(Debug, Clone, Copy)]
 pub enum MetaRepositoryPlatform {
     Windows,
     Linux,
@@ -35,11 +69,6 @@ impl MetaRepositoryPlatform {
         }
     }
 
-    /// Return complete URL used for the metadata
-    pub fn url(&self) -> String {
-        format!("{}/{}", defaults::RELEASES_URL, self.filename())
-    }
-
     fn filename(&self) -> &str {
         match self {
             MetaRepositoryPlatform::Windows => "windows.json",
@@ -52,13 +81,13 @@ impl MetaRepositoryPlatform {
 /// Obtain version data using a GET request
 pub struct HttpVersionInfoProvider {
     /// Endpoint for GET request
-    pub url: String,
+    url: String,
     /// Optional host to resolve (to the IP) without DNS
-    pub resolve: Option<(&'static str, IpAddr)>,
+    resolve: Option<(&'static str, IpAddr)>,
     /// Accepted root certificate. Defaults are used unless specified
-    pub pinned_certificate: Option<reqwest::Certificate>,
+    pinned_certificate: Option<reqwest::Certificate>,
     /// If set, the response metadata will be serialized and written to this path
-    pub dump_to_path: Option<PathBuf>,
+    dump_to_path: Option<PathBuf>,
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
@@ -72,13 +101,13 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
     }
 }
 
-impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
+impl<'url> From<MetaRepository<'url>> for HttpVersionInfoProvider {
     /// Construct an [HttpVersionInfoProvider] for the given platform using reasonable defaults.
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate.
-    fn from(platform: MetaRepositoryPlatform) -> Self {
+    fn from(repository: MetaRepository<'url>) -> Self {
         HttpVersionInfoProvider {
-            url: platform.url(),
+            url: repository.url(),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
             pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
             dump_to_path: None,
@@ -90,23 +119,9 @@ impl HttpVersionInfoProvider {
     /// Maximum size of the GET response, in bytes
     const SIZE_LIMIT: usize = 1024 * 1024;
 
-    /// Retrieve version metadata for the given platform using reasonable defaults.
+    /// Download and verify signed data with sane defaults.
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate, and
-    /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
-    pub async fn get_versions_for_platform(
-        platform: MetaRepositoryPlatform,
-        lowest_metadata_version: usize,
-    ) -> anyhow::Result<SignedResponse> {
-        HttpVersionInfoProvider::from(platform)
-            .get_versions(lowest_metadata_version)
-            .await
-    }
-
-    /// Download and verify signed data with sane defaults
-    ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate, and
-    /// and the keys in `trusted-metadata-signing-keys` will be used for verification.
+    /// By default, the keys in `trusted-metadata-signing-keys` are used for verification.
     pub async fn get_versions(
         &self,
         lowest_metadata_version: usize,
