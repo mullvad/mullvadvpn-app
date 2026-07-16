@@ -224,9 +224,22 @@ impl RelayEndpointSet {
         } else {
             Constraint::Any
         };
+        // QUIC and Shadowsocks do not use the selected WireGuard endpoint, so it does not
+        // need to match the requested IP version. Use the same family when possible so IP
+        // overrides are derived correctly; otherwise, loosen the constraint.
+        let wireguard_ip_version = match query {
+            Constraint::Only(ObfuscationMode::Shadowsocks(_) | ObfuscationMode::Quic) => {
+                if self.wireguard.supports_ip_version(ip_version) {
+                    ip_version
+                } else {
+                    Constraint::Any
+                }
+            }
+            _ => ip_version,
+        };
         let wireguard_endpoint = self
             .wireguard
-            .random_endpoint(ip_version, port)
+            .random_endpoint(wireguard_ip_version, port)
             .ok_or(Error::NoMatchingAddresses)?;
 
         let mode = match query {
