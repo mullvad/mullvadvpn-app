@@ -19,8 +19,8 @@ pub enum TunnelType {
 // ======================================================
 
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
-    let version_matches = |settings: &serde_json::Value| settings.get("settings_version").is_none();
-    if !version_matches(settings) {
+    let version_matches = settings.get("settings_version").is_none();
+    if !version_matches {
         return Ok(());
     }
 
