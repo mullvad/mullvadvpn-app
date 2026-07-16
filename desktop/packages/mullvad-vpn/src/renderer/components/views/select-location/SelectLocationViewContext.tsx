@@ -3,6 +3,7 @@ import React from 'react';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
+import { type LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -12,6 +13,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  isolatedItem: LocationSelectorSelectedItem | undefined;
+  setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -36,6 +39,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
   const viewRef = React.useRef<HTMLDivElement | null>(null);
+  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
+    undefined,
+  );
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = multihop !== 'never';
@@ -53,8 +59,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
+      isolatedItem,
+      setIsolatedItem,
     }),
-    [locationType, searchTerm, setSelectLocationView, viewRef],
+    [isolatedItem, locationType, searchTerm, setSelectLocationView],
   );
 
   return (
