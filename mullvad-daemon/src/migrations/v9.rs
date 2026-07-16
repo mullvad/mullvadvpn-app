@@ -1,10 +1,5 @@
-use serde_json::json;
-use std::{
-    fs::{read_to_string, remove_file},
-    path::Path,
-};
-
 use mullvad_types::settings::SettingsVersion;
+use std::path::Path;
 
 use super::{Error, Result};
 
@@ -14,15 +9,11 @@ use super::{Error, Result};
 type JsonSettings = serde_json::Map<String, serde_json::Value>;
 
 /// Directories which the migration may want to touch.
+#[cfg_attr(not(target_os = "android"), expect(unused))]
 pub struct Directories<'path> {
     /// The path to the directory where `settings.json` is stored.
     pub settings: &'path Path,
 }
-
-/// (Android) The file where all currently split-tunnelled apps are stored.
-const SPLIT_TUNNELING_APPS: &str = "split-tunnelling.txt";
-/// (Android) The file where the split-tunnelling state (enabled / disabled) is stored.
-const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 
 // ======================================================
 
@@ -38,6 +29,7 @@ const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 /// This `migrate` function needs to get passed a `settings_dir` to work on Android. This is
 /// because the Android client will pass the settings directory when initializing the daemon,
 /// which means that we can not know ahead of time where the settings are stored.
+#[cfg_attr(not(target_os = "android"), expect(unused))]
 pub fn migrate(
     settings: &mut serde_json::Value,
     directories: Option<Directories<'_>>,
@@ -50,18 +42,11 @@ pub fn migrate(
 
     let json_blob = to_settings_object(settings)?;
 
-    // TODO: Remove this comment when closing the migration:
-    // While this is an open migration, we check to see if the split tunnel apps have been migrated
-    // already. If so, we don't want to run the migration code again. The call to
-    // `split_tunnel_subkey_exists` can safely be removed when closing this migration.
-    if cfg!(target_os = "android") && !android::split_tunnel_subkey_exists(json_blob) {
-        if let Some(directories) = directories {
-            android::migrate_split_tunnel_settings(json_blob, directories)?;
-        } else {
-            log::warn!(
-                "Did not migrate old split tunnelled apps due to missing settings directory"
-            );
-        }
+    #[cfg(target_os = "android")]
+    if let Some(directories) = directories {
+        android::migrate_split_tunnel_settings(json_blob, directories)?;
+    } else {
+        log::warn!("Did not migrate old split tunnelled apps due to missing settings directory");
     }
 
     json_blob["settings_version"] = serde_json::json!(SettingsVersion::V10);
@@ -83,15 +68,17 @@ fn to_settings_object(settings: &mut serde_json::Value) -> Result<&mut JsonSetti
         .ok_or(Error::InvalidSettingsContent)
 }
 
-// #[cfg(target_os = "android")]
+#[cfg(target_os = "android")]
 mod android {
     use super::*;
 
-    /// Check if the "split_tunnel" subkey already exists on the settings blob.
-    /// On Android, this key *should not* exist before this migration.
-    pub fn split_tunnel_subkey_exists(settings: &mut JsonSettings) -> bool {
-        settings.get("split_tunnel").is_some()
-    }
+    use serde_json::json;
+    use std::fs::{read_to_string, remove_file};
+
+    /// (Android) The file where all currently split-tunnelled apps are stored.
+    const SPLIT_TUNNELING_APPS: &str = "split-tunnelling.txt";
+    /// (Android) The file where the split-tunnelling state (enabled / disabled) is stored.
+    const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
 
     /// Read the existing split-tunneling settings which the Android client has kept track off and
     /// write them to the settings object.
@@ -183,14 +170,13 @@ mod android {
     }
 }
 
-// TODO: Also test the case where the location is not an openvpn relay and the tunnel type is any
 #[cfg(test)]
 mod test {
     use super::*;
 
     use crate::migrations::load_seed;
 
-    // #[cfg(target_os = "android")]
+    #[cfg(target_os = "android")]
     mod android {
         use super::*;
 
@@ -234,13 +220,10 @@ mod test {
         insta::assert_snapshot!(v9);
     }
 
-    /// Assert that tunnel type is migrated
     #[test]
     fn test_v9_to_v10_migration() {
-        // This settings blob contains no constraint for tunnel type
         let mut v9 = v9_settings();
         migrate(&mut v9, None).unwrap();
-        // This settings blob does not contain an "any" tunnel type
         let v10 = serde_json::to_string_pretty(&v9).unwrap();
         insta::assert_snapshot!(v10);
     }
