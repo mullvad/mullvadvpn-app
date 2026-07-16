@@ -11,6 +11,12 @@
 # The default also includes Windows 7, 8.1, and 8.
 ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
+# Declare that the installer is DPI-aware.
+# A DPI-aware application is not scaled by the DWM (DPI virtualization) so the text is never blurry.
+# - https://nsis.sourceforge.io/Reference/ManifestDPIAware
+# - https://github.com/electron-userland/electron-builder/issues/5329
+ManifestDPIAware true
+
 #
 # NOTES
 #

@@ -58,6 +58,7 @@ Line wrap the file at 100 chars.                                              Th
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
   enabled in order to prevent toggle switches and other custom-styled controls from becoming
   invisible.
+- Fix the installer UI from looking blurry by making the installer DPI-aware.
 
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
