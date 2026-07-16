@@ -18,6 +18,9 @@ use crate::{
     io_util::{create_dir_and_write, wait_for_confirm},
 };
 
+/// URL for version metadata repository.
+const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum Platform {
     Windows,
@@ -113,16 +116,21 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let platform = MetaRepositoryPlatform::from(*self);
+        let url = format!("{METADATA_URL}{}", self.local_filename());
 
-        println!("Pulling {self} metadata from {}...", platform.url());
+        println!("Pulling {self} metadata from {url}...");
 
-        let response = HttpVersionInfoProvider::get_versions_for_platform(
-            platform,
-            mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
-        )
-        .await
-        .context("Failed to retrieve versions")?;
+        let info_provider = HttpVersionInfoProvider {
+            url,
+            resolve: None,
+            pinned_certificate: None,
+            dump_to_path: None,
+        };
+
+        let response = info_provider
+            .get_versions(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
+            .await
+            .context("Failed to retrieve versions")?;
 
         let json = serde_json::to_string_pretty(&response)
             .context("Failed to serialize updated metadata")?;

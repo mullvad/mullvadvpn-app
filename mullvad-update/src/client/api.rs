@@ -52,13 +52,13 @@ impl MetaRepositoryPlatform {
 /// Obtain version data using a GET request
 pub struct HttpVersionInfoProvider {
     /// Endpoint for GET request
-    url: String,
+    pub url: String,
     /// Optional host to resolve (to the IP) without DNS
-    resolve: Option<(&'static str, IpAddr)>,
+    pub resolve: Option<(&'static str, IpAddr)>,
     /// Accepted root certificate. Defaults are used unless specified
-    pinned_certificate: Option<reqwest::Certificate>,
+    pub pinned_certificate: Option<reqwest::Certificate>,
     /// If set, the response metadata will be serialized and written to this path
-    dump_to_path: Option<PathBuf>,
+    pub dump_to_path: Option<PathBuf>,
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
@@ -107,7 +107,10 @@ impl HttpVersionInfoProvider {
     ///
     /// By default, `pinned_certificate` will be set to the LE root certificate, and
     /// and the keys in `trusted-metadata-signing-keys` will be used for verification.
-    async fn get_versions(&self, lowest_metadata_version: usize) -> anyhow::Result<SignedResponse> {
+    pub async fn get_versions(
+        &self,
+        lowest_metadata_version: usize,
+    ) -> anyhow::Result<SignedResponse> {
         self.get_versions_inner(|raw_json| {
             SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
         })
