@@ -101,6 +101,7 @@ impl HttpVersionInfoProvider {
         }
     }
 
+    /// Return complete URL used for the metadata
     pub fn url(&self) -> &str {
         &self.url
     }
