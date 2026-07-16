@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useIsDaitaEnabledWithoutDirectOnly } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
@@ -12,7 +11,6 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  DisabledEntrySelection,
   FilterChips,
   HeaderMenuIconButton,
   LocationLists,
@@ -46,13 +44,7 @@ export function SelectLocationViewImpl() {
     [saveScrollPosition, setLocationType],
   );
 
-  const isEntrySelection = locationType === LocationType.entry;
-  const isDaitaWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
-
-  const showDisabledEntrySelection = isEntrySelection && isDaitaWithoutDirectOnly;
-  const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
-  const showSearchField = !showDisabledEntrySelection;
-  const showEntryExitBar = multihop !== 'never';
+  const showEntryExitBar = multihop === 'always';
 
   return (
     <View backgroundColor="darkBlue">
@@ -77,24 +69,20 @@ export function SelectLocationViewImpl() {
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
               </StyledScopeBar>
             )}
-            {showFilters && <FilterChips />}
-            {showSearchField && <LocationSearchField />}
+            {isAnyFilterActive && <FilterChips />}
+            <LocationSearchField />
           </View.Container>
 
           <NavigationScrollbars ref={scrollViewRef}>
             <View.Content padding={{ top: 'small' }}>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                {showDisabledEntrySelection ? (
-                  <DisabledEntrySelection />
-                ) : (
-                  <View.Container horizontalMargin="medium" flexDirection="column">
-                    <LocationLists
-                      // Set key to reset list when switching between entry and exit
-                      key={locationType}
-                      type={locationType}
-                    />
-                  </View.Container>
-                )}
+                <View.Container horizontalMargin="medium" flexDirection="column">
+                  <LocationLists
+                    // Set key to reset list when switching between entry and exit
+                    key={locationType}
+                    type={locationType}
+                  />
+                </View.Container>
               </SpacePreAllocationView>
             </View.Content>
           </NavigationScrollbars>
