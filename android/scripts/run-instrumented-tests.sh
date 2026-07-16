@@ -23,6 +23,8 @@ RAAS_HOST="${RAAS_HOST:-}"
 RAAS_TRAFFIC_GENERATOR_TARGET_HOST="${RAAS_TRAFFIC_GENERATOR_TARGET_HOST:-}"
 RAAS_TRAFFIC_GENERATOR_TARGET_PORT="${RAAS_TRAFFIC_GENERATOR_TARGET_PORT:-}"
 REPORT_DIR="${REPORT_DIR:-}"
+IPERF_USERNAME="${IPERF_USERNAME:-}"
+IPERF_PASSWORD="${IPERF_PASSWORD:-}"
 
 cleanup() {
     echo "Cleaning up..."
@@ -35,10 +37,10 @@ trap cleanup EXIT
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --test-type)
-            if [[ -n "${2-}" && "$2" =~ ^(app|mockapi|e2e)$ ]]; then
+            if [[ -n "${2-}" && "$2" =~ ^(app|mockapi|e2e|benchmark)$ ]]; then
                 TEST_TYPE="$2"
             else
-                echo "Error: Bad or missing test type. Must be one of: app, mockapi, e2e"
+                echo "Error: Bad or missing test type. Must be one of: app, mockapi, e2e, benchmark"
                 exit 1
             fi
             shift 2
@@ -69,7 +71,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ -z ${TEST_TYPE-} ]]; then
-    echo "Error: Missing --test-type argument. Must be set to one of: app, e2e, mockapi"
+    echo "Error: Missing --test-type argument. Must be set to one of: app, e2e, mockapi, benchmark"
     exit 1
 fi
 
@@ -168,6 +170,38 @@ case "$TEST_TYPE" in
     fi
     TEST_PACKAGE_NAME="net.mullvad.mullvadvpn.test.e2e"
     TEST_APK_PATH="$APK_BASE_DIR/test/e2e/build/outputs/apk/$BILLING_FLAVOR${INFRA_FLAVOR^}/debug/e2e-$BILLING_FLAVOR-$INFRA_FLAVOR-debug.apk"
+    ;;
+
+    benchmark)
+    if [[ $INFRA_FLAVOR != "stagemole" ]]; then
+        echo ""
+        echo "Error: The 'benchmark' test type require infra flavor 'stagemole'."
+        exit 1
+    fi
+
+    if [[ -n ${PARTNER_AUTH} ]]; then
+        echo "Test account used for benchmark test (provided/partner): partner"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.e2e.$INFRA_FLAVOR.partnerAuth $PARTNER_AUTH"
+    else
+        echo ""
+        echo "Error: The variable PARTNER_AUTH must be set."
+        exit 1
+    fi
+
+    if [[ -n ${IPERF_USERNAME} ]]; then
+        echo "Username provided fopr iPerf server"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.benchmark.target.username $IPERF_USERNAME"
+    fi
+
+    if [[ -n ${IPERF_PASSWORD} ]]; then
+        echo "Password provided for iPerf server"
+        OPTIONAL_TEST_ARGUMENTS+=" -e mullvad.test.benchmark.target.password $IPERF_PASSWORD"
+    fi
+
+    USE_ORCHESTRATOR="true"
+    PACKAGE_NAME="net.mullvad.mullvadvpn.stagemole"
+    TEST_PACKAGE_NAME="net.mullvad.mullvadvpn.test.benchmark"
+    TEST_APK_PATH="$APK_BASE_DIR/test/benchmark/build/outputs/apk/${INFRA_FLAVOR}/debug/benchmark-$INFRA_FLAVOR-debug.apk"
     ;;
 esac
 
@@ -270,6 +304,10 @@ echo ""
 echo "### Checking logs for success message ###"
 if grep -q -E "$LOG_SUCCESS_REGEX" "$INSTRUMENTATION_LOG_FILE_PATH"; then
     echo "Success, no failures!"
+    if [[ "$TEST_TYPE" == "benchmark" ]]; then
+        echo "Collecting benchmark report..."
+        adb pull "$DEVICE_TEST_ATTACHMENTS_PATH" "$LOCAL_TEST_ATTACHMENTS_PATH" || echo "No test attachments"
+    fi
 else
     echo "One or more tests failed, see logs for more details."
     echo "Collecting report..."
