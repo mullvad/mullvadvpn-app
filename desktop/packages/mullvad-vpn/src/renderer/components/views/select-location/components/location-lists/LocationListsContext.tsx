@@ -19,7 +19,7 @@ import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hoo
 import type { LocationsListsProps } from './LocationLists';
 
 type LocationListsContextProps = Omit<LocationListsProviderProps, 'children'> & {
-  handleSelect: (location: AnyLocation) => Promise<void>;
+  handleSelect: (location: AnyLocation) => Promise<void> | void;
   countryLocations: ReturnType<typeof useSearchCountryLocations>;
   customListLocations: ReturnType<typeof useSearchCustomListLocations>;
   recentEntryLocations: ReturnType<typeof getRecentEntryLocations>;
