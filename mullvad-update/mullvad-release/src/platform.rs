@@ -19,6 +19,8 @@ use crate::{
 };
 
 /// URL for version metadata repository.
+///
+/// Use 'releases.mullvad.net' instead of the API to make it less likely that the data is stale.
 const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
 
 #[derive(Clone, Copy, PartialEq)]
