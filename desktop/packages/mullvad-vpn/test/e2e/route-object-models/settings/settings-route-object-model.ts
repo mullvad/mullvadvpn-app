@@ -31,7 +31,7 @@ export class SettingsRouteObjectModel {
   }
 
   async gotoDaitaSettings() {
-    await this.selectors.daitaButton().click();
+    await this.selectors.daitaSettingsButton().click();
     await this.utils.expectRoute(RoutePath.daitaSettings);
   }
 
