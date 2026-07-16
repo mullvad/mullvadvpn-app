@@ -17,6 +17,7 @@ import {
 } from '../../../features/locations/utils';
 import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
+import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -30,6 +31,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   recentSinglehopLocations: ReturnType<typeof getRecentSinglehopLocations>;
   recentMultihopEntryLocations: ReturnType<typeof getRecentMultihopEntryLocations>;
   recentMultihopExitLocations: ReturnType<typeof getRecentMultihopExitLocations>;
+  isolatedItem: LocationSelectorSelectedItem | undefined;
+  setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -53,6 +56,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const [searchTerm, setSearchTerm] = React.useState('');
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
+  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
+    undefined,
+  );
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = multihop === 'always';
@@ -102,17 +108,19 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       recentSinglehopLocations,
       recentMultihopEntryLocations,
       recentMultihopExitLocations,
+      isolatedItem,
+      setIsolatedItem,
     }),
     [
-      searchedCustomListLocations,
-      searchedCountryLocations,
       locationType,
-      searchTerm,
-      setSearchTerm,
       setSelectLocationView,
+      searchTerm,
+      searchedCountryLocations,
+      searchedCustomListLocations,
       recentSinglehopLocations,
       recentMultihopEntryLocations,
       recentMultihopExitLocations,
+      isolatedItem,
     ],
   );
 
