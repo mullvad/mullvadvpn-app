@@ -1,44 +1,51 @@
+use crate::lan_nat::tcp::virtual_device::{VirtualDevice, BUF_SIZE};
 use crate::{DaemonCommand, DaemonEventSender, InternalDaemonEvent};
+use bytes::{Bytes, BytesMut};
 use etherparse::checksum::Sum16BitWords;
-use etherparse::err::LenError;
 use etherparse::{
-    IcmpEchoHeader, Icmpv4Header, Icmpv4Slice, Icmpv4Type, IpNumber, Ipv4Header, Ipv6Header,
-    NetHeaders, PacketHeaders, PayloadSlice, TransportHeader, UdpHeader,
+    Icmpv4Header, Icmpv4Type, IpNumber, Ipv4Header, Ipv6Header, NetHeaders, PacketHeaders,
+    PayloadSlice, TcpHeader, TransportHeader, UdpHeader,
 };
 use futures::channel::oneshot::Canceled;
-use socket2::{Domain, Protocol, SockAddr, Socket, Type};
+use smoltcp::iface::{Config, Interface, SocketSet};
+use smoltcp::socket::tcp::{RecvError, Socket as SmolTcpSocket, SocketBuffer};
+use smoltcp::time::Instant;
+use smoltcp::wire::{HardwareAddress, IpCidr};
+use socket2::{Domain, Protocol, Socket, Type};
 use std::collections::HashMap;
 use std::io;
-use std::mem::MaybeUninit;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4, SocketAddrV6};
-use std::os::fd::AsRawFd;
+use std::os::fd::{AsRawFd, RawFd};
 use std::pin::Pin;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, RwLock, mpsc};
+use std::sync::{Arc, RwLock};
+use talpid_core::IpSink;
 use talpid_core::mpsc::Sender;
-use talpid_core::packet::{Ip, Ipv4, Packet};
-use talpid_core::{BufferedIpSend, IpSend, IpSink};
-use tokio::net::UdpSocket;
+use talpid_core::packet::{Ip, Packet};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpSocket, UdpSocket};
+use tokio::sync::mpsc;
 use tokio::task;
 use tun::AsyncDevice;
 
 type IcmpEchoId = u16;
 type IcmpMap = Arc<RwLock<HashMap<IcmpEchoId, Arc<UdpSocket>>>>;
+type TcpMap = Arc<RwLock<HashMap<Connection, mpsc::Sender<Bytes>>>>;
+type UdpMap = Arc<RwLock<HashMap<Connection, Arc<UdpSocket>>>>;
 
 #[derive(Debug, Eq, Hash, PartialEq, Clone)]
-struct UdpEntry {
+struct Connection {
     src_addr: IpAddr,
     src_port: u16,
 
     dest_addr: IpAddr,
     dest_port: u16,
 }
-type UdpMap = Arc<RwLock<HashMap<UdpEntry, Arc<UdpSocket>>>>;
 
 pub struct LanPacketHandler {
     daemon_tx: DaemonEventSender<InternalDaemonEvent>,
     icmp_map: IcmpMap,
     udp_map: UdpMap,
+    tcp_map: TcpMap,
 }
 
 impl LanPacketHandler {
@@ -47,6 +54,7 @@ impl LanPacketHandler {
             daemon_tx,
             icmp_map: IcmpMap::new(Default::default()),
             udp_map: UdpMap::new(Default::default()),
+            tcp_map: TcpMap::new(Default::default()),
         })
     }
 }
@@ -91,11 +99,13 @@ impl OutgoingPacket<'_> {
 
 impl LanPacketHandler {
     async fn route_packet(&self, packet: Packet<Ip>, sender: Arc<AsyncDevice>) {
-        let bytes = packet.into_bytes();
+        let bytes: BytesMut = packet.into_bytes().into();
+        let bytes: Bytes = bytes.freeze();
+        let bytes_clone = bytes.clone();
 
-        let byte_slice: &[u8] = bytes.as_ref();
+        let headers = PacketHeaders::from_ip_slice(bytes_clone.as_ref());
 
-        match PacketHeaders::from_ip_slice(byte_slice) {
+        match headers {
             Ok(headers) => {
                 let (src, dest) = match headers.net.unwrap() {
                     NetHeaders::Ipv4(ip, _) => {
@@ -110,8 +120,6 @@ impl LanPacketHandler {
                     }
                 };
 
-                // self.update_tun_ip(src);
-
                 let outgoing = OutgoingPacket {
                     src,
                     dest,
@@ -120,10 +128,8 @@ impl LanPacketHandler {
 
                 match headers.transport {
                     Some(TransportHeader::Tcp(tcp)) => {
-                        log::error!("TCP");
-                        log::error!("{src} -> {dest}");
-                        log::error!("src port: {}", tcp.source_port);
-                        log::error!("dst port: {}", tcp.destination_port);
+                        log::error!("routing tcp");
+                        self.route_tcp(sender, tcp, outgoing, bytes).await;
                     }
                     Some(TransportHeader::Udp(udp)) => {
                         log::error!("routing udp");
@@ -131,7 +137,7 @@ impl LanPacketHandler {
                     }
                     Some(TransportHeader::Icmpv4(icmp)) => {
                         log::error!("routing icmpv4");
-                        self.route_icmp(sender, icmp, outgoing).await
+                        self.route_icmp(sender, icmp, outgoing).await;
                     }
                     Some(TransportHeader::Icmpv6(icmp)) => {
                         log::error!("ICMPv6");
@@ -149,31 +155,63 @@ impl LanPacketHandler {
         }
     }
 
-    async fn route_udp(
+    async fn route_tcp(
         &self,
         sender: Arc<AsyncDevice>,
-        header: UdpHeader,
+        header: TcpHeader,
         packet: OutgoingPacket<'_>,
+        ip_packet_bytes: Bytes,
     ) {
-        let entry = UdpEntry {
+        let conn = Connection {
             src_addr: packet.src,
             src_port: header.source_port,
             dest_addr: packet.dest,
             dest_port: header.destination_port,
         };
 
-        log::error!("{:?}", entry);
+        log::error!("{:?}", conn);
 
-        log::error!("IN MAP:");
-        for key in self.udp_map.read().unwrap().keys() {
-            log::error!("{:?}", key);
+        if !self.tcp_map.read().unwrap().contains_key(&conn) {
+            let prot_sock = create_tcp_socket(&packet).unwrap();
+
+            log::error!("bypassing tcp socket");
+            if self.bypass_socket(prot_sock.as_raw_fd()).await.is_err() {
+                // TODO: error handling
+                log::error!("failed to bypass tcp socket");
+                return;
+            }
+
+            let (tx, rx) = mpsc::channel::<Bytes>(100);
+
+            self.tcp_map.write().unwrap().insert(conn.clone(), tx);
+
+            self.start_tcp_read_task(sender, conn.clone(), prot_sock, rx)
         }
 
-        if !self.udp_map.read().unwrap().contains_key(&entry) {
-            let socket = create_socket(&packet, SupportedProtocol::UDP).unwrap();
+        let sender = self.tcp_map.read().unwrap().get(&conn).cloned().unwrap();
+        let _ = sender.send(ip_packet_bytes).await;
+    }
+
+    async fn route_udp(
+        &self,
+        sender: Arc<AsyncDevice>,
+        header: UdpHeader,
+        packet: OutgoingPacket<'_>,
+    ) {
+        let conn = Connection {
+            src_addr: packet.src,
+            src_port: header.source_port,
+            dest_addr: packet.dest,
+            dest_port: header.destination_port,
+        };
+
+        log::error!("{:?}", conn);
+
+        if !self.udp_map.read().unwrap().contains_key(&conn) {
+            let socket = create_udp_socket(&packet, UdpSocketProtocol::UDP).unwrap();
 
             log::error!("bypassing udp socket");
-            if self.bypass_socket(&socket).await.is_err() {
+            if self.bypass_socket(socket.as_raw_fd()).await.is_err() {
                 // TODO: error handling
                 log::error!("failed to bypass udp socket");
                 return;
@@ -183,20 +221,20 @@ impl LanPacketHandler {
             self.udp_map
                 .write()
                 .unwrap()
-                .insert(entry.clone(), socket.clone());
+                .insert(conn.clone(), socket.clone());
 
-            self.start_udp_read_task(sender, entry.clone(), socket);
+            self.start_udp_read_task(sender, conn.clone(), socket);
         }
 
-        let socket = self.udp_map.read().unwrap().get(&entry).cloned().unwrap();
+        let socket = self.udp_map.read().unwrap().get(&conn).cloned().unwrap();
 
         let sock_addr = match packet.dest {
             IpAddr::V4(dest) => {
-                let dest_addr = SocketAddrV4::new(dest, entry.dest_port);
+                let dest_addr = SocketAddrV4::new(dest, conn.dest_port);
                 SocketAddr::V4(dest_addr)
             }
             IpAddr::V6(dest) => {
-                let dest_addr = SocketAddrV6::new(dest, entry.dest_port, 0, 0);
+                let dest_addr = SocketAddrV6::new(dest, conn.dest_port, 0, 0);
                 SocketAddr::V6(dest_addr)
             }
         };
@@ -213,14 +251,224 @@ impl LanPacketHandler {
         }
     }
 
+    async fn route_icmp(
+        &self,
+        sender: Arc<AsyncDevice>,
+        header: Icmpv4Header,
+        packet: OutgoingPacket<'_>,
+    ) {
+        let Icmpv4Type::EchoRequest(echo_req) = header.icmp_type else {
+            log::trace!("Ignoring ICMP packet that is not of type EchoRequest");
+            return;
+        };
+
+        log::error!("ICMP echo request: {} -> {}", packet.src, packet.dest);
+        log::error!("{:?}", header);
+
+        if !self.icmp_map.read().unwrap().contains_key(&echo_req.id) {
+            let socket = create_udp_socket(&packet, UdpSocketProtocol::ICMP).unwrap();
+
+            if self.bypass_socket(socket.as_raw_fd()).await.is_err() {
+                // TODO: error handling
+                log::error!("failed to bypass icmp socket");
+                return;
+            }
+
+            let socket = Arc::new(socket);
+            self.icmp_map
+                .write()
+                .unwrap()
+                .insert(echo_req.id, socket.clone());
+
+            self.start_icmp_read_task(sender, echo_req.id, socket, packet.src);
+        }
+
+        let socket = self
+            .icmp_map
+            .read()
+            .unwrap()
+            .get(&echo_req.id)
+            .cloned()
+            .unwrap();
+
+        let sock_addr = match packet.dest {
+            IpAddr::V4(dest) => {
+                let dest_addr = SocketAddrV4::new(dest, 0);
+                SocketAddr::from(dest_addr)
+            }
+            IpAddr::V6(dest) => {
+                let dest_addr = SocketAddrV6::new(dest, 0, 0, 0);
+                SocketAddr::from(dest_addr)
+            }
+        };
+
+        let packet_bytes = packet.create_raw_packet(&header.to_bytes());
+
+        match socket.send_to(&packet_bytes, &sock_addr).await {
+            Ok(ok) => {
+                log::error!("SENT ICMP LEN: {}", ok);
+            }
+            Err(e) => {
+                log::error!("ERROR SENDING ICMP: {:?}", e);
+            }
+        }
+    }
+
+    fn start_tcp_read_task(
+        &self,
+        tun: Arc<AsyncDevice>,
+        conn: Connection,
+        prot_sock: TcpSocket,
+        mut tun_packets: mpsc::Receiver<Bytes>,
+    ) {
+        let mut device = VirtualDevice::new();
+        let config = Config::new(HardwareAddress::Ip);
+        let mut iface = Interface::new(config, &mut device, Instant::now());
+
+        iface.update_ip_addrs(|ip_addrs| {
+            // A /32 CIDR means this interface specifically owns this single IP address
+            ip_addrs
+                .push(IpCidr::new(conn.dest_addr.into(), 32))
+                .unwrap();
+        });
+
+        let mut tcp_socket = SmolTcpSocket::new(
+            SocketBuffer::new(vec![0; BUF_SIZE]),
+            SocketBuffer::new(vec![0; BUF_SIZE]),
+        );
+        tcp_socket.listen(conn.dest_port).unwrap();
+
+        let mut socket_set = SocketSet::new(vec![]);
+        let socket_handle = socket_set.add(tcp_socket);
+
+        // Buffer for moving data.
+        let mut read_buf = vec![0; BUF_SIZE];
+
+        // Elastic buffer to prevent dropping data if prot_sock is faster than smoltcp.
+        let mut prot_to_smoltcp_buf = Vec::new();
+
+        task::spawn(async move {
+            let loop_start = std::time::Instant::now();
+
+            let mut prot_sock = prot_sock
+                .connect(
+                    format!("{}:{}", conn.dest_addr, conn.dest_port)
+                        .parse()
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+
+            loop {
+                // Send pending bytes read from the protected socket into smoltcp.
+                let socket = socket_set.get_mut::<SmolTcpSocket<'_>>(socket_handle);
+                if socket.can_send() && !prot_to_smoltcp_buf.is_empty() {
+                    match socket.send_slice(&prot_to_smoltcp_buf) {
+                        Ok(written) => {
+                            // Remove only the bytes smoltcp accepted (leaves the rest for next time)
+                            prot_to_smoltcp_buf.drain(..written);
+                        }
+                        Err(e) => log::error!("smoltcp send error: {e:?}"),
+                    }
+                }
+
+                // Poll interface to drive the smoltcp state machine forward.
+                iface.poll(Instant::now(), &mut device, &mut socket_set);
+
+                // Drain the device TX Queue (smoltcp -> TUN device).
+                while let Some(raw_ip_packet) = device.tx_queue.pop_front() {
+                    match tun.send(&raw_ip_packet).await {
+                        Ok(_) => device.recycle_buffer(raw_ip_packet),
+                        Err(e) => {
+                            log::error!("Failed to send to TUN: {e}");
+                            return; // Exit task if TUN is broken
+                        }
+                    }
+                }
+
+                // Send packets from smoltcp -> protected socket.
+                let socket = socket_set.get_mut::<SmolTcpSocket<'_>>(socket_handle);
+                while socket.can_recv() {
+                    match socket.recv_slice(&mut read_buf) {
+                        Ok(0) => break,
+                        Ok(n) => {
+                            if let Err(e) = prot_sock.write_all(&read_buf[..n]).await {
+                                log::error!("Failed to write to prot_sock: {e}");
+                                return;
+                            }
+                        }
+                        Err(RecvError::Finished) => {
+                            log::info!("Remote peer closed the connection gracefully.");
+                            // Close the protected socket half if necessary
+                        }
+                        Err(RecvError::InvalidState) => {
+                            log::info!("Socket is disconnected or in an invalid state.");
+                        }
+                    }
+                }
+
+                // If, at this point, we have unsent buffered data from the protected socket we need
+                // to set the delay to zero so that it is guaranteed to be processed in the next
+                // iteration of the loop. If we don't do this we could potentially deadlock in the
+                // select.
+                let delay = if prot_to_smoltcp_buf.is_empty() {
+                    iface.poll_delay(Instant::now(), &socket_set)
+                } else {
+                    Some(smoltcp::time::Duration::ZERO)
+                };
+
+                // Only read more from prot_sock when all pending data has been written to smoltcp.
+                let should_read_prot_sock = prot_to_smoltcp_buf.is_empty();
+
+                tokio::select! {
+                    // A new packet arrived from the TUN interface.
+                    Some(packet) = tun_packets.recv() => {
+                        device.rx_queue.push_back(packet);
+                    }
+
+                    // Data arrived from the protected socket.
+                    result = prot_sock.read(&mut read_buf), if should_read_prot_sock => {
+                        match result {
+                            Ok(0) => {
+                                log::info!("Protected socket reached EOF.");
+                                // Trigger graceful close on smoltcp side.
+                                let socket = socket_set.get_mut::<SmolTcpSocket<'_>>(socket_handle);
+                                socket.close();
+                            }
+                            Ok(n) => {
+                                // Buffer it. It will be flushed to smoltcp at the start of the next loop.
+                                prot_to_smoltcp_buf.extend_from_slice(&read_buf[..n]);
+                            }
+                            Err(e) => {
+                                log::error!("prot_sock read error: {e:?}");
+                                return;
+                            }
+                        }
+                    }
+
+                    // smoltcp timer expired (e.g., TCP retransmission needed).
+                    _ = async {
+                        if let Some(d) = delay {
+                            tokio::time::sleep(d.into()).await;
+                        } else {
+                            std::future::pending::<()>().await;
+                        }
+                    } => ()
+                }
+
+                log::error!("time: {} ms", loop_start.elapsed().as_millis());
+            }
+        });
+    }
+
     fn start_udp_read_task(
         &self,
         sender: Arc<AsyncDevice>,
-        entry: UdpEntry,
+        entry: Connection,
         socket: Arc<UdpSocket>,
     ) {
         task::spawn(async move {
-            let mut packet = [0u8; 1500];
+            let mut packet = vec![0u8; 1500];
 
             loop {
                 let (size, sock_addr) = socket.recv_from(&mut packet).await.unwrap();
@@ -302,69 +550,6 @@ impl LanPacketHandler {
         });
     }
 
-    async fn route_icmp(
-        &self,
-        sender: Arc<AsyncDevice>,
-        header: Icmpv4Header,
-        packet: OutgoingPacket<'_>,
-    ) {
-        let Icmpv4Type::EchoRequest(echo_req) = header.icmp_type else {
-            log::trace!("Ignoring ICMP packet that is not of type EchoRequest");
-            return;
-        };
-
-        log::error!("ICMPv4 echo request: {} -> {}", packet.src, packet.dest);
-        log::error!("{:?}", header);
-
-        if !self.icmp_map.read().unwrap().contains_key(&echo_req.id) {
-            let socket = create_socket(&packet, SupportedProtocol::ICMP).unwrap();
-
-            if self.bypass_socket(&socket).await.is_err() {
-                // TODO: error handling
-                log::error!("failed to bypass icmp socket");
-                return;
-            }
-
-            let socket = Arc::new(socket);
-            self.icmp_map
-                .write()
-                .unwrap()
-                .insert(echo_req.id, socket.clone());
-
-            self.start_icmp_read_task(sender, echo_req.id, socket, packet.src);
-        }
-
-        let socket = self
-            .icmp_map
-            .read()
-            .unwrap()
-            .get(&echo_req.id)
-            .cloned()
-            .unwrap();
-
-        let sock_addr = match packet.dest {
-            IpAddr::V4(dest) => {
-                let dest_addr = SocketAddrV4::new(dest, 0);
-                SocketAddr::from(dest_addr)
-            }
-            IpAddr::V6(dest) => {
-                let dest_addr = SocketAddrV6::new(dest, 0, 0, 0);
-                SocketAddr::from(dest_addr)
-            }
-        };
-
-        let packet_bytes = packet.create_raw_packet(&header.to_bytes());
-
-        match socket.send_to(&packet_bytes, &sock_addr).await {
-            Ok(ok) => {
-                log::error!("SENT ICMP LEN: {}", ok);
-            }
-            Err(e) => {
-                log::error!("ERROR SENDING ICMP: {:?}", e);
-            }
-        }
-    }
-
     fn start_icmp_read_task(
         &self,
         sender: Arc<AsyncDevice>,
@@ -373,7 +558,7 @@ impl LanPacketHandler {
         tun_ip: IpAddr,
     ) {
         task::spawn(async move {
-            let mut packet = [0u8; 1500];
+            let mut packet = vec![0u8; 1500];
 
             loop {
                 let (size, sock_addr) = socket.recv_from(&mut packet).await.unwrap();
@@ -428,12 +613,10 @@ impl LanPacketHandler {
         });
     }
 
-    async fn bypass_socket(&self, socket: &UdpSocket) -> Result<(), Canceled> {
+    async fn bypass_socket(&self, socket_raw_fd: RawFd) -> Result<(), Canceled> {
         let (bypass_tx, bypass_rx) = futures::channel::oneshot::channel();
-        let event = InternalDaemonEvent::Command(DaemonCommand::BypassLanSocket(
-            socket.as_raw_fd(),
-            bypass_tx,
-        ));
+        let event =
+            InternalDaemonEvent::Command(DaemonCommand::BypassLanSocket(socket_raw_fd, bypass_tx));
 
         self.daemon_tx.send(event).map_err(|_| Canceled {})?;
         bypass_rx.await
@@ -490,14 +673,16 @@ pub fn create_tun_packet(
     Ok(packet)
 }
 
-fn create_socket(packet: &OutgoingPacket<'_>, protocol: SupportedProtocol) -> io::Result<UdpSocket> {
+fn create_udp_socket(
+    packet: &OutgoingPacket<'_>,
+    protocol: UdpSocketProtocol,
+) -> io::Result<UdpSocket> {
     let is_ipv6 = packet.dest.is_ipv6();
 
     let socket_protocol = match protocol {
-        SupportedProtocol::UDP => Protocol::UDP,
-        SupportedProtocol::TCP => Protocol::TCP,
-        SupportedProtocol::ICMP if is_ipv6 => Protocol::ICMPV6,
-        SupportedProtocol::ICMP => Protocol::ICMPV4,
+        UdpSocketProtocol::UDP => Protocol::UDP,
+        UdpSocketProtocol::ICMP if is_ipv6 => Protocol::ICMPV6,
+        UdpSocketProtocol::ICMP => Protocol::ICMPV4,
     };
 
     let socket = if is_ipv6 {
@@ -513,11 +698,21 @@ fn create_socket(packet: &OutgoingPacket<'_>, protocol: SupportedProtocol) -> io
     Ok(UdpSocket::from_std(socket)?)
 }
 
-/**
-The protocols that we support LAN access for when block all VPN is enabled.
-**/
-enum SupportedProtocol {
+fn create_tcp_socket(packet: &OutgoingPacket<'_>) -> io::Result<TcpSocket> {
+    let socket = if packet.dest.is_ipv6() {
+        Socket::new(Domain::IPV6, Type::STREAM, Some(Protocol::TCP))?
+    } else {
+        Socket::new(Domain::IPV4, Type::STREAM, Some(Protocol::TCP))?
+    };
+
+    socket.set_nonblocking(true)?;
+
+    let socket: std::net::TcpStream = socket.into();
+
+    Ok(TcpSocket::from_std_stream(socket))
+}
+
+enum UdpSocketProtocol {
     UDP,
-    TCP,
-    ICMP
+    ICMP,
 }

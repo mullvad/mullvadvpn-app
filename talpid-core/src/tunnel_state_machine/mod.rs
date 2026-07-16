@@ -112,6 +112,7 @@ pub struct InitialTunnelState {
     /// Apps to exclude from the tunnel.
     #[cfg(target_os = "android")]
     pub exclude_paths: Vec<String>,
+    /// Filters packets that should be handled outsite of GotaTun
     #[cfg(target_os = "android")]
     pub lan_packet_handler: Option<Arc<dyn IpSink>>,
 }

@@ -3250,6 +3250,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "bytes",
  "chrono",
  "clap",
  "ctrlc",
@@ -3283,6 +3284,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "smoltcp",
  "socket2 0.6.4",
  "talpid-core",
  "talpid-dbus",
@@ -5651,6 +5653,7 @@ dependencies = [
  "cfg-if",
  "defmt 0.3.100",
  "heapless",
+ "log",
  "managed",
 ]
 

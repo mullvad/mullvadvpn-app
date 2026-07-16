@@ -128,6 +128,8 @@ async-trait = { workspace = true }
 ctrlc = { workspace = true }
 hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
+smoltcp = { version = "0.13.1", default-features = false, features = ["std", "verbose", "async", "socket-tcp", "medium-ip", "proto-ipv4", "proto-ipv6", "log"] }
+bytes = { workspace = true }
 
 [target.'cfg(target_os="linux")'.dependencies]
 ctrlc = { workspace = true, features = ["termination"] }

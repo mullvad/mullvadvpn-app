@@ -13,7 +13,7 @@ pub mod device;
 mod dns;
 pub mod exception_logging;
 mod geoip;
-mod lan_packet_handler;
+mod lan_nat;
 mod leak_checker;
 pub mod logging;
 #[cfg(target_os = "macos")]
@@ -29,7 +29,7 @@ mod target_state;
 mod tunnel;
 pub mod version;
 
-use crate::lan_packet_handler::LanPacketHandler;
+use crate::lan_nat::lan_packet_handler::LanPacketHandler;
 use crate::{
     migrations::{MigrationData, multihop::scenario::Scenario},
     target_state::PersistentTargetState,

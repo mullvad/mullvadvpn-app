@@ -5,8 +5,6 @@ use crate::{
     config::Config,
     stats::{Stats, StatsMap},
 };
-use etherparse::{Icmpv4Slice, IpHeaders, NetHeaders, PacketHeaders, TransportHeader};
-use gotatun::packet::{Ip, Ipv4, Ipv6, Packet};
 #[cfg(target_os = "android")]
 use gotatun::udp::UdpTransportFactory;
 use gotatun::{
@@ -33,7 +31,6 @@ use std::{
     ops::Deref,
     sync::{Arc, Mutex},
 };
-use std::net::SocketAddrV4;
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
@@ -48,7 +45,6 @@ use gotatun::tun::{
     IpSend,
     pcap::{PcapSniffer, PcapStream},
 };
-use socket2::{Domain, Protocol, SockAddr, Socket, Type};
 
 mod conversions;
 mod obfuscation;
@@ -593,7 +589,7 @@ async fn create_devices(
         } else {
             // Singlehop setup
 
-            let mut device = DeviceBuilder::new()
+            let device = DeviceBuilder::new()
                 .with_udp(factory)
                 .with_ip(tun_dev)
                 .with_ip_sink_option(config.ip_sink.as_ref().map(|handle| handle.0.clone()))
