@@ -1,7 +1,7 @@
 //! Types for handling per-platform metadata
 
 use anyhow::{Context, anyhow, bail};
-use mullvad_update::api::{HttpVersionInfoProvider, MetaRepository, MetaRepositoryPlatform};
+use mullvad_update::api::{HttpVersionInfoProvider, MetaRepositoryPlatform};
 use mullvad_update::format::Architecture;
 use mullvad_update::format::installer::Installer;
 use mullvad_update::format::key;
@@ -114,12 +114,9 @@ impl Platform {
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
         // Use 'releases.mullvad.net' instead of the API to make it less likely that the data is stale.
-        let repo = MetaRepository::releases(MetaRepositoryPlatform::from(*self));
-        let url = repo.url();
+        let info_provider = HttpVersionInfoProvider::releases(MetaRepositoryPlatform::from(*self));
 
-        println!("Pulling {self} metadata from {url}...");
-
-        let info_provider = HttpVersionInfoProvider::from(repo);
+        println!("Pulling {self} metadata from {}...", info_provider.url());
 
         let response = info_provider
             .get_versions(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)

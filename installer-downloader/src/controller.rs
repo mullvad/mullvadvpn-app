@@ -9,7 +9,7 @@ use crate::{
 };
 
 use mullvad_update::{
-    api::{HttpVersionInfoProvider, MetaRepository, MetaRepositoryPlatform},
+    api::{HttpVersionInfoProvider, MetaRepositoryPlatform},
     app::{self, AppCache, AppDownloader, DownloadedInstaller, HttpAppDownloader},
     local::METADATA_FILENAME,
     version::{Metadata, VersionInfo, VersionParameters, rollout::SUPPORTED_VERSION},
@@ -73,8 +73,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type DirProvider = crate::temp::TempDirProvider;
 
     let platform = MetaRepositoryPlatform::current().expect("current platform must be supported");
-    let repository = MetaRepository::api(platform);
-    let version_provider = HttpVersionInfoProvider::from(repository);
+    let version_provider = HttpVersionInfoProvider::api(repository);
 
     type CacheDir = cfg_select! {
         target_os = "windows" => { mullvad_update::local::AppCacheDir }

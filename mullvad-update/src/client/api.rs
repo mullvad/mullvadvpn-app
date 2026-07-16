@@ -18,40 +18,6 @@ use mullvad_api_constants::*;
 
 /// Available platforms in the default metadata repository
 #[derive(Debug, Clone, Copy)]
-pub struct MetaRepository<'url> {
-    platform: MetaRepositoryPlatform,
-    base_url: &'url str,
-}
-
-impl<'url> MetaRepository<'url> {
-    /// Create a repository using the base URL [defaults::RELEASES_URL].
-    pub fn api(platform: MetaRepositoryPlatform) -> Self {
-        Self::new(defaults::RELEASES_URL, platform)
-    }
-
-    /// Create a repository using the base URL [defaults::METADATA_URL].
-    ///
-    /// This will fetch the metadata from `releases.mullvad.net`. It does not pin the TLS
-    /// certificate. This may be useful as the data is less likely to be stale.
-    ///
-    /// You most likely want to use [MetaRepository::api] instead.
-    pub fn releases(platform: MetaRepositoryPlatform) -> Self {
-        Self::new(defaults::METADATA_URL, platform)
-    }
-
-    /// Return repository based on the `base_url`.
-    fn new(base_url: &'url str, platform: MetaRepositoryPlatform) -> Self {
-        Self { base_url, platform }
-    }
-
-    /// Return complete URL used for the metadata
-    pub fn url(&self) -> String {
-        format!("{}/{}", self.base_url, self.platform.filename())
-    }
-}
-
-/// Available platforms in the default metadata repository
-#[derive(Debug, Clone, Copy)]
 pub enum MetaRepositoryPlatform {
     Windows,
     Linux,
@@ -101,23 +67,43 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
     }
 }
 
-impl<'url> From<MetaRepository<'url>> for HttpVersionInfoProvider {
-    /// Construct an [HttpVersionInfoProvider] for the given platform using reasonable defaults.
+impl HttpVersionInfoProvider {
+    /// Maximum size of the GET response, in bytes
+    const SIZE_LIMIT: usize = 1024 * 1024;
+
+    /// Create a repository using the base URL [defaults::RELEASES_URL].
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate.
-    fn from(repository: MetaRepository<'url>) -> Self {
+    /// This will fetch the metadata from `api.mullvad.net`, and reject anything except the LE root
+    /// certificate. This assumes the domain name resolves to [`API_IP_DEFAULT`] instead of using
+    /// DNS.
+    pub fn api(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::RELEASES_URL, platform)
+    }
+
+    /// Create a repository using the base URL [defaults::METADATA_URL].
+    ///
+    /// This will fetch the metadata from `releases.mullvad.net`. It does not pin the TLS
+    /// certificate, and resolves the domain name using DNS. This may be useful as the data is less
+    /// likely to be stale.
+    ///
+    /// You most likely want to use [Self::api] instead.
+    pub fn releases(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::METADATA_URL, platform)
+    }
+
+    /// Return repository based on the `base_url`.
+    fn new(base_url: &str, platform: MetaRepositoryPlatform) -> Self {
         HttpVersionInfoProvider {
-            url: repository.url(),
+            url: format!("{}/{}", base_url, platform.filename()),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
             pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
             dump_to_path: None,
         }
     }
-}
 
-impl HttpVersionInfoProvider {
-    /// Maximum size of the GET response, in bytes
-    const SIZE_LIMIT: usize = 1024 * 1024;
+    pub fn url(&self) -> &str {
+        &self.url
+    }
 
     /// Download and verify signed data with sane defaults.
     ///
