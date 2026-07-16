@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.applisting.api.ResolveAppListingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.Scenario
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 
@@ -35,7 +37,9 @@ class AppInfoViewModel(
                 Lc.Content(
                     AppInfoUiState(
                         version = versionInfo,
-                        splitFilterMigration = splitFilterMigration,
+                        splitFilterMigration = splitFilterMigration?.takeUnless {
+                            it.scenario == Scenario.ONE_A
+                        },
                         isPlayBuild = isPlayBuild,
                     )
                 )
