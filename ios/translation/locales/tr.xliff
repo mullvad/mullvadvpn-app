@@ -72,11 +72,6 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">%1$@, %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
-        <source>%@-enabled</source>
-        <target state="final">%@ etkin</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
         <source>%d more...</source>
         <target state="final">%d tane daha...</target>
@@ -96,6 +91,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="final">**Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın.**</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+        <source>**Tap here to read more**</source>
+        <target state="needs-translation">**Tap here to read more**</target>
+        <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
@@ -331,6 +331,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>Attention: In this mode, filters are ignored for the additional server.</source>
         <target state="final">Dikkat: Bu modda ek sunucu için filtreler dikkate alınmaz.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
         <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
@@ -1080,7 +1085,7 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Exit filter" xml:space="preserve" approved="yes">
         <source>Exit filter</source>
         <target state="final">Çıkış filtresi</target>
-        <note from="auto-generated">Title of the view controller for the exit filter.</note>
+        <note from="auto-generated">The title of the exit filter screen.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve" approved="yes">
         <source>Expand</source>
@@ -1175,7 +1180,7 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve" approved="yes">
         <source>Filters are overridden when using an automatic location</source>
         <target state="final">Otomatik konum kullanıldığında filtreler geçersiz kılınır</target>
-        <note/>
+        <note from="auto-generated">A description below the list of active filters, explaining that they are overridden when using the automatic location.</note>
       </trans-unit>
       <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve" approved="yes">
         <source>Filters can now be set separately for entry and exit locations.</source>
@@ -1907,10 +1912,10 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">Artık desteklenmiyor</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
-        <source>No matching servers found.</source>
-        <target state="final">Eşleşen sunucu bulunamadı.</target>
-        <note/>
+      <trans-unit id="No matching servers" xml:space="preserve">
+        <source>No matching servers</source>
+        <target state="needs-translation">No matching servers</target>
+        <note from="auto-generated">Button title when there are no matching relays to show.</note>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
         <source>No recent selection history</source>
@@ -1942,18 +1947,10 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">Norveç</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
-        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
-
-This ensures your connection does not get blocked due to incompatible settings.
-
-This will be indicated by the %@ symbol.
-</source>
-        <target state="final">Tüm konumlarımız/sunucularımız uygulamadaki her özelliği desteklemez. Seçtiğiniz konum/sunucu etkinleştirdiğiniz özellikleri desteklemiyorsa uygulama, uyumlu bir sunucu üzerinden otomatik olarak çoklu geçiş kullanır.
-Bu, uyumsuz ayarlar nedeniyle bağlantınızın engellenmesini önler.
-
-Bu durum %@ simgesiyle gösterilir.</target>
-        <note/>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
+        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <note from="auto-generated">A sentence that describes the feature</note>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
@@ -2452,6 +2449,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <target state="final">Girişi "%@" olarak ayarla</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
+        <source>Set multihop to “%@”</source>
+        <target state="needs-translation">Set multihop to “%@”</target>
+        <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
+      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">Bildirimleri ayarlayın</target>
@@ -2485,7 +2487,12 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
       <trans-unit id="Show %@ servers" xml:space="preserve" approved="yes">
         <source>Show %@ servers</source>
         <target state="final">%@ sunucuyu göster</target>
-        <note/>
+        <note from="auto-generated">A message that appears below a button that filters the list of available relays to only those that match the current filter settings. The argument is the string “99+”.</note>
+      </trans-unit>
+      <trans-unit id="Show %lld servers" xml:space="preserve" approved="yes">
+        <source>Show %lld servers</source>
+        <target state="final">%lld sunucuyu göster</target>
+        <note from="auto-generated">A button that shows the number of available relays.</note>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve" approved="yes">
         <source>Show account number</source>
@@ -2541,6 +2548,16 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <source>Some iOS features are known to be affected when using Force all apps.</source>
         <target state="final">"Tüm uygulamaları zorla" seçeneği kullanıldığında bazı iOS özelliklerinin etkilendiği bilinmektedir.</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
         <source>South Africa</source>
@@ -2937,6 +2954,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <target state="final">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
+        <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
+        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
+        <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
+      </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
         <source>To start using the app, you first need to add time to your account.</source>
         <target state="final">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</target>
@@ -3197,11 +3219,6 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <target state="final">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
-        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
-        <target state="final">DAITA kullanılırken, DAITA etkin sunucuları bulunan bir operatör gerekir</target>
-        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
-      </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
         <target state="final">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</target>
@@ -3291,6 +3308,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Apple üzerinden yapılan uygulama içi ödemeleri kontrol etmek için “satın alımları geri yükle” işlevini kullanabilirsiniz. Henüz hesabınıza yansımamış bir ödeme varsa, süre şu anda oturum açmış olduğunuz Mullvad hesabına eklenecektir.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
+        <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
+        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
+        <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
