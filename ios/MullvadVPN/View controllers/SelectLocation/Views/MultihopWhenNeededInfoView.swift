@@ -18,7 +18,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                     .init(
                         text: String(
                             format: NSLocalizedString(
-                                "To manually select an entry server, please switch multihop mode to “\("%@")”.",
+                                "To manually select an entry server, please switch multihop mode to “%@”.",
                                 comment: ""), MultihopStateV2.always.description), style: .secondary(alignment: .center)
                     )
                 ],
@@ -28,7 +28,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                         state: .init(
                             kind: .idle,
                             message: String(
-                                format: NSLocalizedString("Set multihop to “\("%@")“", comment: ""),
+                                format: NSLocalizedString("Set multihop to “%@”", comment: ""),
                                 MultihopStateV2.always.description)),
                         onTap: {
                             if viewModel.filtersWillBeOverridden(.always) {

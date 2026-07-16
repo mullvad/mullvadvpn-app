@@ -138,15 +138,17 @@ private extension MultihopStateV2 {
                 Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location.
                 """, comment: "")
         case .whenNeeded:
-            NSLocalizedString(
-                """
-                Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
-
-                This ensures your connection does not get blocked due to incompatible settings.
-
-                This will be indicated by the %@ symbol.
-
-                """, comment: "")
+            [
+                NSLocalizedString(
+                    "Not all our locations/servers support every feature in the app. "
+                        + "If your selected location/server doesn’t support the features you’ve enabled, "
+                        + "the app will automatically multihop via a compatible server.",
+                    comment: ""
+                )
+                    + NSLocalizedString(
+                        "This ensures your connection does not get blocked due to incompatible settings.", comment: ""),
+                NSLocalizedString("This will be indicated by the %@ symbol.", comment: ""),
+            ].joinedParagraphs(lineBreaks: 1)
 
         }
     }
