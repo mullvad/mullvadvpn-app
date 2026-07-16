@@ -2,7 +2,7 @@ mod ipnetwork_sub;
 
 use self::ipnetwork_sub::IpNetworkSub;
 use super::TunConfig;
-use ipnetwork::IpNetwork;
+use ipnetwork::{IpNetwork, Ipv4Network};
 use jnix::{
     FromJava, IntoJava, JnixEnv,
     jni::{
@@ -11,6 +11,7 @@ use jnix::{
         signature::{JavaType, Primitive},
     },
 };
+use std::net::Ipv4Addr;
 use std::{
     net::IpAddr,
     os::{
@@ -329,7 +330,11 @@ impl VpnServiceConfig {
                 .collect();
         }
 
-        let required_ipv4_routes = vec![IpNetwork::from(IpAddr::from(config.ipv4_gateway))];
+        let required_ipv4_routes = vec![
+            IpNetwork::from(IpAddr::from(config.ipv4_gateway)),
+            // We want to keep the socks proxies subnet so that users can use those to multihop when lan sharing is active
+            SOCKS_PROXIES,
+        ];
         let required_ipv6_routes = config
             .ipv6_gateway
             .map(|addr| IpNetwork::from(IpAddr::from(addr)))
@@ -478,3 +483,6 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
         }
     }
 }
+
+pub const SOCKS_PROXIES: IpNetwork =
+    IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(10, 124, 0, 0), 23).unwrap());
