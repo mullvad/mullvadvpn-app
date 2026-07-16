@@ -35,11 +35,6 @@ impl MetaRepositoryPlatform {
         }
     }
 
-    /// Return complete URL used for the metadata
-    pub fn url(&self) -> String {
-        format!("{}/{}", defaults::RELEASES_URL, self.filename())
-    }
-
     fn filename(&self) -> &str {
         match self {
             MetaRepositoryPlatform::Windows => "windows.json",
@@ -72,42 +67,52 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
     }
 }
 
-impl From<MetaRepositoryPlatform> for HttpVersionInfoProvider {
-    /// Construct an [HttpVersionInfoProvider] for the given platform using reasonable defaults.
+impl HttpVersionInfoProvider {
+    /// Maximum size of the GET response, in bytes
+    const SIZE_LIMIT: usize = 1024 * 1024;
+
+    /// Create a repository using the base URL [defaults::RELEASES_URL].
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate.
-    fn from(platform: MetaRepositoryPlatform) -> Self {
+    /// This will fetch the metadata from `api.mullvad.net`, and reject anything except the LE root
+    /// certificate. This assumes the domain name resolves to [`API_IP_DEFAULT`] instead of using
+    /// DNS.
+    pub fn api(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::RELEASES_URL, platform)
+    }
+
+    /// Create a repository using the base URL [defaults::METADATA_URL].
+    ///
+    /// This will fetch the metadata from `releases.mullvad.net`. It does not pin the TLS
+    /// certificate, and resolves the domain name using DNS. This may be useful as the data is less
+    /// likely to be stale.
+    ///
+    /// You most likely want to use [Self::api] instead.
+    pub fn releases(platform: MetaRepositoryPlatform) -> Self {
+        Self::new(defaults::METADATA_URL, platform)
+    }
+
+    /// Return repository based on the `base_url`.
+    fn new(base_url: &str, platform: MetaRepositoryPlatform) -> Self {
         HttpVersionInfoProvider {
-            url: platform.url(),
+            url: format!("{}/{}", base_url, platform.filename()),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
             pinned_certificate: Some(defaults::PINNED_CERTIFICATE.clone()),
             dump_to_path: None,
         }
     }
-}
 
-impl HttpVersionInfoProvider {
-    /// Maximum size of the GET response, in bytes
-    const SIZE_LIMIT: usize = 1024 * 1024;
-
-    /// Retrieve version metadata for the given platform using reasonable defaults.
-    ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate, and
-    /// `verifying_keys` will be set to the keys in `trusted-metadata-signing-keys`.
-    pub async fn get_versions_for_platform(
-        platform: MetaRepositoryPlatform,
-        lowest_metadata_version: usize,
-    ) -> anyhow::Result<SignedResponse> {
-        HttpVersionInfoProvider::from(platform)
-            .get_versions(lowest_metadata_version)
-            .await
+    /// Return complete URL used for the metadata
+    pub fn url(&self) -> &str {
+        &self.url
     }
 
-    /// Download and verify signed data with sane defaults
+    /// Download and verify signed data with sane defaults.
     ///
-    /// By default, `pinned_certificate` will be set to the LE root certificate, and
-    /// and the keys in `trusted-metadata-signing-keys` will be used for verification.
-    async fn get_versions(&self, lowest_metadata_version: usize) -> anyhow::Result<SignedResponse> {
+    /// By default, the keys in `trusted-metadata-signing-keys` are used for verification.
+    pub async fn get_versions(
+        &self,
+        lowest_metadata_version: usize,
+    ) -> anyhow::Result<SignedResponse> {
         self.get_versions_inner(|raw_json| {
             SignedResponse::deserialize_and_verify(raw_json, lowest_metadata_version)
         })
