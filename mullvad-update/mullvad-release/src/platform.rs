@@ -113,16 +113,15 @@ impl Platform {
 
     /// Pull latest metadata from repository and store it in `signed/`
     pub async fn pull(&self, assume_yes: bool) -> anyhow::Result<()> {
-        let platform = MetaRepositoryPlatform::from(*self);
+        // Use 'releases.mullvad.net' instead of the API to make it less likely that the data is stale.
+        let info_provider = HttpVersionInfoProvider::releases(MetaRepositoryPlatform::from(*self));
 
-        println!("Pulling {self} metadata from {}...", platform.url());
+        println!("Pulling {self} metadata from {}...", info_provider.url());
 
-        let response = HttpVersionInfoProvider::get_versions_for_platform(
-            platform,
-            mullvad_update::version::MIN_VERIFY_METADATA_VERSION,
-        )
-        .await
-        .context("Failed to retrieve versions")?;
+        let response = info_provider
+            .get_versions(mullvad_update::version::MIN_VERIFY_METADATA_VERSION)
+            .await
+            .context("Failed to retrieve versions")?;
 
         let json = serde_json::to_string_pretty(&response)
             .context("Failed to serialize updated metadata")?;
