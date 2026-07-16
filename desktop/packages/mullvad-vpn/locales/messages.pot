@@ -131,9 +131,6 @@ msgstr ""
 msgid "Delete list"
 msgstr ""
 
-msgid "Direct only"
-msgstr ""
-
 msgid "Disable"
 msgstr ""
 
@@ -162,10 +159,6 @@ msgid "Enable"
 msgstr ""
 
 msgid "Enable anyway"
-msgstr ""
-
-#. A toggle that refers to the setting "Direct only".
-msgid "Enable direct only"
 msgstr ""
 
 #. Error message shown trying to login but the app fails
@@ -2133,10 +2126,6 @@ msgid "Obfuscation: %(obfuscation)s"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Open %(daita)s settings"
-msgstr ""
-
-msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
@@ -2155,10 +2144,6 @@ msgstr ""
 #. %(totalRelays)s: The total number of relays
 msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
 msgstr ""
 
 #. Label for a menu option to change the Multihop mode setting
@@ -2887,15 +2872,7 @@ msgid "Attention: This increases network traffic and will also negatively affect
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
-msgstr ""
-
-msgctxt "wireguard-settings-view"
-msgid "Cancel"
 msgstr ""
 
 #. Title for device IP version setting.
@@ -2935,11 +2912,6 @@ msgstr ""
 #. feature.
 msgctxt "wireguard-settings-view"
 msgid "Never"
-msgstr ""
-
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -3226,6 +3198,9 @@ msgstr ""
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr ""
 
+msgid "By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr ""
+
 msgid "Can’t connect?"
 msgstr ""
 
@@ -3299,6 +3274,9 @@ msgid "Deleting your account:"
 msgstr ""
 
 msgid "Direct"
+msgstr ""
+
+msgid "Direct only"
 msgstr ""
 
 msgid "Disable all \"%s\" above to activate this setting."
@@ -3553,6 +3531,9 @@ msgstr ""
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
+msgid "Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr ""
+
 msgid "Not found"
 msgstr ""
 
@@ -3560,6 +3541,9 @@ msgid "Notes"
 msgstr ""
 
 msgid "Notification settings"
+msgstr ""
+
+msgid "Open %1$s settings"
 msgstr ""
 
 msgid "Open app details"
@@ -3746,6 +3730,9 @@ msgid "The app was unable to create an account due to not being able to reach th
 msgstr ""
 
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr ""
+
+msgid "The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%2$s\" in the settings."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
