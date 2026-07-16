@@ -18,8 +18,10 @@ import {
   HeaderMenuIconButton,
   LocationLists,
   SelectLocationSelector,
+  SpaceAllocationShifter,
   SpacePreAllocationView,
 } from './components';
+import { useHandleMeasure } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
@@ -40,8 +42,8 @@ export function SelectLocationViewImpl() {
     },
     [setScrollTop],
   );
+  const handleMeasure = useHandleMeasure();
 
-  const showFilters = isAnyFilterActive;
   const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
@@ -57,52 +59,56 @@ export function SelectLocationViewImpl() {
             <HeaderMenuIconButton />
           </AppNavigationHeader>
 
-          <View.Container
-            flexDirection="column"
-            horizontalMargin="medium"
-            padding={{ bottom: 'small' }}>
-            <SelectLocationSelector />
-            {showFilters && <FilterChips />}
-          </View.Container>
+          <SpaceAllocationShifter>
+            <View.Container flexDirection="column" horizontalMargin="medium">
+              <SpaceAllocationShifter.Source onMeasure={handleMeasure}>
+                <SelectLocationSelector />
+              </SpaceAllocationShifter.Source>
+            </View.Container>
 
-          <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
-            <View.Content padding={{ top: 'small' }}>
-              <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                <View.Container horizontalMargin="medium" flexDirection="column">
-                  <Carousel disableScroll slideIndex={slideIndex}>
-                    <Carousel.Slides>
-                      <Carousel.Slides.Slide key="entry">
-                        <AnimatePresence>
-                          {locationType === LocationType.entry && (
-                            <motion.div
-                              key="entry"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.entry} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Carousel.Slides.Slide>
-                      <Carousel.Slides.Slide key="exit">
-                        <AnimatePresence>
-                          {locationType === LocationType.exit && (
-                            <motion.div
-                              key="exit"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.exit} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Carousel.Slides.Slide>
-                    </Carousel.Slides>
-                  </Carousel>
-                </View.Container>
-              </SpacePreAllocationView>
-            </View.Content>
-          </NavigationScrollbars>
+            <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
+              <SpaceAllocationShifter.Target />
+              <View.Container flexDirection="column" horizontalMargin="medium">
+                {isAnyFilterActive && <FilterChips />}
+              </View.Container>
+              <View.Content>
+                <SpacePreAllocationView ref={spacePreAllocationViewRef}>
+                  <View.Container horizontalMargin="medium" flexDirection="column">
+                    <Carousel disableScroll slideIndex={slideIndex}>
+                      <Carousel.Slides>
+                        <Carousel.Slides.Slide key="entry">
+                          <AnimatePresence>
+                            {locationType === LocationType.entry && (
+                              <motion.div
+                                key="entry"
+                                initial={{ opacity: 1 }}
+                                exit={{ opacity: 0.4 }}
+                                transition={{ duration: 0.2 }}>
+                                <LocationLists type={LocationType.entry} />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </Carousel.Slides.Slide>
+                        <Carousel.Slides.Slide key="exit">
+                          <AnimatePresence>
+                            {locationType === LocationType.exit && (
+                              <motion.div
+                                key="exit"
+                                initial={{ opacity: 1 }}
+                                exit={{ opacity: 0.4 }}
+                                transition={{ duration: 0.2 }}>
+                                <LocationLists type={LocationType.exit} />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </Carousel.Slides.Slide>
+                      </Carousel.Slides>
+                    </Carousel>
+                  </View.Container>
+                </SpacePreAllocationView>
+              </View.Content>
+            </NavigationScrollbars>
+          </SpaceAllocationShifter>
         </NavigationContainer>
       </BackAction>
     </View>
