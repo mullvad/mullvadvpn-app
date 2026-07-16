@@ -9,32 +9,64 @@
 import SwiftUI
 
 struct MullvadButton: View {
-    enum Style {
-        case primary
-        case secondary
-        case destructive
+    struct Style {
+
+        /// The rank of button in the UI hierarchy.
+        enum Rank {
+            case primary
+            case secondary
+        }
+        let rank: Rank
+        let mainColor: Color
+        let attenuatedColor: Color
+
+        /// the primary neutral style
+        static let primary = Style(
+            rank: .primary, mainColor: .MullvadButton.primary, attenuatedColor: .MullvadButton.primaryPressed)
+        /// the secondary neutral style
+        static let secondary = Style(
+            rank: .secondary, mainColor: .MullvadButton.primary, attenuatedColor: .MullvadButton.primaryPressed)
+        static let destructivePrimary = Style(
+            rank: .primary, mainColor: .MullvadButton.danger, attenuatedColor: .MullvadButton.dangerPressed)
+        static let destructiveSecondary = Style(
+            rank: .secondary, mainColor: .MullvadButton.danger, attenuatedColor: .MullvadButton.dangerPressed)
+        /// the default style for a potentially destructive operation
+        static let destructive = destructiveSecondary
+        /// the style for an operation indicating success; mainly used for the Connect button
+        static let success = Style(
+            rank: .primary, mainColor: .MullvadButton.positive, attenuatedColor: .MullvadButton.positivePressed)
     }
 
+    /// An optional accessory on the leading or trailing side of the button.
     enum Accessory {
+        /// An accessory containing an inert, non-tappable icon. This will be tinted in the button text colour.
         case icon(Image)
+        /// An accessory showing a tappable button with an image
         case button(
             ImageResource,
             accessibilityId: AccessibilityIdentifier? = nil,
             accessibilityLabel: LocalizedStringKey? = nil,
             accessibilityHint: LocalizedStringKey? = nil,
             () -> Void)
+        /// An accessory reserving space for a progress indicator, and showing it if a boolean value is true
         case progress(Bool)
     }
 
+    /// the text to display on the main button
     var text: LocalizedStringKey
-    var action: () -> Void
-    var leadingAccessory: Accessory?
-    var trailingAccessory: Accessory?
+    /// The style to present this button in
     var style: Style
+    /// An optional accessory to present on the leading edge of the button
+    var leadingAccessory: Accessory?
+    /// An optional accessory to present on the trailing edge of the button
+    var trailingAccessory: Accessory?
+    /// the action for when the main button is pressed
+    var action: () -> Void
 
     @State private var mainAreaHeight: CGFloat = 0
     @State private var leadingAccessorySize: CGSize = .zero
     @State private var trailingAccessorySize: CGSize = .zero
+    private let imageHeight: CGFloat = 24.0
 
     var body: some View {
         Button(
@@ -42,20 +74,25 @@ struct MullvadButton: View {
             label: {
                 ZStack {
                     HStack {
+                        Text(text)
+                            .lineLimit(nil)
+                            .multilineTextAlignment(.center)
+                            .if(leadingAccessory != nil || trailingAccessory != nil) { view in
+                                // Reserve space for image if present
+                                view.padding(.horizontal, imageHeight)
+
+                            }
+                    }
+                    HStack {
                         if let leadingAccessory {
-                            accessory(leadingAccessory)
+                            accessory(leadingAccessory, position: .leading)
                                 .sizeOfView { leadingAccessorySize = $0 }
                         }
                         Spacer()
                         if let trailingAccessory {
-                            accessory(trailingAccessory)
+                            accessory(trailingAccessory, position: .trailing)
                                 .sizeOfView { trailingAccessorySize = $0 }
                         }
-                    }
-                    HStack {
-                        Spacer()
-                        Text(text)
-                        Spacer()
                     }
                 }
                 .sizeOfView {
@@ -67,7 +104,7 @@ struct MullvadButton: View {
     }
 
     @ViewBuilder
-    func accessory(_ accessory: Accessory) -> some View {
+    func accessory(_ accessory: Accessory, position: TextAlignment) -> some View {
         switch accessory {
         case .icon(let image):
             image
@@ -96,6 +133,18 @@ struct MullvadButton: View {
             .ifLet(accessibilityHint) { $0.accessibilityHint($1) }
             .ifLet(accessibilityId) { $0.accessibilityIdentifier($1.asString) }
             .buttonStyle(MullvadButton.ButtonStyle(style: style, isAccessory: true))
+            .overlay {
+                HStack {
+                    if position == .trailing {
+                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                    }
+                    Spacer()
+                    if position == .leading {
+                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                    }
+                }
+
+            }
         case .progress(let show):
             ProgressView()
                 .progressViewStyle(MullvadProgressViewStyle())
@@ -113,42 +162,49 @@ private struct ModularButtonPreview: View {
     @State var isProcessing: Bool = false
     var body: some View {
         VStack {
+            MullvadButton(text: "Primary", style: .primary) {}
             MullvadButton(
-                text: "Primary", action: {}, trailingAccessory: .button(.iconChevron, { print(">") }), style: .primary)
-            MullvadButton(text: "Primary", action: {}, style: .primary)
-            MullvadButton(text: "Secondary", action: {}, style: .secondary)
+                text: "Primary", style: .primary, leadingAccessory: .button(.iconAdd, { print("+") }), action: {})
             MullvadButton(
-                text: "Secondary", action: {}, leadingAccessory: .icon(Image.mullvadIconMultihopAlways),
-                style: .secondary)
+                text: "Primary", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {})
+            MullvadButton(text: "Secondary", style: .secondary) {}
+            MullvadButton(text: "Connect", style: .success) {}
             MullvadButton(
-                text: "Secondary", action: {}, trailingAccessory: .icon(Image.mullvadIconMultihopAlways),
-                style: .secondary)
+                text: "Secondary", style: .secondary, leadingAccessory: .icon(Image.mullvadIconMultihopAlways)
+            ) {}
             MullvadButton(
-                text: "Destructive", action: {}, leadingAccessory: .button(.iconCross, { print("Accessory tapped") }),
-                style: .destructive)
-            MullvadButton(text: "Disabled", action: {}, style: .primary).disabled(true)
+                text: "Secondary",
+                style: .secondary, trailingAccessory: .icon(Image.mullvadIconMultihopAlways)
+            ) {}
             MullvadButton(
-                text: "Disabled", action: {},
+                text: "Destructive", style: .destructive,
+                leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
+            ) {}
+            MullvadButton(text: "Disabled", style: .primary, action: {}).disabled(true)
+            MullvadButton(
+                text: "Disabled", style: .secondary,
                 leadingAccessory: .button(
                     .iconCross,
                     {
                         print(":-P")
-                    }), style: .secondary
+                    }),
+                action: {}
             ).disabled(true)
-            MullvadButton(text: "Disabled", action: {}, style: .destructive).disabled(true)
+            MullvadButton(text: "Disabled", style: .destructive, action: {}).disabled(true)
             MullvadButton(
                 text: "Start",
-                action: {
-                    print("Main button 1")
-                    isProcessing = true
-                },
+                style: .primary,
                 leadingAccessory: .progress(isProcessing),
                 trailingAccessory: .button(
                     .iconReload,
                     {
                         print("Trailing accessory")
                     }),
-                style: .primary)
+                action: {
+                    print("Main button 1")
+                    isProcessing = true
+                }
+            )
         }.padding(4)
             .background(Color.mullvadBackground)
     }

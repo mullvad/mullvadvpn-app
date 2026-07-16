@@ -3619,7 +3619,6 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */,
 				F9394EF12DC21D7B009595EA /* List */,
 				F00C8C4E2FC9DBBA00B760BB /* Previews */,
 				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
@@ -3643,8 +3642,9 @@
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
-				440DA5C4300540F10057069A /* MullvadButton.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
+				440DA5C4300540F10057069A /* MullvadButton.swift */,
+				44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */,
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */,
 				F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */,
 				F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */,

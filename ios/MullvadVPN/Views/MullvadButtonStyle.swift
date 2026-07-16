@@ -58,27 +58,15 @@ extension MullvadButton.Style {
         }
     }
 
+    func activeColor(for state: State) -> Color {
+        state == .normal ? mainColor : attenuatedColor
+    }
+
     func backgroundColor(for state: State) -> Color {
-        switch (self, state) {
-        case (.primary, .normal): Color.MullvadButton.primary
-        case (.primary, .pressed): Color.MullvadButton.primaryPressed
-        case (.primary, .disabled): Color.MullvadButton.primaryDisabled
-        case (.secondary, _): Color.mullvadBackground
-        case (.destructive, _): Color.mullvadBackground
-        default: Color.blue
-        }
+        rank == .primary ? activeColor(for: state) : .mullvadBackground
     }
 
     func borderColor(for state: State) -> Color {
-        switch (self, state) {
-        case (.primary, _): Color.clear
-        case (.secondary, .normal): Color.MullvadButton.primary
-        case (.secondary, .disabled): Color.MullvadButton.primaryPressed
-        case (.secondary, .pressed): Color.MullvadButton.primaryPressed
-        case (.destructive, .normal): Color.MullvadButton.danger
-        case (.destructive, .disabled): Color.MullvadButton.dangerPressed
-        case (.destructive, .pressed): Color.MullvadButton.dangerPressed
-        }
+        rank == .primary ? .clear : activeColor(for: state)
     }
-
 }
