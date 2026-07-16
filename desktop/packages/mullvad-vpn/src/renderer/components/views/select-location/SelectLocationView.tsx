@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import React from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useIsDaitaEnabledWithoutDirectOnly } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { Carousel } from '../../../lib/components/carousel';
@@ -15,7 +14,6 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  DisabledEntrySelection,
   FilterChips,
   HeaderMenuIconButton,
   LocationLists,
@@ -43,11 +41,7 @@ export function SelectLocationViewImpl() {
     [setScrollTop],
   );
 
-  const isEntrySelection = locationType === LocationType.entry;
-  const isDaitaWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
-
-  const showDisabledEntrySelection = isEntrySelection && isDaitaWithoutDirectOnly;
-  const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
+  const showFilters = isAnyFilterActive;
   const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
@@ -85,11 +79,7 @@ export function SelectLocationViewImpl() {
                               initial={{ opacity: 1 }}
                               exit={{ opacity: 0.4 }}
                               transition={{ duration: 0.2 }}>
-                              {showDisabledEntrySelection ? (
-                                <DisabledEntrySelection />
-                              ) : (
-                                <LocationLists type={LocationType.entry} />
-                              )}
+                              <LocationLists type={LocationType.entry} />
                             </motion.div>
                           )}
                         </AnimatePresence>
