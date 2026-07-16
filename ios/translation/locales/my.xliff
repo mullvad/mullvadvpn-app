@@ -70,11 +70,6 @@
         <target state="final">%1$@, %2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
-        <source>%@-enabled</source>
-        <target state="final">%@ ဖွင့်ထားသည်</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
         <source>%d more...</source>
         <target state="final">နောက်ထပ် %d ...</target>
@@ -94,6 +89,11 @@
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="final">**သတိပြုရန်—ယင်းသည် ကွန်ရက်အသုံးပြုမှုကို တိုးမြှင့်စေပြီး၊ အမြန်နှုန်း၊ နောက်ကျမှုနှင့် မိုဘိုင်းဘက်ထရီအသုံးစွဲမှုတို့အပေါ် ဆိုးကျိုးများ ဖြစ်စေနိုင်ပါသည်။ ကန့်သတ်မှုရှိသော မိုဘိုင်းပလန်များတွင် သတိထား၍ အသုံးပြုပါ။**</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+        <source>**Tap here to read more**</source>
+        <target state="needs-translation">**Tap here to read more**</target>
+        <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
@@ -329,6 +329,11 @@
         <source>Attention: In this mode, filters are ignored for the additional server.</source>
         <target state="final">သတိပြုရန်- ဤမုဒ်တွင် ထပ်ဆောင်းဆာဗာအတွက် စစ်ထုတ်ချက်များကို လျစ်လျူရှုသည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
         <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
@@ -1078,7 +1083,7 @@
       <trans-unit id="Exit filter" xml:space="preserve" approved="yes">
         <source>Exit filter</source>
         <target state="final">အထွက်နေရာ စစ်ထုတ်ချက်</target>
-        <note from="auto-generated">Title of the view controller for the exit filter.</note>
+        <note from="auto-generated">The title of the exit filter screen.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve" approved="yes">
         <source>Expand</source>
@@ -1173,7 +1178,7 @@
       <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve" approved="yes">
         <source>Filters are overridden when using an automatic location</source>
         <target state="final">အလိုအလျောက် တည်နေရာကို အသုံးပြုသည့်အခါ စစ်ထုတ်ချက်များကို ပယ်ဖျက်သည်</target>
-        <note/>
+        <note from="auto-generated">A description below the list of active filters, explaining that they are overridden when using the automatic location.</note>
       </trans-unit>
       <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve" approved="yes">
         <source>Filters can now be set separately for entry and exit locations.</source>
@@ -1905,10 +1910,10 @@
         <target state="final">ပံ့ပိုးမပေးတော့ပါ</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
-        <source>No matching servers found.</source>
-        <target state="final">ကိုက်ညီသည့် ဆာဗာများ မတွေ့ပါ။</target>
-        <note/>
+      <trans-unit id="No matching servers" xml:space="preserve">
+        <source>No matching servers</source>
+        <target state="needs-translation">No matching servers</target>
+        <note from="auto-generated">Button title when there are no matching relays to show.</note>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
         <source>No recent selection history</source>
@@ -1940,19 +1945,10 @@
         <target state="final">နော်ဝေး</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
-        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
-
-This ensures your connection does not get blocked due to incompatible settings.
-
-This will be indicated by the %@ symbol.
-</source>
-        <target state="final">ကျွန်ုပ်တို့၏ တည်နေရာများ/ဆာဗာများ အားလုံးသည် အက်ပ်အတွင်းရှိ လုပ်ဆောင်ချက်တိုင်းကို မပံ့ပိုးပေးပါ။ သင်ရွေးချယ်ထားသော တည်နေရာ/ဆာဗာသည် သင်ဖွင့်ထားသည့် လုပ်ဆောင်ချက်များကို ပံ့ပိုးမပေးပါက အက်ပ်သည် ကိုက်ညီမှုရှိသော ဆာဗာမှတစ်ဆင့် အလိုအလျောက် Multihop လုပ်ဆောင်ပါမည်။
-
-ဤနည်းအားဖြင့် မကိုက်ညီသော ဆက်တင်များကြောင့် သင့်ချိတ်ဆက်မှု ပိတ်ဆို့ခြင်းမခံရစေရန် သေချာစေပါသည်။
-
-၎င်းကို %@ သင်္ကေတဖြင့် ပြသမည်။</target>
-        <note/>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
+        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <note from="auto-generated">A sentence that describes the feature</note>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
@@ -2451,6 +2447,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">အဝင်နေရာကို “%@” ဟု သတ်မှတ်ပါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
+        <source>Set multihop to “%@”</source>
+        <target state="needs-translation">Set multihop to “%@”</target>
+        <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
+      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">အသိပေးချက်များ သတ်မှတ်ရန်</target>
@@ -2484,7 +2485,12 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Show %@ servers" xml:space="preserve" approved="yes">
         <source>Show %@ servers</source>
         <target state="final">%@ ဆာဗာများကို ပြရန်</target>
-        <note/>
+        <note from="auto-generated">A message that appears below a button that filters the list of available relays to only those that match the current filter settings. The argument is the string “99+”.</note>
+      </trans-unit>
+      <trans-unit id="Show %lld servers" xml:space="preserve" approved="yes">
+        <source>Show %lld servers</source>
+        <target state="final">%lld ဆာဗာများကို ပြရန်</target>
+        <note from="auto-generated">A button that shows the number of available relays.</note>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve" approved="yes">
         <source>Show account number</source>
@@ -2540,6 +2546,16 @@ Do you want to remove the saved account number?</source>
         <source>Some iOS features are known to be affected when using Force all apps.</source>
         <target state="final">အက်ပ်အားလုံး အတင်းရပ်တန့်ရန်ကို အသုံးပြုသည့်အခါ iOS လုပ်ဆောင်ချက်အချို့ ထိခိုက်နိုင်ကြောင်း သိရှိရသည်။</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
         <source>South Africa</source>
@@ -2936,6 +2952,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
+        <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
+        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
+        <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
+      </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
         <source>To start using the app, you first need to add time to your account.</source>
         <target state="final">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</target>
@@ -3196,11 +3217,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
-        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
-        <target state="final">DAITA ကို အသုံးပြုသည့်အခါ DAITA ဖွင့်ထားသော ဆာဗာများရှိသည့် ဝန်ဆောင်မှုပံ့ပိုးရေးစနစ်ကို လိုအပ်ပါသည်</target>
-        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
-      </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
         <target state="final">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</target>
@@ -3291,6 +3307,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Apple ဝန်ဆောင်မှုများမှတစ်ဆင့် လုပ်ဆောင်သော အက်ပ်တွင်း ပေးချေမှုမှန်သမျှကို ရှာကြည့်ရန်အတွက် "ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်" လုပ်ဆောင်ချက်ကို သုံးနိုင်ပါသည်။ ငွေပေးချေမှုတစ်ခုခုအတွက် ရသင့်သည့် အချိန်ကို အကောင့်တွင် မထည့်သေးပါက ထိုသို့လုပ်ဆောင်ခြင်းဖြင့် လက်ရှိဝင်ရောက်ထားသော Mullvat အကောင့်တွင် အချိန်ထပ်တိုးပေးပါမည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
+        <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
+        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
+        <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
