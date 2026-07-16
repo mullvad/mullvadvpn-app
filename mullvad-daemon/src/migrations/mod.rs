@@ -253,8 +253,8 @@ pub(crate) fn migrate_device(
 pub(crate) fn load_seed<P: AsRef<Path>>(seed: P) -> serde_json::Value {
     let seed = snapshot_dir().join(seed);
     let seed = std::io::BufReader::new(
-        std::fs::File::open(seed)
-            .unwrap_or_else(|_| panic!("{} seed is missing", seed.as_ref().to_str().unwrap())),
+        std::fs::File::open(&seed)
+            .unwrap_or_else(|_| panic!("{} is missing", seed.to_string_lossy())),
     );
     serde_json::from_reader(seed).unwrap()
 }
