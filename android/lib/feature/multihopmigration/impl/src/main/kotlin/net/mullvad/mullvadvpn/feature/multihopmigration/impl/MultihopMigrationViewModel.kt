@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -19,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Scenario
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
@@ -34,11 +36,16 @@ class MultihopMigrationViewModel(
     private val currentPage = MutableStateFlow(0)
 
     val uiState: StateFlow<MultihopMigrationUiState> =
-        combine(flowOf(pages), currentPage, ::createState)
+        combine(
+                flowOf(pages),
+                currentPage,
+                wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
+                ::createState,
+            )
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                MultihopMigrationUiState(emptyList(), 0),
+                MultihopMigrationUiState(emptyList(), 0, null),
             )
 
     init {
@@ -48,8 +55,13 @@ class MultihopMigrationViewModel(
     private fun createState(
         pages: List<MultihopMigrationPage>,
         page: Int,
+        wireguardConstraints: WireguardConstraints,
     ): MultihopMigrationUiState =
-        MultihopMigrationUiState(multihopMigrationPages = pages, currentPageIndex = page)
+        MultihopMigrationUiState(
+            multihopMigrationPages = pages,
+            currentPageIndex = page,
+            entryLocation = wireguardConstraints.entryLocation,
+        )
 
     @Suppress("CyclomaticComplexMethod")
     private fun generatePages(

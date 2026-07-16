@@ -29,6 +29,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -179,7 +183,7 @@ fun MultihopMigrationScreen(
                 MultihopMigrationPage.DirectOnlyRemoved -> DirectOnlyRemoved()
                 MultihopMigrationPage.SeparateFilters -> SeparateFilters()
                 is MultihopMigrationPage.SuggestedMultihopEntry ->
-                    SuggestedMultihopEntry(onSetEntry = onSetEntry)
+                    SuggestedMultihopEntry(entry = state.entryLocation, onSetEntry = onSetEntry)
                 MultihopMigrationPage.SuggestedAction ->
                     SuggestedAction(onSetMultihopMode = onSetMultihopMode)
                 MultihopMigrationPage.EntrySetToAutomatic -> EntrySetToAutomatic()
@@ -304,7 +308,15 @@ private fun SeparateFilters() {
 }
 
 @Composable
-private fun SuggestedMultihopEntry(onSetEntry: (entry: Constraint<RelayItemId>) -> Unit) {
+private fun SuggestedMultihopEntry(
+    entry: Constraint<RelayItemId>?,
+    onSetEntry: (entry: Constraint<RelayItemId>) -> Unit,
+) {
+    var buttonState by remember { mutableStateOf<ButtonState>(ButtonState.Idle) }
+    LaunchedEffect(entry) {
+        buttonState = if (entry == Constraint.Any) ButtonState.Done else ButtonState.Idle
+    }
+
     MultihopMigrationPage(title = stringResource(R.string.suggested_multihop_entry_title)) {
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -323,8 +335,25 @@ private fun SuggestedMultihopEntry(onSetEntry: (entry: Constraint<RelayItemId>) 
         )
         Spacer(modifier = Modifier.weight(1f))
         PrimaryButton(
+            isEnabled = (entry != Constraint.Any) && buttonState != ButtonState.Loading,
+            isLoading = buttonState == ButtonState.Loading,
+            trailingIcon =
+                if (buttonState == ButtonState.Done) {
+                    {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = null,
+                        )
+                    }
+                } else {
+                    null
+                },
             text = stringResource(R.string.suggested_multihop_entry_button),
-            onClick = { onSetEntry(Constraint.Any) },
+            onClick = {
+                buttonState = ButtonState.Loading
+                onSetEntry(Constraint.Any)
+            },
         )
     }
 }
@@ -487,4 +516,12 @@ private fun PageIndicator(currentPage: Int, pages: Int) {
             }
         }
     }
+}
+
+private sealed interface ButtonState {
+    object Idle : ButtonState
+
+    object Loading : ButtonState
+
+    object Done : ButtonState
 }

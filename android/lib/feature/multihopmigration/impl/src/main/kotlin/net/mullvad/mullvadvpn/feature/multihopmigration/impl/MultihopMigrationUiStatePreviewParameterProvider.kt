@@ -124,6 +124,7 @@ class MultihopMigrationUiStatePreviewParameterProvider :
                         MultihopMigrationUiState(
                             multihopMigrationPages = this@toUiState,
                             currentPageIndex = index,
+                            entryLocation = null,
                         )
                     )
                 }

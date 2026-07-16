@@ -10,6 +10,7 @@ import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -18,9 +19,11 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
+import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -29,7 +32,16 @@ class MultihopMigrationViewModelTest {
     private val mockWireguardConstraintsRepository = mockk<WireguardConstraintsRepository>()
     private val mockUserPreferencesRepository = mockk<UserPreferencesRepository>(relaxed = true)
 
+    private val wireguardConstraintsFlow =
+        MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
+
     private lateinit var viewModel: MultihopMigrationViewModel
+
+    @BeforeEach
+    fun setup() {
+        coEvery { mockWireguardConstraintsRepository.wireguardConstraints } returns
+            wireguardConstraintsFlow
+    }
 
     @AfterEach
     fun teardown() {

@@ -2,10 +2,13 @@ package net.mullvad.mullvadvpn.feature.multihopmigration.impl
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 data class MultihopMigrationUiState(
     val multihopMigrationPages: List<MultihopMigrationPage>,
     val currentPageIndex: Int,
+    val entryLocation: Constraint<RelayItemId>?,
 ) {
     val size
         get() = multihopMigrationPages.size
