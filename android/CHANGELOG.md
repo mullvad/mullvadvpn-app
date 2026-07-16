@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
   where servers are located as well as displaying your connection path.
 
 
+## [android/2026.8] - 2026-07-15
+### Fixed
+- Fix login cursor reset to initial position on FireStick.
+
+
 ## [android/2026.8-beta1] - 2026-06-24
 ### Added
 - Highlight search phrase when searching in Split tunneling.
