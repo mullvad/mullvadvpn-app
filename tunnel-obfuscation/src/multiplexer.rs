@@ -314,7 +314,7 @@ impl Multiplexer {
                 Ok(addr)
             }
             Transport::Obfuscated(obfuscator_settings) => {
-                let obfuscator = crate::create_obfuscator_with_bypass(
+                let obfuscator = crate::create_local_socket_obfuscator_with_bypass(
                     Arc::clone(&self.bypass),
                     &obfuscator_settings,
                 )
@@ -365,7 +365,7 @@ pub enum Transport {
 }
 
 #[async_trait]
-impl crate::Obfuscator for Multiplexer {
+impl crate::LocalSocketObfuscator for Multiplexer {
     fn endpoint(&self) -> SocketAddr {
         self.client_socket_addr
     }
@@ -386,7 +386,7 @@ impl crate::Obfuscator for Multiplexer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Obfuscator;
+    use crate::LocalSocketObfuscator;
     use talpid_net::bypass::NoopBypass;
 
     /// Test whether the multiplexer works with a direct transports
