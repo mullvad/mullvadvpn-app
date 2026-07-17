@@ -52,7 +52,7 @@ pub enum Error {
 }
 
 #[async_trait]
-pub trait Obfuscator: Send {
+pub trait LocalSocketObfuscator: Send {
     async fn run(self: Box<Self>) -> Result<()>;
 
     /// Returns the address of the local socket.
@@ -73,20 +73,24 @@ pub enum Settings {
     Multiplexer(multiplexer::Settings),
 }
 
-pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
+pub async fn create_local_socket_obfuscator(
+    settings: &Settings,
+) -> Result<Box<dyn LocalSocketObfuscator>> {
     create_obfuscator_with_bypass(Arc::new(NoopBypass), settings).await
 }
 
 pub async fn create_obfuscator_with_bypass(
     bypass: Arc<dyn SocketBypass>,
     settings: &Settings,
-) -> Result<Box<dyn Obfuscator>> {
+) -> Result<Box<dyn LocalSocketObfuscator>> {
     match settings {
         Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(bypass, s).await.map(box_obfuscator),
         Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(bypass, s)
             .await
             .map(box_obfuscator),
-        Settings::Quic(s) => quic::Quic::new(bypass, s).await.map(box_obfuscator),
+        Settings::Quic(s) => quic::QuicLocalSocket::new(bypass, s)
+            .await
+            .map(box_obfuscator),
         Settings::Lwo(s) => lwo::Lwo::new(bypass, s).await.map(box_obfuscator),
         Settings::Multiplexer(s) => multiplexer::Multiplexer::new(bypass, s)
             .await
@@ -94,6 +98,6 @@ pub async fn create_obfuscator_with_bypass(
     }
 }
 
-fn box_obfuscator(obfs: impl Obfuscator + 'static) -> Box<dyn Obfuscator> {
-    Box::new(obfs) as Box<dyn Obfuscator>
+fn box_obfuscator(obfs: impl LocalSocketObfuscator + 'static) -> Box<dyn LocalSocketObfuscator> {
+    Box::new(obfs) as Box<dyn LocalSocketObfuscator>
 }
