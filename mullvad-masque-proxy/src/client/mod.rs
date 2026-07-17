@@ -251,6 +251,8 @@ impl Client {
         )
         .await?;
 
+        log::debug!("QUIC proxy client connected");
+
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
@@ -444,6 +446,54 @@ impl Client {
             incoming_tx,
             outgoing_rx,
         ));
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
+    }
+
+    /// Start the proxy using the given channels, returning a [`RunningClient`].
+    #[must_use]
+    pub fn proxy_channels<B: AsRef<[u8]> + Send + 'static>(
+        self,
+        outgoing_rx: mpsc::Receiver<B>,
+        incoming_tx: mpsc::Sender<Bytes>,
+    ) -> RunningClient {
+        log::trace!("proxy_channels");
+        let stream_id: StreamId = self.request_stream.id();
+
+        let mut tasks = Tasks::default();
+
+        let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        tasks.spawn_task(inline_rx_task(
+            outgoing_rx,
+            DatagramFragmentor::new(
+                self.quinn_conn,
+                stream_id,
+                self.max_udp_payload_size,
+                Arc::clone(&self.stats),
+            ),
+            client_tx,
+        ));
+
+        tasks.spawn_task(fragment_reassembly_task(
+            stream_id,
+            server_rx,
+            incoming_tx,
+            Arc::clone(&self.stats),
+        ));
+
+        tasks.spawn_task(server_socket_task(
+            stream_id,
+            self.connection,
+            server_tx,
+            client_rx,
+        ));
+
         RunningClient {
             tasks,
             _send_stream: self.send_stream,
@@ -751,6 +801,28 @@ async fn client_socket_non_gso_tx_task(
     while let Some(buf) = send_rx.recv().await {
         client_socket.send(&buf).await.map_err(Error::ClientWrite)?;
     }
+    Ok(Stopped)
+}
+
+/// Read packets from a `packet_rx`, fragment them, and forward to the `outgoing_tx`.
+async fn inline_rx_task<B: AsRef<[u8]>>(
+    mut packet_rx: mpsc::Receiver<B>,
+    mut fragmentor: DatagramFragmentor,
+    outgoing_tx: mpsc::Sender<Bytes>,
+) -> Result<Stopped> {
+    log::trace!("Starting inline_rx_task");
+
+    'outer: while let Some(packet) = packet_rx.recv().await {
+        let read_buf = fragmentor.get_read_buf();
+        read_buf.extend_from_slice(packet.as_ref());
+
+        for packet in fragmentor.fragment()? {
+            if outgoing_tx.send(packet).await.is_err() {
+                break 'outer;
+            }
+        }
+    }
+    log::trace!("inline_rx_task closed");
     Ok(Stopped)
 }
 
