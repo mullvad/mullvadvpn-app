@@ -167,7 +167,9 @@ fn settings_from_single_config(
             .mtu(mtu);
             #[cfg(target_os = "linux")]
             if let Some(fwmark) = fwmark {
-                return Settings::Quic(settings.fwmark(fwmark));
+                let mut settings = settings;
+                settings.set_fwmark(fwmark);
+                return Settings::Quic(settings);
             }
             Settings::Quic(settings)
         }
