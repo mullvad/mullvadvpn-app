@@ -1039,7 +1039,7 @@ mod tests {
         ipv4_gateway: "0.0.0.0".parse().unwrap(),
         ipv6_gateway: None,
         mtu: 0,
-        obfuscator_config: None,
+        obfuscation_settings: None,
         quantum_resistant: false,
         daita: false,
     });

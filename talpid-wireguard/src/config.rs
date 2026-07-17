@@ -1,6 +1,8 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
+use crate::obfuscation::settings_from_config;
+
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]
 pub(crate) const MULLVAD_INTERFACE_NAME: &str = "wg0-mullvad";
@@ -27,7 +29,7 @@ pub struct Config {
     #[cfg(target_os = "linux")]
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
-    pub obfuscator_config: Option<Obfuscators>,
+    pub obfuscation_settings: Option<tunnel_obfuscation::Settings>,
     /// Enable quantum-resistant PSK exchange
     pub quantum_resistant: bool,
     /// Enable DAITA
@@ -51,6 +53,7 @@ impl Config {
     pub fn from_parameters(
         params: &wireguard::TunnelParameters,
         default_mtu: u16,
+        obfuscation_mtu: u16,
     ) -> Result<Config, Error> {
         Self::new(
             &params.connection,
@@ -58,6 +61,7 @@ impl Config {
             &params.generic_options,
             &params.obfuscation,
             default_mtu,
+            obfuscation_mtu,
         )
     }
 
@@ -68,6 +72,7 @@ impl Config {
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
+        obfuscation_mtu: u16,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
 
@@ -84,6 +89,17 @@ impl Config {
             .ipv6_gateway
             .filter(|_opt| generic_options.enable_ipv6);
 
+        let obfuscation_settings = obfuscator_config.as_ref().map(|obfuscator_config| {
+            settings_from_config(
+                tunnel.private_key.public_key(),
+                connection.peer.public_key.clone(),
+                obfuscator_config,
+                obfuscation_mtu,
+                #[cfg(target_os = "linux")]
+                connection.fwmark,
+            )
+        });
+
         let mut config = Config {
             tunnel,
             entry_peer: connection.peer.clone(),
@@ -95,7 +111,7 @@ impl Config {
             fwmark: connection.fwmark,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
-            obfuscator_config: obfuscator_config.to_owned(),
+            obfuscation_settings,
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
         };
