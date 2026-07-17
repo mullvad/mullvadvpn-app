@@ -7,7 +7,7 @@ pub mod lwo;
 pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
-pub(crate) mod socket;
+pub mod socket;
 pub mod udp2tcp;
 
 pub type Result<T> = std::result::Result<T, Error>;

@@ -9,6 +9,7 @@ license.workspace = true
 [dependencies]
 async-trait = { workspace = true }
 byteorder = "1"
+bytes = { workspace = true }
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 internet-checksum = "0.2"
