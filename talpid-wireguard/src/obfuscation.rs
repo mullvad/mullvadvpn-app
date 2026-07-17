@@ -80,6 +80,7 @@ pub fn userspace_transport_available(
     matches!(
         params.obfuscation.as_ref(),
         Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
+            | Some(Obfuscators::Single(ObfuscatorConfig::Quic { .. }))
     )
 }
 
@@ -173,7 +174,9 @@ fn settings_from_single_config(
             .mtu(mtu);
             #[cfg(target_os = "linux")]
             if let Some(fwmark) = fwmark {
-                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
+                let mut settings = settings;
+                settings.set_fwmark(fwmark);
+                return ObfuscationSettings::Quic(settings);
             }
             ObfuscationSettings::Quic(settings)
         }
