@@ -1,10 +1,9 @@
 # Systemd service unit file for the Mullvad VPN daemon
-# testing if new changes are added
 
 [Unit]
 Description=Mullvad VPN daemon
 Before=network-online.target
-After=mullvad-early-boot-blocking.service NetworkManager.service systemd-resolved.service
+After=mullvad-early-boot-blocking.service network.target
 
 StartLimitBurst=5
 StartLimitIntervalSec=20
