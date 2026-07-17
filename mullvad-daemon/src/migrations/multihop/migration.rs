@@ -114,11 +114,9 @@ fn relay_settings_migration(
     automatic_entry: __Entry,
 ) {
     let Some(relay_settings) = v17::__Settings::relay_settings(settings) else {
-        if cfg!(debug_assertions) {
-            log::debug!("Did not update relay settings to {value:?}");
-            if filters {
-                log::debug!("Filter migration did not run either");
-            }
+        log::debug!("Did not update relay settings to {value:?}");
+        if filters {
+            log::debug!("Filter migration did not run either");
         }
         return;
     };
