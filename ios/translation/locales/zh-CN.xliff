@@ -72,11 +72,6 @@
         <target state="final">%1$@，%2$@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
-        <source>%@-enabled</source>
-        <target state="final">已启用 %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
         <source>%d more...</source>
         <target state="final">其他 %d 个…</target>
@@ -96,6 +91,11 @@
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="final">**注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用**。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+        <source>**Tap here to read more**</source>
+        <target state="needs-translation">**Tap here to read more**</target>
+        <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
         <source>**Tap here** to see what’s new</source>
@@ -331,6 +331,11 @@
         <source>Attention: In this mode, filters are ignored for the additional server.</source>
         <target state="final">注意：在此模式下，附加服务器将忽略筛选器。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
         <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
@@ -1080,7 +1085,7 @@
       <trans-unit id="Exit filter" xml:space="preserve" approved="yes">
         <source>Exit filter</source>
         <target state="final">出口筛选器</target>
-        <note from="auto-generated">Title of the view controller for the exit filter.</note>
+        <note from="auto-generated">The title of the exit filter screen.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve" approved="yes">
         <source>Expand</source>
@@ -1175,7 +1180,7 @@
       <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve" approved="yes">
         <source>Filters are overridden when using an automatic location</source>
         <target state="final">使用自动位置时，筛选器会被覆盖</target>
-        <note/>
+        <note from="auto-generated">A description below the list of active filters, explaining that they are overridden when using the automatic location.</note>
       </trans-unit>
       <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve" approved="yes">
         <source>Filters can now be set separately for entry and exit locations.</source>
@@ -1907,10 +1912,10 @@
         <target state="final">不再受支持</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
-        <source>No matching servers found.</source>
-        <target state="final">找不到匹配的服务器。</target>
-        <note/>
+      <trans-unit id="No matching servers" xml:space="preserve">
+        <source>No matching servers</source>
+        <target state="needs-translation">No matching servers</target>
+        <note from="auto-generated">Button title when there are no matching relays to show.</note>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
         <source>No recent selection history</source>
@@ -1942,20 +1947,10 @@
         <target state="final">挪威</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
-        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
-
-This ensures your connection does not get blocked due to incompatible settings.
-
-This will be indicated by the %@ symbol.
-</source>
-        <target state="final">并非我们的所有位置/服务器都支持应用中的每项功能。如果您的所选位置/服务器不支持您已启用的功能，应用将自动通过兼容的服务器进行多跳。
-
-这能确保您的连接不会因不兼容的设置而被阻止。
-
-这将通过 %@ 符号进行指示。
-</target>
-        <note/>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
+        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <note from="auto-generated">A sentence that describes the feature</note>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
@@ -2454,6 +2449,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">将入口设为“%@”</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
+        <source>Set multihop to “%@”</source>
+        <target state="needs-translation">Set multihop to “%@”</target>
+        <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
+      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">设置通知</target>
@@ -2487,7 +2487,12 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Show %@ servers" xml:space="preserve" approved="yes">
         <source>Show %@ servers</source>
         <target state="final">显示 %@ 服务器</target>
-        <note/>
+        <note from="auto-generated">A message that appears below a button that filters the list of available relays to only those that match the current filter settings. The argument is the string “99+”.</note>
+      </trans-unit>
+      <trans-unit id="Show %lld servers" xml:space="preserve" approved="yes">
+        <source>Show %lld servers</source>
+        <target state="final">显示 %lld 服务器</target>
+        <note from="auto-generated">A button that shows the number of available relays.</note>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve" approved="yes">
         <source>Show account number</source>
@@ -2543,6 +2548,16 @@ Do you want to remove the saved account number?</source>
         <source>Some iOS features are known to be affected when using Force all apps.</source>
         <target state="final">在使用“强制所有 App”时，已知某些 iOS 功能会受到影响。</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes.</source>
+        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
         <source>South Africa</source>
@@ -2939,6 +2954,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
+        <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
+        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
+        <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
+      </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
         <source>To start using the app, you first need to add time to your account.</source>
         <target state="final">要开始使用本应用，您首先需要向帐户中充入时间。</target>
@@ -3199,11 +3219,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
-        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
-        <target state="final">使用 DAITA 时，需要一个已启用 DAITA 服务器的提供商</target>
-        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
-      </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
         <target state="final">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</target>
@@ -3293,6 +3308,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">您可以使用“恢复购买”功能来检查通过 Apple 服务进行的任何应用内付款。如果存在未记入的付款，系统会将相应时间添加到当前登录的 Mullvad 帐户中。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
+        <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
+        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
+        <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>

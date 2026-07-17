@@ -132,7 +132,10 @@ extension LocationDataSourceProtocol {
                 node.isConnected = true
 
                 if let node = node.asAutomaticLocationNode {
-                    node.locationInfo = [selectedRelay.location.country, selectedRelay.location.city]
+                    node.locationInfo = [
+                        NSLocalizedString(selectedRelay.location.country, comment: ""),
+                        NSLocalizedString(selectedRelay.location.city, comment: ""),
+                    ]
                 }
             }
         }

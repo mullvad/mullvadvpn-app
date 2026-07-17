@@ -49,7 +49,7 @@ struct RelayFilterView: View {
                 let relayCount = viewModel.availableRelays.count
                 let relayCountMessage: LocalizedStringKey =
                     if relayCount > 99 {
-                        "Show 99+ servers"
+                        "Show \("99+") servers"
                     } else if relayCount == 0 {
                         "No matching servers"
                     } else {
