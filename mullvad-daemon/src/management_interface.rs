@@ -1,12 +1,15 @@
 use crate::{
     DaemonCommand, DaemonCommandSender, account_history, device,
-    relay_selector::RelaySelectorServiceImpl,
+    migrations::multihop::scenario::Scenario,
 };
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{StatusCode, rest::Error as RestError};
+use mullvad_daemon_relay_selector::relay_selector::{
+    RelaySelectorIO, grpc_service::RelaySelectorServer,
+};
 use mullvad_management_interface::types::FromProtobufTypeError;
 use mullvad_management_interface::{
     Code, Request, Response, ServerJoinHandle, Status,
@@ -355,29 +358,13 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_daita_direct_only(&self, request: Request<bool>) -> ServiceResult<()> {
-        let direct_only_enabled = request.into_inner();
-        log::debug!("set_daita_direct_only({direct_only_enabled})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(
-            tx,
-            !direct_only_enabled,
-        ))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
-    }
-
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
     ) -> ServiceResult<()> {
-        let state = mullvad_types::wireguard::DaitaSettings::from(request.into_inner());
-
-        log::debug!("set_daita_settings({state:?})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaSettings(tx, state))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
+        log::trace!("set_daita_settings");
+        let request = request.map(|request| request.enabled);
+        self.set_enable_daita(request).await
     }
 
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
@@ -1341,12 +1328,35 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         _: Request<()>,
     ) -> ServiceResult<types::SplitFilterMigration> {
-        // TODO: Implement this function after the migration exists.
-        Ok(Response::new(types::SplitFilterMigration::default()))
+        let scenario = |scenario: Option<Scenario>| {
+            use types::split_filter_migration::Scenario::*;
+            let scenario = scenario.map(|scenario| match scenario.clone() {
+                Scenario::OneA => OneA,
+                Scenario::OneB => OneB,
+                Scenario::Two => Two,
+                Scenario::ThreeA => ThreeA,
+                Scenario::ThreeB { .. } => ThreeB,
+                Scenario::FourA => FourA,
+                Scenario::FourB => FourB,
+                Scenario::FiveA => FiveA,
+                Scenario::FiveB => FiveB,
+                Scenario::SixA => SixA,
+                Scenario::SixB => SixB,
+                Scenario::SevenA => SevenA,
+                Scenario::SevenB => SevenB,
+            } as i32);
+            types::SplitFilterMigration { scenario }
+        };
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetMultihopMigration(tx))?;
+        self.wait_for_result(rx)
+            .await
+            .map(scenario)
+            .map(Response::new)
     }
 
     async fn clear_migration_message(&self, _: Request<()>) -> ServiceResult<()> {
-        // TODO: Implement this function after the migration exists.
+        self.send_command_to_daemon(DaemonCommand::DeleteMultihopMigration)?;
         Ok(Response::new(()))
     }
 }
@@ -1383,7 +1393,7 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
-        relay_selector: mullvad_relay_selector::RelaySelector,
+        relay_selector: RelaySelectorIO,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
@@ -1399,7 +1409,7 @@ impl ManagementInterfaceServer {
             log_reload_handle,
         };
 
-        let relay_selector_service = RelaySelectorServiceImpl::new(relay_selector);
+        let relay_selector_service = RelaySelectorServer::new(relay_selector);
 
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             management_service,

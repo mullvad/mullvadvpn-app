@@ -27,6 +27,7 @@ itertools = "0.10.5"
 log = { workspace = true }
 mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
 mullvad-api-constants = { path = "../../mullvad-api/mullvad-api-constants" }
+mullvad-daemon-relay-selector = { path = "../../mullvad-daemon-relay-selector" }
 mullvad-management-interface = { path = "../../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
 mullvad-types = { path = "../../mullvad-types" }

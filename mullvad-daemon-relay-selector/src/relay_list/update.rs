@@ -1,26 +1,25 @@
 //! Relay list updater
 
-pub mod error;
-pub(crate) mod parsed_relays;
-
-use error::Error;
-use mullvad_types::relay_constraints::RelayOverride;
-
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use futures::channel::mpsc;
 use futures::future::{Fuse, FusedFuture};
 use futures::{Future, FutureExt, SinkExt, StreamExt};
+use mullvad_types::relay_constraints::RelayOverride;
 use tokio::fs::File;
+
+use super::RELAYS_FILENAME;
+use super::error::Error;
 
 use mullvad_api::{
     CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
-use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
+
+use crate::relay_selector::RelaySelectorIO;
 
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
@@ -32,9 +31,6 @@ const UPDATE_INTERVAL: Duration = Duration::from_hours(1);
 const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
     ExponentialBackoff::new(Duration::from_secs(16), 8).max_delay(Some(Duration::from_hours(2))),
 );
-
-/// Where the relay list is cached on disk.
-const RELAYS_FILENAME: &str = "relays.json";
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
@@ -73,7 +69,7 @@ impl RelayListUpdaterHandle {
     }
 }
 
-pub(crate) struct RelayListUpdater {
+pub struct RelayListUpdater {
     api_client: RelayListProxy,
     cache_path: PathBuf,
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
@@ -87,12 +83,12 @@ pub(crate) struct RelayListUpdater {
     bridge_list: BridgeList,
     overrides: Vec<RelayOverride>,
     // The relay selector will only ever see the relay list with IP overrides applied.
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
 }
 
 impl RelayListUpdater {
     pub fn spawn(
-        selector: RelaySelector,
+        selector: RelaySelectorIO,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
         overrides: Vec<RelayOverride>,

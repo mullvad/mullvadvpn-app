@@ -12,9 +12,9 @@ use mullvad_api::{
     availability::ApiAvailability,
     proxy::{ApiConnectionMode, ProxyConfig},
 };
+use mullvad_daemon_relay_selector::relay_selector::RelaySelectorIO;
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_management_interface::async_trait;
-use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
 #[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
@@ -24,14 +24,14 @@ use talpid_types::net::TransportProtocol;
 use talpid_types::net::{AllowedClients, Connectivity, proxy::CustomProxy};
 
 pub struct DaemonAccessMethodResolver {
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     encrypted_dns_proxy_cache: EncryptedDnsProxyState,
     address_cache: AddressCache<FileAddressCacheBacking>,
 }
 
 impl DaemonAccessMethodResolver {
     pub fn new(
-        relay_selector: RelaySelector,
+        relay_selector: RelaySelectorIO,
         encrypted_dns_proxy_cache: EncryptedDnsProxyState,
         address_cache: AddressCache<FileAddressCacheBacking>,
     ) -> Self {

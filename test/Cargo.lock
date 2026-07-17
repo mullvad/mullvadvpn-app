@@ -2206,6 +2206,23 @@ name = "mullvad-api-constants"
 version = "0.0.0"
 
 [[package]]
+name = "mullvad-daemon-relay-selector"
+version = "0.0.0"
+dependencies = [
+ "futures",
+ "log",
+ "mullvad-api",
+ "mullvad-management-interface",
+ "mullvad-relay-selector",
+ "mullvad-types",
+ "serde_json",
+ "talpid-future",
+ "talpid-types",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "mullvad-encrypted-dns-proxy"
 version = "0.0.0"
 dependencies = [
@@ -3171,7 +3188,7 @@ dependencies = [
  "errno 0.3.14",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3657,6 +3674,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b2093cf4c8eb1e67749a6762251bc9cd836b6fc171623bd0a9d324d37af2417"
 
 [[package]]
+name = "talpid-future"
+version = "0.0.0"
+dependencies = [
+ "rand 0.9.4",
+ "talpid-time",
+]
+
+[[package]]
 name = "talpid-macos"
 version = "0.0.0"
 dependencies = [
@@ -3756,7 +3781,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3784,6 +3809,7 @@ dependencies = [
  "log",
  "mullvad-api",
  "mullvad-api-constants",
+ "mullvad-daemon-relay-selector",
  "mullvad-management-interface",
  "mullvad-relay-selector",
  "mullvad-types",
@@ -5164,18 +5190,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.48"
+version = "0.8.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eed437bf9d6692032087e337407a86f04cd8d6a16a37199ed57949d415bd68e9"
+checksum = "fd74ec98b9250adb3ca554bdde269adf631549f51d8a8f8f0a10b50f1cb298c3"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.48"
+version = "0.8.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70e3cd084b1788766f53af483dd21f93881ff30d7320490ec3ef7526d203bad4"
+checksum = "d8a8d209fdf45cf5138cbb5a506f6b52522a25afccc534d1475dad8e31105c6a"
 dependencies = [
  "proc-macro2",
  "quote",

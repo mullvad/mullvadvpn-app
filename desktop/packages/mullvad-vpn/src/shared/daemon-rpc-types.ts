@@ -387,7 +387,7 @@ export type Quic = {
 export interface ITunnelOptions {
   mtu?: number;
   quantumResistant: boolean;
-  daita?: IDaitaSettings;
+  daita: boolean;
   enableIpv6: boolean;
   dns: IDnsOptions;
 }
@@ -600,11 +600,6 @@ export interface RelayOverride {
   hostname: string;
   ipv4AddrIn?: string;
   ipv6AddrIn?: string;
-}
-
-export interface IDaitaSettings {
-  enabled: boolean;
-  directOnly: boolean;
 }
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {

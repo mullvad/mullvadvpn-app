@@ -78,6 +78,7 @@ libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"
 mullvad-api = { path = "../mullvad-api" }
+mullvad-daemon-relay-selector = { path = "../mullvad-daemon-relay-selector" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-leak-checker = { path = "../mullvad-leak-checker" }
@@ -116,7 +117,7 @@ insta = { workspace = true, features = ["json"] }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
 
-[target.'cfg(any(unix, windows))'.dependencies]
+[target."cfg(any(unix, windows))".dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
@@ -144,17 +145,17 @@ objc2-service-management = { version = "0.3.1", features = [
 ] }
 talpid-macos = { path = "../talpid-macos" }
 
-[target.'cfg(unix)'.dependencies]
+[target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["signal", "user"] }
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
 windows-service = "0.6.0"
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_Foundation",
@@ -167,11 +168,11 @@ features = [
   "Win32_System_Threading",
 ]
 
-[target.'cfg(windows)'.build-dependencies]
+[target."cfg(windows)".build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winres = "0.1"
 
-[target.'cfg(windows)'.build-dependencies.windows-sys]
+[target."cfg(windows)".build-dependencies.windows-sys]
 workspace = true
 features = ["Win32_System_SystemServices"]
 

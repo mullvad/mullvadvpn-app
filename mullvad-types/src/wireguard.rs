@@ -58,33 +58,6 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct DaitaSettings {
-    pub enabled: bool,
-
-    // TODO: remove
-    #[serde(default = "DaitaSettings::default_use_multihop_if_necessary")]
-    /// Whether to use multihop if the selected relay is not DAITA-compatible. Note that this is
-    /// the inverse of of "Direct only" in the GUI.
-    pub use_multihop_if_necessary: bool,
-}
-
-impl DaitaSettings {
-    /// This setting should be enabled by default.
-    const fn default_use_multihop_if_necessary() -> bool {
-        true
-    }
-}
-
-impl Default for DaitaSettings {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            use_multihop_if_necessary: Self::default_use_multihop_if_necessary(),
-        }
-    }
-}
-
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct WireguardData {
@@ -223,7 +196,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
-    pub daita: DaitaSettings,
+    pub daita: bool,
     /// Use userspace WireGuard.
     pub userspace: bool,
     /// Interval used for automatic key rotation
@@ -236,7 +209,7 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::default(),
-            daita: DaitaSettings::default(),
+            daita: false,
             userspace: false,
             rotation_interval: None,
         }
@@ -248,7 +221,7 @@ impl TunnelOptions {
         wireguard::TunnelOptions {
             mtu: self.mtu,
             quantum_resistant: self.quantum_resistant.enabled(),
-            daita: self.daita.enabled,
+            daita: self.daita,
             userspace: self.userspace,
         }
     }

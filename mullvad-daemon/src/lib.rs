@@ -19,8 +19,6 @@ pub mod logging;
 mod macos;
 pub mod management_interface;
 mod migrations;
-mod relay_list;
-mod relay_selector;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
@@ -31,7 +29,8 @@ mod tunnel;
 pub mod version;
 
 use crate::{
-    relay_list::parsed_relays::parse_relays_from_file, target_state::PersistentTargetState,
+    migrations::{MigrationData, multihop::scenario::Scenario},
+    target_state::PersistentTargetState,
 };
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -46,13 +45,18 @@ use management_interface::ManagementInterfaceServer;
 use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
+use mullvad_daemon_relay_selector::{
+    relay_list::{
+        parsed_relays::parse_relays_from_file,
+        update::{RelayListUpdater, RelayListUpdaterHandle},
+    },
+    relay_selector::RelaySelectorIO,
+};
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
-use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountNumber, VoucherSubmission},
@@ -79,13 +83,12 @@ use mullvad_types::{
 };
 #[cfg(not(target_os = "android"))]
 use mullvad_update::version::rollout::Rollout;
-use relay_list::{RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
-use std::collections::BTreeSet;
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
+use std::{collections::BTreeSet, path::Path};
 use std::{
     marker::PhantomData,
     path::PathBuf,
@@ -302,8 +305,6 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
-    SetDaitaUseMultihopIfNecessary(ResponseTx<(), settings::Error>, bool),
-    SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set override options to use for a given relay
@@ -465,6 +466,13 @@ pub enum DaemonCommand {
     AppUpgradeAbort(ResponseTx<(), version::Error>),
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
+    // Split-filter / multihop migration
+    /// Return the outcome of the split-filter / multihop migration. This event will always
+    /// return _something_ (i.e. it is always valid to request a response).
+    GetMultihopMigration(oneshot::Sender<Option<Scenario>>),
+    /// TODO
+    /// After this event, GetMultihopMigration will indefinitely return a None-value.
+    DeleteMultihopMigration,
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -688,7 +696,7 @@ pub struct Daemon {
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_handle: version::router::VersionRouterHandle,
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
@@ -719,23 +727,31 @@ impl Daemon {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
-        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
-            .await
-            .unwrap_or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to migrate settings or cache")
-                );
-                None
-            });
-
-        let mut settings = SettingsPersister::load(&config.settings_dir).await;
-
         // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
         // connections.
         let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
             .inspect_err(|err| log::error!("{err}"))
             .ok();
+
+        let migration_data = migrations::migrate_all(
+            &config.cache_dir,
+            &config.resource_dir,
+            &config.settings_dir,
+        )
+        .await
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate settings or cache")
+            );
+        })
+        .unwrap_or_default();
+
+        // NOTE: This code may be removed once app versions prior to mid 2026 are unsupported.
+        persist_split_filter_migration_scenario(&migration_data, &config.cache_dir).await;
+
+        let mut settings = SettingsPersister::load(&config.settings_dir).await;
+
         let relay_selector = {
             let (initial_relay_list, initial_bridge_list) = initial_relay_list
                 .clone()
@@ -744,8 +760,8 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            RelaySelector::from_settings(
-                &settings,
+            RelaySelectorIO::from_settings(
+                settings.to_settings(),
                 initial_relay_list.clone(),
                 initial_bridge_list.clone(),
             )
@@ -831,7 +847,7 @@ impl Daemon {
             });
         });
 
-        let migration_complete = if let Some(migration_data) = migration_data {
+        let migration_complete = if let Some(migration_data) = migration_data.v5 {
             migrations::migrate_device(
                 migration_data,
                 api_handle.clone(),
@@ -1549,12 +1565,6 @@ impl Daemon {
                     .await
             }
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
-            SetDaitaUseMultihopIfNecessary(tx, value) => {
-                self.on_set_daita_use_multihop_if_necessary(tx, value).await
-            }
-            SetDaitaSettings(tx, daita_settings) => {
-                self.on_set_daita_settings(tx, daita_settings).await
-            }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
             SetRelayOverride(tx, relay_override) => {
                 self.on_set_relay_override(tx, relay_override).await
@@ -1652,6 +1662,8 @@ impl Daemon {
             GetBridges(tx) => self.on_get_bridges(tx),
             #[cfg(target_os = "android")]
             DeleteAccount(tx) => self.on_delete_account(tx),
+            GetMultihopMigration(tx) => self.on_get_multihop_migration(tx).await,
+            DeleteMultihopMigration => self.on_delete_multihop_migration().await,
         }
     }
 
@@ -2784,7 +2796,7 @@ impl Daemon {
         let result = self
             .settings
             .update(|settings| {
-                settings.tunnel_options.wireguard.daita.enabled = value;
+                settings.tunnel_options.wireguard.daita = value;
             })
             .await;
 
@@ -2803,67 +2815,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
-            }
-        }
-    }
-
-    async fn on_set_daita_use_multihop_if_necessary(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        value: bool,
-    ) {
-        match self
-            .settings
-            .update(|settings| {
-                settings
-                    .tunnel_options
-                    .wireguard
-                    .daita
-                    .use_multihop_if_necessary = value
-            })
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
-
-                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
-                    return; // DAITA is not supported for custom relays
-                }
-
-                let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
-
-                if settings_changed && daita_enabled {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_use_multihop_if_necessary response");
-            }
-        }
-    }
-
-    async fn on_set_daita_settings(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        daita_settings: DaitaSettings,
-    ) {
-        match self
-            .settings
-            .update(|settings| settings.tunnel_options.wireguard.daita = daita_settings)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_settings response");
-                if settings_changed {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_settings response");
             }
         }
     }
@@ -3577,6 +3528,20 @@ impl Daemon {
         };
     }
 
+    async fn on_get_multihop_migration(&mut self, tx: oneshot::Sender<Option<Scenario>>) {
+        let scenario = read_split_filter_migration_scenario(&self.cache_dir).await;
+        Self::oneshot_send(tx, scenario, "split-filter / multihop migration scenario");
+    }
+
+    async fn on_delete_multihop_migration(&mut self) {
+        if let Err(err) = delete_split_filter_migration_scenario(&self.cache_dir).await {
+            let err = err.display_chain_with_msg(
+                "Error while deleting split-filter / multihop migration scenario",
+            );
+            log::error!("{err}");
+        }
+    }
+
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     /// Returns a bool representing whether a state change was initiated.
@@ -3672,5 +3637,66 @@ pub async fn cleanup_old_rpc_socket(rpc_socket_path: impl AsRef<std::path::Path>
         && err.kind() != std::io::ErrorKind::NotFound
     {
         log::error!("Failed to remove old RPC socket: {}", err);
+    }
+}
+
+/// If split filter / multihop migration ran, cache the result to disk. The result will need
+/// to be persisted until a client has acknowledged the migration, which could happen after a
+/// daemon restart.
+///
+/// If the result was cached to disk, return the path to the result. This may be deserialized to a
+/// [Scenario].
+async fn persist_split_filter_migration_scenario(
+    migration_data: &MigrationData,
+    cache_dir: impl AsRef<Path>,
+) {
+    let output = cache_dir.as_ref().join(migrations::multihop::CACHE);
+    if let Some(scenario) = migration_data.multihop_split_filter_migration.clone()
+        && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
+        && let Err(err) = SettingsPersister::save_bytes(&output, &scenario).await
+    {
+        log::error!(
+            "{}",
+            err.display_chain_with_msg(&format!(
+                "Failed to save split-filter migration ({scenario}) to disk: {err}"
+            ))
+        );
+    }
+}
+
+/// Read [Scenario] from disk after [persist_split_filter_migration_scenario] has been called at
+/// least once.
+async fn read_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> Option<Scenario> {
+    match tokio::fs::read(cache_dir.as_ref().join(migrations::multihop::CACHE)).await {
+        Ok(scenario) => match serde_json::from_slice(&scenario) {
+            Ok(scenario) => Some(scenario),
+            Err(err) => {
+                let err = err.display_chain_with_msg(
+                    "Failed to deserialize split-filter / multihop migration scenario",
+                );
+                log::error!("{err}");
+                None
+            }
+        },
+        // The scenario has most likely been deleted.
+        Err(err) if matches!(err.kind(), io::ErrorKind::NotFound) => None,
+        Err(err) => {
+            let err = err.display_chain_with_msg(
+                "Failed to parse split-filter / multihop migration scenario from disk",
+            );
+            log::error!("{err}");
+            None
+        }
+    }
+}
+
+/// Delete [Scenario] from disk after [persist_split_filter_migration_scenario] has been called at
+/// least once.
+async fn delete_split_filter_migration_scenario(cache_dir: impl AsRef<Path>) -> io::Result<()> {
+    match tokio::fs::remove_file(cache_dir.as_ref().join(migrations::multihop::CACHE)).await {
+        Ok(()) => Ok(()),
+        // It's fine if the file has already been deleted once.
+        Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(()),
+        Err(err) => Err(err),
     }
 }

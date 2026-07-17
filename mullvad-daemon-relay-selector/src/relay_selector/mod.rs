@@ -1,0 +1,259 @@
+pub mod grpc_service;
+
+use std::ops::Deref;
+use std::path::Path;
+use std::sync::{Arc, LazyLock, Mutex};
+
+use mullvad_relay_selector::query::RelayQuery;
+use mullvad_relay_selector::{EntrySpecificConstraints, Error, GetRelay, RelaySelector};
+use mullvad_types::custom_list::CustomListsSettings;
+use mullvad_types::relay_list::{BridgeList, RelayList};
+use mullvad_types::settings::Settings;
+use talpid_types::net::{IpAvailability, IpVersion};
+
+use crate::relay_list;
+
+/// [`RETRY_ORDER`] defines an ordered set of entry-relay parameters which the relay selector
+/// should prioritize on successive connection attempts. Note that these will *never* override user
+/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
+///
+/// Each entry is an [`EntrySpecificConstraints`] that specifies only the axes that vary between
+/// retry attempts (`ip_version` and `obfuscation`). All other fields are left as
+/// `Constraint::Any` so that intersecting with the user's entry-specific constraints preserves
+/// them. The user's hop count, exit constraints, allowed_ips, and quantum_resistant settings
+/// are passed through unchanged when merging with the user query via
+/// [`RelayQuery::merge_retry`].
+///
+/// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
+pub static RETRY_ORDER: LazyLock<Vec<EntrySpecificConstraints>> = LazyLock::new(|| {
+    vec![
+        // 1: any wireguard relay
+        EntrySpecificConstraints::default(),
+        // 2: prefer IPv6
+        EntrySpecificConstraints::default().ip_version(IpVersion::V6),
+        // 3: lwo
+        EntrySpecificConstraints::lwo(),
+        // 4: shadowsocks
+        EntrySpecificConstraints::shadowsocks(),
+        // 5: quic
+        EntrySpecificConstraints::quic(),
+        // 6: udp2tcp
+        EntrySpecificConstraints::udp2tcp(),
+        // 7: udp2tcp + IPv6
+        EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
+    ]
+});
+
+/// A [RelaySelector] instance backed by a relay list on-disk.
+///
+/// The queries run against this relay selector is automatically derived from the mullvad-daemon settings.
+/// This underpins the [RETRY_ORDER] mechanism where different queries may be run for consecutive
+/// connection attempts. See [Config] for details.
+#[derive(Clone)]
+pub struct RelaySelectorIO {
+    inner: RelaySelector,
+    config: Config,
+}
+
+impl Deref for RelaySelectorIO {
+    type Target = RelaySelector;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl RelaySelectorIO {
+    /// Create a new [RelaySelectorIO] with an empty relay list.
+    pub fn new(custom_lists: CustomListsSettings) -> Self {
+        let inner = {
+            let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
+                Default::default();
+            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
+        };
+        let config = Config::from(custom_lists);
+        RelaySelectorIO { inner, config }
+    }
+
+    /// Try to initialize [RelaySelectorIO] from cached relay list.
+    pub fn load(
+        custom_lists: CustomListsSettings,
+        cache_dir: impl AsRef<Path>,
+        resource_dir: impl AsRef<Path>,
+    ) -> Result<Self, relay_list::error::Error> {
+        use crate::relay_list::parsed_relays::parse_relays_from_file;
+        let initial_relay_list = parse_relays_from_file(cache_dir, resource_dir)
+            .inspect_err(|err| log::error!("{err}"))?;
+        let inner = {
+            let (initial_relay_list, initial_bridge_list) = initial_relay_list.into_internal_repr();
+            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
+        };
+        let config = Config::from(custom_lists);
+        Ok(RelaySelectorIO { inner, config })
+    }
+
+    /// Try to initialize [RelaySelectorIO] from cached relay list. If that fails, fall back to
+    /// initializing a [RelaySelectorIO] with an empty relay list.
+    pub fn load_with_default(
+        custom_lists: CustomListsSettings,
+        cache_dir: impl AsRef<Path>,
+        resource_dir: impl AsRef<Path>,
+    ) -> Self {
+        Self::load(custom_lists.clone(), cache_dir, resource_dir)
+            .unwrap_or_else(|_| Self::new(custom_lists))
+    }
+
+    pub fn from_settings(
+        settings: Settings,
+        relays: RelayList,
+        bridges: BridgeList,
+    ) -> RelaySelectorIO {
+        let config = Config::from(settings);
+        let inner = RelaySelector::new(relays, bridges);
+        RelaySelectorIO { inner, config }
+    }
+
+    /// Update the relay selector config.
+    pub fn set_config(&self, settings: Settings) {
+        let config = &self.config;
+        *config.custom_lists.lock().unwrap() = settings.custom_lists.clone();
+        *config.query.lock().unwrap() = RelayQuery::from(settings);
+    }
+
+    /// Update only the custom list settings used for location filtering.
+    pub fn set_custom_lists(&self, custom_lists: CustomListsSettings) {
+        let config = &self.config;
+        *config.custom_lists.lock().unwrap() = custom_lists;
+    }
+
+    /// Returns a random relay and relay endpoint matching the current constraints corresponding to
+    /// `retry_attempt` in one of the retry orders while considering the [`Config`].
+    pub fn get_relay(
+        &self,
+        retry_attempt: usize,
+        runtime_ip_availability: IpAvailability,
+    ) -> Result<GetRelay, Error> {
+        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_ip_availability)
+    }
+
+    /// Returns a random relay and relay endpoint matching the current constraints defined by
+    /// `retry_order` corresponding to `retry_attempt`.
+    pub fn get_relay_with_custom_params(
+        &self,
+        retry_attempt: usize,
+        retry_order: &[EntrySpecificConstraints],
+        runtime_ip_availability: IpAvailability,
+    ) -> Result<GetRelay, Error> {
+        let mut user_query = self.config.query.lock().unwrap().clone();
+        // Runtime parameters may shrink the set of usable IP versions — apply that *before*
+        // merging with retry_order so an IPv6-only retry attempt is correctly rejected when only
+        // IPv4 is available.
+        user_query.apply_ip_availability(runtime_ip_availability)?;
+        log::trace!("Merging user preferences {user_query:?} with default retry strategy");
+
+        // Select a relay using the user's preferences merged with the nth compatible retry entry,
+        // looping back to the start if necessary.
+        let maybe_relay = retry_order
+            .iter()
+            .filter_map(|retry| user_query.clone().merge_retry(retry.clone()))
+            .filter_map(|query| self.get_relay_by_query(query).ok())
+            .cycle()
+            .nth(retry_attempt);
+
+        match maybe_relay {
+            Some(v) => Ok(v),
+            // If no retry merged with `user_query` yields a relay, fall back to the user's
+            // preferences alone.
+            None => self.get_relay_by_query(user_query),
+        }
+    }
+}
+
+/// Relay selector configuration. This datastructure keeps the relay selector in sync with
+/// mullvad-daemon.
+///
+/// Carries the pre-computed [`RelayQuery`] derived from the user's settings together with the
+/// custom lists needed for location filtering. When the user has configured a custom tunnel
+/// endpoint the relay selector is never queried, so a dormant default config is used.
+#[derive(Debug, Clone, Default)]
+pub struct Config {
+    query: Arc<Mutex<RelayQuery>>,
+    custom_lists: Arc<Mutex<CustomListsSettings>>,
+}
+
+impl Config {
+    fn custom_lists(&self) -> CustomListsSettings {
+        self.custom_lists.lock().unwrap().clone()
+    }
+}
+
+impl From<CustomListsSettings> for Config {
+    fn from(custom_lists: CustomListsSettings) -> Self {
+        Self {
+            query: Default::default(),
+            custom_lists: Arc::new(Mutex::new(custom_lists)),
+        }
+    }
+}
+
+impl From<Settings> for Config {
+    fn from(settings: Settings) -> Self {
+        let custom_lists = Arc::new(Mutex::new(settings.custom_lists.clone()));
+        let query = Arc::new(Mutex::new(RelayQuery::from(settings)));
+        Self {
+            query,
+            custom_lists,
+        }
+    }
+}
+
+impl From<RelayQuery> for Config {
+    fn from(query: RelayQuery) -> Self {
+        let query = Arc::new(Mutex::new(query));
+        let custom_lists = Arc::new(Mutex::new(CustomListsSettings::default()));
+        Config {
+            query,
+            custom_lists,
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
+    /// modified, the programmer should be made aware to update all external documents which rely on the
+    /// retry order to be correct.
+    ///
+    /// When all necessary changes have been made, feel free to update this test to mirror the new
+    /// [`RETRY_ORDER`].
+    #[test]
+    fn assert_retry_order() {
+        use talpid_types::net::IpVersion;
+        let expected_retry_order = vec![
+            // 1 (wireguard)
+            EntrySpecificConstraints::default(),
+            // 2
+            EntrySpecificConstraints::default().ip_version(IpVersion::V6),
+            // 3
+            EntrySpecificConstraints::lwo(),
+            // 4
+            EntrySpecificConstraints::shadowsocks(),
+            // 5
+            EntrySpecificConstraints::quic(),
+            // 6
+            EntrySpecificConstraints::udp2tcp(),
+            // 7
+            EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
+        ];
+
+        assert!(
+            *RETRY_ORDER == expected_retry_order,
+            "
+    The relay selector's retry order has been modified!
+    Make sure to update `docs/relay-selector.md` with these changes.
+    Lastly, you may go ahead and fix this test to reflect the new retry order.
+    "
+        );
+    }
+}
