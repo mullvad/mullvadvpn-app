@@ -10,6 +10,19 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
+@MainActor
+protocol ObservableVPNSettings: ObservableObject {
+    var quantumResistance: TunnelQuantumResistance { get set }
+}
+
+public class ObservabledVPNSettingsStub: ObservableVPNSettings {
+    @Published var quantumResistance: TunnelQuantumResistance
+
+    init(tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
+        quantumResistance = tunnelSettings.tunnelQuantumResistance
+    }
+}
+
 enum CustomDNSPrecondition {
     /// Custom DNS can be enabled
     case satisfied

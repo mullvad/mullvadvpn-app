@@ -46,7 +46,7 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
-        let view = SettingsVPNSettingsView()
+        let view = SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub())
 
         let host = UIHostingRootController(rootView: view)
         host.title = NSLocalizedString("VPN settings", comment: "")
