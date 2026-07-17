@@ -36,7 +36,11 @@ class VPNSettingsPage: Page {
     }
 
     private func cellPortSelectorButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
-        return cellSubButton(cellAccessiblityIdentifier, .openPortSelectorMenuButton)
+        cellSubButton(cellAccessiblityIdentifier, .openPortSelectorMenuButton)
+    }
+
+    private func quantumResistanceSwitch() -> XCUIElement {
+        app.switches.allElementsBoundByIndex.last!
     }
 
     @discardableResult func tapBackButton() -> Self {
@@ -46,122 +50,65 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func tapDNSSettingsCell() -> Self {
-        app.tables
-            .cells[AccessibilityIdentifier.dnsSettings]
-            .tap()
-
+        app.buttons[.dnsSettings].tap()
         return self
     }
 
-    @discardableResult func tapWireGuardPortsExpandButton() -> Self {
-        cellExpandButton(AccessibilityIdentifier.wireGuardPortsCell).tap()
+    @discardableResult func tapWireGuardPorts() -> Self {
+        app.buttons[.wireGuardPorts].tap()
         return self
     }
 
     @discardableResult func tapAntiCensorshipCell() -> Self {
-        app.tables.cells[.antiCensorship].tap()
+        app.buttons[.antiCensorship].tap()
         return self
     }
 
-    @discardableResult func tapQuantumResistantTunnelExpandButton() -> Self {
-        cellExpandButton(AccessibilityIdentifier.quantumResistantTunnelCell).tap()
-
+    /// Temporary workaround until the accessibility issues in `SegmentedListItem` are fixed
+    @discardableResult func turnQuantumResistanceOn() -> Self {
+        let quantumResistanceSwitch = quantumResistanceSwitch()
+        if quantumResistanceSwitch.value as? String == "0" {
+            quantumResistanceSwitch.tap()
+        }
         return self
     }
 
-    @discardableResult func tapQuantumResistantTunnelOnCell() -> Self {
-        app.cells[AccessibilityIdentifier.quantumResistanceOn]
-            .tap()
-        return self
-    }
-
-    @discardableResult func tapQuantumResistantTunnelOffCell() -> Self {
-        app.cells[AccessibilityIdentifier.quantumResistanceOff]
-            .tap()
+    /// Temporary workaround until the accessibility issues in `SegmentedListItem` are fixed
+    @discardableResult func turnQuantumResistanceOff() -> Self {
+        let quantumResistanceSwitch = quantumResistanceSwitch()
+        if quantumResistanceSwitch.value as? String == "1" {
+            quantumResistanceSwitch.tap()
+        }
         return self
     }
 
     @discardableResult func tapIPVersionExpandButton() -> Self {
-        cellExpandButton(AccessibilityIdentifier.ipVersionCell).tap()
+        cellExpandButton(.ipVersionCell).tap()
 
         return self
     }
 
     @discardableResult func tapIPVersionAutomaticCell() -> Self {
-        app.cells[AccessibilityIdentifier.ipVersionAutomatic]
+        app.cells[.ipVersionAutomatic]
             .tap()
         return self
     }
 
     @discardableResult func tapIPVersionIPv4Cell() -> Self {
-        app.cells[AccessibilityIdentifier.ipVersionIPv4]
+        app.cells[.ipVersionIPv4]
             .tap()
         return self
     }
 
     @discardableResult func tapIPVersionIPv6Cell() -> Self {
-        app.cells[AccessibilityIdentifier.ipVersionIPv6]
+        app.cells[.ipVersionIPv6]
             .tap()
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationAutomaticCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationAutomatic]
-            .tap()
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationUdpOverTcpCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp].tap()
-
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationShadowsocksCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationShadowsocks].tap()
-
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationQuicCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationQuic].tap()
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationLwoCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationLwo].tap()
-        return self
-    }
-
-    @discardableResult func tapWireGuardObfuscationOffCell() -> Self {
-        app.cells[AccessibilityIdentifier.wireGuardObfuscationOff].tap()
-
         return self
     }
 
     @discardableResult func tapCustomWireGuardPortTextField() -> Self {
-        app.textFields[AccessibilityIdentifier.customWireGuardPortTextField]
+        app.textFields[.customWireGuardPortTextField]
             .tap()
-        return self
-    }
-
-    @discardableResult func verifyCustomWireGuardPortSelected(portNumber: String) -> Self {
-        let cell = app.cells[AccessibilityIdentifier.wireGuardCustomPort]
-        XCTAssertTrue(cell.isSelected)
-        let textField = app.textFields[AccessibilityIdentifier.customWireGuardPortTextField]
-
-        guard let textFieldValue = textField.value as? String else {
-            XCTFail("Failed to read custom port text field value")
-            return self
-        }
-
-        XCTAssertEqual(textFieldValue, portNumber)
-        return self
-    }
-
-    @discardableResult func verifyWireGuardObfuscationOnSelected() -> Self {
-        let onCell = app.cells[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp]
-        XCTAssertTrue(onCell.isSelected)
         return self
     }
 
