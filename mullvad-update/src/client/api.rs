@@ -74,16 +74,15 @@ impl HttpVersionInfoProvider {
     /// Create a repository using the base URL [defaults::RELEASES_URL].
     ///
     /// This will fetch the metadata from `api.mullvad.net`, and reject anything except the LE root
-    /// certificate. This assumes the domain name resolves to [`API_IP_DEFAULT`] instead of using
-    /// DNS.
+    /// certificate. The domain name is resolved to [`API_IP_DEFAULT`] without using DNS.
     pub fn api(platform: MetaRepositoryPlatform) -> Self {
         Self::new(defaults::RELEASES_URL, platform)
     }
 
     /// Create a repository using the base URL [defaults::METADATA_URL].
     ///
-    /// This will fetch the metadata from `releases.mullvad.net`. It does not pin the TLS
-    /// certificate, and resolves the domain name using DNS. This may be useful as the data is less
+    /// This will fetch the metadata from `releases.mullvad.net`, and reject anything except the LE
+    /// root certificate. The domain name is resolved using DNS. This may be useful as the data is less
     /// likely to be stale.
     ///
     /// You most likely want to use [Self::api] instead.
