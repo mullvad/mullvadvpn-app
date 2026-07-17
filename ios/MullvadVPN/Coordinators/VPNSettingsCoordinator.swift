@@ -16,6 +16,7 @@ enum VPNSettingsSection: Equatable {
     case quantumResistance
     case obfuscation
     case ipVersion
+    case none
 }
 
 class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChildCoordinator {
@@ -47,75 +48,40 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
-        let section: VPNSettingsSection? =
+        let section: VPNSettingsSection =
             if case let .vpnSettings(route) = route { route } else {
-                nil
+                .none
             }
+        let alertPresenter = AlertPresenter(context: self)
 
-        /// Specific check for hotlinking to the `AntiCensorShipView` from the `ConnectionView`
-        /// `AntiCensorshipView` does not have a coordinator, this is why it's pushed from here instead.
-        if section == .obfuscation {
-            let host = makeAntiCensorshipView()
-            addDoneButton(to: host)
-
-            navigationController.pushViewController(host, animated: true)
-            return
-        }
-
-        let controller = VPNSettingsViewController(
-            interactor: interactorFactory.makeVPNSettingsInteractor(),
-            alertPresenter: AlertPresenter(context: self),
-            section: section
+        let view = VPNSettingsNavigationView(
+            settingsInteractor: interactorFactory.makeVPNSettingsInteractor(),
+            IPOverrideInteractor: interactorFactory.makeIPOverrideInteractor(),
+            alertPresenter: alertPresenter,
+            navigationController: navigationController,
+            presentOnlySection: section
         )
 
-        controller.delegate = self
-        customiseNavigation(on: controller)
-        navigationController.pushViewController(controller, animated: animated)
-    }
+        let host = UIHostingController(rootView: view)
+        customiseNavigation(on: host)
 
-    fileprivate func addDoneButton(to viewController: UIViewController) {
-        let doneButton = UIBarButtonItem(
-            systemItem: .done,
-            primaryAction: UIAction(handler: { [weak self] _ in
-                guard let self else { return }
-                didFinish?(self)
-            })
-        )
-        viewController.navigationItem.rightBarButtonItem = doneButton
+        navigationController.pushViewController(host, animated: animated)
     }
 
     private func customiseNavigation(on viewController: UIViewController) {
         if case .vpnSettings = route {
-            addDoneButton(to: viewController)
+            navigationController.navigationItem.largeTitleDisplayMode = .always
+            navigationController.navigationBar.prefersLargeTitles = true
+
+            let doneButton = UIBarButtonItem(
+                systemItem: .done,
+                primaryAction: UIAction(handler: { [weak self] _ in
+                    guard let self else { return }
+                    didFinish?(self)
+                })
+            )
+            doneButton.setAccessibilityIdentifier(.settingsDoneButton)
+            viewController.navigationItem.rightBarButtonItem = doneButton
         }
-    }
-
-    func makeAntiCensorshipView() -> UIHostingController<some View> {
-        let view = AntiCensorshipView(settingsInteractor: interactorFactory.makeVPNSettingsInteractor())
-
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString("Anti-censorship", comment: "")
-        host.view.setAccessibilityIdentifier(.antiCensorship)
-
-        return host
-    }
-}
-
-extension VPNSettingsCoordinator: @preconcurrency VPNSettingsViewControllerDelegate {
-    func showIPOverrides() {
-        let coordinator = IPOverrideCoordinator(
-            navigationController: navigationController,
-            repository: ipOverrideRepository,
-            tunnelManager: interactorFactory.tunnelManager,
-            route: nil
-        )
-
-        addChild(coordinator)
-        coordinator.start(animated: true)
-    }
-
-    func showAntiCensorshipSettings() {
-        let host = makeAntiCensorshipView()
-        navigationController.pushViewController(host, animated: true)
     }
 }

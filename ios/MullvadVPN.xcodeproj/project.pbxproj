@@ -195,7 +195,6 @@
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
-		584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C3270C855A004EA533 /* VPNSettingsDataSource.swift */; };
 		584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */; };
 		5859A55529CD9DD900F66591 /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5859A55429CD9DD800F66591 /* changes.txt */; };
 		585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */; };
@@ -205,7 +204,6 @@
 		586168692976F6BD00EF8598 /* DisplayError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586168682976F6BD00EF8598 /* DisplayError.swift */; };
 		5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */; };
 		5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */; };
-		5864AF0929C78850005B0CD9 /* VPNSettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0229C7879B005B0CD9 /* VPNSettingsCellFactory.swift */; };
 		5864AF7D2A9F4DC9008BC928 /* SettingsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */; };
 		5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770D29096984006F721F /* OutOfTimeInteractor.swift */; };
 		58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770F290975E8006F721F /* SettingsInteractorFactory.swift */; };
@@ -258,7 +256,6 @@
 		587DCCEF287D84A500CE821E /* countries.geo.json in Resources */ = {isa = PBXBuildFile; fileRef = 587DCCEE287D84A500CE821E /* countries.geo.json */; };
 		587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
 		587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB671271451E300123C75 /* VPNSettingsViewModel.swift */; };
-		587EB6742714520600123C75 /* VPNSettingsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB6732714520600123C75 /* VPNSettingsDataSourceDelegate.swift */; };
 		588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */; };
 		588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
@@ -279,7 +276,6 @@
 		589A455D28E094BF00565204 /* OperationObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E1E292848DF67004838B3 /* OperationObserverTests.swift */; };
 		589A455F28E094BF00565204 /* OperationConditionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580CBFB72848D503007878F0 /* OperationConditionTests.swift */; };
 		589E76C02A9378F100E502F3 /* RESTRequestExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589E76BF2A9378F100E502F3 /* RESTRequestExecutor.swift */; };
-		58ACF6492655365700ACE4B7 /* VPNSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF6482655365700ACE4B7 /* VPNSettingsViewController.swift */; };
 		58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */; };
 		58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */; };
 		58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */; };
@@ -818,11 +814,14 @@
 		A91E26E02E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */; };
 		A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */; };
 		A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91EBED92C1337040004A84D /* RetryStrategyTests.swift */; };
+		A92721DC300A1FB30094B2DA /* VPNSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */; };
+		A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
+		A9342D193018890B00031D3A /* WireGuardPortSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9342D183018890B00031D3A /* WireGuardPortSettingsView.swift */; };
+		A9342D1B3018894400031D3A /* WireGuardPortSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
-		A957F0B630235D470093B79F /* AntiCensorshipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A957F0B530235D470093B79F /* AntiCensorshipView.swift */; };
-		A957F0B830248A880093B79F /* AntiCensorshipPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A957F0B730248A880093B79F /* AntiCensorshipPage.swift */; };
+		A95745D7301B510800382CE3 /* QuantumResistanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95745D6301B510800382CE3 /* QuantumResistanceView.swift */; };
 		A959E23E2D75F33300F95DDB /* PersistentAccessMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */; };
 		A959E2412D75F39A00F95DDB /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		A959E2422D75F3D200F95DDB /* AccessMethodKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */; };
@@ -959,7 +958,10 @@
 		A9E0317A2ACB0AE70095D843 /* UIApplication+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */; };
 		A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
+		A9E9894A3010924B00D42845 /* VPNSettingsNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E989493010924B00D42845 /* VPNSettingsNavigationView.swift */; };
 		A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EE85602DF1BE2900F2D769 /* TermsOfServiceView.swift */; };
+		A9F9F8223020C73200ABA309 /* WireGuardPortsSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */; };
+		A9F9F8243020D30400ABA309 /* AntiCensorshipPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */; };
 		BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */; };
 		C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */; };
 		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; };
@@ -1968,7 +1970,6 @@
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		584D0111299134AB00531822 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
 		584D26BE270C550B004EA533 /* AnyIPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddress.swift; sourceTree = "<group>"; };
-		584D26C3270C855A004EA533 /* VPNSettingsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsDataSource.swift; sourceTree = "<group>"; };
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv4Endpoint.swift; sourceTree = "<group>"; };
 		5859A55429CD9DD800F66591 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changes.txt; sourceTree = "<group>"; };
@@ -1982,7 +1983,6 @@
 		586168682976F6BD00EF8598 /* DisplayError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayError.swift; sourceTree = "<group>"; };
 		5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
 		5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellFactoryProtocol.swift; sourceTree = "<group>"; };
-		5864AF0229C7879B005B0CD9 /* VPNSettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VPNSettingsCellFactory.swift; sourceTree = "<group>"; };
 		5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsReader.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5867770D29096984006F721F /* OutOfTimeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimeInteractor.swift; sourceTree = "<group>"; };
@@ -2043,7 +2043,6 @@
 		587DCCEE287D84A500CE821E /* countries.geo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = countries.geo.json; sourceTree = "<group>"; };
 		587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CharacterSet+IPAddress.swift"; sourceTree = "<group>"; };
 		587EB671271451E300123C75 /* VPNSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsViewModel.swift; sourceTree = "<group>"; };
-		587EB6732714520600123C75 /* VPNSettingsDataSourceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsDataSourceDelegate.swift; sourceTree = "<group>"; };
 		5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgAdapter.swift; sourceTree = "<group>"; };
 		588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadTunnelConfigurationOperation.swift; sourceTree = "<group>"; };
 		588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAccountOperation.swift; sourceTree = "<group>"; };
@@ -2078,7 +2077,6 @@
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgStats.swift; sourceTree = "<group>"; };
 		58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStatusNotificationProvider.swift; sourceTree = "<group>"; };
-		58ACF6482655365700ACE4B7 /* VPNSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsViewController.swift; sourceTree = "<group>"; };
 		58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSwitchCell.swift; sourceTree = "<group>"; };
 		58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitch.swift; sourceTree = "<group>"; };
 		58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSwitchContainer.swift; sourceTree = "<group>"; };
@@ -2513,19 +2511,22 @@
 		A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleaner.swift; sourceTree = "<group>"; };
 		A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleanerTests.swift; sourceTree = "<group>"; };
 		A91EBED92C1337040004A84D /* RetryStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategyTests.swift; sourceTree = "<group>"; };
+		A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsView.swift; sourceTree = "<group>"; };
+		A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipView.swift; sourceTree = "<group>"; };
 		A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A92ECC202A77FFAF0052F1B1 /* TunnelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettings.swift; sourceTree = "<group>"; };
 		A92ECC232A7802520052F1B1 /* StoredAccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredAccountData.swift; sourceTree = "<group>"; };
 		A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceData.swift; sourceTree = "<group>"; };
 		A92ECC2B2A7803A50052F1B1 /* DeviceState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceState.swift; sourceTree = "<group>"; };
 		A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV4.swift; sourceTree = "<group>"; };
+		A9342D183018890B00031D3A /* WireGuardPortSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortSettingsView.swift; sourceTree = "<group>"; };
+		A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortSettingsViewModel.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
-		A957F0B530235D470093B79F /* AntiCensorshipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipView.swift; sourceTree = "<group>"; };
-		A957F0B730248A880093B79F /* AntiCensorshipPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipPage.swift; sourceTree = "<group>"; };
+		A95745D6301B510800382CE3 /* QuantumResistanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceView.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadConnectionModeProvider.swift; sourceTree = "<group>"; };
@@ -2571,10 +2572,13 @@
 		A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+Stubs.swift"; sourceTree = "<group>"; };
 		A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStatusBlockObserver.swift; sourceTree = "<group>"; };
 		A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIEdgeInsets+Extensions.swift"; sourceTree = "<group>"; };
+		A9E989493010924B00D42845 /* VPNSettingsNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsNavigationView.swift; sourceTree = "<group>"; };
 		A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiator.swift; sourceTree = "<group>"; };
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9EE85602DF1BE2900F2D769 /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
+		A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortsSettingsPage.swift; sourceTree = "<group>"; };
+		A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipPage.swift; sourceTree = "<group>"; };
 		B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelImplementation.swift; sourceTree = "<group>"; };
 		B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSearchBar.swift; sourceTree = "<group>"; };
 		D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPathSnapshot.swift; sourceTree = "<group>"; };
@@ -3261,7 +3265,8 @@
 				7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */,
 				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
 				4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */,
-				A957F0B530235D470093B79F /* AntiCensorshipView.swift */,
+				A9342D183018890B00031D3A /* WireGuardPortSettingsView.swift */,
+				A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */,
 			);
 			path = Obfuscation;
 			sourceTree = "<group>";
@@ -3558,12 +3563,8 @@
 				7A6F2FAA2AFD3097006D0856 /* CustomDNSCellFactory.swift */,
 				7A6F2FA82AFD0842006D0856 /* CustomDNSDataSource.swift */,
 				7A6F2FAC2AFD3DA7006D0856 /* CustomDNSViewController.swift */,
-				5864AF0229C7879B005B0CD9 /* VPNSettingsCellFactory.swift */,
-				584D26C3270C855A004EA533 /* VPNSettingsDataSource.swift */,
-				587EB6732714520600123C75 /* VPNSettingsDataSourceDelegate.swift */,
 				7A6F2FAE2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift */,
 				5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */,
-				58ACF6482655365700ACE4B7 /* VPNSettingsViewController.swift */,
 				587EB671271451E300123C75 /* VPNSettingsViewModel.swift */,
 			);
 			path = VPNSettings;
@@ -4465,6 +4466,7 @@
 				7A5869A92B55516700640D27 /* IPOverride */,
 				7A8A18F72CE34E8F000BCB5B /* Multihop */,
 				7A8A18FE2CE4C7FA000BCB5B /* Views */,
+				A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */,
 				7A95A9E62FADC1670096009A /* BlockedStateString.swift */,
 				F0AC64412F3B51BB0024427C /* NotificationSettingsCoordinator.swift */,
 				58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */,
@@ -4474,7 +4476,10 @@
 				F095809A2FADEE6D00A55BD4 /* SettingsMigrationWizard */,
 				7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */,
 				7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */,
+				A92721DB300A1FB30094B2DA /* VPNSettingsView.swift */,
 				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
+				A9E989493010924B00D42845 /* VPNSettingsNavigationView.swift */,
+				A95745D6301B510800382CE3 /* QuantumResistanceView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -4813,17 +4818,16 @@
 		852969262B4D9C1F007EAD4C /* MullvadVPNUITests */ = {
 			isa = PBXGroup;
 			children = (
-				D5A6A9DA2FE021B0001E4796 /* Configuration */,
-				D5A6A9D72FE01E36001E4796 /* Concerns */,
-				8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */,
-				01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */,
 				7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */,
 				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
 				8518F6392B601910009EB113 /* Base */,
+				D5A6A9D72FE01E36001E4796 /* Concerns */,
+				D5A6A9DA2FE021B0001E4796 /* Configuration */,
 				85557B112B594FC900795FE1 /* ConnectivityTests.swift */,
 				A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */,
 				852969372B4ED20E007EAD4C /* Info.plist */,
 				85F1E17D2C0A256200DB8F55 /* LeakTests.swift */,
+				8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */,
 				85557B0C2B591B0F00795FE1 /* Networking */,
 				852969312B4E9220007EAD4C /* Pages */,
 				7A9519932EBDDE5B00AA8B19 /* Payment */,
@@ -4831,6 +4835,7 @@
 				7A45CFCD2C08697100D80B21 /* Screenshots */,
 				7AB4018C2DA790CE00522E17 /* SelectLocationTests.swift */,
 				85C7A2E82B89024B00035D5A /* SettingsLoggedOutTests.swift */,
+				01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */,
 				856952E12BD6B04C008C1F84 /* XCUIElement+Extensions.swift */,
 				85557B152B5ABBBE00795FE1 /* XCUIElementQuery+Extensions.swift */,
 			);
@@ -4845,7 +4850,7 @@
 				852D054E2BC43DF7008578D2 /* AddAccessMethodPage.swift */,
 				7ACD79382C0DAADC00DBEE14 /* AddCustomListLocationsPage.swift */,
 				8529693B2B4F0257007EAD4C /* Alert.swift */,
-				A957F0B730248A880093B79F /* AntiCensorshipPage.swift */,
+				A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */,
 				852D054C2BC3DE3A008578D2 /* APIAccessPage.swift */,
 				85021CAD2BDBC4290098B400 /* AppLogsPage.swift */,
 				8587A05C2B84D43100152938 /* ChangeLogAlert.swift */,
@@ -4879,6 +4884,7 @@
 				4495ECD02D0B16F700A7358B /* UDPOverTCPObfuscationSettingsPage.swift */,
 				8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */,
 				85FB5A0B2B6903990015DCED /* WelcomePage.swift */,
+				A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -6779,6 +6785,7 @@
 				7A8A190A2CE5FFE9000BCB5B /* SettingsDAITAView.swift in Sources */,
 				449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */,
 				F03FC860300E3F0A00DE2F5D /* TextFormatter.swift in Sources */,
+				A9342D193018890B00031D3A /* WireGuardPortSettingsView.swift in Sources */,
 				F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */,
 				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
 				7AE16D802F97AEBE00A72A39 /* MultihopWhenNeededInfoView.swift in Sources */,
@@ -6864,9 +6871,9 @@
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				F00C8C4D2FC9DBAD00B760BB /* MullvadStateView+Preview.swift in Sources */,
+				A95745D7301B510800382CE3 /* QuantumResistanceView.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				7A460F9F2F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,
-				58ACF6492655365700ACE4B7 /* VPNSettingsViewController.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
@@ -6875,7 +6882,6 @@
 				0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
 				7A52C4502F6D8A6A005CD885 /* RecentItemView.swift in Sources */,
-				5864AF0929C78850005B0CD9 /* VPNSettingsCellFactory.swift in Sources */,
 				F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */,
 				F0AC64492F3B52380024427C /* NotificationSettingsView.swift in Sources */,
 				F0AC644A2F3B52380024427C /* NotificationSettingsViewModel.swift in Sources */,
@@ -6891,6 +6897,7 @@
 				F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */,
 				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
 				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
+				A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				440DA5C5300540F60057069A /* MullvadButton.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
@@ -6991,7 +6998,6 @@
 				58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */,
 				F9C579C82E8FE10400C90C50 /* LocationItemView.swift in Sources */,
 				F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */,
-				587EB6742714520600123C75 /* VPNSettingsDataSourceDelegate.swift in Sources */,
 				7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
@@ -7036,6 +7042,7 @@
 				7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Helpers.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
+				A92721DC300A1FB30094B2DA /* VPNSettingsView.swift in Sources */,
 				5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */,
 				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
@@ -7075,6 +7082,7 @@
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */,
 				7A6652B82BB44C3E0042D848 /* LocationDiffableDataSourceProtocol.swift in Sources */,
+				A9E9894A3010924B00D42845 /* VPNSettingsNavigationView.swift in Sources */,
 				5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */,
 				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
 				F0AF894F2F55A78B00DE9740 /* UITestSettingsResetPolicy.swift in Sources */,
@@ -7099,6 +7107,7 @@
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
+				A9342D1B3018894400031D3A /* WireGuardPortSettingsViewModel.swift in Sources */,
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
 				7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */,
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
@@ -7167,7 +7176,6 @@
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
-				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
 				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */,
@@ -7192,7 +7200,6 @@
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
 				7A8A19122CEF1E68000BCB5B /* SettingsInfoContainerView.swift in Sources */,
 				7A6389DB2B7E3BD6008E77E1 /* CustomListCellConfiguration.swift in Sources */,
-				A957F0B630235D470093B79F /* AntiCensorshipView.swift in Sources */,
 				F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */,
 				7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
@@ -7459,11 +7466,12 @@
 				8555C6602D1030040092DAD0 /* LeakCheck.swift in Sources */,
 				85A42B882BB44D31007BABF7 /* DeviceManagementPage.swift in Sources */,
 				8532E6872B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift in Sources */,
-				A957F0B830248A880093B79F /* AntiCensorshipPage.swift in Sources */,
 				85FB5A0C2B6903990015DCED /* WelcomePage.swift in Sources */,
 				852A26462BA9C9CB006EB9C8 /* DNSSettingsPage.swift in Sources */,
 				A998DA812BD147AD001D61A2 /* ListCustomListsPage.swift in Sources */,
 				F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */,
+				A9F9F8243020D30400ABA309 /* AntiCensorshipPage.swift in Sources */,
+				A9F9F8223020C73200ABA309 /* WireGuardPortsSettingsPage.swift in Sources */,
 				850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */,
 				8542CE242B95F7B9006FCA14 /* VPNSettingsPage.swift in Sources */,
 				85557B1E2B5FB8C700795FE1 /* HeaderBar.swift in Sources */,

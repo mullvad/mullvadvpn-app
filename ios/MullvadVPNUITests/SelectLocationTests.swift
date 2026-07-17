@@ -41,8 +41,10 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .tapAntiCensorshipCell()
 
         AntiCensorshipPage(app)
-            .navigateToShadowsocksObfuscationSettings()
             .selectObfuscationShadowsocks()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
             .tapBackButton()
 
         SettingsPage(app)
