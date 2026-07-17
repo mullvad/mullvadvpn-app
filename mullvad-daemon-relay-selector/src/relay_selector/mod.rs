@@ -44,8 +44,11 @@ pub static RETRY_ORDER: LazyLock<Vec<EntrySpecificConstraints>> = LazyLock::new(
     ]
 });
 
-/// A [RelaySelector] instance backed by a relay list on-disk. The queries run against this relay
-/// selector is automatically derived from the mullvad-daemon settings. See [Config] for details.
+/// A [RelaySelector] instance backed by a relay list on-disk.
+///
+/// The queries run against this relay selector is automatically derived from the mullvad-daemon settings.
+/// This underpins the [RETRY_ORDER] mechanism where different queries may be run for consecutive
+/// connection attempts. See [Config] for details.
 #[derive(Clone)]
 pub struct RelaySelectorIO {
     inner: RelaySelector,
