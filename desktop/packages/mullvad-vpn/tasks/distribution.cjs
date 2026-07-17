@@ -224,6 +224,13 @@ function newConfig() {
         // same across all electron-builder applications, which causes package
         // conflicts
         '--rpm-rpmbuild-define=_build_id_links none',
+        // Required for reproducible rpm output. Unlike fpm's deb output, which is
+        // deterministic when SOURCE_DATE_EPOCH is set (exported by build.sh), rpmbuild must
+        // be explicitly told to clamp payload file mtimes and the BUILDTIME header to it.
+        '--rpm-rpmbuild-define=clamp_mtime_to_source_date_epoch 1',
+        '--rpm-rpmbuild-define=use_source_date_epoch_as_buildtime 1',
+        // Set the BUILDHOST header to a fixed value instead of the build machine's hostname
+        '--rpm-rpmbuild-define=_buildhost reproducible',
         '--directories=/opt/Mullvad VPN/',
         '--before-install',
         distAssets('linux/before-install.sh'),
