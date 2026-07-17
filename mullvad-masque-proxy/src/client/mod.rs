@@ -251,6 +251,8 @@ impl Client {
         )
         .await?;
 
+        log::debug!("QUIC proxy client connected");
+
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
@@ -416,7 +418,7 @@ impl Client {
 
         let (outgoing_tx, outgoing_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (incoming_tx, incoming_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (packet_tx, packet_rx) = mpsc::channel::<Bytes>(MAX_INFLIGHT_PACKETS);
+        let (packet_tx, packet_rx) = mpsc::channel::<BytesMut>(MAX_INFLIGHT_PACKETS);
 
         tasks.spawn_task(client_socket_rx_task(
             Arc::clone(&client_socket),
@@ -451,6 +453,57 @@ impl Client {
             _stats: self.stats,
         }
     }
+
+    /// Start the proxy using the given channels, returning a [`RunningClient`].
+    ///
+    /// Packets received from `outgoing_rx` are proxied to the remote server,
+    /// and incoming packets are sent back to `incoming_tx`.
+    #[must_use]
+    pub fn proxy_channels<B: AsRef<[u8]> + Send + 'static>(
+        self,
+        outgoing_rx: mpsc::Receiver<B>,
+        incoming_tx: mpsc::Sender<BytesMut>,
+    ) -> RunningClient {
+        log::trace!("proxy_channels");
+        let stream_id: StreamId = self.request_stream.id();
+
+        let mut tasks = Tasks::default();
+
+        let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        tasks.spawn_task(inline_rx_task(
+            outgoing_rx,
+            DatagramFragmentor::new(
+                self.quinn_conn,
+                stream_id,
+                self.max_udp_payload_size,
+                Arc::clone(&self.stats),
+            ),
+            client_tx,
+        ));
+
+        tasks.spawn_task(fragment_reassembly_task(
+            stream_id,
+            server_rx,
+            incoming_tx,
+            Arc::clone(&self.stats),
+        ));
+
+        tasks.spawn_task(server_socket_task(
+            stream_id,
+            self.connection,
+            server_tx,
+            client_rx,
+        ));
+
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
+    }
 }
 
 /// Task stopped gracefully because the client was shutting down.
@@ -467,8 +520,10 @@ impl RunningClient {
 async fn server_socket_task(
     stream_id: StreamId,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
-    incoming_tx: mpsc::Sender<Datagram>,
-    mut outgoing_rx: mpsc::Receiver<Bytes>,
+    // Channel to which we send packets from the server
+    server_tx: mpsc::Sender<Datagram>,
+    // Incoming packets from the client, to be send to the server
+    mut client_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
     loop {
         log::trace!("server_socket_task: waiting for datagram or packet");
@@ -477,7 +532,7 @@ async fn server_socket_task(
                 match datagram {
                     Ok(Some(response)) => {
                         log::trace!("Got QUIC datagram");
-                        if incoming_tx.send(response).await.is_err() {
+                        if server_tx.send(response).await.is_err() {
                             break; // channel closed, exit gracefully
                         }
                     }
@@ -487,7 +542,7 @@ async fn server_socket_task(
 
                 continue;
             }
-            packet = outgoing_rx.recv() => {
+            packet = client_rx.recv() => {
                 if let Some(packet) = packet {
                     log::trace!("Sending QUIC datagram");
                     connection
@@ -630,7 +685,7 @@ async fn client_socket_rx_task(
 /// Forward packets from `send_rx` to the connected client socket.
 async fn client_socket_tx_task(
     client_socket: Arc<UdpSocket>,
-    send_rx: mpsc::Receiver<Bytes>,
+    send_rx: mpsc::Receiver<BytesMut>,
 ) -> Result<Stopped> {
     #[cfg(target_os = "windows")]
     if *windows::MAX_GSO_SEGMENTS > 1 {
@@ -646,7 +701,7 @@ async fn client_socket_tx_task(
 #[cfg(target_os = "windows")]
 async fn client_socket_gso_tx_task(
     client_socket: Arc<UdpSocket>,
-    mut send_rx: mpsc::Receiver<Bytes>,
+    mut send_rx: mpsc::Receiver<BytesMut>,
 ) -> Result<Stopped> {
     use bytes::Buf;
     use std::{collections::VecDeque, mem};
@@ -746,7 +801,7 @@ async fn client_socket_gso_tx_task(
 
 async fn client_socket_non_gso_tx_task(
     client_socket: Arc<UdpSocket>,
-    mut send_rx: mpsc::Receiver<Bytes>,
+    mut send_rx: mpsc::Receiver<BytesMut>,
 ) -> Result<Stopped> {
     while let Some(buf) = send_rx.recv().await {
         client_socket.send(&buf).await.map_err(Error::ClientWrite)?;
@@ -754,17 +809,39 @@ async fn client_socket_non_gso_tx_task(
     Ok(Stopped)
 }
 
+/// Read packets from a `packet_rx`, fragment them, and forward to the `outgoing_tx`.
+async fn inline_rx_task<B: AsRef<[u8]>>(
+    mut packet_rx: mpsc::Receiver<B>,
+    mut fragmentor: DatagramFragmentor,
+    outgoing_tx: mpsc::Sender<Bytes>,
+) -> Result<Stopped> {
+    log::trace!("Starting inline_rx_task");
+
+    'outer: while let Some(packet) = packet_rx.recv().await {
+        let read_buf = fragmentor.get_read_buf();
+        read_buf.extend_from_slice(packet.as_ref());
+
+        for packet in fragmentor.fragment()? {
+            if outgoing_tx.send(packet).await.is_err() {
+                break 'outer;
+            }
+        }
+    }
+    log::trace!("inline_rx_task closed");
+    Ok(Stopped)
+}
+
 /// Reassemble incoming QUIC datagrams and forward complete packets to `packet_tx`.
 async fn fragment_reassembly_task(
     stream_id: StreamId,
-    mut incoming_rx: mpsc::Receiver<Datagram>,
-    packet_tx: mpsc::Sender<Bytes>,
+    mut server_rx: mpsc::Receiver<Datagram>,
+    incoming_tx: mpsc::Sender<BytesMut>,
     stats: Arc<Stats>,
 ) -> Result<Stopped> {
     log::trace!("Starting fragment_reassembly_task");
     let mut fragments = Fragments::default();
 
-    while let Some(response) = incoming_rx.recv().await {
+    while let Some(response) = server_rx.recv().await {
         if response.stream_id() != stream_id {
             log::debug!("Received datagram with an unexpected stream ID");
             continue;
@@ -776,14 +853,18 @@ async fn fragment_reassembly_task(
             Ok(DefragReceived::Nonfragmented(payload)) => {
                 log::trace!("DefragReceived::Nonfragmented");
                 stats.rx(original_payload_len, false);
-                if packet_tx.send(payload).await.is_err() {
+                // Usually, the `Bytes` buffer is unique (refcount = 1), so the conversion below
+                // doesn't require a clone. This seems to be the case except for very large
+                // datagrams.
+                let payload = BytesMut::from(payload);
+                if incoming_tx.send(payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
                 log::trace!("DefragReceived::Reassembled");
                 stats.rx(original_payload_len, true);
-                if packet_tx.send(reassembled_payload).await.is_err() {
+                if incoming_tx.send(reassembled_payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }

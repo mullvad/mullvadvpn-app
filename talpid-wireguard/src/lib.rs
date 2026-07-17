@@ -17,9 +17,9 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
-use std::{env, sync::LazyLock};
-#[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
+use std::sync::LazyLock;
+use std::env;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
 use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
@@ -185,7 +185,8 @@ impl WireguardMonitor {
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
-        // For userspace_obfuscation, apply_obfuscation_config returns None and obfuscation is inline.
+        // For userspace_obfuscation, apply_obfuscation_config returns None obfuscation is set
+        // up in `open_gotatun_tunnel`.
         let obfuscator = get_obfuscator(
             params,
             &args,

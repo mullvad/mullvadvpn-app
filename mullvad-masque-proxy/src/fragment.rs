@@ -64,7 +64,7 @@ pub enum DefragReceived {
     /// Received a fragment but was unable to reassemble the packet
     Fragment,
     /// Received reassembled packet
-    Reassembled(Bytes),
+    Reassembled(BytesMut),
 }
 
 impl Fragments {
@@ -148,7 +148,7 @@ impl Fragments {
             payload.extend_from_slice(&fragment.payload);
         }
 
-        Ok(DefragReceived::Reassembled(payload.freeze()))
+        Ok(DefragReceived::Reassembled(payload))
     }
 }
 
@@ -244,7 +244,7 @@ mod test {
         let mut payloads = HashSet::new();
         for i in 0..n_packets {
             let packet_id = i as u16;
-            let payload = Bytes::from(vec![i as u8; payload_len]);
+            let payload = BytesMut::from(Bytes::from(vec![i as u8; payload_len]));
             payloads.insert(payload.clone());
 
             fragment_buf
