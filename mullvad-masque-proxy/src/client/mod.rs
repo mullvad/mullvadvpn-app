@@ -456,6 +456,57 @@ impl Client {
             _stats: self.stats,
         }
     }
+
+    /// Start the proxy using the given channels, returning a [`RunningClient`].
+    ///
+    /// Packets received from `outgoing_rx` are proxied to the remote server,
+    /// and incoming packets are sent back to `incoming_tx`.
+    #[must_use]
+    pub fn proxy_channels<B: AsRef<[u8]> + Send + 'static>(
+        self,
+        outgoing_packet_rx: mpsc::Receiver<B>,
+        incoming_packet_tx: mpsc::Sender<BytesMut>,
+    ) -> RunningClient {
+        log::trace!("proxy_channels");
+        let stream_id: StreamId = self.request_stream.id();
+
+        let mut tasks = Tasks::default();
+
+        let (outgoing_datagram_tx, outgoing_datagram_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (incoming_datagram_tx, incoming_datagram_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        tasks.spawn_task(inline_rx_task(
+            outgoing_packet_rx,
+            DatagramFragmentor::new(
+                self.quinn_conn,
+                stream_id,
+                self.max_udp_payload_size,
+                Arc::clone(&self.stats),
+            ),
+            outgoing_datagram_tx,
+        ));
+
+        tasks.spawn_task(fragment_reassembly_task(
+            stream_id,
+            incoming_datagram_rx,
+            incoming_packet_tx,
+            Arc::clone(&self.stats),
+        ));
+
+        tasks.spawn_task(server_socket_task(
+            stream_id,
+            self.connection,
+            incoming_datagram_tx,
+            outgoing_datagram_rx,
+        ));
+
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
+    }
 }
 
 /// Task stopped gracefully because the client was shutting down.
@@ -464,7 +515,7 @@ struct Stopped;
 impl RunningClient {
     /// Wait until the connection is remotely closed, or an error occurs.
     pub async fn until_closed(self) -> Result<()> {
-        self.tasks.join_all().await
+        self.tasks.join_and_abort().await
     }
 }
 
@@ -758,7 +809,26 @@ async fn client_socket_non_gso_tx_task(
     Ok(Stopped)
 }
 
-/// Reassemble incoming QUIC datagrams and forward complete packets to `packet_tx`.
+/// Read packets from a `outgoing_packet_rx`, fragment them, and forward to the `outgoing_datagram_tx`.
+async fn inline_rx_task<B: AsRef<[u8]>>(
+    mut outgoing_packet_rx: mpsc::Receiver<B>,
+    mut fragmentor: DatagramFragmentor,
+    outgoing_datagram_tx: mpsc::Sender<Bytes>,
+) -> Result<Stopped> {
+    'outer: while let Some(packet) = outgoing_packet_rx.recv().await {
+        let read_buf = fragmentor.get_read_buf();
+        read_buf.extend_from_slice(packet.as_ref());
+
+        for datagram in fragmentor.fragment()? {
+            if outgoing_datagram_tx.send(datagram).await.is_err() {
+                break 'outer;
+            }
+        }
+    }
+    Ok(Stopped)
+}
+
+/// Reassemble incoming QUIC datagrams and forward complete packets to `incoming_packet_tx`.
 async fn fragment_reassembly_task(
     stream_id: StreamId,
     mut incoming_datagram_rx: mpsc::Receiver<Datagram>,

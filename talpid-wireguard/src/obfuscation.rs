@@ -90,6 +90,7 @@ pub fn userspace_transport_available(
     matches!(
         params.obfuscation.as_ref(),
         Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
+            | Some(Obfuscators::Single(ObfuscatorConfig::Quic { .. }))
     )
 }
 
@@ -199,12 +200,12 @@ impl Drop for ObfuscatorHandle {
     }
 }
 
-struct ObfuscatorSocketBypass {
+pub struct ObfuscatorSocketBypass {
     #[cfg(target_os = "linux")]
-    fwmark: u32,
+    pub fwmark: u32,
 
     #[cfg(target_os = "android")]
-    tun_provider: Arc<Mutex<TunProvider>>,
+    pub tun_provider: Arc<Mutex<TunProvider>>,
 }
 
 impl SocketBypass for ObfuscatorSocketBypass {
