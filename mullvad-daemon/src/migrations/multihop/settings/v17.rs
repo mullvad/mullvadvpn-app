@@ -127,7 +127,7 @@ impl __Settings {
             ..
         }) = &relay
         {
-            // There is atleast one relay in the country of the relay which was automatically
+            // There is at least one relay in the country of the relay which was automatically
             // selected. Set it as the new entry relay constraint.
             let entry = __LocationConstraint::Location(__GeographicLocationConstraint::Country(
                 entry.inner.location.country_code.clone(),
