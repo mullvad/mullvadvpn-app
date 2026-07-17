@@ -13,12 +13,14 @@ use std::{
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
     ErrorExt,
-    net::obfuscation::{ObfuscatorConfig, Obfuscators},
+    net::{
+        obfuscation::{ObfuscatorConfig, Obfuscators},
+        wireguard::PublicKey,
+    },
 };
-
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, multiplexer, quic, shadowsocks,
-    udp2tcp,
+    Settings as ObfuscationSettings, create_local_socket_obfuscator, lwo, multiplexer, quic,
+    shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -26,37 +28,17 @@ use tunnel_obfuscation::{
 ///
 /// # Arguments
 ///
-/// * obfuscation_mtu - "MTU" including obfuscation overhead
-/// * is_gotatun - `true` when the userspace GotaTun implementation is in use
-pub async fn apply_obfuscation_config(
+/// * close_msg_sender - channel to send close messages on failure
+/// * tun_provider - (Android only) used to bypass the VPN for the remote socket
+pub async fn spawn_local_socket_obfuscator(
     config: &mut Config,
-    obfuscation_mtu: u16,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
-    let Some(ref obfuscator_config) = config.obfuscator_config else {
+    let Some(obfuscation_settings) = config.obfuscation_settings() else {
         return Ok(None);
     };
-
-    // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
-    // MaybeObfuscatingTransportFactory.
-    if is_gotatun && is_single_lwo(obfuscator_config) {
-        log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
-        return Ok(None);
-    }
-
-    let settings = settings_from_config(
-        config,
-        obfuscator_config,
-        obfuscation_mtu,
-        #[cfg(target_os = "linux")]
-        config.fwmark,
-    );
-
-    log::trace!("Obfuscation settings: {settings:?}");
-
-    let obfuscator = create_obfuscator(&settings)
+    let obfuscator = create_local_socket_obfuscator(&obfuscation_settings)
         .await
         .map_err(Error::ObfuscationError)?;
 
@@ -89,11 +71,15 @@ pub async fn apply_obfuscation_config(
     }))
 }
 
-/// Returns `true` when the obfuscation config is a single LWO method.
-pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+/// Returns `true` when the obfuscation config can be applied inline in userspace WireGuard
+/// (GotaTun), avoiding the need for a local socket obfuscator.
+pub fn userspace_transport_available(
+    params: &talpid_types::net::wireguard::TunnelParameters,
+) -> bool {
+    use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
     matches!(
-        obfuscators,
-        Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
+        params.obfuscation.as_ref(),
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
     )
 }
 
@@ -103,15 +89,17 @@ fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
     config.entry_peer.endpoint = endpoint;
 }
 
-fn settings_from_config(
-    config: &Config,
+pub fn settings_from_config(
+    client_public_key: PublicKey,
+    server_public_key: PublicKey,
     obfuscation_config: &Obfuscators,
     mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match obfuscation_config {
         Obfuscators::Single(obfuscation_config) => settings_from_single_config(
-            config,
+            client_public_key,
+            server_public_key,
             obfuscation_config,
             mtu,
             #[cfg(target_os = "linux")]
@@ -127,7 +115,8 @@ fn settings_from_config(
             }
             for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
                 let settings = settings_from_single_config(
-                    config,
+                    client_public_key.clone(),
+                    server_public_key.clone(),
                     obfs_config,
                     mtu,
                     #[cfg(target_os = "linux")]
@@ -145,7 +134,8 @@ fn settings_from_config(
 }
 
 fn settings_from_single_config(
-    config: &Config,
+    client_public_key: PublicKey,
+    server_public_key: PublicKey,
     obfuscation_config: &ObfuscatorConfig,
     mtu: u16,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
@@ -189,14 +179,13 @@ fn settings_from_single_config(
         }
         ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
             server_addr: *endpoint,
-            client_public_key: config.tunnel.private_key.public_key(),
-            server_public_key: config.entry_peer.public_key.clone(),
+            client_public_key,
+            server_public_key,
             #[cfg(target_os = "linux")]
             fwmark,
         }),
     }
 }
-
 /// Route socket outside of the VPN on Android
 #[cfg(target_os = "android")]
 async fn bypass_vpn(
