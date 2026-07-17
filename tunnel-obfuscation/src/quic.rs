@@ -9,7 +9,7 @@ use std::{
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
-use crate::{Obfuscator, socket::create_remote_socket};
+use crate::{LocalSocketObfuscator, socket::create_remote_socket};
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -22,7 +22,7 @@ pub enum Error {
 }
 
 #[derive(Debug)]
-pub struct Quic {
+pub struct QuicLocalSocket {
     local_endpoint: SocketAddr,
     config: ClientConfig,
 }
@@ -117,10 +117,10 @@ impl std::str::FromStr for AuthToken {
     }
 }
 
-impl Quic {
+impl QuicLocalSocket {
     pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
         let (local_socket, local_udp_client_addr) =
-            Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
+            QuicLocalSocket::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
                 .await
                 .map_err(crate::Error::CreateQuicObfuscator)?;
         // The address family of the local QUIC client socket has to match the address family
@@ -145,7 +145,7 @@ impl Quic {
 
         let config = config_builder.build();
 
-        let quic = Quic {
+        let quic = QuicLocalSocket {
             local_endpoint: local_udp_client_addr,
             config,
         };
@@ -184,7 +184,7 @@ impl Quic {
 }
 
 #[async_trait]
-impl Obfuscator for Quic {
+impl LocalSocketObfuscator for QuicLocalSocket {
     fn endpoint(&self) -> SocketAddr {
         self.local_endpoint
     }
@@ -200,7 +200,7 @@ impl Obfuscator for Quic {
             .map_err(Error::MasqueProxyError)
             .map_err(crate::Error::RunQuicObfuscator)?;
 
-        tokio::spawn(Quic::run_forwarding(client, child_token))
+        tokio::spawn(QuicLocalSocket::run_forwarding(client, child_token))
             .await
             .unwrap()
             .map_err(crate::Error::RunQuicObfuscator)

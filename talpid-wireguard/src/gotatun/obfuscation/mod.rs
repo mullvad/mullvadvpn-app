@@ -9,10 +9,9 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
+use tunnel_obfuscation::Settings as ObfuscationSettings;
 
-use crate::config::Config;
-
-use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory, lwo_config};
+use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory};
 
 /// A [`UdpSend`] wrapper that optionally obfuscates outgoing packets.
 #[derive(Clone)]
@@ -109,17 +108,16 @@ pub enum MaybeObfuscatingTransportFactory<F: UdpTransportFactory> {
 }
 
 impl<F: UdpTransportFactory> MaybeObfuscatingTransportFactory<F> {
-    /// Create a transport factory from the tunnel config.
-    pub fn from_config(inner: F, config: &Config) -> Self {
-        match lwo_config(config) {
-            Some((tx_key, rx_key, endpoint)) => Self::Lwo(LwoUdpTransportFactory {
+    /// Create a transport factory from the obfuscation settings.
+    pub fn from_settings(inner: F, settings: Option<&ObfuscationSettings>) -> Self {
+        match settings {
+            Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
                 inner,
-                tx_key,
-                rx_key,
-                endpoint,
+                rx_key: *settings.client_public_key.as_bytes(),
+                tx_key: *settings.server_public_key.as_bytes(),
+                endpoint: settings.server_addr,
             }),
-            // Use `Self::Plain` for proxy socket obfuscation or no obfuscation
-            None => Self::Plain(inner),
+            _ => Self::Plain(inner),
         }
     }
 }
