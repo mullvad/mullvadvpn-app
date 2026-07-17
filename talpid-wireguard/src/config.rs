@@ -29,6 +29,8 @@ pub struct Config {
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
     pub obfuscator_config: Option<Obfuscators>,
+    /// MTU including obfuscation overhead.
+    pub obfuscation_mtu: u16,
     /// Enable quantum-resistant PSK exchange
     pub quantum_resistant: bool,
     /// Enable DAITA
@@ -52,6 +54,7 @@ impl Config {
     pub fn from_parameters(
         params: &wireguard::TunnelParameters,
         default_mtu: u16,
+        obfuscation_mtu: u16,
     ) -> Result<Config, Error> {
         Self::new(
             &params.connection,
@@ -59,6 +62,7 @@ impl Config {
             &params.generic_options,
             &params.obfuscation,
             default_mtu,
+            obfuscation_mtu,
         )
     }
 
@@ -69,6 +73,7 @@ impl Config {
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<Obfuscators>,
         default_mtu: u16,
+        obfuscation_mtu: u16,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
 
@@ -97,6 +102,7 @@ impl Config {
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config: obfuscator_config.to_owned(),
+            obfuscation_mtu,
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
         };
@@ -110,6 +116,21 @@ impl Config {
         }
 
         Ok(config)
+    }
+
+    /// Derive [tunnel_obfuscation::Settings] from the current config state.
+    ///
+    /// This is computed on demand so that it always reflects the current
+    /// private key (which may change during ephemeral peer negotiation).
+    pub fn obfuscation_settings(&self) -> Option<tunnel_obfuscation::Settings> {
+        self.obfuscator_config.as_ref().map(|obfuscator_config| {
+            crate::obfuscation::settings_from_config(
+                self.tunnel.private_key.public_key(),
+                self.entry_peer.public_key.clone(),
+                obfuscator_config,
+                self.obfuscation_mtu,
+            )
+        })
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.

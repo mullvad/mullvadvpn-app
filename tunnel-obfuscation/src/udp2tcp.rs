@@ -1,4 +1,4 @@
-use crate::Obfuscator;
+use crate::LocalSocketObfuscator;
 use async_trait::async_trait;
 use std::{net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
@@ -86,7 +86,7 @@ impl Udp2Tcp {
 }
 
 #[async_trait]
-impl Obfuscator for Udp2Tcp {
+impl LocalSocketObfuscator for Udp2Tcp {
     fn endpoint(&self) -> SocketAddr {
         self.local_addr
     }
