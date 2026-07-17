@@ -6,7 +6,8 @@
 [Unit]
 Description=Mullvad early boot network blocker
 DefaultDependencies=no
-Before=basic.target mullvad-daemon.service
+# systemd docs: "network-pre.target is used to order services before any network interfaces start to be configured. Its primary purpose is for usage with firewall services that want to establish a firewall before any network interface is up."
+Before=network-pre.target mullvad-daemon.service
 # Mount local filesystems (/var) before starting the early-boot service,
 # else persisting logs will fail.
 After=local-fs.target
