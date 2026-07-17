@@ -14,7 +14,7 @@ use criterion::{Criterion, criterion_group, criterion_main};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::net::UdpSocket;
 use tunnel_obfuscation::{
-    Obfuscator,
+    LocalSocketObfuscator,
     lwo::{self, Lwo, Settings, obfuscate_thread_local},
 };
 
@@ -101,7 +101,7 @@ fn bench_proxy_lwo(c: &mut Criterion) {
         };
         let lwo = Lwo::new(&settings).await.unwrap();
         let proxy_addr = lwo.endpoint();
-        tokio::spawn((Box::new(lwo) as Box<dyn Obfuscator>).run());
+        tokio::spawn((Box::new(lwo) as Box<dyn LocalSocketObfuscator>).run());
 
         // Warm up: send one packet so the proxy connects its client socket
         let wg = UdpSocket::bind("127.0.0.1:0").await.unwrap();
