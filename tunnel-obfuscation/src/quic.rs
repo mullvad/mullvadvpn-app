@@ -24,6 +24,8 @@ pub enum Error {
 #[derive(Debug)]
 pub struct QuicLocalSocket {
     local_endpoint: SocketAddr,
+    /// Local UDP socket that WireGuard sends to and receives from.
+    local_socket: UdpSocket,
     config: ClientConfig,
 }
 
@@ -134,27 +136,30 @@ impl QuicLocalSocket {
         )
         .await?;
 
-        let config_builder = ClientConfig::builder()
-            .client_socket(local_socket)
+        let config = ClientConfig::builder()
             .quinn_socket(quic_socket)
             .server_addr(settings.quic_endpoint)
             .server_host(settings.hostname.clone())
             .target_addr(settings.wireguard_endpoint)
             .auth_header(Some(settings.auth_header()))
-            .mtu(settings.mtu.unwrap_or(1500));
-
-        let config = config_builder.build();
+            .mtu(settings.mtu.unwrap_or(1500))
+            .build();
 
         let quic = QuicLocalSocket {
             local_endpoint: local_udp_client_addr,
+            local_socket,
             config,
         };
 
         Ok(quic)
     }
 
-    async fn run_forwarding(client: Client, cancel_token: CancellationToken) -> Result<()> {
-        let client = client.run();
+    async fn run_forwarding(
+        client: Client,
+        local_socket: UdpSocket,
+        cancel_token: CancellationToken,
+    ) -> Result<()> {
+        let client = client.proxy_socket(local_socket);
         log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
         tokio::select! {
             _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
@@ -190,20 +195,30 @@ impl LocalSocketObfuscator for QuicLocalSocket {
     }
 
     async fn run(self: Box<Self>) -> crate::Result<()> {
+        let Self {
+            config,
+            local_socket,
+            ..
+        } = *self;
+
         let token = CancellationToken::new();
         let child_token = token.child_token();
         // This will always cancel `child_token` as soon as `run` is finished or aborted.
         let _drop_guard = token.drop_guard();
 
-        let client = Client::connect(self.config)
+        let client = Client::connect(config)
             .await
             .map_err(Error::MasqueProxyError)
             .map_err(crate::Error::RunQuicObfuscator)?;
 
-        tokio::spawn(QuicLocalSocket::run_forwarding(client, child_token))
-            .await
-            .unwrap()
-            .map_err(crate::Error::RunQuicObfuscator)
+        tokio::spawn(QuicLocalSocket::run_forwarding(
+            client,
+            local_socket,
+            child_token,
+        ))
+        .await
+        .unwrap()
+        .map_err(crate::Error::RunQuicObfuscator)
     }
 
     fn packet_overhead(&self) -> u16 {
