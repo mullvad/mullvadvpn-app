@@ -796,13 +796,18 @@ fn udp_obfuscator_factory(
     let factory = cfg_select! {
         target_os = "android" => {
             AndroidUdpSocketFactory {
-                tun: android_tun,
+                tun: Arc::clone(&android_tun),
                 udp: udp_socket_factory(optimize_buffer_size),
             }
         }
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
-    MaybeObfuscatingTransportFactory::from_settings(factory, settings)
+    MaybeObfuscatingTransportFactory::from_settings(
+        factory,
+        settings,
+        #[cfg(target_os = "android")]
+        android_tun,
+    )
 }
 
 /// Provide a [`UdpSocketFactory`] for the entry-device.
