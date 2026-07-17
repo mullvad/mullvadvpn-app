@@ -11,12 +11,7 @@ use std::{
     sync::{Arc, LazyLock},
     time::Duration,
 };
-use tokio::{
-    net::UdpSocket,
-    select,
-    sync::{mpsc, oneshot, watch},
-    task::JoinSet,
-};
+use tokio::{net::UdpSocket, select, sync::mpsc, task::JoinSet};
 use typed_builder::TypedBuilder;
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
@@ -42,8 +37,6 @@ const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pe
 
 /// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
-    client_socket: Arc<UdpSocket>,
-
     /// QUIC endpoint
     quinn_conn: quinn::Connection,
 
@@ -68,7 +61,7 @@ pub struct Client {
 ///
 /// Dropping this will stop the proxy.
 pub struct RunningClient {
-    tasks: JoinSet<Result<Stopped>>,
+    tasks: Tasks,
 
     /// Send stream over a QUIC connection - this needs to be kept alive to not close the HTTP
     /// QUIC stream.
@@ -137,9 +130,6 @@ pub enum Error {
 
 #[derive(TypedBuilder, Debug)]
 pub struct ClientConfig {
-    /// Socket that accepts proxy clients
-    pub client_socket: UdpSocket,
-
     /// Socket to bind the QUIC endpoint socket to
     pub quinn_socket: UdpSocket,
 
@@ -167,6 +157,54 @@ pub struct ClientConfig {
     /// Set the authorization header to use in the CONNECT-UDP request.
     #[builder(default)]
     pub auth_header: Option<String>,
+}
+
+#[derive(Default)]
+pub struct Tasks(JoinSet<Result<Stopped>>);
+
+impl Tasks {
+    /// Spawn a task on a `JoinSet`, logging when it starts and when it returns an error.
+    #[track_caller]
+    fn spawn_task(&mut self, future: impl Future<Output = Result<Stopped>> + Send + 'static) {
+        let location = std::panic::Location::caller();
+        self.0.spawn(async move {
+            log::trace!("Task spawned at {location}");
+            let result = future.await;
+            if let Err(err) = &result {
+                log::debug!("Task at {location} exited with error: {err:?}");
+            }
+            result
+        });
+    }
+
+    /// Wait for all tasks to finish, returning the first error, if any.
+    ///
+    /// After the first task completes, the rest are aborted, so this returns
+    /// once all tasks have stopped.
+    async fn join_all(mut self) -> Result<()> {
+        let result = self.0.join_next().await.expect("JoinSet is not empty");
+        let mut results = vec![result];
+
+        self.0.abort_all();
+
+        // at this point all tasks are being aborted, so we won't have to wait long.
+        while let Some(result) = self.0.join_next().await {
+            results.push(result);
+        }
+
+        // check for errors and return the first one, if any.
+        // we do this because tasks might (in theory) race when returning,
+        // and one task crashing will cause others to exit with Ok(Stopped).
+        results.into_iter().try_for_each(|result| match result {
+            Err(join_err) if join_err.is_panic() => {
+                let err = anyhow!("{:?}", join_err.into_panic());
+                Err(Error::TaskPanicked(err))
+            }
+            Ok(Err(e)) => Err(e),
+            Ok(Ok(Stopped)) => Ok(()),
+            Err(_cancelled) => Ok(()),
+        })
+    }
 }
 
 impl Client {
@@ -216,7 +254,6 @@ impl Client {
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
-            client_socket: Arc::new(config.client_socket),
             request_stream,
             send_stream,
             max_udp_payload_size,
@@ -366,57 +403,47 @@ impl Client {
         }
     }
 
+    /// Start proxying traffic from the given socket, returning a [`RunningClient`].
+    ///
+    /// The sockets will be connected to the address of the first arriving packet, and will only proxy from that
+    /// address.
     #[must_use]
-    pub fn run(self) -> RunningClient {
+    pub fn proxy_socket(self, client_socket: UdpSocket) -> RunningClient {
+        let client_socket = Arc::new(client_socket);
         let stream_id: StreamId = self.request_stream.id();
 
-        let mut tasks = JoinSet::new();
+        let mut tasks = Tasks::default();
 
-        /// Spawn a task on the `tasks` JoinSet, and log when it returns.
-        macro_rules! spawn {
-            ($fn_name:ident $args:tt) => {{
-                let future = $fn_name $args;
-                tasks.spawn(async move {
-                    let result = future.await;
-                    if let Err(err) = &result {
-                        log::debug!("{} exited with error {:?}", stringify!($fn_name), err);
-                    }
-                    result
-                })
-            }};
-        }
+        let (outgoing_tx, outgoing_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (incoming_tx, incoming_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (packet_tx, packet_rx) = mpsc::channel::<Bytes>(MAX_INFLIGHT_PACKETS);
 
-        let (return_addr_tx, return_addr_rx) = oneshot::channel();
-        let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
-
-        spawn!(client_socket_rx_task(
-            self.client_socket.clone(),
-            client_tx,
-            return_addr_tx,
+        tasks.spawn_task(client_socket_rx_task(
+            Arc::clone(&client_socket),
+            DatagramFragmentor::new(
+                self.quinn_conn,
+                stream_id,
+                self.max_udp_payload_size,
+                Arc::clone(&self.stats),
+            ),
+            outgoing_tx,
         ));
 
-        spawn!(client_socket_tx_task(self.client_socket.clone(), send_rx));
+        tasks.spawn_task(client_socket_tx_task(client_socket, packet_rx));
 
-        spawn!(fragment_reassembly_task(
+        tasks.spawn_task(fragment_reassembly_task(
             stream_id,
-            server_rx,
-            return_addr_rx,
-            send_tx,
+            incoming_rx,
+            packet_tx,
             Arc::clone(&self.stats),
         ));
 
-        spawn!(server_socket_task(
+        tasks.spawn_task(server_socket_task(
             stream_id,
-            self.max_udp_payload_size,
-            self.quinn_conn,
             self.connection,
-            server_tx,
-            client_rx,
-            Arc::clone(&self.stats),
+            incoming_tx,
+            outgoing_rx,
         ));
-
         RunningClient {
             tasks,
             _send_stream: self.send_stream,
@@ -431,50 +458,26 @@ struct Stopped;
 
 impl RunningClient {
     /// Wait until the connection is remotely closed, or an error occurs.
-    pub async fn until_closed(mut self) -> Result<()> {
-        let result = self.tasks.join_next().await.expect("JoinSet is not empty");
-        let mut results = vec![result];
-
-        self.tasks.abort_all();
-
-        // at this point all tasks are being aborted, so we won't have to wait long.
-        while let Some(result) = self.tasks.join_next().await {
-            results.push(result);
-        }
-
-        // check for errors and return the first one, if any.
-        // we do this because tasks might (in theory) race when returning,
-        // and one task crashing will cause others to exit with Ok(Stopped).
-        results.into_iter().try_for_each(|result| match result {
-            Err(join_err) if join_err.is_panic() => {
-                let err = anyhow!("{:?}", join_err.into_panic());
-                Err(Error::TaskPanicked(err))
-            }
-            Ok(Err(e)) => Err(e),
-            Ok(Ok(Stopped)) => Ok(()),
-            Err(_cancelled) => Ok(()),
-        })
+    pub async fn until_closed(self) -> Result<()> {
+        self.tasks.join_all().await
     }
 }
 
+/// Forward datagrams between the QUIC connection and the task pipeline.
 async fn server_socket_task(
     stream_id: StreamId,
-    max_udp_payload_size: u16,
-    quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
-    server_tx: mpsc::Sender<Datagram>,
-    mut client_rx: mpsc::Receiver<Bytes>,
-    stats: Arc<Stats>,
+    incoming_tx: mpsc::Sender<Datagram>,
+    mut outgoing_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
-    let mut fragment_id = 0u16;
-    let stream_id_size = VarInt::from(stream_id).size() as u16;
-
     loop {
-        let packet = select! {
+        log::trace!("server_socket_task: waiting for datagram or packet");
+        select! {
             datagram = connection.read_datagram() => {
                 match datagram {
                     Ok(Some(response)) => {
-                        if server_tx.send(response).await.is_err() {
+                        log::trace!("Got QUIC datagram");
+                        if incoming_tx.send(response).await.is_err() {
                             break; // channel closed, exit gracefully
                         }
                     }
@@ -484,102 +487,150 @@ async fn server_socket_task(
 
                 continue;
             }
-            packet = client_rx.recv() => packet,
+            packet = outgoing_rx.recv() => {
+                if let Some(packet) = packet {
+                    log::trace!("Sending QUIC datagram");
+                    connection
+                        .send_datagram(stream_id, packet)
+                        .map_err(Error::SendDatagram)?;
+                } else {
+                    break;
+                }
+            },
         };
-
-        let Some(mut packet) = packet else { break };
-
-        // Maximum QUIC payload (including fragmentation headers)
-        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
-            max_datagram_size as u16 - stream_id_size
-        } else {
-            max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
-        };
-
-        if packet.len() <= usize::from(maximum_packet_size) {
-            stats.tx(packet.len(), false);
-            connection
-                .send_datagram(stream_id, packet)
-                .map_err(Error::SendDatagram)?;
-        } else {
-            // drop the added context ID, since packet will have to be fragmented.
-            let _ = VarInt::decode(&mut packet);
-
-            for fragment in fragment::fragment_packet(maximum_packet_size, &packet, fragment_id)
-                .map_err(Error::PacketTooLarge)?
-            {
-                debug_assert!(fragment.len() <= maximum_packet_size as usize);
-
-                stats.tx(fragment.len(), true);
-                connection
-                    .send_datagram(stream_id, fragment)
-                    .map_err(Error::SendDatagram)?;
-            }
-            fragment_id = fragment_id.wrapping_add(1);
-        }
     }
 
     Ok(Stopped)
 }
 
+/// Buffers outgoing packets and fragments them to fit the QUIC datagram size limit.
+///
+/// Call [`Self::get_read_buf`] to get a buffer with the MASQUE context ID already
+/// encoded, write the packet payload into it, then call [`Self::fragment`] to get
+/// an iterator over the resulting datagrams (one if it fits, multiple if fragmented).
+struct DatagramFragmentor {
+    quinn_conn: quinn::Connection,
+    stream_id_size: u16,
+    max_udp_payload_size: u16,
+    stats: Arc<Stats>,
+    fragment_id: u16,
+    read_buf: BytesMut,
+    fragments_buf: Vec<Bytes>,
+}
+
+impl DatagramFragmentor {
+    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+    fn new(
+        quinn_conn: quinn::Connection,
+        stream_id: StreamId,
+        max_udp_payload_size: u16,
+        stats: Arc<Stats>,
+    ) -> Self {
+        Self {
+            quinn_conn,
+            stream_id_size: VarInt::from(stream_id).size() as u16,
+            max_udp_payload_size,
+            stats,
+            fragment_id: 0,
+            read_buf: BytesMut::with_capacity(Self::TOTAL_BUFFER_CAPACITY),
+            fragments_buf: Vec::new(),
+        }
+    }
+
+    /// Get a writable buffer, with [`crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID`]
+    /// encoded at the start. Write the packet payload into it, then call
+    /// [`Self::fragment`] to return an iterator over resulting datagrams.
+    fn get_read_buf(&mut self) -> &mut BytesMut {
+        if !self.read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+            self.read_buf.reserve(Self::TOTAL_BUFFER_CAPACITY);
+        }
+        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut self.read_buf);
+        &mut self.read_buf
+    }
+
+    /// Split [`Self::read_buf`] into datagrams, fragmenting if necessary.
+    ///
+    /// Returns an iterator over the resulting datagrams.
+    fn fragment(&mut self) -> Result<impl Iterator<Item = Bytes> + '_> {
+        let packet = self.read_buf.split().freeze();
+
+        let maximum_packet_size =
+            if let Some(max_datagram_size) = self.quinn_conn.max_datagram_size() {
+                max_datagram_size as u16 - self.stream_id_size
+            } else {
+                self.max_udp_payload_size - QUIC_HEADER_SIZE - self.stream_id_size
+            };
+
+        self.fragments_buf.clear();
+        if packet.len() <= usize::from(maximum_packet_size) {
+            self.stats.tx(packet.len(), false);
+            self.fragments_buf.push(packet);
+        } else {
+            let mut stripped = packet;
+            let _ = VarInt::decode(&mut stripped);
+
+            for fragment in
+                fragment::fragment_packet(maximum_packet_size, &stripped, self.fragment_id)
+                    .map_err(Error::PacketTooLarge)?
+            {
+                debug_assert!(fragment.len() <= maximum_packet_size as usize);
+                self.stats.tx(fragment.len(), true);
+                self.fragments_buf.push(fragment);
+            }
+            self.fragment_id = self.fragment_id.wrapping_add(1);
+        }
+        Ok(self.fragments_buf.drain(..))
+    }
+}
+
+/// Read packets from the socket, fragment them, and forward to the proxy pipeline.
+///
+/// The socket is connected to the first sender's address.
 async fn client_socket_rx_task(
     client_socket: Arc<UdpSocket>,
-    client_tx: mpsc::Sender<Bytes>,
-    return_addr_oneshot: oneshot::Sender<watch::Receiver<SocketAddr>>,
+    mut fragmentor: DatagramFragmentor,
+    outgoing_tx: mpsc::Sender<Bytes>,
 ) -> Result<Stopped> {
-    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+    // Read the first packet with recv_buf_from to discover the sender's address, then
+    // connect the socket so all subsequent I/O is filtered to that peer.
+    let read_buf = fragmentor.get_read_buf();
+    let (_bytes_received, peer_addr) = client_socket
+        .recv_buf_from(read_buf)
+        .await
+        .map_err(Error::ClientRead)?;
 
-    let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
+    client_socket
+        .connect(peer_addr)
+        .await
+        .map_err(Error::ClientRead)?;
 
-    let mut recv = async || {
-        if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
-            // Allocate space for new packets
-            client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
+    for packet in fragmentor.fragment()? {
+        if outgoing_tx.send(packet).await.is_err() {
+            return Ok(Stopped);
         }
+    }
 
-        // this is the variable ID used to signify UDP payloads in HTTP datagrams.
-        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
-
-        let (_bytes_received, recv_addr) = client_socket
-            .recv_buf_from(&mut client_read_buf)
+    'outer: loop {
+        let read_buf = fragmentor.get_read_buf();
+        let _bytes_received = client_socket
+            .recv_buf(read_buf)
             .await
             .map_err(Error::ClientRead)?;
 
-        let packet = client_read_buf.split().freeze();
-        Result::Ok((packet, recv_addr))
-    };
-
-    // call recv once outside the loop to get the initial return address
-    let (packet, mut return_addr) = recv().await?;
-    let (return_addr_tx, return_addr_rx) = watch::channel(return_addr);
-    let _ = return_addr_oneshot.send(return_addr_rx);
-
-    if client_tx.send(packet).await.is_err() {
-        return Ok(Stopped);
-    };
-
-    loop {
-        let (packet, recv_addr) = recv().await?;
-
-        // notify other tasks if the return address changes
-        if recv_addr != return_addr {
-            return_addr = recv_addr;
-            if return_addr_tx.send(return_addr).is_err() {
-                break; // channel closed, exit gracefully
+        for packet in fragmentor.fragment()? {
+            if outgoing_tx.send(packet).await.is_err() {
+                break 'outer;
             }
         }
-
-        if client_tx.send(packet).await.is_err() {
-            break; // channel closed, exit gracefully
-        };
     }
 
     Ok(Stopped)
 }
 
+/// Forward packets from `send_rx` to the connected client socket.
 async fn client_socket_tx_task(
     client_socket: Arc<UdpSocket>,
-    send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+    send_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
     #[cfg(target_os = "windows")]
     if *windows::MAX_GSO_SEGMENTS > 1 {
@@ -595,7 +646,7 @@ async fn client_socket_tx_task(
 #[cfg(target_os = "windows")]
 async fn client_socket_gso_tx_task(
     client_socket: Arc<UdpSocket>,
-    mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+    mut send_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
     use bytes::Buf;
     use std::{collections::VecDeque, mem};
@@ -618,21 +669,21 @@ async fn client_socket_gso_tx_task(
     loop {
         // Fill up queue
         if queued_packets.is_empty() {
-            let Some((dest, packet)) = send_rx.recv().await else {
+            let Some(packet) = send_rx.recv().await else {
                 break; // channel closed, exit gracefully
             };
-            queued_packets.push_back((dest, packet));
+            queued_packets.push_back(packet);
         }
-        while let Ok((dest, packet)) = send_rx.try_recv() {
-            queued_packets.push_back((dest, packet));
+        while let Ok(packet) = send_rx.try_recv() {
+            queued_packets.push_back(packet);
         }
 
-        let (dest, packet) = queued_packets.pop_front().expect("never empty");
+        let packet = queued_packets.pop_front().expect("never empty");
 
-        // If the queue is empty now, send a single packet using send_to
+        // If the queue is empty now, send a single packet using send
         if queued_packets.is_empty() {
             client_socket
-                .send_to(packet.chunk(), dest)
+                .send(packet.chunk())
                 .await
                 .map_err(Error::ClientWrite)?;
             continue;
@@ -643,27 +694,19 @@ async fn client_socket_gso_tx_task(
         buffer.extend_from_slice(packet.chunk());
 
         loop {
-            let Some((next_dest, next_packet)) = queued_packets.pop_front() else {
+            let Some(next_packet) = queued_packets.pop_front() else {
                 break;
             };
 
-            // If the destination differs, stop coalescing packets
-            if next_dest != dest {
-                // Flush the buffer now and queue this packet
-                // This should occur rarely, as we're expecting a single UDP client
-                queued_packets.push_front((next_dest, next_packet));
-                break;
-            }
-
             // On overflow, also stop coalescing
             if buffer.len() + next_packet.len() > buffer.capacity() {
-                queued_packets.push_front((next_dest, next_packet));
+                queued_packets.push_front(next_packet);
                 break;
             }
 
             // If this packet is larger, we are done
             if next_packet.len() > segment_size {
-                queued_packets.push_front((next_dest, next_packet));
+                queued_packets.push_front(next_packet);
                 break;
             }
 
@@ -688,9 +731,7 @@ async fn client_socket_gso_tx_task(
                 unsafe { *(cmsg_buf.data_mut_ptr() as *mut u32) = segment_size as u32 };
 
                 let io_slices = [IoSlice::new(&buffer); 1];
-                let daddr = socket2::SockAddr::from(dest);
                 let msg_hdr = socket2::MsgHdr::new()
-                    .with_addr(&daddr)
                     .with_buffers(&io_slices)
                     .with_control(cmsg_buf.as_slice());
 
@@ -705,34 +746,25 @@ async fn client_socket_gso_tx_task(
 
 async fn client_socket_non_gso_tx_task(
     client_socket: Arc<UdpSocket>,
-    mut send_rx: mpsc::Receiver<(SocketAddr, Bytes)>,
+    mut send_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
-    while let Some((dest, buf)) = send_rx.recv().await {
-        client_socket
-            .send_to(&buf, dest)
-            .await
-            .map_err(Error::ClientWrite)?;
+    while let Some(buf) = send_rx.recv().await {
+        client_socket.send(&buf).await.map_err(Error::ClientWrite)?;
     }
     Ok(Stopped)
 }
 
+/// Reassemble incoming QUIC datagrams and forward complete packets to `packet_tx`.
 async fn fragment_reassembly_task(
     stream_id: StreamId,
-    mut server_rx: mpsc::Receiver<Datagram>,
-    return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
-    send_tx: mpsc::Sender<(SocketAddr, Bytes)>,
+    mut incoming_rx: mpsc::Receiver<Datagram>,
+    packet_tx: mpsc::Sender<Bytes>,
     stats: Arc<Stats>,
 ) -> Result<Stopped> {
+    log::trace!("Starting fragment_reassembly_task");
     let mut fragments = Fragments::default();
 
-    // wait for the return address to be known
-    let Ok(return_addr) = return_addr_rx.await else {
-        return Ok(Stopped); // channel closed, exit gracefully
-    };
-
-    while let Some(response) = server_rx.recv().await {
-        let return_addr = *return_addr.borrow();
-
+    while let Some(response) = incoming_rx.recv().await {
         if response.stream_id() != stream_id {
             log::debug!("Received datagram with an unexpected stream ID");
             continue;
@@ -742,22 +774,23 @@ async fn fragment_reassembly_task(
 
         match fragments.handle_incoming_packet(payload) {
             Ok(DefragReceived::Nonfragmented(payload)) => {
-                stats.rx(payload.len(), false);
-                if send_tx.send((return_addr, payload)).await.is_err() {
+                log::trace!("DefragReceived::Nonfragmented");
+                stats.rx(original_payload_len, false);
+                if packet_tx.send(payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
+                log::trace!("DefragReceived::Reassembled");
                 stats.rx(original_payload_len, true);
-                if send_tx
-                    .send((return_addr, reassembled_payload))
-                    .await
-                    .is_err()
-                {
+                if packet_tx.send(reassembled_payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
-            Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
+            Ok(DefragReceived::Fragment) => {
+                log::trace!("DefragReceived::Fragment");
+                stats.rx(original_payload_len, true)
+            }
             Err(e) => {
                 use log::Level::*;
                 let level = if cfg!(debug_assertions) { Debug } else { Trace };
