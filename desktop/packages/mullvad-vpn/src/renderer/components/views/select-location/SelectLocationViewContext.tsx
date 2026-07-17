@@ -1,35 +1,20 @@
 import React from 'react';
 
-import {
-  useFilterCountryLocations,
-  useMapCustomListsToLocations,
-  useMapRecentsToLocations,
-  useMapReduxCountriesToCountryLocations,
-  useSearchCountryLocations,
-  useSearchCustomListLocations,
-  useSelectedEntryOrExitLocation,
-} from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import {
-  getRecentMultihopEntryLocations,
-  getRecentMultihopExitLocations,
-  getRecentSinglehopLocations,
-} from '../../../features/locations/utils';
 import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
+import { type LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
 type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'children'> & {
+  viewRef: React.RefObject<HTMLDivElement | null>;
   locationType: LocationType;
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  countryLocations: ReturnType<typeof useSearchCountryLocations>;
-  customListLocations: ReturnType<typeof useSearchCustomListLocations>;
-  recentSinglehopLocations: ReturnType<typeof getRecentSinglehopLocations>;
-  recentMultihopEntryLocations: ReturnType<typeof getRecentMultihopEntryLocations>;
-  recentMultihopExitLocations: ReturnType<typeof getRecentMultihopExitLocations>;
+  isolatedItem: LocationSelectorSelectedItem | undefined;
+  setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -53,6 +38,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const [searchTerm, setSearchTerm] = React.useState('');
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
+  const viewRef = React.useRef<HTMLDivElement | null>(null);
+  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
+    undefined,
+  );
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = multihop !== 'never';
@@ -63,57 +52,17 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     return LocationType.exit;
   }, [locationTypeSelector, multihop]);
 
-  const filteredCountries = useFilterCountryLocations(locationType);
-  const filteredCountryLocations = useMapReduxCountriesToCountryLocations(
-    locationType,
-    filteredCountries,
-  );
-  const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
-
-  const selectedLocation = useSelectedEntryOrExitLocation(locationType);
-
-  const filteredCustomListLocations = useMapCustomListsToLocations(
-    searchedCountryLocations,
-    searchTerm,
-    selectedLocation,
-  );
-  const searchedCustomListLocations = useSearchCustomListLocations(
-    filteredCustomListLocations,
-    searchTerm,
-  );
-
-  const recentLocations = useMapRecentsToLocations(
-    searchedCountryLocations,
-    searchedCustomListLocations,
-  );
-
-  const recentSinglehopLocations = getRecentSinglehopLocations(recentLocations);
-  const recentMultihopEntryLocations = getRecentMultihopEntryLocations(recentLocations);
-  const recentMultihopExitLocations = getRecentMultihopExitLocations(recentLocations);
-
   const value = React.useMemo(
     () => ({
+      viewRef,
       locationType,
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
-      countryLocations: searchedCountryLocations,
-      customListLocations: searchedCustomListLocations,
-      recentSinglehopLocations,
-      recentMultihopEntryLocations,
-      recentMultihopExitLocations,
+      isolatedItem,
+      setIsolatedItem,
     }),
-    [
-      searchedCustomListLocations,
-      searchedCountryLocations,
-      locationType,
-      searchTerm,
-      setSearchTerm,
-      setSelectLocationView,
-      recentSinglehopLocations,
-      recentMultihopEntryLocations,
-      recentMultihopExitLocations,
-    ],
+    [isolatedItem, locationType, searchTerm, setSelectLocationView],
   );
 
   return (

@@ -1,21 +1,28 @@
 import React from 'react';
 
+import { useDebounce } from '../../../../hooks/use-debounce';
+
 export type UseTextFieldProps = {
   inputRef: React.RefObject<HTMLInputElement | null>;
   defaultValue?: string;
   validate?: (value: string) => boolean | string;
   format?: (value: string) => string;
+  delay?: number;
 };
 
 export type UseTextFieldState = {
   value: string;
+  debouncedValue: string;
   invalid: boolean;
   invalidReason: string | null;
   dirty: boolean;
+  touched: boolean;
   reset: (value?: string) => void;
   focus: () => void;
   blur: () => void;
   handleOnValueChange: (newValue: string) => void;
+  handleFocus: () => void;
+  handleBlur: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
 };
 
@@ -24,6 +31,7 @@ export function useTextField({
   defaultValue,
   format,
   validate,
+  delay = 0,
 }: UseTextFieldProps): UseTextFieldState {
   const [value, setValue] = React.useState(defaultValue ?? '');
   const validateValue = React.useCallback(
@@ -41,7 +49,9 @@ export function useTextField({
   const { invalid: initialInvalid, invalidReason: initialInvalidReason } = validateValue(value);
   const [invalid, setInvalid] = React.useState(initialInvalid);
   const [invalidReason, setInvalidReason] = React.useState<string | null>(initialInvalidReason);
+  const [touched, setTouched] = React.useState(false);
   const [dirty, setDirty] = React.useState(false);
+  const debouncedValue = useDebounce(value, delay);
 
   const reset = React.useCallback(
     (resetValue?: string) => {
@@ -58,6 +68,7 @@ export function useTextField({
       setInvalid(invalid);
       setInvalidReason(invalidReason);
       setDirty(false);
+      setTouched(false);
     },
     [defaultValue, validateValue],
   );
@@ -87,15 +98,27 @@ export function useTextField({
     [defaultValue, format, validateValue],
   );
 
+  const handleFocus = React.useCallback(() => {
+    setTouched(true);
+  }, []);
+
+  const handleBlur = React.useCallback(() => {
+    setTouched(false);
+  }, []);
+
   return {
     value,
+    debouncedValue,
     invalid,
     invalidReason,
     dirty,
+    touched,
     reset,
     blur,
     focus,
     handleOnValueChange,
+    handleFocus,
+    handleBlur,
     inputRef,
   };
 }

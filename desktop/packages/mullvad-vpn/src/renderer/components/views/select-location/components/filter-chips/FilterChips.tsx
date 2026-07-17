@@ -19,11 +19,7 @@ export function FilterChips() {
   } = useActiveFilters(locationType);
 
   return (
-    <Flex
-      gap="small"
-      alignItems="center"
-      flexWrap="wrap"
-      margin={{ horizontal: 'small', bottom: 'medium' }}>
+    <Flex gap="small" alignItems="center" flexWrap="wrap" margin={{ bottom: 'medium' }}>
       <LabelTinySemiBold>
         {messages.pgettext('select-location-view', 'Filtered:')}
       </LabelTinySemiBold>
