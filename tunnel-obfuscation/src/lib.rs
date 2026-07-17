@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use std::net::SocketAddr;
+
 use tokio::io;
 
 pub mod lwo;
@@ -37,12 +38,8 @@ pub enum Error {
     #[error("Failed to run LWO")]
     RunLwoObfuscator(#[source] lwo::Error),
 
-    #[error("Failed to bind socket")]
-    BindRemoteUdp(#[source] io::Error),
-
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    SetFwmark(#[source] nix::Error),
+    #[error(transparent)]
+    CreateSocket(#[from] socket::Error),
 
     #[error("Failed to initialize multiplexer")]
     CreateMultiplexerObfuscator(#[source] io::Error),
@@ -52,7 +49,7 @@ pub enum Error {
 }
 
 #[async_trait]
-pub trait Obfuscator: Send {
+pub trait LocalSocketObfuscator: Send {
     /// NOTE(Android): Make sure to call bypass on the obfuscator socket _before_ invoking run.
     async fn run(self: Box<Self>) -> Result<()>;
 
@@ -78,19 +75,21 @@ pub enum Settings {
     Multiplexer(multiplexer::Settings),
 }
 
-pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
+pub async fn create_local_socket_obfuscator(
+    settings: &Settings,
+) -> Result<Box<dyn LocalSocketObfuscator>> {
     match settings {
         Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(s)
             .await
             .map(box_obfuscator)
             .map_err(Error::CreateUdp2TcpObfuscator),
         Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s).await.map(box_obfuscator),
-        Settings::Quic(s) => quic::Quic::new(s).await.map(box_obfuscator),
+        Settings::Quic(s) => quic::QuicLocalSocket::new(s).await.map(box_obfuscator),
         Settings::Lwo(s) => lwo::Lwo::new(s).await.map(box_obfuscator),
         Settings::Multiplexer(s) => multiplexer::Multiplexer::new(s).await.map(box_obfuscator),
     }
 }
 
-fn box_obfuscator(obfs: impl Obfuscator + 'static) -> Box<dyn Obfuscator> {
-    Box::new(obfs) as Box<dyn Obfuscator>
+fn box_obfuscator(obfs: impl LocalSocketObfuscator + 'static) -> Box<dyn LocalSocketObfuscator> {
+    Box::new(obfs) as Box<dyn LocalSocketObfuscator>
 }

@@ -35,6 +35,7 @@ use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
 use tun::{AbstractDevice, AsyncDevice};
+use tunnel_obfuscation::Settings as ObfuscationSettings;
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 use gotatun::tun::{
@@ -520,7 +521,7 @@ async fn create_devices(
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
         let factory = udp_obfuscator_factory(
-            config,
+            config.obfuscation_settings.as_ref(),
             optimize_buffer_size,
             #[cfg(target_os = "android")]
             android_tun,
@@ -788,7 +789,7 @@ where
 /// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
 ///   now always succeed due to suspected hardware related issues / limitations.
 fn udp_obfuscator_factory(
-    config: &Config,
+    settings: Option<&ObfuscationSettings>,
     optimize_buffer_size: bool,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
 ) -> MaybeObfuscatingTransportFactory<UdpFactory> {
@@ -798,10 +799,10 @@ fn udp_obfuscator_factory(
                 tun: android_tun,
                 udp: udp_socket_factory(optimize_buffer_size),
             }
-        },
+        }
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
-    MaybeObfuscatingTransportFactory::from_config(factory, config)
+    MaybeObfuscatingTransportFactory::from_settings(factory, settings)
 }
 
 /// Provide a [`UdpSocketFactory`] for the entry-device.

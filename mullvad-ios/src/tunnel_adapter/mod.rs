@@ -32,7 +32,7 @@ use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Notify;
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
-use tunnel_obfuscation::create_obfuscator;
+use tunnel_obfuscation::create_local_socket_obfuscator;
 
 use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
@@ -669,7 +669,7 @@ impl IosTunnelAdapter {
             }),
         };
 
-        let obfuscator = create_obfuscator(&settings)
+        let obfuscator = create_local_socket_obfuscator(&settings)
             .await
             .map_err(|e| format!("Obfuscation proxy: {e}"))?;
         let endpoint = obfuscator.endpoint();

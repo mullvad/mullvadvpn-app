@@ -5,7 +5,8 @@ use std::{
 use talpid_types::net::wireguard::PublicKey;
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, quic, shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_local_socket_obfuscator, lwo, quic, shadowsocks,
+    udp2tcp,
 };
 
 mod ffi;
@@ -64,7 +65,7 @@ impl TunnelObfuscatorRuntime {
         let runtime = mullvad_ios_runtime().map_err(io::Error::other)?;
 
         let obfuscator = runtime.block_on(async move {
-            create_obfuscator(&self.settings)
+            create_local_socket_obfuscator(&self.settings)
                 .await
                 .map_err(io::Error::other)
         })?;
