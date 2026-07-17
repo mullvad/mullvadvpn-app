@@ -68,6 +68,11 @@ fi
 # Configure build
 ################################################################################
 
+# Timestamp embedded in build artifacts (https://reproducible-builds.org/docs/source-date-epoch/).
+# Set to the commit time of HEAD, so everyone building the same commit embeds the same timestamps.
+# Required for the .deb and .rpm output to be reproducible.
+export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-$(git log -1 --pretty=%ct)}
+
 CARGO_ARGS=()
 NPM_PACK_ARGS=()
 
