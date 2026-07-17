@@ -161,11 +161,11 @@ struct Fragment {
 ///
 /// `payload` must not contain any fragmentation headers.
 /// `maximum_packet_size` is the maximum fragment size including headers.
-pub fn fragment_packet(
+pub fn fragment_packet<'a>(
     maximum_packet_size: u16,
-    payload: &'_ mut Bytes,
+    payload: &'a [u8],
     packet_id: u16,
-) -> Result<impl Iterator<Item = Bytes> + '_, PacketTooLarge> {
+) -> Result<impl Iterator<Item = Bytes> + 'a, PacketTooLarge> {
     let fragment_payload_size = maximum_packet_size - FRAGMENT_HEADER_SIZE_FRAGMENTED;
 
     let num_fragments: usize = payload.chunks(fragment_payload_size.into()).count();
@@ -212,8 +212,8 @@ mod test {
         'outer: for packet_id in max_payload_size..255u16 {
             let payload = (0..packet_id as u8).collect::<Vec<u8>>();
 
-            let mut payload_clone = Bytes::from(payload.clone());
-            let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
+            let payload_clone = Bytes::from(payload.clone());
+            let mut fragment_buf = fragment_packet(max_payload_size, &payload_clone, packet_id)
                 .unwrap()
                 .collect::<Vec<_>>();
 
@@ -244,11 +244,11 @@ mod test {
         let mut payloads = HashSet::new();
         for i in 0..n_packets {
             let packet_id = i as u16;
-            let mut payload = Bytes::from(vec![i as u8; payload_len]);
+            let payload = Bytes::from(vec![i as u8; payload_len]);
             payloads.insert(payload.clone());
 
             fragment_buf
-                .extend(&mut fragment_packet(max_payload_size, &mut payload, packet_id).unwrap());
+                .extend(&mut fragment_packet(max_payload_size, &payload, packet_id).unwrap());
         }
         fragment_buf.shuffle(&mut rng());
 
@@ -279,8 +279,8 @@ mod test {
             let payload = (0..255).collect::<Vec<u8>>();
             let max_payload_size = 50;
 
-            let mut payload_clone = Bytes::from(payload.clone());
-            let mut fragment_buf = fragment_packet(max_payload_size, &mut payload_clone, packet_id)
+            let payload_clone = Bytes::from(payload.clone());
+            let mut fragment_buf = fragment_packet(max_payload_size, &payload_clone, packet_id)
                 .unwrap()
                 .collect::<Vec<_>>();
 
@@ -296,11 +296,11 @@ mod test {
             );
 
             // then send a bunch of fragments to fill the queue
-            let mut bad_payload = Bytes::from([0u8; 2].to_vec());
+            let bad_payload = Bytes::from([0u8; 2].to_vec());
             for _ in fragment_buf.len()..number_of_bad_fragments {
                 let incomplete_fragment = fragment_packet(
                     1 + FRAGMENT_HEADER_SIZE_FRAGMENTED,
-                    &mut bad_payload,
+                    &bad_payload,
                     bad_packet_ids.next().unwrap(),
                 )
                 .unwrap()
