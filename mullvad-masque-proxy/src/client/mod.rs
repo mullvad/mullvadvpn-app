@@ -505,7 +505,7 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
+            for fragment in fragment::fragment_packet(maximum_packet_size, &packet, fragment_id)
                 .map_err(Error::PacketTooLarge)?
             {
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
