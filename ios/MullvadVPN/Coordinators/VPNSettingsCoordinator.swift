@@ -46,20 +46,30 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
-        let section: VPNSettingsSection? =
-            if case let .vpnSettings(route) = route { route } else {
-                nil
-            }
-        let controller = VPNSettingsViewController(
-            interactor: interactorFactory.makeVPNSettingsInteractor(),
-            alertPresenter: AlertPresenter(context: self),
-            section: section
-        )
+        let view = SettingsVPNSettingsView()
 
-        controller.delegate = self
-        customiseNavigation(on: controller)
-        navigationController.pushViewController(controller, animated: animated)
+        let host = UIHostingRootController(rootView: view)
+        host.title = NSLocalizedString("VPN settings", comment: "")
+        host.view.setAccessibilityIdentifier(.vpnSettingsTableView)
+
+        navigationController.pushViewController(host, animated: animated)
     }
+
+    //    func start(animated: Bool) {
+    //        let section: VPNSettingsSection? =
+    //            if case let .vpnSettings(route) = route { route } else {
+    //                nil
+    //            }
+    //        let controller = VPNSettingsViewController(
+    //            interactor: interactorFactory.makeVPNSettingsInteractor(),
+    //            alertPresenter: AlertPresenter(context: self),
+    //            section: section
+    //        )
+    //
+    //        controller.delegate = self
+    //        customiseNavigation(on: controller)
+    //        navigationController.pushViewController(controller, animated: animated)
+    //    }
 
     private func customiseNavigation(on viewController: UIViewController) {
         if case .vpnSettings = route {
