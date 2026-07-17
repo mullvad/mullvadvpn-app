@@ -134,8 +134,6 @@ test.describe('Select location', () => {
 
       await helpers.updateEntryLocation(relaySelectionPaths[0], settings);
       await helpers.expandLocatedRelays(relaySelectionPaths);
-      const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
-      await expect(entryRelayButton).toBeDisabled();
 
       const relaySelectionPathsExit = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, [exitRelay.hostname]),

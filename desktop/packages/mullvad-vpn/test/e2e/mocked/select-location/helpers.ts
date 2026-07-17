@@ -170,10 +170,13 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     if (!settings) {
       settings = getDefaultSettings();
     }
-    if ('normal' in settings.relaySettings && settings.tunnelOptions.daita) {
-      if (multihop !== undefined)
+    if ('normal' in settings.relaySettings) {
+      if (multihop !== undefined) {
         settings.relaySettings.normal.wireguardConstraints.multihop = multihop;
-      if (daita !== undefined) settings.tunnelOptions.daita = daita;
+      }
+      if (settings.tunnelOptions.daita) {
+        if (daita !== undefined) settings.tunnelOptions.daita = daita;
+      }
     }
 
     await utils.ipc.settings[''].notify(settings);
