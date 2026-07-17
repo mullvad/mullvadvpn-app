@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
   the git commit being built instead of the time of the build. Required for reproducible builds.
 - Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
   build machine. Required for reproducible builds.
+- De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
