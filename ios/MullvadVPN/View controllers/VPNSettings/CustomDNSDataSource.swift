@@ -9,6 +9,11 @@
 import MullvadSettings
 import UIKit
 
+protocol DNSSettingsDataSourceDelegate: AnyObject {
+    func didChangeViewModel(_ viewModel: VPNSettingsViewModel)
+    func showInfo(for: VPNSettingsInfoButtonItem)
+}
+
 final class CustomDNSDataSource: UITableViewDiffableDataSource<
     CustomDNSDataSource.Section,
     CustomDNSDataSource.Item
