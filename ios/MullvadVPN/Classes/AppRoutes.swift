@@ -85,7 +85,7 @@ enum AppRoute: AppRouteProtocol {
     /**
      Settings route. Contains sub-route to display.
      */
-    case vpnSettings(VPNSettingsSection?)
+    case vpnSettings(VPNSettingsSection)
 
     /**
      Multihop standalone route (not subsetting).
