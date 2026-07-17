@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
   build machine. Required for reproducible builds.
 - De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
+- Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
