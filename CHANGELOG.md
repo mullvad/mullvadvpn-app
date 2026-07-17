@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
   the git commit being built instead of the time of the build. Required for reproducible builds.
+- Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
+  build machine. Required for reproducible builds.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
