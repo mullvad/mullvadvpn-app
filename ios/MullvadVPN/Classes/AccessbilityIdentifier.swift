@@ -96,7 +96,7 @@ public enum AccessibilityIdentifier: Equatable {
     case faqCell
     case apiAccessCell
     case relayFilterProviderCell
-    case wireGuardPortsCell
+    case wireGuardPorts
     case wireGuardObfuscationCell
     case antiCensorship
     case udpOverTCPPortCell
@@ -223,7 +223,7 @@ public enum AccessibilityIdentifier: Equatable {
     case settingsInfoView
     case actionBox
 
-    // DNS settings
+    // VPN settings
     case includeAllNetworks
     case localNetworkSharing
     case dnsSettings
@@ -280,6 +280,7 @@ public enum AccessibilityIdentifier: Equatable {
     case multihopPromptAlert
 
     // WireGuard obfuscation settings
+    case wireGuardObfuscationPortTable
     case wireGuardObfuscationUdpOverTcpTable
     case wireGuardObfuscationShadowsocksTable
     case wireGuardObfuscationLwoTable

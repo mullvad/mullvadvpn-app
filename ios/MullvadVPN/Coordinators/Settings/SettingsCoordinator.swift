@@ -319,8 +319,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         switch viewController {
         case is SettingsViewController:
             return .root
-        case is VPNSettingsViewController:
-            return .vpnSettings
         case is ProblemReportViewController:
             return .problemReport
         case is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>>:
