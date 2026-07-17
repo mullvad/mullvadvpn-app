@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Make the globe interactive, with supports for pan, pinch-to-zoom, and fling. This to discover
   where servers are located as well as displaying your connection path.
 
+### Changed
+- Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable
+  the use SOCKS5 proxies on other relays together with Local network sharing.
+
 
 ## [android/2026.8] - 2026-07-15
 ### Fixed
