@@ -18,6 +18,7 @@ use shadowsocks::{
     },
 };
 use std::{io, net::SocketAddr, sync::Arc};
+use talpid_net::bypass::{BypassedSocket, SocketBypass};
 use tokio::{net::UdpSocket, sync::oneshot};
 
 #[cfg(target_os = "android")]
@@ -54,6 +55,7 @@ pub struct Shadowsocks {
     _shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")]
     outbound_fd: i32,
+    _bypass: BypassedSocket,
 }
 
 #[derive(Debug, Clone)]
@@ -67,7 +69,10 @@ pub struct Settings {
 }
 
 impl Shadowsocks {
-    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub(crate) async fn new(
+        bypass: Arc<dyn SocketBypass>,
+        settings: &Settings,
+    ) -> crate::Result<Self> {
         let (local_udp_socket, udp_client_addr) =
             create_local_udp_socket(settings.shadowsocks_endpoint.is_ipv4())
                 .await
@@ -81,6 +86,8 @@ impl Shadowsocks {
             settings.fwmark,
         )
         .await?;
+
+        let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
 
         #[cfg(target_os = "android")]
         let outbound_fd = remote_socket.as_raw_fd();
@@ -100,6 +107,7 @@ impl Shadowsocks {
             _shutdown_tx: shutdown_tx,
             #[cfg(target_os = "android")]
             outbound_fd,
+            _bypass,
         })
     }
 }

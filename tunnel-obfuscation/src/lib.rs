@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
+use talpid_net::bypass::{NoopBypass, SocketBypass};
 use tokio::io;
 
 pub mod lwo;
@@ -40,6 +41,9 @@ pub enum Error {
     #[error("Failed to bind socket")]
     BindRemoteUdp(#[source] io::Error),
 
+    #[error("Failed to bypass socket")]
+    Bypass(#[source] io::Error),
+
     #[cfg(target_os = "linux")]
     #[error("Failed to set fwmark on remote socket")]
     SetFwmark(#[source] nix::Error),
@@ -79,15 +83,23 @@ pub enum Settings {
 }
 
 pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator>> {
+    create_obfuscator_with_bypass(Arc::new(NoopBypass), settings).await
+}
+
+pub async fn create_obfuscator_with_bypass(
+    bypass: Arc<dyn SocketBypass>,
+    settings: &Settings,
+) -> Result<Box<dyn Obfuscator>> {
     match settings {
-        Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(s)
+        Settings::Udp2Tcp(s) => udp2tcp::Udp2Tcp::new(bypass, s).await.map(box_obfuscator),
+        Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(bypass, s)
             .await
-            .map(box_obfuscator)
-            .map_err(Error::CreateUdp2TcpObfuscator),
-        Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s).await.map(box_obfuscator),
-        Settings::Quic(s) => quic::Quic::new(s).await.map(box_obfuscator),
-        Settings::Lwo(s) => lwo::Lwo::new(s).await.map(box_obfuscator),
-        Settings::Multiplexer(s) => multiplexer::Multiplexer::new(s).await.map(box_obfuscator),
+            .map(box_obfuscator),
+        Settings::Quic(s) => quic::Quic::new(bypass, s).await.map(box_obfuscator),
+        Settings::Lwo(s) => lwo::Lwo::new(bypass, s).await.map(box_obfuscator),
+        Settings::Multiplexer(s) => multiplexer::Multiplexer::new(bypass, s)
+            .await
+            .map(box_obfuscator),
     }
 }
 

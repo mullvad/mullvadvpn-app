@@ -7,6 +7,7 @@ use std::{
 
 use async_trait::async_trait;
 use rand::RngCore;
+use talpid_net::bypass::{BypassedSocket, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
@@ -49,10 +50,11 @@ pub struct Lwo {
     local_endpoint: SocketAddr,
     #[cfg(target_os = "android")]
     wg_endpoint: Arc<UdpSocket>,
+    _bypass: BypassedSocket,
 }
 
 impl Lwo {
-    pub async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let remote_socket = Arc::new(
             create_remote_socket(
                 settings.server_addr.is_ipv4(),
@@ -61,6 +63,7 @@ impl Lwo {
             )
             .await?,
         );
+        let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
                 .await
@@ -88,6 +91,7 @@ impl Lwo {
             client,
             #[cfg(target_os = "android")]
             wg_endpoint,
+            _bypass,
         })
     }
 
@@ -330,6 +334,8 @@ pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
 
 #[cfg(test)]
 mod test {
+    use talpid_net::bypass::NoopBypass;
+
     use super::*;
 
     struct FixedByteRng(u8);
@@ -403,7 +409,7 @@ mod test {
             fwmark: None,
         };
 
-        let lwo = Lwo::new(&settings).await.unwrap();
+        let lwo = Lwo::new(Arc::new(NoopBypass), &settings).await.unwrap();
         let client_socket_addr = lwo.local_endpoint;
 
         tokio::spawn(Box::new(lwo).run());

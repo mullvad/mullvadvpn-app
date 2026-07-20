@@ -6790,6 +6790,7 @@ dependencies = [
  "nix 0.31.3",
  "rand 0.9.4",
  "shadowsocks",
+ "talpid-net",
  "talpid-types",
  "thiserror 2.0.18",
  "tokio",

@@ -21,6 +21,7 @@ log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 rand = { workspace = true, features = ["small_rng"] }
 shadowsocks = { workspace = true }
+talpid-net = { path = "../talpid-net" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = [
