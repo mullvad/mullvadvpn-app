@@ -21,6 +21,9 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
 
     @ObservedObject var viewModel: ViewModel
 
+    @State var isExpanded: Bool = true
+    @State private var alert: MullvadAlert?
+
     private let DNSandIPSettings: [GlobalVPNSetting] = [
         .init(
             id: NSLocalizedString("DNS settings", comment: ""),
@@ -56,12 +59,6 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         .init(id: .ipv4, label: NSLocalizedString("IPv4", comment: ""), accessibilityIdentifier: .ipVersionIPv4),
         .init(id: .ipv6, label: NSLocalizedString("IPv6", comment: ""), accessibilityIdentifier: .ipVersionIPv6),
     ]
-
-    private let IPSettings = GlobalVPNSetting(
-
-        id: NSLocalizedString("IP Version", comment: ""),
-        label: NSLocalizedString("IP Version", comment: ""),
-        accessibilityIdentifier: .ipVersionCell, customView: nil)
 
     var body: some View {
         SettingsInfoContainerView {
@@ -173,33 +170,70 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         }
     }
 
+    func IPVersionSelectionView() -> some View {
+        ForEach(Array(IPOptions.enumerated()), id: \.element.id) { index, option in
+            SegmentedListItem(
+                level: 1,
+                isLastInList: index == IPOptions.count - 1,
+                accessibilityIdentifier: option.accessibilityIdentifier,
+                leading: {
+                    itemFactory.leading(
+                        for: .generic(
+                            title: option.label, level: 1,
+                            isSelected: viewModel.ipVersion == option.id))
+                },
+                onSelect: {
+                    viewModel.ipVersion = option.id
+                }
+            )
+        }
+    }
+
+    func getIPVersionAlert(completion: @escaping () -> Void) -> MullvadAlert {
+        MullvadAlert(
+            type: .info,
+            messages: [
+                """
+                This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.
+                """
+            ], customView: nil,
+            actions: [
+                MullvadAlert.Action(type: .default, title: "Got it!", handler: completion)
+            ])
+    }
+
     func IPVersionView() -> some View {
         VStack(alignment: .leading, spacing: 0) {
             SegmentedListItem(
                 userInteraction: .enabledWithoutHighlight,
                 accessibilityIdentifier: .ipVersionCell,
                 leading: {
-                    itemFactory.leading(for: .generic(title: NSLocalizedString("IP Version", comment: "")))
+                    itemFactory.leading(for: .generic(title: NSLocalizedString("IP version", comment: "")))
+                },
+                trailing: {
+                    itemFactory.segment(
+                        for: .info(onSelect: {
+                            alert = getIPVersionAlert(completion: { alert = nil })
+                        })
+                    )
+                    .padding(.trailing, UIMetrics.contentInsets.right)
+                },
+                segment: {
+                    itemFactory.segment(
+                        for: .expand(
+                            isExpanded: $isExpanded.wrappedValue,
+                            onSelect: {
+                                $isExpanded.wrappedValue.toggle()
+                            }))
                 },
                 groupedContent: {
-                    ForEach(Array(IPOptions.enumerated()), id: \.element.id) { index, option in
-                        SegmentedListItem(
-                            level: 1,
-                            isLastInList: index == IPOptions.count - 1,
-                            accessibilityIdentifier: option.accessibilityIdentifier,
-                            leading: {
-                                itemFactory.leading(
-                                    for: .generic(
-                                        title: option.label, subtitle: "", level: 1,
-                                        isSelected: viewModel.ipVersion == option.id))
-                            }
-                        )
-                    }
+                    $isExpanded.wrappedValue ? IPVersionSelectionView() : nil
                 }
             )
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
+        .mullvadAlert(item: $alert)
     }
 
 }
