@@ -6,11 +6,13 @@ description = "Networking helpers"
 repository.workspace = true
 license.workspace = true
 
+[dependencies]
+log = { workspace = true }
+socket2 = { workspace = true, features = ["all"] }
+
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-log = { workspace = true }
 nix = { workspace = true, features = ["net"] }
-socket2 = { workspace = true, features = ["all"] }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 
