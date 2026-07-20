@@ -40,9 +40,6 @@ pub struct Settings {
     /// Authentication token to set for the CONNECT request when establishing a QUIC connection.
     /// Must NOT be prefixed with "Bearer".
     token: AuthToken,
-    /// fwmark to apply to use for the QUIC connection
-    #[cfg(target_os = "linux")]
-    fwmark: Option<u32>,
     /// MTU for the QUIC client. This needs to account for the *additional* headers other than IP
     /// and UDP, but not for those specifically.
     mtu: Option<u16>,
@@ -62,8 +59,6 @@ impl Settings {
             hostname,
             token,
             mtu: None,
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         }
     }
 
@@ -72,13 +67,6 @@ impl Settings {
         debug_assert!(mtu <= 1500, "MTU is too high: {mtu}");
         let mtu = Some(mtu);
         Self { mtu, ..self }
-    }
-
-    /// Set `fwmark` for the Quic obfuscator.
-    #[cfg(target_os = "linux")]
-    pub fn fwmark(self, fwmark: u32) -> Self {
-        let fwmark = Some(fwmark);
-        Self { fwmark, ..self }
     }
 
     /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
@@ -132,12 +120,7 @@ impl Quic {
         // of the endpoint we're connecting to. The address itself is not important to consumers
         // wanting to obfuscate traffic. It is solely used by the local proxy client to know
         // where the QUIC obfuscator is running.
-        let quic_socket = create_remote_socket(
-            settings.quic_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let quic_socket = create_remote_socket(settings.quic_endpoint.is_ipv4()).await?;
         let _bypass = BypassedSocket::new(bypass, &quic_socket).map_err(crate::Error::Bypass)?;
 
         let config_builder = ClientConfig::builder()

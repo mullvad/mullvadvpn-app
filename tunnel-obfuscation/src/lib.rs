@@ -44,10 +44,6 @@ pub enum Error {
     #[error("Failed to bypass socket")]
     Bypass(#[source] io::Error),
 
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    SetFwmark(#[source] nix::Error),
-
     #[error("Failed to initialize multiplexer")]
     CreateMultiplexerObfuscator(#[source] io::Error),
 

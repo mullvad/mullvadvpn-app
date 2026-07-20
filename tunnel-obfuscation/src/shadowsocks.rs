@@ -59,8 +59,6 @@ pub struct Settings {
     pub shadowsocks_endpoint: SocketAddr,
     /// Remote WireGuard endpoint
     pub wireguard_endpoint: SocketAddr,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 impl Shadowsocks {
@@ -75,12 +73,7 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let remote_socket = create_remote_socket(
-            settings.shadowsocks_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let remote_socket = create_remote_socket(settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
 
