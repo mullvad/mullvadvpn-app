@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadLogging
 import MullvadSettings
 import NetworkExtension
@@ -17,9 +18,15 @@ final class AppResetManager {
     private let tunnelManager: TunnelManager
     private let settingsManager: SettingsManager
     private var tunnelObserver: TunnelObserver!
+
     let logger = Logger(label: "AppResetManager")
 
     var onAppReady: (@Sendable @MainActor () -> Void)?
+
+    private let isConfigurationLoaded = CurrentValueSubject<Bool, Never>(false)
+    private let isAppReady = CurrentValueSubject<Bool, Never>(false)
+
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         launchArguments: LaunchArguments,
@@ -29,16 +36,34 @@ final class AppResetManager {
         self.launchArguments = launchArguments
         self.tunnelManager = tunnelManager
         self.settingsManager = settingsManager
-
         guard launchArguments.target.isUITest else { return }
+        observeReadiness()
         addObserver()
         Task {
-            await setup()
+            async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
+            async let setupTask: () = setup()
+            _ = await (cleanup, setupTask)
         }
+    }
+
+    func observeReadiness() {
+        Publishers.CombineLatest(isConfigurationLoaded, isAppReady)
+            .filter { configurationLoaded, appReady in
+                configurationLoaded && appReady
+            }
+            .sink { [weak self] _, _ in
+                guard let self else { return }
+                tunnelManager.removeObserver(tunnelObserver)
+                onAppReady?()
+            }
+            .store(in: &cancellables)
     }
 
     private func addObserver() {
         let tunnelObserver = TunnelBlockObserver(
+            didLoadConfiguration: { [weak self] tunnelManager in
+                self?.isConfigurationLoaded.send(true)
+            },
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 guard let self else { return }
                 if tunnelStatus.observedState != .disconnected {
@@ -60,12 +85,11 @@ final class AppResetManager {
             await reset()
         } catch {
             logger.error("Unexpected tunnel error: \(error.localizedDescription)")
-            onAppReady?()
+            isAppReady.send(true)
         }
     }
 
     private func reset() async {
-        defer { tunnelManager.removeObserver(tunnelObserver!) }
         switch tunnelManager.deviceState {
         case .loggedIn:
             await logoutIfNeeded()
@@ -73,7 +97,7 @@ final class AppResetManager {
         default:
             resetUserDefaults()
             resetKeychain()
-            onAppReady?()
+            isAppReady.send(true)
         }
     }
 

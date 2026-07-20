@@ -15,12 +15,14 @@ class LaunchViewController: UIViewController {
     var onAppReady: (() -> Void)?
 
     init(
-        launchArguments: LaunchArguments, tunnelManager: TunnelManager,
-        accessMethodRepository: any AccessMethodRepositoryProtocol,
+        launchArguments: LaunchArguments,
+        tunnelManager: TunnelManager,
         settingsManager: SettingsManager
     ) {
         self.appResetManager = AppResetManager(
-            launchArguments: launchArguments, tunnelManager: tunnelManager, settingsManager: settingsManager)
+            launchArguments: launchArguments,
+            tunnelManager: tunnelManager,
+            settingsManager: settingsManager)
         super.init(nibName: nil, bundle: nil)
         setupLaunchScreen()
         self.appResetManager.onAppReady = { [weak self] in
