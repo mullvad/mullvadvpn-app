@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import SwiftUI
 
 private struct GlobalVPNSetting: Identifiable {
@@ -42,10 +43,31 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
             accessibilityIdentifier: .dnsSettings, customView: nil),
     ]
 
+    private struct IPSettingOption: Identifiable {
+        let id: IPVersion
+        let label: String
+        let accessibilityIdentifier: AccessibilityIdentifier
+    }
+
+    private let IPOptions: [IPSettingOption] = [
+        .init(
+            id: .automatic, label: NSLocalizedString("Automatic", comment: ""),
+            accessibilityIdentifier: .ipVersionAutomatic),
+        .init(id: .ipv4, label: NSLocalizedString("IPv4", comment: ""), accessibilityIdentifier: .ipVersionIPv4),
+        .init(id: .ipv6, label: NSLocalizedString("IPv6", comment: ""), accessibilityIdentifier: .ipVersionIPv6),
+    ]
+
+    private let IPSettings = GlobalVPNSetting(
+
+        id: NSLocalizedString("IP Version", comment: ""),
+        label: NSLocalizedString("IP Version", comment: ""),
+        accessibilityIdentifier: .ipVersionCell, customView: nil)
+
     var body: some View {
         SettingsInfoContainerView {
             DNSandIPSettingsView()
             antiCensorshipView()
+            IPVersionView()
         }
     }
 
@@ -58,6 +80,44 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                 viewModel.quantumResistance = enabled ? .on : .off
             }
         )
+    }
+
+    func DNSandIPSettingsView() -> some View {
+        VStack(alignment: .leading, spacing: 1) {
+            SegmentedListItem(
+                userInteraction: .enabled,
+                accessibilityIdentifier: .vpnSettingsTableView,
+                leading: {
+                    SegmentedListItem(
+                        isLastInList: false,
+                        userInteraction: .enabled,
+                        accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
+                        leading: {
+                            itemFactory.leading(
+                                for: .generic(title: DNSandIPSettings.first!.label))
+                        },
+                        trailing: {
+                            itemFactory.trailing(for: .drillDown(title: ""))
+                        }
+                    )
+                },
+                groupedContent: {
+                    SegmentedListItem(
+                        userInteraction: .enabled,
+                        accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
+                        leading: {
+                            itemFactory.leading(
+                                for: .generic(title: DNSandIPSettings.last!.label))
+                        },
+                        trailing: {
+                            itemFactory.trailing(for: .drillDown(title: ""))
+                        }
+                    )
+                }
+            )
+            .padding(.leading, UIMetrics.contentInsets.left)
+            .padding(.trailing, UIMetrics.contentInsets.right)
+        }
     }
 
     func antiCensorshipView() -> some View {
@@ -113,37 +173,28 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         }
     }
 
-    func DNSandIPSettingsView() -> some View {
-        VStack(alignment: .leading, spacing: 1) {
+    func IPVersionView() -> some View {
+        VStack(alignment: .leading, spacing: 0) {
             SegmentedListItem(
-                userInteraction: .enabled,
-                accessibilityIdentifier: .vpnSettingsTableView,
+                userInteraction: .enabledWithoutHighlight,
+                accessibilityIdentifier: .ipVersionCell,
                 leading: {
-                    SegmentedListItem(
-                        isLastInList: false,
-                        userInteraction: .enabled,
-                        accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
-                        leading: {
-                            itemFactory.leading(
-                                for: .generic(title: DNSandIPSettings.first!.label))
-                        },
-                        trailing: {
-                            itemFactory.trailing(for: .drillDown(title: ""))
-                        }
-                    )
+                    itemFactory.leading(for: .generic(title: NSLocalizedString("IP Version", comment: "")))
                 },
                 groupedContent: {
-                    SegmentedListItem(
-                        userInteraction: .enabled,
-                        accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
-                        leading: {
-                            itemFactory.leading(
-                                for: .generic(title: DNSandIPSettings.last!.label))
-                        },
-                        trailing: {
-                            itemFactory.trailing(for: .drillDown(title: ""))
-                        }
-                    )
+                    ForEach(Array(IPOptions.enumerated()), id: \.element.id) { index, option in
+                        SegmentedListItem(
+                            level: 1,
+                            isLastInList: index == IPOptions.count - 1,
+                            accessibilityIdentifier: option.accessibilityIdentifier,
+                            leading: {
+                                itemFactory.leading(
+                                    for: .generic(
+                                        title: option.label, subtitle: "", level: 1,
+                                        isSelected: viewModel.ipVersion == option.id))
+                            }
+                        )
+                    }
                 }
             )
             .padding(.leading, UIMetrics.contentInsets.left)

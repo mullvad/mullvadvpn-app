@@ -13,13 +13,16 @@ import UIKit
 @MainActor
 protocol ObservableVPNSettings: ObservableObject {
     var quantumResistance: TunnelQuantumResistance { get set }
+    var ipVersion: IPVersion { get set }
 }
 
 public class ObservabledVPNSettingsStub: ObservableVPNSettings {
     @Published var quantumResistance: TunnelQuantumResistance
+    @Published var ipVersion: IPVersion
 
     init(tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         quantumResistance = tunnelSettings.tunnelQuantumResistance
+        ipVersion = tunnelSettings.ipVersion
     }
 }
 
