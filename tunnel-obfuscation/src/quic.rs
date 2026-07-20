@@ -218,10 +218,4 @@ impl Obfuscator for Quic {
         // The above would prevent mullvad-masque-proxy-level fragmentation
         0
     }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        use std::os::fd::AsRawFd;
-        self.config.quinn_socket.as_raw_fd()
-    }
 }

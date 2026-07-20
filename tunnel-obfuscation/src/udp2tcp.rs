@@ -105,11 +105,6 @@ impl Obfuscator for Udp2Tcp {
             .map_err(crate::Error::RunUdp2TcpObfuscator)
     }
 
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.instance.remote_tcp_fd()
-    }
-
     fn packet_overhead(&self) -> u16 {
         let max_tcp_header_len = 60; // https://datatracker.ietf.org/doc/html/rfc9293#section-3.1-6.22.1
         let udp_header_len = 8; // https://datatracker.ietf.org/doc/html/rfc768

@@ -48,8 +48,6 @@ pub struct Settings {
 pub struct Lwo {
     client: Client,
     local_endpoint: SocketAddr,
-    #[cfg(target_os = "android")]
-    wg_endpoint: Arc<UdpSocket>,
     _bypass: BypassGuard,
 }
 
@@ -74,9 +72,6 @@ impl Lwo {
             .map_err(Error::GetUdpLocalAddress)
             .map_err(crate::Error::CreateLwoObfuscator)?;
 
-        #[cfg(target_os = "android")]
-        let wg_endpoint = Arc::clone(&remote_socket);
-
         let client = Client {
             server_addr: settings.server_addr,
             rx_key: settings.client_public_key.clone(),
@@ -88,8 +83,6 @@ impl Lwo {
         Ok(Self {
             local_endpoint,
             client,
-            #[cfg(target_os = "android")]
-            wg_endpoint,
             _bypass,
         })
     }
@@ -314,12 +307,6 @@ impl Obfuscator for Lwo {
 
     fn packet_overhead(&self) -> u16 {
         0
-    }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        use std::os::fd::AsRawFd;
-        self.wg_endpoint.as_raw_fd()
     }
 }
 
