@@ -47,13 +47,7 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     }
 
-    let settings = settings_from_config(
-        config,
-        obfuscator_config,
-        obfuscation_mtu,
-        #[cfg(target_os = "linux")]
-        config.fwmark,
-    );
+    let settings = settings_from_config(config, obfuscator_config, obfuscation_mtu);
 
     log::trace!("Obfuscation settings: {settings:?}");
 
@@ -116,16 +110,11 @@ fn settings_from_config(
     config: &Config,
     obfuscation_config: &Obfuscators,
     mtu: u16,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
-            config,
-            obfuscation_config,
-            mtu,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        ),
+        Obfuscators::Single(obfuscation_config) => {
+            settings_from_single_config(config, obfuscation_config, mtu)
+        }
         Obfuscators::Multiplexer {
             direct,
             configs: (first_obfs, remaining_obfs),
@@ -135,20 +124,10 @@ fn settings_from_config(
                 transports.push(multiplexer::Transport::Direct(*direct));
             }
             for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
-                let settings = settings_from_single_config(
-                    config,
-                    obfs_config,
-                    mtu,
-                    #[cfg(target_os = "linux")]
-                    fwmark,
-                );
+                let settings = settings_from_single_config(config, obfs_config, mtu);
                 transports.push(multiplexer::Transport::Obfuscated(settings));
             }
-            ObfuscationSettings::Multiplexer(multiplexer::Settings {
-                transports,
-                #[cfg(target_os = "linux")]
-                fwmark,
-            })
+            ObfuscationSettings::Multiplexer(multiplexer::Settings { transports })
         }
     }
 }
@@ -157,14 +136,11 @@ fn settings_from_single_config(
     config: &Config,
     obfuscation_config: &ObfuscatorConfig,
     mtu: u16,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> ObfuscationSettings {
     match obfuscation_config {
-        ObfuscatorConfig::Udp2Tcp { endpoint } => ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
-            peer: *endpoint,
-            #[cfg(target_os = "linux")]
-            fwmark,
-        }),
+        ObfuscatorConfig::Udp2Tcp { endpoint } => {
+            ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer: *endpoint })
+        }
         ObfuscatorConfig::Shadowsocks { endpoint } => {
             ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
                 shadowsocks_endpoint: *endpoint,
@@ -173,8 +149,6 @@ fn settings_from_single_config(
                 } else {
                     SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
                 },
-                #[cfg(target_os = "linux")]
-                fwmark,
             })
         }
         ObfuscatorConfig::Quic {
@@ -190,18 +164,12 @@ fn settings_from_single_config(
                 wireguard_endpoint,
             )
             .mtu(mtu);
-            #[cfg(target_os = "linux")]
-            if let Some(fwmark) = fwmark {
-                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
-            }
             ObfuscationSettings::Quic(settings)
         }
         ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
             server_addr: *endpoint,
             client_public_key: config.tunnel.private_key.public_key(),
             server_public_key: config.entry_peer.public_key.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark,
         }),
     }
 }

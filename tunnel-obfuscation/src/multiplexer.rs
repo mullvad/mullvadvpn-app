@@ -87,20 +87,8 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
 
-        let (proxy_socket_v4, _bypass_v4) = create_remote_socket(
-            &bypass,
-            true,
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
-        let (proxy_socket_v6, _bypass_v6) = create_remote_socket(
-            &bypass,
-            false,
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let (proxy_socket_v4, _bypass_v4) = create_remote_socket(&bypass, true).await?;
+        let (proxy_socket_v6, _bypass_v6) = create_remote_socket(&bypass, false).await?;
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
@@ -369,9 +357,6 @@ pub struct Settings {
     /// Spawn these transports progressively and select
     /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
-    /// Linux-specific firewall mark for outgoing connections
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 /// Represents a transport method that the multiplexer can use.
@@ -423,8 +408,6 @@ mod tests {
                 Transport::Direct(server_addr),
                 Transport::Direct(server_addr2),
             ],
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         };
 
         let multiplexer = Multiplexer::new(Arc::new(NoopBypass), &settings)

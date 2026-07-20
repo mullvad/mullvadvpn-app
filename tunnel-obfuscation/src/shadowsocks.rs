@@ -59,8 +59,6 @@ pub struct Settings {
     pub shadowsocks_endpoint: SocketAddr,
     /// Remote WireGuard endpoint
     pub wireguard_endpoint: SocketAddr,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 impl Shadowsocks {
@@ -75,13 +73,8 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let (remote_socket, _bypass) = create_remote_socket(
-            &bypass,
-            settings.shadowsocks_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,

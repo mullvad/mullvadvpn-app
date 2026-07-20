@@ -10,8 +10,6 @@ use udp_over_tcp::{
 #[derive(Debug, Clone)]
 pub struct Settings {
     pub peer: SocketAddr,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -47,10 +45,6 @@ impl Udp2Tcp {
         };
 
         let mut tcp_options = TcpOptions::default();
-        #[cfg(target_os = "linux")]
-        {
-            tcp_options.fwmark = settings.fwmark;
-        }
         // Disables the Nagle algorithm on the TCP socket. Improves performance
         tcp_options.nodelay = true;
 

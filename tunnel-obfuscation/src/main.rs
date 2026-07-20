@@ -21,8 +21,6 @@ async fn instantiate_requested(obfuscator_type: &str) -> Box<dyn Obfuscator> {
         "udp2tcp" => {
             let settings = udp2tcp::Settings {
                 peer: SocketAddr::new("127.0.0.1".parse().unwrap(), 3030),
-                #[cfg(target_os = "linux")]
-                fwmark: Some(1337),
             };
 
             create_obfuscator(&Settings::Udp2Tcp(settings))

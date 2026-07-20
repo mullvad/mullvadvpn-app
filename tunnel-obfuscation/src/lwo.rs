@@ -40,9 +40,6 @@ pub struct Settings {
     pub client_public_key: PublicKey,
     /// Public key of the WG server
     pub server_public_key: PublicKey,
-    /// Optional fwmark to set on the remote socket
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 pub struct Lwo {
@@ -53,13 +50,8 @@ pub struct Lwo {
 
 impl Lwo {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
-        let (remote_socket, _bypass) = create_remote_socket(
-            &bypass,
-            settings.server_addr.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
         let remote_socket = Arc::new(remote_socket);
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
@@ -391,8 +383,6 @@ mod test {
             server_addr: endpoint.local_addr().unwrap(),
             client_public_key: client_public_key.clone(),
             server_public_key: server_public_key.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         };
 
         let lwo = Lwo::new(Arc::new(NoopBypass), &settings).await.unwrap();
