@@ -4,7 +4,7 @@ use socket2::SockRef;
 
 /// A trait for implementing socket bypass. This lets individual sockets be excluded (leak) from
 /// VPN tunnel traffic.
-pub trait SocketBypass {
+pub trait SocketBypass: Send + Sync {
     /// Begin socket bypass. When called, the socket must be excluded from tunnel traffic until
     /// [Self::revoke_bypass] has been called and the socket has been destroyed.
     fn bypass_socket(&self, socket: SockRef<'_>) -> io::Result<()>;
@@ -15,6 +15,18 @@ pub trait SocketBypass {
     /// excluded. The bypass must not outlast the lifetime of the socket lifetime, but it may cease
     /// immediately when this is called (depending on the implementation).
     fn revoke_bypass(&self, socket: SockRef<'_>) -> io::Result<()>;
+}
+
+pub struct NoopBypass;
+
+impl SocketBypass for NoopBypass {
+    fn bypass_socket(&self, _: SockRef<'_>) -> io::Result<()> {
+        Ok(())
+    }
+
+    fn revoke_bypass(&self, _: SockRef<'_>) -> io::Result<()> {
+        Ok(())
+    }
 }
 
 /// A guard that, when dropped, allows an excluded socket to no longer be excluded.
