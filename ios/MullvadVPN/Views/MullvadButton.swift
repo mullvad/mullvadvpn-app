@@ -31,7 +31,7 @@ struct MullvadButton: View {
         static let destructiveSecondary = Style(
             rank: .secondary, mainColor: .MullvadButton.danger, attenuatedColor: .MullvadButton.dangerPressed)
         /// the default style for a potentially destructive operation
-        static let destructive = destructiveSecondary
+        static let destructive = destructivePrimary
         /// the style for an operation indicating success; mainly used for the Connect button
         static let success = Style(
             rank: .primary, mainColor: .MullvadButton.positive, attenuatedColor: .MullvadButton.positivePressed)
@@ -178,6 +178,10 @@ private struct ModularButtonPreview: View {
             ) {}
             MullvadButton(
                 text: "Destructive", style: .destructive,
+                leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
+            ) {}
+            MullvadButton(
+                text: "Destructive Secondary", style: .destructiveSecondary,
                 leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
             ) {}
             MullvadButton(text: "Disabled", style: .primary, action: {}).disabled(true)

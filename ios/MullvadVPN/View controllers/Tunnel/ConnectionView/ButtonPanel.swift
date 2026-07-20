@@ -26,54 +26,53 @@ extension ConnectionView {
 
         @ViewBuilder
         private func locationButton(with action: Action?) -> some View {
-            switch viewModel.tunnelStatus.state {
-            case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
-                SplitMainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
-                    image: .iconReload,
-                    style: .default,
-                    accessibilityId: .selectLocationButton,
-                    secondaryAccessibilityId: .reconnectButton,
-                    secondaryAccessibilityLabel: LocalizedStringKey("Reconnect"),
-                    secondaryAccessibilityHint: LocalizedStringKey("Cycle through available servers"),
-                    primaryAction: { action?(.selectLocation) },
-                    secondaryAction: { action?(.reconnect) }
-                )
-            case .disconnecting, .pendingReconnect, .disconnected:
-                MainButton(
-                    text: viewModel.localizedTitleForSelectLocationButton,
-                    style: .default,
-                    action: { action?(.selectLocation) }
-                )
-                .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
-            }
+            let reloadButton: MullvadButton.Accessory? =
+                switch viewModel.tunnelStatus.state {
+                case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
+                    .button(
+                        .iconReload,
+                        accessibilityId: .reconnectButton,
+                        accessibilityLabel: LocalizedStringKey("Reconnect"),
+                        accessibilityHint: LocalizedStringKey("Cycle through available servers"),
+                        {
+                            action?(.reconnect)
+                        })
+                case .disconnecting, .pendingReconnect, .disconnected:
+                    nil
+                }
+            MullvadButton(
+                text: viewModel.localizedTitleForSelectLocationButton,
+                style: .primary,
+                trailingAccessory: reloadButton,
+            ) { action?(.selectLocation) }
+            .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
         }
 
         @ViewBuilder
         private func actionButton(with action: Action?) -> some View {
             switch viewModel.actionButton {
             case .connect:
-                MainButton(
+                MullvadButton(
                     text: LocalizedStringKey("Connect"),
                     style: .success,
                     action: { action?(.connect) }
                 )
                 .accessibilityIdentifier(AccessibilityIdentifier.connectButton.asString)
             case .disconnect:
-                MainButton(
+                MullvadButton(
                     text: LocalizedStringKey("Disconnect"),
-                    style: .danger,
+                    style: .destructivePrimary,
                     action: { action?(.disconnect) }
                 )
                 .accessibilityIdentifier(AccessibilityIdentifier.disconnectButton.asString)
             case .cancel:
-                MainButton(
+                MullvadButton(
                     text: LocalizedStringKey(
                         viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
                             ? "Disconnect"
                             : "Cancel"
                     ),
-                    style: .danger,
+                    style: .destructivePrimary,
                     action: { action?(.cancel) }
                 )
                 .accessibilityIdentifier(
@@ -86,8 +85,14 @@ extension ConnectionView {
     }
 }
 
-#Preview {
+#Preview("connected") {
     ConnectionViewComponentPreview(showIndicators: true) { _, vm, _ in
+        ConnectionView.ButtonPanel(viewModel: vm, action: nil)
+    }
+}
+
+#Preview("disconnected") {
+    ConnectionViewComponentPreview(showIndicators: true, isConnected: false) { _, vm, _ in
         ConnectionView.ButtonPanel(viewModel: vm, action: nil)
     }
 }

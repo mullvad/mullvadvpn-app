@@ -15,12 +15,12 @@ struct DeviceManagementView: View {
             }
         }
 
-        var actionButtonStyle: MainButtonStyle.Style {
+        var actionButtonStyle: MullvadButton.Style {
             switch self {
             case .tooManyDevices:
-                .danger
+                .destructivePrimary
             case .deviceManagement:
-                .default
+                .primary
             }
         }
 
@@ -143,7 +143,7 @@ struct DeviceManagementView: View {
                                 }
                             ),
                             .init(
-                                type: .default,
+                                type: .secondary,
                                 title: "Cancel",
                                 handler: {
                                     deviceManagementAlert = nil
@@ -185,7 +185,7 @@ struct DeviceManagementView: View {
             )
             Spacer()
             if case let .tooManyDevices(backToLogin) = style {
-                MainButton(
+                MullvadButton(
                     text: "Continue with login",
                     style: .success
                 ) {
