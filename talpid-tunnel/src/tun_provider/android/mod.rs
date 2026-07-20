@@ -323,9 +323,10 @@ impl VpnServiceConfig {
             .collect()
     }
 
-    /// Removes ALLOWED_LAN_NETS and ALLOWED_LAN_MULTICAST_NETS from the routes if allow lan
+    /// Returns a vector representing all networks from the routes in the given config,
+    /// minus ALLOWED_LAN_NETS and ALLOWED_LAN_MULTICAST_NETS from the routes if allow lan
     /// is true. This will prevent LAN traffic going in the tunnel. The gateway addresses are always
-    /// kept in the routes as well as SOCKS_PROXIES, the latter to support using SOCKS proxies
+    /// kept in the vector as well as SOCKS_PROXIES, the latter to support using SOCKS proxies
     /// on Mullvad relays.
     fn resolve_routes(config: &TunConfig) -> Vec<InetNetwork> {
         if !config.allow_lan {
