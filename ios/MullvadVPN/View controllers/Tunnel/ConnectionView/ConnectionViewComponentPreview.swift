@@ -41,6 +41,10 @@ struct ConnectionViewComponentPreview<Content: View>: View {
                 isDaita: true
             )
     )
+    let disconnectedTunnelStatus = TunnelStatus(
+        observedState: .disconnected,
+        state: .disconnected
+    )
 
     private var tunnelSettings: LatestTunnelSettings {
         LatestTunnelSettings(
@@ -59,12 +63,13 @@ struct ConnectionViewComponentPreview<Content: View>: View {
 
     init(
         showIndicators: Bool,
+        isConnected: Bool = true,
         content: @escaping (FeatureIndicatorsViewModel, ConnectionViewViewModel, Binding<Bool>) -> Content
     ) {
         self.showIndicators = showIndicators
         self.content = content
         viewModel = ConnectionViewViewModel(
-            tunnelStatus: connectedTunnelStatus,
+            tunnelStatus: isConnected ? connectedTunnelStatus : disconnectedTunnelStatus,
             relayConstraints: RelayConstraints(),
             relayCacheTracker: MockRelayCacheTracker(),
             customListRepository: CustomListRepository(settingsStore: settingsManager.store)

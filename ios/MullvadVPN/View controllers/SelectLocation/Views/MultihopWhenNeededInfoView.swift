@@ -24,7 +24,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                 ],
                 actions: [
                     MullvadStateView.ActionItem(
-                        style: .default,
+                        style: .primary,
                         state: .init(
                             kind: .idle,
                             message: String(
@@ -61,7 +61,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
             ],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Continue",
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
@@ -70,7 +70,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         multihopWarningAlert = nil
@@ -86,7 +86,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
             messages: [LocalizedStringKey(BlockedStateString.Message.multihop.description)],
             actions: [
                 MullvadAlert.Action(
-                    type: .danger,
+                    type: .destructivePrimary,
                     title: LocalizedStringKey(BlockedStateString.Button.multihop(.always).description),
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
@@ -95,7 +95,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         multihopWarningAlert = nil

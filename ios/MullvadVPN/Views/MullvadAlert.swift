@@ -7,11 +7,6 @@ struct MullvadAlert: Identifiable {
         case error
     }
 
-    enum ActionType {
-        case danger
-        case normal
-    }
-
     enum DismissButtonPosition {
         case top
         case bottom
@@ -19,13 +14,13 @@ struct MullvadAlert: Identifiable {
 
     struct Action: Identifiable {
         let id = UUID()
-        let type: MainButtonStyle.Style
+        let type: MullvadButton.Style
         let title: LocalizedStringKey
         let identifier: AccessibilityIdentifier?
         let handler: () async -> Void
 
         init(
-            type: MainButtonStyle.Style,
+            type: MullvadButton.Style,
             title: LocalizedStringKey,
             identifier: AccessibilityIdentifier? = nil,
             handler: @escaping () async -> Void
@@ -58,7 +53,7 @@ struct MullvadAlert: Identifiable {
 
 struct MullvadInputAlert: Identifiable {
     struct Action {
-        let type: MainButtonStyle.Style
+        let type: MullvadButton.Style
         let title: LocalizedStringKey
         let identifier: AccessibilityIdentifier?
         let handler: (String) async -> Void
@@ -154,7 +149,7 @@ struct AlertModifier: ViewModifier {
 
     @ViewBuilder
     private func alertAction(for action: MullvadAlert.Action) -> some View {
-        MainButton(
+        MullvadButton(
             text: action.title,
             style: action.type,
             action: {
@@ -193,7 +188,7 @@ struct InputAlertModifier: ViewModifier {
                             validate: alert.validate
                         )
                         VStack(spacing: 16) {
-                            MainButton(
+                            MullvadButton(
                                 text: alert.action.title,
                                 style: alert.action.type,
                                 action: {
@@ -206,9 +201,9 @@ struct InputAlertModifier: ViewModifier {
                             )
                             .disabled(!(alert.validate?(text) ?? true))
                             .accessibilityIdentifier(alert.action.identifier)
-                            MainButton(
+                            MullvadButton(
                                 text: alert.dismissButtonTitle,
-                                style: .default,
+                                style: .secondary,
                                 action: { self.alert = nil }
                             )
                         }
@@ -252,12 +247,12 @@ extension View {
                         messages: ["Something needs to be done"],
                         actions: [
                             .init(
-                                type: .danger,
+                                type: .destructivePrimary,
                                 title: "Do it!",
                                 handler: {}
                             ),
                             .init(
-                                type: .default,
+                                type: .secondary,
                                 title: "Cancel",
                                 handler: {}
                             ),
@@ -276,7 +271,7 @@ extension View {
                         title: "Title",
                         placeholder: "Placeholder",
                         action: .init(
-                            type: .default,
+                            type: .primary,
                             title: "Do it!",
                             identifier: nil,
                             handler: { _ in }

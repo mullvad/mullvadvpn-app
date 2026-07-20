@@ -41,9 +41,9 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                     .showIf(viewModel.isNotificationsDisabled)
 
                     // Show the button if notifications are allowed or disabled
-                    MainButton(
+                    MullvadButton(
                         text: "Open system settings",
-                        style: .default,
+                        style: .primary,
                         action: {
                             viewModel.openAppSettings()
                         }
@@ -51,9 +51,9 @@ struct NotificationSettingsView<ViewModel>: View where ViewModel: NotificationSe
                     .showIf(viewModel.isNotificationsDisabled || viewModel.isNotificationsAllowed)
 
                     // Show the button if notifications are not set
-                    MainButton(
+                    MullvadButton(
                         text: "Enable notifications",
-                        style: .default,
+                        style: .primary,
                         action: {
                             viewModel.enableNotifications()
                         }

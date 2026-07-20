@@ -61,9 +61,9 @@ struct TermsOfServiceView: View {
                     .foregroundStyle(.white)
             }
             .padding(padding)
-            MainButton(
+            MullvadButton(
                 text: LocalizedStringKey("Agree and continue"),
-                style: .default,
+                style: .primary,
                 action: agreeToTermsAndServices ?? {}
             )
             .accessibilityIdentifier(AccessibilityIdentifier.agreeButton.asString)

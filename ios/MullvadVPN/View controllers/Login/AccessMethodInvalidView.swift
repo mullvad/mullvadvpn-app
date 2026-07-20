@@ -20,7 +20,7 @@ struct AccessMethodInvalidView: View {
                     Text("Please update it or enable a different one to be able to reach the API using this method.")
                         .font(.mullvadTinySemiBold)
                 }
-                MainButton(text: "API access methods", style: .default) {
+                MullvadButton(text: "API access methods", style: .primary) {
                     didPressButton()
                 }
             }

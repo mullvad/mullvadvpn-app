@@ -138,7 +138,7 @@ extension IncludeAllNetworksSettingsViewModel {
             messages: [LocalizedStringKey(message)],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Enable notifications",
                     handler: { [weak self] in
                         self?.requestNotificationPermissions(completion: nil)
@@ -147,7 +147,7 @@ extension IncludeAllNetworksSettingsViewModel {
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Got it!",
                     identifier: .includeAllNetworksNotificationsAlertDismissButton,
                     handler: { [weak self] in
@@ -175,7 +175,7 @@ extension IncludeAllNetworksSettingsViewModel {
             messages: [LocalizedStringKey(message)],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Open system settings",
                     handler: { [weak self] in
                         self?.navigateToAppNotificationSystemSettings()
@@ -184,7 +184,7 @@ extension IncludeAllNetworksSettingsViewModel {
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .danger,
+                    type: .destructiveSecondary,
                     title: "Yes, continue",
                     identifier: .includeAllNetworksNotificationsAlertDismissButton,
                     handler: { [weak self] in
@@ -230,7 +230,7 @@ extension IncludeAllNetworksSettingsViewModel {
             ],
             actions: [
                 .init(
-                    type: .default,
+                    type: .primary,
                     title: "Got it!",
                     identifier: .includeAllNetworksNotificationsAlertDismissButton,
                     handler: {
@@ -292,14 +292,14 @@ extension IncludeAllNetworksSettingsViewModel {
             messages: [LocalizedStringKey(message.joinedParagraphs())],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         completion()
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .danger,
+                    type: .destructivePrimary,
                     title: "Yes, continue",
                     identifier: .includeAllNetworksNotificationsAlertDismissButton,
                     handler: {

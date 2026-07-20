@@ -49,7 +49,7 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
                             Spacer()
 
                         case .action(let text, let style, let accessibilityIdentifier, let action):
-                            MainButton(text: text, style: style, action: action)
+                            MullvadButton(text: text, style: style, action: action)
                                 .accessibilityIdentifier(accessibilityIdentifier)
                         }
                     }
