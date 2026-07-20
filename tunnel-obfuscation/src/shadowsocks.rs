@@ -21,9 +21,6 @@ use std::{io, net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{BypassedSocket, SocketBypass};
 use tokio::{net::UdpSocket, sync::oneshot};
 
-#[cfg(target_os = "android")]
-use std::os::fd::AsRawFd;
-
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
 
@@ -53,8 +50,6 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
-    #[cfg(target_os = "android")]
-    outbound_fd: i32,
     _bypass: BypassedSocket,
 }
 
@@ -89,9 +84,6 @@ impl Shadowsocks {
 
         let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
 
-        #[cfg(target_os = "android")]
-        let outbound_fd = remote_socket.as_raw_fd();
-
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,
             remote_socket,
@@ -105,8 +97,6 @@ impl Shadowsocks {
             wireguard_endpoint: settings.wireguard_endpoint,
             server,
             _shutdown_tx: shutdown_tx,
-            #[cfg(target_os = "android")]
-            outbound_fd,
             _bypass,
         })
     }
@@ -279,11 +269,6 @@ impl Obfuscator for Shadowsocks {
             Err(_err) if _err.is_cancelled() => Ok(()),
             Err(_err) => panic!("server handle panicked"),
         }
-    }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.outbound_fd
     }
 
     fn packet_overhead(&self) -> u16 {

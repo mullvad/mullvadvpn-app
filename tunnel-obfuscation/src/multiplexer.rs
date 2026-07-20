@@ -396,11 +396,6 @@ impl crate::Obfuscator for Multiplexer {
             .await
             .map_err(crate::Error::RunMultiplexerObfuscator)
     }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!("must return the socket fd of every obfuscator here")
-    }
 }
 
 #[cfg(test)]
