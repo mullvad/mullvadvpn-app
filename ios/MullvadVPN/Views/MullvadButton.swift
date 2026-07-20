@@ -54,14 +54,14 @@ struct MullvadButton: View {
 
     /// the text to display on the main button
     var text: LocalizedStringKey
-    /// the action for when the main button is pressed
-    var action: () -> Void
+    /// The style to present this button in
+    var style: Style
     /// An optional accessory to present on the leading edge of the button
     var leadingAccessory: Accessory?
     /// An optional accessory to present on the trailing edge of the button
     var trailingAccessory: Accessory?
-    /// The style to present this button in
-    var style: Style
+    /// the action for when the main button is pressed
+    var action: () -> Void
 
     @State private var mainAreaHeight: CGFloat = 0
     @State private var leadingAccessorySize: CGSize = .zero
@@ -151,42 +151,46 @@ private struct ModularButtonPreview: View {
     var body: some View {
         VStack {
             MullvadButton(
-                text: "Primary", action: {}, trailingAccessory: .button(.iconChevron, { print(">") }), style: .primary)
-            MullvadButton(text: "Primary", action: {}, style: .primary)
-            MullvadButton(text: "Secondary", action: {}, style: .secondary)
-            MullvadButton(text: "Connect", action: {}, style: .success)
+                text: "Primary", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {})
+            MullvadButton(text: "Primary", style: .primary) {}
+            MullvadButton(text: "Secondary", style: .secondary) {}
+            MullvadButton(text: "Connect", style: .success) {}
             MullvadButton(
-                text: "Secondary", action: {}, leadingAccessory: .icon(Image.mullvadIconMultihopAlways),
-                style: .secondary)
+                text: "Secondary", style: .secondary, leadingAccessory: .icon(Image.mullvadIconMultihopAlways)
+            ) {}
             MullvadButton(
-                text: "Secondary", action: {}, trailingAccessory: .icon(Image.mullvadIconMultihopAlways),
-                style: .secondary)
+                text: "Secondary",
+                style: .secondary, trailingAccessory: .icon(Image.mullvadIconMultihopAlways)
+            ) {}
             MullvadButton(
-                text: "Destructive", action: {}, leadingAccessory: .button(.iconCross, { print("Accessory tapped") }),
-                style: .destructive)
-            MullvadButton(text: "Disabled", action: {}, style: .primary).disabled(true)
+                text: "Destructive", style: .destructive,
+                leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
+            ) {}
+            MullvadButton(text: "Disabled", style: .primary, action: {}).disabled(true)
             MullvadButton(
-                text: "Disabled", action: {},
+                text: "Disabled", style: .secondary,
                 leadingAccessory: .button(
                     .iconCross,
                     {
                         print(":-P")
-                    }), style: .secondary
+                    }),
+                action: {}
             ).disabled(true)
-            MullvadButton(text: "Disabled", action: {}, style: .destructive).disabled(true)
+            MullvadButton(text: "Disabled", style: .destructive, action: {}).disabled(true)
             MullvadButton(
                 text: "Start",
-                action: {
-                    print("Main button 1")
-                    isProcessing = true
-                },
+                style: .primary,
                 leadingAccessory: .progress(isProcessing),
                 trailingAccessory: .button(
                     .iconReload,
                     {
                         print("Trailing accessory")
                     }),
-                style: .primary)
+                action: {
+                    print("Main button 1")
+                    isProcessing = true
+                }
+            )
         }.padding(4)
             .background(Color.mullvadBackground)
     }
