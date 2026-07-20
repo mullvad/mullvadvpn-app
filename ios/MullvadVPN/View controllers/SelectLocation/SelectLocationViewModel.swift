@@ -20,7 +20,6 @@ protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol
     func customListsChanged()
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
-    func deleteCustomList(name: String)
     func showEditCustomList(name: String)
     func didFinish()
     func showDaitaSettings()
@@ -278,15 +277,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         customListInteractor.fetchAll()
     }
 
-    func deleteCustomList(name: String) {
-        guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
-            return
-        }
-        customListInteractor.delete(customList: customList)
-        recentsInteractor.cleanup(customList.id)
-        customListsChanged()
-    }
-
     func showEditCustomList(name: String) {
         guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
             return
@@ -337,6 +327,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     func delete(customList: CustomList) {
         customListInteractor.delete(customList: customList)
+        recentsInteractor.cleanup(customList.id)
         customListsChanged()
     }
 
