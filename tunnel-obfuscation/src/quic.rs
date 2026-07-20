@@ -21,7 +21,6 @@ pub enum Error {
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
 
-#[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
