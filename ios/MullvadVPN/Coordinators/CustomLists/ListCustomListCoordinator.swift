@@ -65,9 +65,9 @@ class ListCustomListCoordinator: Coordinator, Presentable, Presenting {
             editCustomListCoordinator.removeFromParent()
         }
 
-        coordinator.didCancel = { [weak self] editCustomListCoordinator, action in
+        coordinator.didCancel = { [weak self] editCustomListCoordinator in
             guard let self else { return }
-            popToList(action)
+            popToList(.noAction)
             editCustomListCoordinator.removeFromParent()
         }
 

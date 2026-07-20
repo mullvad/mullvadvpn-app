@@ -32,7 +32,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 
     var didFinish: ((EditCustomListCoordinator, CustomListAction) -> Void)?
-    var didCancel: ((EditCustomListCoordinator, CustomListAction) -> Void)?
+    var didCancel: ((EditCustomListCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -108,7 +108,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
                     title: NSLocalizedString("Discard changes", comment: ""),
                     style: .destructive,
                     handler: {
-                        self.didCancel?(self, .noAction)
+                        self.didCancel?(self)
                     }
                 ),
                 AlertAction(

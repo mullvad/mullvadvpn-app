@@ -170,10 +170,15 @@ class CustomListsTests: LoggedInWithTimeUITestCase {
         // MARK: 5) Verify that there is only 1 instance of the selected relay in the recents list
         ///
         /// `app.buttons[.recentListItem(BaseUITestCase.testsDefaultMullvadOwnedRelayName)]`
-        /// cannot be used here as there are likely multiple invisible instances of such button.
-        /// Hence the test resorts to count the number of list items for lack of better ways.
+        /// cannot be used here as there are seemingly multiple invisible instances of such button.
+        /// Hence the test uses a predicate to find the exact instance of the accessibilityIdentifier matching the recent
+
         XCTAssertTrue(
-            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "recentListItem")).count == 1)
+            app.buttons.matching(
+                NSPredicate(
+                    format: "identifier LIKE %@",
+                    "recentListItem(\"\(BaseUITestCase.testsDefaultMullvadOwnedRelayName)\")")
+            ).count == 1)
 
         SelectLocationPage(app)
             .tapDoneButton()

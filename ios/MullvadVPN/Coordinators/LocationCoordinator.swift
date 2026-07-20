@@ -155,7 +155,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
             nodes: nodes
         )
 
-        coordinator.didFinish = { [weak self] editCustomListCoordinator, list in
+        coordinator.didFinish = { [weak self] editCustomListCoordinator, _ in
             editCustomListCoordinator.dismiss(animated: true)
             self?.selectLocationViewModel?.customListsChanged()
         }
