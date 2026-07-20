@@ -3,12 +3,13 @@
 use super::{Error, Result};
 use crate::{CloseMsg, config::Config};
 #[cfg(target_os = "android")]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use std::{
     iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::mpsc as sync_mpsc,
+    sync::{Arc, mpsc as sync_mpsc},
 };
+use talpid_net::bypass::{BypassToken, SocketBypass};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
@@ -17,8 +18,8 @@ use talpid_types::{
 };
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, lwo, multiplexer, quic, shadowsocks,
-    udp2tcp,
+    Settings as ObfuscationSettings, create_obfuscator_with_bypass, lwo, multiplexer, quic,
+    shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -56,14 +57,20 @@ pub async fn apply_obfuscation_config(
 
     log::trace!("Obfuscation settings: {settings:?}");
 
-    let obfuscator = create_obfuscator(&settings)
+    let bypass = Arc::new(ObfuscatorSocketBypass {
+        #[cfg(target_os = "linux")]
+        // TODO: why is this optional?
+        fwmark: config.fwmark.expect("fwmark must be set"),
+
+        #[cfg(target_os = "android")]
+        tun_provider,
+    });
+
+    let obfuscator = create_obfuscator_with_bypass(bypass, &settings)
         .await
         .map_err(Error::ObfuscationError)?;
 
     let packet_overhead = obfuscator.packet_overhead();
-
-    #[cfg(target_os = "android")]
-    bypass_vpn(tun_provider, obfuscator.remote_socket_fd()).await;
 
     patch_endpoint(config, obfuscator.endpoint());
 
@@ -197,22 +204,6 @@ fn settings_from_single_config(
     }
 }
 
-/// Route socket outside of the VPN on Android
-#[cfg(target_os = "android")]
-async fn bypass_vpn(
-    tun_provider: Arc<Mutex<TunProvider>>,
-    remote_socket_fd: std::os::unix::io::RawFd,
-) {
-    // Exclude remote obfuscation socket or bridge
-    log::debug!("Excluding remote socket fd from the tunnel");
-    let _ = tokio::task::spawn_blocking(move || {
-        if let Err(error) = tun_provider.lock().unwrap().bypass(&remote_socket_fd) {
-            log::error!("Failed to exclude remote socket fd: {error}");
-        }
-    })
-    .await;
-}
-
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
@@ -232,5 +223,48 @@ impl ObfuscatorHandle {
 impl Drop for ObfuscatorHandle {
     fn drop(&mut self) {
         self.obfuscation_task.abort();
+    }
+}
+
+struct ObfuscatorSocketBypass {
+    #[cfg(target_os = "linux")]
+    fwmark: u32,
+
+    #[cfg(target_os = "android")]
+    tun_provider: Arc<Mutex<TunProvider>>,
+}
+
+impl SocketBypass for ObfuscatorSocketBypass {
+    #[cfg_attr(any(windows, target_os = "macos"), expect(unused_variables))]
+    fn bypass_socket(
+        &self,
+        socket: socket2::SockRef<'_>,
+        _token: &BypassToken,
+    ) -> std::io::Result<()> {
+        #[cfg(target_os = "linux")]
+        socket.set_mark(self.fwmark)?;
+
+        #[cfg(target_os = "android")]
+        {
+            use std::os::unix::io::AsRawFd;
+
+            self.tun_provider
+                .lock()
+                .unwrap()
+                .bypass(&socket.as_raw_fd())
+                .map_err(std::io::Error::other)?;
+        }
+
+        // TODO: Implement for macOS and Windows
+
+        Ok(())
+    }
+
+    fn revoke_bypass(
+        &self,
+        _socket: socket2::SockRef<'_>,
+        _token: &BypassToken,
+    ) -> std::io::Result<()> {
+        Ok(())
     }
 }
