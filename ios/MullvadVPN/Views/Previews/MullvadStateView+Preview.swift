@@ -17,7 +17,7 @@ struct MullvadStateViewPreviewWrapper: View {
 
     init() {
         let actionButton = MullvadStateView.ActionItem(
-            style: .default,
+            style: .primary,
             state: .init(kind: .idle, message: "Stop loading")
         )
 
@@ -90,7 +90,7 @@ struct MullvadStateViewPreviewWrapper: View {
                     MullvadStateView.TextItem(text: Self.p1, style: .secondary(alignment: .center))
                 ],
                 actions: [
-                    MullvadStateView.ActionItem(style: .default, state: .init(kind: .idle, message: "Action"))
+                    MullvadStateView.ActionItem(style: .primary, state: .init(kind: .idle, message: "Action"))
                 ]
             )
         )

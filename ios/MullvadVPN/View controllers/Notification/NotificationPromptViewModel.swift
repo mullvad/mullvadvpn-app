@@ -24,7 +24,7 @@ enum NotificationPromptViewRowType: Identifiable {
     case message(LocalizedStringKey, font: Font)
     case action(
         text: LocalizedStringKey,
-        style: MainButtonStyle.Style,
+        style: MullvadButton.Style,
         accessibilityIdentifier: AccessibilityIdentifier,
         action: () -> Void)
     case emptyView
@@ -76,7 +76,7 @@ final class NotificationPromptViewModel: NotificationPromptViewModelProtocol {
                 }),
             .action(
                 text: "Skip",
-                style: .default,
+                style: .primary,
                 accessibilityIdentifier: .notificationPromptSkipButton,
                 action: { [weak self] in
                     self?.isSkipped = true

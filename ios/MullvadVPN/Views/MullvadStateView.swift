@@ -244,7 +244,7 @@ extension MullvadStateView {
     final class ActionItem: ObservableObject, Identifiable {
         let id = UUID()
         @Published var state: ActionState
-        let style: MainButtonStyle.Style
+        let style: MullvadButton.Style
         var onTap: (() -> Void)
 
         var displayedTitle: String {
@@ -268,7 +268,7 @@ extension MullvadStateView {
         }
 
         init(
-            style: MainButtonStyle.Style,
+            style: MullvadButton.Style,
             state: ActionState,
             onTap: @escaping (() -> Void) = {}
         ) {
@@ -286,11 +286,10 @@ private struct ActionButton: View {
     @ScaledMetric private var baseSize: CGFloat = 24.0
 
     var body: some View {
-        MainButton(
+        MullvadButton(
             text: "\(action.displayedTitle)",
             style: action.style,
-            image: action.state.kind.icon,
-            imagePosition: .leading
+            leadingAccessory: action.state.kind.icon.map { .icon($0) }
         ) {
             action.onTap()
         }
