@@ -693,7 +693,7 @@ mod test {
                   "enable_ipv6": true
                 }
               },
-              "settings_version": 8,
+              "settings_version": 18,
               "show_beta_releases": false,
               "custom_lists": {
                 "custom_lists": []
@@ -702,8 +702,10 @@ mod test {
                 {
                   "Multihop": {
                     "entry": {
-                      "location": {
-                        "country": "se"
+                      "only": {
+                        "location": {
+                          "country": "se"
+                        }
                       }
                     },
                     "exit": {
@@ -727,7 +729,6 @@ mod test {
               ]
             }"#;
 
-        // TODO: This is failing since we changed the format of recents. We must implement a migration for that.
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
     }
 
