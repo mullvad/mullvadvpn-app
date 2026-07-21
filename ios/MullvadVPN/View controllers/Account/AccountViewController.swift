@@ -267,11 +267,11 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         sheetController.addAction(
             UIAlertAction(
-                title: "Finish unfinished sandbox purchases",
+                title: "Finish unfinished purchases",
                 style: .default,
                 handler: { _ in
                     Task {
-                        await StorePaymentManager.finishOutstandingSandboxAndOldAPITransactions()
+                        await StorePaymentManager.cleanupUnfinishedTransactions()
                     }
                 }
             )
