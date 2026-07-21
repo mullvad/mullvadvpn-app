@@ -24,13 +24,6 @@ class PaymentPage: Page {
         return self
     }
 
-    @discardableResult func finishUnfinishedSandboxPurchases() -> Self {
-        app.buttons[.debugOptionsButton].tapWhenHittable()
-        app.buttons["Finish unfinished sandbox purchases"].tapWhenHittable()
-
-        return self
-    }
-
     @discardableResult func tapAdd30DaysTimeSheetButton() -> Self {
         // Adding accessibility identifier to the button inside the product sheet would to duplicate
         // button entries, which in turn led to tapping here not working reliably. Using the title
@@ -82,7 +75,7 @@ class PaymentPage: Page {
     // MARK: Springboard functions
 
     @discardableResult func submitSubscribeSheet() -> Self {
-        springboard.buttons["Subscribe"].tapWhenHittable()
+        springboard.buttons["Subscribe"].tapWhenHittable(timeout: .veryLong)
 
         return self
     }
@@ -92,31 +85,39 @@ class PaymentPage: Page {
         password: String
     ) -> Self {
         let usernameTextField = springboard.textFields.firstMatch
+        let passwordTextField = springboard.secureTextFields.firstMatch
         if usernameTextField.existsAfterWait(), usernameTextField.isEnabled {
             usernameTextField.tap()
-            springboard.typeText(username)
+            usernameTextField.typeText(username)
         }
 
-        springboard.secureTextFields.firstMatch.tapWhenHittable()
-        springboard.typeText(password)
+        passwordTextField.tapWhenHittable()
+        passwordTextField.typeText(password)
 
         return self
     }
 
     @discardableResult func submitConfirmAccountSheet() -> Self {
-        springboard.buttons["Confirm"].tapWhenHittable()
-
+        let signInButton = springboard.buttons["Sign In"]
+        let confirmButton = springboard.buttons["Confirm"]
+        if signInButton.exists && signInButton.isHittable {
+            signInButton.tap()
+            return self
+        } else if confirmButton.exists && confirmButton.isHittable {
+            confirmButton.tap()
+            return self
+        }
         return self
     }
 
     @discardableResult func submitRenewSubscriptionSheet() -> Self {
-        springboard.buttons["Buy"].tapWhenHittable(timeout: .long)
+        springboard.buttons["Buy"].tapWhenHittable(timeout: .veryLong)
 
         return self
     }
 
     @discardableResult func submitPurchaseFinishedAlert() -> Self {
-        springboard.buttons["OK"].tapWhenHittable()
+        springboard.buttons["OK"].tapWhenHittable(timeout: .veryLong)
 
         return self
     }
