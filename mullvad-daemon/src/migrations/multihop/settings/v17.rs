@@ -270,6 +270,18 @@ pub struct __DaitaSettings {
     pub use_multihop_if_necessary: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum __Recent {
+    Singlehop(__LocationConstraint),
+    Multihop(__MultihopRecent),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct __MultihopRecent {
+    pub entry: __LocationConstraint, // OLD format: bare LocationConstraint
+    pub exit: __LocationConstraint,
+}
+
 /// Helper for mocking different test-cases.
 #[derive(Debug, Default)]
 #[cfg(test)]

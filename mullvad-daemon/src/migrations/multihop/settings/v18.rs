@@ -123,3 +123,31 @@ impl __WireguardSettings {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum __Recent {
+    Singlehop(__LocationConstraint),
+    Multihop(__MultihopRecent),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct __MultihopRecent {
+    pub entry: __Constraint<__LocationConstraint>, // NEW format: wrapped in Constraint
+    pub exit: __LocationConstraint,
+}
+
+impl From<v17::__Recent> for __Recent {
+    fn from(value: v17::__Recent) -> Self {
+        match value {
+            v17::__Recent::Singlehop(__location_constraint) => {
+                Self::Singlehop(__location_constraint)
+            }
+            v17::__Recent::Multihop(v17::__MultihopRecent { entry, exit }) => {
+                Self::Multihop(__MultihopRecent {
+                    entry: __Constraint::Only(entry),
+                    exit,
+                })
+            }
+        }
+    }
+}
