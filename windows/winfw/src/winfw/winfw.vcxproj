@@ -219,6 +219,9 @@
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
@@ -243,6 +246,9 @@ cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)la
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
@@ -267,6 +273,9 @@ cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)la
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
@@ -296,6 +305,9 @@ cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)la
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
@@ -325,6 +337,9 @@ cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)la
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
@@ -354,6 +369,9 @@ cargo run -q -p talpid-types --bin generate-cpp-lannetworks &gt; $(ProjectDir)la
       <AdditionalDependencies>libwfp.lib;libcommon.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Platform)-$(Configuration)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>winfw.def</ModuleDefinitionFile>
+      <!-- /Brepro gives a hash-based PE TimeDateStamp instead of the link time.
+           Required for reproducible builds. -->
+      <AdditionalOptions>/Brepro %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
       <Command>cargo run -q --bin mullvad-version version.h &gt; $(ProjectDir)..\..\..\version.h
