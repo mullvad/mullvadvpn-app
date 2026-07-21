@@ -15,8 +15,6 @@ ndk = "27.3.13750724"
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 android-gradle-aapt = "15009934"
-# This can not be updated to 9.3.0 due to fdroid server issue.
-# See DROID-2798
 android-gradle-plugin = "9.2.1"
 # Other
 android-billingclient = "9.1.0"
