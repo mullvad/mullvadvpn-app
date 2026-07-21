@@ -6,6 +6,7 @@ import Testing
 @testable import MullvadSettings
 @testable import MullvadTypes
 
+@MainActor
 struct CustomListInteractorTests {
     let store = InMemorySettingsStore<SettingNotFound>()
 

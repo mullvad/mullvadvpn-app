@@ -5,7 +5,7 @@ import MullvadTypes
 import SwiftUI
 
 @MainActor
-protocol SelectLocationViewModel: ObservableObject {
+protocol SelectLocationViewModel: ObservableObject, CustomListInteractorProtocol {
     var exitContext: LocationContext { get set }
     var entryContext: LocationContext { get set }
     var multihopContext: MultihopContext { get set }
@@ -20,7 +20,6 @@ protocol SelectLocationViewModel: ObservableObject {
     func customListsChanged()
     func addLocationToCustomList(location: LocationNode, customListName: String)
     func removeLocationFromCustomList(location: LocationNode, customListName: String)
-    func deleteCustomList(name: String)
     func showEditCustomList(name: String)
     func didFinish()
     func showDaitaSettings()
@@ -274,13 +273,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         }
     }
 
-    func deleteCustomList(name: String) {
-        guard let customList = customListInteractor.fetchAll().first(where: { $0.name == name }) else {
-            return
-        }
-        customListInteractor.delete(customList: customList)
-        recentsInteractor.cleanup(customList.id)
-        customListsChanged()
+    func fetchAllCustomLists() -> [CustomList] {
+        customListInteractor.fetchAll()
     }
 
     func showEditCustomList(name: String) {
@@ -318,6 +312,38 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         customListsChanged()
     }
 
+    // MARK: - CustomListInteractorProtocol
+    func fetch(by id: UUID) -> CustomList? {
+        customListInteractor.fetch(by: id)
+    }
+
+    func fetchAll() -> [CustomList] {
+        customListInteractor.fetchAll()
+    }
+
+    func save(list: CustomList) throws {
+        try customListInteractor.save(list: list)
+        customListsChanged()
+    }
+
+    func delete(customList: CustomList) {
+        customListInteractor.delete(customList: customList)
+        recentsInteractor.cleanup(customList.id)
+        customListsChanged()
+    }
+
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.addLocationToCustomList(relayLocations: relayLocations, customListName: customListName)
+        customListsChanged()
+    }
+
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+        try customListInteractor.removeLocationFromCustomList(
+            relayLocations: relayLocations, customListName: customListName)
+        customListsChanged()
+    }
+
+    //MARK: -
     func customListsChanged() {
         refreshCustomLists()
         refreshRecents()

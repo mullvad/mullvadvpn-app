@@ -28,7 +28,7 @@ extension ExitLocationView {
                                     type: .danger,
                                     title: "Delete list",
                                     handler: {
-                                        viewModel.deleteCustomList(name: location.name)
+                                        viewModel.delete(customList: location.customList)
                                         alert = nil
                                     }
                                 ),

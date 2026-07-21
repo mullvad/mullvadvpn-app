@@ -11,6 +11,12 @@ import MullvadSettings
 import Routing
 import UIKit
 
+enum CustomListAction {
+    case didSave(CustomList)
+    case didDelete(CustomList)
+    case noAction
+}
+
 class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     let navigationController: UINavigationController
     let customListInteractor: CustomListInteractorProtocol
@@ -25,14 +31,14 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: ((EditCustomListCoordinator, CustomList) -> Void)?
+    var didFinish: ((EditCustomListCoordinator, CustomListAction) -> Void)?
     var didCancel: ((EditCustomListCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
         customListInteractor: CustomListInteractorProtocol,
         customList: CustomList,
-        nodes: [LocationNode]
+        nodes: [LocationNode],
     ) {
         self.navigationController = navigationController
         self.customListInteractor = customListInteractor
@@ -118,11 +124,11 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
 
 extension EditCustomListCoordinator: @preconcurrency CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
-        didFinish?(self, list)
+        didFinish?(self, .didSave(list))
     }
 
     func customListDidDelete(_ list: CustomList) {
-        didFinish?(self, list)
+        didFinish?(self, .didDelete(list))
     }
 
     func showLocations(_ list: CustomList) {
