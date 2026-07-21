@@ -76,6 +76,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Plug hole in Custom DNS firewall rules for LAN resolvers.
 
+#### macOS
+- Fix local privilege escalation attack in the uninstall script. This could be used by admin users
+  to obtain root privileges during uninstall.
+
 
 ## [2026.3] - 2026-06-15
 This release is identical to 2026.3-beta3.
