@@ -1,11 +1,22 @@
+# The /Brepro link arg below replaces the PE TimeDateStamp (normally the link time)
+# with a hash of the linker inputs. Required for reproducible builds.
 [target.x86_64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+]
 
 [target.i686-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+]
 
 [target.aarch64-pc-windows-msvc]
-rustflags = ["-Ctarget-feature=+crt-static"]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+]
 
 [target.x86_64-unknown-linux-gnu.mnl]
 rustc-link-lib = ["mnl"]

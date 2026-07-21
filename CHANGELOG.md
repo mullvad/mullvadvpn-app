@@ -46,6 +46,8 @@ Line wrap the file at 100 chars.                                              Th
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
 - Switch winreg out for windows_registry.
+- Make the timestamps embedded in the Rust Windows binaries + winfw.dll deterministic.
+  Required for reproducible builds.
 
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
