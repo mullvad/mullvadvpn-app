@@ -75,6 +75,7 @@
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870842D809C980038972F /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
+		440DA5C5300540F60057069A /* MullvadButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440DA5C4300540F10057069A /* MullvadButton.swift */; };
 		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
 		4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8A2D2826E5001B13C9 /* DetailsView.swift */; };
@@ -123,6 +124,7 @@
 		44A515302FF2C68D00FFFB82 /* TopSlideTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A5152F2FF2C68800FFFB82 /* TopSlideTransition.swift */; };
 		44A515312FF2C68D00FFFB82 /* TopSlideTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A5152F2FF2C68800FFFB82 /* TopSlideTransition.swift */; };
 		44A6D4382F50AB960085A50A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
+		44AFC7BF3007E4D6001C905F /* MullvadButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */; };
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
 		44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */; };
 		44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */; };
@@ -1825,6 +1827,7 @@
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
+		440DA5C4300540F10057069A /* MullvadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButton.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
 		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
 		4419AA8A2D2826E5001B13C9 /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
@@ -1851,6 +1854,7 @@
 		449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMock.swift; sourceTree = "<group>"; };
 		449EBA252B975B9700DFA4EB /* EphemeralPeerReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiving.swift; sourceTree = "<group>"; };
 		44A5152F2FF2C68800FFFB82 /* TopSlideTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSlideTransition.swift; sourceTree = "<group>"; };
+		44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButtonStyle.swift; sourceTree = "<group>"; };
 		44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducer.swift; sourceTree = "<group>"; };
 		44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducerTests.swift; sourceTree = "<group>"; };
@@ -3639,6 +3643,8 @@
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
+				440DA5C4300540F10057069A /* MullvadButton.swift */,
+				44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */,
 				F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */,
 				F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */,
 				F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */,
@@ -6854,6 +6860,7 @@
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
+				440DA5C5300540F60057069A /* MullvadButton.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
 				F91B94A72DC9EB5E00132C28 /* MullvadInfoView.swift in Sources */,
@@ -7067,6 +7074,7 @@
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,
+				44AFC7BF3007E4D6001C905F /* MullvadButtonStyle.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
 				F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */,
 				586C0D782B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift in Sources */,
