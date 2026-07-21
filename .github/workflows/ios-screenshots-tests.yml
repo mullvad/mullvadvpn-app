@@ -44,7 +44,6 @@ jobs:
 
       - name: Install zip
         run: |
-          brew update
           brew install zip
 
       - name: Run screenshot tests
