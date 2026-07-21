@@ -143,6 +143,7 @@ function build_nsis_plugins {
 function clean_all {
     cargo clean -p mullvad-nsis
 
+    clean_solution "./windows/winfw"
     clean_solution "./windows/libshared"
     clean_solution "./windows/windows-libraries"
     clean_solution "./windows/libwfp"
