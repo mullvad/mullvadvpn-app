@@ -825,6 +825,7 @@
 		A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */; };
 		A91EBEDA2C1337040004A84D /* RetryStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91EBED92C1337040004A84D /* RetryStrategyTests.swift */; };
 		A92721DC300A1FB30094B2DA /* SettingsVPNSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DB300A1FB30094B2DA /* SettingsVPNSettingsView.swift */; };
+		A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */; };
 		A93181A12B727ED700E341D2 /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
@@ -2519,6 +2520,7 @@
 		A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCacheCleanerTests.swift; sourceTree = "<group>"; };
 		A91EBED92C1337040004A84D /* RetryStrategyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategyTests.swift; sourceTree = "<group>"; };
 		A92721DB300A1FB30094B2DA /* SettingsVPNSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsVPNSettingsView.swift; sourceTree = "<group>"; };
+		A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipView.swift; sourceTree = "<group>"; };
 		A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A92ECC202A77FFAF0052F1B1 /* TunnelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettings.swift; sourceTree = "<group>"; };
 		A92ECC232A7802520052F1B1 /* StoredAccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredAccountData.swift; sourceTree = "<group>"; };
@@ -4464,6 +4466,7 @@
 				7A5869A92B55516700640D27 /* IPOverride */,
 				7A8A18F72CE34E8F000BCB5B /* Multihop */,
 				7A8A18FE2CE4C7FA000BCB5B /* Views */,
+				A92721DD300F5C7D0094B2DA /* AntiCensorshipView.swift */,
 				7A95A9E62FADC1670096009A /* BlockedStateString.swift */,
 				F0AC64412F3B51BB0024427C /* NotificationSettingsCoordinator.swift */,
 				58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */,
@@ -4473,8 +4476,8 @@
 				F095809A2FADEE6D00A55BD4 /* SettingsMigrationWizard */,
 				7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */,
 				7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */,
-				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
 				A92721DB300A1FB30094B2DA /* SettingsVPNSettingsView.swift */,
+				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -6849,6 +6852,7 @@
 				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
+				A92721DE300F5C7D0094B2DA /* AntiCensorshipView.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				440DA5C5300540F60057069A /* MullvadButton.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,

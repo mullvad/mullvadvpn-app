@@ -79,6 +79,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         )
     }
 
+    // MARK: - DNS and IP Settings
     func DNSandIPSettingsView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
@@ -117,6 +118,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         }
     }
 
+    // MARK: - Anti censorship
     func antiCensorshipView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
@@ -132,7 +134,10 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                                 for: .generic(title: censorshipSettings.first!.label))
                         },
                         trailing: {
-                            itemFactory.trailing(for: .drillDown(title: "Automatic"))
+                            itemFactory.trailing(for: .drillDown(title: viewModel.obfuscationState.description))
+                        },
+                        onSelect: {
+
                         }
                     )
                 },
@@ -150,7 +155,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                                     .button(
                                         icon: .info,
                                         onSelect: {
-                                            print("hello")
+                                            alert = getQuantumResistanceAlert(completion: { alert = nil })
                                         },
                                         sizing: .button
                                     ),
@@ -163,6 +168,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                             )
                         }
                     )
+                    .mullvadAlert(item: $alert)
                 }
             )
             .padding(.leading, UIMetrics.contentInsets.left)
@@ -170,6 +176,21 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
         }
     }
 
+    func getQuantumResistanceAlert(completion: @escaping () -> Void) -> MullvadAlert {
+        MullvadAlert(
+            type: .info,
+            messages: [
+                "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.",
+                """
+                It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.
+                """,
+            ], customView: nil,
+            actions: [
+                MullvadAlert.Action(type: .default, title: "Got it!", handler: completion)
+            ])
+    }
+
+    // MARK: - IP version
     func IPVersionSelectionView() -> some View {
         ForEach(Array(IPOptions.enumerated()), id: \.element.id) { index, option in
             SegmentedListItem(
@@ -241,3 +262,11 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
 #Preview {
     SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub())
 }
+
+//
+//#Preview("With obfuscation") {
+//    SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub(tunnelSettings: LatestTunnelSettings(
+//        wireGuardObfuscation: WireGuardObfuscationSettings(
+//            state: .lwo,
+//    ))))
+//}
