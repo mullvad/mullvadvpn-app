@@ -36,7 +36,7 @@ final actor StorePaymentManager: @unchecked Sendable {
             // Always clean up non-production transactions immediately. Reason for this is that if there
             // are any old unfinished sandbox transactions that has spilled over from TestFlight, they
             // will clog up the pipeline since they can never be finished or removed in production.
-            await Self.finishOutstandingSandboxAndOldAPITransactions()
+            await Self.cleanupUnfinishedTransactions()
         #endif
 
         _ = try? await processOutstandingTransactions()
