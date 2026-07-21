@@ -6,7 +6,7 @@ description = "Mullvad VPN daemon. Runs and controls the VPN tunnels"
 repository.workspace = true
 license.workspace = true
 
-[package.metadata.winres]
+[package.metadata.winresource]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2026 Mullvad VPN AB"
@@ -170,7 +170,7 @@ features = [
 
 [target."cfg(windows)".build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
-winres = "0.1"
+winresource.workspace = true
 
 [target."cfg(windows)".build-dependencies.windows-sys]
 workspace = true

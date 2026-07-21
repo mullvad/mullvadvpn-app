@@ -6,7 +6,7 @@ description = "Pack the Mullvad VPN installer for several platforms into a one e
 repository.workspace = true
 license.workspace = true
 
-[package.metadata.winres]
+[package.metadata.winresource]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2026 Mullvad VPN AB"
@@ -21,7 +21,7 @@ windows-sys = { version = "0.52.0", features = [
   "Win32_System_LibraryLoader",
   "Win32_System_SystemServices"
 ] }
-winres = "0.1"
+winresource.workspace = true
 
 [target.'cfg(all(target_os = "windows", target_arch = "x86_64"))'.dependencies]
 anyhow.workspace = true
