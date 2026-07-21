@@ -3,10 +3,12 @@
 set -ue
 
 ASSUMEYES="n"
+FROMDAEMON="n"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --yes) ASSUMEYES="y";;
+        --from-daemon) FROMDAEMON="y";;
         *)
             echo "Unknown parameter: $1"
             exit 1
@@ -31,9 +33,12 @@ DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 sudo launchctl unload -w "$DAEMON_PLIST_PATH"
 sudo rm -f "$DAEMON_PLIST_PATH"
 
-echo "Resetting firewall"
-sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
-sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device || echo "Failed to remove device from account"
+if [[ $FROMDAEMON == "n" ]]; then
+    echo "Resetting firewall"
+    sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
+    echo "Removing device from account"
+    sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-device || echo "Failed to remove device from account"
+fi
 
 echo "Removing zsh shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad

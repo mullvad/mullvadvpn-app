@@ -154,6 +154,12 @@ pub async fn handle_app_bundle_removal(
         .arg(UNINSTALL_SCRIPT_PATH)
         // Don't prompt for confirmation.
         .arg("--yes")
+        // Skip device/firewall cleanup.
+        //
+        // It is important that we do not invoke mullvad-setup or anything else in
+        // /Applications/Mullvad VPN.app, as admin users can use that for privilege escalation to
+        // root.
+        .arg("--from-daemon")
         // Spawn as its own process group.
         // This prevents the command from being killed when the daemon is killed.
         .process_group(0)
