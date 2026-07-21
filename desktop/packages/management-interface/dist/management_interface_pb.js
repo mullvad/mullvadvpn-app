@@ -21,14 +21,14 @@ var global = (function() {
   return Function('return this')();
 }.call(null));
 
-var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js');
-goog.object.extend(proto, google_protobuf_duration_pb);
 var google_protobuf_empty_pb = require('google-protobuf/google/protobuf/empty_pb.js');
 goog.object.extend(proto, google_protobuf_empty_pb);
 var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
 goog.object.extend(proto, google_protobuf_timestamp_pb);
 var google_protobuf_wrappers_pb = require('google-protobuf/google/protobuf/wrappers_pb.js');
 goog.object.extend(proto, google_protobuf_wrappers_pb);
+var google_protobuf_duration_pb = require('google-protobuf/google/protobuf/duration_pb.js');
+goog.object.extend(proto, google_protobuf_duration_pb);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod.AccessMethodCase', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.AccessMethod.Bridges', null, global);
