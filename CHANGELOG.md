@@ -48,6 +48,8 @@ Line wrap the file at 100 chars.                                              Th
 - Switch winreg out for windows_registry.
 - Make the timestamps embedded in the Windows binaries deterministic. Required for reproducible
   builds.
+- Stop embedding absolute build machine PDB paths in the Windows binaries. Required for
+  reproducible builds.
 
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
