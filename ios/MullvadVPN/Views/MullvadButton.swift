@@ -85,12 +85,12 @@ struct MullvadButton: View {
                     }
                     HStack {
                         if let leadingAccessory {
-                            accessory(leadingAccessory)
+                            accessory(leadingAccessory, position: .leading)
                                 .sizeOfView { leadingAccessorySize = $0 }
                         }
                         Spacer()
                         if let trailingAccessory {
-                            accessory(trailingAccessory)
+                            accessory(trailingAccessory, position: .trailing)
                                 .sizeOfView { trailingAccessorySize = $0 }
                         }
                     }
@@ -104,7 +104,7 @@ struct MullvadButton: View {
     }
 
     @ViewBuilder
-    func accessory(_ accessory: Accessory) -> some View {
+    func accessory(_ accessory: Accessory, position: TextAlignment) -> some View {
         switch accessory {
         case .icon(let image):
             image
@@ -133,6 +133,18 @@ struct MullvadButton: View {
             .ifLet(accessibilityHint) { $0.accessibilityHint($1) }
             .ifLet(accessibilityId) { $0.accessibilityIdentifier($1.asString) }
             .buttonStyle(MullvadButton.ButtonStyle(style: style, isAccessory: true))
+            .overlay {
+                HStack {
+                    if position == .trailing {
+                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                    }
+                    Spacer()
+                    if position == .leading {
+                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                    }
+                }
+
+            }
         case .progress(let show):
             ProgressView()
                 .progressViewStyle(MullvadProgressViewStyle())
@@ -150,9 +162,11 @@ private struct ModularButtonPreview: View {
     @State var isProcessing: Bool = false
     var body: some View {
         VStack {
+            MullvadButton(text: "Primary", style: .primary) {}
+            MullvadButton(
+                text: "Primary", style: .primary, leadingAccessory: .button(.iconAdd, { print("+") }), action: {})
             MullvadButton(
                 text: "Primary", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {})
-            MullvadButton(text: "Primary", style: .primary) {}
             MullvadButton(text: "Secondary", style: .secondary) {}
             MullvadButton(text: "Connect", style: .success) {}
             MullvadButton(
