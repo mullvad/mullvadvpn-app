@@ -102,7 +102,7 @@ impl From<__Settings> for RelayQuery {
 
 impl __Settings {
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
-    pub fn check_magic_mulithop(
+    pub fn check_magic_multihop(
         mut self,
         cache_dir: impl AsRef<Path>,
         resource_dir: impl AsRef<Path>,
