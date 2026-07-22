@@ -194,7 +194,7 @@ impl TryFrom<&RelaySettings> for Recent {
                                         "Multihop recent cannot have identical (country, city, host) triple.",
                                     );
                                 }
-                                Constraint::Any
+                                Constraint::Only(entry)
                             }
                         };
                         Recent::Multihop { entry, exit }
