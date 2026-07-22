@@ -18,7 +18,7 @@ struct DeviceManagementView: View {
         var actionButtonStyle: MullvadButton.Style {
             switch self {
             case .tooManyDevices:
-                .destructivePrimary
+                .destructive
             case .deviceManagement:
                 .primary
             }

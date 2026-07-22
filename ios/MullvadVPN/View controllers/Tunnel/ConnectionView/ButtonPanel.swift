@@ -61,7 +61,7 @@ extension ConnectionView {
             case .disconnect:
                 MullvadButton(
                     text: LocalizedStringKey("Disconnect"),
-                    style: .destructivePrimary,
+                    style: .destructive,
                     action: { action?(.disconnect) }
                 )
                 .accessibilityIdentifier(AccessibilityIdentifier.disconnectButton.asString)
@@ -72,7 +72,7 @@ extension ConnectionView {
                             ? "Disconnect"
                             : "Cancel"
                     ),
-                    style: .destructivePrimary,
+                    style: .destructive,
                     action: { action?(.cancel) }
                 )
                 .accessibilityIdentifier(
