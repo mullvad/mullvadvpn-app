@@ -8,7 +8,7 @@
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",
   "scripts": {
-    "cargo-build": "npm run build-typescript && cargo build",
+    "cargo-build": "npm run build-typescript && bash ../../../building/cargo-with-path-remapping.sh build",
     "build-debug": "npm run cargo-build && bash -c \"(test -d debug || mkdir debug) && cp ../../../target/debug/windows_utils.dll debug/index.node\"",
     "build-arm": "npm run cargo-build -- --release --target aarch64-pc-windows-msvc && bash -c \"(test -d dist || mkdir dist) && (test -d dist/win32-arm64-msvc || mkdir dist/win32-arm64-msvc) && cp ../../../target/aarch64-pc-windows-msvc/release/windows_utils.dll dist/win32-arm64-msvc/index.node\"",
     "build-typescript": "tsc",

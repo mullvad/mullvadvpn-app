@@ -190,6 +190,13 @@ Building this requires at least 1GB of memory.
 
 - `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
 
+## Notes on environment variables
+
+- `MULLVAD_DISABLE_PATH_REMAPPING` - Set to anything but `0` to stop the build from replacing the
+  machine specific file paths that rustc embeds in the binaries with fixed values. The replacement
+  is required for the build to be reproducible, but it prevents debuggers and backtraces from
+  locating the sources, so turn it off when debugging.
+
 ## Notes on targeting ARM64
 
 ### macOS

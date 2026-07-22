@@ -137,7 +137,12 @@ function get_solution_output_path {
 }
 
 function build_nsis_plugins {
-    cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis
+    # Shipped in the installer, so they need the same path remapping as the
+    # other Rust binaries.
+    local remap_path_prefix_arg
+    remap_path_prefix_arg=$("$SCRIPT_DIR/building/rustc-remap-path-prefix.sh")
+
+    cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis "$remap_path_prefix_arg"
 }
 
 function clean_all {
