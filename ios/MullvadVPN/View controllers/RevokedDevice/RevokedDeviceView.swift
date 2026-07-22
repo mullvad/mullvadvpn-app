@@ -42,7 +42,7 @@ struct RevokedDeviceView: View {
             }
             .scrollBounceBehavior(.automatic)
             MullvadButton(
-                text: "Go to login", style: viewModel.tunnelState.isSecured ? .destructiveSecondary : .primary
+                text: "Go to login", style: viewModel.tunnelState.isSecured ? .destructive : .primary
             ) {
                 onLogout?()
             }
