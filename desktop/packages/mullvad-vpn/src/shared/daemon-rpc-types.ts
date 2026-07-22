@@ -455,7 +455,7 @@ export type SinglehopRecentLocation = {
 
 export type MultihopRecentLocation = {
   type: 'multihop';
-  entry: RelayLocation;
+  entry: Constraint<RelayLocation>;
   exit: RelayLocation;
 };
 

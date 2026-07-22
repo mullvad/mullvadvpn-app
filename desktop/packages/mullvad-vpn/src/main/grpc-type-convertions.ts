@@ -468,8 +468,12 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
       const multihop = recent.getMultihop();
       const singlehop = recent.getSinglehop();
       if (multihop) {
-        const entry = convertFromLocationConstraint(multihop.getEntry());
         const exit = convertFromLocationConstraint(multihop.getExit());
+        const someLocation = convertFromLocationConstraint(multihop.getSome());
+        const entry: Constraint<RelayLocation> =
+          multihop.getEntryCase() === grpcTypes.MultihopRecent.EntryCase.SOME && someLocation
+            ? { only: someLocation }
+            : 'any';
         return {
           type: 'multihop',
           entry,
