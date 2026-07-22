@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import SwiftUI
 import UIKit
 
 class CustomDNSViewController: UITableViewController {
@@ -136,5 +137,21 @@ extension CustomDNSViewController: @preconcurrency DNSSettingsDataSourceDelegate
                 markdownString: item.description,
                 options: MarkdownStylingOptions(font: .preferredFont(forTextStyle: .body))
             ))
+    }
+}
+
+struct DNSView: UIViewControllerRepresentable {
+    typealias UIViewControllerType = CustomDNSViewController
+
+    let settingsInteractor: VPNSettingsInteractor
+    let alertPresenter: AlertPresenter
+
+    func makeUIViewController(context: Context) -> CustomDNSViewController {
+        CustomDNSViewController(interactor: settingsInteractor, alertPresenter: alertPresenter)
+    }
+
+    func updateUIViewController(_ uiViewController: CustomDNSViewController, context: Context) {
+        print(#function)
+        // No-op
     }
 }

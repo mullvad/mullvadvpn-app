@@ -20,6 +20,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
     private let itemFactory = SegmentedListItemFactory()
 
     @ObservedObject var viewModel: ViewModel
+    @Binding var path: NavigationPath
 
     @State var isExpanded: Bool = true
     @State private var alert: MullvadAlert?
@@ -96,6 +97,9 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                         },
                         trailing: {
                             itemFactory.trailing(for: .drillDown(title: ""))
+                        },
+                        onSelect: {
+                            path.append(SettingsDestinationView.dnsSettings)
                         }
                     )
                 },
@@ -109,6 +113,9 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                         },
                         trailing: {
                             itemFactory.trailing(for: .drillDown(title: ""))
+                        },
+                        onSelect: {
+                            path.append(SettingsDestinationView.serverIPOverride)
                         }
                     )
                 }
@@ -137,7 +144,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                             itemFactory.trailing(for: .drillDown(title: viewModel.obfuscationState.description))
                         },
                         onSelect: {
-
+                            path.append(SettingsDestinationView.antiCensorship)
                         }
                     )
                 },
@@ -260,7 +267,8 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
 }
 
 #Preview {
-    SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub())
+    @Previewable @State var path = NavigationPath()
+    SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub(), path: $path)
 }
 
 //

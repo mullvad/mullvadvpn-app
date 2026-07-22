@@ -10,6 +10,7 @@ import MullvadSettings
 import MullvadTypes
 import Routing
 import UIKit
+import SwiftUI
 
 enum VPNSettingsSection: Equatable {
     case quantumResistance
@@ -46,33 +47,25 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
-        let view = SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub())
+        let alertPresenter = AlertPresenter(context: self)
+        let view = VPNSettingsNavigationView(
+            settingsInteractor: interactorFactory.makeVPNSettingsInteractor(),
+            alertPresenter: alertPresenter
+        )
 
-        let host = UIHostingRootController(rootView: view)
+        let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString("VPN settings", comment: "")
         host.view.setAccessibilityIdentifier(.vpnSettingsTableView)
+        customiseNavigation(on: host)
 
         navigationController.pushViewController(host, animated: animated)
     }
 
-    //    func start(animated: Bool) {
-    //        let section: VPNSettingsSection? =
-    //            if case let .vpnSettings(route) = route { route } else {
-    //                nil
-    //            }
-    //        let controller = VPNSettingsViewController(
-    //            interactor: interactorFactory.makeVPNSettingsInteractor(),
-    //            alertPresenter: AlertPresenter(context: self),
-    //            section: section
-    //        )
-    //
-    //        controller.delegate = self
-    //        customiseNavigation(on: controller)
-    //        navigationController.pushViewController(controller, animated: animated)
-    //    }
-
     private func customiseNavigation(on viewController: UIViewController) {
         if case .vpnSettings = route {
+            navigationController.navigationItem.largeTitleDisplayMode = .always
+            navigationController.navigationBar.prefersLargeTitles = true
+
             let doneButton = UIBarButtonItem(
                 systemItem: .done,
                 primaryAction: UIAction(handler: { [weak self] _ in

@@ -10,10 +10,12 @@ import SwiftUI
 
 struct AntiCensorshipView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("Mullvad VPN")
+            .background(Color.mullvadBackground)
     }
 }
 
 #Preview {
     AntiCensorshipView()
+        .background(Color.mullvadBackground)
 }
