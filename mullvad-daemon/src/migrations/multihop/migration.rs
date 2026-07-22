@@ -142,15 +142,14 @@ fn daita_migration(settings: &mut Value) {
 }
 
 fn recents_migration(settings: &mut Value) {
-    let Some(recents_raw) = settings.get_mut("recents") else {
-        // `recents` may be absent in older settings files. Nothing to migrate.
-        return;
-    };
-    let recents: Option<Vec<v17::__Recent>> = serde_json::from_value(recents_raw.clone())
-        .expect("It should be safe to cast recents to v17::__Recent");
-    let recents_v18: Option<Vec<v18::__Recent>> =
-        recents.map(|r| r.into_iter().map(|r| r.into()).collect());
-    *recents_raw = json!(recents_v18);
+    if let Some(recents_raw) = settings.get_mut("recents")
+        && let Ok(recents) =
+            serde_json::from_value::<Option<Vec<v17::__Recent>>>(recents_raw.clone())
+    {
+        let recents_v18 =
+            recents.map(|r| r.into_iter().map(v18::__Recent::from).collect::<Vec<_>>());
+        *recents_raw = json!(recents_v18);
+    }
 }
 
 #[cfg(test)]
