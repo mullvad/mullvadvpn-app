@@ -26,7 +26,7 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     };
 
-    let mut res = winres::WindowsResource::new();
+    let mut res = winresource::WindowsResource::new();
     res.append_rc_content(&format!(
         r#"
 #define IDB_X64EXE {IDB_X64EXE}

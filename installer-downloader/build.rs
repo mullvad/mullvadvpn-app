@@ -12,7 +12,7 @@ fn main() -> anyhow::Result<()> {
 fn win_main() -> anyhow::Result<()> {
     use anyhow::Context;
 
-    let mut res = winres::WindowsResource::new();
+    let mut res = winresource::WindowsResource::new();
 
     res.set_language(make_lang_id(
         windows_sys::Win32::System::SystemServices::LANG_ENGLISH as u16,

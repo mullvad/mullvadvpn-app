@@ -11,7 +11,7 @@ fn main() {
 
     #[cfg(windows)]
     {
-        let mut res = winres::WindowsResource::new();
+        let mut res = winresource::WindowsResource::new();
         res.set("ProductVersion", mullvad_version::VERSION);
         res.set_icon("../dist-assets/icon.ico");
         res.set_language(make_lang_id(

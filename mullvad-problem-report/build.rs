@@ -6,7 +6,7 @@ fn make_lang_id(p: u16, s: u16) -> u16 {
 fn main() {
     #[cfg(windows)]
     {
-        let mut res = winres::WindowsResource::new();
+        let mut res = winresource::WindowsResource::new();
         res.set("ProductVersion", mullvad_version::VERSION);
         res.set_icon("../dist-assets/icon.ico");
         res.set_language(make_lang_id(

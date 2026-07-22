@@ -6,7 +6,7 @@ description = "Collect Mullvad VPN logs into a report and send it to support"
 repository.workspace = true
 license.workspace = true
 
-[package.metadata.winres]
+[package.metadata.winresource]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
 LegalCopyright = "(c) 2026 Mullvad VPN AB"
@@ -32,7 +32,7 @@ tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
-winres = "0.1"
+winresource.workspace = true
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
 workspace = true

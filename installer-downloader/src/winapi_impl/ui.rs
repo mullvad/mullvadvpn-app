@@ -147,7 +147,7 @@ impl AppWindow {
         nwg::EmbedResource::builder().build(&mut self.window_icon_res)?;
 
         // Load icon embedded using the build script. This has a default id of 1.
-        // See `winres::WindowsResource::set_icon`.
+        // See `winresource::WindowsResource::set_icon`.
         self.window_icon = self.window_icon_res.icon(1, None);
 
         nwg::Window::builder()

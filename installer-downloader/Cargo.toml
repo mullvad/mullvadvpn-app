@@ -8,7 +8,7 @@ repository.workspace = true
 license.workspace = true
 publish = false
 
-[package.metadata.winres]
+[package.metadata.winresource]
 LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
 [build-dependencies]
@@ -18,7 +18,7 @@ windows-sys = { workspace = true, features = [
   "Win32_System_LibraryLoader",
   "Win32_System_SystemServices"
 ] }
-winres = "0.1"
+winresource.workspace = true
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
