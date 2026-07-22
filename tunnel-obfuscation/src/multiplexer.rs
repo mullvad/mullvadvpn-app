@@ -65,6 +65,7 @@ pub struct Multiplexer {
     tasks: Vec<AbortOnDropHandle<()>>,
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
+    bypass: Arc<dyn SocketBypass>,
     _bypass_v4: BypassGuard,
     _bypass_v6: BypassGuard,
 }
@@ -99,6 +100,7 @@ impl Multiplexer {
             tasks: vec![],
             initial_packets_to_send: vec![],
             wg_addr: None,
+            bypass,
             _bypass_v4,
             _bypass_v6,
         })
@@ -316,7 +318,11 @@ impl Multiplexer {
                 Ok(addr)
             }
             Transport::Obfuscated(obfuscator_settings) => {
-                let obfuscator = crate::create_obfuscator(&obfuscator_settings).await?;
+                let obfuscator = crate::create_obfuscator_with_bypass(
+                    Arc::clone(&self.bypass),
+                    &obfuscator_settings,
+                )
+                .await?;
                 let endpoint = obfuscator.endpoint();
                 self.running_endpoints
                     .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
