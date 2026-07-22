@@ -7,7 +7,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
 };
-use talpid_net::bypass::{BypassedSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
@@ -26,7 +26,7 @@ pub enum Error {
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
-    _bypass: BypassedSocket,
+    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -121,7 +121,7 @@ impl Quic {
         // wanting to obfuscate traffic. It is solely used by the local proxy client to know
         // where the QUIC obfuscator is running.
         let quic_socket = create_remote_socket(settings.quic_endpoint.is_ipv4()).await?;
-        let _bypass = BypassedSocket::new(bypass, &quic_socket).map_err(crate::Error::Bypass)?;
+        let _bypass = BypassGuard::new(bypass, &quic_socket).map_err(crate::Error::Bypass)?;
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)

@@ -7,7 +7,7 @@ use std::{
 
 use async_trait::async_trait;
 use rand::RngCore;
-use talpid_net::bypass::{BypassedSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
@@ -45,13 +45,13 @@ pub struct Settings {
 pub struct Lwo {
     client: Client,
     local_endpoint: SocketAddr,
-    _bypass: BypassedSocket,
+    _bypass: BypassGuard,
 }
 
 impl Lwo {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let remote_socket = Arc::new(create_remote_socket(settings.server_addr.is_ipv4()).await?);
-        let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
+        let _bypass = BypassGuard::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
                 .await

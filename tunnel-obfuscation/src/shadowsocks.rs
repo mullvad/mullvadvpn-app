@@ -18,7 +18,7 @@ use shadowsocks::{
     },
 };
 use std::{io, net::SocketAddr, sync::Arc};
-use talpid_net::bypass::{BypassedSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::{net::UdpSocket, sync::oneshot};
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
@@ -50,7 +50,7 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
-    _bypass: BypassedSocket,
+    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -75,7 +75,7 @@ impl Shadowsocks {
 
         let remote_socket = create_remote_socket(settings.shadowsocks_endpoint.is_ipv4()).await?;
 
-        let _bypass = BypassedSocket::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
+        let _bypass = BypassGuard::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
 
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,

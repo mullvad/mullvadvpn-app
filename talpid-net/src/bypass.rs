@@ -2,7 +2,7 @@ use std::{io, sync::Arc};
 
 use socket2::SockRef;
 
-/// Guard against using [SocketBypass] without [BypassedSocket].
+/// Guard against using [SocketBypass] without [BypassGuard].
 pub struct BypassToken(());
 
 /// A trait for implementing socket bypass. This lets individual sockets be excluded (leak) from
@@ -37,26 +37,26 @@ impl SocketBypass for NoopBypass {
 /// There is no guarantee that dropping this will stop excluding the socket. The contract is
 /// that when this guard is dropped, there is no longer any guarantee that the socket will be
 /// excluded. Whether it is immediately un-excluded is implementation-dependent.
-pub struct BypassedSocket {
+pub struct BypassGuard {
     bypass: Arc<dyn SocketBypass>,
     socket: socket2::Socket,
 }
 
-impl BypassedSocket {
+impl BypassGuard {
     /// Begin excluding a socket `s` from tunnel traffic.
     pub fn new<'a, S: Into<SockRef<'a>>>(
         bypass: Arc<dyn SocketBypass>,
         s: S,
-    ) -> io::Result<BypassedSocket> {
+    ) -> io::Result<BypassGuard> {
         let socket = s.into().try_clone()?;
 
         bypass.bypass_socket(SockRef::from(&socket), &BypassToken(()))?;
 
-        Ok(BypassedSocket { bypass, socket })
+        Ok(BypassGuard { bypass, socket })
     }
 }
 
-impl Drop for BypassedSocket {
+impl Drop for BypassGuard {
     fn drop(&mut self) {
         if let Err(err) = self
             .bypass

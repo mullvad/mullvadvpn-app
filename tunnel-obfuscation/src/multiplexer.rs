@@ -29,7 +29,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use talpid_net::bypass::{BypassedSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::task::AbortOnDropHandle;
 
@@ -65,8 +65,8 @@ pub struct Multiplexer {
     tasks: Vec<AbortOnDropHandle<()>>,
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
-    _bypass_v4: BypassedSocket,
-    _bypass_v6: BypassedSocket,
+    _bypass_v4: BypassGuard,
+    _bypass_v6: BypassGuard,
 }
 
 impl Multiplexer {
@@ -88,10 +88,10 @@ impl Multiplexer {
 
         let proxy_socket_v4 = create_remote_socket(true).await?;
         let _bypass_v4 =
-            BypassedSocket::new(bypass.clone(), &proxy_socket_v4).map_err(crate::Error::Bypass)?;
+            BypassGuard::new(bypass.clone(), &proxy_socket_v4).map_err(crate::Error::Bypass)?;
         let proxy_socket_v6 = create_remote_socket(false).await?;
         let _bypass_v6 =
-            BypassedSocket::new(bypass.clone(), &proxy_socket_v6).map_err(crate::Error::Bypass)?;
+            BypassGuard::new(bypass.clone(), &proxy_socket_v6).map_err(crate::Error::Bypass)?;
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
