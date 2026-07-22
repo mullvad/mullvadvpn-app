@@ -120,8 +120,8 @@ impl Quic {
         // of the endpoint we're connecting to. The address itself is not important to consumers
         // wanting to obfuscate traffic. It is solely used by the local proxy client to know
         // where the QUIC obfuscator is running.
-        let quic_socket = create_remote_socket(settings.quic_endpoint.is_ipv4()).await?;
-        let _bypass = BypassGuard::new(bypass, &quic_socket).map_err(crate::Error::Bypass)?;
+        let (quic_socket, _bypass) =
+            create_remote_socket(&bypass, settings.quic_endpoint.is_ipv4()).await?;
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)

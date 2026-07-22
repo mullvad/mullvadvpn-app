@@ -50,8 +50,9 @@ pub struct Lwo {
 
 impl Lwo {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
-        let remote_socket = Arc::new(create_remote_socket(settings.server_addr.is_ipv4()).await?);
-        let _bypass = BypassGuard::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
+        let remote_socket = Arc::new(remote_socket);
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
                 .await

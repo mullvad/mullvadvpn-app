@@ -86,12 +86,8 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
 
-        let proxy_socket_v4 = create_remote_socket(true).await?;
-        let _bypass_v4 =
-            BypassGuard::new(bypass.clone(), &proxy_socket_v4).map_err(crate::Error::Bypass)?;
-        let proxy_socket_v6 = create_remote_socket(false).await?;
-        let _bypass_v6 =
-            BypassGuard::new(bypass.clone(), &proxy_socket_v6).map_err(crate::Error::Bypass)?;
+        let (proxy_socket_v4, _bypass_v4) = create_remote_socket(&bypass, true).await?;
+        let (proxy_socket_v6, _bypass_v6) = create_remote_socket(&bypass, false).await?;
 
         Ok(Self {
             client_socket: Arc::new(client_socket),

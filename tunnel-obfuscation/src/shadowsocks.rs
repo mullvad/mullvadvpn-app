@@ -73,9 +73,8 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let remote_socket = create_remote_socket(settings.shadowsocks_endpoint.is_ipv4()).await?;
-
-        let _bypass = BypassGuard::new(bypass, &remote_socket).map_err(crate::Error::Bypass)?;
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,
