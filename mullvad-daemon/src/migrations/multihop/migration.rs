@@ -18,7 +18,7 @@ pub(crate) fn run(
     // Parse the current settings blob to a structured format.
     let input = v17::__Settings::deserialize(settings.clone())
         .map_err(Error::Deserialize)?
-        .check_magic_mulithop(cache_dir, resource_dir)?;
+        .check_magic_multihop(cache_dir, resource_dir)?;
     // Detect which scenario the migration led to.
     let scenario = detect(&input);
     // Run the actual migration
