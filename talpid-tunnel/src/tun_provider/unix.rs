@@ -1,5 +1,6 @@
 use std::net::IpAddr;
 use std::os::fd::{AsRawFd, RawFd};
+#[cfg(target_os = "macos")]
 use std::process::Command;
 
 use std::ops::Deref;
@@ -7,6 +8,9 @@ use std::ops::Deref;
 use tun::{AbstractDevice, AsyncDevice};
 
 use crate::tun_provider::TunConfig;
+
+#[cfg(target_os = "linux")]
+mod netlink;
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -18,6 +22,21 @@ pub enum Error {
     /// Failed to set IPv6 address on tunnel device
     #[error("Failed to set IPv6 address")]
     SetIpv6(#[source] std::io::Error),
+
+    /// ifconfig returned an error while setting the IPv6 address on the tunnel device
+    #[cfg(target_os = "macos")]
+    #[error("Failed to set IPv6 address: ifconfig returned {status}: {stderr}")]
+    IfconfigFailed {
+        /// The status that ifconfig exited with.
+        status: std::process::ExitStatus,
+        /// Whatever ifconfig printed on stderr.
+        stderr: String,
+    },
+
+    /// Failed to get device index
+    #[cfg(target_os = "linux")]
+    #[error("Failed to get tunnel device index")]
+    GetDeviceIndex(#[source] tun::Error),
 
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
@@ -169,21 +188,26 @@ impl TunnelDevice {
             // only supports the `IpAddr::V4`.
             // On MacOs, `Device::set_address` panics if you pass it an `IpAddr::V6` value.
             // On Linux, `Device::set_address` throws an I/O error if you pass it an IPv6-address.
+            #[cfg(target_os = "macos")]
             IpAddr::V6(ipv6) => {
-                let ipv6 = ipv6.to_string();
                 let device = self.get_name()?;
                 // ifconfig <device> inet6 <ipv6 address> alias
-                #[cfg(target_os = "macos")]
-                Command::new("ifconfig")
-                    .args([&device, "inet6", &ipv6, "alias"])
+                let output = Command::new("ifconfig")
+                    .args([&device, "inet6", &ipv6.to_string(), "alias"])
                     .output()
                     .map_err(Error::SetIpv6)?;
-                // ip -6 addr add <ipv6 address> dev <device>
-                #[cfg(target_os = "linux")]
-                Command::new("ip")
-                    .args(["-6", "addr", "add", &ipv6, "dev", &device])
-                    .output()
-                    .map_err(Error::SetIpv6)?;
+                if !output.status.success() {
+                    return Err(Error::IfconfigFailed {
+                        status: output.status,
+                        stderr: String::from_utf8_lossy(&output.stderr).trim().to_string(),
+                    });
+                }
+            }
+
+            #[cfg(target_os = "linux")]
+            IpAddr::V6(ipv6) => {
+                let index = self.dev.tun_index().map_err(Error::GetDeviceIndex)?;
+                netlink::add_ipv6_address(index as u32, ipv6).map_err(Error::SetIpv6)?;
             }
         }
         Ok(())

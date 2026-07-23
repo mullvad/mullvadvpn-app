@@ -22,6 +22,12 @@ tun = { workspace = true }
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+netlink-packet-core.workspace = true
+netlink-packet-route.workspace = true
+netlink-sys.workspace = true
+rtnetlink.workspace = true
+
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
 
