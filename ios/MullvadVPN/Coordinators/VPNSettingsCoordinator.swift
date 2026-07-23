@@ -48,8 +48,10 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
 
     func start(animated: Bool) {
         let alertPresenter = AlertPresenter(context: self)
+
         let view = VPNSettingsNavigationView(
             settingsInteractor: interactorFactory.makeVPNSettingsInteractor(),
+            IPOverrideInteractor: interactorFactory.makeIPOverrideInteractor(),
             alertPresenter: alertPresenter
         )
 

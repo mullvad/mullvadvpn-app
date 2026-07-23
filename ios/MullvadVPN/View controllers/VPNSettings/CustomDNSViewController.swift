@@ -151,7 +151,6 @@ struct DNSView: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ uiViewController: CustomDNSViewController, context: Context) {
-        print(#function)
         // No-op
     }
 }

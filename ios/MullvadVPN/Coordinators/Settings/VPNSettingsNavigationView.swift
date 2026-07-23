@@ -10,6 +10,7 @@ import SwiftUI
 
 struct VPNSettingsNavigationView: View {
     let settingsInteractor: VPNSettingsInteractor
+    let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
     @State var navigationPath = NavigationPath()
 
@@ -32,7 +33,9 @@ struct VPNSettingsNavigationView: View {
         case .dnsSettings:
             DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
                 .navigationTitle("DNS Settings")
-        case .serverIPOverride: Text("Server IP Override")
+        case .serverIPOverride:
+            IPOverrideView(ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter)
+                .navigationTitle("Server IP override")
         }
     }
 }

@@ -9,6 +9,7 @@
 import Combine
 import MullvadSettings
 import UIKit
+import SwiftUI
 
 class IPOverrideViewController: UIViewController {
     private let interactor: IPOverrideInteractor
@@ -183,5 +184,19 @@ extension IPOverrideViewController: UIDocumentPickerDelegate {
                 scopedUrl.flatMap { self?.interactor.import(url: $0) }
             }
         }
+    }
+}
+
+struct IPOverrideView: UIViewControllerRepresentable {
+    typealias UIViewControllerType = IPOverrideViewController
+
+    let ipOverrideInteractor: IPOverrideInteractor
+    let alertPresenter: AlertPresenter
+    func makeUIViewController(context: Context) -> IPOverrideViewController {
+        IPOverrideViewController(interactor: ipOverrideInteractor, alertPresenter: alertPresenter)
+    }
+
+    func updateUIViewController(_ uiViewController: IPOverrideViewController, context: Context) {
+        // No-op
     }
 }
