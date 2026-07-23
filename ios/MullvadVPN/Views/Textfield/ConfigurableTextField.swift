@@ -317,6 +317,7 @@ extension ConfigurableTextField {
 
                         if index < suggestions.count - 1 {
                             Divider()
+                                .background(TextFieldMetrics.borderColor)
 
                         }
                     }

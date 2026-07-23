@@ -78,7 +78,6 @@ import SwiftUI
                 formatter: groupedTextFormatter,
                 autoComplete: ConfigurableTextFieldNamespace.AutoCompleteConfiguration(suggestions: [
                     groupedTextFormatter.format("1234567890012121"),
-                    groupedTextFormatter.format("1234567890012123"),
                 ]),
                 keyboardType: .numberPad),
             leadingView: {
