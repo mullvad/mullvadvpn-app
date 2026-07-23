@@ -53,8 +53,10 @@ pub async fn apply_obfuscation_config(
 
     let bypass = Arc::new(ObfuscatorSocketBypass {
         #[cfg(target_os = "linux")]
-        // TODO: why is this optional?
-        fwmark: config.fwmark.expect("fwmark must be set"),
+        fwmark: config.fwmark.unwrap_or_else(|| {
+            log::error!("'fwmark' not set");
+            0
+        }),
 
         #[cfg(target_os = "android")]
         tun_provider,
