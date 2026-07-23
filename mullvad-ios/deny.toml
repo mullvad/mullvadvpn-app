@@ -35,6 +35,7 @@ exceptions = [
   { crate = "mullvad-update", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-version", allow = ["GPL-3.0-or-later"] },
   { crate = "talpid-future", allow = ["GPL-3.0-or-later"] },
+  { crate = "talpid-net", allow = ["GPL-3.0-or-later"] },
   { crate = "talpid-routing", allow = ["GPL-3.0-or-later"] },
   { crate = "talpid-time", allow = ["GPL-3.0-or-later"] },
   { crate = "talpid-tunnel", allow = ["GPL-3.0-or-later"] },
