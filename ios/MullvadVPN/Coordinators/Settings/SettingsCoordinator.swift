@@ -223,7 +223,9 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         let presentation = AlertPresentation(
             id: "settings-disconnect-warning-alert",
             icon: .alert,
-            message: .Alerts.disconnectWarning(action: "changing", feature: "language", quoteFeature: false),
+            message: .Alerts.disconnectWarning(
+                action: NSLocalizedString("changing", comment: ""), feature: NSLocalizedString("language", comment: ""),
+                quoteFeature: false),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Cancel", comment: ""),

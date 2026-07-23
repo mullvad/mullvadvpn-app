@@ -870,6 +870,11 @@
         <target state="final">Denver, CO</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Destructive" xml:space="preserve">
+        <source>Destructive</source>
+        <target state="needs-translation">Destructive</target>
+        <note from="auto-generated">Label for a destructive button.</note>
+      </trans-unit>
       <trans-unit id="Detroit, MI" xml:space="preserve" approved="yes">
         <source>Detroit, MI</source>
         <target state="final">Detroit, MI</target>
@@ -909,6 +914,11 @@
         <source>Disable “%@”</source>
         <target state="final">„%@“ deaktivieren</target>
         <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="Disabled" xml:space="preserve">
+        <source>Disabled</source>
+        <target state="needs-translation">Disabled</target>
+        <note from="auto-generated">Text for a disabled button</note>
       </trans-unit>
       <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
@@ -2180,6 +2190,11 @@
         <target state="final">Frühere Käufe wurden gefunden</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Primary" xml:space="preserve">
+        <source>Primary</source>
+        <target state="needs-translation">Primary</target>
+        <note from="auto-generated">Text for the primary button</note>
+      </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
         <source>Providers</source>
         <target state="final">Anbieter</target>
@@ -2366,6 +2381,11 @@ Möchten Sie die gespeicherte Kontonummer wirklich entfernen?</target>
         <source>Secaucus, NJ</source>
         <target state="final">Secaucus, NJ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Secondary" xml:space="preserve">
+        <source>Secondary</source>
+        <target state="needs-translation">Secondary</target>
+        <note from="auto-generated">Button text for a secondary style</note>
       </trans-unit>
       <trans-unit id="Select %@" xml:space="preserve" approved="yes">
         <source>Select %@</source>
@@ -2566,6 +2586,11 @@ Möchten Sie die gespeicherte Kontonummer wirklich entfernen?</target>
         <source>Spain</source>
         <target state="final">Spanien</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Start" xml:space="preserve">
+        <source>Start</source>
+        <target state="needs-translation">Start</target>
+        <note from="auto-generated">Text on a button that starts an action.</note>
       </trans-unit>
       <trans-unit id="Start using the app" xml:space="preserve" approved="yes">
         <source>Start using the app</source>
@@ -3425,6 +3450,11 @@ Wir sind der festen Überzeugung, dass so wenig Daten wie möglich gespeichert w
         <target state="final">Zürich</target>
         <note/>
       </trans-unit>
+      <trans-unit id="changing" xml:space="preserve">
+        <source>changing</source>
+        <target state="needs-translation">changing</target>
+        <note from="auto-generated">Action that will be performed when showing the disconnect warning alert.</note>
+      </trans-unit>
       <trans-unit id="changing mode" xml:space="preserve" approved="yes">
         <source>changing mode</source>
         <target state="final">Ändern des Modus</target>
@@ -3449,6 +3479,11 @@ Wir sind der festen Überzeugung, dass so wenig Daten wie möglich gespeichert w
         <source>iOS features known to be affected:</source>
         <target state="final">Bekannte betroffene iOS-Funktionen:</target>
         <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
+      </trans-unit>
+      <trans-unit id="language" xml:space="preserve">
+        <source>language</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">sprache</target>
+        <note from="auto-generated">Feature name for the language setting.</note>
       </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
