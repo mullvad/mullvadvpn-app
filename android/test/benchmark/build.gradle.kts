@@ -54,11 +54,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            allWarningsAsErrors = true
-        }
-    }
+    kotlin { compilerOptions { allWarningsAsErrors = true } }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
