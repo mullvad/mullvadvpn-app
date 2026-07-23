@@ -2033,7 +2033,7 @@ impl Daemon {
     async fn on_update_default_location(&mut self, tx: ResponseTx<(), settings::Error>) {
         log::debug!(
             "should_update_default_country: {}",
-            &self.settings.update_default_location
+            self.settings.update_default_location
         );
 
         if self.settings.update_default_location

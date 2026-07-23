@@ -178,13 +178,13 @@ impl cmp::Eq for PrivateKey {}
 
 impl fmt::Debug for PrivateKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self)
+        write!(f, "{self}")
     }
 }
 
 impl fmt::Display for PrivateKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &STANDARD.encode((self.0).to_bytes()))
+        write!(f, "{}", STANDARD.encode((self.0).to_bytes()))
     }
 }
 
@@ -290,13 +290,13 @@ impl cmp::Eq for PublicKey {}
 
 impl fmt::Debug for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self)
+        write!(f, "{self}")
     }
 }
 
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self.to_base64())
+        write!(f, "{}", self.to_base64())
     }
 }
 
@@ -328,7 +328,7 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &STANDARD.encode(self.as_bytes()))
+        write!(f, "{}", STANDARD.encode(self.as_bytes()))
     }
 }
 

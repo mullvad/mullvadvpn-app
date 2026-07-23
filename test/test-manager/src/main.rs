@@ -434,7 +434,7 @@ async fn inner_main() -> Result<()> {
             let update_output = vm::update_packages(vm_config.clone(), &*instance)
                 .await
                 .context("Failed to update packages to the VM image")?;
-            log::info!("Update command finished with output: {}", &update_output);
+            log::info!("Update command finished with output: {update_output}");
             // TODO: If the update was successful, commit the changes to the VM image.
             log::info!("Note: updates have not been persisted to the image");
             Ok(())

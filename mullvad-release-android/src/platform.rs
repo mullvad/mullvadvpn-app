@@ -119,7 +119,7 @@ pub async fn add_release(version: &mullvad_version::Version) -> anyhow::Result<(
         version: version.clone(),
     };
 
-    println!("- {}", &new_release.version);
+    println!("- {}", new_release.version);
 
     work_response.releases.push(new_release);
 
@@ -149,7 +149,7 @@ pub async fn list_releases() -> anyhow::Result<()> {
         .sort_by(|a, b| b.version.partial_cmp(&a.version).unwrap_or(Ordering::Equal));
 
     for release in &response.releases {
-        println!("- {}", &release.version);
+        println!("- {}", release.version);
     }
     Ok(())
 }
@@ -172,7 +172,7 @@ pub async fn remove_release(version: &mullvad_version::Version) -> anyhow::Resul
 
     let removed_release = work_response.releases.swap_remove(found_release_ind);
 
-    println!("- {}", &removed_release.version);
+    println!("- {}", removed_release.version);
 
     let json = serde_json::to_string_pretty(&work_response)
         .context("Failed to serialize updated metadata")?;
