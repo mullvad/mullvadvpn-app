@@ -28,6 +28,8 @@ struct QuicObfuscator: RelayObfuscating {
         // Regular entry IPv6 addresses don't work with QUIC
         if tunnelSettings.ipVersion.isIPv6 {
             filteredRelays = filteredRelays.filter { $0.hasQuicIpv6 }
+        } else {
+            filteredRelays = filteredRelays.filter { $0.hasQuicIpv4 }
         }
 
         return REST.ServerRelaysResponse(

@@ -274,4 +274,125 @@ class RelayPickingTests: XCTestCase {
 
         XCTAssertNoThrow(try picker.pick())
     }
+
+    // QUIC enabled, multihop enabled when needed.
+    // The selected exit relay is incompatible with the effective IP version,
+    // so the picker should require multihop rather than use it as a single-hop exit.
+    func testUsesMultihopWhenQuicExitRelayIsIncompatibleWithIpVersion() throws {
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.wireGuardObfuscation = .init(state: .quic)
+        settings.ipVersion = .automatic
+        settings.tunnelMultihopState = .whenNeeded
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertNotNil(selectedRelays.entry)
+        XCTAssertEqual(selectedRelays.exit.hostname, "se3-wireguard")
+    }
+
+    // QUIC enabled, multihop enabled when needed.
+    // The selected exit relay supports QUIC for the requested IPv6 connection,
+    // so single-hop selection should succeed.
+    func testDoesNotUseMultihopWhenQuicExitRelaySupportsIpv6() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .any,
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.wireGuardObfuscation = .init(state: .quic)
+        settings.ipVersion = .ipv6
+        settings.tunnelMultihopState = .whenNeeded
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+        XCTAssertNoThrow(try picker.pick())
+    }
+
+    // Shadowsocks enabled with a custom port outside the default ranges.
+    // The selected exit relay is incompatible with the effective IP version,
+    // so the picker should select a compatible entry relay and use multihop.
+    func testUsesMultihopWhenShadowsocksExitRelayIsIncompatibleWithIpVersion() throws {
+        let allPorts: Range<UInt16> = 1..<65000
+        let defaultPortRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
+
+        let portsOutsideDefaultRange = allPorts.filter { port in
+            !defaultPortRanges.contains { range in
+                range.contains(port)
+            }
+        }
+        let port = try XCTUnwrap(portsOutsideDefaultRange.randomElement())
+
+        let constraints = RelayConstraints(
+            entryLocations: .any,
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")]))
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.wireGuardObfuscation = .init(state: .shadowsocks, shadowsocksPort: .custom(port))
+        settings.ipVersion = .automatic
+        settings.tunnelMultihopState = .whenNeeded
+
+        let picker = MultihopPicker(
+            relays: sampleRelays,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+
+        let selectedRelays = try picker.pick()
+
+        XCTAssertEqual(selectedRelays.entry?.location.countryCode, "se")
+        XCTAssertEqual(selectedRelays.exit.hostname, "se3-wireguard")
+    }
+
+    // Shadowsocks enabled with a custom port outside the default ranges.
+    // The selected exit relay supports the requested IPv6 connection,
+    // so multihop is not required and single-hop selection should succeed.
+    func testDoesNotUseMultihopWhenShadowsocksExitRelaySupportsIpv6() throws {
+        let allPorts: Range<UInt16> = 1..<65000
+        let defaultPortRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
+
+        let portsOutsideDefaultRange = allPorts.filter { port in
+            !defaultPortRanges.contains { range in
+                range.contains(port)
+            }
+        }
+        let port = try XCTUnwrap(portsOutsideDefaultRange.randomElement())
+
+        let constraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")])),
+        )
+
+        var settings = LatestTunnelSettings()
+        settings.relayConstraints = constraints
+        settings.wireGuardObfuscation = .init(state: .shadowsocks, shadowsocksPort: .custom(port))
+        settings.ipVersion = .ipv6
+        settings.tunnelMultihopState = .whenNeeded
+
+        let picker = SinglehopPicker(
+            relays: sampleRelays,
+            tunnelSettings: settings,
+            connectionAttemptCount: 0
+        )
+
+        let selectedRelays = try picker.pick()
+        XCTAssertNil(selectedRelays.entry)
+        XCTAssertEqual(selectedRelays.exit.hostname, "se3-wireguard")
+    }
 }

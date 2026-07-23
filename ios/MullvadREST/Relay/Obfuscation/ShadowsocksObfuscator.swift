@@ -48,7 +48,7 @@ struct ShadowsocksObfuscator: RelayObfuscating {
         if tunnelSettings.ipVersion.isIPv6 {
             filteredRelays = relays.wireguard.relays.filter { $0.hasShadowsocksIpv6 }
         } else {
-            filteredRelays = relays.wireguard.relays.filter { $0.shadowsocksExtraAddrIn != nil }
+            filteredRelays = relays.wireguard.relays.filter { $0.hasShadowsocksIpv4 }
         }
 
         return REST.ServerRelaysResponse(
