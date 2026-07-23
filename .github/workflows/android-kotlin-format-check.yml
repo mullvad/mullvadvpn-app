@@ -39,8 +39,6 @@ jobs:
   check-formatting:
     needs: prepare
     runs-on: android-build
-    env:
-      KTFMT_VERSION: "0.64"
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
@@ -66,8 +64,4 @@ jobs:
           "https://github.com/facebook/ktfmt/releases/download/v$KTFMT_VERSION/ktfmt-$KTFMT_VERSION-with-dependencies.jar"
 
       - name: Run ktfmt check
-        run: |
-          find . -type f \( -name "*.kt" -o -name "*.kts" \) \
-            -not -path "*/build/*" \
-            -not -path "*/.gradle/*" \
-            | xargs -r java -jar ktfmt.jar --kotlinlang-style --quiet --dry-run --set-exit-if-changed
+        run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck --no-daemon
