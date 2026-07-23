@@ -32,7 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Update `gotatun` to 0.8.1.
-- Remove `mullvad tunnel set daita-direct-only` command. Superceded by automatic multihop setting.
+- Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
 
 #### Linux
 - Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
@@ -41,6 +41,7 @@ Line wrap the file at 100 chars.                                              Th
   build machine. Required for reproducible builds.
 - De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
 - Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
+- Remove dependency on `iproute2` when using GotaTun with IPv6.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
