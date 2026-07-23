@@ -1,3 +1,17 @@
+# Supply-chain hardening: refuse dependency versions published within the cooldown
+# window set below, giving malicious or yanked releases time to be caught before we
+# depend on them.
+# This is a nightly-only feature for now; stable cargo ignores these keys, so
+# locally it only takes effect under `cargo +nightly update`. CI enforces the same
+# window regardless, via ci/check-rust-min-publish-age.py, which reads
+# global-min-publish-age from here as the single source of truth.
+# Tracking issue: https://github.com/rust-lang/cargo/issues/17009
+[unstable]
+min-publish-age = true
+
+[registry]
+global-min-publish-age = "7 days"
+
 # The /Brepro and /PDBALTPATH link args below make the linked PE files reproducible:
 # /Brepro replaces the PE TimeDateStamp (normally the link time) with a hash of the
 # inputs, and /PDBALTPATH:%_PDB% embeds only the PDB file name, not its absolute path,
