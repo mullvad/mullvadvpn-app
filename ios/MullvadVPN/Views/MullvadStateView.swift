@@ -290,8 +290,6 @@ private struct ActionButton: View {
             text: "\(action.displayedTitle)",
             style: action.style,
             leadingAccessory: action.state.kind.icon.map { .icon($0) }
-            //            image: action.state.kind.icon,
-            //            imagePosition: .leading
         ) {
             action.onTap()
         }

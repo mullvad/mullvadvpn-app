@@ -24,7 +24,7 @@ struct SettingsMigrationWizardView<ViewModel: SettingsMigrationWizardViewModelPr
             .padding(.top, 8.0)
 
             HStack(spacing: 8.0) {
-                MullvadButton(text: "Back", style: .primary) {
+                MullvadButton(text: "Back", style: .secondary) {
                     if currentPage > 0 {
                         currentPage -= 1
                     }

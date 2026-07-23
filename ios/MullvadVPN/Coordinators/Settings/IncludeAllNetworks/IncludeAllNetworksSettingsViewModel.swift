@@ -292,18 +292,18 @@ extension IncludeAllNetworksSettingsViewModel {
             messages: [LocalizedStringKey(message.joinedParagraphs())],
             actions: [
                 MullvadAlert.Action(
-                    type: .secondary,
-                    title: "Cancel",
-                    handler: {
-                        completion()
-                    }
-                ),
-                MullvadAlert.Action(
                     type: .destructivePrimary,
                     title: "Yes, continue",
                     identifier: .includeAllNetworksNotificationsAlertDismissButton,
                     handler: {
                         setValue(enabled)
+                        completion()
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .primary,
+                    title: "Cancel",
+                    handler: {
                         completion()
                     }
                 ),
