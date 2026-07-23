@@ -101,6 +101,25 @@ struct MullvadButton: View {
             }
         ).buttonStyle(MullvadButton.ButtonStyle(style: style))
             .clipShape(Capsule())
+            .accessibilityRepresentation {
+                HStack {
+                    leadingAccessory.map { self.accessory($0, position: .leading) }
+                    Button(
+                        action: action,
+                        label: {
+                            HStack {
+                                Spacer()
+                                Text(text)
+                                    .lineLimit(nil)
+                                    .multilineTextAlignment(.center)
+                                Spacer()
+                            }
+                        }
+                    ).buttonStyle(MullvadButton.ButtonStyle(style: style))
+                        .clipShape(Capsule())
+                    trailingAccessory.map { self.accessory($0, position: .trailing) }
+                }
+            }
     }
 
     @ViewBuilder
@@ -166,7 +185,8 @@ private struct ModularButtonPreview: View {
             MullvadButton(
                 text: "Auckland", style: .primary, leadingAccessory: .button(.iconAdd, { print("+") }), action: {})
             MullvadButton(
-                text: "Barcelona", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {})
+                text: "Barcelona", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {}
+            )
             MullvadButton(text: "Copenhagen", style: .secondary) {}
             MullvadButton(text: "Connect", style: .success) {}
             MullvadButton(
