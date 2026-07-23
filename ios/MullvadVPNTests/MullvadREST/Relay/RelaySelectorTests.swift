@@ -35,7 +35,8 @@ class RelaySelectorTests: XCTestCase {
         )
 
         let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
-        XCTAssertEqual(result.relay.hostname, "se10-wireguard")
+        XCTAssertEqual(result.location.cityCode, "got")
+        XCTAssertEqual(result.location.countryCode, "se")
     }
 
     func testHostnameConstraint() throws {

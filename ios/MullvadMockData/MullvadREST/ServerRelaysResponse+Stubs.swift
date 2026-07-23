@@ -218,6 +218,25 @@ public enum ServerRelaysResponseStubs {
                     )
                 ),
                 REST.ServerRelay(
+                    hostname: "se3-wireguard",
+                    active: true,
+                    owned: true,
+                    location: "se-got",
+                    provider: "100TB",
+                    weight: 10,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: WireGuard.PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: false,
+                    shadowsocksExtraAddrIn: ["::1"],
+                    features: .init(
+                        daita: nil,
+                        quic: .init(addrIn: ["::1"], domain: "quic.domain", token: ""),
+                        lwo: nil
+                    )
+                ),
+                REST.ServerRelay(
                     hostname: "se2-wireguard",
                     active: true,
                     owned: true,

@@ -168,6 +168,7 @@ final class RelayObfuscatorTests: XCTestCase {
             state: .shadowsocks,
             shadowsocksPort: .custom(port)
         )
+        tunnelSettings.ipVersion = .ipv4
 
         let obfuscationResult = try RelayObfuscator(
             relays: sampleRelays,
@@ -177,7 +178,7 @@ final class RelayObfuscatorTests: XCTestCase {
         ).obfuscate()
 
         let relaysWithExtraAddresses = sampleRelays.wireguard.relays.filter { relay in
-            !relay.shadowsocksExtraAddrIn.isNil
+            relay.hasShadowsocksIpv4
         }
 
         XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, relaysWithExtraAddresses.count)
@@ -202,6 +203,72 @@ final class RelayObfuscatorTests: XCTestCase {
         XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, sampleRelays.wireguard.relays.count)
     }
 
+    func testObfuscateShadowsocksFiltersExitRelaysForIpv4AndAutomatic() throws {
+        let allPorts: Range<UInt16> = 1..<65000
+        let defaultPortRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
+
+        let portsOutsideDefaultRange = allPorts.filter { port in
+            !defaultPortRanges.contains { range in
+                range.contains(port)
+            }
+        }
+
+        let port = try XCTUnwrap(portsOutsideDefaultRange.randomElement())
+
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .shadowsocks,
+            shadowsocksPort: .custom(port)
+        )
+        tunnelSettings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")])))
+        tunnelSettings.ipVersion = .automatic
+
+        let obfuscationResult = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        XCTAssertGreaterThan(
+            obfuscationResult.relays.wireguard.relays.filter { $0.hasShadowsocksIpv4 }.count,
+            0
+        )
+    }
+
+    func testObfuscateShadowsocksFiltersExitRelaysForIpv6() throws {
+        let allPorts: Range<UInt16> = 1..<65000
+        let defaultPortRanges = RelaySelector.parseRawPortRanges(sampleRelays.wireguard.shadowsocksPortRanges)
+
+        let portsOutsideDefaultRange = allPorts.filter { port in
+            !defaultPortRanges.contains { range in
+                range.contains(port)
+            }
+        }
+
+        let port = try XCTUnwrap(portsOutsideDefaultRange.randomElement())
+
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .shadowsocks,
+            shadowsocksPort: .custom(port)
+        )
+        tunnelSettings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")])))
+        tunnelSettings.ipVersion = .ipv6
+
+        let obfuscationResult = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        XCTAssertGreaterThan(
+            obfuscationResult.relays.wireguard.relays.filter { $0.hasShadowsocksIpv6 }.count,
+            0
+        )
+    }
+
     // MARK: QUIC
 
     func testObfuscateQuicOverPort443() throws {
@@ -217,6 +284,49 @@ final class RelayObfuscatorTests: XCTestCase {
         ).obfuscate()
 
         XCTAssertEqual(obfuscationResult.port, defaultQuicPort)
+    }
+
+    func testQuicObfuscationFiltersExitRelaysForIpv4AndAutomatic() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .quic
+        )
+        tunnelSettings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")])))
+        tunnelSettings.ipVersion = .automatic
+
+        let obfuscationResult = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        XCTAssertEqual(obfuscationResult.port, defaultQuicPort)
+        XCTAssertEqual(
+            obfuscationResult.relays.wireguard.relays.filter { $0.hasQuicIpv6 }.count,
+            0
+        )
+    }
+
+    func testQuicObfuscationFiltersExitRelaysForIpv6() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .quic
+        )
+        tunnelSettings.relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "got", "se3-wireguard")])))
+        tunnelSettings.ipVersion = .ipv6
+
+        let obfuscationResult = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        XCTAssertEqual(obfuscationResult.port, defaultQuicPort)
+        XCTAssertEqual(
+            obfuscationResult.relays.wireguard.relays.filter { $0.hasQuicIpv6 }.count,
+            obfuscationResult.relays.wireguard.relays.count)
     }
 
     // MARK: LWO
