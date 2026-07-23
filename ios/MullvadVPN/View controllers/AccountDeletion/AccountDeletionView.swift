@@ -13,6 +13,8 @@ struct AccountDeletionView: View {
 
     @ScaledMetric var spinnerSize = 20.0
     @ScaledMetric var spinnerStatusGap = 10.0
+    @State private var borderStyle: ConfigurableTextFieldNamespace.BorderStyle = .normal
+    @State private var message: ConfigurableTextFieldNamespace.Message? = .init(text: "", appearance: .info)
 
     var body: some View {
         ScrollView {
@@ -39,14 +41,20 @@ struct AccountDeletionView: View {
                 .padding(.bottom, 8)
 
                 // accountTextField
-                let placeholder = "XXXX"
-                MullvadPrimaryTextField(
-                    label: "Last 4 digits",
-                    placeholder: LocalizedStringKey(placeholder),
+                ConfigurableTextField(
+                    title: NSLocalizedString("Last 4 digits", comment: ""),
+                    placeHolder: "XXXX",
                     text: $viewModel.enteredAccountNumberSuffix,
-                    keyboardType: .numberPad
+                    accessibilityIdentifier: .deleteAccountTextField,
+                    borderStyle: $borderStyle,
+                    configuration: ConfigurableTextFieldNamespace.TextFieldConfiguration(
+                        formatter: GroupedTextFormatter(
+                            configuration: .init(
+                                allowedInput: .numeric,
+                                groupSeparator: "-",
+                                groupSize: 4, maxGroups: 1)),
+                        keyboardType: .numberPad)
                 )
-                .accessibilityIdentifier(.deleteAccountTextField)
                 .padding(.bottom, 4)
 
                 // Status information
@@ -78,6 +86,17 @@ struct AccountDeletionView: View {
         }
         .padding(16)
         .background(Color.mullvadBackground)
+        .onReceive(viewModel.$state) { state in
+            switch state {
+            case .failure(let error):
+                borderStyle = .error
+                message = .init(text: error.localizedDescription, appearance: .error)
+
+            default:
+                borderStyle = .normal
+                message = nil
+            }
+        }
     }
 }
 

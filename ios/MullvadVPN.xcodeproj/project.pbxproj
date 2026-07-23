@@ -1011,6 +1011,10 @@
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */; };
 		F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */; };
+		F03FC85E300E08E800DE2F5D /* ConfigurableTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03FC85D300E08DE00DE2F5D /* ConfigurableTextField.swift */; };
+		F03FC860300E3F0A00DE2F5D /* TextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03FC85F300E3F0800DE2F5D /* TextFormatter.swift */; };
+		F03FC862300E4BF900DE2F5D /* PreviewTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03FC861300E4BF700DE2F5D /* PreviewTextField.swift */; };
+		F03FC86430120AF600DE2F5D /* ConfigurableTextField+Initializers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03FC86330120AF200DE2F5D /* ConfigurableTextField+Initializers.swift */; };
 		F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
@@ -2626,6 +2630,10 @@
 		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		F03B95342E4A3280005A80C9 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F03FC85D300E08DE00DE2F5D /* ConfigurableTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurableTextField.swift; sourceTree = "<group>"; };
+		F03FC85F300E3F0800DE2F5D /* TextFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFormatter.swift; sourceTree = "<group>"; };
+		F03FC861300E4BF700DE2F5D /* PreviewTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTextField.swift; sourceTree = "<group>"; };
+		F03FC86330120AF200DE2F5D /* ConfigurableTextField+Initializers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurableTextField+Initializers.swift"; sourceTree = "<group>"; };
 		F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionConfigurationBuilder.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
@@ -3615,6 +3623,7 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F03FC85C300E08B600DE2F5D /* Textfield */,
 				F9394EF12DC21D7B009595EA /* List */,
 				F00C8C4E2FC9DBBA00B760BB /* Previews */,
 				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
@@ -4994,6 +5003,17 @@
 				F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */,
 			);
 			path = RedeemVoucher;
+			sourceTree = "<group>";
+		};
+		F03FC85C300E08B600DE2F5D /* Textfield */ = {
+			isa = PBXGroup;
+			children = (
+				F03FC85D300E08DE00DE2F5D /* ConfigurableTextField.swift */,
+				F03FC86330120AF200DE2F5D /* ConfigurableTextField+Initializers.swift */,
+				F03FC861300E4BF700DE2F5D /* PreviewTextField.swift */,
+				F03FC85F300E3F0800DE2F5D /* TextFormatter.swift */,
+			);
+			path = Textfield;
 			sourceTree = "<group>";
 		};
 		F059197A2C45404500C301F3 /* PostQuantum */ = {
@@ -6739,6 +6759,7 @@
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				7A8A190A2CE5FFE9000BCB5B /* SettingsDAITAView.swift in Sources */,
 				449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */,
+				F03FC860300E3F0A00DE2F5D /* TextFormatter.swift in Sources */,
 				F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */,
 				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
 				7AE16D802F97AEBE00A72A39 /* MultihopWhenNeededInfoView.swift in Sources */,
@@ -6810,6 +6831,7 @@
 				F92C658C2E7A924E00B8E107 /* MockSelectLocationViewModel.swift in Sources */,
 				58CEB30A2AFD584700E6E088 /* CustomCellDisclosureHandling.swift in Sources */,
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
+				F03FC86430120AF600DE2F5D /* ConfigurableTextField+Initializers.swift in Sources */,
 				7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */,
 				F09C97232D3122F300ADE747 /* ChangeLogReader.swift in Sources */,
 				447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */,
@@ -6881,6 +6903,7 @@
 				7A6389ED2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift in Sources */,
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
 				A9A60ED42DF6E5AC00CD9C3D /* UIHostingRootController.swift in Sources */,
+				F03FC85E300E08E800DE2F5D /* ConfigurableTextField.swift in Sources */,
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
@@ -7090,6 +7113,7 @@
 				586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */,
 				F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
+				F03FC862300E4BF900DE2F5D /* PreviewTextField.swift in Sources */,
 				7A81C3F22F6BE4EB008D7ADC /* SegmentedListItemFactory.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
