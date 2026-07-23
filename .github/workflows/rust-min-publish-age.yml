@@ -1,0 +1,33 @@
+---
+name: Rust - Min publish age
+on:
+  pull_request:
+    paths:
+      - .github/workflows/rust-min-publish-age.yml
+      - ci/check-rust-min-publish-age.py
+      - ci/rust-min-publish-age-allowlist.txt
+      - .cargo/config.toml
+      - '**/Cargo.lock'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-min-publish-age:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          # Full history so the base branch is available to diff Cargo.lock
+          # against.
+          fetch-depth: 0
+
+      # No Rust toolchain needed: the check reads publish timestamps from the
+      # crates.io sparse index and only inspects Cargo.lock diffs.
+      - name: Check dependency publish age
+        # Stage the ref in an env var and pass it as a quoted argument rather than
+        # interpolating ${{ }} straight into the command, to avoid script injection.
+        env:
+          BASE_REF: origin/${{ github.base_ref || 'main' }}
+        run: ./ci/check-rust-min-publish-age.py "$BASE_REF"

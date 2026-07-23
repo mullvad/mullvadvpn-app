@@ -1,5 +1,6 @@
 {
   "appteam-desktop": [
+    ".github/workflows/rust-min-publish-age.yml",
     "building/Dockerfile",
     "building/linux-container-image.txt",
     "building/sigstore/mullvad/mullvadvpn-app-build@**",
@@ -7,8 +8,10 @@
     "ci/buildserver-build.sh",
     "ci/buildserver-config.sh",
     "ci/cargo-ci.sh",
+    "ci/check-rust-min-publish-age.py",
     "ci/linux-repository-builder/**",
     "ci/publish-app-to-repositories.sh",
+    "ci/rust-min-publish-age-allowlist.txt",
     "desktop/**",
     "dist-assets/relays/relays.json",
     "installer-downloader/**",

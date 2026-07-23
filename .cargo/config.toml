@@ -1,10 +1,10 @@
 # Supply-chain hardening: refuse dependency versions published within the cooldown
-# window set below, giving malicious or yanked releases time to be caught before we
+# window set below, giving malicious releases time to be caught before we
 # depend on them.
-# This is a nightly-only feature for now; stable cargo ignores these keys, so
-# locally it only takes effect under `cargo +nightly update`. CI enforces the same
-# window regardless, via ci/check-rust-min-publish-age.py, which reads
-# global-min-publish-age from here as the single source of truth.
+# This is a nightly-only feature for now. Stable cargo ignores these keys, so locally
+# it only takes effect under `cargo +nightly update ...`. CI enforces the cooldown
+# via ci/check-rust-min-publish-age.py, which reads global-min-publish-age from here
+# as the single source of truth.
 # Tracking issue: https://github.com/rust-lang/cargo/issues/17009
 [unstable]
 min-publish-age = true
