@@ -205,29 +205,38 @@ struct ObfuscatorSocketBypass {
 }
 
 impl SocketBypass for ObfuscatorSocketBypass {
-    #[cfg_attr(any(windows, target_os = "macos"), expect(unused_variables))]
+    #[cfg(target_os = "linux")]
     fn bypass_socket(
         &self,
         socket: socket2::SockRef<'_>,
         _token: &BypassToken,
     ) -> std::io::Result<()> {
-        #[cfg(target_os = "linux")]
-        socket.set_mark(self.fwmark)?;
+        socket.set_mark(self.fwmark)
+    }
 
-        #[cfg(target_os = "android")]
-        {
-            use std::os::unix::io::AsRawFd;
-
-            self.tun_provider
-                .lock()
-                .unwrap()
-                .bypass(&socket.as_raw_fd())
-                .map_err(std::io::Error::other)?;
-        }
-
-        // TODO: Implement for macOS and Windows
-
+    #[cfg(any(windows, target_os = "macos"))]
+    fn bypass_socket(
+        &self,
+        _socket: socket2::SockRef<'_>,
+        _token: &BypassToken,
+    ) -> std::io::Result<()> {
+        // TODO
         Ok(())
+    }
+
+    #[cfg(target_os = "android")]
+    fn bypass_socket(
+        &self,
+        socket: socket2::SockRef<'_>,
+        _token: &BypassToken,
+    ) -> std::io::Result<()> {
+        use std::os::unix::io::AsRawFd;
+
+        self.tun_provider
+            .lock()
+            .unwrap()
+            .bypass(&socket.as_raw_fd())
+            .map_err(std::io::Error::other)
     }
 
     fn revoke_bypass(
