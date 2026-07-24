@@ -46,23 +46,15 @@ extension UIImage {
         fromBaseSize size: CGFloat? = nil,
         to textStyle: UIFont.TextStyle,
         offset: CGPoint = .zero
-    ) -> UIImage {
+    ) -> Image {
         let scaledSize = UIFontMetrics(forTextStyle: textStyle).scaledValue(for: size ?? self.size.width)
         let size = CGSize(width: scaledSize, height: scaledSize)
         let renderer = UIGraphicsImageRenderer(size: size)
 
-        let scaledIcon = renderer.image { _ in
+        let scaledImage = renderer.image { _ in
             draw(in: CGRect(origin: offset, size: size))
         }.withRenderingMode(.alwaysTemplate)
 
-        return scaledIcon
-    }
-
-    func scaledIcon(
-        fromBaseSize size: CGFloat? = nil,
-        to textStyle: UIFont.TextStyle,
-        offset: CGPoint = .zero
-    ) -> Image {
-        Image(uiImage: scaledIcon(fromBaseSize: size, to: textStyle, offset: offset))
+        return Image(uiImage: scaledImage)
     }
 }

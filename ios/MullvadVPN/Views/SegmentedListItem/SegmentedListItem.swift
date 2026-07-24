@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedContent: View>: View {
+struct SegmentedListItem<Leading: View>: View {
     enum UserInteraction {
         case enabled
         case enabledWithoutHighlight
@@ -11,29 +11,56 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
     @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
     @State private var segmentHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
 
-    var level: Int = 0
-    var isLastInList: Bool = true
-    var userInteraction: UserInteraction = .enabled
+    var level: Int
+    var isLastInList: Bool
+    var userInteraction: UserInteraction
     var accessibilityIdentifier: AccessibilityIdentifier?
-    var accessibilityLabel: String = ""
-    /// A `Leading` sub component. Intended to be used for leading elements, such as titles, status indicators etc.
-    @ViewBuilder var leading: () -> Leading?
-    /// A `Trailing` sub component. Intended to be used for trailing elements, such as subtitles, buttons etc.
-    @ViewBuilder var trailing: () -> Trailing?
-    /// A `Segment` sub component. Splits the list item in two, with a trailing square typically used for buttons to expand a list item.
-    @ViewBuilder var segment: () -> Segment?
-    /// A `GroupedContent` sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
-    @ViewBuilder var groupedContent: () -> GroupedContent?
-    var footer: MullvadInfoView? = nil
-    var onSelect: (() -> Void)? = nil
+    var accessibilityLabel: String
+    /// A leading sub component. Intended to be used for leading elements, such as titles, status indicators etc.
+    @ViewBuilder var leading: () -> Leading
+    /// A trailing sub component. Intended to be used for trailing elements, such as subtitles, buttons etc.
+    let trailing: AnyView?
+    /// A segment sub component. Splits the list item in two, with a trailing square typically used for buttons to expand a list item.
+    let segment: AnyView?
+    /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
+    let groupedContent: AnyView?
+    var footer: MullvadInfoView?
+    var onSelect: (() -> Void)?
+
+    /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
+    /// only specify the slots they need. An omitted slot is detected via its `EmptyView` type and stored as `nil`
+    /// rather than an empty `AnyView`.
+    init<Trailing: View, Segment: View, GroupedContent: View>(
+        level: Int = 0,
+        isLastInList: Bool = true,
+        userInteraction: UserInteraction = .enabled,
+        accessibilityIdentifier: AccessibilityIdentifier? = nil,
+        accessibilityLabel: String = "",
+        @ViewBuilder leading: @escaping () -> Leading,
+        @ViewBuilder trailing: () -> Trailing = { EmptyView() },
+        @ViewBuilder segment: () -> Segment = { EmptyView() },
+        @ViewBuilder groupedContent: () -> GroupedContent = { EmptyView() },
+        footer: MullvadInfoView? = nil,
+        onSelect: (() -> Void)? = nil
+    ) {
+        self.level = level
+        self.isLastInList = isLastInList
+        self.userInteraction = userInteraction
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibilityLabel = accessibilityLabel
+        self.leading = leading
+        self.trailing = trailing().typeErase()
+        self.segment = segment().typeErase()
+        self.groupedContent = groupedContent().typeErase()
+        self.footer = footer
+        self.onSelect = onSelect
+    }
 
     private var topRadius: CGFloat {
         (level == 0 && !isNestedInSegmentedListItem) ? UIMetrics.LocationList.cellCornerRadius : 0
     }
     private var bottomRadius: CGFloat {
-        let groupedContent = groupedContent()
-
-        return isLastInList && (groupedContent == nil || groupedContent is EmptyView)
+        isLastInList && groupedContent == nil
             ? UIMetrics.LocationList.cellCornerRadius
             : 0
     }
@@ -45,8 +72,6 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                     onSelect?()
                 }
             } label: {
-                let trailing = trailing()
-
                 HStack(spacing: 8) {
                     leading()
                     Spacer()
@@ -78,7 +103,7 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                     .disabled(true)
             }
 
-            segment()?
+            segment
                 .frame(width: UIMetrics.LocationList.cellMinHeight, height: segmentHeight)
                 .contentShape(Rectangle())
                 .background(Color.colorForIndentationLevel(level))
@@ -103,7 +128,7 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
         )
         .if(level != 0, { $0.padding(.top, 1) })
 
-        groupedContent()
+        groupedContent
             .environment(\.isNestedInSegmentedListItem, true)
 
         footer
