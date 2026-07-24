@@ -48,7 +48,7 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
 
 # === Rust ===
 
-ARG RUST_VERSION=stable
+ARG RUST_VERSION=1.97.1
 
 # Install the Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu,
 # plus x86_64-pc-windows-gnu for Windows cross-compilation/linting
