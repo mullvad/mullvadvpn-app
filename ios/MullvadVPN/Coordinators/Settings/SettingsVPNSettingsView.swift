@@ -19,7 +19,7 @@ private struct GlobalVPNSetting: Identifiable {
 struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSettings {
     private let itemFactory = SegmentedListItemFactory()
 
-    @ObservedObject var viewModel: ViewModel
+    var viewModel: ViewModel
     @Binding var path: NavigationPath
 
     @State var isExpanded: Bool = true
@@ -268,7 +268,7 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
 
 #Preview {
     @Previewable @State var path = NavigationPath()
-    SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub(), path: $path)
+    SettingsVPNSettingsView(viewModel: ObservableVPNSettings(), path: $path)
 }
 
 //

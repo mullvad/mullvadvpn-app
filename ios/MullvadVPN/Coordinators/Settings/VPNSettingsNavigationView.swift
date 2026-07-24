@@ -17,7 +17,7 @@ struct VPNSettingsNavigationView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             SettingsVPNSettingsView(
-                viewModel: ObservabledVPNSettingsStub(), path: $navigationPath
+                viewModel: ObservableVPNSettings(), path: $navigationPath
             )
             .navigationDestination(for: SettingsDestinationView.self) { path in
                 destinationView(path)
