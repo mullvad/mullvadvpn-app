@@ -10,7 +10,8 @@ export const getRecentMultihopEntryLocations = (
 
   const multihopLocations = recentLocations
     .filter((location) => location.type === 'multihop')
-    .map((location) => location.entry);
+    .map((location) => location.entry)
+    .filter((entry): entry is AnyLocation => entry !== undefined);
 
   const uniqueMultihopLocations = getUniqueLocations(multihopLocations);
 

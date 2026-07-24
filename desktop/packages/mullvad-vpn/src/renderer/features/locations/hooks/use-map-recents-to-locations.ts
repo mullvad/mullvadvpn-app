@@ -59,7 +59,7 @@ function getRecentLocations(
     .map((recent) => {
       if (recent.type === 'multihop') {
         const { entry, exit } = recent;
-        const entryLocation = findMatchingLocation(entry);
+        const entryLocation = entry === 'any' ? undefined : findMatchingLocation(entry.only);
         const exitLocation = findMatchingLocation(exit);
         if (entryLocation && exitLocation) {
           const multihopLocation: RecentMultihopLocation = {

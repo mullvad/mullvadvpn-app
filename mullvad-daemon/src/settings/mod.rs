@@ -693,7 +693,7 @@ mod test {
                   "enable_ipv6": true
                 }
               },
-              "settings_version": 8,
+              "settings_version": 18,
               "show_beta_releases": false,
               "custom_lists": {
                 "custom_lists": []
@@ -702,8 +702,10 @@ mod test {
                 {
                   "Multihop": {
                     "entry": {
-                      "location": {
-                        "country": "se"
+                      "only": {
+                        "location": {
+                          "country": "se"
+                        }
                       }
                     },
                     "exit": {

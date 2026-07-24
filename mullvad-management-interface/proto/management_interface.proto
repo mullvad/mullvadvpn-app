@@ -603,8 +603,11 @@ message RelayOverride {
 message Recents { repeated Recent recents = 1; }
 
 message MultihopRecent {
-  LocationConstraint entry = 1;
-  LocationConstraint exit = 2;
+  oneof entry {
+    LocationConstraint some = 1;
+    google.protobuf.Empty automatic = 2;
+  }
+  LocationConstraint exit = 3;
 }
 
 message Recent {

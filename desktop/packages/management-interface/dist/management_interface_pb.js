@@ -99,6 +99,7 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.LogLevel', null, gl
 goog.exportSymbol('proto.mullvad_daemon.management_interface.LogLevelValue', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.LogMessage', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.MultihopRecent', null, global);
+goog.exportSymbol('proto.mullvad_daemon.management_interface.MultihopRecent.EntryCase', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.MultiplexObfuscation', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.NewAccessMethodSetting', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.NewCustomList', null, global);
@@ -1484,7 +1485,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.mullvad_daemon.management_interface.MultihopRecent = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.mullvad_daemon.management_interface.MultihopRecent.oneofGroups_);
 };
 goog.inherits(proto.mullvad_daemon.management_interface.MultihopRecent, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -15514,6 +15515,32 @@ proto.mullvad_daemon.management_interface.Recents.prototype.clearRecentsList = f
 
 
 
+/**
+ * Oneof group definitions for this message. Each group defines the field
+ * numbers belonging to that group. When of these fields' value is set, all
+ * other fields in the group are cleared. During deserialization, if multiple
+ * fields are encountered for a group, only the last value seen will be kept.
+ * @private {!Array<!Array<number>>}
+ * @const
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.oneofGroups_ = [[1,2]];
+
+/**
+ * @enum {number}
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.EntryCase = {
+  ENTRY_NOT_SET: 0,
+  SOME: 1,
+  AUTOMATIC: 2
+};
+
+/**
+ * @return {proto.mullvad_daemon.management_interface.MultihopRecent.EntryCase}
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getEntryCase = function() {
+  return /** @type {proto.mullvad_daemon.management_interface.MultihopRecent.EntryCase} */(jspb.Message.computeOneofCase(this, proto.mullvad_daemon.management_interface.MultihopRecent.oneofGroups_[0]));
+};
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -15545,7 +15572,8 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.toObject = fu
  */
 proto.mullvad_daemon.management_interface.MultihopRecent.toObject = function(includeInstance, msg) {
   var f, obj = {
-    entry: (f = msg.getEntry()) && proto.mullvad_daemon.management_interface.LocationConstraint.toObject(includeInstance, f),
+    some: (f = msg.getSome()) && proto.mullvad_daemon.management_interface.LocationConstraint.toObject(includeInstance, f),
+    automatic: (f = msg.getAutomatic()) && google_protobuf_empty_pb.Empty.toObject(includeInstance, f),
     exit: (f = msg.getExit()) && proto.mullvad_daemon.management_interface.LocationConstraint.toObject(includeInstance, f)
   };
 
@@ -15586,9 +15614,14 @@ proto.mullvad_daemon.management_interface.MultihopRecent.deserializeBinaryFromRe
     case 1:
       var value = new proto.mullvad_daemon.management_interface.LocationConstraint;
       reader.readMessage(value,proto.mullvad_daemon.management_interface.LocationConstraint.deserializeBinaryFromReader);
-      msg.setEntry(value);
+      msg.setSome(value);
       break;
     case 2:
+      var value = new google_protobuf_empty_pb.Empty;
+      reader.readMessage(value,google_protobuf_empty_pb.Empty.deserializeBinaryFromReader);
+      msg.setAutomatic(value);
+      break;
+    case 3:
       var value = new proto.mullvad_daemon.management_interface.LocationConstraint;
       reader.readMessage(value,proto.mullvad_daemon.management_interface.LocationConstraint.deserializeBinaryFromReader);
       msg.setExit(value);
@@ -15622,7 +15655,7 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.serializeBina
  */
 proto.mullvad_daemon.management_interface.MultihopRecent.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getEntry();
+  f = message.getSome();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -15630,10 +15663,18 @@ proto.mullvad_daemon.management_interface.MultihopRecent.serializeBinaryToWriter
       proto.mullvad_daemon.management_interface.LocationConstraint.serializeBinaryToWriter
     );
   }
-  f = message.getExit();
+  f = message.getAutomatic();
   if (f != null) {
     writer.writeMessage(
       2,
+      f,
+      google_protobuf_empty_pb.Empty.serializeBinaryToWriter
+    );
+  }
+  f = message.getExit();
+  if (f != null) {
+    writer.writeMessage(
+      3,
       f,
       proto.mullvad_daemon.management_interface.LocationConstraint.serializeBinaryToWriter
     );
@@ -15642,10 +15683,10 @@ proto.mullvad_daemon.management_interface.MultihopRecent.serializeBinaryToWriter
 
 
 /**
- * optional LocationConstraint entry = 1;
+ * optional LocationConstraint some = 1;
  * @return {?proto.mullvad_daemon.management_interface.LocationConstraint}
  */
-proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getEntry = function() {
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getSome = function() {
   return /** @type{?proto.mullvad_daemon.management_interface.LocationConstraint} */ (
     jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.LocationConstraint, 1));
 };
@@ -15655,8 +15696,8 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getEntry = fu
  * @param {?proto.mullvad_daemon.management_interface.LocationConstraint|undefined} value
  * @return {!proto.mullvad_daemon.management_interface.MultihopRecent} returns this
 */
-proto.mullvad_daemon.management_interface.MultihopRecent.prototype.setEntry = function(value) {
-  return jspb.Message.setWrapperField(this, 1, value);
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.setSome = function(value) {
+  return jspb.Message.setOneofWrapperField(this, 1, proto.mullvad_daemon.management_interface.MultihopRecent.oneofGroups_[0], value);
 };
 
 
@@ -15664,8 +15705,8 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.setEntry = fu
  * Clears the message field making it undefined.
  * @return {!proto.mullvad_daemon.management_interface.MultihopRecent} returns this
  */
-proto.mullvad_daemon.management_interface.MultihopRecent.prototype.clearEntry = function() {
-  return this.setEntry(undefined);
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.clearSome = function() {
+  return this.setSome(undefined);
 };
 
 
@@ -15673,18 +15714,55 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.clearEntry = 
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.mullvad_daemon.management_interface.MultihopRecent.prototype.hasEntry = function() {
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.hasSome = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 
 
 /**
- * optional LocationConstraint exit = 2;
+ * optional google.protobuf.Empty automatic = 2;
+ * @return {?proto.google.protobuf.Empty}
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getAutomatic = function() {
+  return /** @type{?proto.google.protobuf.Empty} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_empty_pb.Empty, 2));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Empty|undefined} value
+ * @return {!proto.mullvad_daemon.management_interface.MultihopRecent} returns this
+*/
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.setAutomatic = function(value) {
+  return jspb.Message.setOneofWrapperField(this, 2, proto.mullvad_daemon.management_interface.MultihopRecent.oneofGroups_[0], value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.mullvad_daemon.management_interface.MultihopRecent} returns this
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.clearAutomatic = function() {
+  return this.setAutomatic(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.MultihopRecent.prototype.hasAutomatic = function() {
+  return jspb.Message.getField(this, 2) != null;
+};
+
+
+/**
+ * optional LocationConstraint exit = 3;
  * @return {?proto.mullvad_daemon.management_interface.LocationConstraint}
  */
 proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getExit = function() {
   return /** @type{?proto.mullvad_daemon.management_interface.LocationConstraint} */ (
-    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.LocationConstraint, 2));
+    jspb.Message.getWrapperField(this, proto.mullvad_daemon.management_interface.LocationConstraint, 3));
 };
 
 
@@ -15693,7 +15771,7 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.getExit = fun
  * @return {!proto.mullvad_daemon.management_interface.MultihopRecent} returns this
 */
 proto.mullvad_daemon.management_interface.MultihopRecent.prototype.setExit = function(value) {
-  return jspb.Message.setWrapperField(this, 2, value);
+  return jspb.Message.setWrapperField(this, 3, value);
 };
 
 
@@ -15711,7 +15789,7 @@ proto.mullvad_daemon.management_interface.MultihopRecent.prototype.clearExit = f
  * @return {boolean}
  */
 proto.mullvad_daemon.management_interface.MultihopRecent.prototype.hasExit = function() {
-  return jspb.Message.getField(this, 2) != null;
+  return jspb.Message.getField(this, 3) != null;
 };
 
 

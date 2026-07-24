@@ -18,7 +18,7 @@ pub(crate) fn run(
     // Parse the current settings blob to a structured format.
     let input = v17::__Settings::deserialize(settings.clone())
         .map_err(Error::Deserialize)?
-        .check_magic_mulithop(cache_dir, resource_dir)?;
+        .check_magic_multihop(cache_dir, resource_dir)?;
     // Detect which scenario the migration led to.
     let scenario = detect(&input);
     // Run the actual migration
@@ -71,6 +71,7 @@ pub(crate) fn migrate(settings: &mut Value, scenario: Scenario) {
     };
     // Update DAITA settings value. Notably `use_multihop_if_necessary` is gone.
     daita_migration(settings);
+    recents_migration(settings);
 }
 
 /// Detect which scenario we are dealing with based on the previous settings.
@@ -138,4 +139,55 @@ fn daita_migration(settings: &mut Value) {
     let wg: v17::__WireguardSettings = serde_json::from_value(wg_settings.clone())
         .expect("It should be safe to cast settings to v17::__WireguardSettings");
     *wg_settings = json!(v18::__WireguardSettings::migrate(wg));
+}
+
+fn recents_migration(settings: &mut Value) {
+    if let Some(recents_raw) = settings.get_mut("recents")
+        && let Ok(recents) =
+            serde_json::from_value::<Option<Vec<v17::__Recent>>>(recents_raw.clone())
+    {
+        let recents_v18 =
+            recents.map(|r| r.into_iter().map(v18::__Recent::from).collect::<Vec<_>>());
+        *recents_raw = json!(recents_v18);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::recents_migration;
+    use serde_json::json;
+
+    #[test]
+    fn recents_migration_wraps_multihop_entry_in_only() {
+        let mut settings = json!({
+            "recents": [
+                {"Multihop": {
+                    "entry": {"location": {"country": "se"}},
+                    "exit": {"custom_list": {"list_id": "df612270-79a4-47e9-92e7-3405c92f7678"}}
+                }},
+                {"Multihop": {
+                    "entry": {"custom_list": {"list_id": "abc"}},
+                    "exit": {"location": {"country": "fi"}}
+                }},
+                {"Singlehop": {"location": {"hostname": ["be", "bru", "be-bru-wg-103"]}}}
+            ]
+        });
+        recents_migration(&mut settings);
+        assert_eq!(
+            settings,
+            json!({
+                "recents": [
+                    {"Multihop": {
+                        "entry": {"only": {"location": {"country": "se"}}},
+                        "exit": {"custom_list": {"list_id": "df612270-79a4-47e9-92e7-3405c92f7678"}}
+                    }},
+                    {"Multihop": {
+                        "entry": {"only": {"custom_list": {"list_id": "abc"}}},
+                        "exit": {"location": {"country": "fi"}}
+                    }},
+                    {"Singlehop": {"location": {"hostname": ["be", "bru", "be-bru-wg-103"]}}}
+                ]
+            })
+        );
+    }
 }

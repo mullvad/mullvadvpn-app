@@ -1,5 +1,5 @@
 use crate::types::{FromProtobufTypeError, proto};
-use mullvad_types::settings::CURRENT_SETTINGS_VERSION;
+use mullvad_types::{constraints::Constraint, settings::CURRENT_SETTINGS_VERSION};
 use talpid_types::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
@@ -320,7 +320,12 @@ impl From<mullvad_types::settings::Recent> for proto::Recent {
             },
             mullvad_types::settings::Recent::Multihop { entry, exit } => Self {
                 r#type: Some(proto::recent::Type::Multihop(proto::MultihopRecent {
-                    entry: Some(entry.into()),
+                    entry: Some(match entry {
+                        Constraint::Any => proto::multihop_recent::Entry::Automatic(()),
+                        Constraint::Only(location) => {
+                            proto::multihop_recent::Entry::Some(location.into())
+                        }
+                    }),
                     exit: Some(exit.into()),
                 })),
             },

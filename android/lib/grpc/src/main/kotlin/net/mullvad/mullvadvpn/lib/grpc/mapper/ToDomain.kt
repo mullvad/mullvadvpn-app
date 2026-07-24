@@ -784,18 +784,25 @@ internal fun ManagementInterface.IpVersion.toDomain() =
 
 internal fun ManagementInterface.Recents?.toDomain(): Recents =
     if (this != null) {
-        Recents.Enabled(recentsList.map { it.toDomain() })
+        Recents.Enabled(recentsList.mapNotNull { it.toDomain() })
     } else {
         Recents.Disabled
     }
 
-internal fun ManagementInterface.Recent.toDomain(): Recent =
+internal fun ManagementInterface.Recent.toDomain(): Recent? =
     when (typeCase) {
-        ManagementInterface.Recent.TypeCase.MULTIHOP ->
+        ManagementInterface.Recent.TypeCase.MULTIHOP -> {
+            val entry = when (multihop.entryCase) {
+                ManagementInterface.MultihopRecent.EntryCase.SOME -> multihop.some
+                ManagementInterface.MultihopRecent.EntryCase.AUTOMATIC -> return null
+                ManagementInterface.MultihopRecent.EntryCase.ENTRY_NOT_SET -> error("Recent entry must be set")
+            }
+
             Recent.Multihop(
-                entry = (multihop.entry.toDomain() as Constraint.Only).value,
+                entry = (entry.toDomain() as Constraint.Only).value,
                 exit = (multihop.exit.toDomain() as Constraint.Only).value,
             )
+        }
 
         ManagementInterface.Recent.TypeCase.SINGLEHOP ->
             Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)

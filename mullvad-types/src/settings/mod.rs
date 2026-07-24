@@ -155,7 +155,8 @@ pub struct Settings {
 pub enum Recent {
     Singlehop(LocationConstraint),
     Multihop {
-        entry: LocationConstraint,
+        /// Constraint::Any corresponds to "multihop: always" with an automatic entry
+        entry: Constraint<LocationConstraint>,
         exit: LocationConstraint,
     },
 }
@@ -178,39 +179,28 @@ impl TryFrom<&RelaySettings> for Recent {
 
                 let recent = match constraints.wireguard_constraints.multihop {
                     Multihop::Always => {
-                        let entry = constraints
-                            .wireguard_constraints
-                            .entry_location
-                            .as_ref()
-                            .option()
-                            .ok_or("Location must be Constraint::Only")?
-                            .clone();
-
-                        if matches!(
-                            entry,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && matches!(
-                            location,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && entry == location
-                        {
-                            return Err(
-                                "Multihop recent cannot have identical (country, city, host) triple.",
-                            );
-                        }
-
-                        Recent::Multihop {
-                            entry,
-                            exit: location,
-                        }
+                        let exit = location;
+                        let entry = match constraints.wireguard_constraints.entry_location.clone() {
+                            Constraint::Any => Constraint::Any,
+                            Constraint::Only(entry) => {
+                                if matches!(
+                                    entry,
+                                    LocationConstraint::Location(
+                                        GeographicLocationConstraint::Hostname(..)
+                                    )
+                                ) && entry == exit
+                                {
+                                    return Err(
+                                        "Multihop recent cannot have identical (country, city, host) triple.",
+                                    );
+                                }
+                                Constraint::Only(entry)
+                            }
+                        };
+                        Recent::Multihop { entry, exit }
                     }
-                    Multihop::Never | Multihop::Auto => Recent::Singlehop(location),
+                    _ => Recent::Singlehop(location),
                 };
-
                 Ok(recent)
             }
         }

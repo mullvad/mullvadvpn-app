@@ -107,7 +107,9 @@ const recents: Recents = [
   {
     type: 'multihop',
     entry: {
-      country: relayList.countries[0].code,
+      only: {
+        country: relayList.countries[0].code,
+      },
     },
     exit: {
       country: relayList.countries[0].code,
