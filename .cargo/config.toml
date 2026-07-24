@@ -37,6 +37,14 @@ rustflags = [
   "-Clink-arg=/PDBALTPATH:%_PDB%",
 ]
 
+# Without -no_uuid ld writes a non-content-derived LC_UUID that differs between builds
+# Getting rid of LC_UUID is required for reproducible builds.
+[target.x86_64-apple-darwin]
+rustflags = ["-Clink-arg=-Wl,-no_uuid"]
+
+[target.aarch64-apple-darwin]
+rustflags = ["-Clink-arg=-Wl,-no_uuid"]
+
 [target.x86_64-unknown-linux-gnu.mnl]
 rustc-link-lib = ["mnl"]
 rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]

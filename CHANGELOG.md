@@ -56,6 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
+- Stop embedding a non-deterministic UUID in the Rust binaries. Required for reproducible builds.
 
 ### Fixed
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
