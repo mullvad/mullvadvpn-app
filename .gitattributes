@@ -6,3 +6,13 @@
 
 # Use LF for Rust because rustfmt works best like that
 *.rs text eol=lf
+
+# Files embedded verbatim into binaries via include_bytes!/include_str! or the
+# Windows resource compiler (*.manifest, via winresource::set_manifest_file).
+# Must have their line endings (LF vs CRLF) untouched. If they are different
+# that breaks reproducible builds.
+# `-text` disables EOL conversion so every checkout embeds
+# identical bytes regardless of platform or core.autocrlf.
+mullvad-api/le_root_cert.pem -text
+mullvad-update/trusted-metadata-signing-pubkeys -text
+*.manifest -text
