@@ -179,7 +179,13 @@ extension LocationNode: Hashable {
 
 extension LocationNode: Comparable {
     static func < (lhs: LocationNode, rhs: LocationNode) -> Bool {
-        lhs.name.lowercased() < rhs.name.lowercased()
+        // Sort using the current locale's collation rules (via `Locale.current`) rather than
+        // raw Unicode scalar comparison. The resulting order is locale-specific: how accented
+        // and non-ASCII letters are ordered depends on the user's language. For example, under
+        // Portuguese "Áustria" sorts among the A's (not after "z", as scalar comparison would
+        // place it), whereas under Swedish "Å" is a distinct letter that sorts after "Z". This
+        // also yields natural numeric ordering.
+        lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
     }
 }
 

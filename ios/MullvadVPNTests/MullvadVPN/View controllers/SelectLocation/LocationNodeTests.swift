@@ -91,6 +91,32 @@ class LocationNodeTests: XCTestCase {
     func testFindDescendantByNodeCode() {
         XCTAssertTrue(listNode.descendantNode(for: [hostNode.code]) == hostNode)
     }
+
+    // Guards against sorting by raw Unicode scalar value, which would place accented names
+    // such as "Áustria" and "África do Sul" after "Zimbabwe" ("Á"/"á" outrank "z" by scalar
+    // value). Acute accents fold to their base letter across Latin locales, so this holds
+    // regardless of the test host's locale.
+    func testSortingIsLocaleAwareForAccentedNames() {
+        let names = ["Zimbabwe", "Áustria", "África do Sul", "Bélgica", "Albânia"]
+        let nodes = names.map { LocationNode(name: $0, code: $0, showsChildren: false) }
+
+        XCTAssertEqual(
+            nodes.sorted().map(\.name),
+            ["África do Sul", "Albânia", "Áustria", "Bélgica", "Zimbabwe"]
+        )
+    }
+
+    // Documents that collation is locale-specific: "Å" sorts among the A's in English but as a
+    // distinct letter after "Z" in Swedish. LocationNode's `<` follows whichever applies to
+    // Locale.current at runtime; here we pin the locale explicitly since the operator cannot.
+    func testAringOrderingIsLocaleSpecific() {
+        XCTAssertEqual(
+            "Åland".compare("Zimbabwe", options: [], range: nil, locale: Locale(identifier: "en_US")), .orderedAscending
+        )
+        XCTAssertEqual(
+            "Åland".compare("Zimbabwe", options: [], range: nil, locale: Locale(identifier: "sv_SE")),
+            .orderedDescending)
+    }
 }
 
 extension LocationNodeTests {
