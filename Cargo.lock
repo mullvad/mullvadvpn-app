@@ -6791,9 +6791,9 @@ dependencies = [
  "futures",
  "log",
  "mullvad-masque-proxy",
- "nix 0.31.3",
  "rand 0.9.4",
  "shadowsocks",
+ "talpid-net",
  "talpid-types",
  "thiserror 2.0.18",
  "tokio",
@@ -6850,7 +6850,7 @@ checksum = "40ce102ab67701b8526c123c1bab5cbe42d7040ccfd0f64af1a385808d2f43de"
 [[package]]
 name = "udp-over-tcp"
 version = "0.4.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303#5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=00c8482f303aa23a69cfe9ee10903582cba3eb1e#00c8482f303aa23a69cfe9ee10903582cba3eb1e"
 dependencies = [
  "err-context",
  "futures",

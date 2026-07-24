@@ -8,9 +8,11 @@
 //! ## How it works
 //!
 //! 1. **Initial Setup**: The multiplexer creates a local UDP socket that WireGuard connects to
-//! 2. **Transport Spawning**: It progressively spawns different obfuscation transports at timed intervals
+//! 2. **Transport Spawning**: It progressively spawns different obfuscation transports at timed
+//!    intervals
 //! 3. **Traffic Fanout**: All incoming WireGuard packets are fanned out to all active transports
-//! 4. **First Response Wins**: The first transport to receive a response from the server is selected
+//! 4. **First Response Wins**: The first transport to receive a response from the server is
+//!    selected
 //! 5. **Connection Establishment**: Once a transport is selected, the multiplexer switches to a
 //!    direct forwarding mode between WireGuard and the selected transport
 //!
@@ -27,6 +29,7 @@ use std::{
 };
 
 use async_trait::async_trait;
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::task::AbortOnDropHandle;
 
@@ -62,6 +65,9 @@ pub struct Multiplexer {
     tasks: Vec<AbortOnDropHandle<()>>,
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
+    bypass: Arc<dyn SocketBypass>,
+    _bypass_v4: BypassGuard,
+    _bypass_v6: BypassGuard,
 }
 
 impl Multiplexer {
@@ -72,7 +78,7 @@ impl Multiplexer {
     ///
     /// # Returns
     /// A new multiplexer instance ready to start obfuscation discovery
-    pub async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let client_socket = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0))
             .await
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
@@ -81,18 +87,8 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
 
-        let proxy_socket_v4 = create_remote_socket(
-            true,
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
-        let proxy_socket_v6 = create_remote_socket(
-            false,
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        let (proxy_socket_v4, _bypass_v4) = create_remote_socket(&bypass, true).await?;
+        let (proxy_socket_v6, _bypass_v6) = create_remote_socket(&bypass, false).await?;
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
@@ -104,6 +100,9 @@ impl Multiplexer {
             tasks: vec![],
             initial_packets_to_send: vec![],
             wg_addr: None,
+            bypass,
+            _bypass_v4,
+            _bypass_v6,
         })
     }
 
@@ -319,7 +318,11 @@ impl Multiplexer {
                 Ok(addr)
             }
             Transport::Obfuscated(obfuscator_settings) => {
-                let obfuscator = crate::create_obfuscator(&obfuscator_settings).await?;
+                let obfuscator = crate::create_obfuscator_with_bypass(
+                    Arc::clone(&self.bypass),
+                    &obfuscator_settings,
+                )
+                .await?;
                 let endpoint = obfuscator.endpoint();
                 self.running_endpoints
                     .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
@@ -354,9 +357,6 @@ pub struct Settings {
     /// Spawn these transports progressively and select
     /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
-    /// Linux-specific firewall mark for outgoing connections
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 /// Represents a transport method that the multiplexer can use.
@@ -385,17 +385,13 @@ impl crate::Obfuscator for Multiplexer {
             .await
             .map_err(crate::Error::RunMultiplexerObfuscator)
     }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        unimplemented!("must return the socket fd of every obfuscator here")
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::Obfuscator;
+    use talpid_net::bypass::NoopBypass;
 
     /// Test whether the multiplexer works with a direct transports
     #[tokio::test(start_paused = true)]
@@ -412,11 +408,11 @@ mod tests {
                 Transport::Direct(server_addr),
                 Transport::Direct(server_addr2),
             ],
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         };
 
-        let multiplexer = Multiplexer::new(&settings).await.unwrap();
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), &settings)
+            .await
+            .unwrap();
         let multiplexer_endpoint = multiplexer.endpoint();
 
         let client_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();

@@ -5,7 +5,9 @@ use mullvad_masque_proxy::client::{Client, ClientConfig};
 use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Arc,
 };
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
@@ -21,10 +23,10 @@ pub enum Error {
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
 
-#[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
+    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -38,16 +40,13 @@ pub struct Settings {
     /// Authentication token to set for the CONNECT request when establishing a QUIC connection.
     /// Must NOT be prefixed with "Bearer".
     token: AuthToken,
-    /// fwmark to apply to use for the QUIC connection
-    #[cfg(target_os = "linux")]
-    fwmark: Option<u32>,
     /// MTU for the QUIC client. This needs to account for the *additional* headers other than IP
     /// and UDP, but not for those specifically.
     mtu: Option<u16>,
 }
 
 impl Settings {
-    ///See [Settings] for details.
+    /// See [Settings] for details.
     pub fn new(
         quic_server_endpoint: SocketAddr,
         hostname: String,
@@ -60,8 +59,6 @@ impl Settings {
             hostname,
             token,
             mtu: None,
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         }
     }
 
@@ -70,13 +67,6 @@ impl Settings {
         debug_assert!(mtu <= 1500, "MTU is too high: {mtu}");
         let mtu = Some(mtu);
         Self { mtu, ..self }
-    }
-
-    /// Set `fwmark` for the Quic obfuscator.
-    #[cfg(target_os = "linux")]
-    pub fn fwmark(self, fwmark: u32) -> Self {
-        let fwmark = Some(fwmark);
-        Self { fwmark, ..self }
     }
 
     /// The masque-proxy server expects the Authentication header to be prefixed with "Bearer ", so
@@ -118,21 +108,20 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl Quic {
-    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub(crate) async fn new(
+        bypass: Arc<dyn SocketBypass>,
+        settings: &Settings,
+    ) -> crate::Result<Self> {
         let (local_socket, local_udp_client_addr) =
             Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
                 .await
                 .map_err(crate::Error::CreateQuicObfuscator)?;
         // The address family of the local QUIC client socket has to match the address family
-        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
-        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
-        // obfuscator is running.
-        let quic_socket = create_remote_socket(
-            settings.quic_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
+        // of the endpoint we're connecting to. The address itself is not important to consumers
+        // wanting to obfuscate traffic. It is solely used by the local proxy client to know
+        // where the QUIC obfuscator is running.
+        let (quic_socket, _bypass) =
+            create_remote_socket(&bypass, settings.quic_endpoint.is_ipv4()).await?;
 
         let config_builder = ClientConfig::builder()
             .client_socket(local_socket)
@@ -148,6 +137,7 @@ impl Quic {
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
             config,
+            _bypass,
         };
 
         Ok(quic)
@@ -210,11 +200,5 @@ impl Obfuscator for Quic {
         // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
         // The above would prevent mullvad-masque-proxy-level fragmentation
         0
-    }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        use std::os::fd::AsRawFd;
-        self.config.quinn_socket.as_raw_fd()
     }
 }

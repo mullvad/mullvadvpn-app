@@ -7,6 +7,7 @@ use std::{
 
 use async_trait::async_trait;
 use rand::RngCore;
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
@@ -39,28 +40,19 @@ pub struct Settings {
     pub client_public_key: PublicKey,
     /// Public key of the WG server
     pub server_public_key: PublicKey,
-    /// Optional fwmark to set on the remote socket
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 pub struct Lwo {
     client: Client,
     local_endpoint: SocketAddr,
-    #[cfg(target_os = "android")]
-    wg_endpoint: Arc<UdpSocket>,
+    _bypass: BypassGuard,
 }
 
 impl Lwo {
-    pub async fn new(settings: &Settings) -> crate::Result<Self> {
-        let remote_socket = Arc::new(
-            create_remote_socket(
-                settings.server_addr.is_ipv4(),
-                #[cfg(target_os = "linux")]
-                settings.fwmark,
-            )
-            .await?,
-        );
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
+        let remote_socket = Arc::new(remote_socket);
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
                 .await
@@ -71,9 +63,6 @@ impl Lwo {
             .local_addr()
             .map_err(Error::GetUdpLocalAddress)
             .map_err(crate::Error::CreateLwoObfuscator)?;
-
-        #[cfg(target_os = "android")]
-        let wg_endpoint = Arc::clone(&remote_socket);
 
         let client = Client {
             server_addr: settings.server_addr,
@@ -86,8 +75,7 @@ impl Lwo {
         Ok(Self {
             local_endpoint,
             client,
-            #[cfg(target_os = "android")]
-            wg_endpoint,
+            _bypass,
         })
     }
 
@@ -312,12 +300,6 @@ impl Obfuscator for Lwo {
     fn packet_overhead(&self) -> u16 {
         0
     }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        use std::os::fd::AsRawFd;
-        self.wg_endpoint.as_raw_fd()
-    }
 }
 
 /// Obfuscate a packet using a thread-local RNG.
@@ -330,6 +312,8 @@ pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
 
 #[cfg(test)]
 mod test {
+    use talpid_net::bypass::NoopBypass;
+
     use super::*;
 
     struct FixedByteRng(u8);
@@ -399,11 +383,9 @@ mod test {
             server_addr: endpoint.local_addr().unwrap(),
             client_public_key: client_public_key.clone(),
             server_public_key: server_public_key.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         };
 
-        let lwo = Lwo::new(&settings).await.unwrap();
+        let lwo = Lwo::new(Arc::new(NoopBypass), &settings).await.unwrap();
         let client_socket_addr = lwo.local_endpoint;
 
         tokio::spawn(Box::new(lwo).run());

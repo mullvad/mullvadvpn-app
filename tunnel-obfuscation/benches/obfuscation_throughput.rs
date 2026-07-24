@@ -11,6 +11,8 @@
 
 use core::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
+use std::sync::Arc;
+use talpid_net::bypass::NoopBypass;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::net::UdpSocket;
 use tunnel_obfuscation::{
@@ -96,10 +98,8 @@ fn bench_proxy_lwo(c: &mut Criterion) {
             server_addr: relay.local_addr().unwrap(),
             client_public_key: client_key.clone(),
             server_public_key: server_key.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark: None,
         };
-        let lwo = Lwo::new(&settings).await.unwrap();
+        let lwo = Lwo::new(Arc::new(NoopBypass), &settings).await.unwrap();
         let proxy_addr = lwo.endpoint();
         tokio::spawn((Box::new(lwo) as Box<dyn Obfuscator>).run());
 

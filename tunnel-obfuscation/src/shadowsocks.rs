@@ -18,10 +18,8 @@ use shadowsocks::{
     },
 };
 use std::{io, net::SocketAddr, sync::Arc};
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::{net::UdpSocket, sync::oneshot};
-
-#[cfg(target_os = "android")]
-use std::os::fd::AsRawFd;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
@@ -52,8 +50,7 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
-    #[cfg(target_os = "android")]
-    outbound_fd: i32,
+    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -62,12 +59,13 @@ pub struct Settings {
     pub shadowsocks_endpoint: SocketAddr,
     /// Remote WireGuard endpoint
     pub wireguard_endpoint: SocketAddr,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 impl Shadowsocks {
-    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub(crate) async fn new(
+        bypass: Arc<dyn SocketBypass>,
+        settings: &Settings,
+    ) -> crate::Result<Self> {
         let (local_udp_socket, udp_client_addr) =
             create_local_udp_socket(settings.shadowsocks_endpoint.is_ipv4())
                 .await
@@ -75,15 +73,8 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let remote_socket = create_remote_socket(
-            settings.shadowsocks_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
-
-        #[cfg(target_os = "android")]
-        let outbound_fd = remote_socket.as_raw_fd();
+        let (remote_socket, _bypass) =
+            create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,
@@ -98,8 +89,7 @@ impl Shadowsocks {
             wireguard_endpoint: settings.wireguard_endpoint,
             server,
             _shutdown_tx: shutdown_tx,
-            #[cfg(target_os = "android")]
-            outbound_fd,
+            _bypass,
         })
     }
 }
@@ -271,11 +261,6 @@ impl Obfuscator for Shadowsocks {
             Err(_err) if _err.is_cancelled() => Ok(()),
             Err(_err) => panic!("server handle panicked"),
         }
-    }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.outbound_fd
     }
 
     fn packet_overhead(&self) -> u16 {
