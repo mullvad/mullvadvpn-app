@@ -43,6 +43,8 @@ private val otherStates =
                         longitude = 12.99,
                         hostname = "Hostname",
                         entryHostname = "EntryHostname",
+                        entryCountry = "EntryCountry",
+                        entryCity = "EntryCity",
                     ),
                 selectedRelayItemTitle = "Relay Title",
                 tunnelState = state,

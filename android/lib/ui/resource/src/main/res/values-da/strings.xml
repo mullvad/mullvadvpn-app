@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåger disse datapakker, gør %1$s det betydeligt sværere for dem at identificere, hvilke hjemmesider du besøger, eller hvem du kommunikerer med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
     <string name="daita_info">Hvis du aktiverer \"%1$s\", skal du manuelt vælge en server, der er %2$s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\".</string>
-    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 dage blev føjet til din konto.</string>
     <string name="days_were_added_90">90 dage blev føjet til din konto.</string>
     <string name="delete">Slet</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
-    <string name="multihop_entry_disabled_description">Indgangsserveren for %1$s tilsidesættes i øjeblikket af %2$s. Du skal først aktivere \"%3$s\" eller deaktivere \"%2$s\" i indstillingerne for at vælge en indgangsserver.</string>
     <string name="multihop_is_disabled">Multihop er deaktiveret</string>
     <string name="multihop_is_enabled">Multihop er aktiveret</string>
     <string name="name">Navn</string>
@@ -359,7 +357,6 @@
     <string name="on">Til</string>
     <string name="ongoing_verification_warning">Dit seneste køb verificeres stadig. Hvis du logger ind på en anden konto, vil verifikationen mislykkes. Vil du stadig logge ud?</string>
     <string name="open_app_details">Se oplysninger om app</string>
-    <string name="open_feature_settings">Åbn indstillinger for %1$s</string>
     <string name="open_url">Åbn URL</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="overrides_cleared">Tilsidesættelser ryddet</string>

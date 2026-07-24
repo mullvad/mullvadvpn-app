@@ -20,4 +20,6 @@ fun EntryProviderScope<NavKey2>.multihopEntry(navigator: Navigator) {
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )
     }
+
+    whenNeededInfoEntry(navigator)
 }
