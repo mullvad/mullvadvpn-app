@@ -1040,6 +1040,7 @@ mod tests {
         ipv6_gateway: None,
         mtu: 0,
         obfuscator_config: None,
+        obfuscation_mtu: 0,
         quantum_resistant: false,
         daita: false,
     });
