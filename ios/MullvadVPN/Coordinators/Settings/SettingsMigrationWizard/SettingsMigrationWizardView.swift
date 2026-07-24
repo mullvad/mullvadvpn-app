@@ -24,7 +24,7 @@ struct SettingsMigrationWizardView<ViewModel: SettingsMigrationWizardViewModelPr
             .padding(.top, 8.0)
 
             HStack(spacing: 8.0) {
-                MainButton(text: "Back", style: .default) {
+                MullvadButton(text: "Back", style: .secondary) {
                     if currentPage > 0 {
                         currentPage -= 1
                     }
@@ -32,7 +32,7 @@ struct SettingsMigrationWizardView<ViewModel: SettingsMigrationWizardViewModelPr
                 .showIf(viewModel.items.count > 1)
                 .disabled(currentPage == 0)
 
-                MainButton(text: currentPage == viewModel.items.count - 1 ? "Got it!" : "Next", style: .default) {
+                MullvadButton(text: currentPage == viewModel.items.count - 1 ? "Got it!" : "Next", style: .primary) {
                     if currentPage < viewModel.items.count - 1 {
                         currentPage += 1
                     } else {

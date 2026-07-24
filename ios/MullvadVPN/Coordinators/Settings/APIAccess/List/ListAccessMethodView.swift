@@ -45,9 +45,9 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                     )
                 },
                 footer: {
-                    MainButton(
+                    MullvadButton(
                         text: LocalizedStringKey("Add"),
-                        style: .default
+                        style: .primary
                     ) {
                         viewModel.addNewMethod()
                     }

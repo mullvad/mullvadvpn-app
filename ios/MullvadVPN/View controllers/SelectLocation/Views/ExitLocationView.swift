@@ -207,7 +207,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             ],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Continue",
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
@@ -216,7 +216,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         multihopWarningAlert = nil

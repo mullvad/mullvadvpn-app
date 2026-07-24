@@ -65,13 +65,13 @@ struct AccountDeletionView: View {
 
                 Spacer()
 
-                MainButton(text: "Delete account", style: .danger) {
+                MullvadButton(text: "Delete account", style: .destructive) {
                     viewModel.deleteButtonTapped()
                 }
                 .accessibilityIdentifier(.deleteButton)
                 .disabled(!viewModel.canDelete)
 
-                MainButton(text: "Cancel", style: .default) {
+                MullvadButton(text: "Cancel", style: .primary) {
                     viewModel.cancelButtonTapped()
                 }
             }

@@ -111,7 +111,7 @@ struct SettingsMultihopView: View {
             customView: customView,
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Got it!",
                     handler: completion
                 )

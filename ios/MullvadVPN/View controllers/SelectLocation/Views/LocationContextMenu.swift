@@ -25,7 +25,7 @@ extension ExitLocationView {
                             messages: ["Do you want to delete the list **\(location.name)**?"],
                             actions: [
                                 .init(
-                                    type: .danger,
+                                    type: .destructivePrimary,
                                     title: "Delete list",
                                     handler: {
                                         viewModel.delete(customList: location.customList)
@@ -33,7 +33,7 @@ extension ExitLocationView {
                                     }
                                 ),
                                 .init(
-                                    type: .default,
+                                    type: .secondary,
                                     title: "Cancel",
                                     handler: {
                                         alert = nil
@@ -111,7 +111,7 @@ extension ExitLocationView {
                     title: "Create new list",
                     placeholder: "List name",
                     action: .init(
-                        type: .default,
+                        type: .primary,
                         title: "Create",
                         identifier: nil,
                         handler: { listName in

@@ -56,7 +56,7 @@ struct RelayFilterView: View {
                         "Show \(relayCount) servers"
                     }
 
-                MainButton(
+                MullvadButton(
                     text: relayCountMessage,
                     style: .success
                 ) {
