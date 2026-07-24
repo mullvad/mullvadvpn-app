@@ -25,7 +25,7 @@ static MULLVAD_CONNCHECK_HOST: LazyLock<String> = LazyLock::new(|| {
     let host = if cfg!(feature = "api-override") {
         match conncheck_host_var.as_deref() {
             Some(host) => {
-                log::debug!("Overriding conncheck endpoint. Using {}", &host);
+                log::debug!("Overriding conncheck endpoint. Using {host}");
                 host
             }
             None => DEFAULT_CONNCHECK_HOST,

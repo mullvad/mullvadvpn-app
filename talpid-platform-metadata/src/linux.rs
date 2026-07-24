@@ -68,13 +68,7 @@ fn read_os_release_file() -> Result<String, Option<String>> {
 fn parse_lsb_release() -> Option<String> {
     command_stdout_lossy("lsb_release", &["-ds"])
         .ok()
-        .and_then(|output| {
-            if output.is_empty() {
-                None
-            } else {
-                Some(output)
-            }
-        })
+        .filter(|output| !output.is_empty())
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {

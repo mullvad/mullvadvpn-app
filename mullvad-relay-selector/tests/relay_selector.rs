@@ -1580,11 +1580,8 @@ mod partition_relays {
                 !non_matching_relays.is_empty(),
                 "Set should not be empty, else test is useless"
             );
-            let RelayPartitions {
-                matches,
-                discards: _,
-                ..
-            } = relay_selector.partition_relays(Predicate::Singlehop(EntryConstraints::default()));
+            let RelayPartitions { matches, .. } =
+                relay_selector.partition_relays(Predicate::Singlehop(EntryConstraints::default()));
             non_matching_relays.is_subset(&HashSet::from_iter(matches));
         }
 

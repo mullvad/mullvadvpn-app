@@ -11,7 +11,7 @@ mod win {
         const WINFW_DIR_VAR: &str = "WINFW_LIB_DIR";
         declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
         let lib_dir = manifest_dir().join("../build/lib").join(target());
-        println!("cargo::rustc-link-search={}", &lib_dir.display());
+        println!("cargo::rustc-link-search={}", lib_dir.display());
     }
 
     pub static WINFW_BUILD_DIR: &str = "..\\windows\\winfw\\bin";
