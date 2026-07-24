@@ -53,8 +53,27 @@ jobs:
           -disableAutomaticPackageResolution \
           -allowProvisioningUpdates \
           -destination "platform=iOS Simulator,name=iPhone 16" \
-          clean build-for-testing 2>&1 | xcbeautify
+          clean build-for-testing 2>&1 | tee xcodebuild-raw.log | xcbeautify
         working-directory: ios/
+
+      # xcbeautify swallows the output of Run Script build phases (e.g. the
+      # `Build MullvadRustRuntime` phase that runs build-rust-library.sh), so a
+      # failing `cargo build` is invisible in the beautified log. Surface the raw
+      # log so the underlying rust/cargo error is diagnosable.
+      - name: Print raw build log on failure
+        if: failure()
+        run: |
+          echo "::group::rust/cargo/linker lines from raw xcodebuild log"
+          grep -inE 'cargo|rustc|rustup|error\[|error:|could not compile|libmullvad_ios|toolchain|target may not|not installed' xcodebuild-raw.log || true
+          echo "::endgroup::"
+        working-directory: ios/
+
+      - name: Upload raw build log on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: xcodebuild-raw-log-ui-test-build
+          path: ios/xcodebuild-raw.log
 
   test:
     name: Unit tests
@@ -79,8 +98,27 @@ jobs:
             -disableAutomaticPackageResolution \
             -allowProvisioningUpdates \
             -resultBundlePath xcode-test-report \
-            test 2>&1 | xcbeautify
+            test 2>&1 | tee xcodebuild-raw.log | xcbeautify
         working-directory: ios/
+
+      # xcbeautify swallows the output of Run Script build phases (e.g. the
+      # `Build MullvadRustRuntime` phase that runs build-rust-library.sh), so a
+      # failing `cargo build` is invisible in the beautified log. Surface the raw
+      # log so the underlying rust/cargo error is diagnosable.
+      - name: Print raw build log on failure
+        if: failure()
+        run: |
+          echo "::group::rust/cargo/linker lines from raw xcodebuild log"
+          grep -inE 'cargo|rustc|rustup|error\[|error:|could not compile|libmullvad_ios|toolchain|target may not|not installed' xcodebuild-raw.log || true
+          echo "::endgroup::"
+        working-directory: ios/
+
+      - name: Upload raw build log on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: xcodebuild-raw-log-unit-tests
+          path: ios/xcodebuild-raw.log
 
       - name: Archive test report
         if: always()
