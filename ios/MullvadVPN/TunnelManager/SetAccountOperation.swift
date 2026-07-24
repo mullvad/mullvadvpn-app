@@ -102,12 +102,12 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin logout flow by performing the following steps:
-    
+
      1. Delete currently logged in device from the API if device is logged in.
      2. Transition device state to logged out state.
      3. Remove system VPN configuration if exists.
      4. Reset tunnel status to disconnected state.
-    
+
      Does nothing if device is already logged out.
      */
     private func startLogoutFlow(isRemovingProfile: Bool = true, completion: @escaping @Sendable () -> Void) {
@@ -127,7 +127,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin login flow with a new account and performing the following steps:
-    
+
      1. Create new account via API.
      2. Call `continueLoginFlow()` passing the result of account creation request.
      */
@@ -139,7 +139,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin login flow with an existing account by performing the following steps:
-    
+
      1. Retrieve existing account from the API.
      2. Call `continueLoginFlow()` passing the result of account retrieval request.
      */
@@ -154,7 +154,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Begin delete flow of an existing account by performing the following steps:
-    
+
      1. Delete existing account with the API.
      2. On success, remove last used account and unset device state (logout)),
        otherwise, propagate the error.
@@ -178,7 +178,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     /**
      Continue login flow after receiving account data as a part of creating new or retrieving existing account from
      the API by performing the following steps:
-    
+
      1. Store last used account number.
      2. Create new device with the API.
      3. Persist settings.
@@ -355,7 +355,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
 
     /**
      Transitions device state into logged out state by performing the following tasks:
-    
+
      1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN status
         notifications coming from VPN configuration.
      2. Reset device staate to logged out and persist it.
