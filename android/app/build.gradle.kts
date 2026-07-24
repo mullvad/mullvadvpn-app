@@ -334,10 +334,9 @@ cargo {
     extraCargoBuildArguments = buildList {
         add("--package=mullvad-jni")
         add("--locked")
-    }
-
-    if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix")) {
-        environmentalOverrides["RUSTFLAGS"] = generateRemapArguments()
+        if (getBooleanProperty("mullvad.app.build.replaceRustPathPrefix")) {
+            add(generateRemapArguments())
+        }
     }
 }
 

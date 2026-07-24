@@ -76,6 +76,9 @@ export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-$(git log -1 --pretty=%ct)}
 CARGO_ARGS=()
 NPM_PACK_ARGS=()
 
+# Replace the machine specific paths rustc embeds in the binaries.
+CARGO_ARGS+=("$("$SCRIPT_DIR/building/rustc-remap-path-prefix.sh")")
+
 if [[ -n ${TARGETS:-""} ]]; then
     NPM_PACK_ARGS+=(--targets "${TARGETS[*]}")
 fi

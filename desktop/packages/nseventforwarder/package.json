@@ -8,7 +8,7 @@
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",
   "scripts": {
-    "cargo-build": "npm run build-typescript && cargo build",
+    "cargo-build": "npm run build-typescript && bash ../../../building/cargo-with-path-remapping.sh build",
     "build-typescript": "tsc",
     "build-debug": "npm run cargo-build && mkdir -p debug && cp ${CARGO_TARGET_DIR:-../../../target}/debug/libnseventforwarder.dylib debug/index.node",
     "build-arm": "npm run cargo-build -- --release --locked --target aarch64-apple-darwin && mkdir -p dist/darwin-arm64 && cp ${CARGO_TARGET_DIR:-../../../target}/aarch64-apple-darwin/release/libnseventforwarder.dylib dist/darwin-arm64/index.node",

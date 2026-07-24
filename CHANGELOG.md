@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Update `gotatun` to 0.8.1.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
+- Stop embedding absolute machine-specific paths in the desktop Rust binaries. Required for
+  reproducible builds.
 
 #### Linux
 - Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
