@@ -208,7 +208,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             tunnelSettingsUpdater: tunnelSettingsUpdater
         )
         addApplicationNotifications(application: application)
-        startInitialization(application: application)
+        Task {
+            await startInitialization(application: application)
+        }
 
         // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag
         // in SelectLocationView. SwiftUI's observation system has initialization overhead
@@ -514,15 +516,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
     }
 
-    private func startInitialization(application: UIApplication) {
+    private func startInitialization(application: UIApplication) async {
+        // the new structured code: things here run first, before we run the legacy operations.
+        // in the fullness of time, this section will grow and the latter will shrink to nothing
+        
+        // next: make a TaskGroup containing this and wipeSettings, and await that in one go
+        
+        await doLoadTunnelStore()
+        
+        // legacy concurrency code follows. We comment out the operations that have been converted.
+        
         let defaultLocationOperation = getDefaultLocationOperation()
-        let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
+//        let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
         let initTunnelManagerOperation = getInitTunnelManagerOperation()
         let deprecatedSettingsResolverOperation = getDeprecatedSettingsResolverOperation()
 
         var operations: [Operation] = [
             defaultLocationOperation,
-            loadTunnelStoreOperation,
+//            loadTunnelStoreOperation,
         ]
 
         let wipeSettingsOperation = getWipeSettingsOperation()
@@ -532,7 +543,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         defaultLocationOperation.addDependency(wipeSettingsOperation)
         migrateSettingsOperation.addDependencies([
             wipeSettingsOperation,
-            loadTunnelStoreOperation,
+//            loadTunnelStoreOperation,
         ])
         deprecatedSettingsResolverOperation.addDependency(migrateSettingsOperation)
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
@@ -560,6 +571,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     finish(nil)
                 }
             }
+        }
+    }
+    
+    private func doLoadTunnelStore() async {
+        do {
+            try await tunnelStore.loadPersistentTunnels()
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to load persistent tunnels."
+            )
         }
     }
 
@@ -635,6 +657,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// (`SettingsManager.getShouldWipeSettings()`)
     /// If (1) is `false` and (2) is `true`, we know that the app has been freshly installed/reinstalled and is
     /// compatible, thus triggering a settings wipe.
+    
+    /// CONCURRENCY PORTING NOTE: this does not seem to be asynchronous. It can call `deleteDevice`, but does not await the result. Why is it an AsyncBlockOperation?
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
         AsyncBlockOperation { [settingsManager] in
             let appHasNeverBeenLaunched =
