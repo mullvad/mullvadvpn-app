@@ -1,6 +1,7 @@
 {
   "appteam-desktop": [
     ".github/workflows/rust-min-publish-age.yml",
+    "building/cargo-with-path-remapping.sh",
     "building/Dockerfile",
     "building/linux-container-image.txt",
     "building/sigstore/mullvad/mullvadvpn-app-build@**",
