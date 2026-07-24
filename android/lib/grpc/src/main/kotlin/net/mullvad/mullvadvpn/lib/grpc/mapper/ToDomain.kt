@@ -76,9 +76,11 @@ import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelayPartitions
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
@@ -828,3 +830,25 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
 internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.map {
     Cipher(it.name)
 }
+
+internal fun ManagementInterface.SplitFilterMigration.toDomain(): SplitFilterMigration =
+    SplitFilterMigration(scenario = scenario.toDomain())
+
+internal fun ManagementInterface.SplitFilterMigration.Scenario.toDomain(): Scenario =
+    when (this) {
+        ManagementInterface.SplitFilterMigration.Scenario.OneA -> Scenario.ONE_A
+        ManagementInterface.SplitFilterMigration.Scenario.OneB -> Scenario.ONE_B
+        ManagementInterface.SplitFilterMigration.Scenario.Two -> Scenario.TWO
+        ManagementInterface.SplitFilterMigration.Scenario.ThreeA -> Scenario.THREE_A
+        ManagementInterface.SplitFilterMigration.Scenario.ThreeB -> Scenario.THREE_B
+        ManagementInterface.SplitFilterMigration.Scenario.FourA -> Scenario.FOUR_A
+        ManagementInterface.SplitFilterMigration.Scenario.FourB -> Scenario.FOUR_B
+        ManagementInterface.SplitFilterMigration.Scenario.FiveA -> Scenario.FIVE_A
+        ManagementInterface.SplitFilterMigration.Scenario.FiveB -> Scenario.FIVE_B
+        ManagementInterface.SplitFilterMigration.Scenario.SixA -> Scenario.SIX_A
+        ManagementInterface.SplitFilterMigration.Scenario.SixB -> Scenario.SIX_B
+        ManagementInterface.SplitFilterMigration.Scenario.SevenA -> Scenario.SEVEN_A
+        ManagementInterface.SplitFilterMigration.Scenario.SevenB -> Scenario.SEVEN_B
+        ManagementInterface.SplitFilterMigration.Scenario.UNRECOGNIZED ->
+            error("Unrecognized split filter migration scenario")
+    }

@@ -341,6 +341,7 @@
     <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется <b>%1$s</b>.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
+    <string name="next">Далее</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
     <string name="no_email_app_available">На устройстве нет приложения для работы с электронной почтой</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>

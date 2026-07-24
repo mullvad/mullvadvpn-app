@@ -54,6 +54,7 @@ import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableVi
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListViewModel
 import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.multihop.impl.MultihopViewModel
+import net.mullvad.mullvadvpn.feature.multihopmigration.impl.MultihopMigrationViewModel
 import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
@@ -78,6 +79,7 @@ import net.mullvad.mullvadvpn.lib.repository.ChangelogDataProvider
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.EmptyPaymentUseCase
+import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic
@@ -116,6 +118,7 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItem
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.AccountExpiryInAppNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.Android16UpdateWarningUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.InAppNotificationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.inappnotification.MultihopMigrationNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewChangelogNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificationUseCase
@@ -181,6 +184,7 @@ val uiModule = module {
         )
     }
     single { WireguardConstraintsRepository(get()) }
+    single { MultihopMigrationRepository(managementService = get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -193,6 +197,13 @@ val uiModule = module {
     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.BAKLAVA) {
         single { Android16UpdateWarningUseCase(get(), get()) } bind InAppNotificationUseCase::class
     }
+    single {
+        MultihopMigrationNotificationUseCase(
+            multihopMigrationRepository = get(),
+            connectionProxy = get(),
+            userPreferencesRepository = get(),
+        )
+    } bind InAppNotificationUseCase::class
 
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { InternetAvailableUseCase(get()) }
@@ -284,6 +295,7 @@ val uiModule = module {
             appVersionInfoRepository = get(),
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
+            multihopMigrationRepository = get(),
         )
     }
     viewModel {
@@ -474,6 +486,13 @@ val uiModule = module {
             isModal = params.get(),
             settingsRepository = get(),
             dispatcher = Dispatchers.IO,
+        )
+    }
+    viewModel { params ->
+        MultihopMigrationViewModel(
+            navArgs = params.get(),
+            wireguardConstraintsRepository = get(),
+            userPreferencesRepository = get(),
         )
     }
 
