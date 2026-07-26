@@ -32,6 +32,10 @@ final class AppResetManager {
 
         guard launchArguments.target.isUITest else { return }
         addObserver()
+    }
+
+    func start() {
+        guard launchArguments.target.isUITest else { return }
         Task {
             await setup()
         }
