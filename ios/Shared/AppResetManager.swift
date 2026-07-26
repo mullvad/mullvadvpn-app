@@ -42,6 +42,7 @@ final class AppResetManager {
     }
 
     func start() {
+        guard launchArguments.target.isUITest else { return }
         Task {
             async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
             async let setupTask: () = setup()
