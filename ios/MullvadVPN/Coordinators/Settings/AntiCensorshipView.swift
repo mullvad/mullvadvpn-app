@@ -14,7 +14,6 @@ struct AntiCensorshipView: View {
     let settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
     let availableObfuscations = WireGuardObfuscationState.allCases
-    @Binding var path: NavigationPath
 
     var body: some View {
         ScrollView {
@@ -62,7 +61,7 @@ struct AntiCensorshipView: View {
                                             for: .expand(
                                                 isExpanded: false,
                                                 onSelect: {
-                                                    navigateToObfuscationSetting(for: option)
+                                                    print("Selected \(option)")
                                                 })
                                         )
                                         .rotationEffect(.degrees(-90))
@@ -79,6 +78,7 @@ struct AntiCensorshipView: View {
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
+        .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
     }
 
@@ -97,15 +97,6 @@ struct AntiCensorshipView: View {
 
         let isSelected = state == obfuscation.state
         itemFactory.leading(for: .generic(title: title, subtitle: subtitle, level: 1, isSelected: isSelected))
-    }
-
-    func navigateToObfuscationSetting(for state: WireGuardObfuscationState) {
-        switch state {
-        case .automatic, .quic, .off, .on: break
-        case .shadowsocks: path.append(SettingsDestinationView.shadowsocks)
-        case .udpOverTcp: path.append(SettingsDestinationView.udpOverTcp)
-        case .lwo: path.append(SettingsDestinationView.lwo)
-        }
     }
 
     @ViewBuilder

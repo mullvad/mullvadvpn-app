@@ -59,15 +59,13 @@ struct VPNSettingsNavigationView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            SettingsVPNSettingsView(
-                viewModel: observableSettings, path: $navigationPath
-            )
-            .navigationDestination(for: SettingsDestinationView.self) { path in
-                destinationView(path)
-            }
-            .background(Color(.secondaryColor))
-        }
+        SettingsVPNSettingsView(
+            settingsInteractor: settingsInteractor,
+            IPOverrideInteractor: IPOverrideInteractor,
+            alertPresenter: alertPresenter,
+            viewModel: observableSettings
+        )
+        .background(Color(.secondaryColor))
     }
 
     // Can this be a generic way to not have to repeat navigation configuration each time ?
@@ -77,8 +75,7 @@ struct VPNSettingsNavigationView: View {
         case .antiCensorship:
             AntiCensorshipView(
                 settingsInteractor: settingsInteractor,
-                settings: observableSettings,
-                path: $navigationPath)
+                settings: observableSettings)
         case .dnsSettings:
             DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
                 .navigationTitle("DNS Settings")

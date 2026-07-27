@@ -56,8 +56,6 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
         )
 
         let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString("VPN settings", comment: "")
-        host.view.setAccessibilityIdentifier(.vpnSettingsTableView)
         customiseNavigation(on: host)
 
         navigationController.pushViewController(host, animated: animated)

@@ -19,8 +19,11 @@ private struct GlobalVPNSetting: Identifiable {
 struct SettingsVPNSettingsView: View {
     private let itemFactory = SegmentedListItemFactory()
 
+    let settingsInteractor: VPNSettingsInteractor
+    let IPOverrideInteractor: IPOverrideInteractor
+    let alertPresenter: AlertPresenter
+
     @Bindable var viewModel: ObservableVPNSettings
-    @Binding var path: NavigationPath
 
     @State var isExpanded: Bool = true
     @State private var alert: MullvadAlert?
@@ -67,6 +70,7 @@ struct SettingsVPNSettingsView: View {
             antiCensorshipView()
             IPVersionView()
         }
+        .navigationTitle("VPN Settings")
     }
 
     var isQuantumResistanceEnabled: Binding<Bool> {
@@ -84,41 +88,39 @@ struct SettingsVPNSettingsView: View {
     func DNSandIPSettingsView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
-                userInteraction: .enabled,
-                accessibilityIdentifier: .vpnSettingsTableView,
+                isLastInList: false,
+                accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
                 leading: {
-                    SegmentedListItem(
-                        isLastInList: false,
-                        userInteraction: .enabled,
-                        accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
-                        leading: {
-                            itemFactory.leading(
-                                for: .generic(title: DNSandIPSettings.first!.label))
-                        },
-                        trailing: {
-                            itemFactory.trailing(for: .drillDown(title: ""))
-                        },
-                        onSelect: {
-                            path.append(SettingsDestinationView.dnsSettings)
-                        }
-                    )
+                    NavigationLink {
+                        DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
+                            .navigationTitle("DNS Settings")
+                    } label: {
+                        itemFactory.leading(
+                            for: .generic(title: DNSandIPSettings.first!.label))
+                    }
+                },
+                trailing: {
+                    itemFactory.trailing(for: .drillDown(title: ""))
                 },
                 groupedContent: {
                     SegmentedListItem(
-                        userInteraction: .enabled,
                         accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
                         leading: {
-                            itemFactory.leading(
-                                for: .generic(title: DNSandIPSettings.last!.label))
+                            NavigationLink {
+                                IPOverrideView(
+                                    ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter
+                                )
+                                .navigationTitle("Server IP override")
+                            } label: {
+                                itemFactory.leading(
+                                    for: .generic(title: DNSandIPSettings.last!.label))
+                            }
                         },
                         trailing: {
                             itemFactory.trailing(for: .drillDown(title: ""))
                         },
-                        onSelect: {
-                            path.append(SettingsDestinationView.serverIPOverride)
-                        }
                     )
-                }
+                },
             )
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
@@ -129,25 +131,21 @@ struct SettingsVPNSettingsView: View {
     func antiCensorshipView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
-                userInteraction: .enabled,
-                accessibilityIdentifier: .vpnSettingsTableView,
+                accessibilityIdentifier: censorshipSettings.first?.accessibilityIdentifier,
                 leading: {
-                    SegmentedListItem(
-                        isLastInList: false,
-                        userInteraction: .enabled,
-                        accessibilityIdentifier: censorshipSettings.first?.accessibilityIdentifier,
-                        leading: {
-                            itemFactory.leading(
-                                for: .generic(title: censorshipSettings.first!.label))
-                        },
-                        trailing: {
-                            itemFactory.trailing(
-                                for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
-                        },
-                        onSelect: {
-                            path.append(SettingsDestinationView.antiCensorship)
-                        }
-                    )
+                    NavigationLink {
+                        AntiCensorshipView(
+                            settingsInteractor: settingsInteractor,
+                            settings: viewModel
+                        )
+                    } label: {
+                        itemFactory.leading(
+                            for: .generic(title: censorshipSettings.first!.label))
+                    }
+                },
+                trailing: {
+                    itemFactory.trailing(
+                        for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
                 },
                 groupedContent: {
                     SegmentedListItem(
@@ -177,7 +175,7 @@ struct SettingsVPNSettingsView: View {
                         }
                     )
                     .mullvadAlert(item: $alert)
-                }
+                },
             )
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
@@ -267,7 +265,7 @@ struct SettingsVPNSettingsView: View {
 
 }
 
-#Preview {
-    @Previewable @State var path = NavigationPath()
-    SettingsVPNSettingsView(viewModel: ObservableVPNSettings(), path: $path)
-}
+//#Preview {
+//    @Previewable @State var path = NavigationPath()
+//    SettingsVPNSettingsView(viewModel: ObservableVPNSettings(), path: $path)
+//}
