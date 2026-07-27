@@ -50,8 +50,9 @@ constraints the following default ones will take effect
 
 ### Default constraints for tunnel endpoints on iOS
 
-The iOS platform does not support connecting to a relay over IPv6.
-As such, the above algorithm is simplified to the following version:
+The iOS platform supports connecting to a relay over IPv6, but will use only
+either IPv4 or IPv6, depending on user settings. As such, the above algorithm
+is simplified to the following version:
 
 - The first attempt will connect to a relay on a random port
 - The second attempt will connect to a relay on a random port using Shadowsocks for obfuscation
