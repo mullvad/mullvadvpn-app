@@ -7,15 +7,12 @@ use std::{
 
 use async_trait::async_trait;
 use rand::RngCore;
-use talpid_net::bypass::SocketBypass;
+use talpid_net::bypass::{BypassSocket, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 
-use crate::{
-    Obfuscator,
-    socket::{RemoteSocket, create_remote_socket},
-};
+use crate::{Obfuscator, socket::create_remote_socket};
 
 const MAX_UDP_SIZE: usize = u16::MAX as usize;
 
@@ -98,7 +95,7 @@ struct Client {
     rx_key: PublicKey,
     tx_key: PublicKey,
 
-    remote_socket: Arc<RemoteSocket>,
+    remote_socket: Arc<BypassSocket<UdpSocket>>,
     client_socket: Arc<UdpSocket>,
 }
 
@@ -168,7 +165,7 @@ impl Client {
 async fn run_obfuscation(
     key: PublicKey,
     read_socket: Arc<UdpSocket>,
-    write_socket: Arc<RemoteSocket>,
+    write_socket: Arc<BypassSocket<UdpSocket>>,
 ) {
     let mut buf = vec![0u8; MAX_UDP_SIZE];
 
@@ -193,7 +190,7 @@ async fn run_obfuscation(
 
 async fn run_deobfuscation(
     key: PublicKey,
-    read_socket: Arc<RemoteSocket>,
+    read_socket: Arc<BypassSocket<UdpSocket>>,
     write_socket: Arc<UdpSocket>,
 ) {
     let mut buf = vec![0u8; MAX_UDP_SIZE];

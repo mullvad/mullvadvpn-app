@@ -7,14 +7,11 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
 };
-use talpid_net::bypass::{BypassGuard, SocketBypass};
+use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
-use crate::{
-    Obfuscator,
-    socket::{RemoteSocket, create_remote_socket},
-};
+use crate::{Obfuscator, socket::create_remote_socket};
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -123,7 +120,7 @@ impl Quic {
         // of the endpoint we're connecting to. The address itself is not important to consumers
         // wanting to obfuscate traffic. It is solely used by the local proxy client to know
         // where the QUIC obfuscator is running.
-        let RemoteSocket {
+        let BypassSocket {
             socket: quic_socket,
             guard: _bypass,
         } = create_remote_socket(&bypass, settings.quic_endpoint.is_ipv4()).await?;

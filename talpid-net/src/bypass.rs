@@ -1,4 +1,4 @@
-use std::{io, sync::Arc};
+use std::{io, ops::Deref, os::fd::AsFd, sync::Arc};
 
 use socket2::SockRef;
 
@@ -34,6 +34,28 @@ impl SocketBypass for NoopBypass {
     }
 }
 
+/// A wrapper for any type of socket and a related [BypassGuard].
+pub struct BypassSocket<S> {
+    pub socket: S,
+    pub guard: BypassGuard,
+}
+
+impl<S: AsFd> BypassSocket<S> {
+    /// Begin excluding a socket `s` from tunnel traffic.
+    pub fn new(bypass: Arc<dyn SocketBypass>, socket: S) -> io::Result<Self> {
+        let guard = BypassGuard::new(bypass, &socket)?;
+        Ok(Self { socket, guard })
+    }
+}
+
+impl<T> Deref for BypassSocket<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.socket
+    }
+}
+
 /// A guard that, when dropped, allows an excluded socket to no longer be excluded.
 ///
 /// There is no guarantee that dropping this will stop excluding the socket. The contract is
@@ -46,13 +68,11 @@ pub struct BypassGuard {
 
 impl BypassGuard {
     /// Begin excluding a socket `s` from tunnel traffic.
-    pub fn new<'a, S: Into<SockRef<'a>>>(
-        bypass: Arc<dyn SocketBypass>,
-        s: S,
-    ) -> io::Result<BypassGuard> {
-        let socket = s.into().try_clone()?;
+    fn new(bypass: Arc<dyn SocketBypass>, s: impl AsFd) -> io::Result<BypassGuard> {
+        let ref_ = SockRef::from(&s);
+        let socket = ref_.try_clone()?;
 
-        bypass.bypass_socket(SockRef::from(&socket), &BypassToken(()))?;
+        bypass.bypass_socket(ref_, &BypassToken(()))?;
 
         Ok(BypassGuard { bypass, socket })
     }

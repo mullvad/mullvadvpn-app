@@ -1,7 +1,7 @@
 use crate::Obfuscator;
 use async_trait::async_trait;
 use std::{net::SocketAddr, sync::Arc};
-use talpid_net::bypass::{BypassGuard, SocketBypass};
+use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
 use udp_over_tcp::{
     TcpOptions,
     udp2tcp::{self, Udp2Tcp as Udp2TcpImpl},
@@ -64,7 +64,7 @@ impl Udp2Tcp {
                 // SAFETY: The fd is a valid socket and valid for the lifetime of instance
                 let fd = unsafe { BorrowedFd::borrow_raw(instance.remote_tcp_fd()) };
 
-                let _bypass = BypassGuard::new(bypass, &fd).map_err(crate::Error::Bypass)?;
+                let _bypass = BypassSocket::new(bypass, &fd).map_err(crate::Error::Bypass)?.guard;
             }
             windows => {
                 use std::os::windows::io::BorrowedSocket;
@@ -72,7 +72,7 @@ impl Udp2Tcp {
                 // SAFETY: This is a valid socket and valid for the lifetime of instance
                 let sock = unsafe { BorrowedSocket::borrow_raw(instance.remote_tcp_socket()) };
 
-                let _bypass = BypassGuard::new(bypass, &sock).map_err(crate::Error::Bypass)?;
+                let _bypass = BypassSocket::new(bypass, &sock).map_err(crate::Error::Bypass)?.guard;
             }
             _ => unimplemented!("unsupported OS")
         }

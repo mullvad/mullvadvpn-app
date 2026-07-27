@@ -29,11 +29,11 @@ use std::{
 };
 
 use async_trait::async_trait;
-use talpid_net::bypass::SocketBypass;
+use talpid_net::bypass::{BypassSocket, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::task::AbortOnDropHandle;
 
-use crate::socket::{RemoteSocket, create_remote_socket};
+use crate::socket::create_remote_socket;
 
 const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
@@ -52,9 +52,9 @@ pub struct Multiplexer {
     /// Address of the client socket that WireGuard should connect to
     client_socket_addr: SocketAddr,
     /// IPv4 socket for communicating with obfuscation proxies
-    proxy_socket_v4: Arc<RemoteSocket>,
+    proxy_socket_v4: Arc<BypassSocket<UdpSocket>>,
     /// IPv6 socket for communicating with obfuscation proxies
-    proxy_socket_v6: Arc<RemoteSocket>,
+    proxy_socket_v6: Arc<BypassSocket<UdpSocket>>,
     /// Map of currently active transport endpoints and their configurations
     running_endpoints: BTreeMap<SocketAddr, Transport>,
     /// Queue of transports to spawn (in priority order)
@@ -102,7 +102,7 @@ impl Multiplexer {
         })
     }
 
-    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<RemoteSocket> {
+    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<BypassSocket<UdpSocket>> {
         if addr.is_ipv4() {
             &self.proxy_socket_v4
         } else {
@@ -129,7 +129,7 @@ impl Multiplexer {
         /// Helper to fan out a packet to all currently running endpoints
         async fn send_to_all<'a>(
             endpoints: &BTreeMap<SocketAddr, Transport>,
-            get_socket: impl Fn(SocketAddr) -> &'a Arc<RemoteSocket>,
+            get_socket: impl Fn(SocketAddr) -> &'a Arc<BypassSocket<UdpSocket>>,
             packet: &[u8],
         ) {
             let mut futs = vec![];
