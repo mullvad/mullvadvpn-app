@@ -228,3 +228,57 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2025-14813"  # GHSA-574f-3g2m-x479
 ignoreUntil = 2026-08-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Netty: [Bzip2Decoder] Infinite Loop in RLE State Machine Leads to Event-Loop Thread Hang
+[[IgnoredVulns]]
+id = "CVE-2026-59901"  # GHSA-558v-64gr-wgg4
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: WebSockets V07/V08 handshaker missing Connection/Upgrade validation
+[[IgnoredVulns]]
+id = "CVE-2026-59898"  # GHSA-4mp9-239f-g9hg
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: Security Control Bypass via CORS Short-Circuit Failure
+[[IgnoredVulns]]
+id = "CVE-2026-56746"  # GHSA-6cqp-g7gg-8hr5
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty SPDY SETTINGS frame count materializes unbounded settings map
+[[IgnoredVulns]]
+id = "CVE-2026-55831"  # GHSA-6jqx-86gh-f27w
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: CRLF Injection via Multipart Filename in Netty HttpPostRequestEncoder
+[[IgnoredVulns]]
+id = "CVE-2026-59921"  # GHSA-gcjf-9mgh-3p7g
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: [SpdyHttpDecoder] ByteBuf Reference Leak on RST_STREAM Leads to Native Memory Exhaustion
+[[IgnoredVulns]]
+id = "CVE-2026-56745"  # GHSA-jppx-w49h-x2qq
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty SPDY zlib header block continues decoded expansion after maxHeaderSize truncation
+[[IgnoredVulns]]
+id = "CVE-2026-55833"  # GHSA-mvh2-crg5-v77c
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty SPDY zlib header block continues decoded expansion after maxHeaderSize truncation
+[[IgnoredVulns]]
+id = "CVE-2026-59899"  # GHSA-q4f6-jm68-57ww
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: [codec-http2] Lack of Host Header Deduplication in HTTP/2→HTTP/1.x Translation Leads to Request Routing Bypass
+[[IgnoredVulns]]
+id = "CVE-2026-59900"  # GHSA-c69g-56f8-xwqj
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
