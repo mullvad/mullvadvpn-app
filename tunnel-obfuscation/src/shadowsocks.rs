@@ -3,7 +3,7 @@
 //! Note: It is important not to connect to the shadowsocks endpoint right away. The remote socket
 //! must be protected in `VpnService` so that the socket is not routed through the tunnel.
 
-use crate::socket::create_remote_socket;
+use crate::socket::{RemoteSocket, create_remote_socket};
 
 use super::Obfuscator;
 use async_trait::async_trait;
@@ -18,7 +18,7 @@ use shadowsocks::{
     },
 };
 use std::{io, net::SocketAddr, sync::Arc};
-use talpid_net::bypass::{BypassGuard, SocketBypass};
+use talpid_net::bypass::SocketBypass;
 use tokio::{net::UdpSocket, sync::oneshot};
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
@@ -26,7 +26,7 @@ const SHADOWSOCKS_PASSWORD: &str = "mullvad";
 
 type Result<T> = std::result::Result<T, Error>;
 
-type ShadowSocket = ProxySocket<shadowsocks::net::UdpSocket>;
+type ShadowSocket = RemoteSocket<ProxySocket<shadowsocks::net::UdpSocket>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -50,7 +50,6 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
-    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -73,7 +72,7 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let (remote_socket, _bypass) =
+        let remote_socket =
             create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let server = tokio::spawn(run_forwarding(
@@ -89,14 +88,13 @@ impl Shadowsocks {
             wireguard_endpoint: settings.wireguard_endpoint,
             server,
             _shutdown_tx: shutdown_tx,
-            _bypass,
         })
     }
 }
 
 async fn run_forwarding(
     shadowsocks_endpoint: SocketAddr,
-    remote_socket: UdpSocket,
+    remote_socket: RemoteSocket,
     local_udp_socket: UdpSocket,
     wireguard_endpoint: SocketAddr,
     shutdown_rx: oneshot::Receiver<()>,
@@ -140,7 +138,7 @@ async fn run_forwarding(
 }
 
 fn connect_shadowsocks(
-    remote_socket: UdpSocket,
+    remote_socket: RemoteSocket,
     shadowsocks_endpoint: SocketAddr,
 ) -> Result<ShadowSocket> {
     let ss_context = Context::new_shared(ServerType::Local);
@@ -149,14 +147,15 @@ fn connect_shadowsocks(
         SHADOWSOCKS_PASSWORD,
         SHADOWSOCKS_CIPHER,
     )?;
+    let guard = remote_socket.guard;
     let socket = ProxySocket::from_socket(
         UdpSocketType::Client,
         ss_context,
         &ss_config,
         // wrap the tokio socket
-        shadowsocks::net::UdpSocket::from(remote_socket),
+        shadowsocks::net::UdpSocket::from(remote_socket.socket),
     );
-    Ok(socket)
+    Ok(RemoteSocket { socket, guard })
 }
 
 async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {

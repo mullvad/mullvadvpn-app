@@ -29,11 +29,11 @@ use std::{
 };
 
 use async_trait::async_trait;
-use talpid_net::bypass::{BypassGuard, SocketBypass};
+use talpid_net::bypass::SocketBypass;
 use tokio::net::UdpSocket;
 use tokio_util::task::AbortOnDropHandle;
 
-use crate::socket::create_remote_socket;
+use crate::socket::{RemoteSocket, create_remote_socket};
 
 const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 
@@ -52,9 +52,9 @@ pub struct Multiplexer {
     /// Address of the client socket that WireGuard should connect to
     client_socket_addr: SocketAddr,
     /// IPv4 socket for communicating with obfuscation proxies
-    proxy_socket_v4: Arc<UdpSocket>,
+    proxy_socket_v4: Arc<RemoteSocket>,
     /// IPv6 socket for communicating with obfuscation proxies
-    proxy_socket_v6: Arc<UdpSocket>,
+    proxy_socket_v6: Arc<RemoteSocket>,
     /// Map of currently active transport endpoints and their configurations
     running_endpoints: BTreeMap<SocketAddr, Transport>,
     /// Queue of transports to spawn (in priority order)
@@ -66,8 +66,6 @@ pub struct Multiplexer {
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
     bypass: Arc<dyn SocketBypass>,
-    _bypass_v4: BypassGuard,
-    _bypass_v6: BypassGuard,
 }
 
 impl Multiplexer {
@@ -87,8 +85,8 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::CreateMultiplexerObfuscator)?;
 
-        let (proxy_socket_v4, _bypass_v4) = create_remote_socket(&bypass, true).await?;
-        let (proxy_socket_v6, _bypass_v6) = create_remote_socket(&bypass, false).await?;
+        let proxy_socket_v4 = create_remote_socket(&bypass, true).await?;
+        let proxy_socket_v6 = create_remote_socket(&bypass, false).await?;
 
         Ok(Self {
             client_socket: Arc::new(client_socket),
@@ -101,12 +99,10 @@ impl Multiplexer {
             initial_packets_to_send: vec![],
             wg_addr: None,
             bypass,
-            _bypass_v4,
-            _bypass_v6,
         })
     }
 
-    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<UdpSocket> {
+    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<RemoteSocket> {
         if addr.is_ipv4() {
             &self.proxy_socket_v4
         } else {
@@ -133,7 +129,7 @@ impl Multiplexer {
         /// Helper to fan out a packet to all currently running endpoints
         async fn send_to_all<'a>(
             endpoints: &BTreeMap<SocketAddr, Transport>,
-            get_socket: impl Fn(SocketAddr) -> &'a Arc<UdpSocket>,
+            get_socket: impl Fn(SocketAddr) -> &'a Arc<RemoteSocket>,
             packet: &[u8],
         ) {
             let mut futs = vec![];
