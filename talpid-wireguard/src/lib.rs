@@ -145,7 +145,15 @@ static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
         .unwrap_or(false)
 });
 
-/// Forces the use of local socket obfuscation instead of the inline transport.
+// TODO: Remove before merging?
+#[cfg(not(target_os = "android"))]
+static FORCE_KERNEL_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
+    env::var("TALPID_FORCE_KERNEL_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false)
+});
+
+// TODO: Remove before merging?
 static FORCE_LOCAL_SOCKET_OBFUSCATION: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FORCE_LOCAL_SOCKET_OBFUSCATION")
         .map(|v| v != "0")
@@ -160,10 +168,16 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg();
+        let require_userspace_wireguard = params.use_userspace_wg() || *FORCE_USERSPACE_WIREGUARD;
         let userspace_obfuscation = obfuscation::userspace_transport_available(params)
-            && userspace_wireguard
-            && !*FORCE_LOCAL_SOCKET_OBFUSCATION;
+            && !*FORCE_LOCAL_SOCKET_OBFUSCATION
+            && !*FORCE_KERNEL_WIREGUARD;
+        assert!(
+            !(*FORCE_KERNEL_WIREGUARD && require_userspace_wireguard),
+            "Cannot force kernel WireGuard when userspace is required (DAITA, etc.)"
+        );
+        let userspace_wireguard = require_userspace_wireguard || userspace_obfuscation;
+
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
