@@ -588,8 +588,8 @@
 		7A6811542DC8EC6E009CB61A /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7A6AA3AB2EC5C8FB00F1C80C /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2F41082EC38FC00013D3C5 /* StoreSubscription.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
-		7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */; };
 		7A6B968A2FEC01EC00DBF9BD /* View+TypeErase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B96892FEC01E100DBF9BD /* View+TypeErase.swift */; };
+		7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */; };
 		7A6D6BA62F7D477A001EA05C /* AutomaticLocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6D6BA52F7D4773001EA05C /* AutomaticLocationListItem.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -954,7 +954,6 @@
 		A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */; };
 		A9C342C32ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */; };
 		A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */; };
-		A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */; };
 		A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584023212A406BF5007B27AC /* TunnelObfuscator.swift */; };
 		A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */; };
 		A9D9A4C42C36D53C004088DD /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
@@ -2304,8 +2303,8 @@
 		7A6389F72B864CDF008E77E1 /* LocationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNode.swift; sourceTree = "<group>"; };
 		7A6652B62BB44B120042D848 /* LocationDiffableDataSourceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDiffableDataSourceProtocol.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
-		7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticButtonStyle.swift; sourceTree = "<group>"; };
 		7A6B96892FEC01E100DBF9BD /* View+TypeErase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+TypeErase.swift"; sourceTree = "<group>"; };
+		7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticButtonStyle.swift; sourceTree = "<group>"; };
 		7A6D6BA52F7D4773001EA05C /* AutomaticLocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticLocationListItem.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -3006,7 +3005,6 @@
 				A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */,
 				44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */,
 				0107F42D2F5F62950012451B /* MullvadSettings.framework in Frameworks */,
-				A9D4A4792C2DAB5F00F1E522 /* libmullvad_ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
