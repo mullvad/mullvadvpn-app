@@ -220,7 +220,6 @@ impl SocketBypass for ObfuscatorSocketBypass {
         _socket: socket2::SockRef<'_>,
         _token: &BypassToken,
     ) -> std::io::Result<()> {
-        // TODO
         Ok(())
     }
 
