@@ -55,7 +55,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { multihop } = useMultihop();
 
   const locationType = React.useMemo(() => {
-    const allowEntryLocations = multihop !== 'never';
+    const allowEntryLocations = multihop === 'always';
     if (allowEntryLocations) {
       return locationTypeSelector;
     }
