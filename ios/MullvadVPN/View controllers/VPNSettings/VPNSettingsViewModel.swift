@@ -10,15 +10,12 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
-public class ObservableVPNSettings {
-    var obfuscationState: WireGuardObfuscationState
-    var quantumResistance: TunnelQuantumResistance
-    var ipVersion: IPVersion
+@Observable
+public class ObservableVPNSettings: @unchecked Sendable {
+    var tunnelSettings: LatestTunnelSettings
 
     init(tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
-        obfuscationState = tunnelSettings.wireGuardObfuscation.state
-        quantumResistance = tunnelSettings.tunnelQuantumResistance
-        ipVersion = tunnelSettings.ipVersion
+        self.tunnelSettings = tunnelSettings
     }
 }
 

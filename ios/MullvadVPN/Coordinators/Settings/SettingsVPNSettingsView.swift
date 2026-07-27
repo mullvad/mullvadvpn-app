@@ -16,10 +16,10 @@ private struct GlobalVPNSetting: Identifiable {
     let customView: AnyView?
 }
 
-struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSettings {
+struct SettingsVPNSettingsView: View {
     private let itemFactory = SegmentedListItemFactory()
 
-    var viewModel: ViewModel
+    @Bindable var viewModel: ObservableVPNSettings
     @Binding var path: NavigationPath
 
     @State var isExpanded: Bool = true
@@ -72,10 +72,10 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
     var isQuantumResistanceEnabled: Binding<Bool> {
         Binding<Bool>(
             get: {
-                viewModel.quantumResistance.isEnabled
+                viewModel.tunnelSettings.tunnelQuantumResistance.isEnabled
             },
             set: { enabled in
-                viewModel.quantumResistance = enabled ? .on : .off
+                viewModel.tunnelSettings.tunnelQuantumResistance = enabled ? .on : .off
             }
         )
     }
@@ -141,7 +141,8 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                                 for: .generic(title: censorshipSettings.first!.label))
                         },
                         trailing: {
-                            itemFactory.trailing(for: .drillDown(title: viewModel.obfuscationState.description))
+                            itemFactory.trailing(
+                                for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
                         },
                         onSelect: {
                             path.append(SettingsDestinationView.antiCensorship)
@@ -208,10 +209,10 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
                     itemFactory.leading(
                         for: .generic(
                             title: option.label, level: 1,
-                            isSelected: viewModel.ipVersion == option.id))
+                            isSelected: viewModel.tunnelSettings.ipVersion == option.id))
                 },
                 onSelect: {
-                    viewModel.ipVersion = option.id
+                    viewModel.tunnelSettings.ipVersion = option.id
                 }
             )
         }
@@ -270,11 +271,3 @@ struct SettingsVPNSettingsView<ViewModel>: View where ViewModel: ObservableVPNSe
     @Previewable @State var path = NavigationPath()
     SettingsVPNSettingsView(viewModel: ObservableVPNSettings(), path: $path)
 }
-
-//
-//#Preview("With obfuscation") {
-//    SettingsVPNSettingsView(viewModel: ObservabledVPNSettingsStub(tunnelSettings: LatestTunnelSettings(
-//        wireGuardObfuscation: WireGuardObfuscationSettings(
-//            state: .lwo,
-//    ))))
-//}

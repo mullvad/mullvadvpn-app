@@ -6,18 +6,62 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import SwiftUI
+
+actor MainActorObserver {
+    let observable: ObservableVPNSettings
+    let tunnelManager: TunnelManager
+
+    init(observable: ObservableVPNSettings, tunnelManager: TunnelManager) {
+        self.observable = observable
+        self.tunnelManager = tunnelManager
+    }
+
+    @MainActor
+    func start() {
+        _ = withObservationTracking {
+            Task {
+                //                tunnelManager.updateSettings([.all(observable.tunnelSettings)])
+                print("Settings have changed: \(observable.tunnelSettings)")
+            }
+        } onChange: {
+            Task {
+                await MainActor.run {
+                    self.start()
+                }
+            }
+        }
+    }
+}
 
 struct VPNSettingsNavigationView: View {
     let settingsInteractor: VPNSettingsInteractor
     let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
+    @Bindable var observableSettings: ObservableVPNSettings
     @State var navigationPath = NavigationPath()
+    var actorObserver: MainActorObserver?
+
+    init(
+        settingsInteractor: VPNSettingsInteractor, IPOverrideInteractor: IPOverrideInteractor,
+        alertPresenter: AlertPresenter, navigationPath: NavigationPath = NavigationPath()
+    ) {
+        self.settingsInteractor = settingsInteractor
+        self.IPOverrideInteractor = IPOverrideInteractor
+        self.alertPresenter = alertPresenter
+        self.navigationPath = navigationPath
+
+        self.observableSettings = ObservableVPNSettings()
+        self.actorObserver = MainActorObserver(
+            observable: observableSettings, tunnelManager: settingsInteractor.tunnelManager)
+        actorObserver?.start()
+    }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
             SettingsVPNSettingsView(
-                viewModel: ObservableVPNSettings(), path: $navigationPath
+                viewModel: observableSettings, path: $navigationPath
             )
             .navigationDestination(for: SettingsDestinationView.self) { path in
                 destinationView(path)
@@ -30,7 +74,11 @@ struct VPNSettingsNavigationView: View {
     @ViewBuilder
     func destinationView(_ path: SettingsDestinationView) -> some View {
         switch path {
-        case .antiCensorship: AntiCensorshipView(settingsInteractor: settingsInteractor, path: $navigationPath)
+        case .antiCensorship:
+            AntiCensorshipView(
+                settingsInteractor: settingsInteractor,
+                settings: observableSettings,
+                path: $navigationPath)
         case .dnsSettings:
             DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
                 .navigationTitle("DNS Settings")

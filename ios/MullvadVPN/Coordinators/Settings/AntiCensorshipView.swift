@@ -11,6 +11,7 @@ import SwiftUI
 
 struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
+    let settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
     let availableObfuscations = WireGuardObfuscationState.allCases
     @Binding var path: NavigationPath
@@ -48,11 +49,7 @@ struct AntiCensorshipView: View {
                                 isLastInList: index == availableObfuscations.count - 1,
                                 accessibilityIdentifier: .udpOverTcpObfuscationSettings,  // ???
                                 leading: {
-                                    itemFactory.leading(
-                                        for: .generic(
-                                            title: option.description,
-                                            subtitle: "Port: Automatic",  // ???
-                                            level: 1, isSelected: false))  // ???
+                                    leadingView(for: option)
                                 },
                                 segment: {
                                     if [
@@ -72,7 +69,7 @@ struct AntiCensorshipView: View {
                                     }
                                 },
                                 onSelect: {
-                                    print("Selected obfuscation")
+                                    // Change the iteration here to match real wireguard obfuscation
                                 }
                             )
                         }
@@ -83,6 +80,23 @@ struct AntiCensorshipView: View {
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
         .background(Color(.secondaryColor))
+    }
+
+    // How to handle better wireguard port ???
+    @ViewBuilder
+    func leadingView(for state: WireGuardObfuscationState) -> some View {
+        let obfuscation = settings.tunnelSettings.wireGuardObfuscation
+        let title = state.description
+        let subtitle: String? =
+            switch state {
+            case .shadowsocks: "Port: \(obfuscation.shadowsocksPort)"
+            case .lwo: "Port \(obfuscation.lwoPort)"
+            case .udpOverTcp: "Port \(obfuscation.lwoPort)"
+            default: nil
+            }
+
+        let isSelected = state == obfuscation.state
+        itemFactory.leading(for: .generic(title: title, subtitle: subtitle, level: 1, isSelected: isSelected))
     }
 
     func navigateToObfuscationSetting(for state: WireGuardObfuscationState) {
