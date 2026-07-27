@@ -3,6 +3,8 @@ use std::{io, sync::Arc};
 use socket2::SockRef;
 
 /// Guard against using [SocketBypass] without [BypassGuard].
+///
+/// It cannot be constructed outside of this module.
 pub struct BypassToken(());
 
 /// A trait for implementing socket bypass. This lets individual sockets be excluded (leak) from
