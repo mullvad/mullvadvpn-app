@@ -817,7 +817,7 @@ class RootContainerViewController: UIViewController {
 
     /**
      Layout guide for notification view.
-    
+
      When set, notification view follows the layout guide that defines its dimensions and position, otherwise it's
      laid out within container's safe area.
      */

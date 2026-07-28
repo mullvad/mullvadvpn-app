@@ -21,7 +21,7 @@ jobs:
   test:
     if: github.event.pull_request.merged || github.event_name == 'workflow_dispatch'
     name: Validate build schemas
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
 
@@ -42,7 +42,7 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -configuration MockRelease \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             build
@@ -50,7 +50,7 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -configuration Staging \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             build
@@ -58,7 +58,7 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPNUITests \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=iPhone 16" \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             build
