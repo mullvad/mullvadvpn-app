@@ -21,6 +21,7 @@ pub struct Config {
     /// Maximum transmission unit for the tunnel
     pub mtu: u16,
     /// Firewall mark
+    // TODO: Should this be optional? Should it even be configurable?
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
     /// Enable IPv6 routing rules

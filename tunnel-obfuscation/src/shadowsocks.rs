@@ -18,17 +18,15 @@ use shadowsocks::{
     },
 };
 use std::{io, net::SocketAddr, sync::Arc};
+use talpid_net::bypass::{BypassSocket, SocketBypass};
 use tokio::{net::UdpSocket, sync::oneshot};
-
-#[cfg(target_os = "android")]
-use std::os::fd::AsRawFd;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
 
 type Result<T> = std::result::Result<T, Error>;
 
-type ShadowSocket = ProxySocket<shadowsocks::net::UdpSocket>;
+type ShadowSocket = BypassSocket<ProxySocket<shadowsocks::net::UdpSocket>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -52,8 +50,6 @@ pub struct Shadowsocks {
     server: tokio::task::JoinHandle<Result<()>>,
     // The receiver will implicitly shut down when this is dropped
     _shutdown_tx: oneshot::Sender<()>,
-    #[cfg(target_os = "android")]
-    outbound_fd: i32,
 }
 
 #[derive(Debug, Clone)]
@@ -62,12 +58,13 @@ pub struct Settings {
     pub shadowsocks_endpoint: SocketAddr,
     /// Remote WireGuard endpoint
     pub wireguard_endpoint: SocketAddr,
-    #[cfg(target_os = "linux")]
-    pub fwmark: Option<u32>,
 }
 
 impl Shadowsocks {
-    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub(crate) async fn new(
+        bypass: Arc<dyn SocketBypass>,
+        settings: &Settings,
+    ) -> crate::Result<Self> {
         let (local_udp_socket, udp_client_addr) =
             create_local_udp_socket(settings.shadowsocks_endpoint.is_ipv4())
                 .await
@@ -75,15 +72,8 @@ impl Shadowsocks {
 
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
-        let remote_socket = create_remote_socket(
-            settings.shadowsocks_endpoint.is_ipv4(),
-            #[cfg(target_os = "linux")]
-            settings.fwmark,
-        )
-        .await?;
-
-        #[cfg(target_os = "android")]
-        let outbound_fd = remote_socket.as_raw_fd();
+        let remote_socket =
+            create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
         let server = tokio::spawn(run_forwarding(
             settings.shadowsocks_endpoint,
@@ -98,15 +88,13 @@ impl Shadowsocks {
             wireguard_endpoint: settings.wireguard_endpoint,
             server,
             _shutdown_tx: shutdown_tx,
-            #[cfg(target_os = "android")]
-            outbound_fd,
         })
     }
 }
 
 async fn run_forwarding(
     shadowsocks_endpoint: SocketAddr,
-    remote_socket: UdpSocket,
+    remote_socket: BypassSocket<UdpSocket>,
     local_udp_socket: UdpSocket,
     wireguard_endpoint: SocketAddr,
     shutdown_rx: oneshot::Receiver<()>,
@@ -150,7 +138,7 @@ async fn run_forwarding(
 }
 
 fn connect_shadowsocks(
-    remote_socket: UdpSocket,
+    remote_socket: BypassSocket<UdpSocket>,
     shadowsocks_endpoint: SocketAddr,
 ) -> Result<ShadowSocket> {
     let ss_context = Context::new_shared(ServerType::Local);
@@ -159,14 +147,15 @@ fn connect_shadowsocks(
         SHADOWSOCKS_PASSWORD,
         SHADOWSOCKS_CIPHER,
     )?;
+    let guard = remote_socket.guard;
     let socket = ProxySocket::from_socket(
         UdpSocketType::Client,
         ss_context,
         &ss_config,
         // wrap the tokio socket
-        shadowsocks::net::UdpSocket::from(remote_socket),
+        shadowsocks::net::UdpSocket::from(remote_socket.socket),
     );
-    Ok(socket)
+    Ok(BypassSocket { socket, guard })
 }
 
 async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
@@ -271,11 +260,6 @@ impl Obfuscator for Shadowsocks {
             Err(_err) if _err.is_cancelled() => Ok(()),
             Err(_err) => panic!("server handle panicked"),
         }
-    }
-
-    #[cfg(target_os = "android")]
-    fn remote_socket_fd(&self) -> std::os::unix::io::RawFd {
-        self.outbound_fd
     }
 
     fn packet_overhead(&self) -> u16 {

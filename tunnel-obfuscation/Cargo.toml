@@ -21,6 +21,7 @@ log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 rand = { workspace = true, features = ["small_rng"] }
 shadowsocks = { workspace = true }
+talpid-net = { path = "../talpid-net" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = [
@@ -30,14 +31,11 @@ tokio = { workspace = true, features = [
   "rt-multi-thread"
 ] }
 tokio-util = { workspace = true, features = ["rt"] }
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303" }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "00c8482f303aa23a69cfe9ee10903582cba3eb1e" }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
 tokio = { workspace = true, features = ["test-util"] }
-
-[target.'cfg(target_os="linux")'.dependencies]
-nix = { workspace = true, features = ["socket"] }
 
 [lints]
 workspace = true
