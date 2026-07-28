@@ -56,6 +56,8 @@ struct MullvadButton: View {
     var text: LocalizedStringKey
     /// The style to present this button in
     var style: Style
+    /// the accessibility identifier for the main button.
+    var mainAccessibilityIdentifier: AccessibilityIdentifier?
     /// An optional accessory to present on the leading edge of the button
     var leadingAccessory: Accessory?
     /// An optional accessory to present on the trailing edge of the button
@@ -67,59 +69,50 @@ struct MullvadButton: View {
     @State private var leadingAccessorySize: CGSize = .zero
     @State private var trailingAccessorySize: CGSize = .zero
     private let imageHeight: CGFloat = 24.0
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
     var body: some View {
-        Button(
-            action: action,
-            label: {
-                ZStack {
-                    HStack {
-                        Text(text)
-                            .lineLimit(nil)
-                            .multilineTextAlignment(.center)
-                            .if(leadingAccessory != nil || trailingAccessory != nil) { view in
-                                // Reserve space for image if present
-                                view.padding(.horizontal, imageHeight)
+        ZStack {
+            Button(
+                action: action,
+                label: {
+                    ZStack {
+                        HStack {
+                            Spacer()
+                            Text(text)
+                                .lineLimit(nil)
+                                .multilineTextAlignment(.center)
+                            Spacer()
+                        }
+                        .if(leadingAccessory != nil || trailingAccessory != nil) { view in
+                            // Reserve space for image if present
+                            view.padding(.horizontal, imageHeight)
+                        }
+                    }
+                    .sizeOfView {
+                        mainAreaHeight = $0.height
+                    }
+                }
+            )
+            .accessibilityIdentifier(mainAccessibilityIdentifier)
+            .buttonStyle(MullvadButton.ButtonStyle(style: style))
+            HStack {
+                if let leadingAccessory {
+                    accessory(leadingAccessory, position: .leading)
+                        .buttonStyle(MullvadButton.ButtonStyle(style: style))
+                        .sizeOfView { leadingAccessorySize = $0 }
+                }
+                Spacer()
+                if let trailingAccessory {
+                    accessory(trailingAccessory, position: .trailing)
+                        .buttonStyle(MullvadButton.ButtonStyle(style: style))
+                        .sizeOfView { trailingAccessorySize = $0 }
+                }
+            }
 
-                            }
-                    }
-                    HStack {
-                        if let leadingAccessory {
-                            accessory(leadingAccessory, position: .leading)
-                                .sizeOfView { leadingAccessorySize = $0 }
-                        }
-                        Spacer()
-                        if let trailingAccessory {
-                            accessory(trailingAccessory, position: .trailing)
-                                .sizeOfView { trailingAccessorySize = $0 }
-                        }
-                    }
-                }
-                .sizeOfView {
-                    mainAreaHeight = $0.height
-                }
-            }
-        ).buttonStyle(MullvadButton.ButtonStyle(style: style))
-            .clipShape(Capsule())
-            .accessibilityRepresentation {
-                HStack {
-                    leadingAccessory.map { self.accessory($0, position: .leading) }
-                    Button(
-                        action: action,
-                        label: {
-                            HStack {
-                                Spacer()
-                                Text(text)
-                                    .lineLimit(nil)
-                                    .multilineTextAlignment(.center)
-                                Spacer()
-                            }
-                        }
-                    ).buttonStyle(MullvadButton.ButtonStyle(style: style))
-                        .clipShape(Capsule())
-                    trailingAccessory.map { self.accessory($0, position: .trailing) }
-                }
-            }
+        }
+        .background(style.backgroundColor(for: .normal))
+        .clipShape(Capsule())
     }
 
     @ViewBuilder
@@ -131,6 +124,11 @@ struct MullvadButton: View {
                 .resizable()
                 .scaledToFit()
                 .padding(10)
+                .foregroundStyle(
+                    isEnabled
+                        ? Color.mullvadTextPrimary
+                        : Color.mullvadTextPrimaryDisabled
+                )
                 .frame(
                     width: min(max(mainAreaHeight, 44), 60), height: max(mainAreaHeight, 44)
                 )
@@ -151,15 +149,17 @@ struct MullvadButton: View {
             .ifLet(accessibilityLabel) { $0.accessibilityLabel($1) }
             .ifLet(accessibilityHint) { $0.accessibilityHint($1) }
             .ifLet(accessibilityId) { $0.accessibilityIdentifier($1.asString) }
-            .buttonStyle(MullvadButton.ButtonStyle(style: style, isAccessory: true))
+            .buttonStyle(MullvadButton.ButtonStyle(style: style, accessoryPosition: position))
             .overlay {
-                HStack {
-                    if position == .trailing {
-                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
-                    }
-                    Spacer()
-                    if position == .leading {
-                        VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                if style.rank == .primary {
+                    HStack {
+                        if position == .trailing {
+                            VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                        }
+                        Spacer()
+                        if position == .leading {
+                            VStack { Spacer() }.frame(width: 1).background { Color.mullvadBackground }
+                        }
                     }
                 }
 

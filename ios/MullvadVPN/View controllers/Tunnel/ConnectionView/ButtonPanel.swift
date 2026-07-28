@@ -43,9 +43,9 @@ extension ConnectionView {
             MullvadButton(
                 text: viewModel.localizedTitleForSelectLocationButton,
                 style: .primary,
+                mainAccessibilityIdentifier: .selectLocationButton,
                 trailingAccessory: reloadButton,
             ) { action?(.selectLocation) }
-            .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
         }
 
         @ViewBuilder
@@ -55,16 +55,16 @@ extension ConnectionView {
                 MullvadButton(
                     text: LocalizedStringKey("Connect"),
                     style: .success,
+                    mainAccessibilityIdentifier: .connectButton,
                     action: { action?(.connect) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.connectButton.asString)
             case .disconnect:
                 MullvadButton(
                     text: LocalizedStringKey("Disconnect"),
                     style: .destructive,
+                    mainAccessibilityIdentifier: .disconnectButton,
                     action: { action?(.disconnect) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.disconnectButton.asString)
             case .cancel:
                 MullvadButton(
                     text: LocalizedStringKey(
@@ -73,12 +73,9 @@ extension ConnectionView {
                             : "Cancel"
                     ),
                     style: .destructive,
+                    mainAccessibilityIdentifier: viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
+                        ? .disconnectButton : .cancelButton,
                     action: { action?(.cancel) }
-                )
-                .accessibilityIdentifier(
-                    viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
-                        ? AccessibilityIdentifier.disconnectButton.asString
-                        : AccessibilityIdentifier.cancelButton.asString
                 )
             }
         }
