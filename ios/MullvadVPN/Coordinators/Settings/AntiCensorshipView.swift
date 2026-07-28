@@ -57,14 +57,11 @@ struct AntiCensorshipView: View {
                                     ].contains(option) {
                                         EmptyView()
                                     } else {
-                                        itemFactory.segment(
-                                            for: .expand(
-                                                isExpanded: false,
-                                                onSelect: {
-                                                    print("Selected \(option)")
-                                                })
-                                        )
-                                        .rotationEffect(.degrees(-90))
+                                        NavigationLink {
+                                            obfuscationView(option)
+                                        } label: {
+                                            itemFactory.image(for: .chevron)
+                                        }
                                     }
                                 },
                                 onSelect: {
@@ -106,6 +103,18 @@ struct AntiCensorshipView: View {
             let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(
                 tunnelManager: settingsInteractor.tunnelManager)
             ShadowsocksObfuscationSettingsView(viewModel: viewModel)
+                .navigationTitle("Shadowsocks")
+        case .udpOverTcp:
+            let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(
+                tunnelManager: settingsInteractor.tunnelManager)
+            UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
+                .navigationTitle("UDP-over-TCP")
+        case .lwo:
+            let viewModel = TunnelLwoObfuscationSettingsViewModel(
+                tunnelManager: settingsInteractor.tunnelManager,
+                portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+            LwoObfuscationSettingsView(viewModel: viewModel)
+                .navigationTitle("LWO")
         default: Text(state.description)
         }
     }
