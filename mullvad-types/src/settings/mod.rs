@@ -3,9 +3,9 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings,
-        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
-        SelectedObfuscation, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, RelayConstraints,
+        RelayOverride, RelaySettings, RelaySettingsFormatter, SelectedObfuscation,
+        WireguardConstraints,
     },
     wireguard,
 };
@@ -329,7 +329,12 @@ impl Settings {
             return;
         };
 
-        let exit_location = match self.relay_settings.extract_recent_exit() {
+        let RelaySettings::Normal(constraints) = &self.relay_settings else {
+            log::debug!("Cannot create recent from custom tunnel endpoint");
+            return;
+        };
+
+        let exit_location = match constraints.extract_recent_exit() {
             Ok(location) => location,
             Err(e) => {
                 log::debug!("Failed to extract recent exit from relay settings: {e}");
@@ -337,14 +342,15 @@ impl Settings {
             }
         };
 
-        let entry_constraint = self.relay_settings.extract_recent_entry();
+        let entry_constraint = constraints.extract_recent_entry();
 
         // Validate that multihop entry and exit are not the same hostname.
         if let Some(Constraint::Only(entry)) = &entry_constraint
             && matches!(
                 entry,
                 LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
-            ) && *entry == exit_location
+            )
+            && *entry == exit_location
         {
             log::debug!("Skipping recent: multihop entry and exit cannot be the same hostname");
             return;
