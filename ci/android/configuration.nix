@@ -9,6 +9,33 @@
   ...
 }:
 
+let
+  createRunner = id: startId: {
+    isNormalUser = true;
+    description = "Runner user ${id}";
+    extraGroups = [
+      "podman"
+      "networkmanager"
+      "wheel"
+      "runners"
+      "docker"
+    ];
+    group = "runner";
+    subUidRanges = [
+      {
+        startUid = startId;
+        count = 65536;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = startId;
+        count = 65536;
+      }
+    ];
+    linger = true;
+  };
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -94,6 +121,7 @@
     users = {
       runner-admin = {
         isNormalUser = true;
+        description = "Runner admin";
         extraGroups = [
           "networkmanager"
           "wheel"
@@ -108,221 +136,15 @@
       # resources such as port binds and /dev/net/tap access when running multiple container
       # instances in parallel using a single runner user.
       # There is probably a better way to solve this.
-      runner01 = {
-        isNormalUser = true;
-        description = "Runner user 01";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner02 = {
-        isNormalUser = true;
-        description = "Runner user 02";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner03 = {
-        isNormalUser = true;
-        description = "Runner user 03";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner04 = {
-        isNormalUser = true;
-        description = "Runner user 04";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner05 = {
-        isNormalUser = true;
-        description = "Runner user 05";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner06 = {
-        isNormalUser = true;
-        description = "Runner user 06";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner07 = {
-        isNormalUser = true;
-        description = "Runner user 07";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
-
-      runner08 = {
-        isNormalUser = true;
-        description = "Runner user 08";
-        extraGroups = [
-          "podman"
-          "networkmanager"
-          "wheel"
-          "runners"
-          "docker"
-        ];
-        group = "runner";
-        subUidRanges = [
-          {
-            startUid = 100000;
-            count = 65536;
-          }
-        ];
-        subGidRanges = [
-          {
-            startGid = 100000;
-            count = 65536;
-          }
-        ];
-        # needed for podman
-        linger = true;
-      };
+      runner01 = createRunner "01" 100000;
+      runner02 = createRunner "02" 165536;
+      runner03 = createRunner "03" 231072;
+      runner04 = createRunner "04" 296608;
+      runner05 = createRunner "05" 362144;
+      runner06 = createRunner "06" 427680;
+      runner07 = createRunner "07" 493216;
+      runner08 = createRunner "08" 558752;
+      runner09 = createRunner "09" 624288;
     };
 
     groups = {
@@ -557,6 +379,27 @@
         "android-device"
       ];
     };
+
+    android-bender-09 = {
+      enable = true;
+      name = "android-bender-09";
+      tokenFile = "/home/runner09/.registration-token/android-bender-09.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner09";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner09/android-bender-09";
+      extraEnvironment = {
+        # This device is connected with adb tcpip mode.
+        ANDROID_SERIAL = "192.168.100.110:5555";
+      };
+      extraLabels = [
+        "android-bender-09"
+        "android-benchmark-device"
+      ];
+    };
   };
 
   systemd = {
@@ -600,6 +443,9 @@
         wantedBy = lib.mkForce [ ];
         bindsTo = [ "dev-android8.device" ];
         after = [ "dev-android8.device" ];
+      };
+      "github-runner-android-bender-09" = import ./runner-systemd-config.nix {
+        inherit lib;
       };
     };
   };
