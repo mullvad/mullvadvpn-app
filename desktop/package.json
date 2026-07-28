@@ -40,7 +40,7 @@
   },
   "overrides": {
     "styled-components": {
-      "postcss": "8.5.13"
+      "postcss": "8.5.23"
     },
     "grpc_tools_node_protoc_ts": {
       "handlebars": "^4.7.9"
