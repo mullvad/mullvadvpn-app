@@ -1,6 +1,10 @@
 package net.mullvad.mullvadvpn.test.e2e
 
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
 import java.io.File
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.on
@@ -24,6 +28,8 @@ class DefaultLocationTest : EndToEndTest() {
         on<LoginPage> {
             enterAccountNumber(accountTestRule.validAccountNumber)
             clickLoginButton()
+            val isGone = uiDevice.wait(Until.gone(By.res(LOGIN_TITLE_TEST_TAG)), LONG_TIMEOUT)
+            assert(isGone)
         }
 
         on<ConnectPage>()
