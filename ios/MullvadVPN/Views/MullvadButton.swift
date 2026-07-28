@@ -31,7 +31,7 @@ struct MullvadButton: View {
         static let destructiveSecondary = Style(
             rank: .secondary, mainColor: .MullvadButton.danger, attenuatedColor: .MullvadButton.dangerPressed)
         /// the default style for a potentially destructive operation
-        static let destructive = destructiveSecondary
+        static let destructive = destructivePrimary
         /// the style for an operation indicating success; mainly used for the Connect button
         static let success = Style(
             rank: .primary, mainColor: .MullvadButton.positive, attenuatedColor: .MullvadButton.positivePressed)
@@ -101,6 +101,25 @@ struct MullvadButton: View {
             }
         ).buttonStyle(MullvadButton.ButtonStyle(style: style))
             .clipShape(Capsule())
+            .accessibilityRepresentation {
+                HStack {
+                    leadingAccessory.map { self.accessory($0, position: .leading) }
+                    Button(
+                        action: action,
+                        label: {
+                            HStack {
+                                Spacer()
+                                Text(text)
+                                    .lineLimit(nil)
+                                    .multilineTextAlignment(.center)
+                                Spacer()
+                            }
+                        }
+                    ).buttonStyle(MullvadButton.ButtonStyle(style: style))
+                        .clipShape(Capsule())
+                    trailingAccessory.map { self.accessory($0, position: .trailing) }
+                }
+            }
     }
 
     @ViewBuilder
@@ -162,27 +181,32 @@ private struct ModularButtonPreview: View {
     @State var isProcessing: Bool = false
     var body: some View {
         VStack {
-            MullvadButton(text: "Primary", style: .primary) {}
+            MullvadButton(text: "Continue", style: .primary) {}
             MullvadButton(
-                text: "Primary", style: .primary, leadingAccessory: .button(.iconAdd, { print("+") }), action: {})
+                text: "Auckland", style: .primary, leadingAccessory: .button(.iconAdd, { print("+") }), action: {})
             MullvadButton(
-                text: "Primary", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {})
-            MullvadButton(text: "Secondary", style: .secondary) {}
+                text: "Barcelona", style: .primary, trailingAccessory: .button(.iconChevron, { print(">") }), action: {}
+            )
+            MullvadButton(text: "Copenhagen", style: .secondary) {}
             MullvadButton(text: "Connect", style: .success) {}
             MullvadButton(
-                text: "Secondary", style: .secondary, leadingAccessory: .icon(Image.mullvadIconMultihopAlways)
+                text: "Gothenburg", style: .secondary, leadingAccessory: .icon(Image.mullvadIconMultihopAlways)
             ) {}
             MullvadButton(
-                text: "Secondary",
+                text: "Dublin",
                 style: .secondary, trailingAccessory: .icon(Image.mullvadIconMultihopAlways)
             ) {}
             MullvadButton(
-                text: "Destructive", style: .destructive,
+                text: "Delete", style: .destructive,
                 leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
             ) {}
-            MullvadButton(text: "Disabled", style: .primary, action: {}).disabled(true)
             MullvadButton(
-                text: "Disabled", style: .secondary,
+                text: "Log out", style: .destructiveSecondary,
+                leadingAccessory: .button(.iconCross, { print("Accessory tapped") })
+            ) {}
+            MullvadButton(text: "Never", style: .primary, action: {}).disabled(true)
+            MullvadButton(
+                text: "Never", style: .secondary,
                 leadingAccessory: .button(
                     .iconCross,
                     {
@@ -190,9 +214,9 @@ private struct ModularButtonPreview: View {
                     }),
                 action: {}
             ).disabled(true)
-            MullvadButton(text: "Disabled", style: .destructive, action: {}).disabled(true)
+            MullvadButton(text: "Never", style: .destructive, action: {}).disabled(true)
             MullvadButton(
-                text: "Start",
+                text: "Connect",
                 style: .primary,
                 leadingAccessory: .progress(isProcessing),
                 trailingAccessory: .button(

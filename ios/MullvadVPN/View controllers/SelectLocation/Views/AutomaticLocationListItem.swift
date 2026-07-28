@@ -55,7 +55,7 @@ struct AutomaticLocationListItem: View {
             messages: [LocalizedStringKey(message)],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Got it!",
                     handler: completion
                 )

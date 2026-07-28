@@ -288,7 +288,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             ],
             actions: [
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .primary,
                     title: "Continue",
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
@@ -297,7 +297,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         multihopWarningAlert = nil
@@ -313,7 +313,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             messages: [LocalizedStringKey(BlockedStateString.Message.multihop.description)],
             actions: [
                 MullvadAlert.Action(
-                    type: .danger,
+                    type: .destructivePrimary,
                     title: LocalizedStringKey(BlockedStateString.Button.multihop(newMultihopState).description),
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
@@ -322,7 +322,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         multihopWarningAlert = nil
@@ -338,7 +338,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             messages: ["Disabling recents will also clear history."],
             actions: [
                 MullvadAlert.Action(
-                    type: .danger,
+                    type: .destructivePrimary,
                     title: "Disable",
                     identifier: AccessibilityIdentifier.disableRecentConnectionsButton,
                     handler: {
@@ -347,7 +347,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     }
                 ),
                 MullvadAlert.Action(
-                    type: .default,
+                    type: .secondary,
                     title: "Cancel",
                     handler: {
                         disablingRecentConnectionsAlert = nil
