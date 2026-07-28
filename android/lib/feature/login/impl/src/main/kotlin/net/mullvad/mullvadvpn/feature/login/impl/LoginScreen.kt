@@ -54,6 +54,7 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.layout
@@ -353,15 +354,18 @@ private fun ColumnScope.LoginInput(
     LaunchedEffect(accountState) {
         snapshotFlow { accountState.text.toString() }.collectLatest { onAccountNumberChange(it) }
     }
-    LaunchedEffect(accountState) {}
+    val revealInputRequester = remember { FocusRequester() }
+    val inputRequester = remember { FocusRequester() }
     TextField(
         modifier =
             // Fix for DPad navigation
             Modifier.semantics { contentType = ContentType.Password }
                 .focusProperties {
-                    left = FocusRequester.Cancel
-                    right = FocusRequester.Cancel
+                    start = FocusRequester.Cancel
+                    // So that it is possible to use the reveal input button with DPad navigation.
+                    end = revealInputRequester
                 }
+                .focusRequester(inputRequester)
                 .fillMaxWidth()
                 .testTag(LOGIN_INPUT_TEST_TAG)
                 .let {
@@ -389,7 +393,13 @@ private fun ColumnScope.LoginInput(
             if (state.loginState is LoginState.Idle) {
                 {
                     IconButton(
-                        modifier = Modifier.testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
+                        modifier =
+                            Modifier.focusRequester(revealInputRequester)
+                                .focusProperties {
+                                    start = inputRequester
+                                    end = FocusRequester.Cancel
+                                }
+                                .testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
                         onClick = { showPassword = !showPassword },
                     ) {
                         Icon(
