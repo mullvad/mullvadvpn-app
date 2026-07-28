@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -96,10 +96,12 @@ fun NotificationSettingsScreen(
                 PrimaryButton(
                     modifier =
                         Modifier.windowInsetsPadding(
-                                WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+                                WindowInsets.safeDrawing.only(
+                                    WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                                )
                             )
                             .padding(
-                                horizontal = Dimens.sideMargin,
+                                horizontal = Dimens.sideMarginNew,
                                 vertical = Dimens.screenBottomMargin,
                             ),
                     text = stringResource(R.string.notification_settings),

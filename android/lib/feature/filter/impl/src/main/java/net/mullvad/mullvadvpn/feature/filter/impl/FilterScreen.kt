@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -306,8 +306,12 @@ private fun BottomBar(
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = backgroundColor)
-                .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-                .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMargin),
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(
+                        WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom
+                    )
+                )
+                .padding(vertical = Dimens.screenBottomMargin, horizontal = Dimens.sideMarginNew),
         contentAlignment = Alignment.BottomCenter,
     ) {
         VariantButton(
