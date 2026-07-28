@@ -192,7 +192,7 @@ struct SettingsVPNSettingsView: View {
                 """,
             ], customView: nil,
             actions: [
-                MullvadAlert.Action(type: .default, title: "Got it!", handler: completion)
+                MullvadAlert.Action(type: .primary, title: "Got it!", handler: completion)
             ])
     }
 
@@ -225,7 +225,7 @@ struct SettingsVPNSettingsView: View {
                 """
             ], customView: nil,
             actions: [
-                MullvadAlert.Action(type: .default, title: "Got it!", handler: completion)
+                MullvadAlert.Action(type: .primary, title: "Got it!", handler: completion)
             ])
     }
 
@@ -243,7 +243,7 @@ struct SettingsVPNSettingsView: View {
                             alert = getIPVersionAlert(completion: { alert = nil })
                         })
                     )
-                    .padding(.trailing, UIMetrics.contentInsets.right)
+                    .padding(.trailing, UIMetrics.contentInsets.right + 6) // TODO: WHY ?!??!?!?!
                 },
                 segment: {
                     itemFactory.segment(

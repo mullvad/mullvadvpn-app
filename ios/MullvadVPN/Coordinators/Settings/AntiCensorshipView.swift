@@ -13,7 +13,13 @@ struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
     let settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
-    let availableObfuscations = WireGuardObfuscationState.allCases
+    let availableObfuscations: [WireGuardObfuscationState] = [
+        .shadowsocks,
+        .udpOverTcp,
+        .quic,
+        .lwo,
+        .off,
+    ]
 
     var body: some View {
         ScrollView {
@@ -42,32 +48,37 @@ struct AntiCensorshipView: View {
                         )
                     },
                     groupedContent: {
-                        ForEach(Array(availableObfuscations.enumerated()), id: \.element.description) { index, option in
-                            SegmentedListItem(
-                                level: 1,
-                                isLastInList: index == availableObfuscations.count - 1,
-                                accessibilityIdentifier: .udpOverTcpObfuscationSettings,  // ???
-                                leading: {
-                                    leadingView(for: option)
-                                },
-                                segment: {
-                                    if [
-                                        WireGuardObfuscationState.automatic, WireGuardObfuscationState.quic,
-                                        WireGuardObfuscationState.off,
-                                    ].contains(option) {
-                                        EmptyView()
-                                    } else {
-                                        NavigationLink {
-                                            obfuscationView(option)
-                                        } label: {
-                                            itemFactory.image(for: .chevron)
+                        Group {
+                            automaticSelectionView()
+                            wireguardPortView()
+                            ForEach(Array(availableObfuscations.enumerated()), id: \.element.description) {
+                                index, option in
+                                SegmentedListItem(
+                                    level: 1,
+                                    isLastInList: index == availableObfuscations.count - 1,
+                                    accessibilityIdentifier: .udpOverTcpObfuscationSettings,  // ???
+                                    leading: {
+                                        leadingView(for: option)
+                                    },
+                                    segment: {
+                                        if [
+                                            WireGuardObfuscationState.automatic, WireGuardObfuscationState.quic,
+                                            WireGuardObfuscationState.off,
+                                        ].contains(option) {
+                                            EmptyView()
+                                        } else {
+                                            NavigationLink {
+                                                obfuscationView(option)
+                                            } label: {
+                                                itemFactory.image(for: .chevron)
+                                            }
                                         }
+                                    },
+                                    onSelect: {
+                                        // Change the iteration here to match real wireguard obfuscation
                                     }
-                                },
-                                onSelect: {
-                                    // Change the iteration here to match real wireguard obfuscation
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 )
@@ -77,6 +88,57 @@ struct AntiCensorshipView: View {
         }
         .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
+    }
+
+    @ViewBuilder
+    func automaticSelectionView() -> some View {
+        SegmentedListItem(
+            level: 1,
+            isLastInList: false,
+            accessibilityIdentifier: .wireGuardObfuscationAutomatic,  // ???
+            leading: {
+                itemFactory.leading(
+                    for: .generic(
+                        title: "Automatic",
+                        level: 1, isSelected: settings.tunnelSettings.wireGuardObfuscation.state == .automatic))
+            },
+            onSelect: {
+                // ???
+            }
+        )
+    }
+
+    @ViewBuilder
+    func wireguardPortView() -> some View {
+        SegmentedListItem(
+            level: 1,
+            isLastInList: false,
+            accessibilityIdentifier: .wireGuardPortsCell,  // ???
+            leading: {
+                itemFactory.leading(
+                    for: .generic(
+                        title: "WireGuard Port",
+                        subtitle: "Port: Automatic",  // ???
+                        level: 1,
+                        isSelected: settings.tunnelSettings.wireGuardObfuscation.state == .off
+                            && settings.tunnelSettings.relayConstraints.port == .any)) // THIS IS WRONG
+            },
+            segment: {
+                NavigationLink {
+                    let viewModel = TunnelWireGuardPortSettingsViewModel(
+                        tunnelManager: settingsInteractor.tunnelManager,
+                        option: WireGuardCustomPort(
+                            constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
+                        portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+                    WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
+                } label: {
+                    itemFactory.image(for: .chevron)
+                }
+            },
+            onSelect: {
+                // ???
+            }
+        )
     }
 
     // How to handle better wireguard port ???

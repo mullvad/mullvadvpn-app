@@ -9,8 +9,8 @@
 import MullvadSettings
 import MullvadTypes
 import Routing
-import UIKit
 import SwiftUI
+import UIKit
 
 enum VPNSettingsSection: Equatable {
     case quantumResistance

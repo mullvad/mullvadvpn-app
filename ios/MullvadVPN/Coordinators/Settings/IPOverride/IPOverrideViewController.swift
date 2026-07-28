@@ -8,8 +8,8 @@
 
 import Combine
 import MullvadSettings
-import UIKit
 import SwiftUI
+import UIKit
 
 class IPOverrideViewController: UIViewController {
     private let interactor: IPOverrideInteractor
