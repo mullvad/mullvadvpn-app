@@ -7,7 +7,7 @@ use std::{
 
 use async_trait::async_trait;
 use rand::RngCore;
-use talpid_net::bypass::{BypassGuard, SocketBypass};
+use talpid_net::bypass::{BypassSocket, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
@@ -45,13 +45,11 @@ pub struct Settings {
 pub struct Lwo {
     client: Client,
     local_endpoint: SocketAddr,
-    _bypass: BypassGuard,
 }
 
 impl Lwo {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
-        let (remote_socket, _bypass) =
-            create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
+        let remote_socket = create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
         let remote_socket = Arc::new(remote_socket);
         let client_socket = Arc::new(
             UdpSocket::bind(SocketAddr::from((Ipv4Addr::LOCALHOST, 0)))
@@ -75,7 +73,6 @@ impl Lwo {
         Ok(Self {
             local_endpoint,
             client,
-            _bypass,
         })
     }
 
@@ -98,7 +95,7 @@ struct Client {
     rx_key: PublicKey,
     tx_key: PublicKey,
 
-    remote_socket: Arc<UdpSocket>,
+    remote_socket: Arc<BypassSocket<UdpSocket>>,
     client_socket: Arc<UdpSocket>,
 }
 
@@ -149,13 +146,13 @@ impl Client {
         let rx_socket = client_socket.clone();
         let tx_socket = remote_socket.clone();
         let send_task = tokio::spawn(async move {
-            run_obfuscation(true, tx_key, rx_socket, tx_socket).await;
+            run_obfuscation(tx_key, rx_socket, tx_socket).await;
         });
 
         let rx_socket = remote_socket.clone();
         let tx_socket = client_socket.clone();
         let recv_task = tokio::spawn(async move {
-            run_obfuscation(false, rx_key, rx_socket, tx_socket).await;
+            run_deobfuscation(rx_key, rx_socket, tx_socket).await;
         });
 
         Ok(RunningClient {
@@ -166,31 +163,34 @@ impl Client {
 }
 
 async fn run_obfuscation(
-    sending: bool,
     key: PublicKey,
     read_socket: Arc<UdpSocket>,
-    write_socket: Arc<UdpSocket>,
+    write_socket: Arc<BypassSocket<UdpSocket>>,
 ) {
-    if sending {
-        run_obfuscation_inner(
-            move |buf| obfuscate(&mut rand::rng(), buf, key.as_bytes()),
-            read_socket,
-            write_socket,
-        )
-        .await
-    } else {
-        run_obfuscation_inner(
-            move |buf| deobfuscate(buf, key.as_bytes()),
-            read_socket,
-            write_socket,
-        )
-        .await
+    let mut buf = vec![0u8; MAX_UDP_SIZE];
+
+    loop {
+        let read_n = match read_socket.recv(&mut buf).await {
+            Ok(read_n) => read_n,
+            Err(err) => {
+                log::debug!("read_socket.recv failed: {err}");
+                return;
+            }
+        };
+
+        // TODO: recv and send concurrently
+        obfuscate(&mut rand::rng(), &mut buf, key.as_bytes());
+
+        if let Err(err) = write_socket.send(&buf[..read_n]).await {
+            log::debug!("write_socket.send_to failed: {err}");
+            return;
+        }
     }
 }
 
-async fn run_obfuscation_inner(
-    mut action: impl FnMut(&mut [u8]),
-    read_socket: Arc<UdpSocket>,
+async fn run_deobfuscation(
+    key: PublicKey,
+    read_socket: Arc<BypassSocket<UdpSocket>>,
     write_socket: Arc<UdpSocket>,
 ) {
     let mut buf = vec![0u8; MAX_UDP_SIZE];
@@ -205,7 +205,7 @@ async fn run_obfuscation_inner(
         };
 
         // TODO: recv and send concurrently
-        action(&mut buf[..read_n]);
+        deobfuscate(&mut buf, key.as_bytes());
 
         if let Err(err) = write_socket.send(&buf[..read_n]).await {
             log::debug!("write_socket.send_to failed: {err}");
