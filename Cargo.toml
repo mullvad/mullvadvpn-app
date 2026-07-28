@@ -209,6 +209,16 @@ quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3
 ring.opt-level = 3
 
+# The installer-downloader is a standalone binary users download directly, so it is
+# optimized for size harder than the rest of the workspace. Used by
+# `installer-downloader/build.sh`. Profiles can only be set for the entire workspace,
+# which is why this lives here and not in `installer-downloader/Cargo.toml`.
+[profile.installer-downloader]
+inherits = "release"
+opt-level = "z"
+panic = "abort"
+codegen-units = 1
+
 [profile.release-debuginfo]
 inherits = "release"
 debug = true
