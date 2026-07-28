@@ -17,3 +17,15 @@ reason = "We do not use Deno."
 id = "GHSA-g7r4-m6w7-qqqr"  # GHSA-g7r4-m6w7-qqqr
 ignoreUntil = 2026-08-16  # The vulnerability is ignored for 2 months as any files readable by the user account are available to read by a process invoked by the user, without using esbuild to achieve it. We can not upgrade esbuild until we have first upgraded vite from 7 to 8.
 reason = "The esbuild development server is run on developer systems where dependencies can already directly read all the files that the user account has access to. Using esbuild to achieve this is not necessary."
+
+# brace-expansion: Denial of service via unbounded expansion length causing an out-of-memory process crash
+[[IgnoredVulns]]
+id = "GHSA-mh99-v99m-4gvg"  # CVE-2026-14257
+ignoreUntil = 2026-10-28
+reason = """
+brace-expansion is a development-only dependency, reached exclusively through minimatch.
+The crash requires attacker-influenced input to reach `expand()`.
+Every pattern in our build comes from files we control in this repository, so a hostile file name
+in the build tree cannot trigger it. The worst case is a crashed build on a developer machine or CI
+runner.
+"""
