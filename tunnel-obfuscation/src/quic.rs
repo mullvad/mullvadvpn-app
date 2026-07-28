@@ -5,7 +5,9 @@ use mullvad_masque_proxy::client::{Client, ClientConfig};
 use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Arc,
 };
+use talpid_net::bypass::{BypassGuard, SocketBypass};
 use tokio::net::UdpSocket;
 use tokio_util::sync::CancellationToken;
 
@@ -21,10 +23,10 @@ pub enum Error {
     MasqueProxyError(#[source] mullvad_masque_proxy::client::Error),
 }
 
-#[derive(Debug)]
 pub struct Quic {
     local_endpoint: SocketAddr,
     config: ClientConfig,
+    _bypass: BypassGuard,
 }
 
 #[derive(Debug, Clone)]
@@ -47,7 +49,7 @@ pub struct Settings {
 }
 
 impl Settings {
-    ///See [Settings] for details.
+    /// See [Settings] for details.
     pub fn new(
         quic_server_endpoint: SocketAddr,
         hostname: String,
@@ -118,16 +120,20 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl Quic {
-    pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+    pub(crate) async fn new(
+        bypass: Arc<dyn SocketBypass>,
+        settings: &Settings,
+    ) -> crate::Result<Self> {
         let (local_socket, local_udp_client_addr) =
             Quic::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
                 .await
                 .map_err(crate::Error::CreateQuicObfuscator)?;
         // The address family of the local QUIC client socket has to match the address family
-        // of the endpoint we're connecting to. The address itself is not important to consumers wanting
-        // to obfuscate traffic. It is solely used by the local proxy client to know where the QUIC
-        // obfuscator is running.
-        let quic_socket = create_remote_socket(
+        // of the endpoint we're connecting to. The address itself is not important to consumers
+        // wanting to obfuscate traffic. It is solely used by the local proxy client to know
+        // where the QUIC obfuscator is running.
+        let (quic_socket, _bypass) = create_remote_socket(
+            &bypass,
             settings.quic_endpoint.is_ipv4(),
             #[cfg(target_os = "linux")]
             settings.fwmark,
@@ -148,6 +154,7 @@ impl Quic {
         let quic = Quic {
             local_endpoint: local_udp_client_addr,
             config,
+            _bypass,
         };
 
         Ok(quic)
