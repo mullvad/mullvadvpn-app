@@ -2,19 +2,17 @@
 
 # This script is used to build, and optionally sign, the downloader, always in release mode.
 
-# This script performs the equivalent of the following profile:
-#
-# [profile.release]
-# strip = true
-# opt-level = 'z'
-# codegen-units = 1
-# lto = true
-# panic = 'abort'
-#
-# We cannot set all of the above directly in Cargo.toml since some must be set for the entire
-# workspace.
+# The build settings live in the `installer-downloader` cargo profile, defined in the
+# workspace root Cargo.toml. Do not set RUSTFLAGS here: RUSTFLAGS and the
+# `target.*.rustflags` keys in `.cargo/config.toml` are mutually exclusive, so setting it
+# would drop the reproducible-build link args (/Brepro, /PDBALTPATH) and +crt-static from
+# Windows builds.
 
 set -eu
+
+# Cargo profile to build with. Also the name of the target subdirectory cargo puts the
+# resulting binaries in.
+CARGO_PROFILE="installer-downloader"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
@@ -121,13 +119,7 @@ function build_executable {
     # Old bash versions complain about empty array expansion when -u is set
     set +u
 
-    local rustflags="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z"
-
-    if [[ -z "$1" && "$(uname -s)" == "MINGW"* ]] || [[ $1 == *"windows"* ]]; then
-        rustflags+=" -Ctarget-feature=+crt-static"
-    fi
-
-    RUSTFLAGS="$rustflags" cargo build --bin installer-downloader --release "${target_args[@]}"
+    cargo build --bin installer-downloader --profile "$CARGO_PROFILE" "${target_args[@]}"
 
     set -u
 }
@@ -141,13 +133,13 @@ function lipo_executables {
 
     case $HOST in
         x86_64-apple-darwin) target_exes=(
-            "$CARGO_TARGET_DIR/release/installer-downloader"
-            "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/installer-downloader"
+            "$CARGO_TARGET_DIR/$CARGO_PROFILE/installer-downloader"
+            "$CARGO_TARGET_DIR/aarch64-apple-darwin/$CARGO_PROFILE/installer-downloader"
         )
         ;;
         aarch64-apple-darwin) target_exes=(
-            "$CARGO_TARGET_DIR/release/installer-downloader"
-            "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/installer-downloader"
+            "$CARGO_TARGET_DIR/$CARGO_PROFILE/installer-downloader"
+            "$CARGO_TARGET_DIR/x86_64-apple-darwin/$CARGO_PROFILE/installer-downloader"
         )
         ;;
     esac
@@ -313,7 +305,7 @@ function sign_win {
 
 # Copy executable and optionally sign it.
 function dist_windows_app {
-    cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/$FILENAME.exe"
+    cp "$CARGO_TARGET_DIR/$CARGO_PROFILE/installer-downloader.exe" "$BUILD_DIR/$FILENAME.exe"
     if [[ "$SIGN" != "false" ]]; then
         sign_win "$BUILD_DIR/$FILENAME.exe"
     fi
