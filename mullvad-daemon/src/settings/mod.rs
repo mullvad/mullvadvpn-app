@@ -698,35 +698,29 @@ mod test {
               "custom_lists": {
                 "custom_lists": []
               },
-              "recents": [
-                {
-                  "Multihop": {
-                    "entry": {
-                      "only": {
-                        "location": {
-                          "country": "se"
-                        }
-                      }
-                    },
-                    "exit": {
-                      "custom_list": {
-                        "list_id": "df612270-79a4-47e9-92e7-3405c92f7678"
-                      }
+              "recents": {
+                "exits": [
+                  {
+                    "custom_list": {
+                      "list_id": "df612270-79a4-47e9-92e7-3405c92f7678"
                     }
-                  }
-                },
-                {
-                  "Singlehop": {
+                  },
+                  {
                     "location": {
-                      "hostname": [
-                        "be",
-                        "bru",
-                        "be-bru-wg-103"
-                      ]
+                      "hostname": ["be", "bru", "be-bru-wg-103"]
                     }
                   }
-                }
-              ]
+                ],
+                "entries": [
+                  {
+                    "only": {
+                      "location": {
+                        "country": "se"
+                      }
+                    }
+                  }
+                ]
+              }
             }"#;
 
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
@@ -796,7 +790,7 @@ mod test {
     #[tokio::test]
     async fn test_deserialize_recents() {
         let default: Settings = serde_json::from_str("{}").expect("Failed to deserialize");
-        assert_eq!(default.recents, Some(vec![]));
+        assert_eq!(default.recents, Some(mullvad_types::settings::Recents::default()));
 
         let disabled: Settings =
             serde_json::from_str(r#"{"recents": null}"#).expect("Failed to deserialize");

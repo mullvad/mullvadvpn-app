@@ -124,30 +124,29 @@ impl __WireguardSettings {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum __Recent {
-    Singlehop(__LocationConstraint),
-    Multihop(__MultihopRecent),
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct __Recents {
+    pub exits: Vec<__LocationConstraint>,
+    pub entries: Vec<__Constraint<__LocationConstraint>>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct __MultihopRecent {
-    pub entry: __Constraint<__LocationConstraint>, // NEW format: wrapped in Constraint
-    pub exit: __LocationConstraint,
-}
+impl From<Vec<v17::__Recent>> for __Recents {
+    fn from(recents: Vec<v17::__Recent>) -> Self {
+        let mut exits = Vec::new();
+        let mut entries = Vec::new();
 
-impl From<v17::__Recent> for __Recent {
-    fn from(value: v17::__Recent) -> Self {
-        match value {
-            v17::__Recent::Singlehop(__location_constraint) => {
-                Self::Singlehop(__location_constraint)
-            }
-            v17::__Recent::Multihop(v17::__MultihopRecent { entry, exit }) => {
-                Self::Multihop(__MultihopRecent {
-                    entry: __Constraint::Only(entry),
-                    exit,
-                })
+        for recent in recents {
+            match recent {
+                v17::__Recent::Singlehop(location) => {
+                    exits.push(location);
+                }
+                v17::__Recent::Multihop(v17::__MultihopRecent { entry, exit }) => {
+                    exits.push(exit);
+                    entries.push(__Constraint::Only(entry));
+                }
             }
         }
+
+        __Recents { exits, entries }
     }
 }

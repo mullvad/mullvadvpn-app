@@ -146,8 +146,7 @@ fn recents_migration(settings: &mut Value) {
         && let Ok(recents) =
             serde_json::from_value::<Option<Vec<v17::__Recent>>>(recents_raw.clone())
     {
-        let recents_v18 =
-            recents.map(|r| r.into_iter().map(v18::__Recent::from).collect::<Vec<_>>());
+        let recents_v18: Option<v18::__Recents> = recents.map(v18::__Recents::from);
         *recents_raw = json!(recents_v18);
     }
 }
@@ -176,17 +175,17 @@ mod test {
         assert_eq!(
             settings,
             json!({
-                "recents": [
-                    {"Multihop": {
-                        "entry": {"only": {"location": {"country": "se"}}},
-                        "exit": {"custom_list": {"list_id": "df612270-79a4-47e9-92e7-3405c92f7678"}}
-                    }},
-                    {"Multihop": {
-                        "entry": {"only": {"custom_list": {"list_id": "abc"}}},
-                        "exit": {"location": {"country": "fi"}}
-                    }},
-                    {"Singlehop": {"location": {"hostname": ["be", "bru", "be-bru-wg-103"]}}}
-                ]
+                "recents": {
+                    "exits": [
+                        {"custom_list": {"list_id": "df612270-79a4-47e9-92e7-3405c92f7678"}},
+                        {"location": {"country": "fi"}},
+                        {"location": {"hostname": ["be", "bru", "be-bru-wg-103"]}}
+                    ],
+                    "entries": [
+                        {"only": {"location": {"country": "se"}}},
+                        {"only": {"custom_list": {"list_id": "abc"}}}
+                    ]
+                }
             })
         );
     }

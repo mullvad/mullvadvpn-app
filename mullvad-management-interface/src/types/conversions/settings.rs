@@ -175,7 +175,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             api_access_methods: mullvad_types::access_method::Settings::try_from(
                 api_access_methods_settings,
             )?,
-            recents: Some(vec![]),
+            recents: Some(mullvad_types::settings::Recents::default()),
             update_default_location: settings.update_default_location,
             // HACK: The daemon should never read this random settings blob from a random client.
             // We should look into separating the serializable settings object that pass across
@@ -304,31 +304,28 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
     }
 }
 
-impl From<Vec<mullvad_types::settings::Recent>> for proto::Recents {
-    fn from(recents: Vec<mullvad_types::settings::Recent>) -> Self {
+impl From<mullvad_types::settings::Recents> for proto::Recents {
+    fn from(recents: mullvad_types::settings::Recents) -> Self {
         proto::Recents {
-            recents: recents.into_iter().map(proto::Recent::from).collect(),
-        }
-    }
-}
-
-impl From<mullvad_types::settings::Recent> for proto::Recent {
-    fn from(recent: mullvad_types::settings::Recent) -> Self {
-        match recent {
-            mullvad_types::settings::Recent::Singlehop(location) => Self {
-                r#type: Some(proto::recent::Type::Singlehop(location.into())),
-            },
-            mullvad_types::settings::Recent::Multihop { entry, exit } => Self {
-                r#type: Some(proto::recent::Type::Multihop(proto::MultihopRecent {
+            exits: recents
+                .exits
+                .into_iter()
+                .map(|location| proto::ExitRecent {
+                    location: Some(location.into()),
+                })
+                .collect(),
+            entries: recents
+                .entries
+                .into_iter()
+                .map(|entry| proto::EntryRecent {
                     entry: Some(match entry {
-                        Constraint::Any => proto::multihop_recent::Entry::Automatic(()),
+                        Constraint::Any => proto::entry_recent::Entry::Automatic(()),
                         Constraint::Only(location) => {
-                            proto::multihop_recent::Entry::Some(location.into())
+                            proto::entry_recent::Entry::Location(location.into())
                         }
                     }),
-                    exit: Some(exit.into()),
-                })),
-            },
+                })
+                .collect(),
         }
     }
 }

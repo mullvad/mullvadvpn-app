@@ -38,6 +38,39 @@ impl From<RelayConstraints> for RelaySettings {
     }
 }
 
+impl RelaySettings {
+    /// Extract the exit location for a recent entry.
+    pub fn extract_recent_exit(&self) -> Result<LocationConstraint, &'static str> {
+        match self {
+            RelaySettings::CustomTunnelEndpoint(_) => {
+                Err("Cannot convert CustomTunnelEndpoint to recent")
+            }
+            RelaySettings::Normal(constraints) => constraints
+                .location
+                .as_ref()
+                .option()
+                .ok_or("Location must be Constraint::Only")
+                .cloned(),
+        }
+    }
+
+    /// Extract the entry constraint for a recent entry, if multihop is set to "always".
+    /// Returns `None` for non-multihop or custom tunnel endpoints.
+    pub fn extract_recent_entry(&self) -> Option<Constraint<LocationConstraint>> {
+        match self {
+            RelaySettings::CustomTunnelEndpoint(_) => None,
+            RelaySettings::Normal(constraints) => {
+                match constraints.wireguard_constraints.multihop {
+                    Multihop::Always => {
+                        Some(constraints.wireguard_constraints.entry_location.clone())
+                    }
+                    _ => None,
+                }
+            }
+        }
+    }
+}
+
 pub struct RelaySettingsFormatter<'a> {
     pub settings: &'a RelaySettings,
     pub custom_lists: &'a CustomListsSettings,
