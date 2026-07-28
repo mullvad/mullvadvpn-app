@@ -44,6 +44,7 @@
             <trusting group="androidx.activity"/>
             <trusting group="androidx.benchmark"/>
             <trusting group="androidx.core"/>
+            <trusting group="androidx.databinding"/>
             <trusting group="androidx.datastore"/>
             <trusting group="androidx.lifecycle"/>
             <trusting group="androidx.navigation3"/>
@@ -53,6 +54,7 @@
             <trusting group="com.android.billingclient"/>
             <trusting group="com.google.android.gms" name="play-services-location" version="21.4.0"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
+            <trusting group="^com[.]android($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
             <trusting group="androidx.activity"/>
