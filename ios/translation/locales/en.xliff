@@ -2,7 +2,7 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -94,6 +94,11 @@
         <source>**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</source>
         <target state="new">**Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+        <source>**Tap here to read more**</source>
+        <target state="new">**Tap here to read more**</target>
+        <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve">
         <source>**Tap here** to see what’s new</source>
@@ -329,6 +334,11 @@
         <source>Attention: In this mode, filters are ignored for the additional server.</source>
         <target state="new">Attention: In this mode, filters are ignored for the additional server.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="new">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve">
         <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
@@ -1078,7 +1088,7 @@
       <trans-unit id="Exit filter" xml:space="preserve">
         <source>Exit filter</source>
         <target state="new">Exit filter</target>
-        <note from="auto-generated">Title of the view controller for the exit filter.</note>
+        <note from="auto-generated">The title of the exit filter screen.</note>
       </trans-unit>
       <trans-unit id="Expand" xml:space="preserve">
         <source>Expand</source>
@@ -1173,7 +1183,7 @@
       <trans-unit id="Filters are overridden when using an automatic location" xml:space="preserve">
         <source>Filters are overridden when using an automatic location</source>
         <target state="new">Filters are overridden when using an automatic location</target>
-        <note/>
+        <note from="auto-generated">A description below the list of active filters, explaining that they are overridden when using the automatic location.</note>
       </trans-unit>
       <trans-unit id="Filters can now be set separately for entry and exit locations." xml:space="preserve">
         <source>Filters can now be set separately for entry and exit locations.</source>
@@ -1940,6 +1950,11 @@
         <target state="new">Norway</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
+        <target state="new">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <note from="auto-generated">A sentence that describes the feature</note>
+      </trans-unit>
       <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve">
         <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
 
@@ -2541,6 +2556,16 @@ Do you want to remove the saved account number?</target>
         <source>Some iOS features are known to be affected when using Force all apps.</source>
         <target state="new">Some iOS features are known to be affected when using Force all apps.</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
+        <target state="new">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
+      </trans-unit>
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+        <source>Some of your settings have been migrated, please review the changes.</source>
+        <target state="new">Some of your settings have been migrated, please review the changes.</target>
+        <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve">
         <source>South Africa</source>
@@ -3464,49 +3489,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve">
@@ -3518,21 +3543,21 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve">
@@ -3554,14 +3579,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="en" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
