@@ -19,6 +19,7 @@ parking_lot = "0.12.0"
 rand = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 surge-ping = { workspace = true }
+talpid-net = { path = "../talpid-net" }
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
@@ -33,9 +34,6 @@ tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 insta = { workspace = true }
 proptest = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
-
-[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-talpid-net = { path = "../talpid-net" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 netlink-packet-core = { workspace = true }
