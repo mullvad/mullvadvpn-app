@@ -22,9 +22,9 @@ extension MullvadButton {
             let borderInset: CGFloat = accessoryPosition != nil ? 0 : 0
             let backgroundInsets = EdgeInsets(
                 top: borderInset,
-                leading: (accessoryPosition == .trailing) ? -100 : borderInset,
+                leading: (accessoryPosition == .trailing) ? -.infinity : borderInset,
                 bottom: borderInset,
-                trailing: (accessoryPosition == .leading) ? -100 : borderInset)
+                trailing: (accessoryPosition == .leading) ? -.infinity : borderInset)
             return configuration.label
                 .frame(minHeight: 44)
                 .foregroundStyle(
