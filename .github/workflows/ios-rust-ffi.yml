@@ -27,7 +27,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --recursive ios/wireguard-apple
+          git submodule update --init --depth=1 --recursive ios/wireguard-apple
 
       - name: Install Protoc
         uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
