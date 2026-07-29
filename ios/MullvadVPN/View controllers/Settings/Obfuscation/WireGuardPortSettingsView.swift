@@ -11,7 +11,7 @@ import SwiftUI
 
 struct WireGuardPortSettingsView<VM>: View where VM: WireGuardPortSettingsViewModel {
     @StateObject var viewModel: VM
-    let options: [WireGuardCustomPort]
+    let options: [WireGuardPort]
 
     var body: some View {
         let portString = NSLocalizedString("Port", comment: "")

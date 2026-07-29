@@ -12,29 +12,29 @@ import MullvadTypes
 
 protocol WireGuardPortSettingsViewModel: ObservableObject {
     var value: RelayConstraint<UInt16> { get set }
-    var selectedOption: WireGuardCustomPort { get set }
+    var selectedOption: WireGuardPort { get set }
     var portRanges: [[UInt16]] { get }
 
     func commit()
-    func validatePort(_ port: UInt16) -> WireGuardCustomPort?
+    func validatePort(_ port: UInt16) -> WireGuardPort?
     func portRangesString() -> String
 }
 
 /** A simple mock view model for use in Previews and similar */
 class MockWireGuardPortSettingsViewModel: WireGuardPortSettingsViewModel {
     @Published var value: RelayConstraint<UInt16>
-    @Published var selectedOption: WireGuardCustomPort
+    @Published var selectedOption: WireGuardPort
 
     let portRanges: [[UInt16]] = []
 
-    init(customPort: RelayConstraint<UInt16> = .any, option: WireGuardCustomPort) {
+    init(customPort: RelayConstraint<UInt16> = .any, option: WireGuardPort) {
         self.value = customPort
         self.selectedOption = option
     }
 
     func commit() {}
 
-    func validatePort(_ port: UInt16) -> WireGuardCustomPort? {
+    func validatePort(_ port: UInt16) -> WireGuardPort? {
         .custom(port)
     }
 
@@ -48,9 +48,9 @@ class TunnelWireGuardPortSettingsViewModel: TunnelRelayConstraintsWatchingObserv
     WireGuardPortSettingsViewModel
 {
     let portRanges: [[UInt16]]
-    @Published var selectedOption: WireGuardCustomPort
+    @Published var selectedOption: WireGuardPort
 
-    init(tunnelManager: TunnelManager, option: WireGuardCustomPort, portRanges: [[UInt16]]) {
+    init(tunnelManager: TunnelManager, option: WireGuardPort, portRanges: [[UInt16]]) {
         self.portRanges = portRanges
         self.selectedOption = option
 
@@ -71,7 +71,7 @@ class TunnelWireGuardPortSettingsViewModel: TunnelRelayConstraintsWatchingObserv
         super.commit()
     }
 
-    func validatePort(_ port: UInt16) -> WireGuardCustomPort? {
+    func validatePort(_ port: UInt16) -> WireGuardPort? {
         if port == 53 {
             return .port53
         }

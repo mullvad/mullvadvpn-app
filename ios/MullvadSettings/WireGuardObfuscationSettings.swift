@@ -132,7 +132,7 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
     }
 }
 
-public enum WireGuardCustomPort: Codable, Equatable, CustomStringConvertible, Sendable {
+public enum WireGuardPort: Codable, Equatable, CustomStringConvertible, Sendable {
     case automatic
     case port51820
     case port53

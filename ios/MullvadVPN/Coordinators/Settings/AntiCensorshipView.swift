@@ -127,7 +127,7 @@ struct AntiCensorshipView: View {
                 NavigationLink {
                     let viewModel = TunnelWireGuardPortSettingsViewModel(
                         tunnelManager: settingsInteractor.tunnelManager,
-                        option: WireGuardCustomPort(
+                        option: WireGuardPort(
                             constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
                         portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
                     WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
