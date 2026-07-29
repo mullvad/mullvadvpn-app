@@ -40,8 +40,10 @@ import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
+import net.mullvad.mullvadvpn.lib.model.EntryRecent
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ExitRecent
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -66,7 +68,6 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.lib.model.Quic
-import net.mullvad.mullvadvpn.lib.model.Recent
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
@@ -784,31 +785,25 @@ internal fun ManagementInterface.IpVersion.toDomain() =
 
 internal fun ManagementInterface.Recents?.toDomain(): Recents =
     if (this != null) {
-        Recents.Enabled(recentsList.mapNotNull { it.toDomain() })
+        Recents.Enabled(
+            entry = entriesList.map { it.toDomain() },
+            exit = exitsList.map { it.toDomain() },
+        )
     } else {
         Recents.Disabled
     }
 
-internal fun ManagementInterface.Recent.toDomain(): Recent? =
-    when (typeCase) {
-        ManagementInterface.Recent.TypeCase.MULTIHOP -> {
-            val entry = when (multihop.entryCase) {
-                ManagementInterface.MultihopRecent.EntryCase.SOME -> multihop.some
-                ManagementInterface.MultihopRecent.EntryCase.AUTOMATIC -> return null
-                ManagementInterface.MultihopRecent.EntryCase.ENTRY_NOT_SET -> error("Recent entry must be set")
-            }
-
-            Recent.Multihop(
-                entry = (entry.toDomain() as Constraint.Only).value,
-                exit = (multihop.exit.toDomain() as Constraint.Only).value,
-            )
-        }
-
-        ManagementInterface.Recent.TypeCase.SINGLEHOP ->
-            Recent.Singlehop((singlehop.toDomain() as Constraint.Only).value)
-
-        ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
+internal fun ManagementInterface.EntryRecent.toDomain(): EntryRecent =
+    when (entryCase) {
+        ManagementInterface.EntryRecent.EntryCase.LOCATION ->
+            EntryRecent.Location((location.toDomain() as Constraint.Only).value)
+        ManagementInterface.EntryRecent.EntryCase.AUTOMATIC -> EntryRecent.Automatic
+        ManagementInterface.EntryRecent.EntryCase.ENTRY_NOT_SET ->
+            error("Recent entry type must be set")
     }
+
+internal fun ManagementInterface.ExitRecent.toDomain(): ExitRecent =
+    ExitRecent((location.toDomain() as Constraint.Only).value)
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(

@@ -5,9 +5,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.EntryRecent
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
-import net.mullvad.mullvadvpn.lib.model.Recent
+import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -21,55 +22,67 @@ class RecentsUseCase(
     private val settingsRepository: SettingsRepository,
 ) {
 
-    operator fun invoke(relayListType: RelayListType): Flow<List<RelayItem>?> =
+    operator fun invoke(relayListType: RelayListType): Flow<List<RecentItem>?> =
         when (relayListType) {
             is RelayListType.Multihop -> multihopRecents(relayListType.multihopRelayListType)
             RelayListType.Single -> singlehopRecents()
         }
 
-    private fun singlehopRecents(): Flow<List<RelayItem>?> =
+    private fun singlehopRecents(): Flow<List<RecentItem>?> =
         combine(
-            recents().map { it?.filterIsInstance<Recent.Singlehop>() },
+            recents(),
             filteredRelayListUseCase(RelayListType.Single),
             customListsRelayItemUseCase(RelayListType.Single),
-        ) { recents, relayList, customList ->
-            recents?.mapNotNull { recent -> recent.location.findItem(customList, relayList) }
+        ) { recents, relayList, customLists ->
+            recents?.exit?.mapNotNull { recent ->
+                recent.location.findItem(customLists, relayList)
+            }
         }
 
     private fun multihopRecents(
         multihopRelayListType: MultihopRelayListType
-    ): Flow<List<RelayItem>?> =
+    ): Flow<List<RecentItem>?> =
         combine(
-            recents().map { it?.filterIsInstance<Recent.Multihop>() },
+            recents(),
             filteredRelayListUseCase(RelayListType.Multihop(multihopRelayListType)),
             customListsRelayItemUseCase(RelayListType.Multihop(multihopRelayListType)),
         ) { recents, relayList, customLists ->
-            recents?.mapNotNull { recent ->
-                recent.getBy(multihopRelayListType).findItem(customLists, relayList)
+            val enabled = recents ?: return@combine null
+
+            when (multihopRelayListType) {
+                MultihopRelayListType.ENTRY ->
+                    enabled.entry.mapNotNull { recent ->
+                        when (recent) {
+                            EntryRecent.Automatic -> RecentItem.Automatic
+                            is EntryRecent.Location ->
+                                recent.location.findItem(customLists, relayList)
+                        }
+                    }
+                MultihopRelayListType.EXIT ->
+                    enabled.exit.mapNotNull { recent ->
+                        recent.location.findItem(customLists, relayList)
+                    }
             }
         }
 
-    private fun recents(): Flow<List<Recent>?> =
+    private fun recents(): Flow<Recents.Enabled?> =
         settingsRepository.settingsUpdates.map { settings ->
             when (val recents = settings?.recents) {
-                is Recents.Enabled -> recents.recents
+                is Recents.Enabled -> recents
                 Recents.Disabled,
                 null -> null
             }
         }
 
-    private fun Recent.Multihop.getBy(multihopListType: MultihopRelayListType) =
-        when (multihopListType) {
-            MultihopRelayListType.ENTRY -> entry
-            MultihopRelayListType.EXIT -> exit
-        }
-
     private fun RelayItemId.findItem(
         customLists: List<RelayItem.CustomList>,
         relayList: List<RelayItem.Location.Country>,
-    ): RelayItem? =
+    ): RecentItem.Relay? =
         when (this) {
-            is CustomListId -> customLists.firstOrNull { this == it.id && it.hasChildren }
-            is GeoLocationId -> relayList.findByGeoLocationId(this)
+            is CustomListId ->
+                customLists.firstOrNull { this == it.id && it.hasChildren }.toRecent()
+            is GeoLocationId -> relayList.findByGeoLocationId(this).toRecent()
         }
+
+    private fun RelayItem?.toRecent(): RecentItem.Relay? = this?.let { RecentItem.Relay(it) }
 }
