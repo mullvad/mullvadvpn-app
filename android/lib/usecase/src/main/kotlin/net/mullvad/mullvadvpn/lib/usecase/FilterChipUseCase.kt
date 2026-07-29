@@ -2,9 +2,10 @@ package net.mullvad.mullvadvpn.lib.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndDirectOnly
+import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isLwoEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isQuicEnabled
+import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByDaita
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByLwo
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByQuic
@@ -91,7 +92,8 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    daitaDirectOnly = settings?.isDaitaAndDirectOnly() == true,
+                    isDaitaEnabled = settings?.isDaitaEnabled() == true,
+                    isWhenNeededMultihopEnabled = settings?.isWhenNeededMultihop() == true,
                     relayListType = relayListType,
                 )
             ) {

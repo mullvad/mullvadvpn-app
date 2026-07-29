@@ -40,6 +40,6 @@ enum class MultihopInEffectStatus {
     WhenNeededInEffect,
     Inactive;
 
-    val isInEffect: Boolean
+    val isMultihopInEffect: Boolean
         get() = this != Inactive
 }

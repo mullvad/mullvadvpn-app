@@ -294,7 +294,7 @@ class LocationBottomSheetViewModel(
                 LocationBottomSheetNavResult.EntryAndExitAreSame
         }
 
-    private suspend fun isMultihopActive(): Boolean = multihopInEffectUseCase().first().isInEffect
+    private suspend fun isMultihopActive(): Boolean = multihopInEffectUseCase().first().isMultihopInEffect
 
     private fun Set<GeoLocationId>.validate(relayItem: RelayItem): SetAsState =
         if (

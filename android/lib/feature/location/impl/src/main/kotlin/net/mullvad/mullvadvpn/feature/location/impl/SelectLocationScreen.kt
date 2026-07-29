@@ -834,17 +834,23 @@ private fun SelectionContainer(
 
             defaultTransition(collapseSet, expandSet) {}
         }
-        MotionLayout(
-            modifier = Modifier.padding(bottom = Dimens.smallPadding),
-            motionScene = scene,
-            progress = progress,
-        ) {
-            FilterRow(
-                modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
-                filters = filterChips,
-                onRemoveOwnershipFilter = { removeOwnershipFilter() },
-                onRemoveProviderFilter = { removeProviderFilter() },
-            )
+
+        val showFilterChips =
+            relayListType.toFilterTarget() == FilterTarget.Entry && entryFilteringEnabled
+
+        if (showFilterChips) {
+            MotionLayout(
+                modifier = Modifier.padding(bottom = Dimens.smallPadding),
+                motionScene = scene,
+                progress = progress,
+            ) {
+                FilterRow(
+                    modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
+                    filters = filterChips,
+                    onRemoveOwnershipFilter = { removeOwnershipFilter() },
+                    onRemoveProviderFilter = { removeProviderFilter() },
+                )
+            }
         }
     }
 }

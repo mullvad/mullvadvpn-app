@@ -30,7 +30,7 @@ class HopSelectionUseCase(
             relayListRepository.selectedLocation,
             multihopInEffectUseCase(),
         ) { customLists, relayList, settings, selectedExitLocation, multihopInEffect ->
-            if (multihopInEffect.isInEffect) {
+            if (multihopInEffect.isMultihopInEffect) {
                 val entry =
                     if (settings.entryBlocked()) {
                         Constraint.Any

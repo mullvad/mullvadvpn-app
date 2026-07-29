@@ -4,14 +4,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndNotDirectOnly
+import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
+import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
 import net.mullvad.mullvadvpn.lib.model.PartitionHostname
@@ -57,7 +59,7 @@ class FilteredRelayListUseCase(
                                     )
                             }
                         RelayListType.Single ->
-                            if (it.isDaitaAndNotDirectOnly()) {
+                            if (it.isWhenNeededMultihop()) {
                                 RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
                             } else {
                                 RelaySelectorPredicate.SingleHop(

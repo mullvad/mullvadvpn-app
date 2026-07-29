@@ -103,7 +103,8 @@ class SelectLocationViewModel(
                         hasAnyEntryFilter = filterState.hasAnyEntryFilter,
                         hasAnyExitFilter = filterState.hasAnyExitFilter,
                         tunnelErrorStateCause = tunnelState.errorCause,
-                        isEntryFilteringEnabled = !settings.entryBlocked(),
+                        isEntryFilteringEnabled =
+                            !settings.entryBlocked() && selectedHop.entry() != Constraint.Any,
                         lastKnownLocation = lastKnownLocation?.country,
                         entryCountry = tunnelState.entryCountry,
                     )
@@ -128,7 +129,7 @@ class SelectLocationViewModel(
         combine(_multihopRelayListTypeSelection, multihopInEffectUseCase()) {
                 multihopRelayListType,
                 multihopActive ->
-                if (multihopActive.isInEffect) RelayListType.Multihop(multihopRelayListType)
+                if (multihopActive.isMultihopInEffect) RelayListType.Multihop(multihopRelayListType)
                 else RelayListType.Single
             }
             .flatMapLatest { filterChipUseCase(it) }
