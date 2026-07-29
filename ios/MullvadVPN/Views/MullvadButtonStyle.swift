@@ -14,11 +14,17 @@ extension MullvadButton {
 
         var style: Style
 
-        var isAccessory: Bool = false
+        var accessoryPosition: TextAlignment? = nil
 
         @Environment(\.isEnabled) private var isEnabled: Bool
 
         func makeBody(configuration: Configuration) -> some View {
+            let borderInset: CGFloat = accessoryPosition != nil ? 0 : 0
+            let backgroundInsets = EdgeInsets(
+                top: borderInset,
+                leading: (accessoryPosition == .trailing) ? -.infinity : borderInset,
+                bottom: borderInset,
+                trailing: (accessoryPosition == .leading) ? -.infinity : borderInset)
             return configuration.label
                 .frame(minHeight: 44)
                 .foregroundStyle(
@@ -29,14 +35,14 @@ extension MullvadButton {
                 .background(
                     style.backgroundColor(for: .init(isEnabled: isEnabled, isPressed: configuration.isPressed))
                 )
-                .if(!isAccessory) { view in
-                    view.overlay {
-                        Capsule()
-                            .stroke(
-                                style.borderColor(for: .init(isEnabled: isEnabled, isPressed: configuration.isPressed)),
-                                lineWidth: 2)
-                    }
-
+                .overlay {
+                    Capsule()
+                        .stroke(
+                            style.borderColor(for: .init(isEnabled: isEnabled, isPressed: configuration.isPressed)),
+                            lineWidth: 2
+                        )
+                        .padding(backgroundInsets)
+                        .clipped()
                 }
                 .font(.body.weight(.semibold))
         }
