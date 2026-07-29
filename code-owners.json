@@ -3,6 +3,7 @@
     ".github/workflows/rust-min-publish-age.yml",
     "building/Dockerfile",
     "building/linux-container-image.txt",
+    "building/reproducible-build.sh",
     "building/sigstore/mullvad/mullvadvpn-app-build@**",
     "building/sigstore/mullvad/mullvadvpn-app-build-node-grpc-bindings@**",
     "ci/buildserver-build.sh",
