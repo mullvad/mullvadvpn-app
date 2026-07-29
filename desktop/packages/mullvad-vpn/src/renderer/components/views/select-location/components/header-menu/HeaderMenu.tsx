@@ -19,26 +19,29 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
 
   const openDisableRecentsDialog = React.useCallback(() => {
-    setDisableRecentsDialogOpen(true);
     onOpenChange?.(false);
+    setDisableRecentsDialogOpen(true);
   }, [onOpenChange]);
 
   const enableRecents = React.useCallback(async () => {
-    await setEnabledRecents(true);
     onOpenChange?.(false);
+    await setEnabledRecents(true);
   }, [onOpenChange, setEnabledRecents]);
 
-  const handleMultihopAlways = useCallback(
-    () => setMultihop({ multihop: 'always' }),
-    [setMultihop],
-  );
+  const handleMultihopAlways = useCallback(async () => {
+    onOpenChange?.(false);
+    await setMultihop({ multihop: 'always' });
+  }, [onOpenChange, setMultihop]);
 
-  const handleMultihopNever = useCallback(() => setMultihop({ multihop: 'never' }), [setMultihop]);
+  const handleMultihopNever = useCallback(async () => {
+    onOpenChange?.(false);
+    await setMultihop({ multihop: 'never' });
+  }, [onOpenChange, setMultihop]);
 
-  const handleMultihopWhenNeeded = useCallback(
-    () => setMultihop({ multihop: 'when-needed' }),
-    [setMultihop],
-  );
+  const handleMultihopWhenNeeded = useCallback(async () => {
+    onOpenChange?.(false);
+    await setMultihop({ multihop: 'when-needed' });
+  }, [onOpenChange, setMultihop]);
 
   return (
     <>

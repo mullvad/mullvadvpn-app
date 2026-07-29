@@ -1,10 +1,10 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
+import { StatusDialog, type StatusDialogProps } from '../../../../components/status-dialog';
 import { useRecents } from '../../hooks';
 
-export type DisableRecentsDialogProps = Omit<DialogProps, 'children'>;
+export type DisableRecentsDialogProps = Omit<StatusDialogProps, 'variant'>;
 
 export function DisableRecentsDialog({ onOpenChange, ...props }: DisableRecentsDialogProps) {
   const { setEnabledRecents } = useRecents();
@@ -19,25 +19,18 @@ export function DisableRecentsDialog({ onOpenChange, ...props }: DisableRecentsD
   }, [onOpenChange]);
 
   return (
-    <Dialog onOpenChange={onOpenChange} {...props}>
-      <Dialog.Portal>
-        <Dialog.Popup>
-          <Dialog.PopupContent>
-            <Dialog.Icon icon="info-circle" />
-            <Dialog.Text>
-              {messages.pgettext('locations-feature', 'Disabling recents will also clear history.')}
-            </Dialog.Text>
-            <Dialog.ButtonGroup>
-              <Dialog.Button variant="destructive" onClick={disableRecents}>
-                <Dialog.Button.Text>{messages.gettext('Disable')}</Dialog.Button.Text>
-              </Dialog.Button>
-              <Dialog.Button key="cancel" onClick={handleCancel}>
-                <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
-              </Dialog.Button>
-            </Dialog.ButtonGroup>
-          </Dialog.PopupContent>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog>
+    <StatusDialog variant="info" onOpenChange={onOpenChange} {...props}>
+      <StatusDialog.Text>
+        {messages.pgettext('locations-feature', 'Disabling recents will also clear history.')}
+      </StatusDialog.Text>
+      <StatusDialog.ButtonGroup>
+        <StatusDialog.Button variant="destructive" onClick={disableRecents}>
+          <StatusDialog.Button.Text>{messages.gettext('Disable')}</StatusDialog.Button.Text>
+        </StatusDialog.Button>
+        <StatusDialog.Button key="cancel" onClick={handleCancel}>
+          <StatusDialog.Button.Text>{messages.gettext('Cancel')}</StatusDialog.Button.Text>
+        </StatusDialog.Button>
+      </StatusDialog.ButtonGroup>
+    </StatusDialog>
   );
 }
