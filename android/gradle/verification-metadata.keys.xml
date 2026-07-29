@@ -51,7 +51,6 @@
             <trusting group="androidx.navigationevent"/>
             <trusting group="androidx.test.uiautomator"/>
             <trusting group="androidx.work"/>
-            <trusting group="com.android.billingclient"/>
             <trusting group="com.google.android.gms" name="play-services-location" version="21.4.0"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
             <trusting group="^com[.]android($|([.].*))" regex="true"/>
