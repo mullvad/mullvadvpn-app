@@ -343,6 +343,7 @@ async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService,
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
 
     fn daita_response(max_padding_frac: f64, max_blocking_frac: f64) -> proto::DaitaResponseV2 {
         proto::DaitaResponseV2 {
@@ -382,7 +383,7 @@ mod tests {
     fn parse_daita_response_if_requested_requires_requested_response() {
         let error = parse_daita_response_if_requested_error(None, true);
 
-        assert!(matches!(error, Error::MissingDaitaResponse));
+        assert_matches!(error, Error::MissingDaitaResponse);
     }
 
     #[test]

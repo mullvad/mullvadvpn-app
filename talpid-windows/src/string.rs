@@ -52,6 +52,7 @@ pub fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::assert_matches;
     use windows_sys::Win32::Globalization::CP_UTF8;
 
     #[test]
@@ -59,16 +60,10 @@ mod test {
         // € = 0x20AC in UTF-16
         let converted = multibyte_to_wide(c"€€", CP_UTF8);
         const EXPECTED: &[u16] = &[0x20AC, 0x20AC];
-        assert!(
-            matches!(converted.as_deref(), Ok(EXPECTED)),
-            "expected Ok({EXPECTED:?}), got {converted:?}",
-        );
+        assert_matches!(converted.as_deref(), Ok(EXPECTED));
 
         // boundary case
         let converted = multibyte_to_wide(c"", CP_UTF8);
-        assert!(
-            matches!(converted.as_deref(), Ok([])),
-            "unexpected result {converted:?}"
-        );
+        assert_matches!(converted.as_deref(), Ok([]));
     }
 }

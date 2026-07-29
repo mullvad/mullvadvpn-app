@@ -17,6 +17,8 @@
 
 use super::SettingsPersister;
 use mullvad_types::settings::Settings;
+#[cfg(test)]
+use std::assert_matches;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -440,10 +442,10 @@ fn test_overflow() {
     let patch = r#"[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]"#;
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
 
-    assert!(matches!(
+    assert_matches!(
         validate_patch_value(PERMITTED_SUBKEYS, &patch, 0),
         Err(Error::RecursionLimit)
-    ));
+    );
 }
 
 /// Test whether valid patches from documentation are accepted by the implementation

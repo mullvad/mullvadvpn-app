@@ -8,7 +8,7 @@ use mullvad_types::{
     device::{Device, DeviceState},
     states::TunnelState,
 };
-use std::time::Duration;
+use std::{assert_matches, time::Duration};
 use talpid_types::net::{wireguard, wireguard::PublicKey};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -75,12 +75,10 @@ pub async fn test_too_many_devices(
     log::info!("Log in with too many devices");
     let login_result = login_with_retries(&mut mullvad_client).await;
 
-    assert!(
-        matches!(
-            login_result,
-            Err(mullvad_management_interface::Error::TooManyDevices)
-        ),
-        "Expected too many devices error, got {login_result:?}"
+    assert_matches!(
+        login_result,
+        Err(mullvad_management_interface::Error::TooManyDevices),
+        "Expected too many devices error"
     );
 
     mullvad_client.logout_account("test-manager").await?;
@@ -161,9 +159,10 @@ pub async fn test_revoked_device(
     // Ensure that the tunnel state transitions to "error". Fail if it transitions to some other
     // state.
     let new_state = next_state.await?;
-    assert!(
-        matches!(&new_state, TunnelState::Error(error_state) if error_state.is_blocking()),
-        "expected blocking error state, got {new_state:?}"
+    assert_matches!(
+        &new_state,
+        TunnelState::Error(error_state) if error_state.is_blocking(),
+        "expected blocking error state"
     );
 
     // Verify that the device state is `Revoked`.
@@ -171,8 +170,9 @@ pub async fn test_revoked_device(
         .get_device()
         .await
         .context("Failed to get device data")?;
-    assert!(
-        matches!(device_state, DeviceState::Revoked),
+    assert_matches!(
+        device_state,
+        DeviceState::Revoked,
         "expected device to be revoked"
     );
 

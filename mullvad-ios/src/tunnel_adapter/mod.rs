@@ -113,6 +113,7 @@ impl TunnelConfig {
 }
 
 /// Obfuscation configuration for the tunnel.
+#[cfg_attr(test, derive(Debug))]
 pub enum ObfuscationConfig {
     Off,
     UdpOverTcp,
@@ -926,6 +927,7 @@ impl Devices {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::assert_matches;
     use std::sync::Mutex;
     use std::sync::atomic::AtomicUsize;
 
@@ -1115,6 +1117,6 @@ mod tests {
         // Non-LWO obfuscation is left untouched.
         let mut off = config();
         IosTunnelAdapter::apply_lwo_ingress_key(&mut off, &pq_singlehop);
-        assert!(matches!(off.obfuscation, ObfuscationConfig::Off));
+        assert_matches!(off.obfuscation, ObfuscationConfig::Off);
     }
 }

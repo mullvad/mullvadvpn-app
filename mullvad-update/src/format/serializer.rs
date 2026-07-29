@@ -71,6 +71,7 @@ fn sign<T: Serialize>(
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::assert_matches;
 
     use serde_json::json;
     use vec1::vec1;
@@ -90,11 +91,9 @@ mod test {
         // Verify that we can deserialize and verify the data
         let partial = sign(&key, &data).context("Signing failed")?;
 
-        assert!(
-            matches!(&partial.signatures[0], ResponseSignature::Ed25519 {
-            keyid,
-            ..
-        } if keyid == &pubkey)
+        assert_matches!(
+            &partial.signatures[0],
+            ResponseSignature::Ed25519 { keyid, .. } if keyid == &pubkey
         );
 
         let bytes = serde_json::to_vec(&partial)?;

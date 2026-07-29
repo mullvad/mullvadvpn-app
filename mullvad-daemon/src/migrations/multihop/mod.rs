@@ -58,6 +58,8 @@ pub(crate) fn version_matches(settings: &Value) -> bool {
 #[cfg(test)]
 /// The setup for each scenario is broken down in [scenario].
 mod test {
+    use std::assert_matches;
+
     use crate::migrations::multihop::settings::v17::SettingsBuilder;
 
     use super::*;
@@ -157,7 +159,7 @@ mod test {
             .filters(true)
             .build();
         let scenario = migration::detect(&settings);
-        assert!(matches!(scenario, Scenario::ThreeB { .. }));
+        assert_matches!(scenario, Scenario::ThreeB { .. });
         let mut settings = json!(settings);
         insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
         migration::migrate(&mut settings, scenario);

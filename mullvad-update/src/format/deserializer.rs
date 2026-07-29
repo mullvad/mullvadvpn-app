@@ -132,6 +132,7 @@ pub(super) fn deserialize_and_verify(
 
 #[cfg(test)]
 mod test {
+    use std::assert_matches;
     use std::str::FromStr;
 
     use vec1::vec1;
@@ -211,17 +212,15 @@ mod test {
         let expected_sig = Signature::from_hex(fakesig).unwrap();
 
         // Ed25519 key
-        assert!(
-            matches!(&response.signatures[0], ResponseSignature::Ed25519 { keyid, sig } if keyid == &expected_key && sig == &expected_sig),
-            "unexpected response sig: {:?}",
-            response.signatures[0]
+        assert_matches!(
+            &response.signatures[0],
+            ResponseSignature::Ed25519 { keyid, sig } if keyid == &expected_key && sig == &expected_sig
         );
 
         // Unrecognized key type
-        assert!(
-            matches!(&response.signatures[1], ResponseSignature::Other { keyid, sig } if keyid == "test 1" && sig == "test 2"),
-            "expected unrecognized key: {:?}",
-            response.signatures[1]
+        assert_matches!(
+            &response.signatures[1],
+            ResponseSignature::Other { keyid, sig } if keyid == "test 1" && sig == "test 2"
         );
     }
 }

@@ -127,6 +127,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::assert_matches;
     use std::time::Duration;
     use tokio::io::AsyncReadExt;
 
@@ -149,9 +150,7 @@ mod test {
             let result = tokio::time::timeout(Duration::from_secs(1), stream_task)
                 .await
                 .unwrap();
-            assert!(
-                matches!(result, Ok(Err(error)) if error.kind() == io::ErrorKind::ConnectionReset)
-            );
+            assert_matches!(result, Ok(Err(error)) if error.kind() == io::ErrorKind::ConnectionReset);
         });
     }
 
