@@ -140,6 +140,7 @@ tun05 = { package = "tun", version = "0.5.5", features = ["async"] }
 uniffi = "0.31.2"
 vec1 = "1.12"
 webpki-roots = "1.0.4"
+wfp = "0.1.0"
 widestring = "1.2"
 windows = "0.62.2"
 windows-registry = "0.6.1"

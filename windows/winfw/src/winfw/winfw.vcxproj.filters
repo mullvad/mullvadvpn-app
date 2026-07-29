@@ -52,9 +52,6 @@
     <ClCompile Include="rules\shared.cpp">
       <Filter>rules</Filter>
     </ClCompile>
-    <ClCompile Include="rules\persistent\blockall.cpp">
-      <Filter>rules\persistent</Filter>
-    </ClCompile>
     <ClCompile Include="rules\multi\permitendpoint.cpp">
       <Filter>rules\multi</Filter>
     </ClCompile>
@@ -123,9 +120,6 @@
     <ClInclude Include="rules\shared.h">
       <Filter>rules</Filter>
     </ClInclude>
-    <ClInclude Include="rules\persistent\blockall.h">
-      <Filter>rules\persistent</Filter>
-    </ClInclude>
     <ClInclude Include="rules\multi\permitendpoint.h">
       <Filter>rules\multi</Filter>
     </ClInclude>
@@ -145,9 +139,6 @@
     </Filter>
     <Filter Include="rules\multi">
       <UniqueIdentifier>{005cce7c-ed9d-4675-8e4f-759c9682b77e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="rules\persistent">
-      <UniqueIdentifier>{d98577af-1119-4c3a-8a04-d24f461ee61c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

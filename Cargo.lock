@@ -5887,6 +5887,7 @@ dependencies = [
  "tokio",
  "tun 0.5.5",
  "typed-builder 0.20.1",
+ "wfp",
  "widestring",
  "windows",
  "windows-registry",
@@ -7278,6 +7279,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "998d2c24ec099a87daf9467808859f9d82b61f1d9c9701251aea037f514eae0e"
 dependencies = [
  "nom",
+]
+
+[[package]]
+name = "wfp"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3887497c8a5a637a1c7eec44bcfb01d860a8741dbb353ac95876c8a9ffdf053"
+dependencies = [
+ "log",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

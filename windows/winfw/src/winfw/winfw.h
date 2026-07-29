@@ -120,19 +120,38 @@ WinFw_InitializeBlocked(
 
 enum WINFW_CLEANUP_POLICY : uint32_t
 {
-	// Continue blocking if this happens to be the active policy
-	// otherwise reset the firewall.
-	// This adds persistent blocking filters that are active until
-	// WinFw is reinitialized.
-	WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING = 0,
-
 	// Remove all objects that have been registered with WFP.
 	WINFW_CLEANUP_POLICY_RESET_FIREWALL = 1,
 
 	// Continue blocking if this is the active policy.
-	// Adds ephemeral blocking filters that are active until WinFw is shut down (??)
+	// The blocking filters are ephemeral: they are active until the machine is rebooted.
+	// To keep blocking across a reboot, the caller is responsible for replacing them with
+	// persistent ones.
 	WINFW_CLEANUP_POLICY_BLOCK_UNTIL_REBOOT = 2,
 };
+
+enum WINFW_ACTIVE_POLICY : uint32_t
+{
+	WINFW_ACTIVE_POLICY_NONE = 0,
+	WINFW_ACTIVE_POLICY_CONNECTING = 1,
+	WINFW_ACTIVE_POLICY_CONNECTED = 2,
+	WINFW_ACTIVE_POLICY_BLOCKED = 3,
+};
+
+//
+// ActivePolicy:
+//
+// Return the policy currently in effect, or WINFW_ACTIVE_POLICY_NONE if WINFW has not been
+// initialized.
+//
+// Call this before WinFw_Deinitialize, which forgets the active policy along with the rest
+// of the module state.
+//
+extern "C"
+WINFW_LINKAGE
+WINFW_ACTIVE_POLICY
+WINFW_API
+WinFw_ActivePolicy();
 
 //
 // Deinitialize:

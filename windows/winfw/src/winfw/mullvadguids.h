@@ -81,19 +81,11 @@ public:
 	static const GUID &Filter_Dns_PermitLoopback_Outbound_Ipv6();
 
 	//
-	// Persistent and boot-time filters
+	// Persistent and boot-time objects.
+	//
+	// These are installed by the daemon rather than by WinFw, but WinFw still has to
+	// recognize them in order to clean them up.
 	//
 
 	static const GUID &ProviderPersistent();
-	static const GUID &SublayerPersistent();
-
-	static const GUID &Filter_Boottime_BlockAll_Inbound_Ipv4();
-	static const GUID &Filter_Boottime_BlockAll_Outbound_Ipv4();
-	static const GUID &Filter_Boottime_BlockAll_Inbound_Ipv6();
-	static const GUID &Filter_Boottime_BlockAll_Outbound_Ipv6();
-
-	static const GUID &Filter_Persistent_BlockAll_Inbound_Ipv4();
-	static const GUID &Filter_Persistent_BlockAll_Outbound_Ipv4();
-	static const GUID &Filter_Persistent_BlockAll_Inbound_Ipv6();
-	static const GUID &Filter_Persistent_BlockAll_Outbound_Ipv6();
 };
