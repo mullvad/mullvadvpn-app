@@ -807,9 +807,7 @@ fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
 private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(resources: Resources) =
-    resources
-        .getString(R.string.always_on_vpn_error_notification_content, "Legacy app")
-        .removeHtmlTags()
+    resources.getString(R.string.legacy_always_on_vpn_error_notification_content)
 
 private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
     resources.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
