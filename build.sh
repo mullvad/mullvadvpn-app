@@ -390,6 +390,17 @@ else
     mkdir -p "build"
 fi
 
+# Everything that goes into the installers and packages is in place by now, so give it all one
+# deterministic modification time. The packaging tools record these timestamps, and they would
+# otherwise be whenever this machine happened to compile a binary or check out a file, which
+# differs between builds of the same commit. This is needed for reproducible builds.
+# Some of the packaging tools respect SOURCE_DATE_EPOCH and don't need this. But some don't,
+# and setting the mtime on all artifacts we are going to pack does not hurt.
+log_info "Normalizing modification times of everything to be packaged..."
+# An ISO 8601 timestamp, since that is the only form of `touch` argument both GNU and macOS take
+TZ=UTC printf -v source_date_iso '%(%Y-%m-%dT%H:%M:%SZ)T' "$SOURCE_DATE_EPOCH"
+find dist-assets build -exec touch -h -d "$source_date_iso" {} +
+
 RELAY_LIST_PATH="dist-assets/relays/relays.json"
 if [[ "$IS_RELEASE" == "true" && ! -s "$RELAY_LIST_PATH" ]]; then
     log_error "Release build requires a non-empty $RELAY_LIST_PATH."
