@@ -68,6 +68,7 @@ struct SettingsVPNSettingsView: View {
         SettingsInfoContainerView {
             DNSandIPSettingsView()
             antiCensorshipView()
+            quantumResistanceView()
             IPVersionView()
         }
         .navigationTitle("VPN Settings")
@@ -131,51 +132,52 @@ struct SettingsVPNSettingsView: View {
     func antiCensorshipView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
-                accessibilityIdentifier: censorshipSettings.first?.accessibilityIdentifier,
                 leading: {
-                    NavigationLink {
-                        AntiCensorshipView(
-                            settingsInteractor: settingsInteractor,
-                            settings: viewModel
+                    itemFactory.leading(
+                        for: .generic(
+                            title: "WireGuard Port",
+                            isSelected: false
                         )
-                    } label: {
-                        itemFactory.leading(
-                            for: .generic(title: censorshipSettings.first!.label))
-                    }
+                    )
                 },
                 trailing: {
-                    itemFactory.trailing(
-                        for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
+                    NavigationLink {
+                        let viewModel = TunnelWireGuardPortSettingsViewModel(
+                            tunnelManager: settingsInteractor.tunnelManager,
+                            option: WireGuardPort(
+                                constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
+                            portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+                        WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
+                    } label: {
+                        itemFactory.trailing(
+                            for: .drillDown(
+                                title: WireGuardPort(
+                                    constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port
+                                )
+                                .description))  // TODO: Check with Carl
+                    }
                 },
                 groupedContent: {
                     SegmentedListItem(
-                        userInteraction: .enabled,
-                        accessibilityIdentifier: censorshipSettings.last?.accessibilityIdentifier,
                         leading: {
                             itemFactory.leading(
-                                for: .generic(title: censorshipSettings.last!.label))
-                        },
-                        trailing: {
-                            itemFactory.trailing(
-                                for: .custom(items: [
-                                    .button(
-                                        icon: .info,
-                                        onSelect: {
-                                            alert = getQuantumResistanceAlert(completion: { alert = nil })
-                                        },
-                                        sizing: .button
-                                    ),
-                                    .toggle(
-                                        isOn: isQuantumResistanceEnabled,
-                                        isDisabled: false
-                                    ),
-                                    .padding(),
-                                ])
+                                for: .generic(
+                                    title: censorshipSettings.first!.label
+                                )
                             )
+                        },
+                        trailing: { // TODO: Add navigation support directly in SegmentedListItem ?
+                            NavigationLink {
+                                AntiCensorshipView(
+                                    settingsInteractor: settingsInteractor,
+                                    settings: viewModel
+                                )
+                            } label: {
+                                itemFactory.trailing(for: .drillDown(title: "Automatic"))
+                            }
                         }
                     )
-                    .mullvadAlert(item: $alert)
-                },
+                }
             )
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
@@ -194,6 +196,40 @@ struct SettingsVPNSettingsView: View {
             actions: [
                 MullvadAlert.Action(type: .primary, title: "Got it!", handler: completion)
             ])
+    }
+
+    // MARK: - Quantum Resistance
+
+    func quantumResistanceView() -> some View {
+        SegmentedListItem(
+            userInteraction: .enabled,
+            accessibilityIdentifier: censorshipSettings.last?.accessibilityIdentifier,
+            leading: {
+                itemFactory.leading(
+                    for: .generic(title: censorshipSettings.last!.label))
+            },
+            trailing: {
+                itemFactory.trailing(
+                    for: .custom(items: [
+                        .button(
+                            icon: .info,
+                            onSelect: {
+                                alert = getQuantumResistanceAlert(completion: { alert = nil })
+                            },
+                            sizing: .button
+                        ),
+                        .toggle(
+                            isOn: isQuantumResistanceEnabled,
+                            isDisabled: false
+                        ),
+                        .padding(),
+                    ])
+                )
+            }
+        )
+        .padding(.leading, UIMetrics.contentInsets.left)
+        .padding(.trailing, UIMetrics.contentInsets.right)
+        .mullvadAlert(item: $alert)
     }
 
     // MARK: - IP version
@@ -243,7 +279,7 @@ struct SettingsVPNSettingsView: View {
                             alert = getIPVersionAlert(completion: { alert = nil })
                         })
                     )
-                    .padding(.trailing, UIMetrics.contentInsets.right + 6) // TODO: WHY ?!??!?!?!
+                    .padding(.trailing, UIMetrics.contentInsets.right + 6)  // TODO: WHY ?!??!?!?!
                 },
                 segment: {
                     itemFactory.segment(
@@ -262,7 +298,6 @@ struct SettingsVPNSettingsView: View {
         }
         .mullvadAlert(item: $alert)
     }
-
 }
 
 //#Preview {
