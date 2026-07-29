@@ -120,7 +120,9 @@ function update_and_deploy {
     YUBIKEY_PIN=$YUBIKEY_PIN \
     YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
     "$BUILD_DIR/android/scripts/containerized-sign.sh" "$repo_dir" \
-        "JAVA_TOOL_OPTIONS='$java_opts' fdroid update && fdroid deploy"
+        "JAVA_TOOL_OPTIONS='$java_opts' fdroid update && \
+     sed -i 's|<base href=\"index.html\">|<base href=\"/fdroid/repo/\">|' repo/index.html && \
+     fdroid deploy"
 }
 
 main "$@"
