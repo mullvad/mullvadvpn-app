@@ -1,3 +1,4 @@
+[unstable]
 # Supply-chain hardening: refuse dependency versions published within the cooldown
 # window set below, giving malicious releases time to be caught before we
 # depend on them.
@@ -6,8 +7,14 @@
 # via ci/check-rust-min-publish-age.py, which reads global-min-publish-age from here
 # as the single source of truth.
 # Tracking issue: https://github.com/rust-lang/cargo/issues/17009
-[unstable]
 min-publish-age = true
+
+# Makes rustc record fixed file paths instead of machine specific ones into built
+# binaries. Required for reproducible builds. Nightly-only, and
+# ignored by stable cargo, so it does nothing in the builds we ship.
+# Use this with building/reproducible-build.sh.
+# Tracking issue: https://github.com/rust-lang/cargo/issues/12137
+trim-paths = true
 
 [registry]
 global-min-publish-age = "7 days"
