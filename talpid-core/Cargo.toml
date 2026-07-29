@@ -67,6 +67,7 @@ memoffset = "0.6"
 parking_lot = "0.12.0"
 serde = { workspace = true, features = ["derive"] }
 talpid-windows = { path = "../talpid-windows" }
+wfp = { workspace = true }
 widestring = { workspace = true }
 windows = { workspace = true }
 windows-registry = { workspace = true }

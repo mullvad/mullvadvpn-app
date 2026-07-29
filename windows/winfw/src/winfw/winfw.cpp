@@ -2,8 +2,6 @@
 #include "winfw.h"
 #include "fwcontext.h"
 #include "objectpurger.h"
-#include "mullvadobjects.h"
-#include "rules/persistent/blockall.h"
 #include "rules/baseline/blockall.h"
 #include "libwfp/ipnetwork.h"
 #include "libwfp/filterengine.h"
@@ -18,8 +16,6 @@
 
 namespace
 {
-
-constexpr uint32_t DEINITIALIZE_TIMEOUT = 5000;
 
 MullvadLogSink g_logSink = nullptr;
 void *g_logSinkContext = nullptr;
@@ -238,6 +234,27 @@ WinFw_InitializeBlocked(
 }
 
 WINFW_LINKAGE
+WINFW_ACTIVE_POLICY
+WINFW_API
+WinFw_ActivePolicy()
+{
+	if (nullptr == g_fwContext)
+	{
+		return WINFW_ACTIVE_POLICY_NONE;
+	}
+
+	switch (g_fwContext->activePolicy())
+	{
+		case FwContext::Policy::Connecting: return WINFW_ACTIVE_POLICY_CONNECTING;
+		case FwContext::Policy::Connected: return WINFW_ACTIVE_POLICY_CONNECTED;
+		case FwContext::Policy::Blocked: return WINFW_ACTIVE_POLICY_BLOCKED;
+		case FwContext::Policy::None: return WINFW_ACTIVE_POLICY_NONE;
+	}
+
+	return WINFW_ACTIVE_POLICY_NONE;
+}
+
+WINFW_LINKAGE
 bool
 WINFW_API
 WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
@@ -260,48 +277,6 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	if (nullptr != g_logSink)
 	{
 		g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Deinitializing WinFw", g_logSinkContext);
-	}
-
-	//
-	// Continue blocking with persistent rules if this is what the caller requested
-	// and if the current policy is "(net) blocked".
-	//
-	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
-		&& FwContext::Policy::Blocked == activePolicy)
-	{
-		try
-		{
-			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
-			auto sessionController = std::make_unique<SessionController>(std::move(engine));
-
-			rules::persistent::BlockAll blockAll;
-
-			if (nullptr != g_logSink)
-			{
-				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding persistent block rules", g_logSinkContext);
-			}
-
-			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
-			{
-				ObjectPurger::GetRemoveNonPersistentFunctor()(engine);
-
-				return controller.addProvider(*MullvadObjects::ProviderPersistent())
-					&& controller.addSublayer(*MullvadObjects::SublayerPersistent())
-					&& blockAll.apply(controller);
-			});
-		}
-		catch (std::exception & err)
-		{
-			if (nullptr != g_logSink)
-			{
-				g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
-			}
-			return false;
-		}
-		catch (...)
-		{
-			return false;
-		}
 	}
 
 	//

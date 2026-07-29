@@ -16,6 +16,7 @@ use talpid_dns::ResolvedDnsConfig;
 mod ffi;
 
 mod hyperv;
+mod objects;
 mod winfw;
 
 const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
@@ -260,17 +261,29 @@ impl Firewall {
 
 impl Drop for Firewall {
     fn drop(&mut self) {
-        // Deinitialize WinFW with or without persistent filters.
-        // All other filters should still remain intact.
-        let cleanup_policy = if self.persist {
-            WinFwCleanupPolicy::ContinueBlocking
-        } else {
-            WinFwCleanupPolicy::BlockingUntilReboot
-        };
+        // Ask WinFW for the active policy before tearing it down, since it is forgotten
+        // along with the rest of the module state.
+        let was_blocked = winfw::active_policy() == WinFwActivePolicy::Blocked;
 
-        match winfw::deinit(cleanup_policy) {
+        // Shut WinFW down without cleaning up. The blocking filters, if any, are left in
+        // place and stay in effect until the machine is rebooted. All other filters should
+        // still remain intact.
+        match winfw::deinit(WinFwCleanupPolicy::BlockingUntilReboot) {
             Ok(()) => log::trace!("Successfully deinitialized windows firewall module"),
             Err(_) => log::error!("Failed to deinitialize windows firewall module"),
+        }
+
+        // Swap those ephemeral filters for ones that also survive a reboot. Until this
+        // runs, the ephemeral filters are what keeps traffic blocked, so there is no
+        // window during which traffic is permitted.
+        if self.persist && was_blocked {
+            match objects::apply_persistent_blocking() {
+                Ok(()) => log::debug!("Added persistent block rules"),
+                Err(error) => log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to add persistent block rules")
+                ),
+            }
         }
     }
 }

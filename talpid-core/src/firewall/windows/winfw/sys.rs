@@ -28,9 +28,20 @@ impl WinFwSettings {
 #[repr(u32)]
 #[derive(Clone, Copy)]
 pub enum WinFwCleanupPolicy {
-    ContinueBlocking = 0,
     ResetFirewall = 1,
     BlockingUntilReboot = 2,
+}
+
+/// The policy currently in effect. Mirrors `FwContext::Policy` in `winfw`.
+// Only ever constructed on the other side of the FFI boundary.
+#[expect(dead_code)]
+#[repr(u32)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WinFwActivePolicy {
+    None = 0,
+    Connecting = 1,
+    Connected = 2,
+    Blocked = 3,
 }
 
 #[derive(Debug)]
@@ -126,6 +137,9 @@ unsafe extern "system" {
 
     #[link_name = "WinFw_Deinitialize"]
     pub fn WinFw_Deinitialize(cleanupPolicy: WinFwCleanupPolicy) -> DeinitializationResult;
+
+    #[link_name = "WinFw_ActivePolicy"]
+    pub fn WinFw_ActivePolicy() -> WinFwActivePolicy;
 
     #[link_name = "WinFw_ApplyPolicyConnecting"]
     pub fn WinFw_ApplyPolicyConnecting(
