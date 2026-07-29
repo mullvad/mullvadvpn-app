@@ -4,6 +4,8 @@ const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
 const { execFileSync } = require('child_process');
 
+const { author } = require('../package.json');
+
 const noCompression = process.argv.includes('--no-compression');
 const shouldNotarize = process.argv.includes('--notarize');
 
@@ -231,6 +233,9 @@ function newConfig() {
         '--rpm-rpmbuild-define=use_source_date_epoch_as_buildtime 1',
         // Set the BUILDHOST header to a fixed value instead of the build machine's hostname
         '--rpm-rpmbuild-define=_buildhost reproducible',
+        // Written by writeRpmChangelog. The entry fpm generates on its own carries the build date
+        '--rpm-changelog',
+        rpmChangelogPath(),
         '--directories=/opt/Mullvad VPN/',
         '--before-install',
         distAssets('linux/before-install.sh'),
@@ -424,6 +429,8 @@ async function packMac() {
 }
 
 function packLinux() {
+  writeRpmChangelog();
+
   const config = newConfig();
 
   if (noCompression) {
@@ -533,6 +540,37 @@ function getLinuxVersion() {
 function productVersion() {
   const args = ['run', '-q', '--bin', 'mullvad-version'];
   return execFileSync('cargo', args, { encoding: 'utf-8' }).trim();
+}
+
+function rpmChangelogPath() {
+  return buildAssets('rpm-changelog');
+}
+
+// fpm dates the rpm %changelog entry it generates from the wall clock. Its deb output honors
+// SOURCE_DATE_EPOCH, its rpm output does not, so two rpms built from the same commit on different
+// days differ. Write the entry ourselves instead, honoring SOURCE_DATE_EPOCH, to enable 
+// reproducible builds.
+function writeRpmChangelog() {
+  const sourceDateEpoch = process.env.SOURCE_DATE_EPOCH;
+  const date = new Date(sourceDateEpoch ? Number(sourceDateEpoch) * 1000 : Date.now());
+
+  // rpm expects '<weekday> <month> <dayOfMonth> <year>'. toUTCString has a format fixed by the
+  // ECMAScript spec, 'Tue, 14 Nov 2023 22:13:20 GMT', so just reorder its parts. Being UTC also
+  // keeps the time zone of the build machine from shifting the date, which it does for fpm.
+  const [weekday, dayOfMonth, month, year] = date.toUTCString().replace(',', '').split(' ');
+  const formattedDate = `${weekday} ${month} ${dayOfMonth} ${year}`;
+
+  // The rest mirrors what fpm would have generated: it replaces dashes in the rpm version with
+  // underscores, and defaults the iteration ('Release' in rpm) to 1.
+  const rpmVersion = `${getLinuxVersion().replace(/-/g, '_')}-1`;
+  const maintainer = `${author.name} <${author.email}>`;
+
+  const changelogPath = rpmChangelogPath();
+  fs.mkdirSync(path.dirname(changelogPath), { recursive: true });
+  fs.writeFileSync(
+    changelogPath,
+    `* ${formattedDate}  ${maintainer} - ${rpmVersion}\n- Package created with FPM\n`,
+  );
 }
 
 async function removeNseventforwarderNativeModules() {
