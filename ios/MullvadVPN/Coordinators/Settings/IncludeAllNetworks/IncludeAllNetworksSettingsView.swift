@@ -197,7 +197,10 @@ extension IncludeAllNetworksSettingsView {
                     customView: AnyView(
                         ExternalLinkView(
                             url: blogUrl,
-                            label: "For details, please see our blog post",
+                            label: NSLocalizedString(
+                                "For details, please see our blog post",
+                                comment: ""
+                            ),
                             font: .mullvadTiny
                         )
                     )
