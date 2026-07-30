@@ -16,6 +16,7 @@ enum VPNSettingsSection: Equatable {
     case quantumResistance
     case obfuscation
     case ipVersion
+    case none
 }
 
 class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChildCoordinator {
@@ -47,12 +48,17 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
     }
 
     func start(animated: Bool) {
+        let section: VPNSettingsSection =
+            if case let .vpnSettings(route) = route { route } else {
+                .none
+            }
         let alertPresenter = AlertPresenter(context: self)
 
         let view = VPNSettingsNavigationView(
             settingsInteractor: interactorFactory.makeVPNSettingsInteractor(),
             IPOverrideInteractor: interactorFactory.makeIPOverrideInteractor(),
-            alertPresenter: alertPresenter
+            alertPresenter: alertPresenter,
+            presentOnlySection: section
         )
 
         let host = UIHostingController(rootView: view)

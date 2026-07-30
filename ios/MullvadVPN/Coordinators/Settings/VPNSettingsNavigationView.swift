@@ -39,17 +39,17 @@ struct VPNSettingsNavigationView: View {
     let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
     @Bindable var observableSettings: ObservableVPNSettings
-    @State var navigationPath = NavigationPath()
     var actorObserver: MainActorObserver?
+    var presentOnlySection: VPNSettingsSection
 
     init(
         settingsInteractor: VPNSettingsInteractor, IPOverrideInteractor: IPOverrideInteractor,
-        alertPresenter: AlertPresenter, navigationPath: NavigationPath = NavigationPath()
+        alertPresenter: AlertPresenter, presentOnlySection: VPNSettingsSection
     ) {
         self.settingsInteractor = settingsInteractor
         self.IPOverrideInteractor = IPOverrideInteractor
         self.alertPresenter = alertPresenter
-        self.navigationPath = navigationPath
+        self.presentOnlySection = presentOnlySection
 
         self.observableSettings = ObservableVPNSettings(tunnelSettings: settingsInteractor.tunnelManager.settings)
         self.actorObserver = MainActorObserver(
@@ -58,13 +58,50 @@ struct VPNSettingsNavigationView: View {
     }
 
     var body: some View {
-        SettingsVPNSettingsView(
-            settingsInteractor: settingsInteractor,
-            IPOverrideInteractor: IPOverrideInteractor,
-            alertPresenter: alertPresenter,
-            viewModel: observableSettings
-        )
-        .background(Color(.secondaryColor))
+        switch presentOnlySection {
+        case .obfuscation:
+            destinationView(.antiCensorship)
+        case .none, .quantumResistance, .ipVersion: //TODO: Handle quantum resistance and IP version
+            SettingsVPNSettingsView(
+                settingsInteractor: settingsInteractor,
+                IPOverrideInteractor: IPOverrideInteractor,
+                alertPresenter: alertPresenter,
+                viewModel: observableSettings
+            )
+            .background(Color(.secondaryColor))
+        }
+    }
+
+    // Can this be a generic way to not have to repeat navigation configuration each time ?
+    @ViewBuilder
+    func destinationView(_ path: SettingsDestinationView) -> some View {
+        switch path {
+        case .antiCensorship:
+            AntiCensorshipView(
+                settingsInteractor: settingsInteractor,
+                settings: observableSettings)
+        case .dnsSettings:
+            DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
+                .navigationTitle("DNS Settings")
+        case .serverIPOverride:
+            IPOverrideView(ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter)
+                .navigationTitle("Server IP override")
+        case .shadowsocks:
+            ShadowsocksObfuscationSettingsView(
+                port: $observableSettings.tunnelSettings.wireGuardObfuscation.shadowsocksPort
+            )
+            .navigationTitle("Shadowsocks")
+            .navigationBarTitleDisplayMode(.large)
+        case .lwo:
+            let viewModel = TunnelLwoObfuscationSettingsViewModel(
+                tunnelManager: settingsInteractor.tunnelManager,
+                portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+            LwoObfuscationSettingsView(viewModel: viewModel)
+        case .udpOverTcp:
+            let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(
+                tunnelManager: settingsInteractor.tunnelManager)
+            UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
+        }
     }
 }
 
