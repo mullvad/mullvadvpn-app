@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
-    let settings: ObservableVPNSettings
+    @Bindable var settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
     let availableObfuscations: [WireGuardObfuscationState] = [
         .automatic,

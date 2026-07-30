@@ -170,7 +170,7 @@ struct SettingsVPNSettingsView: View {
                             )
                         },
                         trailing: {
-                            itemFactory.trailing(for: .drillDown(title: "Automatic"))
+                            itemFactory.trailing(for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
                         }
                     )
                 }

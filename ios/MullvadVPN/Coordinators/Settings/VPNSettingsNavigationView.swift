@@ -52,7 +52,7 @@ struct VPNSettingsNavigationView: View {
         self.alertPresenter = alertPresenter
         self.navigationPath = navigationPath
 
-        self.observableSettings = ObservableVPNSettings()
+        self.observableSettings = ObservableVPNSettings(tunnelSettings: settingsInteractor.tunnelManager.settings)
         self.actorObserver = MainActorObserver(
             observable: observableSettings, tunnelManager: settingsInteractor.tunnelManager)
         actorObserver?.start()
