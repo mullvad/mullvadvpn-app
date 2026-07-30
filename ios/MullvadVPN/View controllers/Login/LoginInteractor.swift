@@ -10,19 +10,18 @@
 import MullvadSettings
 
 final class LoginInteractor: @unchecked Sendable {
-    private let tunnelManager: TunnelManager
+    private let tunnelManager: LoginViewModelProviding
     private let logger = Logger(label: "LoginInteractor")
     private var tunnelObserver: TunnelObserver?
     private let settingsManager: SettingsManager
 
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
-    var suggestPreferredAccountNumber: (@Sendable (String) -> Void)?
 
     var hasLastAccountNumber: Bool {
         getLastUsedAccount() != nil
     }
 
-    init(tunnelManager: TunnelManager, settingsManager: SettingsManager) {
+    init(tunnelManager: LoginViewModelProviding, settingsManager: SettingsManager) {
         self.tunnelManager = tunnelManager
         self.settingsManager = settingsManager
     }

@@ -23,14 +23,14 @@ class LoginPage: Page {
     }
 
     @discardableResult public func waitForAccountNumberSubmitButton() -> Self {
-        let submitButtonExist = app.buttons[AccessibilityIdentifier.loginTextFieldButton]
+        let submitButtonExist = app.buttons[AccessibilityIdentifier.loginButton]
             .existsAfterWait()
         XCTAssertTrue(submitButtonExist, "Account number submit button shown")
         return self
     }
 
     @discardableResult public func tapAccountNumberSubmitButton() -> Self {
-        app.buttons[AccessibilityIdentifier.loginTextFieldButton].tap()
+        app.buttons[AccessibilityIdentifier.loginButton].tap()
         return self
     }
 
