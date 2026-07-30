@@ -24,6 +24,9 @@ struct SettingsVPNSettingsView: View {
     let alertPresenter: AlertPresenter
 
     @Bindable var viewModel: ObservableVPNSettings
+    var isQuantumResistanceEnabled: Binding<Bool>
+    /// When hotlinking settings from a pill in the `ConnectionView`, scroll automatically to the correct section
+    let forceScrollTo: VPNSettingsSection
 
     @State var isExpanded: Bool = true
     @State private var alert: MullvadAlert?
@@ -65,24 +68,29 @@ struct SettingsVPNSettingsView: View {
     ]
 
     var body: some View {
-        SettingsInfoContainerView {
-            DNSandIPSettingsView()
-            antiCensorshipView()
-            quantumResistanceView()
-            IPVersionView()
+        ScrollViewReader { proxy in
+            SettingsInfoContainerView {
+                DNSandIPSettingsView()
+                antiCensorshipView()
+                quantumResistanceView()
+                IPVersionView()
+            }
+            .onAppear {
+                forceScrollToSection(proxy: proxy)
+            }
         }
         .navigationTitle("VPN Settings")
     }
 
-    var isQuantumResistanceEnabled: Binding<Bool> {
-        Binding<Bool>(
-            get: {
-                viewModel.tunnelSettings.tunnelQuantumResistance.isEnabled
-            },
-            set: { enabled in
-                viewModel.tunnelSettings.tunnelQuantumResistance = enabled ? .on : .off
-            }
-        )
+    func forceScrollToSection(proxy: ScrollViewProxy) {
+        switch forceScrollTo {
+        case .quantumResistance:
+            proxy.scrollTo(censorshipSettings.last?.id)
+        case .ipVersion:
+            proxy.scrollTo(IPOptions.last?.id)
+        case .none, .obfuscation:
+            break
+        }
     }
 
     // MARK: - DNS and IP Settings
@@ -198,35 +206,10 @@ struct SettingsVPNSettingsView: View {
     // MARK: - Quantum Resistance
 
     func quantumResistanceView() -> some View {
-        SegmentedListItem(
-            userInteraction: .enabled,
-            accessibilityIdentifier: censorshipSettings.last?.accessibilityIdentifier,
-            leading: {
-                itemFactory.leading(
-                    for: .generic(title: censorshipSettings.last!.label))
-            },
-            trailing: {
-                itemFactory.trailing(
-                    for: .custom(items: [
-                        .button(
-                            icon: .info,
-                            onSelect: {
-                                alert = getQuantumResistanceAlert(completion: { alert = nil })
-                            },
-                            sizing: .button
-                        ),
-                        .toggle(
-                            isOn: isQuantumResistanceEnabled,
-                            isDisabled: false
-                        ),
-                        .padding(),
-                    ])
-                )
-            }
-        )
-        .padding(.leading, UIMetrics.contentInsets.left)
-        .padding(.trailing, UIMetrics.contentInsets.right)
-        .mullvadAlert(item: $alert)
+        QuantumResistanceView(isQuantumResistanceEnabled: isQuantumResistanceEnabled)
+            .id(censorshipSettings.last?.id)
+            .padding(.leading, UIMetrics.contentInsets.left)
+            .padding(.trailing, UIMetrics.contentInsets.right)
     }
 
     // MARK: - IP version
@@ -246,6 +229,7 @@ struct SettingsVPNSettingsView: View {
                     viewModel.tunnelSettings.ipVersion = option.id
                 }
             )
+            .id(option.id)
         }
     }
 
@@ -293,6 +277,5 @@ struct SettingsVPNSettingsView: View {
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
-        .mullvadAlert(item: $alert)
     }
 }

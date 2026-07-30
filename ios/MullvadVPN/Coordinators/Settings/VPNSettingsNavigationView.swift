@@ -57,16 +57,32 @@ struct VPNSettingsNavigationView: View {
         actorObserver?.start()
     }
 
+    var isQuantumResistanceEnabled: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                observableSettings.tunnelSettings.tunnelQuantumResistance.isEnabled
+            },
+            set: { enabled in
+                observableSettings.tunnelSettings.tunnelQuantumResistance = enabled ? .on : .off
+                settingsInteractor.tunnelManager.updateSettings([
+                    .quantumResistance(observableSettings.tunnelSettings.tunnelQuantumResistance)
+                ])
+            }
+        )
+    }
+
     var body: some View {
         switch presentOnlySection {
         case .obfuscation:
             destinationView(.antiCensorship)
-        case .none, .quantumResistance, .ipVersion: //TODO: Handle quantum resistance and IP version
+        case .none, .quantumResistance, .ipVersion:
             SettingsVPNSettingsView(
                 settingsInteractor: settingsInteractor,
                 IPOverrideInteractor: IPOverrideInteractor,
                 alertPresenter: alertPresenter,
-                viewModel: observableSettings
+                viewModel: observableSettings,
+                isQuantumResistanceEnabled: isQuantumResistanceEnabled,
+                forceScrollTo: presentOnlySection
             )
             .background(Color(.secondaryColor))
         }
