@@ -49,8 +49,21 @@ GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519-mullvadvpn-app-deploy" git push
 ```
 
 When satisfied with how the new image works, the `building/{linux,android}-container-image.txt`
-files can be updated to point to the new image. The tag name of the new image is in the
-commit message for the signed commit where the build server added the sigstore files.
+files can be updated to point to the new image. They name it by both tag and digest:
+
+```
+ghcr.io/mullvad/mullvadvpn-app-build:<tag>@sha256:<digest>
+```
+
+The digest is what selects the image. A tag can in principle be repointed at a different image,
+which would silently change what everyone builds in, whereas a digest cannot. The tag is kept
+because it is readable and says which commit the image was built from.
+
+`build-and-publish-container-image.sh` prints the exact line to use when it is done. Both halves are
+also recoverable afterwards from the signed commit where the build server added the sigstore files:
+the tag from its commit message, and the digest from the name of the directory it added under
+`building/sigstore/`.
+
 This update is usually done in a separate PR by a developer
 
 ## Building and publishing a development image container image
