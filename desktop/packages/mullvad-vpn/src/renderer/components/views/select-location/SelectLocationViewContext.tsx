@@ -34,9 +34,9 @@ type SelectLocationViewProviderProps = React.PropsWithChildren;
 
 export function SelectLocationViewProvider({ children }: SelectLocationViewProviderProps) {
   const { setSelectLocationView } = useActions(userInterface);
-  const [searchTerm, setSearchTerm] = React.useState('');
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
+  const [searchTerm, setSearchTerm] = React.useState('');
   const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
     undefined,
   );
@@ -59,7 +59,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       isolatedItem,
       setIsolatedItem,
     }),
-    [isolatedItem, locationType, searchTerm, setSelectLocationView],
+    [locationType, setSelectLocationView, searchTerm, isolatedItem],
   );
 
   return (
