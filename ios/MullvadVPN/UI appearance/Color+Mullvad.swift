@@ -119,6 +119,10 @@ extension Color {
         static let background: Color = .MullvadBlue._80
     }
 
+    enum MullvadOther {
+        static let divider: Color = MullvadWhite._20
+    }
+
     private enum MullvadOpacities {
         static let chalk40: Color = .MullvadNewGraphicalProfile.chalk.opacity(
             0.4
