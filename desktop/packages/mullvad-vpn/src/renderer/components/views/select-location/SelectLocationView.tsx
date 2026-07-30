@@ -10,6 +10,7 @@ import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
+import { useMountLayoutEffect } from '../../../lib/hooks';
 import { AppNavigationHeader } from '../../';
 import type { IScrollEvent } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
@@ -38,9 +39,12 @@ const StyledStickyContainer = styled.div`
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef, resetScroll } =
+    useScrollPositionContext();
   const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
+
+  useMountLayoutEffect(resetScroll);
 
   const onClose = useCallback(() => history.pop(), [history]);
 
