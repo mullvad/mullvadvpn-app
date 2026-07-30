@@ -7,12 +7,12 @@ import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import co.touchlab.kermit.Logger
 import kotlin.collections.first
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.common.util.location
+import net.mullvad.mullvadvpn.lib.common.util.multihopMode
 import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
@@ -66,9 +66,8 @@ internal fun validate(
         change.item.id.convertCustomListWithOnlyHostnameToHostname(customListsRepository).bind()
     val settings = settingsRepository.settingsUpdates.value
     ensureNotNull(settings) { ModifyMultihopError.GenericError }
-    // If DAITA is enabled and direct only is disabled, allow same relay for entry and
-    // exit.
-    if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
+
+    if (settings.multihopMode() == MultihopMode.ALWAYS) {
         val other =
             when (change) {
                     is RelayMultihopChange.Entry -> settings.location().getOrNull()

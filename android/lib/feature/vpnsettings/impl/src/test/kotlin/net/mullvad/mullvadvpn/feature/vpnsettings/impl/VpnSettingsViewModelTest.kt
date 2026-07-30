@@ -118,7 +118,7 @@ class VpnSettingsViewModelTest {
                 TunnelOptions(
                     mtu = Mtu(0),
                     quantumResistant = expectedResistantState,
-                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                    daitaSettings = DaitaSettings(enabled = false),
                     dnsOptions = mockk(relaxed = true),
                     enableIpv6 = true,
                 )
@@ -209,7 +209,7 @@ class VpnSettingsViewModelTest {
             TunnelOptions(
                 mtu = null,
                 quantumResistant = QuantumResistantState.Off,
-                daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                daitaSettings = DaitaSettings(enabled = false),
                 dnsOptions = mockk(relaxed = true),
                 enableIpv6 = true,
             )
@@ -279,7 +279,7 @@ class VpnSettingsViewModelTest {
                     TunnelOptions(
                         mtu = null,
                         quantumResistant = QuantumResistantState.On,
-                        daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                        daitaSettings = DaitaSettings(enabled = false),
                         dnsOptions = mockk(relaxed = true),
                         enableIpv6 = true,
                     ),

@@ -11,21 +11,21 @@ fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
     if (!isMultihopEntry()) {
         return false
     }
-    return settings?.entryBlocked() == true
+    return settings?.isEntryBlocked() == true
 }
 
 fun isEntryAndBlocked(multihopRelayListType: MultihopRelayListType, settings: Settings?): Boolean {
     if (multihopRelayListType == MultihopRelayListType.EXIT) {
         return false
     }
-    return settings?.entryBlocked() == true
+    return settings?.isEntryBlocked() == true
 }
 
-fun Settings.entryBlocked() = multihopMode() == MultihopMode.WHEN_NEEDED
+fun Settings.isEntryBlocked() = multihopMode() == MultihopMode.WHEN_NEEDED
 
 // If entry is blocked and we are on the exit list we should ignore any entry selection
 fun ignoreEntrySelection(settings: Settings?, relayListType: RelayListType) =
-    settings?.entryBlocked() == true && relayListType.isMultihopExit()
+    settings?.isEntryBlocked() == true && relayListType.isMultihopExit()
 
 private fun RelayListType.isMultihopExit() =
     this is RelayListType.Multihop && multihopRelayListType == MultihopRelayListType.EXIT

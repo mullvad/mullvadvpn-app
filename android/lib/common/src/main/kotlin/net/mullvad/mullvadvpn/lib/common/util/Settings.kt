@@ -31,8 +31,6 @@ fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardCon
 
 fun Settings.isDaitaEnabled() = daitaSettings().enabled
 
-fun Settings.isDaitaDirectOnly() = daitaSettings().directOnly
-
 fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 
 fun Settings.multihopMode() = relaySettings.relayConstraints.wireguardConstraints.multihop

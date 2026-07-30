@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
-import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
@@ -104,7 +104,7 @@ class SelectLocationViewModel(
                         hasAnyExitFilter = filterState.hasAnyExitFilter,
                         tunnelErrorStateCause = tunnelState.errorCause,
                         isEntryFilteringEnabled =
-                            !settings.entryBlocked() && selectedHop.entry() != Constraint.Any,
+                            !settings.isEntryBlocked() && selectedHop.entry() != Constraint.Any,
                         lastKnownLocation = lastKnownLocation?.country,
                         entryCountry = tunnelState.entryCountry,
                     )

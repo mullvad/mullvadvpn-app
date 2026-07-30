@@ -523,7 +523,7 @@ internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     )
 
 internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
-    DaitaSettings(enabled = enabled, directOnly = false)
+    DaitaSettings(enabled = enabled)
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
     when (state) {

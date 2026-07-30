@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
@@ -161,7 +161,7 @@ class SelectLocationListViewModelTest {
                     entryLocation = Constraint.Only(GeoLocationId.Country("se")),
                     exitLocation = exitLocation,
                 )
-            every { settings.value.entryBlocked() } returns true
+            every { settings.value.isEntryBlocked() } returns true
 
             // Act, Assert
             viewModel.uiState.test {
@@ -190,7 +190,7 @@ class SelectLocationListViewModelTest {
         filteredRelayList.value = testCountries
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         settings.value = mockSettings
 
         // Act, Assert
@@ -208,7 +208,7 @@ class SelectLocationListViewModelTest {
         filteredRelayList.value = testCountries
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 
@@ -230,7 +230,7 @@ class SelectLocationListViewModelTest {
         filteredRelayList.value = testCountries
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 

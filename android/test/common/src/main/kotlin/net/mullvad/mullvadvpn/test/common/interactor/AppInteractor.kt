@@ -122,9 +122,3 @@ class AppInteractor(
         }
     }
 }
-
-sealed interface DaitaOption {
-    data class Auto(val enabled: Boolean) : DaitaOption
-
-    data class DirectOnly(val enabled: Boolean) : DaitaOption
-}

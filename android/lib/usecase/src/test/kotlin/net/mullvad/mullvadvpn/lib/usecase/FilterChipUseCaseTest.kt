@@ -113,7 +113,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { this@mockk.tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             filterChipUseCase(RelayListType.Single).test {
@@ -128,7 +127,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns false
                 }
 
             filterChipUseCase(RelayListType.Single).test { assertLists(emptyList(), awaitItem()) }
@@ -141,7 +139,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             multihopActive.value = MultihopInEffectStatus.AlwaysOnInEffect
@@ -158,7 +155,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             multihopActive.value = MultihopInEffectStatus.WhenNeededInEffect
@@ -175,7 +171,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {
@@ -190,7 +185,6 @@ class FilterChipUseCaseTest {
             settings.value =
                 mockk<Settings>(relaxed = true) {
                     every { tunnelOptions.daitaSettings.enabled } returns true
-                    every { tunnelOptions.daitaSettings.directOnly } returns false
                 }
 
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {

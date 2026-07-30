@@ -647,17 +647,6 @@ class ManagementService(
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
-    // No-op
-    fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch {
-                if (enabled) {
-                    Unit
-                } else {
-                    Unit
-                }
-            }
-            .mapLeft(SetDaitaSettingsError::Unknown)
-
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings

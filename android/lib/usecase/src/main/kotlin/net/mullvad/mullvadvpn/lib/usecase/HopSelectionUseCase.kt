@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.lib.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -32,7 +32,7 @@ class HopSelectionUseCase(
         ) { customLists, relayList, settings, selectedExitLocation, multihopInEffect ->
             if (multihopInEffect.isMultihopInEffect) {
                 val entry =
-                    if (settings.entryBlocked()) {
+                    if (settings.isEntryBlocked()) {
                         Constraint.Any
                     } else {
                         settings

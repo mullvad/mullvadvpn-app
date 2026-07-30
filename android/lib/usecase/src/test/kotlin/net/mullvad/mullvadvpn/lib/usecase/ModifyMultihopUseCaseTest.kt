@@ -9,7 +9,6 @@ import io.mockk.mockkStatic
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -44,7 +43,6 @@ class ModifyMultihopUseCaseTest {
     fun setUp() {
         mockkStatic(SETTINGS_UTIL)
         every { any<Settings>().isDaitaEnabled() } returns false
-        every { any<Settings>().isDaitaDirectOnly() } returns false
         every { mockSettingsRepository.settingsUpdates } returns settingsFlow
     }
 

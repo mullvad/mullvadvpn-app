@@ -385,7 +385,6 @@
     <string name="daita_description_slide_1_third_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>
     <string name="daita_description_slide_2_first_paragraph">If an observer monitors these data packets, %1$s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s does this by carefully adding network noise and making all network packets the same size.</string>
-    <string name="direct_only">Direct only</string>
     <string name="enable_direct_only">Enable %1$s</string>
     <string name="direct_only_description">Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
     <string name="multihop_entry_disabled_description">An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”.</string>
