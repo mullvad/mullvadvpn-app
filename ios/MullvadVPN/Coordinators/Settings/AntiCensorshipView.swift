@@ -14,6 +14,7 @@ struct AntiCensorshipView: View {
     let settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
     let availableObfuscations: [WireGuardObfuscationState] = [
+        .automatic,
         .shadowsocks,
         .udpOverTcp,
         .quic,
@@ -49,7 +50,6 @@ struct AntiCensorshipView: View {
                     },
                     groupedContent: {
                         Group {
-                            automaticSelectionView()
                             ForEach(Array(availableObfuscations.enumerated()), id: \.element.description) {
                                 index, option in
                                 SegmentedListItem(
@@ -74,7 +74,10 @@ struct AntiCensorshipView: View {
                                         }
                                     },
                                     onSelect: {
-                                        // Change the iteration here to match real wireguard obfuscation
+                                        settings.tunnelSettings.wireGuardObfuscation.state = option
+                                        settingsInteractor.tunnelManager.updateSettings([
+                                            .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
+                                        ])
                                     }
                                 )
                             }
@@ -87,24 +90,6 @@ struct AntiCensorshipView: View {
         }
         .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
-    }
-
-    @ViewBuilder
-    func automaticSelectionView() -> some View {
-        SegmentedListItem(
-            level: 1,
-            isLastInList: false,
-            accessibilityIdentifier: .wireGuardObfuscationAutomatic,  // ???
-            leading: {
-                itemFactory.leading(
-                    for: .generic(
-                        title: "Automatic",
-                        level: 1, isSelected: settings.tunnelSettings.wireGuardObfuscation.state == .automatic))
-            },
-            onSelect: {
-                // ???
-            }
-        )
     }
 
     @ViewBuilder

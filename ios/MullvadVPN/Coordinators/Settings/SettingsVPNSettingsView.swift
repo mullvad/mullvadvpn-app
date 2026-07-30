@@ -91,14 +91,13 @@ struct SettingsVPNSettingsView: View {
             SegmentedListItem(
                 isLastInList: false,
                 accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
+                leadingAndTrailingDestination: {
+                    DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
+                        .navigationTitle("DNS Settings")
+                },
                 leading: {
-                    NavigationLink {
-                        DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
-                            .navigationTitle("DNS Settings")
-                    } label: {
-                        itemFactory.leading(
-                            for: .generic(title: DNSandIPSettings.first!.label))
-                    }
+                    itemFactory.leading(
+                        for: .generic(title: DNSandIPSettings.first!.label))
                 },
                 trailing: {
                     itemFactory.trailing(for: .drillDown(title: ""))
@@ -106,16 +105,15 @@ struct SettingsVPNSettingsView: View {
                 groupedContent: {
                     SegmentedListItem(
                         accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
+                        leadingAndTrailingDestination: {
+                            IPOverrideView(
+                                ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter
+                            )
+                            .navigationTitle("Server IP override")
+                        },
                         leading: {
-                            NavigationLink {
-                                IPOverrideView(
-                                    ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter
-                                )
-                                .navigationTitle("Server IP override")
-                            } label: {
-                                itemFactory.leading(
-                                    for: .generic(title: DNSandIPSettings.last!.label))
-                            }
+                            itemFactory.leading(
+                                for: .generic(title: DNSandIPSettings.last!.label))
                         },
                         trailing: {
                             itemFactory.trailing(for: .drillDown(title: ""))
@@ -132,6 +130,14 @@ struct SettingsVPNSettingsView: View {
     func antiCensorshipView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
+                leadingAndTrailingDestination: {
+                    let viewModel = TunnelWireGuardPortSettingsViewModel(
+                        tunnelManager: settingsInteractor.tunnelManager,
+                        option: WireGuardPort(
+                            constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
+                        portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+                    WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
+                },
                 leading: {
                     itemFactory.leading(
                         for: .generic(
@@ -141,21 +147,12 @@ struct SettingsVPNSettingsView: View {
                     )
                 },
                 trailing: {
-                    NavigationLink {
-                        let viewModel = TunnelWireGuardPortSettingsViewModel(
-                            tunnelManager: settingsInteractor.tunnelManager,
-                            option: WireGuardPort(
-                                constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
-                            portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-                        WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
-                    } label: {
-                        itemFactory.trailing(
-                            for: .drillDown(
-                                title: WireGuardPort(
-                                    constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port
-                                )
-                                .description))  // TODO: Check with Carl
-                    }
+                    itemFactory.trailing(
+                        for: .drillDown(
+                            title: WireGuardPort(
+                                constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port
+                            )
+                            .description))
                 },
                 groupedContent: {
                     SegmentedListItem(
