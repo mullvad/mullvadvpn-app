@@ -120,7 +120,7 @@ extension UIColor {
     enum SettingsCellBackground {}
 
     enum HeaderBar {
-        static let defaultBackgroundColor = primaryColor
+        static let defaultBackgroundColor = secondaryColor
         static let unsecuredBackgroundColor = dangerColor
         static let securedBackgroundColor = successColor
         static let dividerColor = secondaryColor
