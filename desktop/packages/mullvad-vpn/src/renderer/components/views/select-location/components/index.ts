@@ -5,6 +5,7 @@ export * from './custom-list-locations';
 export * from './daita-filter-chip';
 export * from './filter-chips';
 export * from './location-list-item';
+export * from './location-list-slide';
 export * from './lwo-filter-chip';
 export * from './no-search-result';
 export * from './ownership-filter-chip';
