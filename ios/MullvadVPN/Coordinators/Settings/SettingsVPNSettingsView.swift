@@ -227,6 +227,7 @@ struct SettingsVPNSettingsView: View {
                 },
                 onSelect: {
                     viewModel.tunnelSettings.ipVersion = option.id
+                    settingsInteractor.tunnelManager.updateSettings([.ipVersion(viewModel.tunnelSettings.ipVersion)])
                 }
             )
             .id(option.id)
@@ -274,6 +275,7 @@ struct SettingsVPNSettingsView: View {
                     $isExpanded.wrappedValue ? IPVersionSelectionView() : nil
                 }
             )
+            .mullvadAlert(item: $alert)
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
