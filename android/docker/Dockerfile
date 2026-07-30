@@ -13,7 +13,8 @@
 # for more information.
 
 # === Base image (built from: ../../Dockerfile) ===
-FROM ghcr.io/mullvad/mullvadvpn-app-build:da84604a2e
+# By digest, not by tag, so this can never be repointed at a different image.
+FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:67adca4e557b697ecf5a8cd46a70015447514e9c2846da4573ed00df036ce6f9
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app

@@ -1,3 +1,4 @@
+# The app build image to build on. Passed in by container-run.sh in this directory.
 ARG IMAGE=ghcr.io/mullvad/mullvadvpn-app-build:latest
 FROM $IMAGE
 
