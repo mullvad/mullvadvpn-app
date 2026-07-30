@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Al utilizar IA sofisticada, se puede analizar el tráfico de paquetes de datos que entran y salen de su dispositivo (incluso si el tráfico está cifrado).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observador supervisa estos paquetes de datos, %1$s les dificulta notablemente la tarea de identificar qué sitios web está visitando o con quién se está comunicando.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
-    <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
     <string name="days_were_added_30">Se han añadido 30 días a su cuenta.</string>
     <string name="days_were_added_90">Se han añadido 90 días a su cuenta.</string>
     <string name="delete">Eliminar</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="direct">Directo</string>
-    <string name="direct_only_description">No todos nuestros servidores están habilitados para %1$s. Para usar Internet, quizá deba seleccionar una nueva ubicación tras habilitar esta característica.</string>
     <string name="disable_multihop">Deshabilitar salto múltiple</string>
     <string name="disable_recents">Deshabilitar recientes</string>
     <string name="discard">Descartar</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Habilitar todo e intentar de nuevo</string>
     <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
-    <string name="enable_direct_only">Habilitar %1$s</string>
     <string name="enable_ipv6">Tunelización IPv6</string>
     <string name="enable_location_in_notification">Mostrar la ubicación en la notificación</string>
     <string name="enable_method">Habilitar método</string>

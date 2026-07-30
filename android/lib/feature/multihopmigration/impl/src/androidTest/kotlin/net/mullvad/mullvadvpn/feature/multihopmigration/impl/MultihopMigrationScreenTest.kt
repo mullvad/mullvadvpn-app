@@ -2,12 +2,14 @@ package net.mullvad.mullvadvpn.feature.multihopmigration.impl
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -196,7 +198,7 @@ class MultihopMigrationScreenTest {
         )
 
         // Act
-        onNodeWithText("Next").performClick()
+        onNodeWithTag(MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG).performClick()
 
         // Assert
         verify(exactly = 1) { onNextClick.invoke() }
