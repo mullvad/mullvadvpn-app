@@ -13,6 +13,7 @@ import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
 import mullvad_daemon.relay_selector.RelaySelector
+import mullvad_daemon.relay_selector.metadata
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -823,7 +824,10 @@ internal fun ManagementInterface.ExitRecent.toDomain(): ExitRecent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.associate { it.relay.hostname to it.hasMetadata() },
+        matches =
+            matchesList.associate {
+                it.relay.hostname to it.metadata.needsOtherEntry
+            },
         discards = discardsList.map { it.toDomain() },
     )
 
