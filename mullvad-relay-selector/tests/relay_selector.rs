@@ -1,6 +1,7 @@
 //! Tests for verifying that the relay selector works as expected.
 
 use std::{
+    assert_matches,
     collections::HashSet,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::LazyLock,
@@ -385,13 +386,13 @@ mod relay_selection {
         for _ in 0..100 {
             let query = RelayQueryBuilder::new().multihop().build();
             let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-            assert!(matches!(
+            assert_matches!(
                 relay,
                 GetRelay {
                     inner: WireguardConfig::Multihop { .. },
                     ..
                 }
-            ))
+            )
         }
     }
 
@@ -751,11 +752,11 @@ mod relay_selection {
             let Some(obfuscator) = relay.obfuscator else {
                 panic!("Relay selector should have picked an obfuscator")
             };
-            assert!(matches!(
+            assert_matches!(
                 obfuscator,
                 Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
-                    TCP2UDP_PORTS.contains(&endpoint.port()),
-            ));
+                    TCP2UDP_PORTS.contains(&endpoint.port())
+            );
         }
     }
 
@@ -797,10 +798,10 @@ mod relay_selection {
 
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
-        assert!(matches!(
+        assert_matches!(
             relay_selector.get_relay_by_query(RelayQueryBuilder::new().build()),
             Err(Error::NoRelay(_))
-        ));
+        );
 
         // Hostname-level query targeting an include_in_country=false relay: the
         // explicit, specific choice wins.
@@ -835,9 +836,10 @@ mod relay_selection {
                 .expect("expected match"),
         );
 
-        assert!(
-            matches!(relay.inner, Relay { ref hostname, .. } if hostname == &expected_hostname),
-            "found {relay:?}, expected {expected_hostname:?}",
+        assert_matches!(
+            &relay.inner,
+            Relay { hostname, .. } if hostname == &expected_hostname,
+            "expected {expected_hostname:?}"
         )
     }
 
@@ -1065,10 +1067,10 @@ mod relay_selection {
 
         // Country-level multihop must fail: only one relay (`se-sto-wg-204`) is
         // selectable at country level, so no entry/exit pair can be formed.
-        assert!(matches!(
+        assert_matches!(
             relay_selector.get_relay_by_query(country_query),
             Err(Error::NoRelay(_) | Error::NoRelayEntry(_) | Error::NoRelayExit(_))
-        ));
+        );
 
         // Hostname-level multihop targeting both relays explicitly must succeed.
         relay_selector.get_relay_by_query(hostname_query)?;

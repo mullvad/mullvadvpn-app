@@ -18,7 +18,7 @@ use mullvad_types::{
     relay_constraints::{GeographicLocationConstraint, LocationConstraint},
     states::TunnelState,
 };
-use std::{net::SocketAddr, time::Duration};
+use std::{assert_matches, net::SocketAddr, time::Duration};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -201,9 +201,10 @@ pub async fn test_connecting_state(
     })
     .await?;
 
-    assert!(
-        matches!(new_state, TunnelState::Connecting { .. }),
-        "failed to enter connecting state: {new_state:?}"
+    assert_matches!(
+        new_state,
+        TunnelState::Connecting { .. },
+        "failed to enter connecting state"
     );
 
     // Leak test

@@ -60,7 +60,7 @@ const CONN_CHECKER_TIMEOUT: Duration = Duration::from_secs(
 macro_rules! assert_tunnel_state {
     ($mullvad_client:expr, $pattern:pat) => {{
         let state = $mullvad_client.get_tunnel_state().await?;
-        assert!(matches!(state, $pattern), "state: {:?}", state);
+        ::std::assert_matches!(state, $pattern);
     }};
 }
 

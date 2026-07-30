@@ -523,6 +523,7 @@ where
     #[cfg(in_app_upgrade)]
     fn cancel_upgrade(&mut self) {
         use mullvad_types::version::AppUpgradeEvent;
+        use std::debug_assert_matches;
 
         match mem::replace(&mut self.state, State::NoVersion) {
             // If we're upgrading, emit an event if a version was received during the upgrade
@@ -546,10 +547,7 @@ where
             state => self.state = state,
         };
 
-        debug_assert!(matches!(
-            self.state,
-            State::HasVersion { .. } | State::NoVersion
-        ));
+        debug_assert_matches!(self.state, State::HasVersion { .. } | State::NoVersion);
     }
 }
 
@@ -647,6 +645,7 @@ fn recommended_version_upgrade(
 
 #[cfg(all(test, in_app_upgrade))]
 mod test {
+    use std::assert_matches;
     use std::time::SystemTime;
 
     use super::downloader::ProgressUpdater;
@@ -872,8 +871,9 @@ mod test {
         let (mut version_router, _channels) = make_version_router::<SuccessfulAppDownloader>();
         let upgrade_events = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
-        assert!(
-            matches!(version_router.state, State::NoVersion),
+        assert_matches!(
+            version_router.state,
+            State::NoVersion,
             "State should stay as NoVersion after calling update_application"
         );
         assert!(
@@ -889,19 +889,21 @@ mod test {
 
         // Test that new beta version is ignored if beta program is off
         version_router.set_beta_program(false); // This is default value, but set it for clarity
-        assert!(
-            matches!(version_router.state, State::NoVersion),
+        assert_matches!(
+            version_router.state,
+            State::NoVersion,
             "State should not transition"
         );
         version_router.on_new_version(version_cache);
-        assert!(matches!(version_router.state, State::HasVersion { .. }));
+        assert_matches!(version_router.state, State::HasVersion { .. });
         assert!(
             channels.version_event_receiver.try_recv().is_err(),
             "No version event should be sent on beta program change"
         );
         version_router.update_application();
-        assert!(
-            matches!(version_router.state, State::HasVersion { .. }),
+        assert_matches!(
+            version_router.state,
+            State::HasVersion { .. },
             "State should not transition to Downloading as the beta version is ignored"
         );
 
@@ -913,8 +915,9 @@ mod test {
             "Version event should be sent on beta program change"
         );
         version_router.update_application();
-        assert!(
-            matches!(version_router.state, State::Downloading { .. }),
+        assert_matches!(
+            version_router.state,
+            State::Downloading { .. },
             "State should transition to Downloading as the beta version is accepted"
         );
     }
@@ -1003,8 +1006,9 @@ mod test {
         }
 
         version_router.update_application();
-        assert!(
-            matches!(version_router.state, State::Downloading { .. }),
+        assert_matches!(
+            version_router.state,
+            State::Downloading { .. },
             "Triggering an update while in the downloading shout be ignored"
         );
 
@@ -1059,14 +1063,16 @@ mod test {
             .expect_err("Channel should not have any messages");
 
         version_router.update_application();
-        assert!(
-            matches!(version_router.state, State::Downloaded { .. }),
+        assert_matches!(
+            version_router.state,
+            State::Downloaded { .. },
             "Triggering an update while in the downloaded shout be ignored"
         );
 
         version_router.cancel_upgrade();
-        assert!(
-            matches!(version_router.state, State::HasVersion { .. }),
+        assert_matches!(
+            version_router.state,
+            State::HasVersion { .. },
             "State should be HasVersion after cancelling the upgrade"
         );
 
@@ -1114,7 +1120,7 @@ mod test {
         let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         // Check that the state is now downloading
-        assert!(matches!(version_router.state, State::Downloading { .. }),);
+        assert_matches!(version_router.state, State::Downloading { .. });
 
         // Advance the download to the point where we have started downloading
         tokio::time::sleep(DOWNLOAD_DURATION / 2).await;
@@ -1144,7 +1150,7 @@ mod test {
         let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         // Check that the state is now downloading
-        assert!(matches!(version_router.state, State::Downloading { .. }),);
+        assert_matches!(version_router.state, State::Downloading { .. });
 
         // Drive the download to completion
         assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
@@ -1177,52 +1183,32 @@ mod test {
         // Start upgrading
         version_router.update_application();
         // Check that the state is now downloading
-        assert!(matches!(version_router.state, State::Downloading { .. }),);
+        assert_matches!(version_router.state, State::Downloading { .. });
 
         // Should remain in downloading state if same version is received
         version_router.on_new_version(version_cache_test.clone());
-        assert!(
-            matches!(version_router.state, State::Downloading { .. }),
-            "state should be Downloading, was {:?}",
-            version_router.state,
-        );
+        assert_matches!(version_router.state, State::Downloading { .. });
 
         // Unless the version is different
         version_cache_test.version_info.stable.version.incremental += 1;
         version_router.on_new_version(version_cache_test.clone());
-        assert!(
-            matches!(version_router.state, State::HasVersion { .. }),
-            "state should be HasVersion, was {:?}",
-            version_router.state,
-        );
+        assert_matches!(version_router.state, State::HasVersion { .. });
 
         // Restart upgrade
         version_router.update_application();
 
         // Drive the download to completion
         assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));
-        assert!(
-            matches!(version_router.state, State::Downloaded { .. }),
-            "state should be Downloaded, was {:?}",
-            version_router.state,
-        );
+        assert_matches!(version_router.state, State::Downloaded { .. });
 
         // Should remain in downloaded state if same version is received
         version_router.on_new_version(version_cache_test.clone());
-        assert!(
-            matches!(version_router.state, State::Downloaded { .. }),
-            "state should be Downloaded, was {:?}",
-            version_router.state,
-        );
+        assert_matches!(version_router.state, State::Downloaded { .. });
 
         // Unless the version is different
         version_cache_test.version_info.stable.version.incremental += 1;
         version_router.on_new_version(version_cache_test.clone());
-        assert!(
-            matches!(version_router.state, State::HasVersion { .. }),
-            "state should be HasVersion, was {:?}",
-            version_router.state,
-        );
+        assert_matches!(version_router.state, State::HasVersion { .. });
     }
 
     #[tokio::test]
@@ -1236,7 +1222,7 @@ mod test {
         let mut app_upgrade_listener = version_router.app_upgrade_broadcast.subscribe();
         version_router.update_application();
         // Check that the state is now downloading
-        assert!(matches!(version_router.state, State::Downloading { .. }),);
+        assert_matches!(version_router.state, State::Downloading { .. });
 
         // Drive the download to completion
         assert_eq!(version_router.run_step().await, ControlFlow::Continue(()));

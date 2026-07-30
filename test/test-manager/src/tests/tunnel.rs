@@ -14,6 +14,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::wireguard;
 use std::{
+    assert_matches,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
@@ -63,7 +64,7 @@ pub async fn test_wireguard_tunnel_ipvx(
 
             let endpoint = connection_result.endpoint().expect("must have endpoint");
             let endpoint = endpoint.entry_endpoint.unwrap_or(endpoint.endpoint);
-            assert!(matches!(endpoint.address.ip(), IpAddr::VX(..)));
+            assert_matches!(endpoint.address.ip(), IpAddr::VX(..));
 
             assert!(
                 helpers::using_mullvad_exit(&rpc).await,

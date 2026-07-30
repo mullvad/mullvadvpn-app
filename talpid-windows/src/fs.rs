@@ -49,6 +49,7 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
 
 #[cfg(test)]
 mod test {
+    use std::assert_matches;
     use std::os::windows::fs::OpenOptionsExt;
     use windows_sys::Win32::Storage::FileSystem::FILE_FLAG_BACKUP_SEMANTICS;
 
@@ -59,9 +60,10 @@ mod test {
         // The kernel image is owned by "TrustedInstaller", so we expect the function to return 'false'
         let path = std::fs::File::open(r"C:\Windows\System32\ntoskrnl.exe").unwrap();
         let result = is_admin_owned(path);
-        assert!(
-            matches!(result, Ok(false)),
-            "expected ntoskrnl.exe to be owned by TrustedInstaller (false), got {result:?}"
+        assert_matches!(
+            result,
+            Ok(false),
+            "expected ntoskrnl.exe to be owned by TrustedInstaller"
         );
 
         // The Windows system temp directory is owned by SYSTEM, so we expect 'true'
@@ -71,9 +73,6 @@ mod test {
             .open(r"C:\Windows\Temp")
             .unwrap();
         let result = is_admin_owned(path);
-        assert!(
-            matches!(result, Ok(true)),
-            "expected TEMP to be owned by SYSTEM (true), got {result:?}"
-        );
+        assert_matches!(result, Ok(true), "expected TEMP to be owned by SYSTEM");
     }
 }

@@ -214,6 +214,7 @@ fn mtu_spacing(mtu_min: u16, mtu_max: u16, step_size: u16) -> Vec<u16> {
 mod tests {
     use super::*;
     use proptest::prelude::*;
+    use std::assert_matches;
 
     proptest! {
         #[test]
@@ -333,10 +334,7 @@ mod tests {
             pings.push(err_ping(SurgeError::NetworkError));
 
             let e = max_ping_size(pings).await.unwrap_err();
-            assert!(matches!(
-                e,
-                Error::MtuDetectionUnexpected(SurgeError::NetworkError)
-            ));
+            assert_matches!(e, Error::MtuDetectionUnexpected(SurgeError::NetworkError));
         }
 
         /// An error of type [`SurgeError::Timeout`] signals that the total [`PING_TIMEOUT`] has
@@ -354,7 +352,7 @@ mod tests {
             pings.push(delayed_ping(Ok(100), PING_TIMEOUT + Duration::from_secs(1)));
 
             let e = max_ping_size(pings).await.unwrap_err();
-            assert!(matches!(e, Error::MtuDetectionAllDropped));
+            assert_matches!(e, Error::MtuDetectionAllDropped);
         }
 
         /// In the rare case that [`PING_TIMEOUT`] triggers before [`PING_OFFSET_TIMEOUT`], even
@@ -372,10 +370,10 @@ mod tests {
             ));
 
             let e = max_ping_size(pings).await.unwrap_err();
-            assert!(matches!(
+            assert_matches!(
                 e,
                 Error::MtuDetectionUnexpected(SurgeError::Timeout { seq: _ })
-            ));
+            );
         }
     }
 }
