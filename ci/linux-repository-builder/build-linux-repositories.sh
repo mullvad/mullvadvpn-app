@@ -117,8 +117,7 @@ function process_inbox {
         echo "Moving artifacts from $src_dir to $artifact_dir"
         # Move all deb and rpm files into the .latest dir
         for src_deb in "$src_dir"/*.deb; do
-            echo "Signing and moving $src_deb into $artifact_dir/"
-            dpkg-sig --sign builder "$src_deb"
+            echo "Moving $src_deb into $artifact_dir/"
             mv "$src_deb" "$artifact_dir/"
         done
         for src_rpm in "$src_dir"/*.rpm; do
