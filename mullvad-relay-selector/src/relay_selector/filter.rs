@@ -36,7 +36,7 @@ impl AutohopPartition {
     pub(super) fn into_relay_partitions(self) -> RelayPartitions {
         let AutohopPartition {
             singlehop,
-            multihop,
+            mut multihop,
         } = self;
 
         if multihop.entries.matches.is_empty() {
@@ -44,26 +44,31 @@ impl AutohopPartition {
             // the singlehop partition (matches and discard reasons) is the right answer.
             return singlehop;
         }
+        // Multihop is available. Use its partition as the base, since its discard reasons are
+        // more permissive: they describe the minimum change needed to unblock a relay in autohop,
+        // whereas singlehop would over-report entry-specific reasons (DAITA / obfuscation /
+        // ip_version) that don't apply to a relay used as a multihop exit.
 
-        // Multihop is available. A relay matches autohop if it works as singlehop OR as
-        // a multihop exit. For discards, prefer multihop.exits reasons over singlehop's:
-        // multihop is the more permissive path here, so its reasons describe the minimum
-        // fix to unblock the relay in autohop. Singlehop adds entry-specific reasons
-        // (DAITA / obfuscation / ip_version) that don't apply to a relay used as a
-        // multihop exit and would over-report what the user needs to change.
-        let (rescued, discards): (Vec<_>, Vec<_>) = multihop
-            .exits
-            .discards
-            .into_iter()
-            .partition_map(|(mut relay, reasons)| {
-                if singlehop.matches.contains(&relay) {
-                    relay.needs_other_entry = true;
-                    Either::Left(relay)
-                } else {
-                    Either::Right((relay, reasons))
-                }
-            });
-        let matches = [multihop.exits.matches, rescued].concat();
+        // Mark matches that are only usable as multihop exits (not valid for singlehop), so that
+        // the UI can signal to the user that an auto-selected entry relay will be added.
+        for relay in multihop.exits.matches.iter_mut() {
+            if !singlehop.matches.contains(relay) {
+                relay.needs_other_entry = true;
+            }
+        }
+
+        // Relays that are valid for singlehop but were discarded as a multihop exit are rescued
+        // back into matches. This can only happen when a relay is the sole available entry and is
+        // therefore removed from exits by `remove_conflicting_relay`.
+        let mut matches = multihop.exits.matches;
+        let mut discards = vec![];
+        for (relay, reasons) in multihop.exits.discards {
+            if singlehop.matches.contains(&relay) {
+                matches.push(relay);
+            } else {
+                discards.push((relay, reasons));
+            }
+        }
 
         RelayPartitions { matches, discards }
     }
