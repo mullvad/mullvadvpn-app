@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ConfigurableTextField: View {
-
     // MARK: - Required properties
     let title: LocalizedStringKey?
     let placeholder: LocalizedStringKey
@@ -30,6 +29,8 @@ struct ConfigurableTextField: View {
     @Environment(\.isEnabled) private var isEnabled
     @FocusState private var internalFocus: Bool
     private var externalFocus: FocusState<Bool>.Binding?
+    @State private var animatedMessage: MessageView.Message?
+    @State private var animatedSuggestions: [String] = []
 
     init<Leading: View, Trailing: View>(
         title: LocalizedStringKey? = nil,
@@ -101,7 +102,7 @@ struct ConfigurableTextField: View {
             .modifier(
                 RoundedCornerModifier(
                     cornerRadius: appearance.cornerRadius,
-                    corners: suggestions.isEmpty ? .allCorners : [.topLeft, .topRight],
+                    corners: animatedSuggestions.isEmpty ? .allCorners : [.topLeft, .topRight],
                     insertBy: .zero,
                     borderColor: effectiveBorderStyle.color,
                     borderWidth: effectiveBorderStyle.lineWidth
@@ -111,12 +112,23 @@ struct ConfigurableTextField: View {
             dropdownView
             messageView
         }
+        .onChange(of: suggestions) { _, newSuggestions in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                animatedSuggestions = newSuggestions
+            }
+        }
+        .onChange(of: message != nil) { _, hasMessage in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                animatedMessage = hasMessage ? message : nil
+            }
+        }
         .onAppear {
+            animatedSuggestions = suggestions
+            animatedMessage = message
             guard let formatter = configuration.formatter else { return }
             let formatted = formatter.format(text)
             text = formatted
         }
-
     }
 
     @ViewBuilder private var titleView: some View {
@@ -176,9 +188,9 @@ struct ConfigurableTextField: View {
     }
 
     @ViewBuilder private var dropdownView: some View {
-        if let autoComplete = configuration.autoComplete, !suggestions.isEmpty, isEnabled {
+        if let autoComplete = configuration.autoComplete, !animatedSuggestions.isEmpty, isEnabled {
             SuggestionsDropdownView(
-                suggestions: suggestions,
+                suggestions: animatedSuggestions,
                 appearance: autoComplete.appearance,
                 onSelect: { suggestion in
                     autoComplete.onSelect(suggestion)
@@ -188,13 +200,15 @@ struct ConfigurableTextField: View {
                     autoComplete.onRemove?(suggestion)
                 }
             )
+            .transition(.opacity)
         }
     }
 
     @ViewBuilder private var messageView: some View {
-        if let message = message {
+        if let message = animatedMessage {
             MessageView(message: message, font: appearance.messageFont)
                 .padding(.top, appearance.spacing)
+                .transition(.opacity)
         }
     }
 
