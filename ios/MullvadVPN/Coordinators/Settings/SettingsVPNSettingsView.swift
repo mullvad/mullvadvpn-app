@@ -170,7 +170,8 @@ struct SettingsVPNSettingsView: View {
                             )
                         },
                         trailing: {
-                            itemFactory.trailing(for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
+                            itemFactory.trailing(
+                                for: .drillDown(title: viewModel.tunnelSettings.wireGuardObfuscation.state.description))
                         }
                     )
                 }
@@ -295,8 +296,3 @@ struct SettingsVPNSettingsView: View {
         .mullvadAlert(item: $alert)
     }
 }
-
-//#Preview {
-//    @Previewable @State var path = NavigationPath()
-//    SettingsVPNSettingsView(viewModel: ObservableVPNSettings(), path: $path)
-//}

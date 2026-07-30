@@ -94,7 +94,6 @@
 		44695DD92FBF60F2006D5453 /* Image+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */; };
 		44695DDA2FC73F03006D5453 /* SelectLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */; };
 		44695DDB2FC73F54006D5453 /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
-		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
 		4491AC7B2ECF5FE4005789DF /* MullvadAddressCacheKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
@@ -1839,7 +1838,6 @@
 		4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSettingsView.swift; sourceTree = "<group>"; };
 		4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSelectionNameSpace.swift; sourceTree = "<group>"; };
 		446436E12F62F6CC00233CA5 /* TunnelSettingsV8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV8.swift; sourceTree = "<group>"; };
-		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccessMethodChangeListening.swift; sourceTree = "<group>"; };
 		4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAddressCacheKeychainStore.swift; sourceTree = "<group>"; };
@@ -3263,7 +3261,6 @@
 				7AA5644B2F30C779001D1FB9 /* LwoObfuscationSettingsView.swift */,
 				7AA5644D2F30C7A6001D1FB9 /* LwoObfuscationSettingsViewModel.swift */,
 				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
-				447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */,
 				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
 				4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */,
 				44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */,
@@ -6998,7 +6995,6 @@
 				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
 				F90052562E6EEB290085C80E /* SelectLocationViewModel.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
-				447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,

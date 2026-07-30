@@ -75,9 +75,6 @@ struct AntiCensorshipView: View {
                                     },
                                     onSelect: {
                                         settings.tunnelSettings.wireGuardObfuscation.state = option
-                                        settingsInteractor.tunnelManager.updateSettings([
-                                            .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
-                                        ])
                                     }
                                 )
                             }
@@ -90,6 +87,12 @@ struct AntiCensorshipView: View {
         }
         .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
+        .onDisappear {
+            // TODO: Discuss with the team if that's good enough
+            settingsInteractor.tunnelManager.updateSettings([
+                .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
+            ])
+        }
     }
 
     @ViewBuilder
@@ -112,9 +115,7 @@ struct AntiCensorshipView: View {
     func obfuscationView(_ state: WireGuardObfuscationState) -> some View {
         switch state {
         case .shadowsocks:
-            let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager)
-            ShadowsocksObfuscationSettingsView(viewModel: viewModel)
+            ShadowsocksObfuscationSettingsView(port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort)
                 .navigationTitle("Shadowsocks")
         case .udpOverTcp:
             let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(

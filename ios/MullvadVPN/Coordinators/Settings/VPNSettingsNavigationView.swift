@@ -22,7 +22,6 @@ actor MainActorObserver {
     func start() {
         _ = withObservationTracking {
             Task {
-                //                tunnelManager.updateSettings([.all(observable.tunnelSettings)])
                 print("Settings have changed: \(observable.tunnelSettings)")
             }
         } onChange: {
@@ -66,38 +65,6 @@ struct VPNSettingsNavigationView: View {
             viewModel: observableSettings
         )
         .background(Color(.secondaryColor))
-    }
-
-    // Can this be a generic way to not have to repeat navigation configuration each time ?
-    @ViewBuilder
-    func destinationView(_ path: SettingsDestinationView) -> some View {
-        switch path {
-        case .antiCensorship:
-            AntiCensorshipView(
-                settingsInteractor: settingsInteractor,
-                settings: observableSettings)
-        case .dnsSettings:
-            DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
-                .navigationTitle("DNS Settings")
-        case .serverIPOverride:
-            IPOverrideView(ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter)
-                .navigationTitle("Server IP override")
-        case .shadowsocks:
-            let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager)
-            ShadowsocksObfuscationSettingsView(viewModel: viewModel)
-                .navigationTitle("Shadowsocks")
-                .navigationBarTitleDisplayMode(.large)
-        case .lwo:
-            let viewModel = TunnelLwoObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager,
-                portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-            LwoObfuscationSettingsView(viewModel: viewModel)
-        case .udpOverTcp:
-            let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager)
-            UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
-        }
     }
 }
 
