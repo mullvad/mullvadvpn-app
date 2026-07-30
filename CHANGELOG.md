@@ -42,6 +42,9 @@ Line wrap the file at 100 chars.                                              Th
 - De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
 - Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
+- Stop embedding a `dpkg-sig` signature in `.deb` packages. apt verifies the signature on the
+  repository, not one inside the package, and the tool making these signatures has been removed
+  from Debian. `.rpm` packages are still signed, since dnf does verify that signature.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at

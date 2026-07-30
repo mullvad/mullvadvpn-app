@@ -109,12 +109,9 @@ function run_in_build_env {
     fi
 }
 
-# Sign DEB+RPM on Linux
-function sign_linux_packages {
-    for installer_path in dist/MullvadVPN-*.deb; do
-        echo "Signing $installer_path"
-        dpkg-sig --sign builder "$installer_path"
-    done
+# Sign RPM packages on Linux. We don't sign the deb file since that's not standard
+# and dpkg-sig has been deprecated since long.
+function sign_rpm_packages {
     for installer_path in dist/MullvadVPN-*.rpm; do
         echo "Signing $installer_path"
         rpm --addsign "$installer_path"
@@ -131,7 +128,7 @@ function build {
 
     run_in_build_env TARGETS="$target" ./build.sh "${build_args[@]}" || return 1
     if [[ "$(uname -s)" == "Linux" ]]; then
-        sign_linux_packages
+        sign_rpm_packages
     fi
     mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 1
 
