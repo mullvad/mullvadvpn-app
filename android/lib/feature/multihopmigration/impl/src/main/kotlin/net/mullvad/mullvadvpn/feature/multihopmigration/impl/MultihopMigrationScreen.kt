@@ -29,6 +29,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Info
@@ -63,7 +65,9 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.DescribedIcon
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.common.compose.stringResourceWithIcons
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -475,11 +479,19 @@ private fun BottomBar(
                         modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp)
                     )
                 }
-                // TODO Next need arrow icon
                 PrimaryButton(
                     text =
-                        if (currentPage == pages - 1) stringResource(R.string.got_it)
-                        else stringResource(R.string.next),
+                        if (currentPage == pages - 1)
+                            AnnotatedString(stringResource(R.string.got_it))
+                        else
+                            stringResourceWithIcons(
+                                    R.string.next_with_icon,
+                                    DescribedIcon(
+                                        icon = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = stringResource(R.string.next),
+                                    ),
+                                )
+                                .text,
                     onClick = if (currentPage == pages - 1) onFinishMigration else onNextClick,
                     modifier = Modifier.weight(1f),
                 )

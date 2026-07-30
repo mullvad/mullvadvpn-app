@@ -557,6 +557,7 @@
     <string name="multihop_migration_in_app_message_description">Some of your settings have been migrated, please review the changes.</string>
     <string name="click_here_to_read_more">Click here to read more</string>
     <string name="next">Next</string>
+    <string name="next_with_icon">Next %1$s</string>
     <string name="new_multihop_modes_title">New multihop modes</string>
     <string name="new_multihop_modes_first_paragraph">Multihop is now split into three modes: When needed, Always, and Never.\nThis gives you more flexibility with your connection preferences.</string>
     <string name="new_multihop_modes_off_to_when_needed">Your multihop setting was migrated from “Off” to “When needed”</string>

@@ -3543,6 +3543,9 @@ msgstr ""
 msgid "New multihop modes"
 msgstr ""
 
+msgid "Next %1$s"
+msgstr ""
+
 msgid "No Android app store installed, could not open link"
 msgstr ""
 
