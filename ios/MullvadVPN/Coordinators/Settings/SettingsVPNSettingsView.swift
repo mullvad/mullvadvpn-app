@@ -159,6 +159,12 @@ struct SettingsVPNSettingsView: View {
                 },
                 groupedContent: {
                     SegmentedListItem(
+                        leadingAndTrailingDestination: {
+                            AntiCensorshipView(
+                                settingsInteractor: settingsInteractor,
+                                settings: viewModel
+                            )
+                        },
                         leading: {
                             itemFactory.leading(
                                 for: .generic(
@@ -166,15 +172,8 @@ struct SettingsVPNSettingsView: View {
                                 )
                             )
                         },
-                        trailing: { // TODO: Add navigation support directly in SegmentedListItem ?
-                            NavigationLink {
-                                AntiCensorshipView(
-                                    settingsInteractor: settingsInteractor,
-                                    settings: viewModel
-                                )
-                            } label: {
-                                itemFactory.trailing(for: .drillDown(title: "Automatic"))
-                            }
+                        trailing: {
+                            itemFactory.trailing(for: .drillDown(title: "Automatic"))
                         }
                     )
                 }
