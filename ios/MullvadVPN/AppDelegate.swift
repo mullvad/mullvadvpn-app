@@ -521,7 +521,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // in the fullness of time, this section will grow and the latter will shrink to nothing
         
         // next: make a TaskGroup containing this and wipeSettings, and await that in one go
-        `
+        
         await doLoadTunnelStore()
         doWipeSettingsIfNeeded()
         await doGetDefaultLocation()
@@ -700,14 +700,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     private func doWipeSettingsIfNeeded() {
-        let appHasNeverBeenLaunched =
-            !self.appPreferences.hasDoneFirstTimeLaunch && !settingsManager.getShouldWipeSettings()
-        let appWasLaunchedAfterReinstall =
-            !self.appPreferences.hasDoneFirstTimeLaunch && settingsManager.getShouldWipeSettings()
+        defer {
+            settingsManager.setShouldWipeSettings()
+        }
+        if self.appPreferences.hasDoneFirstTimeLaunch { return }
 
-        if appHasNeverBeenLaunched {
+        if !settingsManager.getShouldWipeSettings() {
+            // the app has never been launched
             try? settingsManager.writeSettings(LatestTunnelSettings())
-        } else if appWasLaunchedAfterReinstall {
+        } else {
+            // the app has been launched after a reinstall
             if let deviceState = try? settingsManager.readDeviceState(),
                 let accountData = deviceState.accountData,
                 let deviceData = deviceState.deviceData
@@ -731,9 +733,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
             try? self.relayCacheTracker.refreshCachedRelays()
         }
-
-        settingsManager.setShouldWipeSettings()
-
     }
 
     private func getDefaultLocationOperation() -> AsyncBlockOperation {
