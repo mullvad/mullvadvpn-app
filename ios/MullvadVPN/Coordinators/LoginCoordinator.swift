@@ -6,30 +6,23 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
-import Operations
 import Routing
 import SwiftUI
-import UIKit
 
 final class LoginCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
     private let devicesProxy: DeviceHandling
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var breadcrumbsObserver: BreadcrumbsObserver?
-
-    private var loginController: LoginViewController?
-    nonisolated(unsafe) private var lastLoginAction: LoginAction?
-    private var subscriptions = Set<Combine.AnyCancellable>()
+    private var loginViewModel: (any LoginViewModel)?
 
     var didFinish: (@MainActor @Sendable (LoginCoordinator) -> Void)?
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
     var navigateToAccessMethods: (() -> Void)?
 
-    var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
     var presentationContext: UIViewController {
         navigationController
     }
@@ -53,72 +46,51 @@ final class LoginCoordinator: Coordinator, Presenting {
 
     func start(animated: Bool) {
         let interactor = LoginInteractor(tunnelManager: tunnelManager, settingsManager: settingsManager)
-        let loginController = LoginViewController(
-            interactor: interactor,
-            alertPresenter: AlertPresenter(context: self)
-        )
-
-        loginController.navigateToAccessMethods = navigateToAccessMethods
-
-        loginController.didFinishLogin = { [weak self] action, error in
-            self?.didFinishLogin(action: action, error: error) ?? .nothing
-        }
-
-        preferredAccountNumberPublisher?
-            .compactMap { $0 }
-            .sink(receiveValue: { preferredAccountNumber in
-                interactor.suggestPreferredAccountNumber?(preferredAccountNumber)
-            })
-            .store(in: &subscriptions)
-
         interactor.didCreateAccount = didCreateAccount
 
-        navigationController.pushViewController(loginController, animated: animated)
+        let viewModel = LoginViewModelImpl(interactor: interactor)
+        loginViewModel = viewModel
 
-        self.loginController = loginController
+        viewModel.navigateToAccessMethods = navigateToAccessMethods
+        viewModel.didFinishLogin = { [weak self] action, error in
+            self?.didFinishLogin(action: action, error: error)
+        }
 
         setUpBreadcrumbs()
+
+        let controller = UIHostingController(rootView: LoginView(viewModel: viewModel))
+        controller.view.setAccessibilityIdentifier(.loginView)
+
+        navigationController.pushViewController(controller, animated: animated)
     }
 
     // MARK: - Private
 
     private func setUpBreadcrumbs() {
-        loginController?.showInvalidAccessMethodView(breadcrumbsProvider.breadcrumbs.contains(.warning(.apiAccess)))
+        loginViewModel?.showAccessMethodInvalidView = breadcrumbsProvider.breadcrumbs.contains(.warning(.apiAccess))
 
         let breadcrumbsObserver = BreadcrumbsBlockObserver(didUpdateBreadcrumbsHandler: { [weak self] in
-            self?.loginController?.showInvalidAccessMethodView($0.contains(.warning(.apiAccess)))
+            self?.loginViewModel?.showAccessMethodInvalidView = $0.contains(.warning(.apiAccess))
         })
         self.breadcrumbsObserver = breadcrumbsObserver
         breadcrumbsProvider.add(observer: breadcrumbsObserver)
     }
 
-    private func didFinishLogin(action: LoginAction, error: Error?) -> EndLoginAction {
+    private func didFinishLogin(action: LoginViewModelImpl.LoginAction, error: Error?) {
         guard let error else {
             callDidFinishAfterDelay()
-            return .nothing
+            return
         }
 
-        if case let .useExistingAccount(accountNumber) = action {
+        if case let .login(accountNumber) = action {
             if let error = error as? REST.Error, error.compareErrorCode(.maxDevicesReached) {
-                return .wait(
-                    Promise { resolve in
-                        nonisolated(unsafe) let sendableResolve = resolve
-                        self.showDeviceList(for: accountNumber) { error in
-                            self.lastLoginAction = action
-
-                            sendableResolve(error.map { .failure($0) } ?? .success(()))
-                        }
-                    })
-            } else {
-                return .activateTextField
+                self.showDeviceList(for: accountNumber)
             }
         }
-
-        return .nothing
     }
 
     private func callDidFinishAfterDelay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(500)) { [weak self] in
             guard let self else { return }
             didFinish?(self)
         }
@@ -126,13 +98,13 @@ final class LoginCoordinator: Coordinator, Presenting {
 
     private func returnToLogin(repeatLogin: Bool) {
         navigationController.dismiss(animated: true) { [weak self] in
-            if let lastLoginAction = self?.lastLoginAction, repeatLogin {
-                self?.loginController?.start(action: lastLoginAction)
+            if repeatLogin {
+                self?.loginViewModel?.login()
             }
         }
     }
 
-    private func showDeviceList(for accountNumber: String, completion: @escaping @Sendable (Error?) -> Void) {
+    private func showDeviceList(for accountNumber: String) {
         let interactor = DeviceManagementInteractor(
             accountNumber: accountNumber,
             devicesProxy: devicesProxy
@@ -176,8 +148,6 @@ final class LoginCoordinator: Coordinator, Presenting {
             .present(
                 CustomNavigationController(rootViewController: controller),
                 animated: true
-            ) {
-                completion(nil)
-            }
+            )
     }
 }
