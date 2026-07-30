@@ -5,17 +5,17 @@ import { type AnyLocation, LocationType } from '../../../../../../features/locat
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
-  const { setLocationType, searchTerm } = useSelectLocationViewContext();
+  const { setLocationType, setSearchTerm } = useSelectLocationViewContext();
   const { selectEntryRelayLocation } = useRelayLocations();
 
   const handleSelectEntryLocation = React.useCallback(
     async (entryLocation: AnyLocation) => {
-      if (!searchTerm) {
-        setLocationType(LocationType.exit);
-      }
       await selectEntryRelayLocation(entryLocation.details);
+      // Scroll and isolated item is reset in the LocationListSlide component
+      setLocationType(LocationType.exit);
+      setSearchTerm('');
     },
-    [searchTerm, selectEntryRelayLocation, setLocationType],
+    [selectEntryRelayLocation, setLocationType, setSearchTerm],
   );
 
   return handleSelectEntryLocation;

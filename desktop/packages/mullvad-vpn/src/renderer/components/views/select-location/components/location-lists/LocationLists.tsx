@@ -1,6 +1,5 @@
 import { useRecents } from '../../../../../features/locations/hooks';
 import type { LocationType } from '../../../../../features/locations/types';
-import { Expandable } from '../../../../../lib/components/expandable';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
@@ -27,11 +26,8 @@ function LocationsListsImpl() {
 
   return (
     <>
-      <Expandable expanded={showRecentLocations}>
-        <Expandable.Content>
-          <RecentLocations />
-        </Expandable.Content>
-      </Expandable>
+      {showRecentLocations && <RecentLocations />}
+
       <FlexColumn gap="large">
         {showCustomListLocationLists && <CustomListLocations />}
         {showCountryLocations && <CountryLocations />}

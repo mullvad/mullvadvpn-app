@@ -1,15 +1,15 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
+import { useOnStableLayout } from '../../../lib/hooks';
 import { AppNavigationHeader } from '../../';
 import type { IScrollEvent } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
@@ -19,6 +19,7 @@ import {
   FilterChips,
   HeaderMenuIconButton,
   LocationLists,
+  LocationListSlide,
   SelectLocationSelector,
   SpacePreAllocationView,
 } from './components';
@@ -38,9 +39,12 @@ const StyledStickyContainer = styled.div`
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef, resetScroll } =
+    useScrollPositionContext();
   const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive } = useActiveFilters(locationType);
+
+  useOnStableLayout(resetScroll);
 
   const onClose = useCallback(() => history.pop(), [history]);
 
@@ -50,8 +54,6 @@ export function SelectLocationViewImpl() {
     },
     [setScrollTop],
   );
-
-  const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
     <View backgroundColor="darkBlue">
@@ -78,36 +80,17 @@ export function SelectLocationViewImpl() {
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
-                  <Carousel disableScroll slideIndex={slideIndex}>
-                    <Carousel.Slides>
-                      <Carousel.Slides.Slide key="entry">
-                        <AnimatePresence>
-                          {locationType === LocationType.entry && (
-                            <motion.div
-                              key="entry"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.entry} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Carousel.Slides.Slide>
-                      <Carousel.Slides.Slide key="exit">
-                        <AnimatePresence>
-                          {locationType === LocationType.exit && (
-                            <motion.div
-                              key="exit"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.exit} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </Carousel.Slides.Slide>
-                    </Carousel.Slides>
-                  </Carousel>
+                  <AnimatePresence mode="wait" initial={false}>
+                    {locationType === LocationType.entry ? (
+                      <LocationListSlide key="entry">
+                        <LocationLists type={LocationType.entry} />
+                      </LocationListSlide>
+                    ) : (
+                      <LocationListSlide key="exit">
+                        <LocationLists type={LocationType.exit} />
+                      </LocationListSlide>
+                    )}
+                  </AnimatePresence>
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
