@@ -77,6 +77,7 @@ struct SuggestionsDropdownView: View {
         }
         .frame(height: suggestionsHeight)
         .background(appearance.backgroundColor)
+        .scrollBounceBehavior(.basedOnSize)
         .modifier(
             RoundedCornerModifier(
                 cornerRadius: appearance.cornerRadius,
