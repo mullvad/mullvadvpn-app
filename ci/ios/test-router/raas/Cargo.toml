@@ -34,3 +34,4 @@ pfctl = "0.7.0"
 tun-rs = { version = "2", features = ["async"] }
 smoltcp = "0.13"
 ping-tokio = "0.4"
+bytes = "1"

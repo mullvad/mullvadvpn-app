@@ -4,6 +4,7 @@ use std::{
     sync::Arc,
 };
 
+use bytes::BytesMut;
 use ping_tokio::IcmpSocket;
 use smoltcp::{
     phy::ChecksumCapabilities,
@@ -102,17 +103,18 @@ impl Router {
         let mut router = Self::new(tunnel_device.clone());
 
         tokio::spawn(async move {
-            let mut buffer = vec![0u8; 2048];
+            let mut buffer = BytesMut::new();
             loop {
+                buffer.reserve(u16::MAX.into());
                 let packet_bytes = match tunnel_device.recv(&mut buffer).await {
-                    Ok(bytes_read) => &buffer[..bytes_read],
+                    Ok(bytes_read) => buffer.split_to(bytes_read),
                     Err(err) => {
                         log::error!("Failed to read from tunnel device: {err}");
                         return;
                     }
                 };
 
-                let Ok(ipv4_packet) = Ipv4Packet::new_checked(packet_bytes) else {
+                let Ok(ipv4_packet) = Ipv4Packet::new_checked(packet_bytes.as_ref()) else {
                     log::error!("Received malformed IPv4 packet");
                     continue;
                 };
@@ -132,7 +134,7 @@ impl Router {
                     .await;
             }
             IpProtocol::Tcp => {
-                self.process_tcp_packet(source_address, destination_address, ipv4_packet.payload())
+                self.process_tcp_packet(source_address, destination_address, ipv4_packet)
                     .await;
             }
             IpProtocol::Icmp => {
@@ -209,7 +211,7 @@ impl Router {
         &self,
         source_address: std::net::Ipv4Addr,
         destination_address: std::net::Ipv4Addr,
-        payload: &[u8],
+        payload: Ipv4Packet<&[u8]>,
     ) {
         return;
     }
