@@ -6813,6 +6813,7 @@ dependencies = [
  "tokio",
  "tokio-util 0.7.18",
  "udp-over-tcp",
+ "zerocopy",
 ]
 
 [[package]]
