@@ -20,14 +20,10 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         self.devicesProxy = devicesProxy
     }
 
-    func getAccountData(
-        accountNumber: String,
-        completion: @escaping @Sendable (Result<Account, Error>) -> Void
-    ) -> Cancellable {
-        accountsProxy.getAccountData(
+    func getAccountData(accountNumber: String) async -> Result<Account, Error> {
+        await accountsProxy.getAccountData(
             accountNumber: accountNumber,
-            retryStrategy: .noRetry,
-            completion: completion
+            retryStrategy: .noRetry
         )
     }
 
