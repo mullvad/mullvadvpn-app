@@ -274,30 +274,32 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         logger.debug("Request account data...")
 
-        let task = accountsProxy.getAccountData(
-            accountNumber: accountNumber,
-            retryStrategy: .default
-        ) { [self] result in
-            dispatchQueue.async { [self] in
-                let result = result.inspectError { error in
-                    guard !error.isOperationCancellationError else { return }
+        let task = Task {
+            let accountResult = await accountsProxy.getAccountData(
+                accountNumber: accountNumber,
+                retryStrategy: .default
+            )
 
-                    logger.error(error: error, message: "Failed to receive account data.")
-                }.map { accountData -> StoredAccountData in
-                    logger.debug("Received account data.")
+            let result = accountResult.inspectError { error in
+                guard !error.isTaskCancellationError else { return }
 
-                    return StoredAccountData(
-                        identifier: accountData.id,
-                        number: accountNumber,
-                        expiry: accountData.expiry
-                    )
-                }
+                logger.error(error: error, message: "Failed to receive account data.")
+            }.map { accountData -> StoredAccountData in
+                logger.debug("Received account data.")
 
+                return StoredAccountData(
+                    identifier: accountData.id,
+                    number: accountNumber,
+                    expiry: accountData.expiry
+                )
+            }
+
+            dispatchQueue.async {
                 completion(result)
             }
         }
 
-        tasks.append(task)
+        tasks.append(task.cancellable)
     }
 
     /// Delete account.

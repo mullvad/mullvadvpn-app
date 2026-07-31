@@ -33,34 +33,35 @@ use super::{
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_addresses(
     api_context: SwiftApiContext,
-    completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion_handler =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-    let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-        completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-        return SwiftCancelHandle::empty();
-    };
-
     let api_context = api_context.rust_context();
     // SAFETY: See notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
-    let completion = completion_handler.clone();
-    let task = tokio_handle.clone().spawn(async move {
-        match mullvad_ios_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
-            Ok(response) => completion.finish(response),
-            Err(err) => {
-                log::error!("{err:?}");
-                completion.finish(SwiftMullvadApiResponse::rest_error(err));
-            }
-        }
-    });
+    let init = move |completion_cookie| {
+        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
+        let completion_handler =
+            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
-    RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
+        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            return None;
+        };
+
+        let task = tokio_handle.clone().spawn(async move {
+            match mullvad_ios_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
+                Ok(response) => completion_handler.finish(response),
+                Err(err) => {
+                    log::error!("{err:?}");
+                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                }
+            }
+        });
+        Some(task)
+    };
+
+    RequestCancelHandle::new(init).into_swift()
 }
 
 /// # Safety
@@ -79,62 +80,65 @@ pub unsafe extern "C" fn mullvad_ios_get_addresses(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
     api_context: SwiftApiContext,
-    completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
     access_method_setting: *const c_void,
 ) -> SwiftCancelHandle {
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion_handler =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-    let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-        completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-        return SwiftCancelHandle::empty();
-    };
-
     let api_context = api_context.rust_context();
     // SAFETY: See notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
-    let completion = completion_handler.clone();
     // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
     let access_method_setting: AccessMethodSetting =
         unsafe { *Box::from_raw(access_method_setting as *mut _) };
 
-    let task = tokio_handle.clone().spawn(async move {
-        match api_context
-            .access_mode_handler
-            .resolve(access_method_setting.clone())
-            .await
-        {
-            Ok(Some(resolved_connection_mode)) => {
-                let oneshot_client = api_context
-                    .api_client
-                    .mullvad_rest_handle(resolved_connection_mode.connection_mode.into_provider());
+    let init = move |completion_cookier| {
+        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
+        let completion_handler =
+            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookier) });
 
-                match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy).await {
-                    Ok(_) => completion.finish(SwiftMullvadApiResponse::ok()),
-                    Err(err) => {
-                        log::error!("{err:?}");
-                        completion.finish(SwiftMullvadApiResponse::rest_error(err));
+        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            return None;
+        };
+
+        let task = tokio_handle.clone().spawn(async move {
+            match api_context
+                .access_mode_handler
+                .resolve(access_method_setting.clone())
+                .await
+            {
+                Ok(Some(resolved_connection_mode)) => {
+                    let oneshot_client = api_context.api_client.mullvad_rest_handle(
+                        resolved_connection_mode.connection_mode.into_provider(),
+                    );
+
+                    match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy)
+                        .await
+                    {
+                        Ok(_) => completion_handler.finish(SwiftMullvadApiResponse::ok()),
+                        Err(err) => {
+                            log::error!("{err:?}");
+                            completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                        }
                     }
                 }
+                Ok(None) => {
+                    log::error!("Invalid access method configuration, {access_method_setting:?}");
+                    completion_handler.finish(SwiftMullvadApiResponse::access_method_error(
+                        mullvad_api::access_mode::Error::Resolve {
+                            access_method: access_method_setting.access_method,
+                        },
+                    ));
+                }
+                Err(err) => {
+                    log::error!("{err:?}");
+                    completion_handler.finish(SwiftMullvadApiResponse::access_method_error(err));
+                }
             }
-            Ok(None) => {
-                log::error!("Invalid access method configuration, {access_method_setting:?}");
-                completion.finish(SwiftMullvadApiResponse::access_method_error(
-                    mullvad_api::access_mode::Error::Resolve {
-                        access_method: access_method_setting.access_method,
-                    },
-                ));
-            }
-            Err(err) => {
-                log::error!("{err:?}");
-                completion.finish(SwiftMullvadApiResponse::access_method_error(err));
-            }
-        }
-    });
+        });
+        Some(task)
+    };
 
-    RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
+    RequestCancelHandle::new(init).into_swift()
 }
 
 /// # Safety
@@ -155,19 +159,9 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_relays(
     api_context: SwiftApiContext,
-    completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
     etag: *const c_char,
 ) -> SwiftCancelHandle {
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion_handler =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-    let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-        completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-        return SwiftCancelHandle::empty();
-    };
-
     let api_context = api_context.rust_context();
     // SAFETY: See notes for `into_rust`
     let retry_strategy = unsafe { retry_strategy.into_rust() };
@@ -179,20 +173,35 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
         maybe_etag = Some(ETag(String::from(unwrapped_tag)));
     }
 
-    let completion = completion_handler.clone();
-    let task = tokio_handle.clone().spawn(async move {
-        match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, maybe_etag)
-            .await
-        {
-            Ok(response) => completion.finish(response),
-            Err(err) => {
-                log::error!("{err:?}");
-                completion.finish(SwiftMullvadApiResponse::rest_error(err));
-            }
-        }
-    });
+    let init = move |completion_cookie| {
+        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
+        let completion_handler =
+            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
 
-    RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
+        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            return None;
+        };
+
+        let task = tokio_handle.clone().spawn(async move {
+            match mullvad_ios_get_relays_inner(
+                api_context.rest_handle(),
+                retry_strategy,
+                maybe_etag,
+            )
+            .await
+            {
+                Ok(response) => completion_handler.finish(response),
+                Err(err) => {
+                    log::error!("{err:?}");
+                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                }
+            }
+        });
+        Some(task)
+    };
+
+    RequestCancelHandle::new(init).into_swift()
 }
 
 async fn mullvad_ios_get_addresses_inner(

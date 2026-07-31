@@ -39,6 +39,20 @@ struct AccountsProxyStub: RESTAccountHandling {
         return AnyCancellable()
     }
 
+    func getAccountData(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Account, Error> {
+        .success(
+            Account(
+                id: accountNumber,
+                expiry: Calendar.current.date(byAdding: .day, value: 38, to: Date())!,
+                maxDevices: 1,
+                canAddDevices: true
+            )
+        )
+    }
+
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
