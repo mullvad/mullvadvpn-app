@@ -10,38 +10,12 @@ import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
-actor MainActorObserver {
-    let observable: ObservableVPNSettings
-    let tunnelManager: TunnelManager
-
-    init(observable: ObservableVPNSettings, tunnelManager: TunnelManager) {
-        self.observable = observable
-        self.tunnelManager = tunnelManager
-    }
-
-    @MainActor
-    func start() {
-        _ = withObservationTracking {
-            Task {
-                print("Settings have changed: \(observable.tunnelSettings)")
-            }
-        } onChange: {
-            Task {
-                await MainActor.run {
-                    self.start()
-                }
-            }
-        }
-    }
-}
-
 struct VPNSettingsNavigationView: View {
     let settingsInteractor: VPNSettingsInteractor
     let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
     let navigationController: UINavigationController
     @Bindable var observableSettings: ObservableVPNSettings
-    var actorObserver: MainActorObserver?
     var presentOnlySection: VPNSettingsSection
 
     init(
@@ -57,9 +31,6 @@ struct VPNSettingsNavigationView: View {
         self.presentOnlySection = presentOnlySection
 
         self.observableSettings = ObservableVPNSettings(tunnelSettings: settingsInteractor.tunnelManager.settings)
-        self.actorObserver = MainActorObserver(
-            observable: observableSettings, tunnelManager: settingsInteractor.tunnelManager)
-        actorObserver?.start()
     }
 
     var isQuantumResistanceEnabled: Binding<Bool> {
