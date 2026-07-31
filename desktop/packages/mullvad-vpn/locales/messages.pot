@@ -4026,7 +4026,7 @@ msgstr ""
 msgid "Your multihop setting was migrated from “Off” to “When needed”"
 msgstr ""
 
-msgid "Your multihop setting was migrated from “On” to Always”"
+msgid "Your multihop setting was migrated from “On” to “Always”"
 msgstr ""
 
 msgid "\"%s\" was created"

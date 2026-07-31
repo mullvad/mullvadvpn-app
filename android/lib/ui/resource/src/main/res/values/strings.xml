@@ -558,7 +558,7 @@
     <string name="new_multihop_modes_title">New multihop modes</string>
     <string name="new_multihop_modes_first_paragraph">Multihop is now split into three modes: When needed, Always, and Never.\nThis gives you more flexibility with your connection preferences.</string>
     <string name="new_multihop_modes_off_to_when_needed">Your multihop setting was migrated from “Off” to “When needed”</string>
-    <string name="new_multihop_modes_on_to_always">Your multihop setting was migrated from “On” to Always”</string>
+    <string name="new_multihop_modes_on_to_always">Your multihop setting was migrated from “On” to “Always”</string>
     <string name="new_multihop_modes_off_to_never">Your multihop setting was migrated from “Off” to “Never”</string>
     <string name="new_multihop_modes_off_to_always">Your multihop setting was migrated from “Off” to “Always”</string>
     <string name="new_multihop_nodes_always_description">Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location.</string>
