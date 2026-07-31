@@ -13,6 +13,8 @@ use smoltcp::{
 use tokio::net::UdpSocket;
 use tun_rs::AsyncDevice;
 
+mod tcp;
+
 fn spawn_udp_receiver(
     tunnel_device: Arc<AsyncDevice>,
     upstream_socket: Arc<UdpSocket>,

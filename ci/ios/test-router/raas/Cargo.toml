@@ -19,7 +19,7 @@ pcap-file-tokio = "0.1"
 pnet_packet = "0.34"
 serde = { version = "1.0.138", features = ["derive"] }
 thiserror = "1"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full", "io-util"] }
 tokio-util = { version = "0.7", features = ["io"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["trace"] }
