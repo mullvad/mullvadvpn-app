@@ -9,9 +9,10 @@
 import MullvadSettings
 import SwiftUI
 
-struct WireGuardPortSettingsView<VM>: View where VM: WireGuardPortSettingsViewModel {
-    @StateObject var viewModel: VM
+struct WireGuardPortSettingsView: View {
+    var viewModel: any WireGuardPortSettingsViewModel
     let options: [WireGuardPort]
+    var port: Binding<WireGuardPort>
 
     var body: some View {
         let portString = NSLocalizedString("Port", comment: "")
@@ -19,7 +20,7 @@ struct WireGuardPortSettingsView<VM>: View where VM: WireGuardPortSettingsViewMo
         SingleChoiceList(
             title: portString,
             options: options,
-            value: $viewModel.selectedOption,
+            value: port,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationLwoTable.asString,  // ???
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
             parseCustomValue: {
@@ -42,13 +43,12 @@ struct WireGuardPortSettingsView<VM>: View where VM: WireGuardPortSettingsViewMo
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText
-        ).onDisappear {
-            viewModel.commit()
-        }
+        )
     }
 }
 
 #Preview {
-    let model = MockWireGuardPortSettingsViewModel(customPort: .any, option: .automatic)
-    WireGuardPortSettingsView(viewModel: model, options: [.automatic, .port51820, .port53])
+    @Previewable @State var port = WireGuardPort.automatic
+    let model = WireGuardPortSettingsViewModelStub(customPort: .any, option: .automatic)
+    WireGuardPortSettingsView(viewModel: model, options: [.automatic, .port51820, .port53], port: $port)
 }

@@ -181,6 +181,21 @@ public enum WireGuardPort: Codable, Equatable, CustomStringConvertible, Sendable
     }
 }
 
+public extension RelayConstraint<UInt16> {
+    init(_ port: WireGuardPort) {
+        self =
+            switch port {
+            case .automatic: .any
+            case let .custom(port):
+                .only(port)
+            case .port51820:
+                .only(51820)
+            case .port53:
+                .only(53)
+            }
+    }
+}
+
 public enum WireGuardObfuscationLwoPort: Codable, Equatable, CustomStringConvertible, Sendable {
     case automatic
     case custom(UInt16)

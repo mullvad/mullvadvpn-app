@@ -187,11 +187,11 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     private func showShadowsocksObfuscationSettings() {
-//        let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
-//        let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
-//        let vc = UIHostingController(rootView: view)
-//        vc.title = NSLocalizedString("Shadowsocks", comment: "")
-//        navigationController?.pushViewController(vc, animated: true)
+        //        let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        //        let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
+        //        let vc = UIHostingController(rootView: view)
+        //        vc.title = NSLocalizedString("Shadowsocks", comment: "")
+        //        navigationController?.pushViewController(vc, animated: true)
     }
 
     private func showLwoObfuscationSettings() {

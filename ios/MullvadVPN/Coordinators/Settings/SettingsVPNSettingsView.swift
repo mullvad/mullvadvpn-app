@@ -26,6 +26,7 @@ struct SettingsVPNSettingsView: View {
 
     @Bindable var viewModel: ObservableVPNSettings
     var isQuantumResistanceEnabled: Binding<Bool>
+    var wireGuardPort: Binding<WireGuardPort>
     /// When hotlinking settings from a pill in the `ConnectionView`, scroll automatically to the correct section
     let forceScrollTo: VPNSettingsSection
 
@@ -155,12 +156,13 @@ struct SettingsVPNSettingsView: View {
             SegmentedListItem(
                 leadingAndTrailingDestination: {
                     let viewModel = TunnelWireGuardPortSettingsViewModel(
-                        tunnelManager: settingsInteractor.tunnelManager,
-                        option: WireGuardPort(
-                            constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
                         portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-                    WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
-                        .navigationTitle("WireGuard port")
+                    WireGuardPortSettingsView(
+                        viewModel: viewModel,
+                        options: [.automatic, .port51820, .port53],
+                        port: wireGuardPort
+                    )
+                    .navigationTitle("WireGuard port")
                 },
                 leading: {
                     itemFactory.leading(
@@ -277,7 +279,8 @@ struct SettingsVPNSettingsView: View {
                             alert = getIPVersionAlert(completion: { alert = nil })
                         })
                     )
-                    .padding(.trailing, UIMetrics.contentInsets.right + 6)  // TODO: WHY ?!??!?!?!
+                    // Align this info button with the quantum resistance section one
+                    .padding(.trailing, UIMetrics.contentInsets.right + 6)
                 },
                 segment: {
                     itemFactory.segment(

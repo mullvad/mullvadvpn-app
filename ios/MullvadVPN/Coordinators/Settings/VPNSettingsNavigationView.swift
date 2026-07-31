@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 import SwiftUI
 
 actor MainActorObserver {
@@ -75,6 +76,24 @@ struct VPNSettingsNavigationView: View {
         )
     }
 
+    var wireGuardPort: Binding<WireGuardPort> {
+        Binding<WireGuardPort>(
+            get: {
+                WireGuardPort(
+                    constraint:
+                        observableSettings.tunnelSettings.relayConstraints.port
+                )
+            },
+            set: { newPort in
+                let newPortConstraint = RelayConstraint<UInt16>(newPort)
+                observableSettings.tunnelSettings.relayConstraints.port = newPortConstraint
+                var relayConstraints = settingsInteractor.tunnelManager.settings.relayConstraints
+                relayConstraints.port = newPortConstraint
+                settingsInteractor.tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            }
+        )
+    }
+
     var body: some View {
         switch presentOnlySection {
         case .obfuscation:
@@ -89,6 +108,7 @@ struct VPNSettingsNavigationView: View {
                 navigationController: navigationController,
                 viewModel: observableSettings,
                 isQuantumResistanceEnabled: isQuantumResistanceEnabled,
+                wireGuardPort: wireGuardPort,
                 forceScrollTo: presentOnlySection
             )
             .background(Color(.secondaryColor))

@@ -10,29 +10,17 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-protocol WireGuardPortSettingsViewModel: ObservableObject {
-    var value: RelayConstraint<UInt16> { get set }
-    var selectedOption: WireGuardPort { get set }
-    var portRanges: [[UInt16]] { get }
-
-    func commit()
+protocol WireGuardPortSettingsViewModel {
     func validatePort(_ port: UInt16) -> WireGuardPort?
     func portRangesString() -> String
 }
 
-/** A simple mock view model for use in Previews and similar */
-class MockWireGuardPortSettingsViewModel: WireGuardPortSettingsViewModel {
+class WireGuardPortSettingsViewModelStub: WireGuardPortSettingsViewModel {
     @Published var value: RelayConstraint<UInt16>
-    @Published var selectedOption: WireGuardPort
-
-    let portRanges: [[UInt16]] = []
 
     init(customPort: RelayConstraint<UInt16> = .any, option: WireGuardPort) {
         self.value = customPort
-        self.selectedOption = option
     }
-
-    func commit() {}
 
     func validatePort(_ port: UInt16) -> WireGuardPort? {
         .custom(port)
@@ -43,32 +31,11 @@ class MockWireGuardPortSettingsViewModel: WireGuardPortSettingsViewModel {
     }
 }
 
-/// ** The live view model which interfaces with the TunnelManager  */
-class TunnelWireGuardPortSettingsViewModel: TunnelRelayConstraintsWatchingObservableObject<RelayConstraint<UInt16>>,
-    WireGuardPortSettingsViewModel
-{
+class TunnelWireGuardPortSettingsViewModel: WireGuardPortSettingsViewModel {
     let portRanges: [[UInt16]]
-    @Published var selectedOption: WireGuardPort
 
-    init(tunnelManager: TunnelManager, option: WireGuardPort, portRanges: [[UInt16]]) {
+    init(portRanges: [[UInt16]]) {
         self.portRanges = portRanges
-        self.selectedOption = option
-
-        super.init(
-            tunnelManager: tunnelManager,
-            keyPath: \.port
-        )
-    }
-
-    override func commit() {
-        value =
-            switch selectedOption {
-            case .automatic: .any
-            case .port51820: .only(51820)
-            case .port53: .only(53)
-            case let .custom(port): .only(port)
-            }
-        super.commit()
     }
 
     func validatePort(_ port: UInt16) -> WireGuardPort? {
