@@ -8,18 +8,26 @@
 
 import MullvadTypes
 
-public class MullvadApiCancellable: Cancellable {
-    private var handle: SwiftCancelHandle
+public final class MullvadApiCancellable: Cancellable, @unchecked Sendable {
+    private let handle: SwiftCancelHandle
 
     public init(handle: consuming SwiftCancelHandle) {
         self.handle = handle
     }
 
+    public func start(_ completion: ((MullvadApiResponse) throws -> Void)?) {
+        let completionPointer = MullvadApiCompletion { apiResponse in
+            try? completion?(apiResponse)
+        }
+        let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
+        mullvad_api_start_task(handle, rawCompletionPointer)
+    }
+
     deinit {
-        mullvad_api_cancel_task_drop(&handle)
+        mullvad_api_cancel_task_drop(handle)
     }
 
     public func cancel() {
-        mullvad_api_cancel_task(&handle)
+        mullvad_api_cancel_task(handle)
     }
 }

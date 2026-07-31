@@ -45,20 +45,19 @@ final class APITransportMonitor: APITransportProviderProtocol {
             // Use tunnel if the tunnel is connected but the tunnel manager
             // reports an error or the tunnel is still connecting
             case .error, .connecting, .negotiatingEphemeralPeer:
-                return true
+                true
             // Also use tunnel if configuration is loaded and device is revoked
             default:
-                return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
-
+                tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
             }
 
         case .connecting, .reasserting:
             // Use tunnel while it's in a transitional connecting state
-            return true
+            true
 
         default:
             // In all other cases, do not use the tunnel
-            return false
+            false
         }
     }
 }

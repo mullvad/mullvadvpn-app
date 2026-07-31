@@ -69,13 +69,9 @@ final actor StorePaymentManagerInteractor {
     // MARK: Account proxy
 
     func getAccountData(accountNumber: String) async -> Result<Account, Error> {
-        await withCheckedContinuation { continuation in
-            _ = self.accountProxy.getAccountData(
-                accountNumber: accountNumber,
-                retryStrategy: .default
-            ) { result in
-                continuation.resume(returning: result)
-            }
-        }
+        await accountProxy.getAccountData(
+            accountNumber: accountNumber,
+            retryStrategy: .default
+        )
     }
 }

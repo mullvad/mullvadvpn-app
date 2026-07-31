@@ -354,21 +354,17 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol, @unchecked Se
         rotateDeviceKeyHandler = rotateDeviceKey
     }
 
-    func getAccountData(
-        accountNumber: String,
-        completion: @escaping @Sendable (Result<Account, Error>) -> Void
-    ) -> Cancellable {
-        DispatchQueue.main.async { [self] in
+    func getAccountData(accountNumber: String) async -> Result<Account, Error> {
+        await withCheckedContinuation { continuation in
             let result: Result<Account, Error> = Result {
                 if let getAccountDataHandler {
-                    return try getAccountDataHandler(accountNumber)
+                    try getAccountDataHandler(accountNumber)
                 } else {
-                    return Account.mock()
+                    Account.mock()
                 }
             }
-            completion(result)
+            continuation.resume(returning: result)
         }
-        return AnyCancellable()
     }
 
     func getDevice(

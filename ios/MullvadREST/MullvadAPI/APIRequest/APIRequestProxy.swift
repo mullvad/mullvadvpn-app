@@ -42,7 +42,16 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
                 // Cancel old task, if there's one scheduled.
                 self.cancelRequest(identifier: proxyRequest.id)
 
-                completion(ProxyAPIResponse(data: nil, error: nil))
+                completion(
+                    ProxyAPIResponse(
+                        data: nil,
+                        error: APIError(
+                            statusCode: 0,
+                            errorDescription: REST.InternalTransportError.noTransport.errorDescription,
+                            serverResponseCode: nil
+                        )
+                    )
+                )
                 return
             }
             do {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 
 extension Device {
@@ -19,6 +20,25 @@ extension Device {
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
             ipv6Address: IPAddressRange(from: "::ff/64")!
+        )
+    }
+
+    public static var loggedInDeviceState: DeviceState {
+        .loggedIn(
+            StoredAccountData(
+                identifier: "",
+                number: "",
+                expiry: .distantFuture
+            ),
+            StoredDeviceData(
+                creationDate: Date(),
+                identifier: "",
+                name: "",
+                hijackDNS: false,
+                ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
+                ipv6Address: IPAddressRange(from: "::ff/64")!,
+                wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: WireGuard.PrivateKey())
+            )
         )
     }
 }
