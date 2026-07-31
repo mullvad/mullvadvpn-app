@@ -1,8 +1,11 @@
 import { messages } from '../../../../../../shared/gettext';
+import { useActiveFilters } from '../../../../../features/locations/hooks';
 import { LocationType } from '../../../../../features/locations/types';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { LocationSelector } from '../../../../../lib/components/location-selector';
 import { useIsLocationSelectorExpanded } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
+import { FilterChips } from '../filter-chips';
 import { SelectLocationSelectorEntryItem, SelectLocationSelectorExitItem } from './components';
 import {
   useHandleSelectedItemChange,
@@ -13,6 +16,7 @@ import {
 
 export function SelectLocationSelector() {
   const { locationType } = useSelectLocationViewContext();
+  const { isAnyFilterActive: showFilterChips } = useActiveFilters(locationType);
   const expanded = useIsLocationSelectorExpanded();
   const handleSelectedItemChange = useHandleSelectedItemChange();
 
@@ -29,8 +33,10 @@ export function SelectLocationSelector() {
       expanded={expanded}
       variant={variant}>
       <LocationSelector.Row position="top">
-        <LocationSelector.Row.Icon icon="device" />
-        <LocationSelector.Row.Label>{messages.gettext('Your device')}</LocationSelector.Row.Label>
+        <LocationSelector.Row.Content>
+          <LocationSelector.Row.Icon icon="device" />
+          <LocationSelector.Row.Label>{messages.gettext('Your device')}</LocationSelector.Row.Label>
+        </LocationSelector.Row.Content>
       </LocationSelector.Row>
       <LocationSelector.Items>
         {/* NOTE: The components must have a `key` assigned as the `LocationSelector.Items`
@@ -45,8 +51,13 @@ export function SelectLocationSelector() {
         ) : null}
       </LocationSelector.Items>
       <LocationSelector.Row position="bottom">
-        <LocationSelector.Row.Icon icon="internet" />
-        <LocationSelector.Row.Label>{messages.gettext('Internet')}</LocationSelector.Row.Label>
+        <FlexColumn gap="small">
+          <LocationSelector.Row.Content>
+            <LocationSelector.Row.Icon icon="internet" />
+            <LocationSelector.Row.Label>{messages.gettext('Internet')}</LocationSelector.Row.Label>
+          </LocationSelector.Row.Content>
+          {showFilterChips && <FilterChips />}
+        </FlexColumn>
       </LocationSelector.Row>
     </LocationSelector>
   );
