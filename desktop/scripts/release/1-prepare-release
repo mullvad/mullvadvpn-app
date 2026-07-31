@@ -30,6 +30,7 @@ done
 changes_path=$REPO_ROOT/desktop/packages/mullvad-vpn/changes.txt
 changelog_path=$REPO_ROOT/CHANGELOG.md
 product_version_path=$REPO_ROOT/dist-assets/desktop-product-version.txt
+source_date_epoch_path=$REPO_ROOT/dist-assets/desktop-source-date-epoch.txt
 
 function checks {
     if [[ -z ${PRODUCT_VERSION+x} ]]; then
@@ -95,6 +96,23 @@ function update_product_version {
         $product_version_path
 }
 
+# The timestamp every build artifact of this release is stamped with, so that anyone rebuilding
+# the release arrives at identical packages. Read by build.sh. Taken now rather than derived from
+# the date in the changelog, since more than one release can be prepared in a day and each needs
+# its own value.
+function update_source_date_epoch {
+    source_date_epoch=$(date +%s)
+    # Time only moves forward, so a new value <= old value means something is wrong.
+    # This check does not catch forward clock shifts.
+    if [[ "$source_date_epoch" -le "$(cat $source_date_epoch_path)" ]]; then
+        log_error "The clock of this machine is behind the timestamp of the previous release."
+        exit 1
+    fi
+    echo "$source_date_epoch" > $source_date_epoch_path
+    print_and_run git commit -S -m "Update desktop app source date epoch for $PRODUCT_VERSION" \
+        $source_date_epoch_path
+}
+
 function commit_relay_list {
     print_and_run $REPO_ROOT/scripts/commit-relay-list "$PRODUCT_VERSION"
 }
@@ -104,6 +122,7 @@ check_changelog
 update_changelog
 update_copyright_year
 update_product_version
+update_source_date_epoch
 commit_relay_list
 
 log_success "\n================================================="
