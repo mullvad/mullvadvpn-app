@@ -36,7 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
-  the git commit being built instead of the time of the build. Required for reproducible builds.
+  the source being built instead of the time of the build. Required for reproducible builds.
 - Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
   build machine. Required for reproducible builds.
 - De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.

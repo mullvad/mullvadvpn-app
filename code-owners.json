@@ -14,6 +14,8 @@
     "ci/publish-app-to-repositories.sh",
     "ci/rust-min-publish-age-allowlist.txt",
     "desktop/**",
+    "dist-assets/desktop-product-version.txt",
+    "dist-assets/desktop-source-date-epoch.txt",
     "dist-assets/relays/relays.json",
     "installer-downloader/**",
     "mullvad-*/**",
