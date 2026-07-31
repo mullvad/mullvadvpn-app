@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
-import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
@@ -16,7 +15,6 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  FilterChips,
   HeaderMenuIconButton,
   LocationLists,
   LocationListSlide,
@@ -42,7 +40,6 @@ export function SelectLocationViewImpl() {
   const { setScrollTop, scrollViewRef, spacePreAllocationViewRef, resetScroll } =
     useScrollPositionContext();
   const { locationType } = useSelectLocationViewContext();
-  const { isAnyFilterActive } = useActiveFilters(locationType);
 
   useOnStableLayout(resetScroll);
 
@@ -74,7 +71,6 @@ export function SelectLocationViewImpl() {
                 padding={{ bottom: 'small' }}
                 gap="small">
                 <SelectLocationSelector />
-                {isAnyFilterActive && <FilterChips />}
               </FlexColumn>
             </StyledStickyContainer>
             <View.Content>
