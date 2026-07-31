@@ -38,17 +38,21 @@ struct VPNSettingsNavigationView: View {
     let settingsInteractor: VPNSettingsInteractor
     let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
+    let navigationController: UINavigationController
     @Bindable var observableSettings: ObservableVPNSettings
     var actorObserver: MainActorObserver?
     var presentOnlySection: VPNSettingsSection
 
     init(
         settingsInteractor: VPNSettingsInteractor, IPOverrideInteractor: IPOverrideInteractor,
-        alertPresenter: AlertPresenter, presentOnlySection: VPNSettingsSection
+        alertPresenter: AlertPresenter,
+        navigationController: UINavigationController,
+        presentOnlySection: VPNSettingsSection
     ) {
         self.settingsInteractor = settingsInteractor
         self.IPOverrideInteractor = IPOverrideInteractor
         self.alertPresenter = alertPresenter
+        self.navigationController = navigationController
         self.presentOnlySection = presentOnlySection
 
         self.observableSettings = ObservableVPNSettings(tunnelSettings: settingsInteractor.tunnelManager.settings)
@@ -80,6 +84,7 @@ struct VPNSettingsNavigationView: View {
                 settingsInteractor: settingsInteractor,
                 IPOverrideInteractor: IPOverrideInteractor,
                 alertPresenter: alertPresenter,
+                navigationController: navigationController,
                 viewModel: observableSettings,
                 isQuantumResistanceEnabled: isQuantumResistanceEnabled,
                 forceScrollTo: presentOnlySection
@@ -100,7 +105,9 @@ struct VPNSettingsNavigationView: View {
             DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
                 .navigationTitle("DNS Settings")
         case .serverIPOverride:
-            IPOverrideView(ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter)
+            IPOverrideView(ipOverrideInteractor: IPOverrideInteractor,
+                           alertPresenter: alertPresenter,
+                           navigationController: navigationController)
                 .navigationTitle("Server IP override")
         case .shadowsocks:
             ShadowsocksObfuscationSettingsView(

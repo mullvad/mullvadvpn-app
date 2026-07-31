@@ -192,11 +192,40 @@ struct IPOverrideView: UIViewControllerRepresentable {
 
     let ipOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
+    let navigationController: UINavigationController
+
     func makeUIViewController(context: Context) -> IPOverrideViewController {
-        IPOverrideViewController(interactor: ipOverrideInteractor, alertPresenter: alertPresenter)
+        let viewController = IPOverrideViewController(interactor: ipOverrideInteractor, alertPresenter: alertPresenter)
+        viewController.delegate = context.coordinator
+        return viewController
     }
 
     func updateUIViewController(_ uiViewController: IPOverrideViewController, context: Context) {
         // No-op
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self, ipOverrideInteractor: ipOverrideInteractor)
+    }
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate, @MainActor IPOverrideViewControllerDelegate {
+        var parent: IPOverrideView
+        let ipOverrideInteractor: IPOverrideInteractor
+
+        init(_ parent: IPOverrideView, ipOverrideInteractor: IPOverrideInteractor) {
+            self.parent = parent
+            self.ipOverrideInteractor = ipOverrideInteractor
+        }
+
+        func presentImportTextController() {
+            let viewController = IPOverrideTextViewController(interactor: ipOverrideInteractor)
+            let customNavigationController = CustomNavigationController(rootViewController: viewController)
+
+            parent.navigationController.present(customNavigationController, animated: true)
+        }
+
+        func presentAbout() {
+            AboutViewController.presentWithNavigationController(parent.navigationController)
+        }
     }
 }

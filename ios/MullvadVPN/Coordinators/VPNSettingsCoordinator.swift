@@ -58,6 +58,7 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
             settingsInteractor: interactorFactory.makeVPNSettingsInteractor(),
             IPOverrideInteractor: interactorFactory.makeIPOverrideInteractor(),
             alertPresenter: alertPresenter,
+            navigationController: navigationController,
             presentOnlySection: section
         )
 

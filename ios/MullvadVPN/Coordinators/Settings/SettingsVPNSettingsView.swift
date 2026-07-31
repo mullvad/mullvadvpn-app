@@ -22,6 +22,7 @@ struct SettingsVPNSettingsView: View {
     let settingsInteractor: VPNSettingsInteractor
     let IPOverrideInteractor: IPOverrideInteractor
     let alertPresenter: AlertPresenter
+    let navigationController: UINavigationController
 
     @Bindable var viewModel: ObservableVPNSettings
     var isQuantumResistanceEnabled: Binding<Bool>
@@ -115,7 +116,9 @@ struct SettingsVPNSettingsView: View {
                         accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
                         leadingAndTrailingDestination: {
                             IPOverrideView(
-                                ipOverrideInteractor: IPOverrideInteractor, alertPresenter: alertPresenter
+                                ipOverrideInteractor: IPOverrideInteractor,
+                                alertPresenter: alertPresenter,
+                                navigationController: navigationController
                             )
                             .navigationTitle("Server IP override")
                         },
@@ -145,6 +148,7 @@ struct SettingsVPNSettingsView: View {
                             constraint: settingsInteractor.tunnelManager.settings.relayConstraints.port),
                         portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
                     WireGuardPortSettingsView(viewModel: viewModel, options: [.automatic, .port51820, .port53])
+                        .navigationTitle("WireGuard port")
                 },
                 leading: {
                     itemFactory.leading(
