@@ -53,10 +53,11 @@ struct PhraseCoder {
     }
 
     private func decodeToNumber(input: String) -> UInt64? {
-        // TODO: reject if any words are not found
-        let codes = input.split(separator: " ").compactMap { wordIndex($0) }.reversed()
+        let codes = input.split(separator: " ").map { wordIndex($0) }.reversed()
+        let validCodes = codes.compactMap { $0 }
+        if validCodes.count != codes.count { return nil }
         let alpha_size = UInt64(alphabet.count)
-        return codes.reduce(UInt64(0)) { s, i in
+        return validCodes.reduce(UInt64(0)) { s, i in
             s * alpha_size + UInt64(i)
         }
     }
