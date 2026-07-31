@@ -10,7 +10,7 @@ export function useHandleInputKeyDown() {
     id,
     textField: { value },
   } = useSelectLocationSelectorItemContext();
-  const { setIsolatedItem, setSearchTerm } = useSelectLocationViewContext();
+  const { setIsolatedItem, searchTerm, setSearchTerm } = useSelectLocationViewContext();
   const handleReset = useHandleReset();
   const focusFirstFocusableHeading = useFocusFirstFocusableHeading();
 
@@ -18,9 +18,11 @@ export function useHandleInputKeyDown() {
     (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
         event.preventDefault();
-        setSearchTerm(value);
-        focusFirstFocusableHeading();
-        setIsolatedItem(id);
+        if (searchTerm) {
+          setSearchTerm(value);
+          focusFirstFocusableHeading();
+          setIsolatedItem(id);
+        }
       }
 
       if (event.key === 'Escape') {
@@ -28,6 +30,14 @@ export function useHandleInputKeyDown() {
         handleReset();
       }
     },
-    [setSearchTerm, value, focusFirstFocusableHeading, setIsolatedItem, id, handleReset],
+    [
+      searchTerm,
+      setSearchTerm,
+      value,
+      focusFirstFocusableHeading,
+      setIsolatedItem,
+      id,
+      handleReset,
+    ],
   );
 }
