@@ -106,6 +106,7 @@ extension Color {
         static let border: Color = .MullvadOpacities.chalk40
         static let borderFocused: Color = .MullvadNewGraphicalProfile.chalk
         static let borderError: Color = .MullvadNewGraphicalProfile.red
+        static let borderDisabled: Color = .clear
     }
 
     enum MullvadDashboard {
