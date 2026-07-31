@@ -9,6 +9,8 @@ import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import co.touchlab.kermit.Logger
 import com.squareup.wire.GrpcClient
+import com.squareup.wire.GrpcException
+import com.squareup.wire.GrpcStatus
 import java.io.File
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
@@ -26,7 +28,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -163,7 +165,6 @@ import net.mullvad.mullvadvpn.lib.model.wireguardPort
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
-import org.newsclub.net.unix.AFUNIXSocketAddress
 
 @Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
@@ -225,11 +226,11 @@ class ManagementService(
     private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
-    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.mapNotNull {
+    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map {
         it.countries
     }
 
-    val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.mapNotNull {
+    val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.map {
         it.wireguardEndpointData
     }
 
@@ -262,23 +263,10 @@ class ManagementService(
 
     fun enterIdle() = { /*NO-OP*/ }
 
-    @Suppress("DEPRECATION")
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
             launch {
                 val channel = grpc.EventsListen().executeIn(this, Unit)
-                // channels.first.send(Unit)
-                /*launch {
-                    while(true) {
-                        getInitialServiceState()
-                        delay(100)
-                    }
-                }*/
-                /*launch {
-                    val c = grpc.EventsListen().executeBlocking(request = Unit)
-                    Logger.d("LOLZ R ${c.read()}")
-                }*/
-                // launch { Logger.d("LOLZ ${channel.receive()}") }
                 channel.receiveAsFlow().collect { event ->
                     if (extensiveLogging) {
                         Logger.v("Event: $event")
@@ -387,40 +375,36 @@ class ManagementService(
     suspend fun loginAccount(accountNumber: AccountNumber): Either<LoginAccountError, Unit> =
         Either.catch { grpc.LoginAccount().execute(accountNumber.value.toStringValue()) }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
-                    Status.Code.RESOURCE_EXHAUSTED if it.status.isTooManyRequests() ->
+                when (it.grpcStatus) {
+                    GrpcStatus.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                    GrpcStatus.RESOURCE_EXHAUSTED if it.isTooManyRequests() ->
                         LoginAccountError.TooManyAttempts
-                    Status.Code.RESOURCE_EXHAUSTED ->
+                    GrpcStatus.RESOURCE_EXHAUSTED ->
                         LoginAccountError.MaxDevicesReached(accountNumber)
-                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
-                    Status.Code.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
-                    Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
+                    GrpcStatus.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
+                    GrpcStatus.INVALID_ARGUMENT -> LoginAccountError.InvalidInput(accountNumber)
+                    GrpcStatus.UNAVAILABLE -> LoginAccountError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown login account error")
                         LoginAccountError.Unknown(it)
                     }
-                }*/
-                LoginAccountError.InvalidAccount
+                }
             }
 
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
         Either.catch { grpc.DeleteAccount().execute(Unit) }
             .onLeft { Logger.e("Delete account error") }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.INVALID_ARGUMENT -> DeleteAccountError.AccountNumberDoesNotMatch
-                    Status.Code.DEADLINE_EXCEEDED,
-                    Status.Code.UNAVAILABLE -> DeleteAccountError.UnableToReachApi(it)
+                when (it.grpcStatus) {
+                    GrpcStatus.INVALID_ARGUMENT -> DeleteAccountError.AccountNumberDoesNotMatch
+                    GrpcStatus.DEADLINE_EXCEEDED,
+                    GrpcStatus.UNAVAILABLE -> DeleteAccountError.UnableToReachApi(it)
                     else -> {
                         Logger.e("Unknown delete account error")
                         DeleteAccountError.Unknown(it)
                     }
-                }*/
-                DeleteAccountError.AccountNumberDoesNotMatch
+                }
             }
-
-    // .mapEmpty()
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =
         Either.catch { grpc.ClearAccountHistory().execute(Unit) }
@@ -471,15 +455,14 @@ class ManagementService(
             }
             .onLeft { Logger.e("Create account error ${it.message}") }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts
-                    Status.Code.UNAVAILABLE -> CreateAccountError.ApiUnreachable
-                    Status.Code.DEADLINE_EXCEEDED -> CreateAccountError.TimeOut
+                when (it.grpcStatus) {
+                    GrpcStatus.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts
+                    GrpcStatus.UNAVAILABLE -> CreateAccountError.ApiUnreachable
+                    GrpcStatus.DEADLINE_EXCEEDED -> CreateAccountError.TimeOut
                     else -> {
                         CreateAccountError.Unknown(it)
                     }
-                }*/
-                CreateAccountError.TooManyAttempts
+                }
             }
 
     suspend fun updateDnsContentBlockers(
@@ -633,8 +616,6 @@ class ManagementService(
             }
             .mapLeft(SetObfuscationOptionsError::Unknown)
 
-    // .mapEmpty()
-
     suspend fun setAllowLan(allow: Boolean): Either<SetAllowLanError, Unit> =
         Either.catch { grpc.SetAllowLan().execute(allow.toBoolValue()) }
             .onLeft { Logger.e("Set allow lan error") }
@@ -696,26 +677,25 @@ class ManagementService(
             }
             .map { CustomListId(it.value_) }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.ALREADY_EXISTS -> CustomListAlreadyExists
+                when (it.grpcStatus) {
+                    GrpcStatus.ALREADY_EXISTS -> CustomListAlreadyExists
                     else -> {
                         Logger.e("Unknown create custom list error")
                         UnknownCustomListError(it)
                     }
-                }*/
-                CustomListAlreadyExists
+                }
             }
 
     suspend fun updateCustomList(customList: ModelCustomList): Either<UpdateCustomListError, Unit> =
         Either.catch { grpc.UpdateCustomList().execute(customList.fromDomain()) }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.ALREADY_EXISTS -> NameAlreadyExists(customList.name)
+                when (it.grpcStatus) {
+                    GrpcStatus.ALREADY_EXISTS -> NameAlreadyExists(customList.name)
                     else -> {
                         Logger.e("Unknown update custom list error")
                         UnknownCustomListError(it)
                     }
-                }*/
+                }
                 NameAlreadyExists(customList.name)
             }
 
@@ -732,15 +712,14 @@ class ManagementService(
     suspend fun applySettingsPatch(json: String): Either<SettingsPatchError, Unit> =
         Either.catch { grpc.ApplyJsonSettings().execute(json.toStringValue()) }
             .mapLeftStatus {
-                /*when (it.status.code) {
+                when (it.grpcStatus) {
                     // Currently we only get invalid argument errors from daemon via gRPC
-                    Status.Code.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
+                    GrpcStatus.INVALID_ARGUMENT -> SettingsPatchError.ParsePatch
                     else -> {
                         Logger.e("Unknown apply settings patch error")
                         SettingsPatchError.ApplyPatch
                     }
-                }*/
-                SettingsPatchError.ApplyPatch
+                }
             }
 
     private fun RelayHopType.ownership(): Lens<RelaySettings, Constraint<ModelOwnership>> =
@@ -801,18 +780,17 @@ class ManagementService(
     ): Either<RedeemVoucherError, RedeemVoucherSuccess> =
         Either.catch { grpc.SubmitVoucher().execute(voucher.value.toStringValue()).toDomain() }
             .mapLeftStatus {
-                /*when (it.status.code) {
-                    Status.Code.INVALID_ARGUMENT,
-                    Status.Code.NOT_FOUND -> RedeemVoucherError.InvalidVoucher
-                    Status.Code.ALREADY_EXISTS,
-                    Status.Code.RESOURCE_EXHAUSTED -> RedeemVoucherError.VoucherAlreadyUsed
-                    Status.Code.UNAVAILABLE -> RedeemVoucherError.ApiUnreachable
+                when (it.grpcStatus) {
+                    GrpcStatus.INVALID_ARGUMENT,
+                    GrpcStatus.NOT_FOUND -> RedeemVoucherError.InvalidVoucher
+                    GrpcStatus.ALREADY_EXISTS,
+                    GrpcStatus.RESOURCE_EXHAUSTED -> RedeemVoucherError.VoucherAlreadyUsed
+                    GrpcStatus.UNAVAILABLE -> RedeemVoucherError.ApiUnreachable
                     else -> {
                         Logger.e("Unknown submit voucher error")
                         RedeemVoucherError.Unknown(it)
                     }
-                }*/
-                RedeemVoucherError.Unknown(Throwable())
+                }
             }
 
     suspend fun initializePlayPurchase():
@@ -825,15 +803,12 @@ class ManagementService(
         Either.catch { grpc.VerifyPlayPurchase().execute(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
             .mapLeft { error ->
-                /*if (error is StatusException && error.status.code == Status.Code.INVALID_ARGUMENT) {
+                if (error is GrpcException && error.grpcStatus == GrpcStatus.INVALID_ARGUMENT) {
                     PlayPurchaseVerifyError.InvalidPurchase
                 } else {
                     PlayPurchaseVerifyError.OtherError
-                }*/
-                PlayPurchaseVerifyError.OtherError
+                }
             }
-
-    // .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: PackageName): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch { grpc.AddSplitTunnelApp().execute(app.value.toStringValue()) }
@@ -1005,29 +980,19 @@ class ManagementService(
 
     private fun BoolValue.toBool() = this.value_
 
-    /*private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
-        f: (StatusException) -> C
+    private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
+        f: (GrpcException) -> C
     ): Either<C, B> = mapLeft {
-        if (it is StatusException) {
+        if (it is GrpcException) {
             f(it)
         } else {
             throw it
         }
-    }*/
-
-    private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(f: (Any) -> C): Either<C, B> =
-        mapLeft {
-            f(it)
-        }
+    }
 
     private fun socketClient(rpcSocketFile: File): OkHttpClient {
-        val addr = AFUNIXSocketAddress.of(rpcSocketFile)
-
         return OkHttpClient.Builder()
-            .socketFactory(socketFactory = UnixDomainSocketFactory(addr))
-            // .socketFactory(socketFactory =
-            // AFSocketFactory.FixedAddressSocketFactory(rpcSocketFile))
-            // .callTimeout(java.time.Duration.ofMinutes(1))
+            .socketFactory(socketFactory = UnixDomainSocketFactory(rpcSocketFile))
             .callTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .readTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .connectTimeout(timeout = 0, TimeUnit.MILLISECONDS)
@@ -1046,7 +1011,7 @@ class ManagementService(
             .build()
     }
 
-    // private fun Status.isTooManyRequests() = description == TOO_MANY_REQUESTS
+    private fun GrpcException.isTooManyRequests() = grpcMessage == TOO_MANY_REQUESTS
 
     companion object {
         const val ENABLE_TRACE_LOGGING = false

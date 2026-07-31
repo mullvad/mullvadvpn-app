@@ -90,7 +90,6 @@ import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint as ModelEndpoint
 import net.mullvad.mullvadvpn.lib.model.EntryRecent as ModelEntryRecent
 import net.mullvad.mullvadvpn.lib.model.ErrorState as ModelErrorState
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause as ModelErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.*
 import net.mullvad.mullvadvpn.lib.model.ExitRecent as ModelExitRecent
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator as ModelFeatureIndicator
@@ -177,7 +176,7 @@ private fun TunnelState.Disconnecting.toDomain(): ModelTunnelState.Disconnecting
 private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
     val otherAlwaysOnAppError = error_state.let {
         if (it?.other_always_on_app_error != null) {
-            ModelErrorStateCause.OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
+            OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
         } else {
             null
         }
@@ -185,7 +184,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidDnsServers = error_state.let { error ->
         if (error?.invalid_dns_servers_error != null) {
-            ModelErrorStateCause.InvalidDnsServers(
+            InvalidDnsServers(
                 addresses =
                     error.invalid_dns_servers_error.ip_addrs.toList().map {
                         InetAddress.getByName(it)
@@ -198,7 +197,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidIpv6Config = error_state.let { error ->
         if (error?.invalid_ipv6_config_error != null) {
-            ModelErrorStateCause.InvalidIpv6Config(
+            InvalidIpv6Config(
                 addresses = error.invalid_ipv6_config_error.addrs,
                 routes = error.invalid_ipv6_config_error.routes,
                 dnsServers = error.invalid_ipv6_config_error.dns,
@@ -344,10 +343,9 @@ private fun ErrorState.AuthFailedError.toDomain(): ModelAuthFailedError =
         ErrorState.AuthFailedError.TOO_MANY_CONNECTIONS -> ModelAuthFailedError.TooManyConnections
     }
 
-internal fun ErrorState.FirewallPolicyError.toDomain(): ModelErrorStateCause.FirewallPolicyError =
+internal fun ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
     when (type) {
-        ErrorState.FirewallPolicyError.ErrorType.GENERIC ->
-            ModelErrorStateCause.FirewallPolicyError.Generic
+        ErrorState.FirewallPolicyError.ErrorType.GENERIC -> FirewallPolicyError.Generic
         ErrorState.FirewallPolicyError.ErrorType.LOCKED ->
             throw IllegalArgumentException("Unrecognized firewall policy error")
     }
