@@ -188,8 +188,29 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     if (!settings) {
       settings = getDefaultSettings();
     }
-    if ('normal' in settings.relaySettings && settings.tunnelOptions.daita) {
+
+    if ('normal' in settings.relaySettings) {
       settings.relaySettings.normal.wireguardConstraints.entryLocation = {
+        only: {
+          hostname: relay.relay.hostname,
+          country: relay.country.code,
+          city: relay.city.code,
+        },
+      };
+    }
+
+    await utils.ipc.settings[''].notify(settings);
+
+    return settings;
+  };
+
+  const mockExitLocation = async (relay: RelaySelectionPath, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    if ('normal' in settings.relaySettings) {
+      settings.relaySettings.normal.location = {
         only: {
           hostname: relay.relay.hostname,
           country: relay.country.code,
@@ -243,8 +264,9 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetProviders,
     resetView,
     updateMockRelayFilter,
-    updateMockSettings: mockSettings,
-    updateEntryLocation: mockEntryLocation,
+    mockSettings,
+    mockEntryLocation,
+    mockExitLocation,
     mockCustomLists,
     mockRecents,
   };
