@@ -101,8 +101,14 @@ struct SettingsVPNSettingsView: View {
                 isLastInList: false,
                 accessibilityIdentifier: DNSandIPSettings.first?.accessibilityIdentifier,
                 leadingAndTrailingDestination: {
-                    DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
-                        .navigationTitle("DNS Settings")
+                    GeometryReader { reader in
+                        ScrollView {
+                            DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
+                                .navigationTitle("DNS Settings")
+                                .frame(width: reader.size.width, height: reader.size.height)
+                        }
+                        .background(Color.mullvadBackground)
+                    }
                 },
                 leading: {
                     itemFactory.leading(
@@ -115,12 +121,18 @@ struct SettingsVPNSettingsView: View {
                     SegmentedListItem(
                         accessibilityIdentifier: DNSandIPSettings.last?.accessibilityIdentifier,
                         leadingAndTrailingDestination: {
-                            IPOverrideView(
-                                ipOverrideInteractor: IPOverrideInteractor,
-                                alertPresenter: alertPresenter,
-                                navigationController: navigationController
-                            )
-                            .navigationTitle("Server IP override")
+                            GeometryReader { reader in
+                                ScrollView {
+                                    IPOverrideView(
+                                        ipOverrideInteractor: IPOverrideInteractor,
+                                        alertPresenter: alertPresenter,
+                                        navigationController: navigationController
+                                    )
+                                    .navigationTitle("Server IP override")
+                                    .frame(width: reader.size.width, height: reader.size.height)
+                                }
+                                .background(Color.mullvadBackground)
+                            }
                         },
                         leading: {
                             itemFactory.leading(
