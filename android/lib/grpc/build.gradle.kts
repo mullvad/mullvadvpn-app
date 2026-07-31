@@ -8,21 +8,12 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.lib.grpc"
 
-    /*sourceSets {
-        getByName("main") {
-            proto { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
-        }
-    }*/
-
     kotlin {
         compilerOptions {
             freeCompilerArgs.add("-XXLanguage:+WhenGuards")
+            // This is due to a warning in the generated code from Wire.
             allWarningsAsErrors = false
         }
-    }
-
-    lint {
-        warningsAsErrors = false
     }
 }
 
@@ -50,11 +41,7 @@ dependencies {
 
     implementation(libs.wire.runtime)
     implementation(libs.wire.grpc)
-    implementation(libs.junixsocket.core)
-    // implementation(libs.junixsocket.native.android)
-    implementation("com.kohlschutter.junixsocket:junixsocket-native-android:2.10.1@aar")
     implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.jnr.unixsocket)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)

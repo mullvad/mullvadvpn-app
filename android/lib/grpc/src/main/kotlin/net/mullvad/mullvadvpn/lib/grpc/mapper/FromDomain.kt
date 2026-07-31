@@ -208,7 +208,7 @@ internal fun ModelCustomProxy.fromDomain(): CustomProxy =
         is ModelCustomProxy.Socks5Remote -> CustomProxy(socks5remote = fromDomain())
     }
 
-internal fun ApiAccessMethod.CustomProxy.Socks5Remote.fromDomain(): Socks5Remote =
+internal fun ModelCustomProxy.Socks5Remote.fromDomain(): Socks5Remote =
     Socks5Remote(
         ip = ip,
         port = port.value,
@@ -218,7 +218,7 @@ internal fun ApiAccessMethod.CustomProxy.Socks5Remote.fromDomain(): Socks5Remote
 internal fun ModelSocksAuth.fromDomain(): SocksAuth =
     SocksAuth(username = username, password = password)
 
-internal fun ApiAccessMethod.CustomProxy.Shadowsocks.fromDomain(): Shadowsocks =
+internal fun ModelCustomProxy.Shadowsocks.fromDomain(): Shadowsocks =
     Shadowsocks(
         ip = ip,
         cipher = cipher.fromDomain(),
@@ -316,12 +316,6 @@ internal fun ModelExitConstraints.fromDomain(): ExitConstraints =
     )
 
 internal fun ModelDaitaSettings.fromDomain(): DaitaSettings = DaitaSettings(enabled = enabled)
-
-internal fun Constraint<Providers>.fromDomain1(): List<Provider> =
-    when (this) {
-        is Constraint.Any -> emptyList()
-        is Constraint.Only -> value.map { Provider(name = it.value) }
-    }
 
 internal fun RelayItemId.fromDomain(): LocationConstraint =
     when (this) {

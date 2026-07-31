@@ -71,7 +71,6 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName as ModelApiAccessMet
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting as ModelApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError as ModelAuthFailedError
-import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.Cipher as ModelCipher
 import net.mullvad.mullvadvpn.lib.model.Constraint as ModelConstraint
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -89,7 +88,6 @@ import net.mullvad.mullvadvpn.lib.model.DnsOptions as ModelDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint as ModelEndpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState as ModelErrorState
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause as ModelErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.*
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator as ModelFeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation as ModelGeoIpLocation
@@ -105,8 +103,8 @@ import net.mullvad.mullvadvpn.lib.model.Mtu as ModelMtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint as ModelObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode as ModelObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationType as ModelObfuscationType
-import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError as ModelParameterGenerationError
@@ -142,7 +140,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState as ModelTunnelState
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
-import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
 
 internal fun TunnelState.toDomain(): ModelTunnelState =
     when {
@@ -177,7 +174,7 @@ private fun TunnelState.Disconnecting.toDomain(): ModelTunnelState.Disconnecting
 private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
     val otherAlwaysOnAppError = error_state.let {
         if (it?.other_always_on_app_error != null) {
-            ModelErrorStateCause.OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
+            OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
         } else {
             null
         }
@@ -185,7 +182,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidDnsServers = error_state.let { error ->
         if (error?.invalid_dns_servers_error != null) {
-            ModelErrorStateCause.InvalidDnsServers(
+            InvalidDnsServers(
                 addresses =
                     error.invalid_dns_servers_error.ip_addrs.toList().map {
                         InetAddress.getByName(it)
@@ -198,7 +195,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidIpv6Config = error_state.let { error ->
         if (error?.invalid_ipv6_config_error != null) {
-            ModelErrorStateCause.InvalidIpv6Config(
+            InvalidIpv6Config(
                 addresses = error.invalid_ipv6_config_error.addrs,
                 routes = error.invalid_ipv6_config_error.routes,
                 dnsServers = error.invalid_ipv6_config_error.dns,
@@ -312,8 +309,7 @@ internal fun ErrorState.toDomain(
     ModelErrorState(
         cause =
             when (cause) {
-                ErrorState.Cause.AUTH_FAILED ->
-                    AuthFailed(auth_failed_error.toDomain())
+                ErrorState.Cause.AUTH_FAILED -> AuthFailed(auth_failed_error.toDomain())
                 ErrorState.Cause.IPV6_UNAVAILABLE -> Ipv6Unavailable
                 ErrorState.Cause.SET_FIREWALL_POLICY_ERROR if policy_error != null ->
                     policy_error.toDomain()
@@ -327,8 +323,7 @@ internal fun ErrorState.toDomain(
                 ErrorState.Cause.CREATE_TUNNEL_DEVICE,
                 ErrorState.Cause.NOT_PREPARED -> NotPrepared
                 ErrorState.Cause.OTHER_ALWAYS_ON_APP -> otherAlwaysOnApp!!
-                ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN ->
-                    OtherLegacyAlwaysOnApp
+                ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN -> OtherLegacyAlwaysOnApp
                 ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
                 ErrorState.Cause.INVALID_IPV6_CONFIG -> invalidIpv6Config!!
                 ErrorState.Cause.SET_FIREWALL_POLICY_ERROR -> StartTunnelError
@@ -344,10 +339,9 @@ private fun ErrorState.AuthFailedError.toDomain(): ModelAuthFailedError =
         ErrorState.AuthFailedError.TOO_MANY_CONNECTIONS -> ModelAuthFailedError.TooManyConnections
     }
 
-internal fun ErrorState.FirewallPolicyError.toDomain(): ModelErrorStateCause.FirewallPolicyError =
+internal fun ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
     when (type) {
-        ErrorState.FirewallPolicyError.ErrorType.GENERIC ->
-            ModelErrorStateCause.FirewallPolicyError.Generic
+        ErrorState.FirewallPolicyError.ErrorType.GENERIC -> FirewallPolicyError.Generic
         ErrorState.FirewallPolicyError.ErrorType.LOCKED ->
             throw IllegalArgumentException("Unrecognized firewall policy error")
     }
