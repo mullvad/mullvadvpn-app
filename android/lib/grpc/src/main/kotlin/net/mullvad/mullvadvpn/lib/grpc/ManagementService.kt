@@ -1036,7 +1036,12 @@ class ManagementService(
             .protocols(listOf(Protocol.H2_PRIOR_KNOWLEDGE))
             .addInterceptor(
                 HttpLoggingInterceptor { message -> Logger.withTag("grpc").d(message) }
-                    .also { it.level = HttpLoggingInterceptor.Level.BODY }
+                    // BODY level must not be used with gRPC streaming calls: HttpLoggingInterceptor
+                    // does not recognise application/grpc as a streaming content-type (only
+                    // text/event-stream), so it calls source.request(Long.MAX_VALUE) on the
+                    // response body, which blocks the OkHttp callback thread indefinitely and
+                    // prevents Wire's onResponse from ever being invoked.
+                    .also { it.level = HttpLoggingInterceptor.Level.HEADERS }
             )
             .build()
     }
