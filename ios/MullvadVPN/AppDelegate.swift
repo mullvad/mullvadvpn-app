@@ -208,9 +208,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             tunnelSettingsUpdater: tunnelSettingsUpdater
         )
         addApplicationNotifications(application: application)
-        Task {
-            await startInitialization(application: application)
-        }
+        startInitialization(application: application)
 
         // Pre-warm @Observable infrastructure for LocationNode to avoid first-render lag
         // in SelectLocationView. SwiftUI's observation system has initialization overhead
@@ -516,15 +514,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
     }
 
-    private func startInitialization(application: UIApplication) async {
+    private func startInitialization(application: UIApplication) {
         // the new structured code: things here run first, before we run the legacy operations.
         // in the fullness of time, this section will grow and the latter will shrink to nothing
-        
-        // next: make a TaskGroup containing this and wipeSettings, and await that in one go
-        
-        await doLoadTunnelStore()
-        doWipeSettingsIfNeeded()
-        await doGetDefaultLocation()
+        Task {
+            doWipeSettingsIfNeeded()
+            async let loadTunnelStore = doLoadTunnelStore()
+            async let getDefaultLocation = doGetDefaultLocation()
+            await [loadTunnelStore, getDefaultLocation]
+            await MainActor.run {
+                
+            }
+        }
         
         // legacy concurrency code follows. We comment out the operations that have been converted.
         

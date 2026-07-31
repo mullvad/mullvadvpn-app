@@ -80,6 +80,16 @@ public struct MigrationManager {
         }
     }
 
+//    public func migrateSettings(store: SettingsStore) async -> SettingsMigrationResult {
+//        await withCheckedContinuation { continuation in
+//            Task {@MainActor in
+//                migrateSettings(store: store) { result in
+//                    continuation.resume(returning: result)
+//                }
+//            }
+//        }
+//    }
+
     private func upgradeSettingsToLatestVersion(
         store: SettingsStore,
         migrationCompleted: @escaping @Sendable (SettingsMigrationResult) -> Void
