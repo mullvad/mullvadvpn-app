@@ -135,8 +135,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
         let dispatchGroup = DispatchGroup()
 
         dispatchGroup.enter()
-        let accountTask = remoteService.getAccountData(accountNumber: accountNumber) { result in
-            accountResult = result
+        let accountTask = Task {
+            accountResult = await remoteService.getAccountData(accountNumber: accountNumber)
             dispatchGroup.leave()
         }
 
@@ -146,7 +146,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
             dispatchGroup.leave()
         }
 
-        tasks.append(contentsOf: [accountTask, deviceTask])
+        tasks.append(contentsOf: [accountTask.cancellable, deviceTask])
 
         dispatchGroup.notify(queue: dispatchQueue) {
             completion(accountResult, deviceResult)

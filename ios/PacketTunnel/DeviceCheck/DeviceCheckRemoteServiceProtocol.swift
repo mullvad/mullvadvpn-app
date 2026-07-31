@@ -11,14 +11,14 @@ import MullvadTypes
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
 protocol DeviceCheckRemoteServiceProtocol {
-    func getAccountData(accountNumber: String, completion: @escaping @Sendable (Result<Account, Error>) -> Void)
-        -> Cancellable
+    func getAccountData(accountNumber: String) async -> Result<Account, Error>
+
     func getDevice(
         accountNumber: String,
         identifier: String,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    )
-        -> Cancellable
+    ) -> Cancellable
+
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
