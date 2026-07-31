@@ -13,7 +13,9 @@ import MullvadTypes
 import Operations
 import PacketTunnelCore
 
-final class PacketTunnelAPITransport: APITransportProtocol {
+final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
+    nonisolated(unsafe) private var cancellable: Cancellable?
+
     var name: String {
         "packet-tunnel-transport"
     }
@@ -22,6 +24,46 @@ final class PacketTunnelAPITransport: APITransportProtocol {
 
     init(tunnel: any TunnelProtocol) {
         self.tunnel = tunnel
+    }
+
+    public func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse {
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                guard !Task.isCancelled else {
+                    continuation.resume(throwing: TaskError.cancelled)
+                    return
+                }
+
+                let proxyRequest = ProxyAPIRequest(
+                    id: UUID(),
+                    request: request
+                )
+
+                cancellable = tunnel.sendAPIRequest(proxyRequest) { result in
+                    switch result {
+                    case let .success(reply):
+                        continuation.resume(returning: reply)
+
+                    case let .failure(error):
+                        let error = error.isOperationCancellationError ? TaskError.cancelled : error
+
+                        continuation.resume(
+                            returning: (ProxyAPIResponse(
+                                data: nil,
+                                error: APIError(
+                                    statusCode: 0,
+                                    errorDescription: error.localizedDescription,
+                                    serverResponseCode: nil
+                                )
+                            ))
+                        )
+                    }
+                }
+            }
+        } onCancel: {
+            cancellable?.cancel()
+            cancellable = nil
+        }
     }
 
     func sendRequest(
