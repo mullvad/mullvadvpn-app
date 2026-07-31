@@ -10,6 +10,7 @@ pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
 pub mod socket;
+pub mod socks5;
 pub mod transport;
 pub mod udp2tcp;
 pub(crate) mod wireguard;
