@@ -14,13 +14,20 @@ use gotatun::{
     },
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use talpid_types::net::obfuscation::LwoVersion;
-use tunnel_obfuscation::{Settings as ObfuscationSettings, create_transport};
+use talpid_types::net::{obfuscation::LwoVersion, proxy::Socks5Proxy};
+use tunnel_obfuscation::{Settings as TransportSettings, create_transport};
 
+use crate::obfuscation::ObfuscationSettings;
+
+use super::socks5::{MaybeSocks5Recv, MaybeSocks5Send, MaybeSocks5TransportFactory};
 use lwo::{LwoKeys, LwoRecv, LwoSend, LwoUdpTransportFactory};
 use transport::{ObfuscatingRecv, ObfuscatingSend};
 
 pub use lwo::{lwo_timer_params, lwo_version};
+
+type ProxiedFactory = MaybeSocks5TransportFactory<BypassingSocketFactory>;
+type ProxiedSend = MaybeSocks5Send<BypassedUdpSend>;
+type ProxiedRecv = MaybeSocks5Recv<BypassedUdpRecv>;
 
 #[derive(Clone)]
 pub struct BypassedUdpSend(Arc<BypassSocket<UdpSocket>>);
@@ -79,8 +86,8 @@ impl UdpRecv for BypassedUdpRecv {
 /// A [`UdpSend`] wrapper that optionally obfuscates outgoing packets.
 #[derive(Clone)]
 pub enum MaybeObfuscatingSend {
-    Plain(BypassedUdpSend),
-    Lwo(LwoSend<BypassedUdpSend>),
+    Plain(ProxiedSend),
+    Lwo(LwoSend<ProxiedSend>),
     Transport(ObfuscatingSend),
 }
 
@@ -135,8 +142,8 @@ impl UdpSend for MaybeObfuscatingSend {
 
 /// A [`UdpRecv`] enum that either passes through to a plain receiver or applies deobfuscation.
 pub enum MaybeObfuscatingRecv {
-    Plain(BypassedUdpRecv),
-    Lwo(LwoRecv<BypassedUdpRecv>),
+    Plain(ProxiedRecv),
+    Lwo(LwoRecv<ProxiedRecv>),
     Transport(ObfuscatingRecv),
 }
 
@@ -181,24 +188,42 @@ pub struct BypassingSocketFactory {
 /// A [`UdpTransportFactory`] that either passes through to a plain factory or wraps it with
 /// obfuscation.
 pub enum MaybeObfuscatingTransportFactory {
-    Plain(BypassingSocketFactory),
-    Lwo(LwoUdpTransportFactory<BypassingSocketFactory>),
-    Transport(ObfuscationSettings, Arc<dyn SocketBypass>),
+    Plain(ProxiedFactory),
+    Lwo(LwoUdpTransportFactory<ProxiedFactory>),
+    Transport(TransportSettings, Arc<dyn SocketBypass>),
 }
 
 impl MaybeObfuscatingTransportFactory {
     /// Create a transport factory from the tunnel config.
+    ///
+    /// # Errors
+    ///
+    /// Fails if `proxy` is set but the obfuscation cannot be layered on top of it. Connecting
+    /// directly when the caller asked to be relayed would leak their traffic, so this fails closed
+    /// rather than ignoring the proxy.
     pub fn from_settings(
         optimize_buffer_size: bool,
         settings: Option<&ObfuscationSettings>,
+        proxy: Option<Socks5Proxy>,
         bypass: Arc<dyn SocketBypass>,
-    ) -> Self {
-        let make_factory = |bypass| BypassingSocketFactory {
-            bypass,
-            inner: udp_socket_factory(optimize_buffer_size),
+    ) -> io::Result<Self> {
+        if proxy.is_some()
+            && settings.is_some_and(|settings| !settings.stacks_on_provided_socket())
+        {
+            return Err(io::Error::other(
+                "the configured obfuscation cannot be relayed through a SOCKS5 proxy",
+            ));
+        }
+
+        let make_factory = |bypass: Arc<dyn SocketBypass>| {
+            let sockets = BypassingSocketFactory {
+                bypass: Arc::clone(&bypass),
+                inner: udp_socket_factory(optimize_buffer_size),
+            };
+            MaybeSocks5TransportFactory::new(sockets, proxy.clone(), bypass)
         };
-        match settings {
-            Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
+        let factory = match settings.and_then(ObfuscationSettings::single) {
+            Some(TransportSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
                 inner: make_factory(bypass),
                 keys: match settings.version {
                     LwoVersion::V1 => LwoKeys::V1 {
@@ -213,9 +238,11 @@ impl MaybeObfuscatingTransportFactory {
             }),
             Some(settings) => Self::Transport(settings.clone(), bypass),
 
-            // Use `Self::Plain` when there is no obfuscation
+            // No obfuscation, or a multiplexer that WireGuard reaches over a local socket.
             None => Self::Plain(make_factory(bypass)),
-        }
+        };
+
+        Ok(factory)
     }
 }
 

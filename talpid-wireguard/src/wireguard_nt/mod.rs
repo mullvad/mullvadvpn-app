@@ -1041,6 +1041,7 @@ mod tests {
         mtu: 0,
         obfuscator_config: None,
         obfuscation_mtu: 0,
+        proxy: None,
         quantum_resistant: false,
         daita: false,
     });
