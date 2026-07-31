@@ -287,7 +287,9 @@ struct SettingsVPNSettingsView: View {
                         for: .expand(
                             isExpanded: $isExpanded.wrappedValue,
                             onSelect: {
-                                $isExpanded.wrappedValue.toggle()
+                                withAnimation(.default.speed(3)) {
+                                    $isExpanded.wrappedValue.toggle()
+                                }
                             }))
                 },
                 groupedContent: {
