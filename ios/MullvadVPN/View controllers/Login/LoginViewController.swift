@@ -79,7 +79,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private var canBeginLogin: Bool {
-        contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
+        true  //contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 
     var prefersDeviceInfoBarHidden: Bool {
@@ -235,7 +235,11 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     @objc private func doLogin() {
-        let accountNumber = contentView.accountInputGroup.parsedToken
+        var accountNumber = contentView.accountInputGroup.parsedToken
+
+        if accountNumber.first?.isLetter ?? false {
+            accountNumber = decodeAccountPhrase(accountNumber) ?? ""
+        }
 
         start(action: .useExistingAccount(accountNumber))
     }

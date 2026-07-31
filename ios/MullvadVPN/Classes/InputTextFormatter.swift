@@ -260,7 +260,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
         case .numeric:
             return character.isNumber
         case .alphanumeric:
-            return character.isLetter || character.isNumber
+            return character.isLetter || character.isNumber || character.isWhitespace
         }
     }
 }
