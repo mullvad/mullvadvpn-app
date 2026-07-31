@@ -20,11 +20,17 @@ pub struct TunnelParameters {
     pub options: TunnelOptions,
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
+    pub proxy: Option<super::proxy::Socks5Proxy>,
 }
 
 impl TunnelParameters {
     /// Returns the endpoint that will be connected to
     pub fn get_next_hop_endpoints(&self) -> Vec<Endpoint> {
+        // With a proxy, the obfuscation endpoints are reached through it and never appear on the
+        // wire, so the proxy's next hop is the only endpoint that leaves the machine.
+        if let Some(proxy) = &self.proxy {
+            return vec![proxy.next_hop_endpoint()];
+        }
         self.obfuscation
             .as_ref()
             .map(|proxy| proxy.endpoints())
@@ -58,6 +64,8 @@ impl TunnelParameters {
         cfg!(target_os = "macos")
             || self.options.userspace
             || self.options.daita
+            // A SOCKS5 proxy only exists as an inline GotaTun transport
+            || self.proxy.is_some()
             // Always prefer GotaTun for multihop on Windows
             || (cfg!(target_os = "windows") && self.connection.exit_peer.is_some())
     }
