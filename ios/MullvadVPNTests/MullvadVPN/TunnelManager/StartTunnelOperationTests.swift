@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 import MullvadSettings
 import MullvadTypes
 import Network
@@ -19,23 +20,6 @@ class StartTunnelOperationTests: XCTestCase {
 
     let testQueue = DispatchQueue(label: "StartTunnelOperationTests.testQueue")
     let operationQueue = AsyncOperationQueue()
-
-    let loggedInDeviceState = DeviceState.loggedIn(
-        StoredAccountData(
-            identifier: "",
-            number: "",
-            expiry: .distantFuture
-        ),
-        StoredDeviceData(
-            creationDate: Date(),
-            identifier: "",
-            name: "",
-            hijackDNS: false,
-            ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
-            ipv6Address: IPAddressRange(from: "::ff/64")!,
-            wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: WireGuard.PrivateKey())
-        )
-    )
 
     func makeInteractor(deviceState: DeviceState, tunnelState: TunnelState? = nil) -> MockTunnelInteractor {
         let interactor = MockTunnelInteractor(
@@ -69,7 +53,7 @@ class StartTunnelOperationTests: XCTestCase {
     }
 
     func testSetsReconnectIfDisconnecting() {
-        let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
+        let interactor = makeInteractor(deviceState: Device.loggedInDeviceState, tunnelState: .disconnecting(.nothing))
         nonisolated(unsafe) var tunnelStatus = TunnelStatus()
         interactor.onUpdateTunnelStatus = { status in tunnelStatus = status }
         let expectation = expectation(description: "Tunnel status set to reconnect")
@@ -86,7 +70,7 @@ class StartTunnelOperationTests: XCTestCase {
     }
 
     func testStartsTunnelIfDisconnected() {
-        let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
+        let interactor = makeInteractor(deviceState: Device.loggedInDeviceState, tunnelState: .disconnected)
         let expectation = expectation(description: "Make tunnel provider and start tunnel")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
