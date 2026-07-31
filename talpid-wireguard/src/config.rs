@@ -1,5 +1,11 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
-use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
+use talpid_types::net::{
+    GenericTunnelOptions, obfuscation::Obfuscators, proxy::Socks5Proxy, wireguard,
+};
+
+use tunnel_obfuscation::socks5;
+
+use crate::obfuscation::is_inline_obfuscation;
 
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]
@@ -29,6 +35,8 @@ pub struct Config {
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
     pub obfuscator_config: Option<Obfuscators>,
+    /// SOCKS5 proxy to relay the tunnel through. Obfuscation is applied on top of it.
+    pub proxy: Option<Socks5Proxy>,
     /// Enable quantum-resistant PSK exchange
     pub quantum_resistant: bool,
     /// Enable DAITA
@@ -45,6 +53,11 @@ pub enum Error {
     /// Peer has no valid IPs
     #[error("Supplied peer has no valid IPs")]
     InvalidPeerIpError,
+
+    /// The obfuscation method runs as a local proxy socket, which WireGuard reaches over loopback,
+    /// so there is nothing for the SOCKS5 transport to relay.
+    #[error("The selected obfuscation cannot be relayed through a SOCKS5 proxy")]
+    ObfuscationNotProxyable,
 }
 
 impl Config {
@@ -58,6 +71,7 @@ impl Config {
             &params.options,
             &params.generic_options,
             &params.obfuscation,
+            &params.proxy,
             default_mtu,
         )
     }
@@ -68,9 +82,16 @@ impl Config {
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
         obfuscator_config: &Option<Obfuscators>,
+        proxy: &Option<Socks5Proxy>,
         default_mtu: u16,
     ) -> Result<Config, Error> {
         let mut tunnel = connection.tunnel.clone();
+
+        if let (Some(obfuscators), Some(_)) = (obfuscator_config, proxy)
+            && !is_inline_obfuscation(obfuscators)
+        {
+            return Err(Error::ObfuscationNotProxyable);
+        }
 
         let mtu = wg_options.mtu.unwrap_or(default_mtu);
 
@@ -97,6 +118,7 @@ impl Config {
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config: obfuscator_config.to_owned(),
+            proxy: proxy.to_owned(),
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
         };
@@ -110,6 +132,27 @@ impl Config {
         }
 
         Ok(config)
+    }
+
+    /// The per-datagram overhead of relaying through a SOCKS5 proxy, in bytes.
+    ///
+    /// This is not covered by [`crate::obfuscation::ObfuscatorHandle::packet_overhead`], since no
+    /// obfuscator is created for an inline transport.
+    pub fn socks5_packet_overhead(&self) -> u16 {
+        if self.proxy.is_none() {
+            return 0;
+        }
+
+        // The header encodes the address that the layer above is sending to: the obfuscation
+        // endpoint when obfuscation is stacked on top, and the peer endpoint otherwise.
+        let destination = self
+            .obfuscator_config
+            .as_ref()
+            .and_then(|obfuscators| obfuscators.endpoints().first().map(|hop| hop.address))
+            .unwrap_or(self.entry_peer.endpoint);
+
+        u16::try_from(socks5::header_len(&destination))
+            .expect("a SOCKS5 header is at most a few dozen bytes")
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.

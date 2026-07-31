@@ -44,9 +44,11 @@ use gotatun::tun::{
 
 mod conversions;
 mod obfuscation;
+mod socks5;
 
 use conversions::to_gotatun_peer;
 use obfuscation::MaybeObfuscatingTransportFactory;
+use socks5::MaybeSocks5TransportFactory;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -54,7 +56,9 @@ type UdpFactory = AndroidUdpSocketFactory;
 #[cfg(not(target_os = "android"))]
 type UdpFactory = UdpSocketFactory;
 
-type TransportFactory = MaybeObfuscatingTransportFactory<UdpFactory>;
+/// Obfuscation is applied to the payload before it is handed to the proxy, so it wraps the SOCKS5
+/// transport rather than the other way around.
+type TransportFactory = MaybeObfuscatingTransportFactory<MaybeSocks5TransportFactory<UdpFactory>>;
 
 type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, GotaTunDevice)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
@@ -519,7 +523,7 @@ async fn create_devices(
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory = udp_obfuscator_factory(
+        let factory = udp_transport_factory(
             config,
             optimize_buffer_size,
             #[cfg(target_os = "android")]
@@ -783,24 +787,31 @@ where
     (ip_send, ip_recv)
 }
 
-/// Provide a [`UdpSocketFactory`] for the entry-device.
+/// Build the UDP transport stack for the entry-device: plain sockets, optionally relayed through a
+/// SOCKS5 proxy, optionally obfuscated on top of that.
 ///
 /// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
 ///   now always succeed due to suspected hardware related issues / limitations.
-fn udp_obfuscator_factory(
+fn udp_transport_factory(
     config: &Config,
     optimize_buffer_size: bool,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
-) -> MaybeObfuscatingTransportFactory<UdpFactory> {
+) -> TransportFactory {
     let factory = cfg_select! {
         target_os = "android" => {
             AndroidUdpSocketFactory {
-                tun: android_tun,
+                tun: Arc::clone(&android_tun),
                 udp: udp_socket_factory(optimize_buffer_size),
             }
         },
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
+    let factory = MaybeSocks5TransportFactory::from_config(
+        factory,
+        config,
+        #[cfg(target_os = "android")]
+        android_tun,
+    );
     MaybeObfuscatingTransportFactory::from_config(factory, config)
 }
 
