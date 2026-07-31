@@ -132,7 +132,7 @@ extension REST {
         /// Likely a programmer error.
         case invalidResponse(URLResponse?)
 
-        public var errorDescription: String? {
+        public var errorDescription: String {
             switch self {
             case .noTransport:
                 return "Transport is not configured."
