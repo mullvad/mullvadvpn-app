@@ -78,6 +78,8 @@ final class TunnelManager: @unchecked Sendable {
 
     private let settingsManager: SettingsManager
 
+    private let tunnelSerialExecutor = AsyncSerialExecutor()
+
     // MARK: - Initialization
 
     init(
@@ -257,38 +259,24 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
-    func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: ((Error?) -> Void)? = nil) {
-        let operation = StopTunnelOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self)
-        ) { [weak self] result in
-            guard let self else { return }
+    func stopTunnel(isOnDemandEnabled: Bool = false) async {
+        let task = StopTunnelTask(interactor: TunnelInteractorProxy(self), isOnDemandEnabled: isOnDemandEnabled)
 
-            if let error = result.error {
-                self.logger.error(
-                    error: error,
-                    message: "Failed to stop the tunnel."
-                )
-
-                let tunnelError = StopTunnelError(underlyingError: error)
-
-                self.observerList.notify { observer in
-                    observer.tunnelManager(self, didFailWithError: tunnelError)
-                }
+        do {
+            try await tunnelSerialExecutor.execute {
+                try await task.start()
             }
+        } catch {
+            self.logger.error(
+                error: error,
+                message: "Failed to stop the tunnel."
+            )
 
-            completionHandler?(result.error)
+            let tunnelError = StopTunnelError(underlyingError: error)
+            self.observerList.notify { observer in
+                observer.tunnelManager(self, didFailWithError: tunnelError)
+            }
         }
-        operation.isOnDemandEnabled = isOnDemandEnabled
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Stop tunnel",
-                cancelUponExpiration: true
-            ))
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-        operationQueue.addOperation(operation)
     }
 
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
@@ -371,7 +359,9 @@ final class TunnelManager: @unchecked Sendable {
 
             tunnel.setConfiguration(configuration)
             tunnel.saveToPreferences { _ in
-                self.stopTunnel(isOnDemandEnabled: true)
+                Task {
+                    try? await self.stopTunnel(isOnDemandEnabled: true)
+                }
             }
         }
     }
