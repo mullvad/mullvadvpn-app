@@ -1,5 +1,6 @@
 use crate::net::{
-    Endpoint, GenericTunnelOptions, ObfuscationInfo, TransportProtocol, TunnelEndpoint,
+    AllowedClients, AllowedEndpoint, Endpoint, GenericTunnelOptions, ObfuscationInfo,
+    TransportProtocol, TunnelEndpoint,
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
 use ipnetwork::IpNetwork;
@@ -36,6 +37,31 @@ impl TunnelParameters {
             .as_ref()
             .map(|proxy| proxy.endpoints())
             .unwrap_or_else(|| vec![self.connection.get_endpoint()])
+    }
+
+    /// Returns the endpoints that will be connected to, along with the clients that are allowed
+    /// to reach them outside of the tunnel.
+    ///
+    /// `default_clients` is used for endpoints that only this process connects to.
+    pub fn get_allowed_next_hop_endpoints(
+        &self,
+        default_clients: AllowedClients,
+    ) -> Vec<AllowedEndpoint> {
+        // A local SOCKS5 proxy runs as some other process, and is the one connecting to the next
+        // hop, so restricting the exemption to our own clients would block it. The same exemption
+        // applies to a remote proxy, so that it can be shared with other applications.
+        let clients = match self.proxy {
+            Some(_) => AllowedClients::all(),
+            None => default_clients,
+        };
+
+        self.get_next_hop_endpoints()
+            .into_iter()
+            .map(|endpoint| AllowedEndpoint {
+                endpoint,
+                clients: clients.clone(),
+            })
+            .collect()
     }
 
     pub fn get_tunnel_endpoint(&self) -> TunnelEndpoint {
@@ -367,4 +393,122 @@ fn key_from_base64<K: From<[u8; 32]>>(key: &str) -> Result<K, InvalidKey> {
     let mut key = [0u8; 32];
     key.copy_from_slice(&bytes);
     Ok(From::from(key))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::net::proxy::{Socks5Local, Socks5Proxy, Socks5Remote};
+
+    const PEER_ENDPOINT: &str = "192.0.2.1:51820";
+    const PROXY_ENDPOINT: &str = "198.51.100.1:1080";
+    const PROXY_NEXT_HOP: &str = "203.0.113.1:443";
+
+    /// The clients that are allowed to reach an endpoint that only the daemon connects to.
+    fn default_clients() -> AllowedClients {
+        #[cfg(unix)]
+        {
+            AllowedClients::Root
+        }
+        #[cfg(windows)]
+        {
+            AllowedClients::from(vec![std::path::PathBuf::from("daemon.exe")])
+        }
+    }
+
+    fn tunnel_parameters(proxy: Option<Socks5Proxy>) -> TunnelParameters {
+        TunnelParameters {
+            connection: ConnectionConfig {
+                tunnel: TunnelConfig {
+                    private_key: PrivateKey::new_from_random(),
+                    addresses: vec![IpAddr::from(Ipv4Addr::new(10, 64, 0, 1))],
+                },
+                peer: PeerConfig {
+                    public_key: PrivateKey::new_from_random().public_key(),
+                    allowed_ips: vec!["0.0.0.0/0".parse().unwrap()],
+                    endpoint: PEER_ENDPOINT.parse().unwrap(),
+                    psk: None,
+                    constant_packet_size: false,
+                },
+                exit_peer: None,
+                ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
+                ipv6_gateway: None,
+                #[cfg(target_os = "linux")]
+                fwmark: None,
+            },
+            options: TunnelOptions {
+                mtu: None,
+                quantum_resistant: false,
+                daita: false,
+                userspace: false,
+            },
+            generic_options: GenericTunnelOptions { enable_ipv6: false },
+            obfuscation: None,
+            proxy,
+        }
+    }
+
+    /// Without a proxy, only our own clients may reach the relay.
+    #[test]
+    fn test_allowed_next_hop_endpoints_without_proxy() {
+        let params = tunnel_parameters(None);
+
+        let allowed = params.get_allowed_next_hop_endpoints(default_clients());
+
+        assert_eq!(
+            allowed,
+            vec![AllowedEndpoint {
+                endpoint: Endpoint::from_socket_address(
+                    PEER_ENDPOINT.parse().unwrap(),
+                    TransportProtocol::Udp
+                ),
+                clients: default_clients(),
+            }]
+        );
+    }
+
+    /// A remote proxy is exempted for all clients, so that it can be shared with other
+    /// applications.
+    #[test]
+    fn test_allowed_next_hop_endpoints_with_remote_proxy() {
+        let params = tunnel_parameters(Some(Socks5Proxy::Remote(Socks5Remote {
+            endpoint: PROXY_ENDPOINT.parse().unwrap(),
+            auth: None,
+        })));
+
+        let allowed = params.get_allowed_next_hop_endpoints(default_clients());
+
+        assert_eq!(
+            allowed,
+            vec![AllowedEndpoint {
+                endpoint: Endpoint::from_socket_address(
+                    PROXY_ENDPOINT.parse().unwrap(),
+                    TransportProtocol::Tcp
+                ),
+                clients: AllowedClients::all(),
+            }]
+        );
+    }
+
+    /// A local proxy connects to its next hop itself, so that endpoint must be exempted for all
+    /// clients rather than for ours.
+    #[test]
+    fn test_allowed_next_hop_endpoints_with_local_proxy() {
+        let next_hop =
+            Endpoint::from_socket_address(PROXY_NEXT_HOP.parse().unwrap(), TransportProtocol::Tcp);
+        let params = tunnel_parameters(Some(Socks5Proxy::Local(Socks5Local {
+            remote_endpoint: next_hop,
+            local_port: 1080,
+        })));
+
+        let allowed = params.get_allowed_next_hop_endpoints(default_clients());
+
+        assert_eq!(
+            allowed,
+            vec![AllowedEndpoint {
+                endpoint: next_hop,
+                clients: AllowedClients::all(),
+            }]
+        );
+    }
 }

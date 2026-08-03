@@ -228,8 +228,7 @@ fn socks5_proxy_override() -> Option<Socks5Proxy> {
                     // VLESS over TLS or REALITY uses TCP, but one speaking QUIC, mKCP or
                     // Hysteria uses UDP, and the firewall matches the protocol along with the
                     // address. It cannot be derived from SOCKS5, so it has to come from the
-                    // configuration -- along with the rest of what the local case needs, since
-                    // `get_next_hop_endpoints` cannot express `AllowedClients::all()` either.
+                    // configuration.
                     Socks5Proxy::Local(Socks5Local {
                         remote_endpoint: Endpoint::from_socket_address(
                             upstream,
