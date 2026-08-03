@@ -179,11 +179,11 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     private func showUDPOverTCPObfuscationSettings() {
-        let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
-        let view = UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
-        let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString("UDP-over-TCP", comment: "")
-        navigationController?.pushViewController(vc, animated: true)
+        //        let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        //        let view = UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
+        //        let vc = UIHostingController(rootView: view)
+        //        vc.title = NSLocalizedString("UDP-over-TCP", comment: "")
+        //        navigationController?.pushViewController(vc, animated: true)
     }
 
     private func showShadowsocksObfuscationSettings() {
@@ -195,14 +195,14 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     private func showLwoObfuscationSettings() {
-        let viewModel = TunnelLwoObfuscationSettingsViewModel(
-            tunnelManager: interactor.tunnelManager,
-            portRanges: interactor.cachedRelays?.relays.wireguard.portRanges ?? []
-        )
-        let view = LwoObfuscationSettingsView(viewModel: viewModel)
-        let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString("LWO", comment: "")
-        navigationController?.pushViewController(vc, animated: true)
+        //        let viewModel = TunnelLwoObfuscationSettingsViewModel(
+        //            tunnelManager: interactor.tunnelManager,
+        //            portRanges: interactor.cachedRelays?.relays.wireguard.portRanges ?? []
+        //        )
+        //        let view = LwoObfuscationSettingsView(viewModel: viewModel)
+        //        let vc = UIHostingController(rootView: view)
+        //        vc.title = NSLocalizedString("LWO", comment: "")
+        //        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {

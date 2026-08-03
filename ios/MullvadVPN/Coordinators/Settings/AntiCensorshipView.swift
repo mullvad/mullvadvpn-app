@@ -24,24 +24,11 @@ struct AntiCensorshipView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                Text(
-                    """
-                    These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.
-                    """
-                )
-                .foregroundStyle(Color.mullvadTextPrimary)
-                Spacer()
-                Text(
-                    """
-                    Please note that these methods do not improve performance, and may increase system utilization and battery consumption.
-                    """
-                )
-                .foregroundStyle(Color.mullvadTextPrimary)
-                .bold()
+            VStack(alignment: .leading, spacing: 0) {
+                headerText()
                 Spacer()
                 SegmentedListItem(
-                    userInteraction: .enabled,
+                    userInteraction: .enabledWithoutHighlight,
                     leading: {
                         itemFactory.leading(
                             for:
@@ -79,6 +66,11 @@ struct AntiCensorshipView: View {
                                 )
                             }
                         }
+                        .onChange(of: settings.tunnelSettings.wireGuardObfuscation) {
+                            settingsInteractor.tunnelManager.updateSettings([
+                                .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
+                            ])
+                        }
                     }
                 )
             }
@@ -87,12 +79,26 @@ struct AntiCensorshipView: View {
         }
         .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
-        .onDisappear {
-            // TODO: Discuss with the team if that's good enough
-            settingsInteractor.tunnelManager.updateSettings([
-                .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
-            ])
-        }
+    }
+
+    @ViewBuilder
+    func headerText() -> some View {
+        Text(
+            """
+            These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.
+            """
+        )
+        .font(.mullvadTiny)
+        .foregroundStyle(Color.mullvadTextSecondary)
+        Spacer()
+        Spacer()
+        Text(
+            """
+            Please note that these methods do not improve performance, and may increase system utilization and battery consumption.
+            """
+        )
+        .font(.mullvadTinySemiBold)
+        .foregroundStyle(Color.mullvadTextSecondary)
     }
 
     @ViewBuilder
@@ -102,8 +108,8 @@ struct AntiCensorshipView: View {
         let subtitle: String? =
             switch state {
             case .shadowsocks: "Port: \(obfuscation.shadowsocksPort)"
-            case .lwo: "Port \(obfuscation.lwoPort)"
-            case .udpOverTcp: "Port \(obfuscation.lwoPort)"
+            case .lwo: "Port: \(obfuscation.lwoPort)"
+            case .udpOverTcp: "Port: \(obfuscation.udpOverTcpPort)"
             default: nil
             }
 
@@ -118,16 +124,15 @@ struct AntiCensorshipView: View {
             ShadowsocksObfuscationSettingsView(port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort)
                 .navigationTitle("Shadowsocks")
         case .udpOverTcp:
-            let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager)
-            UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
+            UDPOverTCPObfuscationSettingsView(port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort)
                 .navigationTitle("UDP-over-TCP")
         case .lwo:
             let viewModel = TunnelLwoObfuscationSettingsViewModel(
-                tunnelManager: settingsInteractor.tunnelManager,
                 portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-            LwoObfuscationSettingsView(viewModel: viewModel)
-                .navigationTitle("LWO")
+            LwoObfuscationSettingsView(
+                viewModel: viewModel, port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort
+            )
+            .navigationTitle("LWO")
         default: Text(state.description)
         }
     }
