@@ -70,7 +70,10 @@ export function getDefaultSettings(): ISettings {
     customLists: [],
     apiAccessMethods: getDefaultApiAccessMethods(),
     relayOverrides: [],
-    recents: [],
+    recents: {
+      entries: [],
+      exits: [],
+    },
   };
 }
 
