@@ -1,13 +1,15 @@
 use std::{
     collections::{BTreeMap, BTreeSet, VecDeque},
+    mem,
     net::SocketAddr,
     sync::Arc,
 };
 
 use bytes::{Bytes, BytesMut};
 use smoltcp::{
-    iface::{Config, Interface, SocketSet},
+    iface::{Config, Interface, SocketHandle, SocketSet},
     phy::{self, Device, DeviceCapabilities, Medium},
+    socket::tcp::{self, ListenError},
     time::Instant as SmoltcpInstant,
     wire::{Ipv4Packet, TcpPacket},
 };
@@ -17,7 +19,10 @@ use upstream_socket::{UpstreamSocketCommand, UpstreamSocketHandle, UpstreamSocke
 
 mod upstream_socket;
 
-struct SmoltcpStack {
+/// Size of TCP socket receive and send buffers within smoltcp.
+const TCP_BUFFER_SIZE: usize = 65535;
+
+pub struct SmoltcpStack {
     device: SmoltcpDevice,
     interface: Interface,
     sockets: SocketSet<'static>,
@@ -62,9 +67,13 @@ impl SmoltcpStack {
         }
     }
 
-    async fn run(packet_rx: mpsc::Receiver<Ipv4Packet<Bytes>>, tunnel: Arc<AsyncDevice>, mtu: u16) {
-        let stack = Self::new(tunnel, mtu);
-        let (new_socket_tx, new_socket_rx) = mpsc::channel::<UpstreamSocketMsg>(1024);
+    pub async fn run(
+        mut packet_rx: mpsc::Receiver<Ipv4Packet<Bytes>>,
+        tunnel: Arc<AsyncDevice>,
+        mtu: u16,
+    ) {
+        let mut stack = Self::new(tunnel, mtu);
+        let (new_socket_tx, mut new_socket_rx) = mpsc::channel::<UpstreamSocketMsg>(1024);
 
         // This future must multiplex between:
         //  - raw traffic from tunnel device that is expected to be TCP packets:
@@ -86,8 +95,19 @@ impl SmoltcpStack {
         //  Any interactions with the smoltcp stack within the smoltcp should only enqueue packets
         //  to be drained later. Same goes for smoltcp sockets.
         tokio::select! {
-            socket_msg = new_socket_rx.recv(); => self.handle_upstream_socket_msg(socket_msg);
-            downstream_packet = packet_rx.recv(); => self.handle_incoming_downstream_packet(downstream_packet_identifier);
+            socket_msg = new_socket_rx.recv() => {
+                if let Some(msg) = socket_msg {
+                    stack.handle_upstream_socket_cmd(msg);
+                }
+            },
+            downstream_packet = packet_rx.recv() => {
+                if let Some(packet) = downstream_packet {
+                    stack.handle_incoming_downstream_packet(packet, new_socket_tx.clone());
+                } else {
+                    log::debug!("Upstream writer closed");
+                    return;
+                }
+            }
         }
 
         // TODO
@@ -112,56 +132,81 @@ impl SmoltcpStack {
     }
 
     fn handle_upstream_socket_cmd(&mut self, socket_cmd: UpstreamSocketMsg) {
-        let UpstreamSocketMsg{ cmd, id } = socket_cmd;
-        let Some(mut connection) = self.upstream_sockets.get_mut(&id) else {
-            log::debug!("Received upstream socket message about a dead connection {:?}", socket_cmd.id);
+        let Some(connection) = self.upstream_sockets.get_mut(&socket_cmd.id) else {
+            log::debug!(
+                "Received upstream socket message about a dead connection {:?}",
+                socket_cmd.id
+            );
             return;
         };
 
         match socket_cmd.cmd {
             UpstreamSocketCommand::Connected => {
                 connection.is_connected = true;
-                self.serviceable_sockets.insert(id);
-                // TODO: create smoltcp socket or increment listener count
-            },
+                self.serviceable_sockets.insert(socket_cmd.id);
+                match Self::open_local_listener(socket_cmd.id.upstream) {
+                    Ok(socket) => {
+                        let handle = self.sockets.add(socket);
+                        connection.smoltcp_socket_handle = Some(handle);
+                    }
+                    Err(err) => {
+                        log::error!("Failed to open a listening socket: {err}");
+                        connection.recv_task.abort();
+
+                        self.upstream_sockets.remove(&socket_cmd.id);
+                        self.serviceable_sockets.remove(&socket_cmd.id);
+                    }
+                }
+            }
             UpstreamSocketCommand::Failed => {
                 connection.recv_task.abort();
-                mem::drop(connection);
-                self.upstream_sockets.remove(&id);
-                self.serviceable_sockets.remove(&id);
-                // TODO: remove smoltcp socket or decrement it's listener count
-            },
+                self.serviceable_sockets.remove(&socket_cmd.id);
+                if let Some(handle) = connection.smoltcp_socket_handle.take() {
+                    self.sockets.remove(handle);
+                }
+
+                self.upstream_sockets.remove(&socket_cmd.id);
+            }
             UpstreamSocketCommand::ReceivedPayload(payload) => {
                 connection.upstream_buffer.push_back(payload);
-                // TODO: push data into smoltcp socket
-                self.serviceable_sockets.insert(id);
-                // do what pump_tcp_writes in poll_loop.rs does for all sockets just for the one applicable
-                // socket here
-            },
+                self.serviceable_sockets.insert(socket_cmd.id);
+            }
             UpstreamSocketCommand::SentPayload(packet) => {
-                self.device.receive_buffer.push_back(packet);
-            },
+                self.device.enqueue_packet(packet.into_inner());
+            }
         }
     }
 
-    fn handle_incoming_downstream_packet(&mut self, packet: Ipv4Packet<Bytes>, socket_msg_tx: mpsc::Sender<UpstreamSocketMsg>) {
+    fn open_local_listener(
+        listening_address: SocketAddr,
+    ) -> Result<tcp::Socket<'static>, ListenError> {
+        let rx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
+        let tx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
+        let mut socket = tcp::Socket::new(rx_buffer, tx_buffer);
+        socket.listen(listening_address)?;
+
+        Ok(socket)
+    }
+
+    fn handle_incoming_downstream_packet(
+        &mut self,
+        packet: Ipv4Packet<Bytes>,
+        socket_msg_tx: mpsc::Sender<UpstreamSocketMsg>,
+    ) {
         let Some(connection_id) = downstream_packet_identifier(&packet) else {
             return;
         };
 
         if let Some(connection) = self.upstream_sockets.get_mut(&connection_id) {
             if tcp_packet_has_payload(&packet) {
-                if let Err(err) = connection
-                    .downstream_payload_tx
-                    .try_send(packet.into_inner())
-                {
+                if let Err(err) = connection.downstream_payload_tx.try_send(packet) {
                     log::error!(
                         "{connection_id:?} - failed to send packet to upstream, dropping payload: {err}"
                     );
                 };
                 return;
             }
-            self.device.receive_buffer.push_back(packet);
+            self.device.receive_buffer.push_back(packet.into_inner());
             return;
         }
 
@@ -199,14 +244,15 @@ fn tcp_packet_from_ip_packet(packet: &Ipv4Packet<Bytes>) -> Option<TcpPacket<&[u
 
 struct SmoltcpDevice {
     tunnel: Arc<AsyncDevice>,
-    receive_buffer: VecDeque<Vec<u8>>,
+    receive_buffer: VecDeque<Bytes>,
     mtu: u16,
 }
 
 impl SmoltcpDevice {
-    fn enqueue_packet(&mut self, packet: Vec<u8>) {
+    fn enqueue_packet(&mut self, packet: Bytes) {
         self.receive_buffer.push_back(packet);
     }
+
     fn tx_token<'a>(&'a self) -> SmoltcpTxToken<'a> {
         let device = &self.tunnel;
         SmoltcpTxToken { device }
@@ -243,7 +289,7 @@ impl Device for SmoltcpDevice {
 }
 
 pub struct SmoltcpRxToken {
-    packet: Vec<u8>,
+    packet: Bytes,
 }
 
 impl phy::RxToken for SmoltcpRxToken {

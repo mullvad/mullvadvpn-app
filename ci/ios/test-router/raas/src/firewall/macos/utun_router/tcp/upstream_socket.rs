@@ -1,6 +1,6 @@
 use bytes::{Bytes, BytesMut};
-use smoltcp::wire::{IpProtocol, Ipv4Packet, TcpPacket};
-use std::{collections::VecDeque, mem, time::Duration};
+use smoltcp::{iface::SocketHandle, wire::{IpProtocol, Ipv4Packet, TcpPacket, IPV4_HEADER_LEN}};
+use std::{collections::VecDeque, time::Duration};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -14,17 +14,18 @@ use super::TcpConnectionId;
 pub struct UpstreamSocketHandle {
     pub recv_task: JoinHandle<()>,
     // channel for sending data to the upstream TCP socket immediately.
-    pub downstream_payload_tx: mpsc::Sender<Bytes>,
+    pub downstream_payload_tx: mpsc::Sender<Ipv4Packet<Bytes>>,
     // IP packets to be written into smoltcp
     pub downstream_buffer: VecDeque<Bytes>,
     // TCP payloads to be written into smoltcp socket
     pub upstream_buffer: VecDeque<Bytes>,
     pub is_connected: bool,
+    pub smoltcp_socket_handle: Option<SocketHandle>,
 }
 
 impl UpstreamSocketHandle {
     pub fn new(connection_id: TcpConnectionId, socket_tx: mpsc::Sender<UpstreamSocketMsg>) -> Self {
-        let (send_tx, mut recv_rx) = mpsc::channel(1024);
+        let (send_tx, mut recv_rx) = mpsc::channel::<Ipv4Packet<Bytes>>(1024);
         let recv_task = tokio::spawn(async move {
             let mut connection = match timeout(
                 Duration::from_secs(60),
@@ -55,10 +56,12 @@ impl UpstreamSocketHandle {
                 }
             };
 
-            let _ = socket_tx.send(UpstreamSocketMsg{
-                id: connection_id,
-                cmd: UpstreamSocketCommand::Connected,
-            }).await;
+            let _ = socket_tx
+                .send(UpstreamSocketMsg {
+                    id: connection_id,
+                    cmd: UpstreamSocketCommand::Connected,
+                })
+                .await;
 
             let mut read_buf = BytesMut::with_capacity(u16::MAX.into());
             let (mut reader, mut writer) = connection.split();
@@ -125,18 +128,18 @@ impl UpstreamSocketHandle {
             upstream_buffer: VecDeque::new(),
             downstream_buffer: VecDeque::new(),
             is_connected: false,
+            smoltcp_socket_handle: None,
         }
     }
 }
 
-fn extract_tcp_payload(packet: &Bytes) -> Option<&[u8]> {
-    let ipv4_packet = Ipv4Packet::new_checked(packet).ok()?;
-    let IpProtocol::Tcp = ipv4_packet.next_header() else {
+fn extract_tcp_payload(packet: &Ipv4Packet<Bytes>) -> Option<&[u8]> {
+    let IpProtocol::Tcp = packet.next_header() else {
         log::error!("Received a non-tcp packet");
         return None;
     };
 
-    let tcp_packet = TcpPacket::new_checked(ipv4_packet.payload()).ok()?;
+    let tcp_packet = TcpPacket::new_checked(&packet.as_ref()[IPV4_HEADER_LEN..]).ok()?;
     let payload = tcp_packet.payload();
     if payload.is_empty() {
         log::error!("Received TCP packet with empty payload");

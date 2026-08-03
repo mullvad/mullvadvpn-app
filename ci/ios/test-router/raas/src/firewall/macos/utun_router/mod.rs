@@ -4,13 +4,14 @@ use std::{
     sync::Arc,
 };
 
-use bytes::BytesMut;
+use bytes::{Bytes, BytesMut};
 use ping_tokio::IcmpSocket;
 use smoltcp::{
     phy::ChecksumCapabilities,
     wire::{IpProtocol, Ipv4Packet, Ipv4Repr, UdpPacket, UdpRepr},
 };
-use tokio::net::UdpSocket;
+use tcp::SmoltcpStack;
+use tokio::{net::UdpSocket, sync::mpsc};
 use tun_rs::AsyncDevice;
 
 mod tcp;
@@ -90,19 +91,24 @@ impl ConnectionIdentifier {
 pub struct Router {
     tunnel_device: Arc<AsyncDevice>,
     udp_sockets: BTreeMap<SocketAddr, Arc<UdpSocket>>,
+    tcp_packet_tx: mpsc::Sender<Ipv4Packet<Bytes>>,
 }
 
 impl Router {
-    fn new(tunnel_device: Arc<AsyncDevice>) -> Self {
+    fn new(tunnel_device: Arc<AsyncDevice>, mtu: u16) -> Self {
+        let (tcp_packet_tx, tcp_packet_rx) = mpsc::channel(1024);
+        tokio::spawn(SmoltcpStack::run(tcp_packet_rx, tunnel_device.clone(), mtu));
+
         Self {
             tunnel_device,
             udp_sockets: Default::default(),
+            tcp_packet_tx,
         }
     }
 
-    pub fn spawn(device: AsyncDevice) {
+    pub fn spawn(device: AsyncDevice, mtu: u16) {
         let tunnel_device = Arc::new(device);
-        let mut router = Self::new(tunnel_device.clone());
+        let mut router = Self::new(tunnel_device.clone(), mtu);
 
         tokio::spawn(async move {
             let mut buffer = BytesMut::new();
@@ -136,8 +142,14 @@ impl Router {
                     .await;
             }
             IpProtocol::Tcp => {
-                self.process_tcp_packet(source_address, destination_address, ipv4_packet)
-                    .await;
+                let packet = Bytes::from(ipv4_packet.payload().to_owned());
+                if let Err(_) = self
+                    .tcp_packet_tx
+                    .send(Ipv4Packet::new_unchecked(packet))
+                    .await
+                {
+                    log::error!("Failed to send TCP packet to TCP router - dropping it");
+                }
             }
             IpProtocol::Icmp => {
                 self.process_icmp_packet(

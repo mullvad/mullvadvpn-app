@@ -32,6 +32,6 @@ nftnl = { version = "0.9", features = ["nftnl-1-1-0"] }
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.7.0"
 tun-rs = { version = "2", features = ["async"] }
-smoltcp = "0.13"
+smoltcp = { version = "0.13", features = [ "socket-icmp", "medium-ip", "std" ] }
 ping-tokio = "0.4"
 bytes = "1"

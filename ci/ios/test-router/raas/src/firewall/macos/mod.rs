@@ -28,7 +28,7 @@ pub struct BlockList {
 impl BlockList {
     pub(crate) fn new(tunnel_device: AsyncDevice) -> Self {
 
-        utun_router::Router::spawn(tunnel_device);
+        utun_router::Router::spawn(tunnel_device, 1420);
         Self { rules: Default::default() }
     }
 
