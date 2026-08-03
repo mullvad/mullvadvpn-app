@@ -7,6 +7,8 @@ use std::{
 use talpid_dns::ResolvedDnsConfig;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic};
+#[cfg(target_os = "windows")]
+use talpid_types::tunnel::FirewallPolicyError;
 
 cfg_if::cfg_if! {
     if #[cfg(target_os = "windows")] {
@@ -382,5 +384,19 @@ impl Firewall {
     #[cfg(target_os = "windows")]
     pub fn persist(&mut self, persist: bool) {
         self.inner.persist(persist);
+    }
+
+    /// Replace the set of sockets that are excluded from the firewall, i.e. allowed to send
+    /// traffic outside of the tunnel.
+    ///
+    /// Each [`AllowedEndpoint`] describes the *local* endpoint of a socket, not a remote peer.
+    /// The exceptions are independent of the active [`FirewallPolicy`] and survive policy
+    /// changes.
+    #[cfg(target_os = "windows")]
+    pub fn set_excluded_sockets(
+        &mut self,
+        sockets: &[AllowedEndpoint],
+    ) -> Result<(), FirewallPolicyError> {
+        self.inner.set_excluded_sockets(sockets)
     }
 }

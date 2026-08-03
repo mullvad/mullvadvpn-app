@@ -84,6 +84,37 @@ pub(super) fn apply_policy_blocked(
     application.into_result()
 }
 
+/// Replace the set of sockets that are excluded ("bypassed") from the firewall.
+///
+/// Note that the [`AllowedEndpoint`]s here describe the *local* endpoints of sockets, not remote
+/// peers. An unspecified IP means "any local address".
+///
+/// The exceptions are owned by WinFw and reapplied on top of every subsequent policy, so they
+/// survive policy changes. Passing an empty slice removes all of them.
+///
+/// Returns an error if [winfw](self) is not initialized.
+pub(super) fn set_excluded_sockets(sockets: &[AllowedEndpoint]) -> Result<(), FirewallPolicyError> {
+    // SAFETY: The containers must not be dropped until `WinFw_SetExcludedSockets` has returned,
+    // since `winfw_sockets` points into them.
+    let containers: Vec<WinFwAllowedEndpointContainer> = sockets
+        .iter()
+        .cloned()
+        .map(WinFwAllowedEndpointContainer::from)
+        .collect();
+    let winfw_sockets: Vec<_> = containers
+        .iter()
+        .map(WinFwAllowedEndpointContainer::as_endpoint)
+        .collect();
+
+    // SAFETY: `winfw_sockets` is a valid slice of `winfw_sockets.len()` endpoints.
+    let result = unsafe { WinFw_SetExcludedSockets(winfw_sockets.as_ptr(), winfw_sockets.len()) };
+
+    // SAFETY: All of these must remain allocated until `WinFw_SetExcludedSockets` has returned.
+    drop(winfw_sockets);
+    drop(containers);
+    result.into_result()
+}
+
 pub(super) fn apply_policy_connecting(
     peer_endpoints: &[AllowedEndpoint],
     exit_endpoint_ip: Option<IpAddr>,

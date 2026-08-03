@@ -205,6 +205,26 @@ impl Firewall {
         self.persist = persist;
     }
 
+    /// Replace the set of sockets that are excluded from the firewall.
+    ///
+    /// Each [`AllowedEndpoint`] describes the *local* endpoint of a socket, not a remote peer.
+    /// The exceptions are applied on top of whichever policy is active, and remain in effect
+    /// until this is called again or the policy is reset.
+    pub fn set_excluded_sockets(
+        &mut self,
+        sockets: &[AllowedEndpoint],
+    ) -> Result<(), FirewallPolicyError> {
+        log::debug!(
+            "Excluding sockets from the firewall: [{}]",
+            sockets
+                .iter()
+                .map(|socket| socket.to_string())
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+        winfw::set_excluded_sockets(sockets)
+    }
+
     fn set_connecting_state(
         &mut self,
         peer_endpoints: &[AllowedEndpoint],

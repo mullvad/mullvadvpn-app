@@ -161,6 +161,12 @@ unsafe extern "system" {
         allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
     ) -> WinFwPolicyStatus;
 
+    #[link_name = "WinFw_SetExcludedSockets"]
+    pub fn WinFw_SetExcludedSockets(
+        sockets: *const WinFwAllowedEndpoint<'_>,
+        numSockets: usize,
+    ) -> WinFwPolicyStatus;
+
     #[link_name = "WinFw_Reset"]
     pub fn WinFw_Reset() -> WinFwPolicyStatus;
 }
