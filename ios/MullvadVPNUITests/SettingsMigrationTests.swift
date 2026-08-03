@@ -111,14 +111,19 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapBackButton()
 
         VPNSettingsPage(app)
-            .tapWireGuardPortsExpandButton()
-            .tapCustomWireGuardPortTextField()
-            .enterText(wireGuardPort)
+            .tapWireGuardPorts()
+
+        WireGuardPortsSettingsPage(app)
+            .typeTextIntoCustomField(wireGuardPort)
             .dismissKeyboard()
-            .tapQuantumResistantTunnelExpandButton()
-            .tapQuantumResistantTunnelOnCell()
-            .tapWireGuardObfuscationExpandButton()
-            .tapUDPOverTCPPortSelectorButton()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .turnQuantumResistanceOn()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .navigateToUDPOverTCPObfuscationSettings()
 
         UDPOverTCPObfuscationSettingsPage(app)
             .tapPort5001Cell()
@@ -126,7 +131,10 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapBackButton()
 
         VPNSettingsPage(app)
-            .tapShadowsocksPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .navigateToShadowsocksObfuscationSettings()
 
         ShadowsocksObfuscationSettingsPage(app)
             .tapAutomaticPortCell()
@@ -135,7 +143,10 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapBackButton()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationUdpOverTcpCell()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationUdpOverTcp()
     }
 
     func testVerifySettingsStillChanged() {
@@ -159,12 +170,18 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapBackButton()
 
         VPNSettingsPage(app)
-            .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
-            .tapWireGuardPortsExpandButton()
+            .tapWireGuardPorts()
+
+        WireGuardPortsSettingsPage(app)
             .verifyCustomWireGuardPortSelected(portNumber: wireGuardPort)
-            .tapWireGuardObfuscationExpandButton()
-            .tapUDPOverTCPPortSelectorButton()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .navigateToUDPOverTCPObfuscationSettings()
 
         UDPOverTCPObfuscationSettingsPage(app)
             .verifyUDPOverTCPPort80Selected()

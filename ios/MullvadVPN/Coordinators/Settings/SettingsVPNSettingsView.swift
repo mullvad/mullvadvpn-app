@@ -12,7 +12,7 @@ import SwiftUI
 private struct GlobalVPNSetting: Identifiable {
     let id: String
     let label: String
-    let accessibilityIdentifier: AccessibilityIdentifier
+    let accessibilityIdentifier: AccessibilityIdentifier?
     let customView: AnyView?
 }
 
@@ -41,18 +41,18 @@ struct SettingsVPNSettingsView: View {
         .init(
             id: NSLocalizedString("Server IP override", comment: ""),
             label: NSLocalizedString("Server IP override", comment: ""),
-            accessibilityIdentifier: .dnsSettings, customView: nil),
+            accessibilityIdentifier: .ipOverrides, customView: nil),
     ]
 
     private let censorshipSettings: [GlobalVPNSetting] = [
         .init(
             id: NSLocalizedString("Anti-censorship", comment: ""),
             label: NSLocalizedString("Anti-censorship", comment: ""),
-            accessibilityIdentifier: .dnsSettings, customView: nil),
+            accessibilityIdentifier: .wireGuardCustomPort, customView: nil),
         .init(
             id: NSLocalizedString("Quantum-resistant tunnel", comment: ""),
             label: NSLocalizedString("Quantum-resistant tunnel", comment: ""),
-            accessibilityIdentifier: .dnsSettings, customView: nil),
+            accessibilityIdentifier:nil, customView: nil),
     ]
 
     private struct IPSettingOption: Identifiable {
@@ -154,6 +154,7 @@ struct SettingsVPNSettingsView: View {
     func antiCensorshipView() -> some View {
         VStack(alignment: .leading, spacing: 1) {
             SegmentedListItem(
+                accessibilityIdentifier: .wireGuardPorts,
                 leadingAndTrailingDestination: {
                     let viewModel = TunnelWireGuardPortSettingsViewModel(
                         portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
@@ -182,6 +183,7 @@ struct SettingsVPNSettingsView: View {
                 },
                 groupedContent: {
                     SegmentedListItem(
+                        accessibilityIdentifier: .antiCensorship,
                         leadingAndTrailingDestination: {
                             AntiCensorshipView(
                                 settingsInteractor: settingsInteractor,

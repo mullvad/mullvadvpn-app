@@ -38,8 +38,13 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationShadowsocksCell()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationShadowsocks()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
             .tapBackButton()
 
         SettingsPage(app)

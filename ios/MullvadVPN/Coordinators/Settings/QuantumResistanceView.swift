@@ -17,7 +17,7 @@ struct QuantumResistanceView: View {
     var body: some View {
         SegmentedListItem(
             userInteraction: .enabledWithoutHighlight,
-            accessibilityIdentifier: .accessMethodAddButton,  // TODO: fix this
+            accessibilityIdentifier: .quantumResistantTunnelCell,
             leading: {
                 itemFactory.leading(
                     for: .generic(title: NSLocalizedString("Quantum-resistant tunnel", comment: ""))
@@ -35,7 +35,8 @@ struct QuantumResistanceView: View {
                         ),
                         .toggle(
                             isOn: $isQuantumResistanceEnabled,
-                            isDisabled: false
+                            isDisabled: false,
+                            accessibilityID: isQuantumResistanceEnabled ? .quantumResistanceOff : .quantumResistanceOn
                         ),
                         .padding(),
                     ])

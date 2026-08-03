@@ -26,7 +26,7 @@ struct SegmentedListItemFactory {
         case external(title: String)
         case input(title: String, placeholder: String, text: Binding<String>)
         case text(title: String, breadcrumb: Breadcrumb? = nil)
-        case toggle(isOn: Binding<Bool>, isDisabled: Bool)
+        case toggle(isOn: Binding<Bool>, isDisabled: Bool, accessibilityID: AccessibilityIdentifier? = nil)
     }
 
     enum Segment {
@@ -65,7 +65,7 @@ struct SegmentedListItemFactory {
         case input(placeholder: String, text: Binding<String>)
         case padding(width: CGFloat = 16)
         case string(_ string: String)
-        case toggle(isOn: Binding<Bool>, isDisabled: Bool)
+        case toggle(isOn: Binding<Bool>, isDisabled: Bool, accessibilityID: AccessibilityIdentifier? = nil)
     }
 
     @ViewBuilder func leading(for leading: Leading) -> some View {
@@ -149,10 +149,10 @@ struct SegmentedListItemFactory {
                     .padding(),
                 ].compactMap { $0 }
             )
-        case .toggle(let isOn, let isDisabled):
+        case .toggle(let isOn, let isDisabled, let accessibilityID):
             trailingItemViews(
                 for: [
-                    .toggle(isOn: isOn, isDisabled: isDisabled),
+                    .toggle(isOn: isOn, isDisabled: isDisabled, accessibilityID: accessibilityID),
                     .padding(),
                 ]
             )
@@ -273,7 +273,7 @@ struct SegmentedListItemFactory {
                         .fixedSize(horizontal: true, vertical: true)
                         .font(.mullvadTiny)
                         .foregroundStyle(Color.mullvadTextSecondary)
-                case .toggle(let isOn, let isDisabled):
+                case .toggle(let isOn, let isDisabled, let accessibilityID):
                     Toggle("", isOn: isOn)
                         .toggleStyle(
                             CustomToggleStyle(
@@ -282,6 +282,7 @@ struct SegmentedListItemFactory {
                                 infoButtonAction: nil
                             )
                         )
+                        .accessibilityIdentifier(accessibilityID)
                         .disabled(isDisabled)
                 }
             }

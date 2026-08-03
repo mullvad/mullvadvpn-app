@@ -539,7 +539,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     private func configureWireguardPortsHeader(_ header: SettingsHeaderView) {
         let title = NSLocalizedString("WireGuard port", comment: "")
 
-        header.setAccessibilityIdentifier(.wireGuardPortsCell)
+        header.setAccessibilityIdentifier(.wireGuardPorts)
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.wireGuardPorts)

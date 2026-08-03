@@ -21,7 +21,7 @@ struct WireGuardPortSettingsView: View {
             title: portString,
             options: options,
             value: port,
-            tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationLwoTable.asString,  // ???
+            tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationPortTable.asString,
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
             parseCustomValue: {
                 if let portValue = UInt16($0) {

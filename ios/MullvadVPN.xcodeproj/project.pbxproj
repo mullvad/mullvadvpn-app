@@ -969,6 +969,8 @@
 		A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E034632ABB302000E59A5A /* UIEdgeInsets+Extensions.swift */; };
 		A9E9894A3010924B00D42845 /* VPNSettingsNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E989493010924B00D42845 /* VPNSettingsNavigationView.swift */; };
 		A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EE85602DF1BE2900F2D769 /* TermsOfServiceView.swift */; };
+		A9F9F8223020C73200ABA309 /* WireGuardPortsSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */; };
+		A9F9F8243020D30400ABA309 /* AntiCensorshipPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */; };
 		BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */; };
 		C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */; };
 		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; };
@@ -2583,6 +2585,8 @@
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9EE85602DF1BE2900F2D769 /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
+		A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortsSettingsPage.swift; sourceTree = "<group>"; };
+		A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntiCensorshipPage.swift; sourceTree = "<group>"; };
 		B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelImplementation.swift; sourceTree = "<group>"; };
 		B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSearchBar.swift; sourceTree = "<group>"; };
 		D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPathSnapshot.swift; sourceTree = "<group>"; };
@@ -4852,6 +4856,7 @@
 				852D054E2BC43DF7008578D2 /* AddAccessMethodPage.swift */,
 				7ACD79382C0DAADC00DBEE14 /* AddCustomListLocationsPage.swift */,
 				8529693B2B4F0257007EAD4C /* Alert.swift */,
+				A9F9F8233020D30400ABA309 /* AntiCensorshipPage.swift */,
 				852D054C2BC3DE3A008578D2 /* APIAccessPage.swift */,
 				85021CAD2BDBC4290098B400 /* AppLogsPage.swift */,
 				8587A05C2B84D43100152938 /* ChangeLogAlert.swift */,
@@ -4885,6 +4890,7 @@
 				4495ECD02D0B16F700A7358B /* UDPOverTCPObfuscationSettingsPage.swift */,
 				8542CE232B95F7B9006FCA14 /* VPNSettingsPage.swift */,
 				85FB5A0B2B6903990015DCED /* WelcomePage.swift */,
+				A9F9F8213020C73200ABA309 /* WireGuardPortsSettingsPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
@@ -7429,6 +7435,8 @@
 				852A26462BA9C9CB006EB9C8 /* DNSSettingsPage.swift in Sources */,
 				A998DA812BD147AD001D61A2 /* ListCustomListsPage.swift in Sources */,
 				F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */,
+				A9F9F8243020D30400ABA309 /* AntiCensorshipPage.swift in Sources */,
+				A9F9F8223020C73200ABA309 /* WireGuardPortsSettingsPage.swift in Sources */,
 				850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */,
 				8542CE242B95F7B9006FCA14 /* VPNSettingsPage.swift in Sources */,
 				85557B1E2B5FB8C700795FE1 /* HeaderBar.swift in Sources */,

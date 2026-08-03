@@ -170,12 +170,17 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationUdpOverTcpCell()
-            .tapUDPOverTCPPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationUdpOverTcp()
+            .navigateToUDPOverTCPObfuscationSettings()
 
         UDPOverTCPObfuscationSettingsPage(app)
             .tapPort80Cell()
+            .tapBackButton()
+
+        AntiCensorshipPage(app)
             .tapBackButton()
 
         VPNSettingsPage(app)
@@ -227,13 +232,18 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationShadowsocksCell()
-            .tapShadowsocksPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationShadowsocks()
+            .navigateToShadowsocksObfuscationSettings()
 
         ShadowsocksObfuscationSettingsPage(app)
             .tapCustomCell()
             .typeTextIntoCustomField("51900")
+            .tapBackButton()
+
+        AntiCensorshipPage(app)
             .tapBackButton()
 
         VPNSettingsPage(app)
@@ -284,13 +294,18 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationLwoCell()
-            .tapLwoPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationLwo()
+            .navigateToLwoObfuscationSettings()
 
         LwoObfuscationSettingsPage(app)
             .tapCustomCell()
             .typeTextIntoCustomField("4000")
+            .tapBackButton()
+
+        AntiCensorshipPage(app)
             .tapBackButton()
 
         VPNSettingsPage(app)
@@ -341,8 +356,9 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationUdpOverTcpCell()
+            .tapAntiCensorshipCell()
+        AntiCensorshipPage(app)
+            .selectObfuscationUdpOverTcp()
             .tapBackButton()
 
         SettingsPage(app)
@@ -370,8 +386,10 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationShadowsocksCell()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationShadowsocks()
             .tapBackButton()
 
         SettingsPage(app)
@@ -401,8 +419,13 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationQuicCell()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationQuic()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
             .tapBackButton()
 
         SettingsPage(app)
@@ -472,8 +495,13 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationLwoCell()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .selectObfuscationLwo()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
             .tapBackButton()
 
         SettingsPage(app)
@@ -501,12 +529,11 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardPortsExpandButton()
-            .tapCustomWireGuardPortTextField()
-            .enterText("4001")
-            .dismissKeyboard()
-            .swipeDownToDismissModal()
+            .tapWireGuardPorts()
 
+        WireGuardPortsSettingsPage(app)
+            .typeTextIntoCustomField("4001")
+            .swipeDownToDismissModal()
             // After editing text field the table is first responder for the first swipe so we need to swipe twice to swipe the modal
             .swipeDownToDismissModal()
 
@@ -795,8 +822,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapQuantumResistantTunnelExpandButton()
-            .tapQuantumResistantTunnelOffCell()
+            .turnQuantumResistanceOff()
             .tapBackButton()
 
         SettingsPage(app)

@@ -13,14 +13,27 @@ struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
     @Bindable var settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
-    let availableObfuscations: [WireGuardObfuscationState] = [
-        .automatic,
-        .shadowsocks,
-        .udpOverTcp,
-        .quic,
-        .lwo,
-        .off,
-    ]
+
+    struct Options: Identifiable {
+        typealias ID = String
+        let state: WireGuardObfuscationState
+        let accessibilityIdentifier: AccessibilityIdentifier
+
+        var id: ID {
+            state.description
+        }
+    }
+
+    // TODO: Add an accessibility identifier for segment views
+    let availableObfuscations: [Options] =
+        [
+            .init(state: .automatic, accessibilityIdentifier: .wireGuardObfuscationAutomatic),
+            .init(state: .shadowsocks, accessibilityIdentifier: .wireGuardObfuscationShadowsocks),
+            .init(state: .udpOverTcp, accessibilityIdentifier: .wireGuardObfuscationUdpOverTcp),
+            .init(state: .quic, accessibilityIdentifier: .wireGuardObfuscationQuic),
+            .init(state: .lwo, accessibilityIdentifier: .wireGuardObfuscationLwo),
+            .init(state: .off, accessibilityIdentifier: .wireGuardObfuscationOff),
+        ]
 
     var body: some View {
         ScrollView {
@@ -37,31 +50,22 @@ struct AntiCensorshipView: View {
                     },
                     groupedContent: {
                         Group {
-                            ForEach(Array(availableObfuscations.enumerated()), id: \.element.description) {
-                                index, option in
+                            ForEach(Array(availableObfuscations.enumerated()), id: \.element.id) {
+                                (index: Int, option: Options) in
+                                let state = option.state
+                                let accessibilityIdentifier = option.accessibilityIdentifier
                                 SegmentedListItem(
                                     level: 1,
                                     isLastInList: index == availableObfuscations.count - 1,
-                                    accessibilityIdentifier: .udpOverTcpObfuscationSettings,  // ???
+                                    accessibilityIdentifier: accessibilityIdentifier,
                                     leading: {
-                                        leadingView(for: option)
+                                        leadingView(for: state)
                                     },
                                     segment: {
-                                        if [
-                                            WireGuardObfuscationState.automatic, WireGuardObfuscationState.quic,
-                                            WireGuardObfuscationState.off,
-                                        ].contains(option) {
-                                            EmptyView()
-                                        } else {
-                                            NavigationLink {
-                                                obfuscationView(option)
-                                            } label: {
-                                                itemFactory.image(for: .chevron)
-                                            }
-                                        }
+                                        segmentView(for: state)
                                     },
                                     onSelect: {
-                                        settings.tunnelSettings.wireGuardObfuscation.state = option
+                                        settings.tunnelSettings.wireGuardObfuscation.state = state
                                     }
                                 )
                             }
@@ -118,22 +122,47 @@ struct AntiCensorshipView: View {
     }
 
     @ViewBuilder
-    func obfuscationView(_ state: WireGuardObfuscationState) -> some View {
-        switch state {
-        case .shadowsocks:
-            ShadowsocksObfuscationSettingsView(port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort)
-                .navigationTitle("Shadowsocks")
-        case .udpOverTcp:
-            UDPOverTCPObfuscationSettingsView(port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort)
-                .navigationTitle("UDP-over-TCP")
-        case .lwo:
-            let viewModel = TunnelLwoObfuscationSettingsViewModel(
-                portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
-            LwoObfuscationSettingsView(
-                viewModel: viewModel, port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort
-            )
-            .navigationTitle("LWO")
-        default: Text(state.description)
+    func segmentView(for state: WireGuardObfuscationState) -> some View {
+        if [WireGuardObfuscationState.automatic, WireGuardObfuscationState.quic, WireGuardObfuscationState.off]
+            .contains(state)
+        {
+            EmptyView()
+        } else {
+            NavigationLink {
+                switch state {
+                case .shadowsocks:
+                    ShadowsocksObfuscationSettingsView(
+                        port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort
+                    )
+                    .navigationTitle("Shadowsocks")
+                case .udpOverTcp:
+                    UDPOverTCPObfuscationSettingsView(
+                        port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort
+                    )
+                    .navigationTitle("UDP-over-TCP")
+                case .lwo:
+                    let viewModel = TunnelLwoObfuscationSettingsViewModel(
+                        portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
+                    LwoObfuscationSettingsView(
+                        viewModel: viewModel, port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort
+                    )
+                    .navigationTitle("LWO")
+                default: EmptyView()
+                }
+            } label: {
+                switch state {
+                case .shadowsocks:
+                    itemFactory.image(for: .chevron)
+                        .accessibilityIdentifier(.wireGuardObfuscationShadowsocksPort)
+                case .udpOverTcp:
+                    itemFactory.image(for: .chevron)
+                        .accessibilityIdentifier(.wireGuardObfuscationUdpOverTcpPort)
+                case .lwo:
+                    itemFactory.image(for: .chevron)
+                        .accessibilityIdentifier(.wireGuardObfuscationLwoPort)
+                default: EmptyView()
+                }
+            }
         }
     }
 }
