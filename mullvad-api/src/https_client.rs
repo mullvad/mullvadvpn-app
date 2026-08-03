@@ -207,12 +207,12 @@ impl InnerConnectionMode {
 
                 let proxy = if dbg!(USE_HTTP2) {
                     let stream = connect_tls().await?;
-                    ProxyConnection::http2_from_stream(stream, &domain_fronting)
+                    ProxyConnection::http2_from_stream(stream, domain_fronting)
                         .await
                         .map_err(std::io::Error::other)?
                 } else {
                     let (stream1, stream2) = future::try_join(connect_tls(), connect_tls()).await?;
-                    ProxyConnection::http1_1_from_streams(stream1, stream2, &domain_fronting)
+                    ProxyConnection::http1_1_from_streams(stream1, stream2, domain_fronting)
                         .await
                         .map_err(std::io::Error::other)?
                 };
@@ -558,7 +558,7 @@ impl Service<Uri> for HttpsConnector {
         let disable_tls = self.disable_tls;
 
         let span = trace_span!("HttpsConnector::call");
-        span.record("uri", &format_args!("{uri}"));
+        span.record("uri", format_args!("{uri}"));
 
         let return_span = span.clone();
         let fut = async move {
