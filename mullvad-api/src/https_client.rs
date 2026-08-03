@@ -199,7 +199,7 @@ impl InnerConnectionMode {
                     let tcp_stream = HttpsConnector::open_socket(
                         config.addr,
                         #[cfg(target_os = "android")]
-                        socket_bypass_tx,
+                        socket_bypass_tx.clone(),
                     )
                     .await?;
                     cdn_tls_connect(tcp_stream, domain_fronting.front_host(), USE_HTTP2).await
