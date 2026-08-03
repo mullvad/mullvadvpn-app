@@ -239,6 +239,16 @@ impl TunnelState for DisconnectedState {
                 SameState(self)
             }
             #[cfg(windows)]
+            Some(TunnelCommand::BypassSocket(endpoint, reply_tx)) => {
+                shared_values.bypass_socket(endpoint, reply_tx);
+                SameState(self)
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::RevokeSocketBypass(endpoint)) => {
+                shared_values.revoke_socket_bypass(endpoint);
+                SameState(self)
+            }
+            #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.exclude_paths(paths, result_tx);
                 SameState(self)

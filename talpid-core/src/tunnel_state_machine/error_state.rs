@@ -231,6 +231,16 @@ impl TunnelState for ErrorState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self)
             }
+            #[cfg(windows)]
+            Some(TunnelCommand::BypassSocket(endpoint, reply_tx)) => {
+                shared_values.bypass_socket(endpoint, reply_tx);
+                SameState(self)
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::RevokeSocketBypass(endpoint)) => {
+                shared_values.revoke_socket_bypass(endpoint);
+                SameState(self)
+            }
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 if shared_values.set_excluded_paths(paths) {

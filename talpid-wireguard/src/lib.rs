@@ -184,6 +184,8 @@ impl WireguardMonitor {
                 obfuscation_mtu,
                 close_obfs_sender.clone(),
                 userspace_wireguard,
+                #[cfg(windows)]
+                args.socket_bypass.clone(),
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
         if params.options.mtu.is_none()
@@ -281,6 +283,8 @@ impl WireguardMonitor {
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     userspace_wireguard,
+                    #[cfg(windows)]
+                    args.socket_bypass,
                 )
                 .await
                 {

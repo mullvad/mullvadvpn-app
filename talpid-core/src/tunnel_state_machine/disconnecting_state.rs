@@ -29,6 +29,11 @@ impl DisconnectingState {
         let _ = tunnel_close_tx.send(());
         let action_after_disconnect = after_disconnect.action();
 
+        // The tunnel is going away, and with it any socket that it excluded from the firewall.
+        // Drop the exceptions in case the obfuscator did not do so itself.
+        #[cfg(windows)]
+        shared_values.clear_excluded_sockets();
+
         Self::set_firewall_policy(shared_values);
         (
             Box::new(DisconnectingState {
@@ -115,6 +120,14 @@ impl DisconnectingState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::BypassSocket(endpoint, reply_tx)) => {
+                shared_values.bypass_socket(endpoint, reply_tx);
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::RevokeSocketBypass(endpoint)) => {
+                shared_values.revoke_socket_bypass(endpoint);
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {

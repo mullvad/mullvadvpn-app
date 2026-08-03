@@ -9,7 +9,9 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, mpsc as sync_mpsc},
 };
-use talpid_net::bypass::{BypassToken, SocketBypass};
+#[cfg(not(windows))]
+use talpid_net::bypass::BypassToken;
+use talpid_net::bypass::SocketBypass;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
@@ -35,6 +37,7 @@ pub async fn apply_obfuscation_config(
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    #[cfg(windows)] socket_bypass: Arc<dyn SocketBypass>,
 ) -> Result<Option<ObfuscatorHandle>> {
     let Some(ref obfuscator_config) = config.obfuscator_config else {
         return Ok(None);
@@ -51,6 +54,12 @@ pub async fn apply_obfuscation_config(
 
     log::trace!("Obfuscation settings: {settings:?}");
 
+    // On Windows, sockets are excluded from the firewall by the tunnel state machine, which owns
+    // the firewall. The bypass is therefore injected rather than constructed here.
+    #[cfg(windows)]
+    let bypass = socket_bypass;
+
+    #[cfg(not(windows))]
     let bypass = Arc::new(ObfuscatorSocketBypass {
         #[cfg(target_os = "linux")]
         fwmark: config.fwmark.unwrap_or_else(|| {
@@ -60,7 +69,7 @@ pub async fn apply_obfuscation_config(
 
         #[cfg(target_os = "android")]
         tun_provider,
-    });
+    }) as Arc<dyn SocketBypass>;
 
     let obfuscator = create_obfuscator_with_bypass(bypass, &settings)
         .await
@@ -196,6 +205,7 @@ impl Drop for ObfuscatorHandle {
     }
 }
 
+#[cfg(not(windows))]
 struct ObfuscatorSocketBypass {
     #[cfg(target_os = "linux")]
     fwmark: u32,
@@ -204,6 +214,7 @@ struct ObfuscatorSocketBypass {
     tun_provider: Arc<Mutex<TunProvider>>,
 }
 
+#[cfg(not(windows))]
 impl SocketBypass for ObfuscatorSocketBypass {
     #[cfg(target_os = "linux")]
     fn bypass_socket(
@@ -214,7 +225,7 @@ impl SocketBypass for ObfuscatorSocketBypass {
         socket.set_mark(self.fwmark)
     }
 
-    #[cfg(any(windows, target_os = "macos"))]
+    #[cfg(target_os = "macos")]
     fn bypass_socket(
         &self,
         _socket: socket2::SockRef<'_>,

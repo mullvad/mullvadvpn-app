@@ -10,6 +10,8 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
     time::Duration,
 };
+#[cfg(windows)]
+use talpid_net::bypass::SocketBypass;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
@@ -23,6 +25,7 @@ const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 #[cfg(windows)]
+#[expect(clippy::too_many_arguments)]
 pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
@@ -31,6 +34,7 @@ pub async fn config_ephemeral_peers(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     is_gotatun: bool,
+    socket_bypass: Arc<dyn SocketBypass>,
 ) -> std::result::Result<(), CloseMsg> {
     let iface_name = {
         let tunnel = tunnel.lock().await;
@@ -52,6 +56,7 @@ pub async fn config_ephemeral_peers(
         obfuscator,
         close_obfs_sender,
         is_gotatun,
+        socket_bypass,
     )
     .await?;
 
@@ -101,6 +106,7 @@ pub async fn config_ephemeral_peers(
     .await
 }
 
+#[cfg_attr(windows, expect(clippy::too_many_arguments))]
 async fn config_ephemeral_peers_inner(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
@@ -110,6 +116,7 @@ async fn config_ephemeral_peers_inner(
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(not(target_os = "android"))] is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    #[cfg(windows)] socket_bypass: Arc<dyn SocketBypass>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -149,6 +156,8 @@ async fn config_ephemeral_peers_inner(
             is_gotatun,
             #[cfg(target_os = "android")]
             &tun_provider,
+            #[cfg(windows)]
+            &socket_bypass,
         )
         .await?;
 
@@ -186,6 +195,8 @@ async fn config_ephemeral_peers_inner(
         is_gotatun,
         #[cfg(target_os = "android")]
         &tun_provider,
+        #[cfg(windows)]
+        &socket_bypass,
     )
     .await?;
 
@@ -233,6 +244,7 @@ async fn reconfigure_tunnel(
 }
 
 #[cfg(not(target_os = "android"))]
+#[cfg_attr(windows, expect(clippy::too_many_arguments))]
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
@@ -243,6 +255,7 @@ async fn reconfigure_tunnel(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     is_gotatun: bool,
+    #[cfg(windows)] socket_bypass: &Arc<dyn SocketBypass>,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -252,6 +265,8 @@ async fn reconfigure_tunnel(
             obfuscation_mtu,
             close_obfs_sender,
             is_gotatun,
+            #[cfg(windows)]
+            Arc::clone(socket_bypass),
         )
         .await
         .map_err(CloseMsg::ObfuscatorFailed)?;

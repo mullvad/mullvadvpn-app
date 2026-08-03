@@ -6,6 +6,8 @@ use std::time::{Duration, Instant};
 use futures::channel::{mpsc, oneshot};
 use futures::future::Fuse;
 use futures::{FutureExt, StreamExt};
+#[cfg(windows)]
+use talpid_net::bypass::SocketBypass;
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
@@ -148,6 +150,8 @@ impl ConnectingState {
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
+                        #[cfg(windows)]
+                        shared_values.socket_bypass.clone(),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -222,6 +226,7 @@ impl ConnectingState {
             })
     }
 
+    #[cfg_attr(windows, expect(clippy::too_many_arguments))]
     fn start_tunnel(
         runtime: tokio::runtime::Handle,
         parameters: TunnelParameters,
@@ -230,6 +235,7 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
+        #[cfg(windows)] socket_bypass: Arc<dyn SocketBypass>,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
@@ -257,6 +263,8 @@ impl ConnectingState {
                 tun_provider,
                 retry_attempt,
                 route_manager,
+                #[cfg(windows)]
+                socket_bypass,
             };
 
             #[cfg(target_os = "windows")]
@@ -495,6 +503,16 @@ impl ConnectingState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
+                SameState(self)
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::BypassSocket(endpoint, reply_tx)) => {
+                shared_values.bypass_socket(endpoint, reply_tx);
+                SameState(self)
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::RevokeSocketBypass(endpoint)) => {
+                shared_values.revoke_socket_bypass(endpoint);
                 SameState(self)
             }
             #[cfg(windows)]

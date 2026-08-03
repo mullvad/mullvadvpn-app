@@ -6010,6 +6010,7 @@ dependencies = [
  "netlink-packet-route",
  "netlink-sys",
  "rtnetlink",
+ "talpid-net",
  "talpid-routing",
  "talpid-types",
  "talpid-windows",

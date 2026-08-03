@@ -29,6 +29,7 @@ netlink-sys.workspace = true
 rtnetlink.workspace = true
 
 [target.'cfg(windows)'.dependencies]
+talpid-net = { path = "../talpid-net" }
 talpid-windows = { path = "../talpid-windows" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]

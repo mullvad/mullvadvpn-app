@@ -1,3 +1,5 @@
+#[cfg(windows)]
+mod bypass;
 mod connected_state;
 mod connecting_state;
 mod disconnected_state;
@@ -24,6 +26,8 @@ use std::ffi::OsString;
 #[cfg(target_os = "linux")]
 use talpid_cgroup::v2::CGroup2;
 use talpid_dns::{DnsConfig, DnsMonitor};
+#[cfg(windows)]
+use talpid_net::bypass::SocketBypass;
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
@@ -48,6 +52,11 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_types::{ErrorExt, android::AndroidContext};
+#[cfg(windows)]
+use talpid_types::{
+    net::{AllowedClients, Endpoint},
+    tunnel::FirewallPolicyError,
+};
 use talpid_types::{
     net::{AllowedEndpoint, Connectivity, IpAvailability, wireguard::TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
@@ -228,6 +237,17 @@ pub enum TunnelCommand {
     /// Bypass a socket, allowing traffic to flow through outside the tunnel.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
+    /// Exclude a socket's local endpoint from the firewall, allowing traffic sent from it to
+    /// leak outside of the tunnel. The result of applying the firewall exception is sent on the
+    /// reply channel.
+    #[cfg(windows)]
+    BypassSocket(
+        Endpoint,
+        std::sync::mpsc::SyncSender<Result<(), FirewallPolicyError>>,
+    ),
+    /// Stop excluding a previously bypassed local endpoint.
+    #[cfg(windows)]
+    RevokeSocketBypass(Endpoint),
     /// Set applications that are allowed to send and receive traffic outside of the tunnel.
     #[cfg(any(target_os = "windows", target_os = "macos"))]
     SetExcludedApps(
@@ -477,6 +497,10 @@ impl TunnelStateMachine {
             tun_provider: Arc::new(Mutex::new(args.tun_provider)),
             log_dir: args.log_dir,
             resource_dir: args.resource_dir,
+            #[cfg(windows)]
+            excluded_sockets: Default::default(),
+            #[cfg(windows)]
+            socket_bypass: Arc::new(bypass::WindowsSocketBypass::new(args.command_tx.clone())),
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
@@ -579,6 +603,13 @@ struct SharedTunnelStateValues {
     log_dir: Option<PathBuf>,
     /// Resource directory path.
     resource_dir: PathBuf,
+
+    /// Local endpoints of the sockets that are currently excluded from the firewall.
+    #[cfg(windows)]
+    excluded_sockets: bypass::ExcludedSockets,
+    /// Handed to the tunnel, which lets it exclude individual sockets from the firewall.
+    #[cfg(windows)]
+    socket_bypass: Arc<dyn SocketBypass>,
 
     /// NetworkManager's connecitivity check state.
     #[cfg(target_os = "linux")]
@@ -698,6 +729,75 @@ impl SharedTunnelStateValues {
             log::error!("Failed to bypass socket {}", err);
         }
         let _ = tx.send(());
+    }
+
+    /// Exclude `endpoint`, the local endpoint of a socket, from the firewall. The result of
+    /// updating the firewall is sent on `reply_tx`.
+    #[cfg(windows)]
+    pub fn bypass_socket(
+        &mut self,
+        endpoint: Endpoint,
+        reply_tx: std::sync::mpsc::SyncSender<Result<(), FirewallPolicyError>>,
+    ) {
+        let mut result = Ok(());
+
+        if self.excluded_sockets.add(endpoint) {
+            result = self.push_excluded_sockets();
+
+            if result.is_err() {
+                // The exception was not applied, and the caller will not revoke a bypass that
+                // failed. Undo the addition to keep the refcount in sync with the firewall.
+                self.excluded_sockets.remove(&endpoint);
+            }
+        }
+
+        if let Err(error) = &result {
+            log::error!("Failed to bypass socket {endpoint}: {error}");
+        }
+
+        let _ = reply_tx.send(result);
+    }
+
+    /// Stop excluding `endpoint` from the firewall.
+    #[cfg(windows)]
+    pub fn revoke_socket_bypass(&mut self, endpoint: Endpoint) {
+        if self.excluded_sockets.remove(&endpoint)
+            && let Err(error) = self.push_excluded_sockets()
+        {
+            log::error!("Failed to revoke socket bypass for {endpoint}: {error}");
+        }
+    }
+
+    /// Stop excluding all sockets from the firewall. This prevents an obfuscator that failed to
+    /// clean up after itself from leaving stale exceptions behind.
+    #[cfg(windows)]
+    pub fn clear_excluded_sockets(&mut self) {
+        if self.excluded_sockets.clear()
+            && let Err(error) = self.push_excluded_sockets()
+        {
+            log::error!("Failed to clear excluded sockets: {error}");
+        }
+    }
+
+    /// Push the current set of excluded sockets to the firewall.
+    #[cfg(windows)]
+    fn push_excluded_sockets(&mut self) -> Result<(), FirewallPolicyError> {
+        // Only the daemon itself is ever allowed to use the excluded sockets.
+        let clients = AllowedClients::from(vec![std::env::current_exe().map_err(|error| {
+            log::error!("Failed to obtain the path of the current executable: {error}");
+            FirewallPolicyError::Generic
+        })?]);
+
+        let sockets: Vec<AllowedEndpoint> = self
+            .excluded_sockets
+            .endpoints()
+            .map(|endpoint| AllowedEndpoint {
+                endpoint: *endpoint,
+                clients: clients.clone(),
+            })
+            .collect();
+
+        self.firewall.set_excluded_sockets(&sockets)
     }
 
     #[cfg(windows)]

@@ -16,6 +16,8 @@ use futures::{
         oneshot::{self, Sender},
     },
 };
+#[cfg(windows)]
+use talpid_net::bypass::SocketBypass;
 use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;
 use tun_provider::TunProvider;
@@ -49,6 +51,9 @@ pub struct TunnelArgs<'a> {
     pub retry_attempt: u32,
     /// Route manager handle.
     pub route_manager: RouteManagerHandle,
+    /// Lets the tunnel exclude individual sockets from the firewall.
+    #[cfg(windows)]
+    pub socket_bypass: Arc<dyn SocketBypass>,
 }
 
 #[derive(Clone)]
