@@ -102,7 +102,7 @@ impl From<__Settings> for RelayQuery {
 
 impl __Settings {
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
-    pub fn check_magic_mulithop(
+    pub fn check_magic_multihop(
         mut self,
         cache_dir: impl AsRef<Path>,
         resource_dir: impl AsRef<Path>,
@@ -268,6 +268,18 @@ pub struct __DaitaSettings {
     pub enabled: bool,
     /// Whether to use multihop if the selected relay is not DAITA-compatible.
     pub use_multihop_if_necessary: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum __Recent {
+    Singlehop(__LocationConstraint),
+    Multihop(__MultihopRecent),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct __MultihopRecent {
+    pub entry: __LocationConstraint, // OLD format: bare LocationConstraint
+    pub exit: __LocationConstraint,
 }
 
 /// Helper for mocking different test-cases.

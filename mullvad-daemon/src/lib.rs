@@ -2746,7 +2746,7 @@ impl Daemon {
             .settings
             .update(|settings| match settings.recents {
                 None if enable_recents => {
-                    settings.recents = Some(vec![]);
+                    settings.recents = Some(mullvad_types::settings::Recents::default());
                     settings.update_recents();
                 }
                 Some(_) if !enable_recents => {

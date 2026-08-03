@@ -105,6 +105,26 @@ pub struct RelayConstraints {
     pub wireguard_constraints: WireguardConstraints,
 }
 
+impl RelayConstraints {
+    /// Extract the exit location for a recent entry.
+    pub fn extract_recent_exit(&self) -> Result<LocationConstraint, &'static str> {
+        self.location
+            .as_ref()
+            .option()
+            .ok_or("Location must be Constraint::Only")
+            .cloned()
+    }
+
+    /// Extract the entry constraint for a recent entry, if multihop is set to "always".
+    /// Returns `None` for non-multihop.
+    pub fn extract_recent_entry(&self) -> Option<Constraint<LocationConstraint>> {
+        match self.wireguard_constraints.multihop {
+            Multihop::Always => Some(self.wireguard_constraints.entry_location.clone()),
+            _ => None,
+        }
+    }
+}
+
 pub struct RelayConstraintsFormatter<'a> {
     pub constraints: &'a RelayConstraints,
     pub custom_lists: &'a CustomListsSettings,
