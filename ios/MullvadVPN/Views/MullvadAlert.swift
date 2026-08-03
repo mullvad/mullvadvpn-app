@@ -180,13 +180,12 @@ struct InputAlertModifier: ViewModifier {
                             .foregroundStyle(Color.mullvadTextPrimary)
                             .lineLimit(nil)
                             .fixedSize(horizontal: false, vertical: true)
-                        MullvadPrimaryTextField(
-                            label: "",
+
+                        ConfigurableTextField(
                             placeholder: alert.placeholder,
                             text: $text,
-                            isFocused: .constant(true),
-                            validate: alert.validate
-                        )
+                            borderStyle: .constant(.none))
+
                         VStack(spacing: 16) {
                             MullvadButton(
                                 text: alert.action.title,
