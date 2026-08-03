@@ -282,3 +282,9 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-59900"  # GHSA-c69g-56f8-xwqj
 ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
+
+# Netty: HTTP/2 decompression leaks ByteBuf reference count when the decompressor channel is already closed (Direct memory leak / OOM DoS)
+[[IgnoredVulns]]
+id = "GHSA-93wv-jw9v-4972"
+ignoreUntil = 2026-11-01
+reason = "No impact on this app, requires remote attacker, we only use netty with gRPC within the package."
