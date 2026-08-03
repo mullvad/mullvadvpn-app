@@ -530,6 +530,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             async let initTunnelManager: () = doInitTunnelManager()
             async let resolveDeprecatedSettings: () = doResolveDeprecatedSettings()
             _ = await [initTunnelManager, resolveDeprecatedSettings]
+            await self.storePaymentManager.start()
         }
     }
 
@@ -598,13 +599,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                 NotificationManager.shared.updateNotifications()
 
-                Task {
-                    await self.storePaymentManager.start()
-                    continuation.resume(returning: ())
-                }
+                continuation.resume(returning: ())
             }
         }
-
     }
 
     /// 1. If the app has never been launched, preload with default settings.
