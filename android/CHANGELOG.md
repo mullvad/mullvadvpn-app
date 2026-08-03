@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Make the globe interactive, with supports for pan, pinch-to-zoom, and fling. This to discover
   where servers are located as well as displaying your connection path.
+- Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
+  proxies. The access method is enabled by default.
 
 ### Changed
 - Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable

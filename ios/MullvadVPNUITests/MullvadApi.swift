@@ -52,16 +52,25 @@ class MullvadApi {
             ),
             nil
         )
+        let domainFrontingRaw = convert_builtin_access_method_setting(
+            UUID().uuidString,
+            "Domain fronting",
+            false,
+            UInt8(KindDomainFronting.rawValue),
+            nil
+        )
         let settingsWrapper = init_access_method_settings_wrapper(
-            directRaw, bridgesRaw, encryptedDNSRaw, nil, 0
+            directRaw, bridgesRaw, encryptedDNSRaw, domainFrontingRaw, nil, 0
         )
         let bridgeProvider = SwiftShadowsocksLoaderWrapper(
             _0: SwiftShadowsocksLoaderWrapperContext(shadowsocks_loader: nil)
         )
+        let domainFrontingConfig = new_domain_fronting_config("", "")
         context = mullvad_api_init_inner(
             hostname,
             apiAddress,
             hostname,
+            domainFrontingConfig,
             false,
             bridgeProvider,
             settingsWrapper,
