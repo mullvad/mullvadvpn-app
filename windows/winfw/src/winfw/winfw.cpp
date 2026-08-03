@@ -610,6 +610,81 @@ WinFw_ApplyPolicyBlocked(
 WINFW_LINKAGE
 WINFW_POLICY_STATUS
 WINFW_API
+WinFw_SetExcludedSockets(
+	const WinFwAllowedEndpoint *sockets,
+	size_t numSockets
+)
+{
+	if (nullptr == g_fwContext)
+	{
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+
+	try
+	{
+		if (nullptr == sockets && 0 != numSockets)
+		{
+			THROW_ERROR("Invalid argument: sockets");
+		}
+
+		std::vector<FwContext::ExcludedSocket> excludedSockets;
+		excludedSockets.reserve(numSockets);
+
+		for (size_t i = 0; i < numSockets; i++)
+		{
+			const auto &socket = sockets[i];
+
+			if (nullptr == socket.endpoint.ip)
+			{
+				THROW_ERROR("Invalid argument: sockets[i].endpoint.ip");
+			}
+
+			//
+			// Deep copy. The caller's strings are not valid beyond this call, whereas the
+			// set is retained and reapplied whenever the policy changes.
+			//
+			std::vector<std::wstring> clients;
+			clients.reserve(socket.numClients);
+			for (uint32_t j = 0; j < socket.numClients; j++)
+			{
+				clients.push_back(socket.clients[j]);
+			}
+
+			excludedSockets.push_back(FwContext::ExcludedSocket
+			{
+				socket.endpoint.ip,
+				socket.endpoint.port,
+				socket.endpoint.protocol,
+				std::move(clients)
+			});
+		}
+
+		return g_fwContext->setExcludedSockets(std::move(excludedSockets))
+			? WINFW_POLICY_STATUS_SUCCESS
+			: WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (common::error::WindowsException &err)
+	{
+		return HandlePolicyException(err);
+	}
+	catch (std::exception &err)
+	{
+		if (nullptr != g_logSink)
+		{
+			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
+		}
+
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (...)
+	{
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+}
+
+WINFW_LINKAGE
+WINFW_POLICY_STATUS
+WINFW_API
 WinFw_Reset()
 {
 	try

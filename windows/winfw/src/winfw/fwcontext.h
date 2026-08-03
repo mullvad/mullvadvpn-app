@@ -14,6 +14,21 @@ class FwContext
 {
 public:
 
+	//
+	// The local endpoint of a socket that is excluded from the firewall, along with the
+	// applications that are allowed to use it.
+	//
+	// This owns its strings, unlike `WinFwAllowedEndpoint`, since the set outlives the
+	// call that installs it.
+	//
+	struct ExcludedSocket
+	{
+		std::wstring ip;
+		uint16_t port;
+		WinFwProtocol protocol;
+		std::vector<std::wstring> clients;
+	};
+
 	FwContext(uint32_t timeout);
 
 	// This ctor applies the "blocked" policy.
@@ -51,6 +66,14 @@ public:
 		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 	);
 
+	//
+	// Replace the set of sockets that are excluded from the firewall.
+	//
+	// The exceptions are owned by this class and reapplied on top of every policy, so they
+	// survive policy changes. They are dropped by `reset`.
+	//
+	bool setExcludedSockets(std::vector<ExcludedSocket> sockets);
+
 	bool reset();
 
 	enum class Policy
@@ -71,9 +94,16 @@ private:
 	FwContext &operator=(const FwContext &) = delete;
 
 	Ruleset composePolicyBlocked(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint);
+	Ruleset composeExcludedSocketRules() const;
 
 	bool applyBaseConfiguration();
-	bool applyBlockedBaseConfiguration(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint, uint32_t &checkpoint);
+	bool applyBlockedBaseConfiguration
+	(
+		const WinFwSettings &settings,
+		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
+		uint32_t &checkpoint,
+		uint32_t &policyCheckpoint
+	);
 	bool applyCommonBaseConfiguration(SessionController &controller, wfp::FilterEngine &engine);
 
 	bool applyRuleset(const Ruleset &ruleset);
@@ -82,5 +112,17 @@ private:
 	std::unique_ptr<SessionController> m_sessionController;
 
 	uint32_t m_baseline;
+
+	//
+	// Checkpoint taken after the active policy has been installed, but before the excluded
+	// socket rules. Reverting to it removes only the excluded socket rules.
+	//
+	// This must be updated on every path that installs a policy, or `setExcludedSockets`
+	// would rewind too far or not far enough.
+	//
+	uint32_t m_policyCheckpoint;
+
+	std::vector<ExcludedSocket> m_excludedSockets;
+
 	Policy m_activePolicy;
 };

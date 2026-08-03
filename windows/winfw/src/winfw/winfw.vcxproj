@@ -46,6 +46,7 @@
     <ClCompile Include="rules\dns\permitnontunnel.cpp" />
     <ClCompile Include="rules\dns\permittunnel.cpp" />
     <ClCompile Include="rules\multi\permitendpoint.cpp" />
+    <ClCompile Include="rules\multi\permitlocalendpoint.cpp" />
     <ClCompile Include="rules\persistent\blockall.cpp" />
     <ClCompile Include="rules\shared.cpp" />
     <ClCompile Include="sessioncontroller.cpp" />
@@ -82,6 +83,7 @@
     <ClInclude Include="rules\dns\permitnontunnel.h" />
     <ClInclude Include="rules\dns\permittunnel.h" />
     <ClInclude Include="rules\multi\permitendpoint.h" />
+    <ClInclude Include="rules\multi\permitlocalendpoint.h" />
     <ClInclude Include="rules\persistent\blockall.h" />
     <ClInclude Include="rules\ports.h" />
     <ClInclude Include="rules\shared.h" />

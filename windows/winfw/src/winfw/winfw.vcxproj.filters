@@ -58,6 +58,9 @@
     <ClCompile Include="rules\multi\permitendpoint.cpp">
       <Filter>rules\multi</Filter>
     </ClCompile>
+    <ClCompile Include="rules\multi\permitlocalendpoint.cpp">
+      <Filter>rules\multi</Filter>
+    </ClCompile>
     <ClCompile Include="rules\dns\permitloopback.cpp">
       <Filter>rules\dns</Filter>
     </ClCompile>
@@ -127,6 +130,9 @@
       <Filter>rules\persistent</Filter>
     </ClInclude>
     <ClInclude Include="rules\multi\permitendpoint.h">
+      <Filter>rules\multi</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\multi\permitlocalendpoint.h">
       <Filter>rules\multi</Filter>
     </ClInclude>
     <ClInclude Include="rules\dns\permitloopback.h">

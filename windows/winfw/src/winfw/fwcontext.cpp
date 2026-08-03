@@ -19,6 +19,7 @@
 #include "rules/dns/permittunnel.h"
 #include "rules/dns/permitnontunnel.h"
 #include "rules/multi/permitendpoint.h"
+#include "rules/multi/permitlocalendpoint.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -143,6 +144,7 @@ FwContext::FwContext
 	uint32_t timeout
 )
 	: m_baseline(0)
+	, m_policyCheckpoint(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -158,6 +160,11 @@ FwContext::FwContext
 	}
 
 	m_baseline = m_sessionController->checkpoint();
+
+	//
+	// No policy is installed yet, so anything above the baseline is an excluded socket rule.
+	//
+	m_policyCheckpoint = m_baseline;
 	m_activePolicy = Policy::None;
 }
 
@@ -168,6 +175,7 @@ FwContext::FwContext
 	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 )
 	: m_baseline(0)
+	, m_policyCheckpoint(0)
 	, m_activePolicy(Policy::None)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
@@ -178,13 +186,15 @@ FwContext::FwContext
 	m_sessionController = std::make_unique<SessionController>(std::move(engine));
 
 	uint32_t checkpoint = 0;
+	uint32_t policyCheckpoint = 0;
 
-	if (false == applyBlockedBaseConfiguration(settings, allowedEndpoint, checkpoint))
+	if (false == applyBlockedBaseConfiguration(settings, allowedEndpoint, checkpoint, policyCheckpoint))
 	{
 		THROW_ERROR("Failed to apply base configuration in BFE");
 	}
 
 	m_baseline = checkpoint;
+	m_policyCheckpoint = policyCheckpoint;
 	m_activePolicy = Policy::Blocked;
 }
 
@@ -370,6 +380,43 @@ bool FwContext::applyPolicyBlocked(const WinFwSettings &settings, const std::opt
 	return status;
 }
 
+bool FwContext::setExcludedSockets(std::vector<ExcludedSocket> sockets)
+{
+	auto previousSockets = std::move(m_excludedSockets);
+	m_excludedSockets = std::move(sockets);
+
+	bool status = false;
+
+	try
+	{
+		status = m_sessionController->executeTransaction([this](SessionController &controller, wfp::FilterEngine &)
+		{
+			//
+			// Rewind to just after the active policy. This drops the previous set of excluded
+			// socket rules, and nothing else.
+			//
+			controller.revert(m_policyCheckpoint);
+
+			return applyRulesetDirectly(composeExcludedSocketRules(), controller);
+		});
+	}
+	catch (...)
+	{
+		m_excludedSockets = std::move(previousSockets);
+		throw;
+	}
+
+	if (false == status)
+	{
+		//
+		// The transaction was rolled back, so the previous set is still in effect.
+		//
+		m_excludedSockets = std::move(previousSockets);
+	}
+
+	return status;
+}
+
 bool FwContext::reset()
 {
 	const auto status = m_sessionController->executeTransaction([this](SessionController &controller, wfp::FilterEngine &)
@@ -379,6 +426,8 @@ bool FwContext::reset()
 
 	if (status)
 	{
+		m_excludedSockets.clear();
+		m_policyCheckpoint = m_baseline;
 		m_activePolicy = Policy::None;
 	}
 
@@ -405,6 +454,23 @@ FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings
 	return ruleset;
 }
 
+FwContext::Ruleset FwContext::composeExcludedSocketRules() const
+{
+	Ruleset ruleset;
+
+	for (const auto &socket : m_excludedSockets)
+	{
+		ruleset.emplace_back(std::make_unique<multi::PermitLocalEndpoint>(
+			wfp::IpAddress(socket.ip),
+			socket.port,
+			socket.protocol,
+			socket.clients
+		));
+	}
+
+	return ruleset;
+}
+
 bool FwContext::applyBaseConfiguration()
 {
 	return m_sessionController->executeTransaction([this](SessionController &controller, wfp::FilterEngine &engine)
@@ -413,7 +479,13 @@ bool FwContext::applyBaseConfiguration()
 	});
 }
 
-bool FwContext::applyBlockedBaseConfiguration(const WinFwSettings &settings, const std::optional<WinFwAllowedEndpoint> &allowedEndpoint, uint32_t &checkpoint)
+bool FwContext::applyBlockedBaseConfiguration
+(
+	const WinFwSettings &settings,
+	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
+	uint32_t &checkpoint,
+	uint32_t &policyCheckpoint
+)
 {
 	return m_sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 	{
@@ -429,7 +501,18 @@ bool FwContext::applyBlockedBaseConfiguration(const WinFwSettings &settings, con
 		//
 		checkpoint = controller.peekCheckpoint();
 
-		return applyRulesetDirectly(composePolicyBlocked(settings, allowedEndpoint), controller);
+		if (false == applyRulesetDirectly(composePolicyBlocked(settings, allowedEndpoint), controller))
+		{
+			return false;
+		}
+
+		//
+		// Maintain the invariant that excluded socket rules sit on top of the active policy,
+		// starting with the very first policy.
+		//
+		policyCheckpoint = controller.peekCheckpoint();
+
+		return applyRulesetDirectly(composeExcludedSocketRules(), controller);
 	});
 }
 
@@ -451,11 +534,36 @@ bool FwContext::applyCommonBaseConfiguration(SessionController &controller, wfp:
 
 bool FwContext::applyRuleset(const Ruleset &ruleset)
 {
-	return m_sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &)
+	uint32_t policyCheckpoint = 0;
+
+	const auto status = m_sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &)
 	{
 		controller.revert(m_baseline);
-		return applyRulesetDirectly(ruleset, controller);
+
+		if (false == applyRulesetDirectly(ruleset, controller))
+		{
+			return false;
+		}
+
+		policyCheckpoint = controller.peekCheckpoint();
+
+		//
+		// Reinstall the excluded socket rules in the same transaction as the policy, so there
+		// is never a window in which the exceptions are missing.
+		//
+		return applyRulesetDirectly(composeExcludedSocketRules(), controller);
 	});
+
+	//
+	// Only update the checkpoint if the transaction was committed. Otherwise it would refer
+	// to a record that has been rolled back.
+	//
+	if (status)
+	{
+		m_policyCheckpoint = policyCheckpoint;
+	}
+
+	return status;
 }
 
 bool FwContext::applyRulesetDirectly(const Ruleset &ruleset, SessionController &controller)

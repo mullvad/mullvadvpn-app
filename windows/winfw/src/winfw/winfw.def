@@ -7,4 +7,5 @@ WinFw_Deinitialize
 WinFw_ApplyPolicyConnecting
 WinFw_ApplyPolicyConnected
 WinFw_ApplyPolicyBlocked
+WinFw_SetExcludedSockets
 WinFw_Reset

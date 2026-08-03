@@ -237,6 +237,33 @@ WinFw_ApplyPolicyBlocked(
 );
 
 //
+// SetExcludedSockets:
+//
+// Replace the set of sockets that are excluded ("bypassed") from the firewall.
+//
+// Unlike the other functions here, `endpoint` in each `WinFwAllowedEndpoint` refers to the
+// *local* endpoint of a socket, not a remote peer. Outbound connections originating from
+// that local port and protocol are permitted for the listed clients, regardless of where
+// they are headed.
+//
+// An unspecified IP (`0.0.0.0` or `::`) means "any local address". This is the common case,
+// since sockets are usually bound to the unspecified address. The filters are then narrowed
+// by the clients alone.
+//
+// The exceptions are owned by WinFw and reapplied on top of every subsequent policy. They
+// remain in effect until this function is called again, or until the policy is reset. Pass
+// `numSockets` = 0 to remove all of them.
+//
+extern "C"
+WINFW_LINKAGE
+WINFW_POLICY_STATUS
+WINFW_API
+WinFw_SetExcludedSockets(
+	const WinFwAllowedEndpoint *sockets,
+	size_t numSockets
+);
+
+//
 // Reset:
 //
 // Clear the policy in effect, if any.
