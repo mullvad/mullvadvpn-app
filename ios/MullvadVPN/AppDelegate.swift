@@ -514,37 +514,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().delegate = self
     }
 
+    // MARK: Initialisation tasks, which are (mostly) performed asynchronously
+
     private func startInitialization(application: UIApplication) {
         // the new structured code: things here run first, before we run the legacy operations.
         // in the fullness of time, this section will grow and the latter will shrink to nothing
         Task {
             doWipeSettingsIfNeeded()
-            async let loadTunnelStore = doLoadTunnelStore()
-            async let getDefaultLocation = doGetDefaultLocation()
-            await [loadTunnelStore, getDefaultLocation]
+            async let loadTunnelStore: () = doLoadTunnelStore()
+            async let getDefaultLocation: () = doGetDefaultLocation()
+            // just doing `await [doLoadTunnelStore(), doGetDefaultLocation()]` would have
+            // executed these sequentially for some reason
+            _ = await [loadTunnelStore, getDefaultLocation]
             await doMigrateSettings(application: application)
-            async let initTunnelManager = doInitTunnelManager()
-            async let resolveDeprecatedSettings = doResolveDeprecatedSettings()
-            await [initTunnelManager, resolveDeprecatedSettings]
+            async let initTunnelManager: () = doInitTunnelManager()
+            async let resolveDeprecatedSettings: () = doResolveDeprecatedSettings()
+            _ = await [initTunnelManager, resolveDeprecatedSettings]
         }
     }
 
-    private func getLoadTunnelStoreOperation() -> AsyncBlockOperation {
-        AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
-            MainActor.assumeIsolated {
-                tunnelStore.loadPersistentTunnels { [self] error in
-                    if let error {
-                        logger.error(
-                            error: error,
-                            message: "Failed to load persistent tunnels."
-                        )
-                    }
-                    finish(nil)
-                }
-            }
-        }
-    }
-    
     private func doLoadTunnelStore() async {
         do {
             try await tunnelStore.loadPersistentTunnels()
@@ -555,7 +543,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             )
         }
     }
-    
+
     private func doMigrateSettings(application: UIApplication) async {
         // this triggers an operation that needs to be carried out on the main queue, as
         // it uses NSFileCoordinator to maintain a lock shared between the app and extension
@@ -600,70 +588,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func getMigrateSettingsOperation(application: UIApplication) -> AsyncBlockOperation {
-        AsyncBlockOperation(
-            dispatchQueue: .main,
-            block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
-                MainActor.assumeIsolated {
-                    migrationManager
-                        .migrateSettings(store: settingsManager.store) { [self] migrationResult in
-                            switch migrationResult {
-                            case .success:
-                                // Tell the tunnel to re-read tunnel configuration after migration.
-                                logger.debug("Successful migration from UI Process")
-                                tunnelManager.reconnectTunnel(selectNewRelay: true)
-                                fallthrough
-
-                            case .nothing:
-                                logger.debug("Attempted migration from UI Process, but found nothing to do")
-                                finish(nil)
-
-                            case let .failure(error):
-                                logger.error("Failed migration from UI Process: \(error)")
-                                MainActor.assumeIsolated {
-                                    let migrationUIHandler =
-                                        application.connectedScenes
-                                        .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
-
-                                    if let migrationUIHandler {
-                                        migrationUIHandler.showMigrationError(error) {
-                                            MainActor.assumeIsolated {
-                                                finish(error)
-                                            }
-                                        }
-                                    } else {
-                                        finish(error)
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
-        )
-    }
-
-    private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
-        // This operation is always treated as successful no matter what the configuration load yields.
-        // If the tunnel settings or device state can't be read, we simply pretend they are not there
-        // and leave user in logged out state. VPN config will be removed as well.
-        AsyncBlockOperation(dispatchQueue: .main) { [weak self] finish in
-            guard let self else {
-                finish(nil)
-                return
-            }
-            self.tunnelManager.loadConfiguration {
-                self.logger.debug("Finished initialization.")
-
-                NotificationManager.shared.updateNotifications()
-
-                Task {
-                    await self.storePaymentManager.start()
-                    finish(nil)
-                }
-            }
-        }
-    }
-    
     private func doInitTunnelManager() async {
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
@@ -683,7 +607,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     }
 
-    /// Returns an operation that acts on the following conditions:
     /// 1. If the app has never been launched, preload with default settings.
     /// - or -
     /// 1. Has the app been launched at least once after install? (`FirstTimeLaunch.hasFinished`)
@@ -691,46 +614,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// (`SettingsManager.getShouldWipeSettings()`)
     /// If (1) is `false` and (2) is `true`, we know that the app has been freshly installed/reinstalled and is
     /// compatible, thus triggering a settings wipe.
-    
-    /// CONCURRENCY PORTING NOTE: this does not seem to be asynchronous. It can call `deleteDevice`, but does not await the result. Why is it an AsyncBlockOperation?
-    private func getWipeSettingsOperation() -> AsyncBlockOperation {
-        AsyncBlockOperation { [settingsManager] in
-            let appHasNeverBeenLaunched =
-                !self.appPreferences.hasDoneFirstTimeLaunch && !settingsManager.getShouldWipeSettings()
-            let appWasLaunchedAfterReinstall =
-                !self.appPreferences.hasDoneFirstTimeLaunch && settingsManager.getShouldWipeSettings()
 
-            if appHasNeverBeenLaunched {
-                try? settingsManager.writeSettings(LatestTunnelSettings())
-            } else if appWasLaunchedAfterReinstall {
-                if let deviceState = try? settingsManager.readDeviceState(),
-                    let accountData = deviceState.accountData,
-                    let deviceData = deviceState.deviceData
-                {
-                    // this part is asynchronous, but we don't await the result
-                    _ = self.devicesProxy.deleteDevice(
-                        accountNumber: accountData.number,
-                        identifier: deviceData.identifier,
-                        retryStrategy: .noRetry
-                    ) { _ in
-                        // Do nothing.
-                    }
-                }
-
-                settingsManager.resetStore(policy: .all)
-                try? settingsManager.writeSettings(LatestTunnelSettings())
-
-                // Default access methods need to be repopulated again after settings wipe.
-                self.accessMethodRepository.addDefaultsMethods()
-                // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
-                // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
-                try? self.relayCacheTracker.refreshCachedRelays()
-            }
-
-            settingsManager.setShouldWipeSettings()
-        }
-    }
-    
+    /// this was an AsyncBlockOperation, though is not in itself asynchronous.(It can call `deleteDevice`, but does not await the result)
+    /// The reimplementation is entirely synchronous
     private func doWipeSettingsIfNeeded() {
         defer {
             settingsManager.setShouldWipeSettings()
@@ -767,42 +653,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    private func getDefaultLocationOperation() -> AsyncBlockOperation {
-        AsyncBlockOperation {
-            guard !self.appPreferences.hasDoneFirstTimeLaunch else {
-                return
-            }
-            self.appPreferences.hasDoneFirstTimeLaunch = true
-
-            // No need to keep the handle since we're not waiting or cancelling the completion anyway.
-            _ = self.relayCacheTracker.updateRelays { _ in
-                Task {
-                    guard let cachedRelays = try? self.relayCacheTracker.getCachedRelays() else {
-                        return
-                    }
-
-                    let locationService = DefaultLocationService(
-                        urlSession: URLSession.shared, relayCache: cachedRelays)
-                    let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
-                    let userSelectedRelays: UserSelectedRelays =
-                        if let country = locationIdentifier?.country {
-                            UserSelectedRelays(locations: [.country(country)])
-                        } else {
-                            .default
-                        }
-
-                    let constraint = RelayConstraint.only(userSelectedRelays)
-
-                    if !self.appPreferences.hasDoneFirstTimeLogin {
-                        self.tunnelManager.updateSettings([
-                            .relayConstraints(RelayConstraints(entryLocations: constraint, exitLocations: constraint))
-                        ])
-                    }
-                }
-            }
-        }
-    }
-    
     private func doGetDefaultLocation() async {
         guard !self.appPreferences.hasDoneFirstTimeLaunch else {
             return
@@ -828,7 +678,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             ])
         }
     }
-    
+
     private func doResolveDeprecatedSettings() async {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async { [self] in
@@ -889,70 +739,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
         }
-    }
-
-    private func getDeprecatedSettingsResolverOperation() -> AsyncBlockOperation {
-        AsyncBlockOperation(
-            dispatchQueue: .main,
-            block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
-
-                let resetVisibility: @Sendable () -> Void = {
-                    self.appPreferences.migratedSettingsState = MigratedSettingsState(
-                        preMigrationSettings: nil,
-                        lastInstalledVersion: Bundle.main.productVersion,
-                        lastMigratedVersion: MigratedVersion.current.rawValue,
-                        hasCompletedMigrationWizard: true,
-                        shouldShowMigratedSettingsMenuItem: false)
-                    self.migratedSettingsListener.onMigratedSettingsHandler?(.noChanges)
-                }
-
-                MainActor.assumeIsolated {
-                    let settingsResolver = DeprecatedSettingsResolver(
-                        cacheDirectory: containerURL,
-                        settingsManager: settingsManager,
-                        relaySelector: relaySelector,
-                        currentVersion: MigratedVersion(
-                            rawValue: appPreferences.migratedSettingsState.lastMigratedVersion)
-                            ?? MigratedVersion.current)
-
-                    let isAppUpdated =
-                        Bundle.main.productVersion != self.appPreferences.migratedSettingsState.lastInstalledVersion
-
-                    // Reset the migrated settings menu visibility after an app update.
-                    // The menu item should only remain visible within the same app version.
-                    appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem =
-                        !isAppUpdated && self.appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem
-
-                    settingsResolver.resolve(store: self.settingsManager.store) { [self] result in
-                        switch result {
-                        case let .migrated(old, new, changes):
-                            // Tell the tunnel to re-read tunnel configuration after migration.
-                            logger.debug("Successful resolving deprecated settings from UI Process")
-                            appPreferences.migratedSettingsState = MigratedSettingsState(
-                                preMigrationSettings: old,
-                                lastInstalledVersion: Bundle.main.productVersion,
-                                lastMigratedVersion: MigratedVersion.current.rawValue,
-                                hasCompletedMigrationWizard: changes.isEmpty,
-                                shouldShowMigratedSettingsMenuItem: !changes.isEmpty)
-                            migratedSettingsListener.onMigratedSettingsHandler?(
-                                changes.isEmpty ? .noChanges : .migrated)
-                            tunnelManager.updateSettings([.all(new)])
-                            finish(nil)
-
-                        case .nothing:
-                            logger.debug(
-                                "Attempted resolving deprecated settings from UI Process, but It's already up to date, so nothing to do"
-                            )
-                            migratedSettingsListener.onMigratedSettingsHandler?(.noChanges)
-                            finish(nil)
-                        case let .failure(error):
-                            logger.error("Failed resolving deprecated settings from UI Process: \(error)")
-                            resetVisibility()
-                            finish(error)
-                        }
-                    }
-                }
-            })
     }
 
     // MARK: - UNUserNotificationCenterDelegate
