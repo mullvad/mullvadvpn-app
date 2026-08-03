@@ -4,229 +4,229 @@
 # netty: HttpPostRequestDecoder can OOM
 [[IgnoredVulns]]
 id = "CVE-2024-29025"  # GHSA-5jpm-x58v-624v
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "We do not use netty for http communication."
 
 # Same as the vuln above, but it seems like osv scanner does not always make the connection.
 [[IgnoredVulns]]
 id = "GHSA-xpw8-rcwv-8f8p"
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # netty: SniHandler 16MB allocation
 [[IgnoredVulns]]
 id = "CVE-2023-34462"  # GHSA-6mjq-h674-j845
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "We do not use netty for http communication."
 
 # apache httpclient: Cross-site scripting
 [[IgnoredVulns]]
 id = "CVE-2020-13956"  # GHSA-7r82-7xv7-xcpj
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Apache http client is used by lint and not the app directly."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2024-47535"  # GHSA-xq3w-v528-46rv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Only impacting Windows."
 
 # netty: Denial of Service attack on windows app
 [[IgnoredVulns]]
 id = "CVE-2025-25193"  # GHSA-389x-839f-4rhx
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Only impacting Windows."
 
 # netty: Crash when using native SSLEngine
 [[IgnoredVulns]]
 id = "CVE-2025-24970"  # GHSA-4g8c-wm8x-jfhw
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Netty is not used in conjunction with SSL."
 
 # netty: MadeYouReset HTTP/2 DDoS vulnerability
 [[IgnoredVulns]]
 id = "CVE-2025-55163"  # GHSA-prj3-ccx8-p6x4
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # netty: Netty's decoders vulnerable to DoS via zip bomb style attack
 [[IgnoredVulns]]
 id = "CVE-2025-58057"  # GHSA-3p8m-j85q-pgmj
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "We do not use netty decoders"
 
 # netty: Netty vulnerable to request smuggling due to incorrect parsing of chunk extensions
 [[IgnoredVulns]]
 id = "CVE-2025-58056"  # GHSA-fghv-69vj-qj49
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # XML External Entity (XXE) Injection in JDOM
 [[IgnoredVulns]]
 id = "CVE-2021-33813"  # GHSA-2363-cqg2-863c
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "JDOM is used by AGP and not the app directly"
 
 # Netty has a CRLF Injection vulnerability in io.netty.handler.codec.http.HttpRequestEncoder
 [[IgnoredVulns]]
 id = "CVE-2025-67735"  # GHSA-84h7-rjj3-6jx4
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "No impact on this app since it does not use HttpRequestEncoder"
 
 # jose4j: Jose4j is vulnerable to DoS via compressed JWE content
 [[IgnoredVulns]]
 id = "CVE-2024-29371"  # GHSA-3677-xxcr-wjqv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Denial-of-Service condition is not relevant."
 
 # Netty: HTTP Request Smuggling via Chunked Extension Quoted-String Parsing
 [[IgnoredVulns]]
 id = "CVE-2026-33870"  # GHSA-pwqr-wmgm-9rr8
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass
 [[IgnoredVulns]]
 id = "CVE-2026-33871"  # GHSA-w9fj-cfpg-grvv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic Algorithm vulnerability in bcpkix modules
 [[IgnoredVulns]]
 id = "CVE-2026-5588"  # GHSA-wg6q-6289-32hp
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs
 [[IgnoredVulns]]
 id = "CVE-2025-48924"  # GHSA-j288-q9x7-2f5v
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Bouncy Castle has an LDAP injection
 [[IgnoredVulns]]
 id = "CVE-2026-0636"  # GHSA-c3fc-8qff-9hwx
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Netty Lz4FrameDecoder is vulnerable to resource exhaustion
 [[IgnoredVulns]]
 id = "CVE-2026-42583"  # GHSA-mj4r-2hfc-f8p6
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty vulnerable to HTTP Request Smuggling due to malformed Transfer-Encoding
 [[IgnoredVulns]]
 id = "CVE-2026-42585"  # GHSA-38f8-5428-x5cv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty has HttpClientCodec response desynchronization
 [[IgnoredVulns]]
 id = "CVE-2026-42584"  # GHSA-57rv-r2g8-2cj3
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS
 [[IgnoredVulns]]
 id = "CVE-2026-42587"  # GHSA-f6hv-jmp6-3vwv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing
 [[IgnoredVulns]]
 id = "CVE-2026-42580"  # GHSA-m4cv-j2px-7723
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection
 [[IgnoredVulns]]
 id = "CVE-2026-41417"  # GHSA-v8h7-rr48-vmmv
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization
 [[IgnoredVulns]]
 id = "CVE-2026-42581"  # GHSA-xxqh-mfjm-7mv9
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty has HTTP Header Injection via HttpProxyHandler Disabled Validation (Incomplete Fix CVE-2025-67735)
 [[IgnoredVulns]]
 id = "CVE-2026-42578"  # GHSA-45q3-82m4-75jr
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty epoll transport denial of service via RST on half-closed TCP connection
 [[IgnoredVulns]]
 id = "CVE-2026-42577"  # GHSA-rwm7-x88c-3g2p
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Bouncy Castle Has Covert Timing Channel Vulnerability
 [[IgnoredVulns]]
 id = "CVE-2026-5598"  # GHSA-p93r-85wp-75v3
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Wire: skipGroup() missing negative-length check allows 10-byte payload to crash any Wire-decoding service
 [[IgnoredVulns]]
 id = "CVE-2026-45799"  # GHSA-7xpr-hc2w-34m9
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "Used by benchmark lib, used to create baseline profiles. No impact on app."
 
 # Netty HTTP/2: Advertised MAX_CONCURRENT_STREAMS are not enforced
 [[IgnoredVulns]]
 id = "CVE-2026-47244"  # GHSA-5x3r-wrvg-rp6q
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty has an IPv6 Subnet Filter Bypass via Incorrect Comparator Masking
 [[IgnoredVulns]]
 id = "CVE-2026-44249"  # GHSA-3qp7-7mw8-wx86
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes
 [[IgnoredVulns]]
 id = "CVE-2026-45416"  # GHSA-x4gw-5cx5-pgmh
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: Unix-socket fd receive leaks descriptors when peer sends two at once
 [[IgnoredVulns]]
 id = "CVE-2026-45536"  # GHSA-w573-9ffj-6ff9
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for unix socket communication"
 
 # netty-codec-http2: ByteBuf Reference-Count Leak in DelegatingDecompressorFrameListener Leads to Memory Exhaustion
 [[IgnoredVulns]]
 id = "CVE-2026-48043"  # GHSA-c2gf-v879-257j
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: HttpObjectDecoder skips arbitrary initial control characters when only initial CRLF characters are permitted
 [[IgnoredVulns]]
 id = "CVE-2026-50020"  # GHSA-hvcg-qmg6-jm4c
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty susceptible to HTTP/2 Reset Attack with different on-the-wire signature
 [[IgnoredVulns]]
 id = "CVE-2026-50560"  # GHSA-563q-j3cm-6jxm
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Netty: Wrapping plain trust manager silently disables hostname verification
 [[IgnoredVulns]]
 id = "CVE-2026-50010"  # GHSA-c653-97m9-rcg9
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
 
 # Bouncy Castle for Java GOST 28147 CTR mode reuses keystream after 255 blocks
 [[IgnoredVulns]]
 id = "CVE-2025-14813"  # GHSA-574f-3g2m-x479
-ignoreUntil = 2026-08-01
+ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
 
 # Netty: [Bzip2Decoder] Infinite Loop in RLE State Machine Leads to Event-Loop Thread Hang
