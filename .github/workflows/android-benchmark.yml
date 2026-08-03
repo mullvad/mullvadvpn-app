@@ -23,14 +23,11 @@ on:
       android_device_runner:
         description: 'Choose which device to run on'
         required: true
-        default: 'android-device'
+        default: 'android-benchmark-device'
         type: choice
         options:
-          - android-device
-          - android-bender-05
-          - android-bender-06
-          - android-bender-07
-          - android-bender-08
+          - android-benchmark-device
+          - android-bender-09
       username:
         description: 'Username for iPerf3 server'
         required: false
@@ -75,7 +72,7 @@ jobs:
 
   benchmark-tests:
     name: Run benchmark tests
-    runs-on: ["${{ inputs.android_device_runner || 'android-device' }}"]
+    runs-on: ["${{ inputs.android_device_runner || 'android-benchmark-device' }}"]
     needs: [build-app]
     strategy:
       fail-fast: false
