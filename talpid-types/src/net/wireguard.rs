@@ -1,6 +1,6 @@
 use crate::net::{
     AllowedClients, AllowedEndpoint, Endpoint, GenericTunnelOptions, ObfuscationInfo,
-    TransportProtocol, TunnelEndpoint,
+    TransportProtocol, TunnelEndpoint, proxy::Socks5Proxy,
 };
 use base64::{Engine, engine::general_purpose::STANDARD};
 use ipnetwork::IpNetwork;
@@ -22,7 +22,7 @@ pub struct TunnelParameters {
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
     /// SOCKS5 proxy to relay the tunnel through. Any obfuscation is applied underneath it.
-    pub proxy: Option<super::proxy::Socks5Proxy>,
+    pub proxy: Option<Socks5Proxy>,
 }
 
 impl TunnelParameters {
@@ -48,11 +48,11 @@ impl TunnelParameters {
         default_clients: AllowedClients,
     ) -> Vec<AllowedEndpoint> {
         // A local SOCKS5 proxy runs as some other process, and is the one connecting to the next
-        // hop, so restricting the exemption to our own clients would block it. The same exemption
-        // applies to a remote proxy, so that it can be shared with other applications.
+        // hop, so restricting the exemption to our own clients would block it. A remote proxy is
+        // reached by us, so it needs no such exemption.
         let clients = match self.proxy {
-            Some(_) => AllowedClients::all(),
-            None => default_clients,
+            Some(Socks5Proxy::Local(_)) => AllowedClients::all(),
+            Some(Socks5Proxy::Remote(_)) | None => default_clients,
         };
 
         self.get_next_hop_endpoints()
@@ -398,7 +398,7 @@ fn key_from_base64<K: From<[u8; 32]>>(key: &str) -> Result<K, InvalidKey> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::net::proxy::{Socks5Local, Socks5Proxy, Socks5Remote};
+    use crate::net::proxy::{Socks5Local, Socks5Remote};
 
     const PEER_ENDPOINT: &str = "192.0.2.1:51820";
     const PROXY_ENDPOINT: &str = "198.51.100.1:1080";
@@ -467,8 +467,7 @@ mod tests {
         );
     }
 
-    /// A remote proxy is exempted for all clients, so that it can be shared with other
-    /// applications.
+    /// Only the daemon connects to a remote proxy, so it needs no exemption for other clients.
     #[test]
     fn test_allowed_next_hop_endpoints_with_remote_proxy() {
         let params = tunnel_parameters(Some(Socks5Proxy::Remote(Socks5Remote {
@@ -485,7 +484,7 @@ mod tests {
                     PROXY_ENDPOINT.parse().unwrap(),
                     TransportProtocol::Tcp
                 ),
-                clients: AllowedClients::all(),
+                clients: default_clients(),
             }]
         );
     }
