@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.4-beta1] - 2026-08-03
 ### Added
 - Add Ukrainian as a new language in the app.
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
