@@ -3,7 +3,7 @@ use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 
 use talpid_tunnel::{TunnelEvent, TunnelMetadata};
-use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
+use talpid_types::net::{AllowedClients, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
@@ -103,8 +103,6 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
-        let endpoints = self.tunnel_parameters.get_next_hop_endpoints();
-
         #[cfg(target_os = "windows")]
         let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);
 
@@ -117,13 +115,9 @@ impl ConnectedState {
             .get_exit_hop_endpoint()
             .map(|ep| ep.address.ip());
 
-        let peer_endpoints = endpoints
-            .into_iter()
-            .map(|endpoint| AllowedEndpoint {
-                endpoint,
-                clients: clients.clone(),
-            })
-            .collect();
+        let peer_endpoints = self
+            .tunnel_parameters
+            .get_allowed_next_hop_endpoints(clients);
 
         #[cfg(target_os = "macos")]
         let redirect_interface = shared_values
