@@ -223,38 +223,27 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(loadTunnelOperation)
     }
 
-    func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
-        let operation = StartTunnelOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            completionHandler: { [weak self] result in
-                guard let self else { return }
-                if let error = result.error {
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to start the tunnel."
-                    )
+    func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+        let task = StartTunnelTask(interactor: TunnelInteractorProxy(self))
 
-                    let tunnelError = StartTunnelError(underlyingError: error)
+        Task {
+            let result = await task.start()
 
-                    self.observerList.notify { observer in
-                        observer.tunnelManager(self, didFailWithError: tunnelError)
-                    }
+            if let error = result.error {
+                self.logger.error(
+                    error: error,
+                    message: "Failed to start the tunnel."
+                )
+
+                let tunnelError = StartTunnelError(underlyingError: error)
+
+                self.observerList.notify { observer in
+                    observer.tunnelManager(self, didFailWithError: tunnelError)
                 }
-
-                completionHandler?(result.error)
             }
-        )
 
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Start tunnel",
-                cancelUponExpiration: true
-            ))
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-        operationQueue.addOperation(operation)
+            completionHandler?(result.error)
+        }
     }
 
     func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: ((Error?) -> Void)? = nil) {
