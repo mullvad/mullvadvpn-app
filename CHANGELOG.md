@@ -22,6 +22,37 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
+  `debug` and `trace`.
+
+### Changed
+- Clicking on the tray icon will toggle the window instead of just showing it.
+- Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
+
+#### Linux
+- Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
+  the git commit being built instead of the time of the build. Required for reproducible builds.
+- Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
+  build machine. Required for reproducible builds.
+- De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
+- Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
+
+#### Windows
+- Switch winreg out for windows_registry.
+
+
+### Fixed
+- Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
+- Ignore DAITA tunnel config responses unless DAITA was requested.
+- Fix infinite loop of account checks when account ran out of time.
+- Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
+
+#### Windows
+- Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
+  enabled in order to prevent toggle switches and other custom-styled controls from becoming
+  invisible.
+- Fix the installer UI from looking blurry by making the installer DPI-aware.
 
 
 ## [2026.4] - 2026-08-17
@@ -38,26 +69,13 @@ This release is identical to 2026.4-beta2.
 ### Added
 - Add Ukrainian as a new language in the app.
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
-- Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
-  `debug` and `trace`.
 
 ### Changed
-- Clicking on the tray icon will toggle the window instead of just showing it
-- Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Update `gotatun` to 0.8.1.
-
-#### Linux
-- Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
-  the git commit being built instead of the time of the build. Required for reproducible builds.
-- Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
-  build machine. Required for reproducible builds.
-- De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
-- Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
-- Switch winreg out for windows_registry.
 
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
@@ -65,10 +83,6 @@ This release is identical to 2026.4-beta2.
 ### Fixed
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
-- Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
-- Ignore DAITA tunnel config responses unless DAITA was requested.
-- Fix infinite loop of account checks when account ran out of time.
-- Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 
 #### Linux
 - Fix issue where `gotatun` would fail to start on Linux systems where the
@@ -76,10 +90,7 @@ This release is identical to 2026.4-beta2.
 
 #### Windows
 - Fix misleading "split tunneling" error when offline.
-- Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
-  enabled in order to prevent toggle switches and other custom-styled controls from becoming
-  invisible.
-- Fix the installer UI from looking blurry by making the installer DPI-aware.
+- Fix unhandled error: "Reached the end of the file. (os error 38)"
 
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
