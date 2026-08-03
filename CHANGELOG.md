@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix misleading "split tunneling" error when offline.
+- Fix unhandled error: "Reached the end of the file. (os error 38)"
 
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
