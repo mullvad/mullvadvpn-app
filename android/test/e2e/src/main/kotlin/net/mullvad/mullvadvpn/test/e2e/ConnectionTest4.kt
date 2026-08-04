@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class ConnectionTest : EndToEndTest() {
+class ConnectionTest4 : EndToEndTest() {
 
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
