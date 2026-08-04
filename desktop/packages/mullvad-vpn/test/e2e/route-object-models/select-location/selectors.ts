@@ -9,15 +9,26 @@ export const createSelectors = (page: Page) => ({
     return page.locator('button', { hasText: label });
   },
   expandAccordionButton: (label: string) => page.getByLabel(`Expand ${label}`),
-  relaysMatching: (relayNames: string[]) =>
-    page.getByRole('button', {
-      name: new RegExp(relayNames.map((name) => `Connect to ${name}`).join('|')),
-    }),
+  locationsMatching: (relayNames: string[]) => {
+    const possiblePrefix = ['Connect to', 'Use', 'Connect and use'];
+    const possibleNames = possiblePrefix.flatMap((prefix) =>
+      relayNames.map((name) => `${prefix} ${name}`),
+    );
+
+    return page.getByRole('button', {
+      name: new RegExp(possibleNames.join('|')),
+    });
+  },
   searchInput: () => page.getByPlaceholder('Search locations or servers'),
   allLocationsSection: () => page.getByRole('region', { name: 'All locations' }),
   customListsSection: () => page.getByRole('region', { name: 'Custom lists' }),
   recentSection: () => page.getByRole('region', { name: 'Recents' }),
-  locations: (locator?: Locator) => (locator ?? page).getByRole('button', { name: 'Connect to' }),
+  locations: (locator?: Locator) => {
+    const possiblePrefix = ['Connect to', 'Use', 'Connect and use'];
+    return (locator ?? page).getByRole('button', {
+      name: new RegExp(possiblePrefix.join('|')),
+    });
+  },
   locationMenuButton: (locationName: string, locator?: Locator) => {
     return (locator ?? page).getByRole('button', { name: `Open menu for ${locationName}` });
   },
