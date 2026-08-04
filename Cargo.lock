@@ -1887,9 +1887,9 @@ dependencies = [
 
 [[package]]
 name = "gotatun"
-version = "0.8.1"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87942cf21be131088380c8b3cb3dc9a8528a7f840a8230bed0e79b2e202d0629"
+checksum = "121650b305d0ee6d45b08bbec1d5781a43b915a0a89a2fd869028647eb475cc9"
 dependencies = [
  "aead",
  "base64",
@@ -1916,7 +1916,7 @@ dependencies = [
  "rand_chacha",
  "rand_core 0.6.4",
  "ring",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "thiserror 1.0.69",
  "tokio",
  "tokio-util 0.7.18",
@@ -2321,7 +2321,7 @@ dependencies = [
  "libc",
  "percent-encoding",
  "pin-project-lite",
- "socket2 0.6.3",
+ "socket2 0.5.10",
  "tokio",
  "tower-service",
  "tracing",
@@ -2618,7 +2618,7 @@ version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d40460c0ce33d6ce4b0630ad68ff63d6661961c48b6dba35e5a4d81cfb48222"
 dependencies = [
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "widestring",
  "windows-registry",
  "windows-result",
@@ -3409,7 +3409,7 @@ dependencies = [
  "log",
  "nix 0.31.3",
  "pnet_packet 0.35.0",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "talpid-windows",
  "tokio",
  "windows-sys 0.61.2",
@@ -3464,7 +3464,7 @@ dependencies = [
  "rand 0.9.4",
  "rustls",
  "rustls-pki-types",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "talpid-tunnel",
  "thiserror 2.0.19",
  "tokio",
@@ -4852,7 +4852,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls",
- "socket2 0.6.3",
+ "socket2 0.5.10",
  "thiserror 2.0.19",
  "tokio",
  "tracing",
@@ -4889,7 +4889,7 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "once_cell",
- "socket2 0.6.3",
+ "socket2 0.5.10",
  "tracing",
  "windows-sys 0.60.2",
 ]
@@ -5513,7 +5513,7 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "spin",
  "thiserror 2.0.19",
  "tokio",
@@ -5655,9 +5655,9 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.6.3"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a766e1110788c36f4fa1c2b71b387a7815aa65f88ce0229841826633d93723e"
+checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
@@ -5737,7 +5737,7 @@ dependencies = [
  "parking_lot",
  "pnet_packet 0.34.0",
  "rand 0.9.4",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
@@ -5869,7 +5869,7 @@ dependencies = [
  "rand 0.9.4",
  "serde",
  "serde_json",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "talpid-cgroup",
  "talpid-dbus",
  "talpid-dns",
@@ -5961,7 +5961,7 @@ dependencies = [
  "libc",
  "log",
  "nix 0.31.3",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "talpid-types",
  "thiserror 2.0.19",
 ]
@@ -6076,7 +6076,7 @@ name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
  "futures",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "talpid-types",
  "thiserror 2.0.19",
  "tokio",
@@ -6108,7 +6108,7 @@ dependencies = [
  "proptest",
  "rand 0.9.4",
  "rtnetlink",
- "socket2 0.5.10",
+ "socket2 0.6.5",
  "surge-ping",
  "talpid-dbus",
  "talpid-net",
@@ -6342,7 +6342,7 @@ dependencies = [
  "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "tokio-macros",
  "windows-sys 0.61.2",
 ]
@@ -6404,7 +6404,7 @@ dependencies = [
  "log",
  "once_cell",
  "pin-project",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "tokio",
  "windows-sys 0.60.2",
 ]
@@ -6548,7 +6548,7 @@ dependencies = [
  "hyper-util",
  "percent-encoding",
  "pin-project",
- "socket2 0.6.3",
+ "socket2 0.6.5",
  "sync_wrapper",
  "tokio",
  "tokio-stream",

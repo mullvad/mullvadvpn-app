@@ -215,22 +215,19 @@ struct AndroidUdpSocketFactory {
 
 #[cfg(target_os = "android")]
 impl UdpTransportFactory for AndroidUdpSocketFactory {
-    type SendV4 = <UdpSocketFactory as UdpTransportFactory>::SendV4;
-    type SendV6 = <UdpSocketFactory as UdpTransportFactory>::SendV6;
-    type RecvV4 = <UdpSocketFactory as UdpTransportFactory>::RecvV4;
-    type RecvV6 = <UdpSocketFactory as UdpTransportFactory>::RecvV6;
+    type Send = <UdpSocketFactory as UdpTransportFactory>::Send;
+    type Recv = <UdpSocketFactory as UdpTransportFactory>::Recv;
 
     async fn bind(
         &mut self,
         params: &gotatun::udp::UdpTransportFactoryParams,
-    ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.udp.bind(params).await?;
+    ) -> std::io::Result<(Self::Send, Self::Recv)> {
+        let (udp_tx, udp_rx) = self.udp.bind(params).await?;
 
         use std::os::fd::AsFd;
-        self.tun.bypass(&udp_v4_tx.socket()?.as_fd()).unwrap();
-        self.tun.bypass(&udp_v6_tx.socket()?.as_fd()).unwrap();
+        self.tun.bypass(&udp_tx.socket().as_fd()).unwrap();
 
-        Ok(((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)))
+        Ok((udp_tx, udp_rx))
     }
 }
 
