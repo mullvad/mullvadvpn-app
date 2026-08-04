@@ -5,18 +5,20 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
-use talpid_net::bypass::{BypassSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
 use tokio::sync::mpsc;
 
 #[derive(Clone)]
 pub struct QuicSend {
     packet_tx: mpsc::Sender<Packet>,
+    _bypass_guard: Arc<BypassGuard>,
 }
 
 pub struct QuicRecv {
     /// packets incoming from the network
     packet_rx: mpsc::Receiver<BytesMut>,
     target_addr: SocketAddr,
+    _bypass_guard: Arc<BypassGuard>,
 }
 
 impl UdpRecv for QuicRecv {
@@ -66,13 +68,14 @@ impl UdpTransportFactory for QuicTransportFactory {
 
         let BypassSocket {
             socket: quinn_socket,
-            guard: _bypass,
+            guard: bypass_guard,
         } = tunnel_obfuscation::socket::create_remote_socket(
             &self.bypass,
             self.settings.quic_endpoint().is_ipv4(),
         )
         .await
         .map_err(io::Error::other)?;
+        let bypass_guard = Arc::new(bypass_guard);
 
         let config = self.settings.build_client_config(quinn_socket);
 
@@ -86,10 +89,12 @@ impl UdpTransportFactory for QuicTransportFactory {
             mpsc::channel(tunnel_obfuscation::quic::MAX_INFLIGHT_PACKETS);
         let send = QuicSend {
             packet_tx: outgoing_tx,
+            _bypass_guard: bypass_guard.clone(),
         };
         let recv = QuicRecv {
             packet_rx: incoming_rx,
             target_addr: self.settings.wireguard_endpoint(),
+            _bypass_guard: bypass_guard,
         };
         let running_client = client.proxy_channels(outgoing_rx, incoming_tx);
         self.running_client = Some(running_client);
