@@ -25,7 +25,7 @@ struct SegmentedListItem<Leading: View>: View {
     /// A grouped content sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     let groupedContent: AnyView?
     var footer: MullvadInfoView?
-    var onSelect: (() -> Void)?
+    let onSelect: (() -> Void)?
 
     /// The optional `trailing`, `segment` and `groupedContent` view builders default to `EmptyView`, so callers
     /// only specify the slots they need. An omitted slot is detected via its `EmptyView` type and stored as `nil`
@@ -67,40 +67,46 @@ struct SegmentedListItem<Leading: View>: View {
 
     var body: some View {
         HStack(spacing: 2) {
+            let label = HStack(spacing: 8) {
+                leading()
+                Spacer()
+                trailing?.accessibilityIdentifier(self.accessibilityIdentifier)
+            }
+            .padding(.leading, 16)
+            .padding(.trailing, trailing == nil ? 16 : 0)
+            .background(Color.colorForIndentationLevel(level))
+            .sizeOfView {
+                segmentHeight = $0.height
+            }
+
             let button = Button {
                 withAnimation(.easeInOut(duration: 0.15)) {
                     onSelect?()
                 }
             } label: {
-                HStack(spacing: 8) {
-                    leading()
-                    Spacer()
-                    trailing
-                }
-                .padding(.leading, 16)
-                .padding(.trailing, trailing == nil ? 16 : 0)
-                .background(Color.colorForIndentationLevel(level))
-                .sizeOfView {
-                    segmentHeight = $0.height
-                }
+                label
             }
 
-            switch userInteraction {
-            case .enabled:
-                button
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(false)
-            case .enabledWithoutHighlight:
-                button
-                    .buttonStyle(StaticButtonStyle())
-                    .disabled(false)
-            case .inactive:
-                button
-                    .buttonStyle(InactiveButtonStyle())
-            case .disabled:
-                button
-                    .buttonStyle(PlainButtonStyle())
-                    .disabled(true)
+            if onSelect != nil {
+                switch userInteraction {
+                case .enabled:
+                    button
+                        .buttonStyle(PlainButtonStyle())
+                        .disabled(false)
+                case .enabledWithoutHighlight:
+                    button
+                        .buttonStyle(StaticButtonStyle())
+                        .disabled(false)
+                case .inactive:
+                    button
+                        .buttonStyle(InactiveButtonStyle())
+                case .disabled:
+                    button
+                        .buttonStyle(PlainButtonStyle())
+                        .disabled(true)
+                }
+            } else {
+                label
             }
 
             segment
@@ -111,9 +117,11 @@ struct SegmentedListItem<Leading: View>: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityIdentifier(accessibilityIdentifier)
-        .accessibilityAction(named: Text("Select \(accessibilityLabel)")) {
-            withAnimation(.easeInOut(duration: 0.15)) {
-                onSelect?()
+        .if(onSelect != nil) {
+            $0.accessibilityAction(named: Text("Select \(accessibilityLabel)")) {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    onSelect?()
+                }
             }
         }
         .clipShape(
