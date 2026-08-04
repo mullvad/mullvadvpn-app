@@ -7,9 +7,7 @@ import {
   type CityLocation,
   type CountryLocation,
   type CustomListLocation,
-  type RecentLocation,
-  type RecentMultihopLocation,
-  type RecentSinglehopLocation,
+  type RecentLocations,
   type RelayLocation,
 } from '../types';
 import { useRecents } from './use-recents';
@@ -17,7 +15,7 @@ import { useRecents } from './use-recents';
 export function useMapRecentsToLocations(
   countryLocations: CountryLocation[],
   customListLocations: CustomListLocation[],
-): RecentLocation[] | undefined {
+): RecentLocations | undefined {
   const { recents } = useRecents();
 
   if (!recents) {
@@ -47,7 +45,7 @@ function getRecentLocations(
   countryLocations: CountryLocation[],
   cityLocations: CityLocation[],
   relayLocations: RelayLocation[],
-): RecentLocation[] {
+): RecentLocations {
   const findMatchingLocation = getFindMatchingLocation(
     relayLocations,
     cityLocations,
@@ -55,35 +53,18 @@ function getRecentLocations(
     customListLocations,
   );
 
-  return recents
-    .map((recent) => {
-      if (recent.type === 'multihop') {
-        const { entry, exit } = recent;
-        const entryLocation = findMatchingLocation(entry);
-        const exitLocation = findMatchingLocation(exit);
-        if (entryLocation && exitLocation) {
-          const multihopLocation: RecentMultihopLocation = {
-            type: 'multihop',
-            entry: entryLocation,
-            exit: exitLocation,
-          };
-          return multihopLocation;
-        }
-      } else if (recent.type === 'singlehop') {
-        const recentLocation = findMatchingLocation(recent.location);
-        if (recentLocation) {
-          const singlehopLocation: RecentSinglehopLocation = {
-            type: 'singlehop',
-            location: recentLocation,
-          };
-
-          return singlehopLocation;
-        }
-      }
-
-      return undefined;
-    })
+  const { entries, exits } = recents;
+  const recentEntryLocations = entries
+    .map((entry) => findMatchingLocation(entry))
     .filter((location) => location !== undefined);
+  const recentExitLocations = exits
+    .map((exit) => findMatchingLocation(exit))
+    .filter((location) => location !== undefined);
+
+  return {
+    entries: recentEntryLocations,
+    exits: recentExitLocations,
+  };
 }
 
 function getFindMatchingLocation(

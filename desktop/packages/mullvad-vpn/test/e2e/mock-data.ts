@@ -91,29 +91,25 @@ const customLists: CustomLists = [
   },
 ];
 
-const recents: Recents = [
-  {
-    type: 'singlehop',
-    location: {
+const recents: Recents = {
+  entries: [
+    {
       country: relayList.countries[0].code,
     },
-  },
-  {
-    type: 'singlehop',
-    location: {
+  ],
+  exits: [
+    {
+      country: relayList.countries[0].code,
+    },
+    {
       customList: customLists[0].id,
     },
-  },
-  {
-    type: 'multihop',
-    entry: {
+    {
       country: relayList.countries[0].code,
+      city: relayList.countries[0].cities[0].code,
     },
-    exit: {
-      country: relayList.countries[0].code,
-    },
-  },
-];
+  ],
+};
 
 export const mockData = {
   relayList,

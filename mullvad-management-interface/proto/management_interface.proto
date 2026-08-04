@@ -600,19 +600,21 @@ message RelayOverride {
   optional string ipv6_addr_in = 3;
 }
 
-message Recents { repeated Recent recents = 1; }
-
-message MultihopRecent {
-  LocationConstraint entry = 1;
-  LocationConstraint exit = 2;
+message Recents {
+  // Used for multihop: "Never", "when needed" and for the exit relays of "Always".
+  repeated ExitRecent exits = 1;
+  // Used for the entry relays of multihop: "Always".
+  repeated EntryRecent entries = 2;
 }
 
-message Recent {
-  oneof type {
-    LocationConstraint singlehop = 1;
-    MultihopRecent multihop = 2;
+message EntryRecent {
+  oneof entry {
+    LocationConstraint location = 1;
+    google.protobuf.Empty automatic = 2;
   }
 }
+
+message ExitRecent { LocationConstraint location = 1; }
 
 message SplitTunnelSettings {
   bool enable_exclusions = 1;

@@ -446,17 +446,9 @@ export interface IDeviceRemoval {
 
 export type CustomLists = Array<ICustomList>;
 
-export type Recents = (SinglehopRecentLocation | MultihopRecentLocation)[];
-
-export type SinglehopRecentLocation = {
-  type: 'singlehop';
-  location: RelayLocation;
-};
-
-export type MultihopRecentLocation = {
-  type: 'multihop';
-  entry: RelayLocation;
-  exit: RelayLocation;
+export type Recents = {
+  entries: RelayLocation[];
+  exits: RelayLocation[];
 };
 
 export type ShadowsocksCipher = {

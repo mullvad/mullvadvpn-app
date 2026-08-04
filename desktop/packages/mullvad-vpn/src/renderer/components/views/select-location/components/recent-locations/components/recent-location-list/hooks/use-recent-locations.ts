@@ -1,25 +1,14 @@
 import { LocationType } from '../../../../../../../../features/locations/types';
-import { useMultihop } from '../../../../../../../../features/multihop/hooks';
 import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 
 export function useRecentLocations() {
-  const {
-    locationType,
-    recentMultihopEntryLocations,
-    recentMultihopExitLocations,
-    recentSinglehopLocations,
-  } = useSelectLocationViewContext();
-  const { multihop } = useMultihop();
-  if (multihop === 'never') {
-    if (recentSinglehopLocations) {
-      return recentSinglehopLocations;
-    }
-  } else {
-    if (recentMultihopEntryLocations && locationType === LocationType.entry) {
-      return recentMultihopEntryLocations;
-    } else if (recentMultihopExitLocations && locationType === LocationType.exit) {
-      return recentMultihopExitLocations;
-    }
+  const { locationType, recentEntryLocations, recentExitLocations } =
+    useSelectLocationViewContext();
+  if (recentEntryLocations && locationType === LocationType.entry) {
+    return recentEntryLocations;
+  } else if (recentExitLocations && locationType === LocationType.exit) {
+    return recentExitLocations;
   }
+
   return [];
 }

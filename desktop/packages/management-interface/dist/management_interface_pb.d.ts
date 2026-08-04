@@ -1903,10 +1903,14 @@ export namespace RelayOverride {
 }
 
 export class Recents extends jspb.Message { 
-    clearRecentsList(): void;
-    getRecentsList(): Array<Recent>;
-    setRecentsList(value: Array<Recent>): Recents;
-    addRecents(value?: Recent, index?: number): Recent;
+    clearExitsList(): void;
+    getExitsList(): Array<ExitRecent>;
+    setExitsList(value: Array<ExitRecent>): Recents;
+    addExits(value?: ExitRecent, index?: number): ExitRecent;
+    clearEntriesList(): void;
+    getEntriesList(): Array<EntryRecent>;
+    setEntriesList(value: Array<EntryRecent>): Recents;
+    addEntries(value?: EntryRecent, index?: number): EntryRecent;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Recents.AsObject;
@@ -1920,75 +1924,70 @@ export class Recents extends jspb.Message {
 
 export namespace Recents {
     export type AsObject = {
-        recentsList: Array<Recent.AsObject>,
+        exitsList: Array<ExitRecent.AsObject>,
+        entriesList: Array<EntryRecent.AsObject>,
     }
 }
 
-export class MultihopRecent extends jspb.Message { 
+export class EntryRecent extends jspb.Message { 
 
-    hasEntry(): boolean;
-    clearEntry(): void;
-    getEntry(): LocationConstraint | undefined;
-    setEntry(value?: LocationConstraint): MultihopRecent;
+    hasLocation(): boolean;
+    clearLocation(): void;
+    getLocation(): LocationConstraint | undefined;
+    setLocation(value?: LocationConstraint): EntryRecent;
 
-    hasExit(): boolean;
-    clearExit(): void;
-    getExit(): LocationConstraint | undefined;
-    setExit(value?: LocationConstraint): MultihopRecent;
+    hasAutomatic(): boolean;
+    clearAutomatic(): void;
+    getAutomatic(): google_protobuf_empty_pb.Empty | undefined;
+    setAutomatic(value?: google_protobuf_empty_pb.Empty): EntryRecent;
+
+    getEntryCase(): EntryRecent.EntryCase;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): MultihopRecent.AsObject;
-    static toObject(includeInstance: boolean, msg: MultihopRecent): MultihopRecent.AsObject;
+    toObject(includeInstance?: boolean): EntryRecent.AsObject;
+    static toObject(includeInstance: boolean, msg: EntryRecent): EntryRecent.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: MultihopRecent, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): MultihopRecent;
-    static deserializeBinaryFromReader(message: MultihopRecent, reader: jspb.BinaryReader): MultihopRecent;
+    static serializeBinaryToWriter(message: EntryRecent, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): EntryRecent;
+    static deserializeBinaryFromReader(message: EntryRecent, reader: jspb.BinaryReader): EntryRecent;
 }
 
-export namespace MultihopRecent {
+export namespace EntryRecent {
     export type AsObject = {
-        entry?: LocationConstraint.AsObject,
-        exit?: LocationConstraint.AsObject,
+        location?: LocationConstraint.AsObject,
+        automatic?: google_protobuf_empty_pb.Empty.AsObject,
     }
+
+    export enum EntryCase {
+        ENTRY_NOT_SET = 0,
+        LOCATION = 1,
+        AUTOMATIC = 2,
+    }
+
 }
 
-export class Recent extends jspb.Message { 
+export class ExitRecent extends jspb.Message { 
 
-    hasSinglehop(): boolean;
-    clearSinglehop(): void;
-    getSinglehop(): LocationConstraint | undefined;
-    setSinglehop(value?: LocationConstraint): Recent;
-
-    hasMultihop(): boolean;
-    clearMultihop(): void;
-    getMultihop(): MultihopRecent | undefined;
-    setMultihop(value?: MultihopRecent): Recent;
-
-    getTypeCase(): Recent.TypeCase;
+    hasLocation(): boolean;
+    clearLocation(): void;
+    getLocation(): LocationConstraint | undefined;
+    setLocation(value?: LocationConstraint): ExitRecent;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): Recent.AsObject;
-    static toObject(includeInstance: boolean, msg: Recent): Recent.AsObject;
+    toObject(includeInstance?: boolean): ExitRecent.AsObject;
+    static toObject(includeInstance: boolean, msg: ExitRecent): ExitRecent.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: Recent, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): Recent;
-    static deserializeBinaryFromReader(message: Recent, reader: jspb.BinaryReader): Recent;
+    static serializeBinaryToWriter(message: ExitRecent, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ExitRecent;
+    static deserializeBinaryFromReader(message: ExitRecent, reader: jspb.BinaryReader): ExitRecent;
 }
 
-export namespace Recent {
+export namespace ExitRecent {
     export type AsObject = {
-        singlehop?: LocationConstraint.AsObject,
-        multihop?: MultihopRecent.AsObject,
+        location?: LocationConstraint.AsObject,
     }
-
-    export enum TypeCase {
-        TYPE_NOT_SET = 0,
-        SINGLEHOP = 1,
-        MULTIHOP = 2,
-    }
-
 }
 
 export class SplitTunnelSettings extends jspb.Message { 

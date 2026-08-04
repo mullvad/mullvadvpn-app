@@ -3,9 +3,9 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, Multihop, ObfuscationSettings,
-        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
-        SelectedObfuscation, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, RelayConstraints,
+        RelayOverride, RelaySettings, RelaySettingsFormatter, SelectedObfuscation,
+        WireguardConstraints,
     },
     wireguard,
 };
@@ -141,7 +141,7 @@ pub struct Settings {
     /// Specifies settings schema version
     pub settings_version: SettingsVersion,
     /// Stores the user's recently connected locations. If None recents have been disabled by the user.
-    pub recents: Option<Vec<Recent>>,
+    pub recents: Option<Recents>,
     /// A randomly generated number used as input when determining if the client should update. Note that this
     /// number is not solely responsible for determining _when_ the client should be updated, but
     /// it is expected to be fairly unique.
@@ -151,70 +151,14 @@ pub struct Settings {
     pub rollout_threshold_seed: Option<u32>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub enum Recent {
-    Singlehop(LocationConstraint),
-    Multihop {
-        entry: LocationConstraint,
-        exit: LocationConstraint,
-    },
-}
-
-impl TryFrom<&RelaySettings> for Recent {
-    type Error = &'static str;
-
-    fn try_from(value: &RelaySettings) -> Result<Self, Self::Error> {
-        match value {
-            RelaySettings::CustomTunnelEndpoint(_) => {
-                Err("Cannot convert CustomTunnelEndpoint to Recent")
-            }
-            RelaySettings::Normal(constraints) => {
-                let location = constraints
-                    .location
-                    .as_ref()
-                    .option()
-                    .ok_or("Location must be Constraint::Only")?
-                    .clone();
-
-                let recent = match constraints.wireguard_constraints.multihop {
-                    Multihop::Always => {
-                        let entry = constraints
-                            .wireguard_constraints
-                            .entry_location
-                            .as_ref()
-                            .option()
-                            .ok_or("Location must be Constraint::Only")?
-                            .clone();
-
-                        if matches!(
-                            entry,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && matches!(
-                            location,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && entry == location
-                        {
-                            return Err(
-                                "Multihop recent cannot have identical (country, city, host) triple.",
-                            );
-                        }
-
-                        Recent::Multihop {
-                            entry,
-                            exit: location,
-                        }
-                    }
-                    Multihop::Never | Multihop::Auto => Recent::Singlehop(location),
-                };
-
-                Ok(recent)
-            }
-        }
-    }
+/// Recently connected locations, split into exit locations and multihop entry constraints.
+///
+/// `exits` is used for singlehop, multihop "when needed", and the exit relays of multihop "always".
+/// `entries` is used only for the entry relays of multihop "always".
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
+pub struct Recents {
+    pub exits: Vec<LocationConstraint>,
+    pub entries: Vec<Constraint<LocationConstraint>>,
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -327,7 +271,7 @@ impl Default for Settings {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
-            recents: Some(vec![]),
+            recents: Some(Recents::default()),
             #[cfg(not(target_os = "android"))]
             rollout_threshold_seed: None,
         }
@@ -379,20 +323,48 @@ impl Settings {
         }
     }
 
-    // Add the current RelaySettings to the recents list. If recents are disabled do nothing.
+    // Add the current RelaySettings to the recents lists. If recents are disabled do nothing.
     pub fn update_recents(&mut self) {
-        if let Some(recents) = self.recents.as_mut() {
-            match Recent::try_from(&self.relay_settings) {
-                Ok(new_recent) => {
-                    recents.retain(|r| *r != new_recent);
-                    recents.insert(0, new_recent);
-                    recents.truncate(Self::RECENTS_MAX_COUNT);
-                }
-                Err(e) => {
-                    log::debug!("Failed to convert {:?} to recent: {e}", recents);
-                }
+        let Some(recents) = self.recents.as_mut() else {
+            return;
+        };
+
+        let RelaySettings::Normal(constraints) = &self.relay_settings else {
+            log::debug!("Cannot create recent from custom tunnel endpoint");
+            return;
+        };
+
+        let exit_location = match constraints.extract_recent_exit() {
+            Ok(location) => location,
+            Err(e) => {
+                log::debug!("Failed to extract recent exit from relay settings: {e}");
+                return;
             }
+        };
+
+        let entry_constraint = constraints.extract_recent_entry();
+
+        // Validate that multihop entry and exit are not the same hostname.
+        if let Some(Constraint::Only(entry)) = &entry_constraint
+            && matches!(
+                entry,
+                LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
+            )
+            && *entry == exit_location
+        {
+            log::debug!("Skipping recent: multihop entry and exit cannot be the same hostname");
+            return;
         }
+
+        if let Some(entry_constraint) = entry_constraint {
+            recents.entries.retain(|r| *r != entry_constraint);
+            recents.entries.insert(0, entry_constraint);
+            recents.entries.truncate(Self::RECENTS_MAX_COUNT);
+        }
+
+        recents.exits.retain(|r| *r != exit_location);
+        recents.exits.insert(0, exit_location);
+        recents.exits.truncate(Self::RECENTS_MAX_COUNT);
     }
 }
 

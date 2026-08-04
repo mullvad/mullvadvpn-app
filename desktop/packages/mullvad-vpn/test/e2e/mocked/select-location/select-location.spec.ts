@@ -156,7 +156,10 @@ test.describe('Select location', () => {
     });
 
     test('Should show empty recent section when enabled and no recents', async () => {
-      await helpers.mockRecents([]);
+      await helpers.mockRecents({
+        entries: [],
+        exits: [],
+      });
 
       const recentSection = routes.selectLocation.getRecentsSection();
       await expect(recentSection).toBeVisible();
@@ -173,32 +176,23 @@ test.describe('Select location', () => {
     });
 
     test('Should show geographical locations in recents section', async () => {
-      const singlehopRecents = recents.filter(
-        (recent) => recent.type === 'singlehop' && !recent.location.customList,
-      );
-      await helpers.mockRecents(singlehopRecents);
+      const geographicalExits = recents.exits.filter((recent) => !recent.customList);
+      await helpers.mockRecents({ exits: geographicalExits, entries: [] });
 
       const recentLocations = routes.selectLocation.getLocationsInRecents();
-      await expect(recentLocations).toHaveCount(singlehopRecents.length);
+      await expect(recentLocations).toHaveCount(geographicalExits.length);
     });
 
     test('Should show custom lists in recents section', async () => {
-      const customListRecents = recents.filter(
-        (recent) => recent.type === 'singlehop' && recent.location.customList,
-      );
-      const settings = await helpers.mockRecents(customListRecents);
+      const customListExits = recents.exits.filter((recent) => recent.customList);
+      const settings = await helpers.mockRecents({ exits: customListExits, entries: [] });
       await helpers.mockCustomLists(customLists, settings);
 
       const recentLocations = routes.selectLocation.getLocationsInRecents();
-      await expect(recentLocations).toHaveCount(customListRecents.length);
+      await expect(recentLocations).toHaveCount(customListExits.length);
     });
 
-    test('Should show recents section when recents is enabled and using singlehop', async () => {
-      const singlehopRecent = recents.find((recent) => recent.type === 'singlehop');
-      if (!singlehopRecent) {
-        throw new Error('No singlehop recent found in mocked data');
-      }
-
+    test('Should show recents section for exits when recents is enabled', async () => {
       await helpers.updateMockSettings(
         {
           multihop: 'never',
@@ -206,17 +200,11 @@ test.describe('Select location', () => {
         initialSettings,
       );
 
-      const singlehopRecents = recents.filter((recent) => recent.type === 'singlehop');
       const recentLocations = routes.selectLocation.getLocationsInRecents();
-      await expect(recentLocations).toHaveCount(singlehopRecents.length);
+      await expect(recentLocations).toHaveCount(recents.exits.length);
     });
 
-    test('Should show recents section when recents is enabled and using multihop', async () => {
-      const multihopRecent = recents.find((recent) => recent.type === 'multihop');
-      if (!multihopRecent) {
-        throw new Error('No multihop recent found in mocked data');
-      }
-
+    test('Should show recents section for entries when recents is enabled', async () => {
       await helpers.updateMockSettings(
         {
           multihop: 'always',
@@ -224,21 +212,14 @@ test.describe('Select location', () => {
         initialSettings,
       );
 
-      const multihopRecents = recents.filter((recent) => recent.type === 'multihop');
       const recentLocations = routes.selectLocation.getLocationsInRecents();
-
-      await expect(recentLocations).toHaveCount(multihopRecents.length);
+      await expect(recentLocations).toHaveCount(recents.exits.length);
 
       await routes.selectLocation.getEntryButton().click();
-
-      await expect(recentLocations).toHaveCount(multihopRecents.length);
+      await expect(recentLocations).toHaveCount(recents.entries.length);
     });
 
     test('Should be able to add recent geographical location to custom list', async () => {
-      const singlehopRecent = recents.find((recent) => recent.type === 'singlehop');
-      if (!singlehopRecent) {
-        throw new Error('No singlehop recent found in mocked data');
-      }
       const settings = await helpers.mockCustomLists(customLists, initialSettings);
 
       await helpers.updateMockSettings(
@@ -272,12 +253,6 @@ test.describe('Select location', () => {
     });
 
     test('Should be able to edit or delete recent custom list', async () => {
-      const recentCustomList = recents.find(
-        (recent) => recent.type === 'singlehop' && recent.location.customList,
-      );
-      if (!recentCustomList) {
-        throw new Error('No recent custom list found in mocked data');
-      }
       const settings = await helpers.mockCustomLists(customLists, initialSettings);
 
       await helpers.updateMockSettings(

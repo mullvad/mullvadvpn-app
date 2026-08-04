@@ -462,27 +462,20 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
   if (!recents) {
     return undefined;
   }
-  return recents
-    .getRecentsList()
-    .map((recent) => {
-      const multihop = recent.getMultihop();
-      const singlehop = recent.getSinglehop();
-      if (multihop) {
-        const entry = convertFromLocationConstraint(multihop.getEntry());
-        const exit = convertFromLocationConstraint(multihop.getExit());
-        return {
-          type: 'multihop',
-          entry,
-          exit,
-        };
-      } else if (singlehop) {
-        const location = convertFromLocationConstraint(singlehop);
-        return location ? { type: 'singlehop', location } : undefined;
-      } else {
-        return undefined;
-      }
-    })
-    .filter((recent) => recent !== undefined) as Recents;
+
+  const entries = recents
+    .getEntriesList()
+    .map((entry) => convertFromLocationConstraint(entry.getLocation()))
+    .filter((location) => location !== undefined);
+  const exits = recents
+    .getExitsList()
+    .map((exit) => convertFromLocationConstraint(exit.getLocation()))
+    .filter((location) => location !== undefined);
+
+  return {
+    entries,
+    exits,
+  };
 }
 
 function convertFromRelaySettings(

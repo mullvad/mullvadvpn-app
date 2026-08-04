@@ -7,7 +7,7 @@ export function useShowSetAsEntryMenuOption(location: GeographicalLocation) {
   const { locationType } = useSelectLocationViewContext();
 
   return (
-    multihop !== 'never' &&
+    multihop === 'always' &&
     locationType === LocationType.exit &&
     location.disabledReason !== DisabledReason.entry
   );

@@ -123,3 +123,30 @@ impl __WireguardSettings {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub struct __Recents {
+    pub exits: Vec<__LocationConstraint>,
+    pub entries: Vec<__Constraint<__LocationConstraint>>,
+}
+
+impl From<Vec<v17::__Recent>> for __Recents {
+    fn from(recents: Vec<v17::__Recent>) -> Self {
+        let mut exits = Vec::new();
+        let mut entries = Vec::new();
+
+        for recent in recents {
+            match recent {
+                v17::__Recent::Singlehop(location) => {
+                    exits.push(location);
+                }
+                v17::__Recent::Multihop(v17::__MultihopRecent { entry, exit }) => {
+                    exits.push(exit);
+                    entries.push(__Constraint::Only(entry));
+                }
+            }
+        }
+
+        __Recents { exits, entries }
+    }
+}
