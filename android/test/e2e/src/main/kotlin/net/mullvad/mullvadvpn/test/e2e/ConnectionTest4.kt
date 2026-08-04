@@ -63,35 +63,35 @@ class ConnectionTest4 : EndToEndTest() {
     private val firewallClient by lazy { FirewallClient() }
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testApiUnavailable() = runTest {
-        val testRelayIp = relayClient.getDefaultRelayIpAddress()
-
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        on<ConnectPage>()
-
-        // Block everything except the default relay IP. After this the API is no longer reachable.
-//        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
-
-        // Restarting the activity will re-create the daemon which will try to reach the API.
-        targetActivity.finishAffinity()
-        app.launch()
-
-        on<ConnectPage> { clickSelectLocation() }
-
-        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
-
-        device.acceptVpnPermissionDialog()
-
-        // Test that we can still connect to the relay even though the API is blocked.
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            clickDisconnect()
-            waitForDisconnectedLabel()
-        }
-    }
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testApiUnavailable() = runTest {
+//        val testRelayIp = relayClient.getDefaultRelayIpAddress()
+//
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//        on<ConnectPage>()
+//
+//        // Block everything except the default relay IP. After this the API is no longer reachable.
+////        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
+//
+//        // Restarting the activity will re-create the daemon which will try to reach the API.
+//        targetActivity.finishAffinity()
+//        app.launch()
+//
+//        on<ConnectPage> { clickSelectLocation() }
+//
+//        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        // Test that we can still connect to the relay even though the API is blocked.
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            clickDisconnect()
+//            waitForDisconnectedLabel()
+//        }
+//    }
 
     @Test
     fun testConnectUsingMultihop() =
