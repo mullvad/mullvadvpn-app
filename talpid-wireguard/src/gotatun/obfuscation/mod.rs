@@ -13,7 +13,7 @@ use gotatun::{
 use talpid_net::bypass::SocketBypass;
 use tunnel_obfuscation::Settings as ObfuscationSettings;
 
-use crate::gotatun::obfuscation::quic::{NoopRecv, NoopSend, QuicTransportFactory};
+use crate::gotatun::obfuscation::quic::QuicTransportFactory;
 
 use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory};
 use quic::{QuicRecv, QuicSend};
@@ -23,8 +23,7 @@ use quic::{QuicRecv, QuicSend};
 pub enum MaybeObfuscatingSend<S: UdpSend> {
     Plain(S),
     Lwo(LwoSend<S>),
-    QuicV4(QuicSend),
-    QuicV6(NoopSend),
+    Quic(QuicSend),
 }
 
 impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
@@ -34,8 +33,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
         match self {
             Self::Plain(inner) => inner.send_to(packet, destination).await,
             Self::Lwo(inner) => inner.send_to(packet, destination).await,
-            Self::QuicV4(inner) => inner.send_to(packet, destination).await,
-            Self::QuicV6(inner) => inner.send_to(packet, destination).await,
+            Self::Quic(inner) => inner.send_to(packet, destination).await,
         }
     }
 
@@ -43,8 +41,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
         match self {
             Self::Plain(inner) => inner.max_number_of_packets_to_send(),
             Self::Lwo(inner) => inner.max_number_of_packets_to_send(),
-            Self::QuicV4(inner) => inner.max_number_of_packets_to_send(),
-            Self::QuicV6(inner) => inner.max_number_of_packets_to_send(),
+            Self::Quic(inner) => inner.max_number_of_packets_to_send(),
         }
     }
 
@@ -56,8 +53,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
         match self {
             Self::Plain(inner) => inner.send_many_to(send_buf, packets).await,
             Self::Lwo(inner) => inner.send_many_to(send_buf, packets).await,
-            Self::QuicV4(inner) => inner.send_many_to(&mut (), packets).await,
-            Self::QuicV6(inner) => inner.send_many_to(&mut (), packets).await,
+            Self::Quic(inner) => inner.send_many_to(&mut (), packets).await,
         }
     }
 
@@ -65,8 +61,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
         match self {
             Self::Plain(inner) => inner.local_addr(),
             Self::Lwo(inner) => inner.local_addr(),
-            Self::QuicV4(inner) => inner.local_addr(),
-            Self::QuicV6(inner) => inner.local_addr(),
+            Self::Quic(inner) => inner.local_addr(),
         }
     }
 
@@ -75,8 +70,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
         match self {
             Self::Plain(inner) => inner.set_fwmark(mark),
             Self::Lwo(inner) => inner.set_fwmark(mark),
-            Self::QuicV4(inner) => inner.set_fwmark(mark),
-            Self::QuicV6(inner) => inner.set_fwmark(mark),
+            Self::Quic(inner) => inner.set_fwmark(mark),
         }
     }
 }
@@ -85,8 +79,7 @@ impl<S: UdpSend> UdpSend for MaybeObfuscatingSend<S> {
 pub enum MaybeObfuscatingRecv<R: UdpRecv> {
     Plain(R),
     Lwo(LwoRecv<R>),
-    QuicV4(QuicRecv),
-    QuicV6(NoopRecv),
+    Quic(QuicRecv),
 }
 
 impl<R: UdpRecv> UdpRecv for MaybeObfuscatingRecv<R> {
@@ -96,8 +89,7 @@ impl<R: UdpRecv> UdpRecv for MaybeObfuscatingRecv<R> {
         match self {
             Self::Plain(inner) => inner.recv_from(pool).await,
             Self::Lwo(inner) => inner.recv_from(pool).await,
-            Self::QuicV4(inner) => inner.recv_from(pool).await,
-            Self::QuicV6(inner) => inner.recv_from(pool).await,
+            Self::Quic(inner) => inner.recv_from(pool).await,
         }
     }
 
@@ -110,8 +102,7 @@ impl<R: UdpRecv> UdpRecv for MaybeObfuscatingRecv<R> {
         match self {
             Self::Plain(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
             Self::Lwo(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
-            Self::QuicV4(inner) => inner.recv_many_from(&mut (), pool, packets).await,
-            Self::QuicV6(inner) => inner.recv_many_from(&mut (), pool, packets).await,
+            Self::Quic(inner) => inner.recv_many_from(&mut (), pool, packets).await,
         }
     }
 
@@ -119,8 +110,7 @@ impl<R: UdpRecv> UdpRecv for MaybeObfuscatingRecv<R> {
         match self {
             Self::Plain(inner) => inner.enable_udp_gro(),
             Self::Lwo(inner) => inner.enable_udp_gro(),
-            Self::QuicV4(inner) => inner.enable_udp_gro(),
-            Self::QuicV6(inner) => inner.enable_udp_gro(),
+            Self::Quic(inner) => inner.enable_udp_gro(),
         }
     }
 }
@@ -160,53 +150,30 @@ impl<F: UdpTransportFactory> MaybeObfuscatingTransportFactory<F> {
 }
 
 impl<F: UdpTransportFactory> UdpTransportFactory for MaybeObfuscatingTransportFactory<F> {
-    type SendV4 = MaybeObfuscatingSend<F::SendV4>;
-    type SendV6 = MaybeObfuscatingSend<F::SendV6>;
-    type RecvV4 = MaybeObfuscatingRecv<F::RecvV4>;
-    type RecvV6 = MaybeObfuscatingRecv<F::RecvV6>;
+    type Send = MaybeObfuscatingSend<F::Send>;
+    type Recv = MaybeObfuscatingRecv<F::Recv>;
 
     async fn bind(
         &mut self,
         params: &UdpTransportFactoryParams,
-    ) -> io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
+    ) -> io::Result<(Self::Send, Self::Recv)> {
         match self {
             Self::Plain(factory) => {
-                let ((sv4, rv4), (sv6, rv6)) = factory.bind(params).await?;
+                let (sv, rv) = factory.bind(params).await?;
                 Ok((
-                    (
-                        MaybeObfuscatingSend::Plain(sv4),
-                        MaybeObfuscatingRecv::Plain(rv4),
-                    ),
-                    (
-                        MaybeObfuscatingSend::Plain(sv6),
-                        MaybeObfuscatingRecv::Plain(rv6),
-                    ),
+                    MaybeObfuscatingSend::Plain(sv),
+                    MaybeObfuscatingRecv::Plain(rv),
                 ))
             }
             Self::Lwo(factory) => {
-                let ((sv4, rv4), (sv6, rv6)) = factory.bind(params).await?;
-                Ok((
-                    (
-                        MaybeObfuscatingSend::Lwo(sv4),
-                        MaybeObfuscatingRecv::Lwo(rv4),
-                    ),
-                    (
-                        MaybeObfuscatingSend::Lwo(sv6),
-                        MaybeObfuscatingRecv::Lwo(rv6),
-                    ),
-                ))
+                let (sv, rv) = factory.bind(params).await?;
+                Ok((MaybeObfuscatingSend::Lwo(sv), MaybeObfuscatingRecv::Lwo(rv)))
             }
             Self::Quic(factory) => {
-                let ((sv4, rv4), (sv6, rv6)) = factory.bind(params).await?;
+                let (sv, rv) = factory.bind(params).await?;
                 Ok((
-                    (
-                        MaybeObfuscatingSend::QuicV4(sv4),
-                        MaybeObfuscatingRecv::QuicV4(rv4),
-                    ),
-                    (
-                        MaybeObfuscatingSend::QuicV6(sv6),
-                        MaybeObfuscatingRecv::QuicV6(rv6),
-                    ),
+                    MaybeObfuscatingSend::Quic(sv),
+                    MaybeObfuscatingRecv::Quic(rv),
                 ))
             }
         }
