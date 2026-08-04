@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -7,6 +6,7 @@ import type { CustomListLocation } from '../../../../../features/locations/types
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
+import { useLocationAriaLabel } from '../../hooks';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { RecentCustomListTrailingActions } from './components';
@@ -27,6 +27,8 @@ function RecentCustomListLocationImpl({
 }: RecentCustomListLocationProps) {
   const { handleSelect } = useLocationListsContext();
 
+  const ariaLabel = useLocationAriaLabel(customList.label);
+
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp;
 
@@ -38,17 +40,7 @@ function RecentCustomListLocationImpl({
     <StyledLocationContainer>
       <Location root selected={customList.selected}>
         <Location.ListItem disabled={disabled} level={0}>
-          <Location.ListItem.Trigger
-            onClick={handleClick}
-            aria-label={sprintf(
-              // TRANSLATORS: Accessibility label for a button that connects to a location.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-              messages.pgettext('accessibility', 'Connect to %(location)s'),
-              {
-                location: customList.label,
-              },
-            )}>
+          <Location.ListItem.Trigger onClick={handleClick} aria-label={ariaLabel}>
             <Location.ListItem.Item>
               <FlexColumn>
                 <Location.ListItem.Item.Label>{customList.label}</Location.ListItem.Item.Label>
