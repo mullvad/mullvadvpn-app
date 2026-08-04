@@ -1,17 +1,25 @@
+import React from 'react';
+
 import { useScrollPositionContext } from '../ScrollPositionContext';
-import { useIsLocationSelectorIsolated } from './use-is-location-selector-isolated';
+import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
-export function useIsLocationSelectorExpanded(): boolean {
+export function useIsLocationSelectorExpanded(collapsibleContentHeight: number): boolean {
   const { scrollTop } = useScrollPositionContext();
-  const isLocationSelectorIsolated = useIsLocationSelectorIsolated();
+  const { locationSelectorExpanded, setLocationSelectorExpanded } = useSelectLocationViewContext();
 
-  if (isLocationSelectorIsolated) {
-    return false;
-  }
+  // The deadzone is a buffer area that prevents the location selector from rapidly toggling
+  // between expanded and collapsed when the user scrolls near the threshold.
+  const deadzone = collapsibleContentHeight / 8;
+  const collapseTreshold = collapsibleContentHeight + deadzone;
+  const expandThreshold = collapseTreshold - collapsibleContentHeight;
 
-  if (scrollTop > 20) {
-    return false;
-  }
+  React.useLayoutEffect(() => {
+    if (scrollTop > collapseTreshold) {
+      setLocationSelectorExpanded(false);
+    } else if (scrollTop < expandThreshold) {
+      setLocationSelectorExpanded(true);
+    }
+  }, [scrollTop, collapseTreshold, expandThreshold, setLocationSelectorExpanded]);
 
-  return true;
+  return locationSelectorExpanded;
 }
