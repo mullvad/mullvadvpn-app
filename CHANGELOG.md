@@ -23,15 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add Ukrainian as a new language in the app.
-- `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 - Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
   `debug` and `trace`.
 
 ### Changed
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
-- Update `gotatun` to 0.8.1.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
 
 #### Linux
@@ -47,31 +44,18 @@ Line wrap the file at 100 chars.                                              Th
   from Debian. `.rpm` packages are still signed, since dnf does verify that signature.
 
 #### Windows
-- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
-  <https://github.com/mullvad/wireguard-nt>.
-- Switch winreg out for windows_registry.
 - Make the timestamps embedded in the Rust Windows binaries + winfw.dll deterministic.
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
 
-#### macOS
-- Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
-
 ### Fixed
-- Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
-  existing, invalid access method is removed with a settings migration.
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
 - Fix infinite loop of account checks when account ran out of time.
 - Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 
-#### Linux
-- Fix issue where `gotatun` would fail to start on Linux systems where the
-  IPv6 stack had been disabled.
-
 #### Windows
-- Fix misleading "split tunneling" error when offline.
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
   enabled in order to prevent toggle switches and other custom-styled controls from becoming
   invisible.
@@ -81,15 +65,44 @@ Line wrap the file at 100 chars.                                              Th
 - Fix split tunneling related parse error on macOS 27.
 
 ### Security
+#### macOS
+- Fix local privilege escalation attack in the uninstall script. This could be used by admin users
+  to obtain root privileges during uninstall.
+
+
+## [2026.4-beta1] - 2026-08-03
+### Added
+- Add Ukrainian as a new language in the app.
+- `installer-downloader` logs are aggregated by `mullvad-problem-report`.
+
+### Changed
+- Update `gotatun` to 0.8.1.
+
+#### Windows
+- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
+  <https://github.com/mullvad/wireguard-nt>.
+
+#### macOS
+- Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
+
+### Fixed
+- Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
+  existing, invalid access method is removed with a settings migration.
+
+#### Linux
+- Fix issue where `gotatun` would fail to start on Linux systems where the
+  IPv6 stack had been disabled.
+
+#### Windows
+- Fix misleading "split tunneling" error when offline.
+- Fix unhandled error: "Reached the end of the file. (os error 38)"
+
+### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
   when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
 
 #### Linux
 - Plug hole in Custom DNS firewall rules for LAN resolvers.
-
-#### macOS
-- Fix local privilege escalation attack in the uninstall script. This could be used by admin users
-  to obtain root privileges during uninstall.
 
 
 ## [2026.3] - 2026-06-15
