@@ -28,8 +28,8 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.exitInput();
   }
 
-  getRelaysMatching(relayNames: string[]) {
-    return this.selectors.relaysMatching(relayNames);
+  getLocationsMatching(relayNames: string[]) {
+    return this.selectors.locationsMatching(relayNames);
   }
 
   getFilterChip(label: string) {
