@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../shared/gettext';
 import { useRecents } from '../../../../../features/locations/hooks';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
 import { useEffectEvent } from '../../../../../lib/utility-hooks';
+import { useLocationAriaLabel } from '../../hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
@@ -42,12 +41,8 @@ function GeographicalLocationImpl({
   const { selectedLocationRef } = useScrollPositionContext();
   const { hasRecents } = useRecents();
 
-  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
-  // in order to be able to continue setting state from a useEffect without
-  // lint errors.
-  //
-  // The entire logic should be rewritten to no longer depend on setting
-  // state from an effect.
+  const ariaLabel = useLocationAriaLabel(location.label);
+
   const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
     setExpanded(value);
     setLastSearchTerm(searchTerm);
@@ -98,17 +93,7 @@ function GeographicalLocationImpl({
     <Location selected={location.selected} root={root}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
         <Location.Accordion.Header ref={refToScrollTo} level={level} position={position}>
-          <Location.Accordion.Header.ItemTrigger
-            onClick={handleClick}
-            aria-label={sprintf(
-              // TRANSLATORS: Accessibility label for a button that connects to a location.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-              messages.pgettext('accessibility', 'Connect to %(location)s'),
-              {
-                location: location.label,
-              },
-            )}>
+          <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
             <Location.Accordion.Header.Item>
               <Location.Accordion.Header.Item.Title>
                 {location.label}
