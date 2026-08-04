@@ -7,22 +7,24 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
-use std::env;
 #[cfg(windows)]
 use std::io;
-use std::sync::LazyLock;
 use std::{
     convert::Infallible,
+    env,
     net::IpAddr,
     path::Path,
     pin::Pin,
-    sync::{Arc, mpsc as sync_mpsc},
+    sync::{Arc, LazyLock, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
-use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+use talpid_tunnel::{
+    EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, TunnelArgs, TunnelEvent, TunnelMetadata,
+    WIREGUARD_HEADER_SIZE, tun_provider,
+};
 
+use talpid_net::bypass::SocketBypass;
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     BoxedError, ErrorExt,
@@ -201,6 +203,11 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
+        let bypass = obfuscation::create_socket_bypass(
+            #[cfg(target_os = "linux")]
+            &config,
+        );
+
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         // For userspace_obfuscation, apply_obfuscation_config returns None obfuscation is set
         // up in `open_gotatun_tunnel`.
@@ -210,6 +217,7 @@ impl WireguardMonitor {
             userspace_obfuscation,
             &mut config,
             &close_obfs_sender,
+            &bypass,
         )?;
 
         #[cfg(target_os = "windows")]
@@ -220,6 +228,7 @@ impl WireguardMonitor {
             #[cfg(target_os = "windows")]
             args.resource_dir,
             args.tun_provider.clone(),
+            bypass.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
             userspace_wireguard,
@@ -296,6 +305,7 @@ impl WireguardMonitor {
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
+                    bypass,
                 )
                 .await
                 {
@@ -414,9 +424,9 @@ impl WireguardMonitor {
     ///
     /// This differs from [`start`] on other platforms in multiple ways. Here is a list of some
     /// notable differences:
-    /// - A ping is sent between the WG tunnel is started and an ephemeral peer is
-    ///   negotiated. There seems to be a race condition between starting the tunnel and the tunnel
-    ///   being ready to serve traffic.
+    /// - A ping is sent between the WG tunnel is started and an ephemeral peer is negotiated. There
+    ///   seems to be a race condition between starting the tunnel and the tunnel being ready to
+    ///   serve traffic.
     /// - No routes are configured on android.
     #[cfg(target_os = "android")]
     pub fn start(
@@ -440,6 +450,12 @@ impl WireguardMonitor {
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
 
+        let bypass = obfuscation::create_socket_bypass(
+            #[cfg(target_os = "linux")]
+            &config,
+            args.tun_provider.clone(),
+        );
+
         // Android always uses GotaTun (userspace WireGuard). When the obfuscation can be
         // applied inline (LWO or QUIC), skip the local socket obfuscator and let
         // MaybeObfuscatingTransportFactory handle it directly.
@@ -452,6 +468,7 @@ impl WireguardMonitor {
             userspace_obfuscation,
             &mut config,
             &close_obfs_sender,
+            &bypass,
         )?;
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
@@ -469,6 +486,7 @@ impl WireguardMonitor {
             .block_on(gotatun::open_gotatun_tunnel(
                 &config,
                 args.tun_provider.clone(),
+                Arc::clone(&bypass),
                 args.route_manager,
                 should_negotiate_ephemeral_peer,
             ))
@@ -529,7 +547,7 @@ impl WireguardMonitor {
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    args.tun_provider,
+                    Arc::clone(&bypass),
                 )
                 .await
                 {
@@ -649,11 +667,13 @@ impl WireguardMonitor {
     }
 
     #[cfg(target_os = "windows")]
+    #[expect(clippy::too_many_arguments)]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
         resource_dir: &Path,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
+        bypass: Arc<dyn SocketBypass>,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
@@ -664,7 +684,7 @@ impl WireguardMonitor {
             log::debug!("Using userspace WireGuard implementation");
 
             let tunnel = runtime
-                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
@@ -681,6 +701,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
+        bypass: Arc<dyn SocketBypass>,
         _userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
@@ -689,7 +710,7 @@ impl WireguardMonitor {
         log::debug!("Using userspace WireGuard implementation");
 
         let tunnel = runtime
-            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
             .map(Box::new)?;
         Ok(tunnel)
     }
@@ -699,6 +720,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
+        bypass: Arc<dyn SocketBypass>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
@@ -707,7 +729,7 @@ impl WireguardMonitor {
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
             let tunnel = runtime
-                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
@@ -725,7 +747,7 @@ impl WireguardMonitor {
                     log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
 
                     Ok(runtime
-                        .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                        .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
                         .map(Box::new)?)
                 })
         }
@@ -948,6 +970,7 @@ fn get_obfuscator(
     userspace_obfuscation: bool,
     config: &mut Config,
     close_obfs_sender: &sync_mpsc::Sender<CloseMsg>,
+    bypass: &Arc<dyn SocketBypass>,
 ) -> Result<Option<ObfuscatorHandle>> {
     let Some(obfuscation_settings) = config.obfuscation_settings() else {
         return Ok(None);
@@ -964,10 +987,7 @@ fn get_obfuscator(
             &mut config.entry_peer,
             obfuscation_settings,
             close_obfs_sender.clone(),
-            #[cfg(target_os = "android")]
-            args.tun_provider.clone(),
-            #[cfg(target_os = "linux")]
-            config.fwmark,
+            Arc::clone(bypass),
         ))?;
 
     if params.options.mtu.is_none() {

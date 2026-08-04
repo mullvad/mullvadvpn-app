@@ -30,27 +30,14 @@ use tunnel_obfuscation::{
 /// # Arguments
 ///
 /// * close_msg_sender - channel to send close messages on failure
-/// * tun_provider - (Android only) used to bypass the VPN for the remote socket
-/// * fwmark - (Linux only) firewall mark to apply to the obfuscator's remote socket
+/// * bypass - socket bypass for excluding obfuscator sockets from the tunnel
 pub async fn spawn_local_socket_obfuscator(
     entry_peer: &mut PeerConfig,
     obfuscation_settings: tunnel_obfuscation::Settings,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> Result<ObfuscatorHandle> {
     log::trace!("Obfuscation settings: {obfuscation_settings:?}");
-
-    let bypass = Arc::new(ObfuscatorSocketBypass {
-        #[cfg(target_os = "linux")]
-        fwmark: fwmark.unwrap_or_else(|| {
-            log::error!("'fwmark' not set");
-            0
-        }),
-
-        #[cfg(target_os = "android")]
-        tun_provider,
-    });
 
     let obfuscator = create_local_socket_obfuscator_with_bypass(bypass, &obfuscation_settings)
         .await
@@ -198,6 +185,24 @@ impl Drop for ObfuscatorHandle {
     fn drop(&mut self) {
         self.obfuscation_task.abort();
     }
+}
+
+/// Create the [`SocketBypass`] used for both the local socket obfuscator and the GotaTun
+/// inline obfuscation transport.
+pub fn create_socket_bypass(
+    #[cfg(target_os = "linux")] config: &crate::config::Config,
+    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+) -> Arc<dyn SocketBypass> {
+    Arc::new(ObfuscatorSocketBypass {
+        #[cfg(target_os = "linux")]
+        fwmark: config.fwmark.unwrap_or_else(|| {
+            log::error!("'fwmark' not set");
+            0
+        }),
+
+        #[cfg(target_os = "android")]
+        tun_provider,
+    })
 }
 
 pub struct ObfuscatorSocketBypass {
