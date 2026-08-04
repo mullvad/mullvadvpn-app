@@ -4,9 +4,11 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { DisableRecentsDialog } from '../../../../../features/locations/components';
 import { useRecents } from '../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../features/locations/types';
 import { useMultihop } from '../../../../../features/multihop/hooks';
 import { Menu, type MenuProps } from '../../../../../lib/components/menu';
 import { useHistory } from '../../../../../lib/history';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export type HeaderMenuProps = MenuProps;
 
@@ -14,6 +16,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
   const { hasRecents, setEnabledRecents } = useRecents();
   const { multihop, setMultihop } = useMultihop();
+  const { setLocationType } = useSelectLocationViewContext();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -36,12 +39,14 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopNever = useCallback(async () => {
     onOpenChange?.(false);
     await setMultihop({ multihop: 'never' });
-  }, [onOpenChange, setMultihop]);
+    setLocationType(LocationType.exit);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
   const handleMultihopWhenNeeded = useCallback(async () => {
     onOpenChange?.(false);
     await setMultihop({ multihop: 'when-needed' });
-  }, [onOpenChange, setMultihop]);
+    setLocationType(LocationType.exit);
+  }, [onOpenChange, setLocationType, setMultihop]);
 
   return (
     <>
