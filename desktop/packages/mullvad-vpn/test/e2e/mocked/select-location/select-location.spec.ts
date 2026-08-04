@@ -78,7 +78,7 @@ test.describe('Select location', () => {
 
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      const buttons = routes.selectLocation.getLocationsMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
     });
 
@@ -94,7 +94,7 @@ test.describe('Select location', () => {
 
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
+      const buttons = routes.selectLocation.getLocationsMatching(hostnames);
       await expect(buttons).toHaveCount(wireguardRelays.length);
     });
 
@@ -112,7 +112,7 @@ test.describe('Select location', () => {
 
       // Find same location in exit list and check that it is disabled
       await helpers.expandLocatedRelays([firstRelaySelectionPath]);
-      const exitRelay = routes.selectLocation.getRelaysMatching([firstHostname]).first();
+      const exitRelay = routes.selectLocation.getLocationsMatching([firstHostname]).first();
 
       await expect(exitRelay).toBeDisabled();
     });
@@ -127,7 +127,7 @@ test.describe('Select location', () => {
 
       // Find same location in entry list and check that it is disabled
       await helpers.expandLocatedRelays([firstRelaySelectionPath]);
-      const entryRelay = routes.selectLocation.getRelaysMatching([firstHostname]).first();
+      const entryRelay = routes.selectLocation.getLocationsMatching([firstHostname]).first();
 
       await expect(entryRelay).toBeDisabled();
     });
@@ -319,7 +319,7 @@ test.describe('Select location', () => {
           // Expand all accordions
           await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -360,7 +360,7 @@ test.describe('Select location', () => {
           // Expand all accordions
           await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -393,7 +393,7 @@ test.describe('Select location', () => {
 
         await helpers.expandLocatedRelays(relaySelectionPaths);
 
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
@@ -413,7 +413,7 @@ test.describe('Select location', () => {
         const relayNames = relays.map((relay) => relay.hostname);
 
         await helpers.expandLocatedRelays(relaySelectionPaths);
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
