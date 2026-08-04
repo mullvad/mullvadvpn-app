@@ -185,6 +185,9 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
+msgid "Internet"
+msgstr ""
+
 msgid "IPv4"
 msgstr ""
 
@@ -269,11 +272,19 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "Search for..."
+msgid "Search entry location or server"
 msgstr ""
 
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
+msgid "Search entry location, press enter to edit"
+msgstr ""
+
+msgid "Search exit location or server"
+msgstr ""
+
+msgid "Search exit location, press enter to edit"
+msgstr ""
+
+msgid "Search for..."
 msgstr ""
 
 msgid "SECURE CONNECTION"
@@ -315,6 +326,9 @@ msgid "Use"
 msgstr ""
 
 msgid "Username"
+msgstr ""
+
+msgid "Your device"
 msgstr ""
 
 #. Text for screen readers to describe the LWO settings navigation button.
@@ -367,7 +381,14 @@ msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr ""
 
-#. Accessibility label for a button that connects to a location.
+#. Accessibility label for button that connects and sets an exit location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect and use %(location)s as exit"
+msgstr ""
+
+#. Accessibility label for button that connects to a location.
 #. Available placeholders:
 #. %(location)s - The name of the location that will be connected to when the button is clicked.
 msgctxt "accessibility"
@@ -542,6 +563,13 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "UDP-over-TCP settings"
+msgstr ""
+
+#. Accessibility label for button that sets an entry location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Use %(location)s as entry"
 msgstr ""
 
 msgctxt "accessibility"
@@ -2067,6 +2095,10 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr ""
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2090,18 +2122,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr ""
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr ""
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2116,6 +2136,10 @@ msgstr ""
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "No result for: “%(searchTerm)s“"
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
@@ -3462,9 +3486,6 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-msgid "Internet"
-msgstr ""
-
 msgid "Invalid IP address"
 msgstr ""
 
@@ -4015,9 +4036,6 @@ msgid "You will lose your remaining"
 msgstr ""
 
 msgid "Your current filters were applied to both entry and exit locations."
-msgstr ""
-
-msgid "Your device"
 msgstr ""
 
 msgid "Your device (%s)"
