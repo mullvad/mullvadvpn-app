@@ -132,7 +132,7 @@ impl Display for Version {
 static VERSION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r"(?x)                                     # enable insignificant whitespace mode
-                (?<year>\d{4})\.                   # the year
+                ^(?<year>\d{4})\.                  # the year
                 (?<incremental>[1-9]\d?)           # the incrementing version number
                 (?:                                # (optional) alpha or beta or dev
                   -alpha(?<alpha>[1-9]\d?\d?)|
@@ -416,6 +416,7 @@ mod tests {
     fn test_returns_error_on_invalid_version() {
         assert!("2021".parse::<Version>().is_err());
         assert!("not-a-version".parse::<Version>().is_err());
+        assert!("prefix2025.1".parse::<Version>().is_err());
         assert!("".parse::<Version>().is_err());
     }
 
