@@ -1,6 +1,7 @@
 import { Action, Location } from 'history';
 
-import { TransitionType } from '../renderer/lib/history';
+import { type LocationType } from '../renderer/features/locations/types';
+import { type TransitionType } from '../renderer/lib/history';
 
 export interface ICurrentAppVersionInfo {
   gui: string;
@@ -35,7 +36,15 @@ export type ScrollToAnchorOption = {
   id: ScrollToAnchorId;
 };
 
-export type LocationStateOptions = SuppressOutdatedVersionOption | ScrollToAnchorOption;
+export type FilterViewOptions = {
+  type: 'filter-view-options';
+  locationType: LocationType;
+};
+
+export type LocationStateOptions =
+  | SuppressOutdatedVersionOption
+  | ScrollToAnchorOption
+  | FilterViewOptions;
 
 export type IChangelog = Array<string>;
 

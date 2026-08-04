@@ -1,15 +1,17 @@
 import React from 'react';
 
 import { useProviders } from '../../../../features/locations/hooks';
+import { LocationType } from '../../../../features/locations/types';
 import { useRelaySettingsUpdater } from '../../../../lib/constraint-updater';
 import { useHistory } from '../../../../lib/history';
 import { useFilterViewContext } from '../FilterViewContext';
 
 // Applies the changes by sending them to the daemon.
 export function useHandleApplyFilter() {
-  const { providers } = useProviders();
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
+  const { locationType } = useFilterViewContext();
+  const { providers } = useProviders();
   const { availableProviders, selectedProviders, selectedOwnership } = useFilterViewContext();
 
   return React.useCallback(async () => {
@@ -19,8 +21,16 @@ export function useHandleApplyFilter() {
         : selectedProviders.filter((provider) => availableProviders.includes(provider));
 
     await relaySettingsUpdater((settings) => {
-      settings.providers = appliedProviders;
-      settings.ownership = selectedOwnership;
+      if (locationType === LocationType.entry) {
+        settings.wireguardConstraints.entryProviders = appliedProviders;
+        settings.wireguardConstraints.entryOwnership = selectedOwnership;
+      }
+
+      if (locationType === LocationType.exit) {
+        settings.providers = appliedProviders;
+        settings.ownership = selectedOwnership;
+      }
+
       return settings;
     });
     history.pop();
@@ -30,6 +40,7 @@ export function useHandleApplyFilter() {
     relaySettingsUpdater,
     history,
     availableProviders,
+    locationType,
     selectedOwnership,
   ]);
 }

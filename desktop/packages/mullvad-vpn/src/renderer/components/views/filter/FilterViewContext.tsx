@@ -2,11 +2,14 @@ import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { useOwnership, useProviders } from '../../../features/locations/hooks';
+import { LocationType } from '../../../features/locations/types';
+import { useHistory } from '../../../lib/history';
 import { useFilteredProviders } from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
 
 type FilterViewContext = {
+  locationType: LocationType;
   selectedProviders: string[];
   availableProviders: string[];
   toggleProviders: (providers: string[]) => void;
@@ -25,10 +28,19 @@ export const useFilterViewContext = (): FilterViewContext => {
 };
 
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
-  const { providers, activeProviders } = useProviders();
-  const { activeOwnership } = useOwnership();
-  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
+  const history = useHistory();
+  const filterViewOptions = history.location.state.options?.find(
+    (option) => option.type === 'filter-view-options',
+  );
+  const locationType = filterViewOptions?.locationType ?? LocationType.exit;
+
+  const { exitOwnership, entryOwnership } = useOwnership();
+  const activeOwnership = locationType === LocationType.entry ? entryOwnership : exitOwnership;
   const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+
+  const { providers, exitProviders, entryProviders } = useProviders();
+  const activeProviders = locationType === LocationType.entry ? entryProviders : exitProviders;
+  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
 
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
@@ -53,6 +65,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
 
   const value = useMemo(
     () => ({
+      locationType,
       selectedProviders,
       toggleProviders,
       availableProviders,
@@ -60,7 +73,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
       setOwnership: setSelectedOwnership,
     }),
 
-    [availableProviders, selectedOwnership, selectedProviders, toggleProviders],
+    [availableProviders, locationType, selectedOwnership, selectedProviders, toggleProviders],
   );
 
   return <FilterViewContext.Provider value={value}>{children}</FilterViewContext.Provider>;

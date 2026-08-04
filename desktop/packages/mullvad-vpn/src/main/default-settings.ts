@@ -15,6 +15,8 @@ export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal {
       ipVersion: 'any',
       multihop: 'when-needed',
       entryLocation: 'any',
+      entryProviders: [],
+      entryOwnership: Ownership.any,
     },
   };
 }

@@ -835,6 +835,8 @@ export default class AppRenderer {
             ipVersion: liftConstraint(wireguardConstraints.ipVersion),
             multihop: wireguardConstraints.multihop,
             entryLocation: liftConstraint(wireguardConstraints.entryLocation),
+            entryProviders: wireguardConstraints.entryProviders,
+            entryOwnership: wireguardConstraints.entryOwnership,
           },
         },
       });

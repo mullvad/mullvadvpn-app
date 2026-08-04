@@ -21,6 +21,8 @@ export function wrapRelaySettingsOrDefault(
         ipVersion: wgIpVersion,
         multihop: relaySettings.wireguard.multihop,
         entryLocation: wgEntryLocation,
+        entryProviders: relaySettings.wireguard.entryProviders,
+        entryOwnership: relaySettings.wireguard.entryOwnership,
       },
       location,
     };

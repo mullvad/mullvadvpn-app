@@ -24,6 +24,7 @@ import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
 } from './SelectLocationViewContext';
+import { LocationSelectorTest } from './test';
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
@@ -72,6 +73,8 @@ export function SelectLocationViewImpl() {
             {isAnyFilterActive && <FilterChips />}
             <LocationSearchField />
           </View.Container>
+
+          <LocationSelectorTest />
 
           <NavigationScrollbars ref={scrollViewRef}>
             <View.Content padding={{ top: 'small' }}>

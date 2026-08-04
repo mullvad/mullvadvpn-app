@@ -837,6 +837,8 @@ function convertFromWireguardConstraints(
     multihop,
     ipVersion: 'any',
     entryLocation: 'any',
+    entryProviders: [],
+    entryOwnership: Ownership.any,
   };
 
   // `getIpVersion()` is not falsy if type is 'any'
@@ -856,6 +858,14 @@ function convertFromWireguardConstraints(
     const location = convertFromLocationConstraint(entryLocation);
     result.entryLocation = wrapConstraint(location);
   }
+
+  const entryProviders = constraints.getEntryProvidersList();
+  if (entryProviders) {
+    result.entryProviders = entryProviders;
+  }
+
+  const entryOwnership = constraints.getEntryOwnership();
+  result.entryOwnership = convertFromOwnership(entryOwnership);
 
   return result;
 }
@@ -1022,6 +1032,16 @@ function convertToWireguardConstraints(
 
     if (constraint.multihop !== undefined) {
       wireguardConstraints.setMultihop(convertToMultihop(constraint.multihop));
+    }
+
+    const entryProviders = constraint.entryProviders;
+    if (entryProviders) {
+      wireguardConstraints.setEntryProvidersList(entryProviders);
+    }
+
+    const entryOwnership = constraint.entryOwnership;
+    if (entryOwnership) {
+      wireguardConstraints.setEntryOwnership(convertToOwnership(entryOwnership));
     }
 
     const entryLocation = unwrapConstraint(constraint.entryLocation);

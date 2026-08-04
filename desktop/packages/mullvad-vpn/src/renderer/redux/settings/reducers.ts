@@ -31,6 +31,8 @@ export type NormalRelaySettingsRedux = {
     ipVersion: LiftedConstraint<IpVersion>;
     multihop: MultihopMode;
     entryLocation: LiftedConstraint<RelayLocation>;
+    entryProviders: string[];
+    entryOwnership: Ownership;
   };
 };
 
@@ -133,6 +135,8 @@ const initialState: ISettingsReduxState = {
         ipVersion: 'any',
         multihop: 'when-needed',
         entryLocation: 'any',
+        entryProviders: [],
+        entryOwnership: Ownership.any,
       },
     },
   },
