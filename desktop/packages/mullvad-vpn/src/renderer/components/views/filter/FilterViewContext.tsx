@@ -2,14 +2,13 @@ import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { useOwnership, useProviders } from '../../../features/locations/hooks';
-import { LocationType } from '../../../features/locations/types';
 import { useHistory } from '../../../lib/history';
 import { useFilteredProviders } from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
 
 type FilterViewContext = {
-  locationType: LocationType;
+  locationType: 'entry' | 'exit';
   selectedProviders: string[];
   availableProviders: string[];
   toggleProviders: (providers: string[]) => void;
@@ -29,20 +28,18 @@ export const useFilterViewContext = (): FilterViewContext => {
 
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
   const history = useHistory();
-
-  const { location } = history;
-  const { state } = location;
-
-  const filterViewOption = state.options?.find(
+  const filterViewOptions = history.location.state.options?.find(
     (option) => option.type === 'filter-view-location-type',
   );
-  const locationType =
-    filterViewOption?.locationType === 'entry' ? LocationType.entry : LocationType.exit;
+  const locationType = filterViewOptions?.locationType ?? 'exit';
 
-  const { providers, activeProviders } = useProviders(locationType);
-  const { ownership } = useOwnership(locationType);
+  const { exitOwnership, entryOwnership } = useOwnership();
+  const activeOwnership = locationType === 'entry' ? entryOwnership : exitOwnership;
+  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+
+  const { providers, exitProviders, entryProviders } = useProviders();
+  const activeProviders = locationType === 'entry' ? entryProviders : exitProviders;
   const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
-  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(ownership);
 
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 

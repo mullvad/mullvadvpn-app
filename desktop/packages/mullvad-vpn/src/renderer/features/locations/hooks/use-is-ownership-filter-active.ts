@@ -3,11 +3,8 @@ import { isOwnershipFilterActive } from '../utils';
 import { useOwnership } from './use-ownership';
 
 export function useIsOwnershipFilterActive(locationType: LocationType) {
-  const { ownership } = useOwnership(locationType);
+  const { entryOwnership, exitOwnership } = useOwnership();
+  const activeOwnership = locationType === LocationType.entry ? entryOwnership : exitOwnership;
 
-  if (locationType === LocationType.entryAutomatic) {
-    return false;
-  }
-
-  return isOwnershipFilterActive(ownership);
+  return isOwnershipFilterActive(activeOwnership);
 }

@@ -2,25 +2,23 @@ import React from 'react';
 
 import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useOwnership } from '../../../../../features/locations/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
+import { useActiveOwnership } from '../../hooks';
 import { useOwnershipFilterLabel } from './hooks';
 
 export type OwnershipFilterChipProps = FilterChipProps;
 
 export function OwnershipFilterChip(props: OwnershipFilterChipProps) {
   const relaySettings = useNormalRelaySettings();
-  const { locationType } = useSelectLocationViewContext();
-  const { setOwnership } = useOwnership(locationType);
+  const { setActiveOwnership } = useActiveOwnership();
   const ownershipFilterLabel = useOwnershipFilterLabel();
 
   const onClearOwnership = React.useCallback(async () => {
     if (relaySettings) {
-      await setOwnership(Ownership.any);
+      await setActiveOwnership(Ownership.any);
     }
-  }, [setOwnership, relaySettings]);
+  }, [relaySettings, setActiveOwnership]);
 
   return (
     <FilterChip

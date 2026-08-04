@@ -6,12 +6,12 @@ import { useIsProvidersFilterActive } from './use-is-providers-filter-active';
 import { useIsQuicFilterActive } from './use-is-quic-filter-active';
 
 export function useActiveFilters(locationType: LocationType) {
+  const isProvidersFilterActive = useIsProvidersFilterActive(locationType);
+  const isOwnershipFilterActive = useIsOwnershipFilterActive(locationType);
   const isQuicFilterActive = useIsQuicFilterActive(locationType);
   const isLwoFilterActive = useIsLwoFilterActive(locationType);
   const isDaitaFilterActive = useIsDaitaFilterActive(locationType);
 
-  const isOwnershipFilterActive = useIsOwnershipFilterActive(locationType);
-  const isProvidersFilterActive = useIsProvidersFilterActive(locationType);
   const isAnyFilterActive =
     isOwnershipFilterActive ||
     isProvidersFilterActive ||

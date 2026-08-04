@@ -1,6 +1,6 @@
 import { Action, Location } from 'history';
 
-import { TransitionType } from '../renderer/lib/history';
+import { type TransitionType } from '../renderer/lib/history';
 
 export interface ICurrentAppVersionInfo {
   gui: string;

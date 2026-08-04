@@ -3,11 +3,8 @@ import { isProvidersFilterActive } from '../utils';
 import { useProviders } from './use-providers';
 
 export function useIsProvidersFilterActive(locationType: LocationType) {
-  const { providers, activeProviders } = useProviders(locationType);
-
-  if (locationType === LocationType.entryAutomatic) {
-    return false;
-  }
+  const { providers, entryProviders, exitProviders } = useProviders();
+  const activeProviders = locationType === LocationType.entry ? entryProviders : exitProviders;
 
   return isProvidersFilterActive(providers, activeProviders);
 }

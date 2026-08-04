@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
-import { LocationType } from '../../../features/locations/types';
 import { Button } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
@@ -25,7 +24,6 @@ function FilterViewImpl() {
   const noSelectedProviders = availableProviders.every(
     (provider) => !selectedProviders.includes(provider),
   );
-  const isLocationTypeEntry = locationType === LocationType.entry;
 
   return (
     <View backgroundColor="darkBlue">
@@ -34,7 +32,7 @@ function FilterViewImpl() {
           <StyledViewContent>
             <AppNavigationHeader
               title={
-                isLocationTypeEntry
+                locationType === 'entry'
                   ? // This line is here to prevent the following one to be moved up here by prettier
                     // TRANSLATORS: Title label in navigation bar for entry location filters
                     messages.pgettext('filter-nav', 'Entry filter')

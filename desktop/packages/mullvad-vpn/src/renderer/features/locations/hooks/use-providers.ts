@@ -4,63 +4,61 @@ import { providersFromRelays } from '../../../components/views/filter/utils';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
-import { LocationType } from '../types';
 import { getActiveProviders } from '../utils';
 
-export function useProviders(locationType: LocationType): {
+export function useProviders(): {
   providers: string[];
-  activeProviders: string[];
-  setProviders: (selectedProviders: string[]) => Promise<void>;
+  entryProviders: string[];
+  exitProviders: string[];
+  setEntryProviders: (selectedEntryProviders: string[]) => Promise<void>;
+  setExitProviders: (selectedExitProviders: string[]) => Promise<void>;
 } {
   const relaySettings = useNormalRelaySettings();
   const relaySettingsUpdater = useRelaySettingsUpdater();
+
   const locations = useSelector((state) => state.settings.relayLocations);
-
-  const getProvidersConstraint = () => {
-    if (locationType === LocationType.exit) {
-      return relaySettings?.providers ?? [];
-    }
-
-    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
-      return relaySettings?.wireguard?.entryProviders ?? [];
-    }
-
-    return [];
-  };
-  const providerConstraint = getProvidersConstraint();
-
   const providers = providersFromRelays(locations);
-  const activeProviders = getActiveProviders(providers, providerConstraint);
 
-  const setProviders = React.useCallback(
-    async (selectedProviders: string[]) => {
+  const entryProviderConstraint = relaySettings?.wireguard.entryProviders ?? [];
+  const entryProviders = getActiveProviders(providers, entryProviderConstraint);
+
+  const exitProviderConstraint = relaySettings?.providers ?? [];
+  const exitProviders = getActiveProviders(providers, exitProviderConstraint);
+
+  const setEntryProviders = React.useCallback(
+    async (selectedEntryProviders: string[]) => {
       await relaySettingsUpdater((settings) => {
         // The daemon expects the value to be an empty list if all are selected.
-        const providerSettings =
-          selectedProviders.length === providers.length ? [] : selectedProviders;
+        const entryProviders =
+          selectedEntryProviders.length === providers.length ? [] : selectedEntryProviders;
 
-        if (locationType === LocationType.exit) {
-          return {
-            ...settings,
-            providers: providerSettings,
-          };
-        }
-
-        if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
-          return {
-            ...settings,
-            wireguardConstraints: {
-              ...settings.wireguardConstraints,
-              entryProviders: providerSettings,
-            },
-          };
-        }
-
-        return settings;
+        return {
+          ...settings,
+          wireguardConstraints: {
+            ...settings.wireguardConstraints,
+            entryProviders: entryProviders,
+          },
+        };
       });
     },
-    [relaySettingsUpdater, providers.length, locationType],
+    [relaySettingsUpdater, providers.length],
   );
 
-  return { providers, activeProviders, setProviders };
+  const setExitProviders = React.useCallback(
+    async (selectedExitProviders: string[]) => {
+      await relaySettingsUpdater((settings) => {
+        // The daemon expects the value to be an empty list if all are selected.
+        const exitProviders =
+          selectedExitProviders.length === providers.length ? [] : selectedExitProviders;
+
+        return {
+          ...settings,
+          providers: exitProviders,
+        };
+      });
+    },
+    [relaySettingsUpdater, providers.length],
+  );
+
+  return { providers, exitProviders, entryProviders, setEntryProviders, setExitProviders };
 }

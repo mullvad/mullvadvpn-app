@@ -1,15 +1,13 @@
 import { Ownership } from '../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../shared/gettext';
-import { useOwnership } from '../../../../../../features/locations/hooks';
-import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { useActiveOwnership } from '../../../hooks';
 
 export const useOwnershipFilterLabel = () => {
-  const { locationType } = useSelectLocationViewContext();
-  const { ownership } = useOwnership(locationType);
+  const { activeOwnership } = useActiveOwnership();
 
-  if (ownership === Ownership.mullvadOwned) {
+  if (activeOwnership === Ownership.mullvadOwned) {
     return messages.pgettext('filter-view', 'Owned');
-  } else if (ownership === Ownership.rented) {
+  } else if (activeOwnership === Ownership.rented) {
     return messages.pgettext('filter-view', 'Rented');
   } else {
     return '';
