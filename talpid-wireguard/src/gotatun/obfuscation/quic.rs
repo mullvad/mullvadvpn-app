@@ -51,15 +51,13 @@ pub struct QuicTransportFactory {
 }
 
 impl UdpTransportFactory for QuicTransportFactory {
-    type SendV4 = QuicSend;
-    type SendV6 = NoopSend;
-    type RecvV4 = QuicRecv;
-    type RecvV6 = NoopRecv;
+    type Send = QuicSend;
+    type Recv = QuicRecv;
 
     async fn bind(
         &mut self,
         _params: &UdpTransportFactoryParams,
-    ) -> io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
+    ) -> io::Result<(Self::Send, Self::Recv)> {
         log::debug!("Starting QUIC proxy using userspace transport");
         if self.running_client.is_some() {
             log::debug!("Reconnecting to QUIC proxy");
@@ -95,30 +93,6 @@ impl UdpTransportFactory for QuicTransportFactory {
         };
         let running_client = client.proxy_channels(outgoing_rx, incoming_tx);
         self.running_client = Some(running_client);
-        Ok(((send, recv), (NoopSend, NoopRecv)))
-    }
-}
-
-// The internal WireGuard endpoint for QUIC is always IPv4 (Ipv4Addr::LOCALHOST, 51820), but we must
-// implement an internal transport for IPv6. These will never actually be called,
-#[derive(Clone)]
-pub struct NoopSend;
-pub struct NoopRecv;
-impl UdpRecv for NoopRecv {
-    type RecvManyBuf = ();
-    async fn recv_from(&mut self, _: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
-        std::future::pending().await
-    }
-}
-
-impl UdpSend for NoopSend {
-    type SendManyBuf = ();
-
-    async fn send_to(&self, _: Packet, destination: SocketAddr) -> io::Result<()> {
-        log::error!("Got unexpected packet to {destination:?}");
-        Err(io::Error::new(
-            io::ErrorKind::AddrNotAvailable,
-            "Proxying IPv6 WireGuard packets inside QUIC is not supported",
-        ))
+        Ok((send, recv))
     }
 }

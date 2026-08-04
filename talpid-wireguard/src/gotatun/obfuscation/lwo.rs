@@ -114,39 +114,24 @@ pub struct LwoUdpTransportFactory<F: UdpTransportFactory> {
 }
 
 impl<F: UdpTransportFactory> UdpTransportFactory for LwoUdpTransportFactory<F> {
-    type SendV4 = LwoSend<F::SendV4>;
-    type SendV6 = LwoSend<F::SendV6>;
-    type RecvV4 = LwoRecv<F::RecvV4>;
-    type RecvV6 = LwoRecv<F::RecvV6>;
+    type Send = LwoSend<F::Send>;
+    type Recv = LwoRecv<F::Recv>;
 
     async fn bind(
         &mut self,
         params: &UdpTransportFactoryParams,
-    ) -> io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let ((send_v4, recv_v4), (send_v6, recv_v6)) = self.inner.bind(params).await?;
+    ) -> io::Result<(Self::Send, Self::Recv)> {
+        let (send, recv) = self.inner.bind(params).await?;
         Ok((
-            (
-                LwoSend {
-                    inner: send_v4,
-                    tx_key: self.tx_key,
-                    endpoint: self.endpoint,
-                },
-                LwoRecv {
-                    inner: recv_v4,
-                    rx_key: self.rx_key,
-                },
-            ),
-            (
-                LwoSend {
-                    inner: send_v6,
-                    tx_key: self.tx_key,
-                    endpoint: self.endpoint,
-                },
-                LwoRecv {
-                    inner: recv_v6,
-                    rx_key: self.rx_key,
-                },
-            ),
+            LwoSend {
+                inner: send,
+                tx_key: self.tx_key,
+                endpoint: self.endpoint,
+            },
+            LwoRecv {
+                inner: recv,
+                rx_key: self.rx_key,
+            },
         ))
     }
 }
