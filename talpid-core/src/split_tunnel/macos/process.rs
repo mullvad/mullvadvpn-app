@@ -14,8 +14,11 @@ use std::{
     io,
     path::PathBuf,
     process::Stdio,
-    sync::{Arc, LazyLock, Mutex},
-    time::Duration,
+    sync::{
+        Arc, LazyLock, Mutex,
+        atomic::{AtomicU32, Ordering},
+    },
+    time::{Duration, Instant},
 };
 use talpid_macos::process::{list_pids, process_path};
 use talpid_platform_metadata::MacosVersion;
@@ -185,7 +188,7 @@ async fn handle_eslogger_output(
             let val: ESMessage = match serde_json::from_str(&line) {
                 Ok(val) => val,
                 Err(error) => {
-                    log::error!("Failed to parse eslogger message: {error}");
+                    log_parse_error_throttled(error);
                     continue;
                 }
             };
@@ -242,6 +245,39 @@ async fn handle_eslogger_output(
     log::debug!("Process monitor stopped");
 
     result
+}
+
+/// Logs `"Failed to parse eslogger message: {error}"`, throttled to at most once per minute.
+/// `eslogger` can emit unparseable output at a very high rate, so occurrences within the
+/// throttling window are counted and folded into the next logged message instead of each being
+/// logged individually.
+fn log_parse_error_throttled(error: serde_json::Error) {
+    /// Minimum time between logged messages.
+    const LOG_INTERVAL: Duration = Duration::from_secs(60);
+
+    static LAST_LOGGED: Mutex<Option<Instant>> = Mutex::new(None);
+    static SUPPRESSED_COUNT: AtomicU32 = AtomicU32::new(0);
+
+    let now = Instant::now();
+    let mut last_logged = LAST_LOGGED.lock().unwrap();
+
+    let should_log = match *last_logged {
+        Some(last) => now.duration_since(last) >= LOG_INTERVAL,
+        None => true,
+    };
+
+    if !should_log {
+        SUPPRESSED_COUNT.fetch_add(1, Ordering::Relaxed);
+        return;
+    }
+
+    *last_logged = Some(now);
+    match SUPPRESSED_COUNT.swap(0, Ordering::Relaxed) {
+        0 => log::error!("Failed to parse eslogger message: {error}"),
+        suppressed => log::error!(
+            "Failed to parse eslogger message: {error} ({suppressed} similar errors suppressed)"
+        ),
+    }
 }
 
 /// Launch a new instance of `eslogger`, listening for exec, fork, and exit syscalls
