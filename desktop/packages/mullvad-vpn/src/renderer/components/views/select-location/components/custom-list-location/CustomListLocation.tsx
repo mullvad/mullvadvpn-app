@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -8,6 +7,7 @@ import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
+import { useLocationAriaLabel } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
@@ -33,6 +33,8 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
   const { searchTerm } = useSelectLocationViewContext();
   const { handleSelect } = useLocationListsContext();
   const { loading } = useCustomListLocationContext();
+
+  const ariaLabel = useLocationAriaLabel(customList.label);
 
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp || loading;
@@ -78,17 +80,7 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
       <Location root selected={customList.selected}>
         <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
           <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.ItemTrigger
-              onClick={handleClick}
-              aria-label={sprintf(
-                // TRANSLATORS: Accessibility label for a button that connects to a location.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-                messages.pgettext('accessibility', 'Connect to %(location)s'),
-                {
-                  location: customList.label,
-                },
-              )}>
+            <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
               <Location.Accordion.Header.Item>
                 <FlexColumn>
                   <Location.Accordion.Header.Item.Title>
