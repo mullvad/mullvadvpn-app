@@ -143,6 +143,7 @@
     <string name="daita_description_slide_1_third_paragraph">Ved hjelp av avansert kunstig intelligens er det mulig å analysere trafikken av datapakker som går inn og ut av enheten din (selv om trafikken er kryptert).</string>
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåker disse datapakkene, gjør %1$s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gjør det ved å legge til nettverkstøy på en forsiktig måte og sørge for at alle nettverkspakker har den samme størrelsen.</string>
+    <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="days_were_added_30">30 dager ble lagt til kontoen din.</string>
     <string name="days_were_added_90">90 dager ble lagt til kontoen din.</string>
     <string name="delete">Slett</string>

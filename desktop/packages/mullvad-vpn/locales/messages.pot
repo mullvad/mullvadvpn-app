@@ -3210,6 +3210,9 @@ msgstr ""
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr ""
 
+msgid "By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr ""
+
 msgid "Can’t connect?"
 msgstr ""
 
