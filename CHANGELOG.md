@@ -77,6 +77,9 @@ Line wrap the file at 100 chars.                                              Th
   invisible.
 - Fix the installer UI from looking blurry by making the installer DPI-aware.
 
+#### macOS
+- Fix split tunneling related parse error on macOS 27.
+
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
   when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
