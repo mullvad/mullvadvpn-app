@@ -14,6 +14,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setSearchTerm: (value: string) => void;
   isolatedItem: LocationSelectorSelectedItem | undefined;
   setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
+  locationSelectorExpanded: boolean;
+  setLocationSelectorExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -40,6 +42,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
     undefined,
   );
+  const [locationSelectorExpanded, setLocationSelectorExpanded] = React.useState(true);
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = multihop === 'always';
@@ -58,8 +61,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setSearchTerm,
       isolatedItem,
       setIsolatedItem,
+      locationSelectorExpanded,
+      setLocationSelectorExpanded,
     }),
-    [locationType, setSelectLocationView, searchTerm, isolatedItem],
+    [locationType, setSelectLocationView, searchTerm, isolatedItem, locationSelectorExpanded],
   );
 
   return (
