@@ -3,8 +3,30 @@ source: talpid-core/src/split_tunnel/macos/process.rs
 expression: "(s, result)"
 ---
 (
-    "{\"version\":11}",
-    Err(
-        Error("Unsupported ESMessage version: 11", line: 1, column: 14),
+    "{\"time\":\"2026-08-04T11:38:25.825904694Z\",\"event_type\":9,\"global_seq_num\":16,\"event\":{\"exec\":{\"image_cputype\":16777228,\"script\":null,\"fds\":[{\"fd\":0,\"fdtype\":1},{\"fd\":1,\"fdtype\":1},{\"fd\":2,\"fdtype\":1}],\"last_fd\":2,\"target\":{\"codesigning_flags\":637631233,\"group_id\":11085,\"session_id\":1,\"tty\":null,\"cdhash\":\"61403E0F7C2D928D1CD6EFA652CBA808BD73427B\",\"ppid\":1,\"audit_token\":{\"ruid\":501,\"auid\":501,\"pidversion\":25189,\"asid\":100015,\"euid\":501,\"pid\":11085,\"egid\":20,\"rgid\":20},\"start_time\":\"2026-08-04T11:38:25.815739Z\",\"team_id\":null,\"executable\":{\"path_truncated\":false,\"stat\":{\"st_flags\":524320,\"st_gid\":0,\"st_gen\":0,\"st_rdev\":0,\"st_blksize\":4096,\"st_ctimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_nlink\":1,\"st_atimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_uid\":0,\"st_birthtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_size\":252752,\"st_blocks\":152,\"st_mode\":33261,\"st_ino\":1152921500312342574,\"st_mtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_dev\":16777233},\"path\":\"\\/System\\/Library\\/PrivateFrameworks\\/IntlPreferences.framework\\/Support\\/localizationswitcherd\"},\"parent_audit_token\":{\"auid\":4294967295,\"ruid\":0,\"pidversion\":742,\"asid\":100014,\"euid\":0,\"pid\":1,\"egid\":0,\"rgid\":0},\"cs_validation_category\":1,\"is_es_client\":false,\"responsible_audit_token\":{\"auid\":501,\"ruid\":501,\"pidversion\":25189,\"asid\":100015,\"euid\":501,\"pid\":11085,\"egid\":20,\"rgid\":20},\"original_ppid\":1,\"signing_id\":\"com.apple.localizationswitcherd\",\"is_platform_binary\":true},\"dyld_exec_path\":\"\\/System\\/Library\\/PrivateFrameworks\\/IntlPreferences.framework\\/Support\\/localizationswitcherd\",\"args\":[\"\\/System\\/Library\\/PrivateFrameworks\\/IntlPreferences.framework\\/Support\\/localizationswitcherd\"],\"cwd\":{\"path_truncated\":false,\"stat\":{\"st_flags\":1048576,\"st_gid\":0,\"st_gen\":0,\"st_rdev\":0,\"st_blksize\":4096,\"st_ctimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_nlink\":23,\"st_atimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_uid\":0,\"st_birthtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_size\":736,\"st_blocks\":0,\"st_mode\":16877,\"st_ino\":2,\"st_mtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_dev\":16777233},\"path\":\"\\/\"},\"entitlements\":{\"com.apple.private.biome.client-identifier\":\"com.apple.localizationswitcherd\",\"com.apple.multitasking.termination\":true,\"com.apple.security.exception.mach-lookup.global-name\":[\"com.apple.intelligenceplatform.View\"],\"com.apple.private.tcc.allow\":[\"kTCCServiceAddressBook\"],\"com.apple.intelligenceplatform.View\":true,\"com.apple.private.security.storage.AppDataContainers\":true,\"com.apple.multitasking.unlimitedassertions\":true,\"com.apple.springboard.opensensitiveurl\":true,\"com.apple.private.corefollowup.internal\":true,\"com.apple.private.intelligenceplatform.use-cases\":{\"LanguageView\":{\"Streams\":[\"IntelligencePlatform.Views.Updated\"]}},\"com.apple.private.followup\":true,\"platform-application\":true,\"com.apple.security.temporary-exception.mach-lookup.global-name\":[\"com.apple.corefollowup.agent\"],\"com.apple.frontboard.launchapplications\":true,\"com.apple.private.intelligenceplatform.views.read-only\":[\"languageView\"],\"com.apple.private.MobileContainerManager.lookup\":{\"appData\":true},\"com.apple.private.security.storage.preferences\":true},\"env\":[\"OSLogRateLimit=64\",\"MallocSpaceEfficient=1\",\"XPC_SERVICE_NAME=com.apple.localizationswitcherd\",\"SSH_AUTH_SOCK=\\/var\\/run\\/com.apple.launchd.BclgYGxEjP\\/Listeners\",\"PATH=\\/usr\\/bin:\\/bin:\\/usr\\/sbin:\\/sbin\",\"XPC_FLAGS=19\",\"LOGNAME=mullvad\",\"USER=mullvad\",\"HOME=\\/Users\\/mullvad\",\"SHELL=\\/bin\\/zsh\",\"TMPDIR=\\/var\\/folders\\/04\\/rh7vng8164sd599dwgzzq_kh0000gn\\/T\\/\"],\"image_cpusubtype\":-2147483646}},\"action\":{\"result\":{\"result_type\":0,\"result\":{\"auth\":0}}},\"seq_num\":4,\"schema_version\":1,\"process\":{\"codesigning_flags\":637623057,\"group_id\":1,\"session_id\":1,\"tty\":null,\"cdhash\":\"F4FB6536DA8BFEECDFD895B2EF9576E02C36EC2A\",\"ppid\":1,\"audit_token\":{\"pidversion\":25188,\"rgid\":20,\"asid\":100014,\"ruid\":501,\"pid\":11085,\"egid\":20,\"euid\":501,\"auid\":4294967295},\"start_time\":\"2026-08-04T11:38:25.815739Z\",\"team_id\":null,\"executable\":{\"stat\":{\"st_flags\":524320,\"st_gid\":0,\"st_gen\":0,\"st_rdev\":0,\"st_blksize\":4096,\"st_ctimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_nlink\":1,\"st_atimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_uid\":0,\"st_birthtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_size\":151136,\"st_blocks\":80,\"st_mode\":33261,\"st_ino\":1152921500312606511,\"st_mtimespec\":\"2026-07-17T05:14:16.000000000Z\",\"st_dev\":16777233},\"path\":\"\\/usr\\/libexec\\/xpcproxy\",\"path_truncated\":false},\"parent_audit_token\":{\"pidversion\":742,\"rgid\":0,\"asid\":100014,\"ruid\":0,\"pid\":1,\"euid\":0,\"egid\":0,\"auid\":4294967295},\"cs_validation_category\":1,\"is_es_client\":false,\"responsible_audit_token\":{\"pidversion\":25188,\"rgid\":20,\"asid\":100014,\"ruid\":501,\"pid\":11085,\"euid\":501,\"egid\":20,\"auid\":4294967295},\"signing_id\":\"com.apple.xpc.proxy\",\"original_ppid\":1,\"is_platform_binary\":true},\"action_type\":1,\"thread\":{\"thread_id\":339060},\"version\":11,\"mach_time\":318342459586}",
+    Ok(
+        ESMessage {
+            version: SupportedVersion(
+                11,
+            ),
+            event: Exec(
+                ESExecEvent {
+                    target: EsExecTarget {
+                        executable: EsExecTargetExecutable {
+                            path: "/System/Library/PrivateFrameworks/IntlPreferences.framework/Support/localizationswitcherd",
+                            path_truncated: false,
+                        },
+                    },
+                },
+            ),
+            process: ESProcess {
+                audit_token: ESAuditToken {
+                    pid: 11085,
+                },
+                executable: ESExecutable {
+                    path: "/usr/libexec/xpcproxy",
+                },
+            },
+        },
     ),
 )
