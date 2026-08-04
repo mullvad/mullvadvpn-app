@@ -185,6 +185,9 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
+msgid "Internet"
+msgstr ""
+
 msgid "IPv4"
 msgstr ""
 
@@ -269,11 +272,19 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "Search for..."
+msgid "Search entry location or server"
 msgstr ""
 
-#. Placeholder text for search field in select location view
-msgid "Search locations or servers"
+msgid "Search entry location, press enter to edit"
+msgstr ""
+
+msgid "Search exit location or server"
+msgstr ""
+
+msgid "Search exit location, press enter to edit"
+msgstr ""
+
+msgid "Search for..."
 msgstr ""
 
 msgid "SECURE CONNECTION"
@@ -315,6 +326,9 @@ msgid "Use"
 msgstr ""
 
 msgid "Username"
+msgstr ""
+
+msgid "Your device"
 msgstr ""
 
 #. Text for screen readers to describe the LWO settings navigation button.
@@ -2067,6 +2081,10 @@ msgctxt "select-location-view"
 msgid "Always"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "Clear search"
+msgstr ""
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2090,18 +2108,6 @@ msgctxt "select-location-view"
 msgid "Enable recents"
 msgstr ""
 
-msgctxt "select-location-view"
-msgid "Entry"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Exit"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Filtered:"
-msgstr ""
-
 #. Title for a menu with items for the Multihop mode setting options.
 msgctxt "select-location-view"
 msgid "Multihop mode"
@@ -2116,6 +2122,10 @@ msgstr ""
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "No result for: “%(searchTerm)s“"
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
@@ -3438,9 +3448,6 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-msgid "Internet"
-msgstr ""
-
 msgid "Invalid IP address"
 msgstr ""
 
@@ -3916,9 +3923,6 @@ msgid "You will lose access to this account on all devices."
 msgstr ""
 
 msgid "You will lose your remaining"
-msgstr ""
-
-msgid "Your device"
 msgstr ""
 
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"

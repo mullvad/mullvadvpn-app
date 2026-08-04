@@ -1,27 +1,25 @@
-import { Action } from 'history';
-import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 
+import { useRecents } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
-import { useHistory } from '../../../lib/history';
-import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
+import { useDebounce } from '../../../lib/hooks/use-debounce';
 import { useStyledRef } from '../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { SpacePreAllocationView } from './components';
-import { useSelectLocationViewContext } from './SelectLocationViewContext';
 
 // Context containing the scroll position for each location type and methods to interact with it.
 interface ScrollPositionContext {
-  scrollPositions: React.RefObject<Partial<Record<LocationType, ScrollPosition>>>;
   // The selected location element is used to scroll to it when opening the view
   selectedLocationRef: React.RefObject<HTMLDivElement | null>;
   // The scroll view container is used to get the current scroll position and to restore an old one
   scrollViewRef: React.RefObject<CustomScrollbarsRef | null>;
   // The space pre allocation view is used to enable smooth scrolling when opening locations
   spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView | null>;
-  saveScrollPosition: () => void;
-  resetScrollPositions: () => void;
   scrollIntoView: (rect: DOMRect) => void;
   resetHeight: () => void;
+  scrollTop: number;
+  setScrollTop: (value: number) => void;
+  resetScroll: () => void;
 }
 
 type ScrollPosition = [number, number];
@@ -37,34 +35,14 @@ interface ScrollPositionContextProps {
 }
 
 export function ScrollPositionContextProvider(props: ScrollPositionContextProps) {
-  const { locationType, searchTerm } = useSelectLocationViewContext();
-  const relaySettings = useNormalRelaySettings();
-
-  const { action } = useHistory();
-  const recentNavigationAction = useRef<Action | null>(action);
+  const { hasRecents } = useRecents();
 
   const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
   const selectedLocationRef = useRef<HTMLDivElement>(null);
-
-  const saveScrollPosition = useCallback(() => {
-    const scrollPosition = scrollViewRef.current?.getScrollPosition();
-    if (scrollPositions.current && scrollPosition) {
-      scrollPositions.current[locationType] = scrollPosition;
-    }
-  }, [locationType]);
-
-  const resetScrollPositions = useCallback(() => {
-    for (const locationTypeVariant of [LocationType.entry, LocationType.exit]) {
-      if (
-        scrollPositions.current &&
-        (scrollPositions.current[locationTypeVariant] || locationTypeVariant === locationType)
-      ) {
-        scrollPositions.current[locationTypeVariant] = [0, 0];
-      }
-    }
-  }, [locationType]);
+  const [scrollTop, setScrollTop] = React.useState(0);
+  const debouncedScrollTop = useDebounce(scrollTop, 50);
 
   const scrollIntoView = useCallback((rect: DOMRect) => {
     scrollViewRef.current?.scrollIntoView(rect);
@@ -75,42 +53,35 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     [spacePreAllocationViewRef],
   );
 
+  const resetScroll = useCallback(() => {
+    if (hasRecents) {
+      // Scroll to top if there are recents.
+      scrollViewRef.current?.scrollToTop();
+      return;
+    } else {
+      // Scroll to the selected location if there are no recents.
+      if (selectedLocationRef.current) {
+        scrollViewRef.current?.scrollToElement(selectedLocationRef.current, 'middle');
+      } else {
+        scrollViewRef.current?.scrollToTop();
+      }
+    }
+  }, [hasRecents]);
+
   const value = useMemo(
     () => ({
       scrollPositions,
       selectedLocationRef,
       scrollViewRef,
       spacePreAllocationViewRef,
-      saveScrollPosition,
-      resetScrollPositions,
       scrollIntoView,
       resetHeight,
+      scrollTop: debouncedScrollTop,
+      setScrollTop,
+      resetScroll,
     }),
-    [
-      spacePreAllocationViewRef,
-      saveScrollPosition,
-      resetScrollPositions,
-      scrollIntoView,
-      resetHeight,
-    ],
+    [spacePreAllocationViewRef, scrollIntoView, resetHeight, debouncedScrollTop, resetScroll],
   );
-
-  // Restore the scroll position when parameters change
-  useEffect(() => {
-    if (recentNavigationAction.current === 'POP') {
-      recentNavigationAction.current = null;
-      return;
-    }
-
-    const scrollPosition = scrollPositions.current?.[locationType];
-    if (scrollPosition) {
-      scrollViewRef.current?.scrollTo(...scrollPosition);
-    } else if (selectedLocationRef.current) {
-      scrollViewRef.current?.scrollToElement(selectedLocationRef.current, 'middle');
-    } else {
-      scrollViewRef.current?.scrollToTop();
-    }
-  }, [locationType, searchTerm, relaySettings?.ownership, relaySettings?.providers.length]);
 
   return (
     <scrollPositionContext.Provider value={value}>{props.children}</scrollPositionContext.Provider>
