@@ -74,7 +74,7 @@ ctrlc = "3.5"
 dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
-gotatun = { version = "0.8.1", default-features = false, features = ["ring"] }
+gotatun = { git = "https://github.com/mullvad/gotatun", branch = "dual-stack-ipv6-sockets", default-features = false, features = ["ring"] }
 hickory-proto = "0.26.1"
 hickory-resolver = { version = "0.26.1", default-features = false, features = [
   "tokio"
@@ -119,7 +119,7 @@ shadowsocks = { version = "1.23.2", default-features = false, features = [
   "stream-cipher"
 ] }
 shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
-socket2 = "0.5.7"
+socket2 = "0.6.5"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
 system-configuration = "0.7.0"
