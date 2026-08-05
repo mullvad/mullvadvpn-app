@@ -1,11 +1,11 @@
-use crate::proxy::DomainFrontingConfig;
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
+    domain_fronting::DomainFrontingAddr,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
-use domain_fronting::ProxyConnection;
+use domain_fronting::client::ProxyConnection;
 use futures::FutureExt;
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
@@ -92,7 +92,7 @@ pub(crate) enum InnerConnectionMode {
     /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
     /// Connect to the destination via domain fronting.
-    DomainFronting(DomainFrontingConfig),
+    DomainFronting(DomainFrontingAddr),
 }
 
 impl InnerConnectionMode {
@@ -193,8 +193,8 @@ impl InnerConnectionMode {
                 .await
             }
             InnerConnectionMode::DomainFronting(config) => {
-                const USE_HTTP2: bool = true;
-                let domain_fronting = &config.domain_fronting;
+                let use_http2 = crate::domain_fronting::USE_HTTP2;
+                let domain_fronting = &config.config();
                 let connect_tls = async || {
                     let tcp_stream = HttpsConnector::open_socket(
                         config.addr,
@@ -202,10 +202,10 @@ impl InnerConnectionMode {
                         socket_bypass_tx.clone(),
                     )
                     .await?;
-                    cdn_tls_connect(tcp_stream, domain_fronting.front_host(), USE_HTTP2).await
+                    cdn_tls_connect(tcp_stream, domain_fronting.front_host(), use_http2).await
                 };
 
-                let proxy = if dbg!(USE_HTTP2) {
+                let proxy = if use_http2 {
                     let stream = connect_tls().await?;
                     ProxyConnection::http2_from_stream(stream, domain_fronting)
                         .await
