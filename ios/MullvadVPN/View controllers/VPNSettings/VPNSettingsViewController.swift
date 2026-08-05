@@ -158,17 +158,6 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    func showDetails(for item: VPNSettingsDetailsButtonItem) {
-        switch item {
-        case .udpOverTcp:
-            showUDPOverTCPObfuscationSettings()
-        case .wireguardOverShadowsocks:
-            showShadowsocksObfuscationSettings()
-        case .lwo:
-            showLwoObfuscationSettings()
-        }
-    }
-
     func showDNSSettings() {
         let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
         navigationController?.pushViewController(viewController, animated: true)
@@ -178,31 +167,8 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
         delegate?.showIPOverrides()
     }
 
-    private func showUDPOverTCPObfuscationSettings() {
-        let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
-        let view = UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
-        let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString("UDP-over-TCP", comment: "")
-        navigationController?.pushViewController(vc, animated: true)
-    }
+    func showAntiCensorshipSettings() {
 
-    private func showShadowsocksObfuscationSettings() {
-        let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
-        let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
-        let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString("Shadowsocks", comment: "")
-        navigationController?.pushViewController(vc, animated: true)
-    }
-
-    private func showLwoObfuscationSettings() {
-        let viewModel = TunnelLwoObfuscationSettingsViewModel(
-            tunnelManager: interactor.tunnelManager,
-            portRanges: interactor.cachedRelays?.relays.wireguard.portRanges ?? []
-        )
-        let view = LwoObfuscationSettingsView(viewModel: viewModel)
-        let vc = UIHostingController(rootView: view)
-        vc.title = NSLocalizedString("LWO", comment: "")
-        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {
