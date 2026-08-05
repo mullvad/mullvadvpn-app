@@ -21,9 +21,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case ipOverrides
         case wireGuardPort
         case wireGuardCustomPort
-        case wireGuardObfuscation
-        case wireGuardObfuscationOption
-        case wireGuardObfuscationPort
+        case wireGuardAntiCensorhip
         case quantumResistance
         case ipVersion
 
@@ -37,12 +35,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .wireGuardCustomPort:
                 return SettingsInputCell.self
-            case .wireGuardObfuscationOption:
-                return SelectableSettingsDetailsCell.self
-            case .wireGuardObfuscation:
-                return SelectableSettingsCell.self
-            case .wireGuardObfuscationPort:
-                return SelectableSettingsCell.self
+            case .wireGuardAntiCensorhip:
+                return SettingsCell.self
             case .quantumResistance:
                 return SelectableSettingsCell.self
             case .ipVersion:
@@ -63,10 +57,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case dnsSettings
         case ipOverrides
         case wireGuardPorts
-        case wireGuardObfuscation
+        case wireGuardAntiCensorship
         case quantumResistance
         case ipVersion
-        case privacyAndSecurity
     }
 
     enum Item: Hashable {
@@ -74,12 +67,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case ipOverrides
         case wireGuardPort(_ port: UInt16?)
         case wireGuardCustomPort
-        case wireGuardObfuscationAutomatic
-        case wireGuardObfuscationUdpOverTcp
-        case wireGuardObfuscationShadowsocks
-        case wireGuardObfuscationQuic
-        case wireGuardObfuscationLwo
-        case wireGuardObfuscationOff
+        case wireGuardAntiCensorship
         case quantumResistanceOn
         case quantumResistanceOff
         case ipVersionAutomatic
@@ -91,17 +79,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 Item.wireGuardPort($0)
             }
             return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
-        }
-
-        static var wireGuardObfuscation: [Item] {
-            [
-                .wireGuardObfuscationAutomatic,
-                .wireGuardObfuscationShadowsocks,
-                .wireGuardObfuscationUdpOverTcp,
-                .wireGuardObfuscationQuic,
-                .wireGuardObfuscationLwo,
-                .wireGuardObfuscationOff,
-            ]
         }
 
         static var quantumResistance: [Item] {
@@ -122,18 +99,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardPort(port)
             case .wireGuardCustomPort:
                 .wireGuardCustomPort
-            case .wireGuardObfuscationAutomatic:
-                .wireGuardObfuscationAutomatic
-            case .wireGuardObfuscationUdpOverTcp:
-                .wireGuardObfuscationUdpOverTcp
-            case .wireGuardObfuscationShadowsocks:
-                .wireGuardObfuscationShadowsocks
-            case .wireGuardObfuscationQuic:
-                .wireGuardObfuscationQuic
-            case .wireGuardObfuscationLwo:
-                .wireGuardObfuscationLwo
-            case .wireGuardObfuscationOff:
-                .wireGuardObfuscationOff
+            case .wireGuardAntiCensorship:
+                .wireGuardObfuscationAutomatic  // FIXME: Fix this
             case .quantumResistanceOn:
                 .quantumResistanceOn
             case .quantumResistanceOff:
@@ -157,10 +124,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardPort
             case .wireGuardCustomPort:
                 .wireGuardCustomPort
-            case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff, .wireGuardObfuscationQuic:
-                .wireGuardObfuscation
-            case .wireGuardObfuscationUdpOverTcp, .wireGuardObfuscationShadowsocks, .wireGuardObfuscationLwo:
-                .wireGuardObfuscationOption
+            case .wireGuardAntiCensorship:
+                .wireGuardAntiCensorhip
             case .quantumResistanceOn, .quantumResistanceOff:
                 .quantumResistance
             case .ipVersionAutomatic, .ipVersionIPv4, .ipVersionIPv6:
@@ -196,16 +161,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             }
         }
 
-        let obfuscationStateItem: Item =
-            switch viewModel.obfuscationState {
-            case .automatic: .wireGuardObfuscationAutomatic
-            case .off: .wireGuardObfuscationOff
-            case .on, .udpOverTcp: .wireGuardObfuscationUdpOverTcp
-            case .shadowsocks: .wireGuardObfuscationShadowsocks
-            case .quic: .wireGuardObfuscationQuic
-            case .lwo: .wireGuardObfuscationLwo
-            }
-
         let quantumResistanceItem: Item =
             switch viewModel.quantumResistance {
             case .off: .quantumResistanceOff
@@ -221,7 +176,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         return [
             wireGuardPortItem,
-            obfuscationStateItem,
             quantumResistanceItem,
             ipVersionItem,
         ].compactMap { indexPath(for: $0) }
@@ -243,7 +197,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         self.onlyShowSection =
             switch section {
-            case .obfuscation: .wireGuardObfuscation
             case .quantumResistance: .quantumResistance
             case .ipVersion: .ipVersion
             default: nil
@@ -337,18 +290,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         case .wireGuardCustomPort:
             getCustomPortCell()?.textField.becomeFirstResponder()
-        case .wireGuardObfuscationAutomatic:
-            selectObfuscationState(.automatic)
-        case .wireGuardObfuscationUdpOverTcp:
-            selectObfuscationState(.udpOverTcp)
-        case .wireGuardObfuscationShadowsocks:
-            selectObfuscationState(.shadowsocks)
-        case .wireGuardObfuscationQuic:
-            selectObfuscationState(.quic)
-        case .wireGuardObfuscationLwo:
-            selectObfuscationState(.lwo)
-        case .wireGuardObfuscationOff:
-            selectObfuscationState(.off)
+        case .wireGuardAntiCensorship:
+            tableView.deselectRow(at: indexPath, animated: false)
+            delegate?.showAntiCensorshipSettings()
         case .quantumResistanceOn:
             selectQuantumResistance(.on)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
@@ -374,7 +318,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let item = itemIdentifier(for: indexPath)
 
         switch item {
-        case .dnsSettings, .ipOverrides:
+        case .dnsSettings, .ipOverrides, .wireGuardAntiCensorship:
             return indexPath
         default:
             return nil
@@ -397,9 +341,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             configureWireguardPortsHeader(view)
             return view
 
-        case .wireGuardObfuscation:
-            configureObfuscationHeader(view)
-            return view
         case .quantumResistance:
             configureQuantumResistanceHeader(view)
             return view
@@ -421,7 +362,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings, .ipOverrides, .privacyAndSecurity:
+        case .dnsSettings, .ipOverrides, .wireGuardAntiCensorship:
             return .leastNonzeroMagnitude
         default:
             return UITableView.automaticDimension
@@ -441,7 +382,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[indexPath.section]
 
         return switch sectionIdentifier {
-        case .privacyAndSecurity: false
+        case .wireGuardAntiCensorship: false
         default: true
         }
     }
@@ -493,14 +434,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         if snapshot.sectionIdentifiers.contains(.ipOverrides) {
             snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
         }
+        if snapshot.sectionIdentifiers.contains(.wireGuardAntiCensorship) {
+            snapshot.appendItems([.wireGuardAntiCensorship], toSection: .wireGuardAntiCensorship)
+        }
 
-        if onlyShowSection == .wireGuardObfuscation {
-            snapshot
-                .appendItems(
-                    Item.wireGuardObfuscation,
-                    toSection: .wireGuardObfuscation
-                )
-        } else if onlyShowSection == .quantumResistance {
+        if onlyShowSection == .quantumResistance {
             snapshot
                 .appendItems(
                     Item.quantumResistance,
@@ -572,33 +510,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 headerView.isExpanded.toggle()
                 self?.applySnapshot(snapshot, animated: true)
             }
-        }
-    }
-
-    private func configureObfuscationHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString("WireGuard obfuscation", comment: "")
-
-        header.setAccessibilityIdentifier(.wireGuardObfuscationCell)
-        header.titleLabel.text = title
-        header.accessibilityCustomActionName = title
-        header.isExpanded = isExpanded(.wireGuardObfuscation)
-        if onlyShowSection == nil || onlyShowSection != .wireGuardObfuscation {
-            header.didCollapseHandler = { [weak self] header in
-                guard let self else { return }
-
-                var snapshot = snapshot()
-                if header.isExpanded {
-                    snapshot.deleteItems(Item.wireGuardObfuscation)
-                } else {
-                    snapshot.appendItems(Item.wireGuardObfuscation, toSection: .wireGuardObfuscation)
-                }
-                header.isExpanded.toggle()
-                applySnapshot(snapshot, animated: true)
-            }
-        }
-
-        header.infoButtonHandler = { [weak self] in
-            self.map { $0.delegate?.showInfo(for: .wireGuardObfuscation) }
         }
     }
 
@@ -688,10 +599,6 @@ extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
         delegate?.showInfo(for: button)
     }
 
-    func showDetails(for button: VPNSettingsDetailsButtonItem) {
-        delegate?.showDetails(for: button)
-    }
-
     func addCustomPort(_ port: UInt16) {
         viewModel.setWireGuardPort(port)
         delegate?.didSelectWireGuardPort(port)
@@ -704,24 +611,6 @@ extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
         }
 
         return viewModel.isPortWithinValidWireGuardRanges(port)
-    }
-
-    func selectObfuscationState(_ state: WireGuardObfuscationState) {
-        delegate?.obfuscationSettingsAreValid(
-            .init(
-                state: state,
-                udpOverTcpPort: viewModel.obfuscationUpdOverTcpPort,
-                shadowsocksPort: viewModel.obfuscationShadowsocksPort,
-                lwoPort: viewModel.obfuscationLwoPort
-            )
-        ) { [weak self] settingsAreValid in
-            guard let self else { return }
-
-            if settingsAreValid {
-                viewModel.setWireGuardObfuscationState(state)
-                delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-            }
-        }
     }
 
     func selectQuantumResistance(_ state: TunnelQuantumResistance) {
