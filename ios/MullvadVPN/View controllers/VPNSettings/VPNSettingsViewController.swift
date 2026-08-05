@@ -13,6 +13,7 @@ import UIKit
 
 protocol VPNSettingsViewControllerDelegate: AnyObject {
     func showIPOverrides()
+    func showAntiCensorshipSettings()
 }
 
 class VPNSettingsViewController: UITableViewController {
@@ -168,13 +169,7 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     func showAntiCensorshipSettings() {
-        let view = AntiCensorshipView(settingsInteractor: interactor)
-
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString("Anti-censorship", comment: "")
-        host.view.setAccessibilityIdentifier(.antiCensorship)
-
-        navigationController?.pushViewController(host, animated: true)
+        delegate?.showAntiCensorshipSettings()
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {

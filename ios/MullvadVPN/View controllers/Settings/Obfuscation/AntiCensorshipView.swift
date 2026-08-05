@@ -11,10 +11,10 @@ import SwiftUI
 
 struct AntiCensorshipView: View {
     let settingsInteractor: VPNSettingsInteractor
-    @Bindable var settings: ObservableVPNSettings
+    @State var settings: ObservableVPNSettings
     let itemFactory = SegmentedListItemFactory()
 
-    struct Options: Identifiable {
+    struct Option: Identifiable {
         typealias ID = String
         let state: WireGuardObfuscationState
         let accessibilityIdentifier: AccessibilityIdentifier
@@ -29,8 +29,7 @@ struct AntiCensorshipView: View {
         self.settings = ObservableVPNSettings(tunnelSettings: settingsInteractor.tunnelManager.settings)
     }
 
-    // TODO: Add an accessibility identifier for segment views
-    let availableObfuscations: [Options] =
+    let availableObfuscations: [Option] =
         [
             .init(state: .automatic, accessibilityIdentifier: .wireGuardObfuscationAutomatic),
             .init(state: .shadowsocks, accessibilityIdentifier: .wireGuardObfuscationShadowsocks),
@@ -56,7 +55,7 @@ struct AntiCensorshipView: View {
                     groupedContent: {
                         Group {
                             ForEach(Array(availableObfuscations.enumerated()), id: \.element.id) {
-                                (index: Int, option: Options) in
+                                (index: Int, option: Option) in
                                 let state = option.state
                                 let accessibilityIdentifier = option.accessibilityIdentifier
                                 SegmentedListItem(
@@ -75,19 +74,26 @@ struct AntiCensorshipView: View {
                                 )
                             }
                         }
-                        .onChange(of: settings.tunnelSettings.wireGuardObfuscation) {
-                            settingsInteractor.tunnelManager.updateSettings([
-                                .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
-                            ])
-                        }
                     }
                 )
+                .onChange(of: settings.tunnelSettings.wireGuardObfuscation, initial: false) { oldValue, newValue in
+                    // Prevent spamming updates if the same cell is pressed multiple times in a row
+                    if oldValue != newValue {
+                        updateSettings()
+                    }
+                }
             }
             .padding(.leading, UIMetrics.contentInsets.left)
             .padding(.trailing, UIMetrics.contentInsets.right)
         }
         .navigationTitle("Anti-censorship")
         .background(Color(.secondaryColor))
+    }
+
+    func updateSettings() {
+        settingsInteractor.tunnelManager.updateSettings([
+            .obfuscation(settings.tunnelSettings.wireGuardObfuscation)
+        ])
     }
 
     @ViewBuilder
@@ -140,11 +146,17 @@ struct AntiCensorshipView: View {
                         port: $settings.tunnelSettings.wireGuardObfuscation.shadowsocksPort
                     )
                     .navigationTitle("Shadowsocks")
+                    .onDisappear {
+                        updateSettings()
+                    }
                 case .udpOverTcp:
                     UDPOverTCPObfuscationSettingsView(
                         port: $settings.tunnelSettings.wireGuardObfuscation.udpOverTcpPort
                     )
                     .navigationTitle("UDP-over-TCP")
+                    .onDisappear {
+                        updateSettings()
+                    }
                 case .lwo:
                     let viewModel = TunnelLwoObfuscationSettingsViewModel(
                         portRanges: settingsInteractor.cachedRelays?.relays.wireguard.portRanges ?? [])
@@ -152,6 +164,9 @@ struct AntiCensorshipView: View {
                         viewModel: viewModel, port: $settings.tunnelSettings.wireGuardObfuscation.lwoPort
                     )
                     .navigationTitle("LWO")
+                    .onDisappear {
+                        updateSettings()
+                    }
                 default: EmptyView()
                 }
             } label: {
