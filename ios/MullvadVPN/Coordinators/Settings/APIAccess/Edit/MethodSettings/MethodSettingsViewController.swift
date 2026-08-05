@@ -95,9 +95,6 @@ class MethodSettingsViewController: UITableViewController {
 
         inputValidationErrors.removeAll()
         contentValidationErrors.removeAll()
-
-        // Run validation to inform users of errors (only applicable when editing an existing configuration).
-        onTest()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
