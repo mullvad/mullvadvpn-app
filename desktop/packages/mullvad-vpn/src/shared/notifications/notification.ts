@@ -1,6 +1,6 @@
 import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
-import { ButtonProps, type ButtonVariants } from '../../renderer/lib/components';
+import { type ButtonColors, ButtonProps } from '../../renderer/lib/components';
 import { RoutePath } from '../../shared/routes';
 import { Url } from '../constants';
 
@@ -30,7 +30,7 @@ export interface InAppNotificationTroubleshootInfo {
 export interface InAppNotificationTroubleshootButton {
   label: string;
   action: () => void;
-  variant?: ButtonVariants;
+  color?: ButtonColors;
 }
 
 export type InAppNotificationAction =

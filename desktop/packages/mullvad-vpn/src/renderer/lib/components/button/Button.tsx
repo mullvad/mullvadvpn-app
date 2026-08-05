@@ -6,16 +6,16 @@ import { TransientProps } from '../../types';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
-export type ButtonVariants = 'neutral' | 'success' | 'destructive';
+export type ButtonColors = 'neutral' | 'success' | 'destructive';
 
 export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
-  variant?: ButtonVariants;
+  color?: ButtonColors;
   width?: 'fill' | 'fit';
 };
 
 const styles = {
   radius: Radius.radius4,
-  variants: {
+  colors: {
     neutral: {
       background: colors.blue,
       hover: colors.blue60,
@@ -37,9 +37,9 @@ const styles = {
   },
 };
 
-export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'variant' | 'width'>>>`
-  ${({ $width = 'fill', $variant = 'neutral' }) => {
-    const variant = styles.variants[$variant];
+export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'color' | 'width'>>>`
+  ${({ $width = 'fill', $color = 'neutral' }) => {
+    const variant = styles.colors[$color];
 
     return css`
       --background: ${variant.background};
@@ -127,10 +127,10 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
   }}
 `;
 
-function Button({ children, variant, width, disabled = false, ...props }: ButtonProps) {
+function Button({ children, color, width, disabled = false, ...props }: ButtonProps) {
   return (
     <ButtonProvider disabled={disabled}>
-      <StyledButton disabled={disabled} $variant={variant} $width={width} {...props}>
+      <StyledButton disabled={disabled} $color={color} $width={width} {...props}>
         {children}
       </StyledButton>
     </ButtonProvider>

@@ -79,7 +79,7 @@ export function AccountView() {
 
             <FlexColumn gap="medium">
               <Button
-                variant="success"
+                color="success"
                 disabled={isOffline}
                 onClick={buyMore}
                 aria-description={messages.pgettext('accessibility', 'Opens externally')}>
@@ -89,7 +89,7 @@ export function AccountView() {
 
               <RedeemVoucherButton />
 
-              <Button variant="destructive" onClick={doLogout}>
+              <Button color="destructive" onClick={doLogout}>
                 <Button.Text>
                   {
                     // TRANSLATORS: Button label for logging out.

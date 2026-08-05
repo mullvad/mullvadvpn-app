@@ -183,7 +183,7 @@ export function SettingsImportView() {
               </View.Container>
             </FlexColumn>
             <Button
-              variant="destructive"
+              color="destructive"
               onClick={handleClickClearAllOverrides}
               disabled={!activeOverrides}>
               <Button.Text>
@@ -204,7 +204,7 @@ export function SettingsImportView() {
                 )}
               </StatusDialog.Text>
               <StatusDialog.ButtonGroup>
-                <StatusDialog.Button onClick={confirmClear} variant="destructive">
+                <StatusDialog.Button onClick={confirmClear} color="destructive">
                   <StatusDialog.Button.Text>{messages.gettext('Clear')}</StatusDialog.Button.Text>
                 </StatusDialog.Button>
                 <StatusDialog.CloseButton>

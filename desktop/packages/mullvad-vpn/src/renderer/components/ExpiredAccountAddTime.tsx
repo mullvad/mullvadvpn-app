@@ -236,7 +236,7 @@ export function SetupFinished() {
                 </Button.Text>
                 <Button.Icon icon="external" />
               </Button>
-              <Button variant="success" onClick={finish}>
+              <Button color="success" onClick={finish}>
                 <Button.Text>
                   {
                     // TRANSLATORS: Button label for starting the app.

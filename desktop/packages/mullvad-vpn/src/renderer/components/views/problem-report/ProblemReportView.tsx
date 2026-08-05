@@ -192,7 +192,7 @@ function Form() {
           </Button.Text>
           <Button.Icon icon="external" />
         </Button>
-        <Button variant="success" disabled={!validate() || disableActions} onClick={onSend}>
+        <Button color="success" disabled={!validate() || disableActions} onClick={onSend}>
           <Button.Text>
             {
               // TRANSLATORS: Button label for sending the problem report.
@@ -278,7 +278,7 @@ function Failed() {
             }
           </Button.Text>
         </Button>
-        <Button variant="success" onClick={onSend}>
+        <Button color="success" onClick={onSend}>
           <Button.Text>
             {
               // TRANSLATORS: Button label for retrying problem report submission after a failure.
@@ -307,7 +307,7 @@ function NoEmailDialog() {
     <StatusDialog variant="warning" open={sendState === SendState.confirm}>
       <StatusDialog.Text>{message}</StatusDialog.Text>
       <StatusDialog.ButtonGroup>
-        <StatusDialog.Button onClick={onSend} variant="destructive">
+        <StatusDialog.Button onClick={onSend} color="destructive">
           <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label for sending the problem report without an email address.
@@ -377,7 +377,7 @@ function OutdatedVersionWarningDialog() {
       <StatusDialog.Text>{message}</StatusDialog.Text>
       <StatusDialog.ButtonGroup>
         <StatusDialog.Button
-          variant="success"
+          color="success"
           disabled={disabled}
           onClick={upgradeAction}
           aria-description={messages.pgettext('accessibility', 'Opens externally')}>
@@ -389,7 +389,7 @@ function OutdatedVersionWarningDialog() {
           </StatusDialog.Button.Text>
           {isLinux && <StatusDialog.Button.Icon icon="external" />}
         </StatusDialog.Button>
-        <StatusDialog.CloseButton variant="destructive">
+        <StatusDialog.CloseButton color="destructive">
           <StatusDialog.CloseButton.Text>
             {
               // TRANSLATORS: Button label for continuing problem report submission with an outdated app version.
