@@ -32,9 +32,11 @@ tokio = { workspace = true, features = [
 ] }
 tokio-util = { workspace = true, features = ["rt"] }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "00c8482f303aa23a69cfe9ee10903582cba3eb1e" }
+zerocopy = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
+fast-socks5 = "1.0.0"
 tokio = { workspace = true, features = ["test-util"] }
 
 [lints]

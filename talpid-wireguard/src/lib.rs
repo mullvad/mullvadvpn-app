@@ -153,12 +153,12 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let is_single_lwo = params
+        let is_inline_obfuscation = params
             .obfuscation
             .as_ref()
-            .is_some_and(obfuscation::is_single_lwo);
+            .is_some_and(obfuscation::is_inline_obfuscation);
         let userspace_wireguard =
-            *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg() || is_single_lwo;
+            *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg() || is_inline_obfuscation;
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
@@ -186,13 +186,13 @@ impl WireguardMonitor {
                 userspace_wireguard,
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
-        if params.options.mtu.is_none()
-            && let Some(obfuscator) = obfuscator.as_ref()
-        {
-            config.mtu = clamp_tunnel_mtu(
-                params,
-                config.mtu.saturating_sub(obfuscator.packet_overhead()),
-            );
+        if params.options.mtu.is_none() {
+            let obfuscation_overhead = obfuscator
+                .as_ref()
+                .map(ObfuscatorHandle::packet_overhead)
+                .unwrap_or(0);
+            let overhead = obfuscation_overhead.saturating_add(config.socks5_packet_overhead());
+            config.mtu = clamp_tunnel_mtu(params, config.mtu.saturating_sub(overhead));
         }
 
         #[cfg(target_os = "windows")]
@@ -433,13 +433,13 @@ impl WireguardMonitor {
                 args.tun_provider.clone(),
             ))?;
         // Adjust MTU again for obfuscation packet overhead
-        if params.options.mtu.is_none()
-            && let Some(obfuscator) = obfuscator.as_ref()
-        {
-            config.mtu = clamp_tunnel_mtu(
-                params,
-                config.mtu.saturating_sub(obfuscator.packet_overhead()),
-            );
+        if params.options.mtu.is_none() {
+            let obfuscation_overhead = obfuscator
+                .as_ref()
+                .map(ObfuscatorHandle::packet_overhead)
+                .unwrap_or(0);
+            let overhead = obfuscation_overhead.saturating_add(config.socks5_packet_overhead());
+            config.mtu = clamp_tunnel_mtu(params, config.mtu.saturating_sub(overhead));
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;

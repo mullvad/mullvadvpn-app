@@ -13,10 +13,23 @@ use mullvad_types::{
     settings::{Settings, TunnelOptions},
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
-use talpid_types::net::{obfuscation::Obfuscators, wireguard};
+use talpid_types::net::{
+    Endpoint, TransportProtocol,
+    obfuscation::Obfuscators,
+    proxy::{Socks5Local, Socks5Proxy, Socks5Remote},
+    wireguard,
+};
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
+
+/// Relay the tunnel through a SOCKS5 proxy. Intended for development, until the proxy can be
+/// configured through the settings.
+///
+/// Accepts either `<proxy address>` for a remote proxy, or `<local port>@<upstream address>` for
+/// a proxy running on localhost, where the upstream address is whatever the proxy itself forwards
+/// to.
+const SOCKS5_PROXY_VAR: &str = "MULLVAD_SOCKS5_PROXY";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -187,6 +200,7 @@ impl InnerParametersGenerator {
                 .into_talpid_tunnel_options(),
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
+            proxy: socks5_proxy_override(),
         }
     }
 
@@ -194,6 +208,48 @@ impl InnerParametersGenerator {
         let device_state = self.account_manager.data().await?;
         device_state.into_device().ok_or(Error::NoAuthDetails)
     }
+}
+
+/// Parse [`SOCKS5_PROXY_VAR`], if set.
+///
+/// An unparseable value is logged and ignored rather than failing the connection, since this is a
+/// development aid.
+fn socks5_proxy_override() -> Option<Socks5Proxy> {
+    let value = std::env::var(SOCKS5_PROXY_VAR).ok()?;
+
+    let proxy = match value.split_once('@') {
+        Some((local_port, upstream)) => {
+            local_port
+                .parse()
+                .ok()
+                .zip(upstream.parse().ok())
+                .map(|(local_port, upstream)| {
+                    // TODO: The upstream protocol is not always TCP. A local proxy speaking
+                    // VLESS over TLS or REALITY uses TCP, but one speaking QUIC, mKCP or
+                    // Hysteria uses UDP, and the firewall matches the protocol along with the
+                    // address. It cannot be derived from SOCKS5, so it has to come from the
+                    // configuration.
+                    Socks5Proxy::Local(Socks5Local {
+                        remote_endpoint: Endpoint::from_socket_address(
+                            upstream,
+                            TransportProtocol::Tcp,
+                        ),
+                        local_port,
+                    })
+                })
+        }
+        None => value.parse().ok().map(|endpoint| {
+            Socks5Proxy::Remote(Socks5Remote {
+                endpoint,
+                auth: None,
+            })
+        }),
+    };
+
+    if proxy.is_none() {
+        log::error!("Ignoring malformed {SOCKS5_PROXY_VAR}: {value}");
+    }
+    proxy
 }
 
 impl TunnelParametersGenerator for ParametersGenerator {

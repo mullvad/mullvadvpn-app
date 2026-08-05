@@ -40,10 +40,10 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
-    // MaybeObfuscatingTransportFactory.
-    if is_gotatun && is_single_lwo(obfuscator_config) {
-        log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
+    // When GotaTun is in use, some obfuscation is applied inline by
+    // MaybeObfuscatingTransportFactory instead of by a local proxy socket.
+    if is_gotatun && is_inline_obfuscation(obfuscator_config) {
+        log::debug!("GotaTun: skipping proxy, obfuscation will be applied inline");
         return Ok(None);
     }
 
@@ -92,8 +92,13 @@ pub async fn apply_obfuscation_config(
     }))
 }
 
-/// Returns `true` when the obfuscation config is a single LWO method.
-pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+/// Whether this obfuscation is applied inline in the GotaTun UDP transport, rather than by a
+/// local proxy socket.
+///
+/// Inline obfuscation transforms datagrams in place, so it can be stacked on top of another
+/// transport such as a SOCKS5 proxy. Proxy socket obfuscation cannot, since WireGuard then only
+/// ever talks to a loopback address.
+pub fn is_inline_obfuscation(obfuscators: &Obfuscators) -> bool {
     matches!(
         obfuscators,
         Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
