@@ -7,29 +7,31 @@ import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
 export type ButtonColors = 'neutral' | 'success' | 'destructive';
+export type ButtonVariants = 'primary' | 'secondary';
 
 export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
   color?: ButtonColors;
+  variant?: ButtonVariants;
   width?: 'fill' | 'fit';
 };
 
 const styles = {
   radius: Radius.radius4,
-  colors: {
+  variants: {
     neutral: {
-      background: colors.blue,
+      color: colors.blue,
       hover: colors.blue60,
       pressed: colors.blue40,
       disabled: colors.blue40,
     },
     success: {
-      background: colors.green,
+      color: colors.green,
       hover: colors.green80,
       pressed: colors.green40,
       disabled: colors.green40,
     },
     destructive: {
-      background: colors.red,
+      color: colors.red,
       hover: colors.red80,
       pressed: colors.red40,
       disabled: colors.red40,
@@ -37,12 +39,15 @@ const styles = {
   },
 };
 
-export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'color' | 'width'>>>`
-  ${({ $width = 'fill', $color = 'neutral' }) => {
-    const variant = styles.colors[$color];
+type StyledButtonProps = TransientProps<Required<Pick<ButtonProps, 'variant' | 'color' | 'width'>>>;
+
+export const StyledButton = styled.button<StyledButtonProps>`
+  ${({ $width, $color, $variant }) => {
+    const variant = styles.variants[$color];
+    const backgroundOrBorderColor = $variant === 'primary' ? 'background' : 'border-color';
 
     return css`
-      --background: ${variant.background};
+      --color: ${variant.color};
       --hover: ${variant.hover};
       --pressed: ${variant.pressed};
       --disabled: ${variant.disabled};
@@ -58,7 +63,19 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'colo
       min-height: 32px;
       min-width: 60px;
       border-radius: var(--radius);
-      background: var(--background);
+
+      ${backgroundOrBorderColor}: var(--color);
+
+      // Add border if secondary appearance
+      ${() => {
+        if ($variant === 'secondary') {
+          return css`
+            border: 1px solid var(--color);
+            background: transparent;
+          `;
+        }
+        return null;
+      }}
 
       ${() => {
         if ($width === 'fill') {
@@ -75,21 +92,21 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'colo
       }}
 
       @media (prefers-reduced-motion: no-preference) {
-        transition: background-color var(--transition-duration) ease;
+        transition: ${backgroundOrBorderColor} var(--transition-duration) ease;
       }
 
       &&:not(:disabled):hover {
         --transition-duration: 0s;
-        background: var(--hover);
+        ${backgroundOrBorderColor}: var(--hover);
       }
 
       &&:not(:disabled):active {
         --transition-duration: 0s;
-        background: var(--pressed);
+        ${backgroundOrBorderColor}: var(--pressed);
       }
 
       &:disabled {
-        background: var(--disabled);
+        ${backgroundOrBorderColor}: var(--disabled);
       }
 
       &:focus-visible {
@@ -127,10 +144,17 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'colo
   }}
 `;
 
-function Button({ children, color, width, disabled = false, ...props }: ButtonProps) {
+function Button({
+  children,
+  disabled = false,
+  variant = 'primary',
+  color = 'neutral',
+  width = 'fill',
+  ...props
+}: ButtonProps) {
   return (
     <ButtonProvider disabled={disabled}>
-      <StyledButton disabled={disabled} $color={color} $width={width} {...props}>
+      <StyledButton disabled={disabled} $variant={variant} $color={color} $width={width} {...props}>
         {children}
       </StyledButton>
     </ButtonProvider>
