@@ -44,7 +44,7 @@ function FilterViewImpl() {
               </View.Container>
             </NavigationScrollbars>
             <View.Container horizontalMargin="medium" padding={{ vertical: 'large' }}>
-              <Button variant="success" disabled={noSelectedProviders} onClick={handleApply}>
+              <Button color="success" disabled={noSelectedProviders} onClick={handleApply}>
                 <Button.Text>
                   {noSelectedProviders
                     ? messages.gettext('No matching servers found')

@@ -170,7 +170,7 @@ export function ProxyFormButtons() {
   return (
     <Flex margin={{ horizontal: 'medium', top: 'large' }} justifyContent="space-between">
       {onDelete !== undefined ? (
-        <Button width="fit" variant="destructive" onClick={onDelete}>
+        <Button width="fit" color="destructive" onClick={onDelete}>
           <Button.Text>{messages.gettext('Delete')}</Button.Text>
         </Button>
       ) : (

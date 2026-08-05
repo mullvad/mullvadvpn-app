@@ -67,7 +67,7 @@ export function DeleteCustomListDialog({
             <Dialog.ButtonGroup>
               <Dialog.Button
                 key="save"
-                variant="destructive"
+                color="destructive"
                 onClick={handleConfirm}
                 disabled={loading || !open}>
                 <Dialog.Button.Text>{messages.gettext('Delete list')}</Dialog.Button.Text>

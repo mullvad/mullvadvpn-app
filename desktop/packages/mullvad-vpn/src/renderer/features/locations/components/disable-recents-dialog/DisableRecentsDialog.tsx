@@ -24,7 +24,7 @@ export function DisableRecentsDialog({ onOpenChange, ...props }: DisableRecentsD
         {messages.pgettext('locations-feature', 'Disabling recents will also clear history.')}
       </StatusDialog.Text>
       <StatusDialog.ButtonGroup>
-        <StatusDialog.Button variant="destructive" onClick={disableRecents}>
+        <StatusDialog.Button color="destructive" onClick={disableRecents}>
           <StatusDialog.Button.Text>{messages.gettext('Disable')}</StatusDialog.Button.Text>
         </StatusDialog.Button>
         <StatusDialog.Button key="cancel" onClick={handleCancel}>

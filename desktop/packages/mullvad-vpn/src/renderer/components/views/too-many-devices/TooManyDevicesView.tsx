@@ -71,7 +71,7 @@ export function TooManyDevicesView() {
 
             {devices !== undefined && (
               <View.Container flexDirection="column" horizontalMargin="medium" gap="medium">
-                <Button variant="success" onClick={continueLogin} disabled={continueButtonDisabled}>
+                <Button color="success" onClick={continueLogin} disabled={continueButtonDisabled}>
                   <Button.Text>
                     {
                       // TRANSLATORS: Button for continuing login process.
