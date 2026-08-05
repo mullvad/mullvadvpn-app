@@ -11,10 +11,10 @@ use std::{
     sync::{Arc, LazyLock},
     time::Duration,
 };
-use tokio::{net::UdpSocket, select, sync::mpsc, task::JoinSet};
+use tokio::{net::UdpSocket, select, sync::mpsc};
 use typed_builder::TypedBuilder;
 
-use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
+use h3::{client, ext::Protocol, quic::StreamId};
 use h3_datagram::{datagram::Datagram, datagram_traits::HandleDatagramsExt};
 use http::{StatusCode, Uri, header, uri::Scheme};
 use quinn::{
@@ -23,9 +23,9 @@ use quinn::{
 };
 
 use crate::{
-    MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU, QUIC_HEADER_SIZE,
-    compute_udp_payload_size,
-    fragment::{self, DefragReceived, Fragments},
+    DatagramFragmentor, MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
+    ProxyTaskError, Stopped, TaskError, TaskResult, Tasks, compute_udp_payload_size,
+    fragment::{DefragReceived, Fragments},
     stats::Stats,
 };
 
@@ -98,32 +98,22 @@ pub enum Error {
     RequestError(#[source] h3::Error),
     #[error("Received response was not a 200: {}", .0)]
     UnexpectedStatus(http::StatusCode),
-    #[error("Failed to receive data from client socket")]
-    ClientRead(#[source] io::Error),
-    #[error("Failed to send data to client socket")]
-    ClientWrite(#[source] io::Error),
     #[error("Failed to receive data from server socket")]
     ServerRead(#[source] h3::Error),
     #[error("Failed to create a client")]
     CreateClient(#[source] h3::Error),
-    #[error("Failed to receive good response from proxy")]
-    ProxyResponse(#[source] h3::Error),
     #[error("Failed to construct a URI")]
     Uri(#[source] http::Error),
-    #[error("Failed to send datagram to proxy")]
-    SendDatagram(#[source] h3::Error),
     #[error("Failed to read certificates")]
     ReadCerts(#[source] rustls_pki_types::pem::Error),
     #[error("Failed to parse certificates")]
     ParseCerts,
-    #[error("Failed to fragment a packet - it is too large")]
-    PacketTooLarge(#[from] fragment::PacketTooLarge),
+    #[error(transparent)]
+    ProxyTask(#[from] TaskError),
     #[error("The provided idle timeout was invalid")]
     InvalidIdleTimeout(quinn::VarIntBoundsExceeded),
     #[error("The server returned an invalid HTTP redirect")]
     InvalidHttpRedirect(#[source] anyhow::Error),
-    #[error("A tokio task panicked")]
-    TaskPanicked(#[source] anyhow::Error),
     #[error("IO error")]
     IO(#[source] io::Error),
 }
@@ -157,56 +147,6 @@ pub struct ClientConfig {
     /// Set the authorization header to use in the CONNECT-UDP request.
     #[builder(default)]
     pub auth_header: Option<String>,
-}
-
-#[derive(Default)]
-struct Tasks(JoinSet<Result<Stopped>>);
-
-impl Tasks {
-    /// Spawn a task on a `JoinSet`, logging when it starts and when it returns an error.
-    #[track_caller]
-    fn spawn_task(&mut self, future: impl Future<Output = Result<Stopped>> + Send + 'static) {
-        let location = std::panic::Location::caller();
-        self.0.spawn(async move {
-            log::trace!("Task spawned at {location}");
-            let result = future.await;
-            if let Err(err) = &result {
-                log::debug!("Task at {location} exited with error: {err:?}");
-            } else {
-                log::trace!("Task at {location} completed successfully");
-            }
-            result
-        });
-    }
-
-    /// Wait for all tasks to finish, returning the first error, if any.
-    ///
-    /// After the first task completes, the rest are aborted, so this returns
-    /// once all tasks have stopped.
-    async fn join_and_abort(mut self) -> Result<()> {
-        let result = self.0.join_next().await.expect("JoinSet is not empty");
-        let mut results = vec![result];
-
-        self.0.abort_all();
-
-        // at this point all tasks are being aborted, so we won't have to wait long.
-        while let Some(result) = self.0.join_next().await {
-            results.push(result);
-        }
-
-        // check for errors and return the first one, if any.
-        // we do this because tasks might (in theory) race when returning,
-        // and one task crashing will cause others to exit with Ok(Stopped).
-        results.into_iter().try_for_each(|result| match result {
-            Err(join_err) if join_err.is_panic() => {
-                let err = anyhow!("{:?}", join_err.into_panic());
-                Err(Error::TaskPanicked(err))
-            }
-            Ok(Err(e)) => Err(e),
-            Ok(Ok(Stopped)) => Ok(()),
-            Err(_cancelled) => Ok(()),
-        })
-    }
 }
 
 impl Client {
@@ -509,13 +449,10 @@ impl Client {
     }
 }
 
-/// Task stopped gracefully because the client was shutting down.
-struct Stopped;
-
 impl RunningClient {
     /// Wait until the connection is remotely closed, or an error occurs.
     pub async fn until_closed(self) -> Result<()> {
-        self.tasks.join_and_abort().await
+        Ok(self.tasks.join_all().await?)
     }
 }
 
@@ -527,7 +464,7 @@ async fn server_socket_task(
     incoming_datagram_tx: mpsc::Sender<Datagram>,
     // Incoming packets from the client, to be send to the server
     mut outgoing_datagram_rx: mpsc::Receiver<Bytes>,
-) -> Result<Stopped> {
+) -> TaskResult {
     loop {
         select! {
             datagram = connection.read_datagram() => {
@@ -538,7 +475,7 @@ async fn server_socket_task(
                         }
                     }
                     Ok(None) => break, // quic conn closed, exit gracefully
-                    Err(err) => return Err(Error::ProxyResponse(err)),
+                    Err(err) => return Err(ProxyTaskError::ReadDatagram(err)),
                 }
 
                 continue;
@@ -547,7 +484,7 @@ async fn server_socket_task(
                 if let Some(datagram) = datagram {
                     connection
                         .send_datagram(stream_id, datagram)
-                        .map_err(Error::SendDatagram)?;
+                        .map_err(ProxyTaskError::SendDatagram)?;
                 } else {
                     break;
                 }
@@ -558,86 +495,6 @@ async fn server_socket_task(
     Ok(Stopped)
 }
 
-/// Buffers outgoing packets and fragments them to fit the QUIC datagram size limit.
-///
-/// Call [`Self::get_read_buf`] to get a buffer with the MASQUE context ID already
-/// encoded, write the packet payload into it, then call [`Self::fragment`] to get
-/// an iterator over the resulting datagrams (one if it fits, multiple if fragmented).
-struct DatagramFragmentor {
-    quinn_conn: quinn::Connection,
-    stream_id_size: u16,
-    max_udp_payload_size: u16,
-    stats: Arc<Stats>,
-    fragment_id: u16,
-    read_buf: BytesMut,
-    fragments_buf: Vec<Bytes>,
-}
-
-impl DatagramFragmentor {
-    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
-    fn new(
-        quinn_conn: quinn::Connection,
-        stream_id: StreamId,
-        max_udp_payload_size: u16,
-        stats: Arc<Stats>,
-    ) -> Self {
-        Self {
-            quinn_conn,
-            stream_id_size: VarInt::from(stream_id).size() as u16,
-            max_udp_payload_size,
-            stats,
-            fragment_id: 0,
-            read_buf: BytesMut::with_capacity(Self::TOTAL_BUFFER_CAPACITY),
-            fragments_buf: Vec::new(),
-        }
-    }
-
-    /// Get a writable buffer, with [`crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID`]
-    /// encoded at the start. Write the packet payload into it, then call
-    /// [`Self::fragment`] to return an iterator over resulting datagrams.
-    fn get_read_buf(&mut self) -> &mut BytesMut {
-        if !self.read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
-            self.read_buf.reserve(Self::TOTAL_BUFFER_CAPACITY);
-        }
-        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut self.read_buf);
-        &mut self.read_buf
-    }
-
-    /// Split [`Self::read_buf`] into datagrams, fragmenting if necessary.
-    ///
-    /// Returns an iterator over the resulting datagrams.
-    fn fragment(&mut self) -> Result<impl Iterator<Item = Bytes> + '_> {
-        let packet = self.read_buf.split().freeze();
-
-        let maximum_packet_size =
-            if let Some(max_datagram_size) = self.quinn_conn.max_datagram_size() {
-                max_datagram_size as u16 - self.stream_id_size
-            } else {
-                self.max_udp_payload_size - QUIC_HEADER_SIZE - self.stream_id_size
-            };
-
-        self.fragments_buf.clear();
-        if packet.len() <= usize::from(maximum_packet_size) {
-            self.stats.tx(packet.len(), false);
-            self.fragments_buf.push(packet);
-        } else {
-            let mut stripped = packet;
-            let _ = VarInt::decode(&mut stripped);
-
-            for fragment in
-                fragment::fragment_packet(maximum_packet_size, &stripped, self.fragment_id)
-                    .map_err(Error::PacketTooLarge)?
-            {
-                debug_assert!(fragment.len() <= maximum_packet_size as usize);
-                self.stats.tx(fragment.len(), true);
-                self.fragments_buf.push(fragment);
-            }
-            self.fragment_id = self.fragment_id.wrapping_add(1);
-        }
-        Ok(self.fragments_buf.drain(..))
-    }
-}
-
 /// Read packets from the socket, fragment them, and forward them to `outgoing_datagram_tx`.
 ///
 /// The socket is connected to the first sender's address.
@@ -645,21 +502,24 @@ async fn client_socket_rx_task(
     client_socket: Arc<UdpSocket>,
     mut fragmentor: DatagramFragmentor,
     outgoing_datagram_tx: mpsc::Sender<Bytes>,
-) -> Result<Stopped> {
+) -> TaskResult {
     // Read the first packet with recv_buf_from to discover the sender's address, then
     // connect the socket so all subsequent I/O is filtered to that peer.
     let read_buf = fragmentor.get_read_buf();
     let (_bytes_received, peer_addr) = client_socket
         .recv_buf_from(read_buf)
         .await
-        .map_err(Error::ClientRead)?;
+        .map_err(ProxyTaskError::UdpRead)?;
 
     client_socket
         .connect(peer_addr)
         .await
-        .map_err(Error::ClientRead)?;
+        .map_err(ProxyTaskError::UdpRead)?;
 
-    for packet in fragmentor.fragment()? {
+    for packet in fragmentor
+        .fragment()
+        .map_err(ProxyTaskError::PacketTooLarge)?
+    {
         if outgoing_datagram_tx.send(packet).await.is_err() {
             return Ok(Stopped);
         }
@@ -670,9 +530,12 @@ async fn client_socket_rx_task(
         let _bytes_received = client_socket
             .recv_buf(read_buf)
             .await
-            .map_err(Error::ClientRead)?;
+            .map_err(ProxyTaskError::UdpRead)?;
 
-        for packet in fragmentor.fragment()? {
+        for packet in fragmentor
+            .fragment()
+            .map_err(ProxyTaskError::PacketTooLarge)?
+        {
             if outgoing_datagram_tx.send(packet).await.is_err() {
                 break 'outer;
             }
@@ -686,7 +549,7 @@ async fn client_socket_rx_task(
 async fn client_socket_tx_task(
     client_socket: Arc<UdpSocket>,
     incoming_packet_rx: mpsc::Receiver<BytesMut>,
-) -> Result<Stopped> {
+) -> TaskResult {
     #[cfg(target_os = "windows")]
     if *windows::MAX_GSO_SEGMENTS > 1 {
         log::debug!("UDP GSO enabled");
@@ -702,7 +565,7 @@ async fn client_socket_tx_task(
 async fn client_socket_gso_tx_task(
     client_socket: Arc<UdpSocket>,
     mut incoming_packet_rx: mpsc::Receiver<BytesMut>,
-) -> Result<Stopped> {
+) -> TaskResult {
     use bytes::Buf;
     use std::{collections::VecDeque, mem};
     use tokio::io::Interest;
@@ -740,7 +603,7 @@ async fn client_socket_gso_tx_task(
             client_socket
                 .send(packet.chunk())
                 .await
-                .map_err(Error::ClientWrite)?;
+                .map_err(ProxyTaskError::UdpWrite)?;
             continue;
         }
 
@@ -793,7 +656,7 @@ async fn client_socket_gso_tx_task(
                 client_socket_ref.sendmsg(&msg_hdr, 0)
             })
             .await
-            .map_err(Error::ClientWrite)?;
+            .map_err(ProxyTaskError::UdpWrite)?;
     }
 
     Ok(Stopped)
@@ -802,9 +665,12 @@ async fn client_socket_gso_tx_task(
 async fn client_socket_non_gso_tx_task(
     client_socket: Arc<UdpSocket>,
     mut incoming_packet_rx: mpsc::Receiver<BytesMut>,
-) -> Result<Stopped> {
+) -> TaskResult {
     while let Some(buf) = incoming_packet_rx.recv().await {
-        client_socket.send(&buf).await.map_err(Error::ClientWrite)?;
+        client_socket
+            .send(&buf)
+            .await
+            .map_err(ProxyTaskError::UdpWrite)?;
     }
     Ok(Stopped)
 }
@@ -814,12 +680,15 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
     mut outgoing_packet_rx: mpsc::Receiver<B>,
     mut fragmentor: DatagramFragmentor,
     outgoing_datagram_tx: mpsc::Sender<Bytes>,
-) -> Result<Stopped> {
+) -> TaskResult {
     'outer: while let Some(packet) = outgoing_packet_rx.recv().await {
         let read_buf = fragmentor.get_read_buf();
         read_buf.extend_from_slice(packet.as_ref());
 
-        for datagram in fragmentor.fragment()? {
+        for datagram in fragmentor
+            .fragment()
+            .map_err(ProxyTaskError::PacketTooLarge)?
+        {
             if outgoing_datagram_tx.send(datagram).await.is_err() {
                 break 'outer;
             }
@@ -834,7 +703,7 @@ async fn fragment_reassembly_task(
     mut incoming_datagram_rx: mpsc::Receiver<Datagram>,
     incoming_packet_tx: mpsc::Sender<BytesMut>,
     stats: Arc<Stats>,
-) -> Result<Stopped> {
+) -> TaskResult {
     let mut fragments = Fragments::default();
 
     while let Some(response) = incoming_datagram_rx.recv().await {
