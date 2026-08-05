@@ -379,12 +379,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        let sectionIdentifier = snapshot().sectionIdentifiers[indexPath.section]
-
-        return switch sectionIdentifier {
-        case .wireGuardAntiCensorship: false
-        default: true
-        }
+        true
     }
 
     // MARK: - Private

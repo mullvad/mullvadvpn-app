@@ -9,26 +9,24 @@
 import MullvadSettings
 import SwiftUI
 
-struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscationSettingsViewModel {
-    @StateObject var viewModel: VM
+struct UDPOverTCPObfuscationSettingsView: View {
+    var port: Binding<WireGuardObfuscationUdpOverTcpPort>
 
     var body: some View {
         let portString = NSLocalizedString("Port", comment: "")
         SingleChoiceList(
             title: portString,
             options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port443, .port5001],
-            value: $viewModel.value,
+            value: port,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpTable.asString,
             itemDescription: { item in
                 "\(item)"
             }
-        ).onDisappear {
-            viewModel.commit()
-        }
+        )
     }
 }
 
 #Preview {
-    let model = MockUDPOverTCPObfuscationSettingsViewModel(udpTcpPort: .port5001)
-    return UDPOverTCPObfuscationSettingsView(viewModel: model)
+    @Previewable @State var port = WireGuardObfuscationUdpOverTcpPort.port5001
+    return UDPOverTCPObfuscationSettingsView(port: $port)
 }
