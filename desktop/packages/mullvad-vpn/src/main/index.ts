@@ -173,6 +173,13 @@ class ApplicationMain
     if (process.platform === 'linux') {
       // NOTE: Keep in sync with mocked-utils.ts
       app.commandLine.appendSwitch('gtk-version', '3');
+
+      // If the GPU does not support webgl2 we can force it to use software rendering
+      // to allow the map to be shown.
+      const GPUFeatureStatus = app.getGPUFeatureStatus();
+      if (GPUFeatureStatus.webgl2 === 'disabled_off') {
+        app.commandLine.appendSwitch('use-angle', 'swiftshader-webgl');
+      }
     }
 
     // Display correct colors regardless of monitor color profile.
