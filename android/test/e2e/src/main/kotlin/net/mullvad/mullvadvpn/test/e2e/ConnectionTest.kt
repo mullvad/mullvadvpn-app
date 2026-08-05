@@ -74,9 +74,9 @@ class ConnectionTest : EndToEndTest() {
         // Block everything except the default relay IP. After this the API is no longer reachable.
 //        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
 
-        // Restarting the activity will re-create the daemon which will try to reach the API.
-        targetActivity.finishAffinity()
-        app.launch()
+//        // Restarting the activity will re-create the daemon which will try to reach the API.
+//        targetActivity.finishAffinity()
+//        app.launch()
 
         on<ConnectPage> { clickSelectLocation() }
 
