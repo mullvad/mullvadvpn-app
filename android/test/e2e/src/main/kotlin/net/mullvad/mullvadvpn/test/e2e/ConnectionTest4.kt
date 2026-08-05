@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
-import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.misc.LocalNetworkPermission
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
@@ -132,9 +131,6 @@ class ConnectionTest4 : EndToEndTest() {
             assertEquals(result.ip, outIpv4Address)
             assertEquals(result.mullvadExitIpHostname, exitRelay.relay)
         }
-
-    private suspend fun createFirewallRules(block: () -> List<DropRule>) =
-        block().forEach { firewallClient.createRule(it) }
 
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 80000L
