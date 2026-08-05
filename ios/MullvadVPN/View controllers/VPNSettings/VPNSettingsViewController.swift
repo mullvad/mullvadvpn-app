@@ -168,7 +168,13 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     func showAntiCensorshipSettings() {
+        let view = AntiCensorshipView(settingsInteractor: interactor)
 
+        let host = UIHostingController(rootView: view)
+        host.title = NSLocalizedString("Anti-censorship", comment: "")
+        host.view.setAccessibilityIdentifier(.antiCensorship)
+
+        navigationController?.pushViewController(host, animated: true)
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {
