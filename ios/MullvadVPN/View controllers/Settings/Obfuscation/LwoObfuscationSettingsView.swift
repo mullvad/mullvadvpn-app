@@ -11,7 +11,6 @@ import SwiftUI
 
 struct LwoObfuscationSettingsView: View {
     var viewModel: any LwoObfuscationSettingsViewModel
-    var port: Binding<WireGuardObfuscationLwoPort>
 
     var body: some View {
         let portString = NSLocalizedString("Port", comment: "")
@@ -19,7 +18,7 @@ struct LwoObfuscationSettingsView: View {
         SingleChoiceList(
             title: portString,
             options: [WireGuardObfuscationLwoPort.automatic],
-            value: port,
+            value: viewModel.port,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationLwoTable.asString,
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
             parseCustomValue: {
@@ -48,6 +47,6 @@ struct LwoObfuscationSettingsView: View {
 
 #Preview {
     @Previewable @State var port = WireGuardObfuscationLwoPort.automatic
-    let model = MockLwoObfuscationSettingsViewModel(lwoPort: .automatic)
-    LwoObfuscationSettingsView(viewModel: model, port: $port)
+    let model = MockLwoObfuscationSettingsViewModel(port: $port)
+    LwoObfuscationSettingsView(viewModel: model)
 }
