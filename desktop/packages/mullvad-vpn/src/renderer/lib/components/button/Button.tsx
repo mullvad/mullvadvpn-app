@@ -6,15 +6,17 @@ import { TransientProps } from '../../types';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
 
+export type ButtonVariants = 'neutral' | 'success' | 'destructive';
+
 export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
-  variant?: 'primary' | 'success' | 'destructive';
+  variant?: ButtonVariants;
   width?: 'fill' | 'fit';
 };
 
 const styles = {
   radius: Radius.radius4,
   variants: {
-    primary: {
+    neutral: {
       background: colors.blue,
       hover: colors.blue60,
       pressed: colors.blue40,
@@ -36,7 +38,7 @@ const styles = {
 };
 
 export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'variant' | 'width'>>>`
-  ${({ $width = 'fill', $variant = 'primary' }) => {
+  ${({ $width = 'fill', $variant = 'neutral' }) => {
     const variant = styles.variants[$variant];
 
     return css`

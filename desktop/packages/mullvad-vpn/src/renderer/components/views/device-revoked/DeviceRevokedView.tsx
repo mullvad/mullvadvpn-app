@@ -68,7 +68,7 @@ export function DeviceRevokedView() {
             </FlexColumn>
 
             <Button
-              variant={tunnelState.state === 'disconnected' ? 'primary' : 'destructive'}
+              variant={tunnelState.state === 'disconnected' ? 'neutral' : 'destructive'}
               onClick={leaveRevokedDevice}>
               <Button.Text>
                 {
