@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
@@ -14,11 +15,25 @@ annotation class ClearFirewallRules {
         val firewallClient = FirewallClient()
 
         override fun beforeTestExecution(context: ExtensionContext?) {
-            runBlocking { firewallClient.removeAllRules() }
+            runBlocking {
+                try {
+                    firewallClient.removeAllRules()
+                } catch (e: Exception) {
+                    // Ignore any exceptions
+                    Logger.d("firewallClient.removeAllRules failed in beforeTestExecution", e)
+                }
+            }
         }
 
         override fun afterTestExecution(context: ExtensionContext?) {
-            runBlocking { firewallClient.removeAllRules() }
+            runBlocking {
+                try {
+                    firewallClient.removeAllRules()
+                } catch (e: Exception) {
+                    // Ignore any exceptions
+                    Logger.d("firewallClient.removeAllRules failed in afterTestExecution", e)
+                }
+            }
         }
     }
 }

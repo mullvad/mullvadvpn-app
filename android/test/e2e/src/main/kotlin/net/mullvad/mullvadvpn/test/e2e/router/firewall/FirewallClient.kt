@@ -8,6 +8,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.delete
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -38,7 +39,13 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
 
     suspend fun removeAllRules() {
         Logger.v("Sending remove all rules request")
-        httpClient.delete("remove-rules/${SessionIdentifier.fromDeviceIdentifier()}")
+        httpClient.delete("remove-rules/${SessionIdentifier.fromDeviceIdentifier()}") {
+            timeout {
+                connectTimeoutMillis = 30000
+                socketTimeoutMillis = 30000
+                requestTimeoutMillis = 30000
+            }
+        }
     }
 }
 
