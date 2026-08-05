@@ -11,10 +11,8 @@ import UIKit
 
 protocol VPNSettingsCellEventHandler {
     func showInfo(for button: VPNSettingsInfoButtonItem)
-    func showDetails(for button: VPNSettingsDetailsButtonItem)
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
-    func selectObfuscationState(_ state: WireGuardObfuscationState)
 }
 
 @MainActor
@@ -98,82 +96,12 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
                 }
             }
 
-        case .wireGuardObfuscationAutomatic:
-            guard let cell = cell as? SelectableSettingsCell else { return }
+        case .wireGuardAntiCensorship:
+            guard let cell = cell as? SettingsCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString("Automatic", comment: "")
+            cell.titleLabel.text = NSLocalizedString("Anti-censorship", comment: "")
+            cell.disclosureType = .chevron
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.applySubCellStyling()
-
-        case .wireGuardObfuscationUdpOverTcp:
-            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("UDP-over-TCP", comment: "")
-
-            cell.detailTitleLabel.text = String(
-                format: NSLocalizedString("Port: %@", comment: ""),
-                viewModel.obfuscationUpdOverTcpPort.description
-            )
-
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationUdpOverTcpPort)
-            cell.applySubCellStyling()
-
-            cell.buttonAction = { [weak self] in
-                self?.delegate?.showDetails(for: .udpOverTcp)
-            }
-
-        case .wireGuardObfuscationShadowsocks:
-            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("Shadowsocks", comment: "")
-
-            cell.detailTitleLabel.text = String(
-                format: NSLocalizedString("Port: %@", comment: ""),
-                viewModel.obfuscationShadowsocksPort.description
-            )
-
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationShadowsocksPort)
-            cell.applySubCellStyling()
-
-            cell.buttonAction = { [weak self] in
-                self?.delegate?.showDetails(for: .wireguardOverShadowsocks)
-            }
-
-        case .wireGuardObfuscationQuic:
-            guard let cell = cell as? SelectableSettingsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("QUIC", comment: "")
-
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationQuic)
-            cell.applySubCellStyling()
-
-        case .wireGuardObfuscationLwo:
-            guard let cell = cell as? SelectableSettingsDetailsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("LWO", comment: "")
-
-            cell.detailTitleLabel.text = String(
-                format: NSLocalizedString("Port: %@", comment: ""),
-                viewModel.obfuscationLwoPort.description
-            )
-
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationLwoPort)
-            cell.applySubCellStyling()
-
-            cell.buttonAction = { [weak self] in
-                self?.delegate?.showDetails(for: .lwo)
-            }
-
-        case .wireGuardObfuscationOff:
-            guard let cell = cell as? SelectableSettingsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("Off", comment: "")
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.applySubCellStyling()
 
         case .quantumResistanceOn:
             guard let cell = cell as? SelectableSettingsCell else { return }
