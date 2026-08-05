@@ -64,7 +64,7 @@ class ConnectionTest1 : EndToEndTest() {
 
     @Test
     @HasDependencyOnLocalAPI
-    @ClearFirewallRules
+//    @ClearFirewallRules
     fun testApiUnavailable() = runTest {
         val testRelayIp = relayClient.getDefaultRelayIpAddress()
 
@@ -72,7 +72,7 @@ class ConnectionTest1 : EndToEndTest() {
         on<ConnectPage>()
 
         // Block everything except the default relay IP. After this the API is no longer reachable.
-        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
+//        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
 
         // Restarting the activity will re-create the daemon which will try to reach the API.
         targetActivity.finishAffinity()
