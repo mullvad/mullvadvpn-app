@@ -16,12 +16,12 @@ fn assemble_fragment_ordered(c: &mut Criterion) {
         let mut fragment_buf = Vec::with_capacity(FRAGMENT_BUFFER_CAP);
         for i in 0..n_packets {
             let packet_id = i;
-            let mut payload = Bytes::from(vec![i as u8; payload_len as usize]);
+            let payload = Bytes::from(vec![i as u8; payload_len as usize]);
 
             fragment_buf.extend(
                 &mut fragment_packet(
                     MAX_PAYLOAD_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED,
-                    &mut payload,
+                    &payload,
                     packet_id,
                 )
                 .unwrap(),
@@ -65,12 +65,12 @@ fn assemble_fragment_random(c: &mut Criterion) {
         let mut fragment_buf = Vec::with_capacity(FRAGMENT_BUFFER_CAP);
         for i in 0..n_packets {
             let packet_id = i;
-            let mut payload = Bytes::from(vec![i as u8; payload_len as usize]);
+            let payload = Bytes::from(vec![i as u8; payload_len as usize]);
 
             fragment_buf.extend(
                 &mut fragment_packet(
                     MAX_PAYLOAD_SIZE + FRAGMENT_HEADER_SIZE_FRAGMENTED,
-                    &mut payload,
+                    &payload,
                     packet_id,
                 )
                 .unwrap(),

@@ -1,7 +1,7 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
-use crate::{CloseMsg, config::Config};
+use crate::CloseMsg;
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
@@ -14,12 +14,14 @@ use talpid_net::bypass::{BypassToken, SocketBypass};
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
     ErrorExt,
-    net::obfuscation::{ObfuscatorConfig, Obfuscators},
+    net::{
+        obfuscation::{ObfuscatorConfig, Obfuscators},
+        wireguard::{PeerConfig, PublicKey},
+    },
 };
-
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator_with_bypass, lwo, multiplexer, quic,
-    shadowsocks, udp2tcp,
+    Settings as ObfuscationSettings, create_local_socket_obfuscator_with_bypass, lwo, multiplexer,
+    quic, shadowsocks, udp2tcp,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -27,33 +29,21 @@ use tunnel_obfuscation::{
 ///
 /// # Arguments
 ///
-/// * obfuscation_mtu - "MTU" including obfuscation overhead
-/// * is_gotatun - `true` when the userspace GotaTun implementation is in use
-pub async fn apply_obfuscation_config(
-    config: &mut Config,
-    obfuscation_mtu: u16,
+/// * close_msg_sender - channel to send close messages on failure
+/// * tun_provider - (Android only) used to bypass the VPN for the remote socket
+/// * fwmark - (Linux only) firewall mark to apply to the obfuscator's remote socket
+pub async fn spawn_local_socket_obfuscator(
+    entry_peer: &mut PeerConfig,
+    obfuscation_settings: tunnel_obfuscation::Settings,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-) -> Result<Option<ObfuscatorHandle>> {
-    let Some(ref obfuscator_config) = config.obfuscator_config else {
-        return Ok(None);
-    };
-
-    // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
-    // MaybeObfuscatingTransportFactory.
-    if is_gotatun && is_single_lwo(obfuscator_config) {
-        log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
-        return Ok(None);
-    }
-
-    let settings = settings_from_config(config, obfuscator_config, obfuscation_mtu);
-
-    log::trace!("Obfuscation settings: {settings:?}");
+    #[cfg(target_os = "linux")] fwmark: Option<u32>,
+) -> Result<ObfuscatorHandle> {
+    log::trace!("Obfuscation settings: {obfuscation_settings:?}");
 
     let bypass = Arc::new(ObfuscatorSocketBypass {
         #[cfg(target_os = "linux")]
-        fwmark: config.fwmark.unwrap_or_else(|| {
+        fwmark: fwmark.unwrap_or_else(|| {
             log::error!("'fwmark' not set");
             0
         }),
@@ -62,13 +52,13 @@ pub async fn apply_obfuscation_config(
         tun_provider,
     });
 
-    let obfuscator = create_obfuscator_with_bypass(bypass, &settings)
+    let obfuscator = create_local_socket_obfuscator_with_bypass(bypass, &obfuscation_settings)
         .await
         .map_err(Error::ObfuscationError)?;
 
     let packet_overhead = obfuscator.packet_overhead();
 
-    patch_endpoint(config, obfuscator.endpoint());
+    patch_endpoint(entry_peer, obfuscator.endpoint());
 
     let obfuscation_task = tokio::spawn(async move {
         match obfuscator.run().await {
@@ -86,35 +76,43 @@ pub async fn apply_obfuscation_config(
         }
     });
 
-    Ok(Some(ObfuscatorHandle {
+    Ok(ObfuscatorHandle {
         obfuscation_task,
         packet_overhead,
-    }))
+    })
 }
 
-/// Returns `true` when the obfuscation config is a single LWO method.
-pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+/// Returns `true` when the obfuscation config can be applied inline in userspace WireGuard
+/// (GotaTun), avoiding the need for a local socket obfuscator.
+pub fn userspace_transport_available(
+    params: &talpid_types::net::wireguard::TunnelParameters,
+) -> bool {
     matches!(
-        obfuscators,
-        Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
+        params.obfuscation.as_ref(),
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
+            | Some(Obfuscators::Single(ObfuscatorConfig::Quic { .. }))
     )
 }
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
-fn patch_endpoint(config: &mut Config, endpoint: SocketAddr) {
+fn patch_endpoint(entry_peer: &mut PeerConfig, endpoint: SocketAddr) {
     log::trace!("Patching first WireGuard peer to become {endpoint}");
-    config.entry_peer.endpoint = endpoint;
+    entry_peer.endpoint = endpoint;
 }
 
-fn settings_from_config(
-    config: &Config,
+pub fn settings_from_config(
+    client_public_key: PublicKey,
+    server_public_key: PublicKey,
     obfuscation_config: &Obfuscators,
     mtu: u16,
 ) -> ObfuscationSettings {
     match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => {
-            settings_from_single_config(config, obfuscation_config, mtu)
-        }
+        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
+            client_public_key,
+            server_public_key,
+            obfuscation_config,
+            mtu,
+        ),
         Obfuscators::Multiplexer {
             direct,
             configs: (first_obfs, remaining_obfs),
@@ -124,7 +122,12 @@ fn settings_from_config(
                 transports.push(multiplexer::Transport::Direct(*direct));
             }
             for obfs_config in iter::once(first_obfs).chain(remaining_obfs) {
-                let settings = settings_from_single_config(config, obfs_config, mtu);
+                let settings = settings_from_single_config(
+                    client_public_key.clone(),
+                    server_public_key.clone(),
+                    obfs_config,
+                    mtu,
+                );
                 transports.push(multiplexer::Transport::Obfuscated(settings));
             }
             ObfuscationSettings::Multiplexer(multiplexer::Settings { transports })
@@ -133,7 +136,8 @@ fn settings_from_config(
 }
 
 fn settings_from_single_config(
-    config: &Config,
+    client_public_key: PublicKey,
+    server_public_key: PublicKey,
     obfuscation_config: &ObfuscatorConfig,
     mtu: u16,
 ) -> ObfuscationSettings {
@@ -168,8 +172,8 @@ fn settings_from_single_config(
         }
         ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
             server_addr: *endpoint,
-            client_public_key: config.tunnel.private_key.public_key(),
-            server_public_key: config.entry_peer.public_key.clone(),
+            client_public_key,
+            server_public_key,
         }),
     }
 }
@@ -196,12 +200,12 @@ impl Drop for ObfuscatorHandle {
     }
 }
 
-struct ObfuscatorSocketBypass {
+pub struct ObfuscatorSocketBypass {
     #[cfg(target_os = "linux")]
-    fwmark: u32,
+    pub fwmark: u32,
 
     #[cfg(target_os = "android")]
-    tun_provider: Arc<Mutex<TunProvider>>,
+    pub tun_provider: Arc<Mutex<TunProvider>>,
 }
 
 impl SocketBypass for ObfuscatorSocketBypass {

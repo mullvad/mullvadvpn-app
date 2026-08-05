@@ -310,10 +310,9 @@ async fn proxy_tx_task(udp_socket: impl AsRef<UdpSocket>, mut client_rx: mpsc::R
 
         let quic_payload = quic_datagram.into_payload();
 
-        let packet = match fragments.handle_incoming_packet(quic_payload) {
-            Ok(DefragReceived::Reassembled(packet) | DefragReceived::Nonfragmented(packet)) => {
-                packet
-            }
+        let res = match fragments.handle_incoming_packet(quic_payload) {
+            Ok(DefragReceived::Nonfragmented(packet)) => udp_socket.send(&packet).await,
+            Ok(DefragReceived::Reassembled(packet)) => udp_socket.send(&packet).await,
             Ok(DefragReceived::Fragment) => continue,
             Err(err) => {
                 log::trace!("Failed to reassemble incoming packet: {err}");
@@ -321,7 +320,7 @@ async fn proxy_tx_task(udp_socket: impl AsRef<UdpSocket>, mut client_rx: mpsc::R
             }
         };
 
-        if let Err(err) = udp_socket.send(&packet).await {
+        if let Err(err) = res {
             log::trace!("Failed to forward packet to UDP socket {err}");
         }
     }
@@ -383,7 +382,7 @@ async fn proxy_rx_task(
 
             let _ = VarInt::decode(&mut received_packet);
             let Ok(fragments) =
-                fragment::fragment_packet(maximum_packet_size, &mut received_packet, fragment_id)
+                fragment::fragment_packet(maximum_packet_size, &received_packet, fragment_id)
             else {
                 continue;
             };

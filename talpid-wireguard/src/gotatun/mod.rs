@@ -3,6 +3,7 @@ use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
+    obfuscation::ObfuscatorSocketBypass,
     stats::{Stats, StatsMap},
 };
 #[cfg(target_os = "android")]
@@ -31,10 +32,12 @@ use std::{
     ops::Deref,
     sync::{Arc, Mutex},
 };
+use talpid_net::bypass::SocketBypass;
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
 use tun::{AbstractDevice, AsyncDevice};
+use tunnel_obfuscation::Settings as ObfuscationSettings;
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 use gotatun::tun::{
@@ -81,6 +84,9 @@ pub struct GotaTun {
     #[cfg(target_os = "android")]
     android_tun: Arc<Tun>,
 
+    #[cfg(target_os = "android")]
+    tun_provider: Arc<Mutex<TunProvider>>,
+
     /// Tunnel config
     config: Config,
 
@@ -92,6 +98,7 @@ impl GotaTun {
     async fn new(
         tun_dev: AsyncDevice,
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+        #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
         config: Config,
         interface_name: String,
     ) -> Result<Self, TunnelError> {
@@ -104,6 +111,8 @@ impl GotaTun {
             tun_dev.clone(),
             #[cfg(target_os = "android")]
             android_tun.clone(),
+            #[cfg(target_os = "android")]
+            tun_provider.clone(),
         )
         .await
         .map_err(TunnelError::GotaTunDevice)?;
@@ -114,6 +123,8 @@ impl GotaTun {
             tun_dev,
             #[cfg(target_os = "android")]
             android_tun,
+            #[cfg(target_os = "android")]
+            tun_provider,
             devices: Some(devices),
         })
     }
@@ -236,7 +247,7 @@ pub async fn open_gotatun_tunnel(
     log::trace!("calling get_tunnel_for_userspace");
     #[cfg(not(target_os = "android"))]
     let async_tun = {
-        let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
+        let tun = get_tunnel_for_userspace(tun_provider.clone(), config, routes)?;
 
         #[cfg(unix)]
         {
@@ -298,6 +309,8 @@ pub async fn open_gotatun_tunnel(
         async_tun,
         #[cfg(target_os = "android")]
         tun.clone(),
+        #[cfg(target_os = "android")]
+        tun_provider,
         config,
         interface_name,
     )
@@ -431,6 +444,8 @@ impl Tunnel for GotaTun {
                         self.tun_dev.clone(),
                         #[cfg(target_os = "android")]
                         self.android_tun.clone(),
+                        #[cfg(target_os = "android")]
+                        self.tun_provider.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -449,6 +464,8 @@ impl Tunnel for GotaTun {
                         self.tun_dev.clone(),
                         #[cfg(target_os = "android")]
                         self.android_tun.clone(),
+                        #[cfg(target_os = "android")]
+                        self.tun_provider.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -481,6 +498,8 @@ impl Tunnel for GotaTun {
                         self.tun_dev.clone(),
                         #[cfg(target_os = "android")]
                         self.android_tun.clone(),
+                        #[cfg(target_os = "android")]
+                        self.tun_provider.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -491,6 +510,8 @@ impl Tunnel for GotaTun {
                     self.tun_dev.clone(),
                     #[cfg(target_os = "android")]
                     self.android_tun.clone(),
+                    #[cfg(target_os = "android")]
+                    self.tun_provider.clone(),
                 )
                 .await
                 .map_err(TunnelError::GotaTunDevice)?,
@@ -511,19 +532,33 @@ async fn create_devices(
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Devices, gotatun::device::Error> {
+    let bypass = Arc::new(ObfuscatorSocketBypass {
+        #[cfg(target_os = "linux")]
+        fwmark: config.fwmark.unwrap_or_else(|| {
+            log::error!("'fwmark' not set");
+            0
+        }),
+
+        #[cfg(target_os = "android")]
+        tun_provider,
+    });
+
     async fn create_devices_inner(
         config: &Config, // TODO: do not include config to reduce confusion
         daita: Option<&DaitaSettings>,
         tun_dev: GotaTunDevice,
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+        bypass: Arc<dyn SocketBypass>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
         let factory = udp_obfuscator_factory(
-            config,
+            config.obfuscation_settings().as_ref(),
             optimize_buffer_size,
             #[cfg(target_os = "android")]
             android_tun,
+            bypass,
         );
         let devices = if let Some(exit_peer) = &config.exit_peer {
             // Multihop setup
@@ -604,6 +639,7 @@ async fn create_devices(
         tun_dev.clone(),
         #[cfg(target_os = "android")]
         android_tun.clone(),
+        bypass.clone(),
         true,
     )
     .await
@@ -627,6 +663,7 @@ async fn create_devices(
                 tun_dev,
                 #[cfg(target_os = "android")]
                 android_tun.clone(),
+                bypass,
                 false,
             )
             .await
@@ -788,20 +825,21 @@ where
 /// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
 ///   now always succeed due to suspected hardware related issues / limitations.
 fn udp_obfuscator_factory(
-    config: &Config,
+    settings: Option<&ObfuscationSettings>,
     optimize_buffer_size: bool,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> MaybeObfuscatingTransportFactory<UdpFactory> {
     let factory = cfg_select! {
         target_os = "android" => {
             AndroidUdpSocketFactory {
-                tun: android_tun,
+                tun: Arc::clone(&android_tun),
                 udp: udp_socket_factory(optimize_buffer_size),
             }
-        },
+        }
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
-    MaybeObfuscatingTransportFactory::from_config(factory, config)
+    MaybeObfuscatingTransportFactory::from_settings(factory, settings, bypass)
 }
 
 /// Provide a [`UdpSocketFactory`] for the entry-device.
