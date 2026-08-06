@@ -94,7 +94,7 @@ class ConnectionTest : EndToEndTest() {
 
             // Select entry and exit relay
             on<ConnectPage> { clickSelectLocation() }
-            val (entryRelay, exitRelay) = relayProvider.getMultihopRelays()
+            val (exitRelay, entryRelay) = relayProvider.getMultihopRelays()
             on<SelectLocationPage> {
                 // Select entry list
                 clickEntryHopSelector()
