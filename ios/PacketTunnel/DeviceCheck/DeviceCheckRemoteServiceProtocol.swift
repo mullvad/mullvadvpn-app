@@ -13,12 +13,13 @@ import MullvadTypes
 protocol DeviceCheckRemoteServiceProtocol {
     func getAccountData(accountNumber: String, completion: @escaping @Sendable (Result<Account, Error>) -> Void)
         -> Cancellable
+
     func getDevice(
         accountNumber: String,
         identifier: String,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    )
-        -> Cancellable
+    ) -> Cancellable
+
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,

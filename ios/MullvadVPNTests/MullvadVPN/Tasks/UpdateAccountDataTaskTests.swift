@@ -19,7 +19,6 @@ struct UpdateAccountDataTaskTests {
         )
 
         let result = await task.start()
-
         #expect(result.isSuccess)
     }
 
@@ -29,14 +28,58 @@ struct UpdateAccountDataTaskTests {
             accountsProxy: AccountsProxyStub()
         )
 
-        Task {
+        let runner = Task {
             let result = await task.start()
-            result.inspectError({ error in
-                #expect(error.isOperationCancellationError)
-            })
+
+            if case .failure(let error) = result {
+                #expect(error.isTaskCancellationError, "Expected TaskError.cancelled")
+            } else {
+                Issue.record("Expected TaskError.cancelled")
+            }
         }
 
-        await task.cancel()
+        runner.cancel()
+        await runner.value
+    }
+
+    @Test func cancellingAccountDataUpdateDoesNotUpdateDeviceState() async throws {
+        let interactor = makeInteractor(deviceState: Device.loggedInDeviceState)
+        let oldExpiry = interactor.deviceState.accountData?.expiry
+
+        let task = UpdateAccountDataTask(
+            interactor: interactor,
+            accountsProxy: AccountsProxyStub()
+        )
+
+        let runner = Task {
+            let result = await task.start()
+
+            let newExpiry = interactor.deviceState.accountData?.expiry
+            #expect(oldExpiry == newExpiry, "Expected account expiry to not change")
+        }
+
+        task.cancel()
+        await runner.value
+    }
+
+    @Test func canCancelParentTask() async throws {
+        let task = UpdateAccountDataTask(
+            interactor: makeInteractor(deviceState: Device.loggedInDeviceState),
+            accountsProxy: AccountsProxyStub()
+        )
+
+        let runner = Task {
+            let result = await task.start()
+
+            if case .failure(let error) = result {
+                #expect(error.isTaskCancellationError, "Expected TaskError.cancelled")
+            } else {
+                Issue.record("Expected TaskError.cancelled")
+            }
+        }
+
+        runner.cancel()
+        await runner.value
     }
 }
 

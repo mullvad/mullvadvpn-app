@@ -722,6 +722,7 @@
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
 		7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */; };
+		7AC758BF3021DC65004CDD99 /* TaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC758BD3021DBC6004CDD99 /* TaskError.swift */; };
 		7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */; };
 		7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */; };
 		7ACC21612FEE855300DB25F5 /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACC21602FEE855300DB25F5 /* RelayFilterView.swift */; };
@@ -749,6 +750,7 @@
 		7AEB49352FBC9FBA0053FEFC /* CustomListLocationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEB49342FBC9FAD0053FEFC /* CustomListLocationItemView.swift */; };
 		7AEB49372FBD9DB40053FEFC /* CheckboxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEB49362FBD9DA50053FEFC /* CheckboxToggleStyle.swift */; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
+		7AEC2EC130232B0D00B988B6 /* MullvadApiNetworkTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
@@ -2418,6 +2420,7 @@
 		7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheck.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
+		7AC758BD3021DBC6004CDD99 /* TaskError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskError.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7ACC215F2FEE855300DB25F5 /* RelayFilterItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterItem.swift; sourceTree = "<group>"; };
 		7ACC21602FEE855300DB25F5 /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
@@ -2442,6 +2445,7 @@
 		7AEB49342FBC9FAD0053FEFC /* CustomListLocationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListLocationItemView.swift; sourceTree = "<group>"; };
 		7AEB49362FBD9DA50053FEFC /* CheckboxToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxToggleStyle.swift; sourceTree = "<group>"; };
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
+		7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkTask.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		7AF10EB12ADE859200C090B9 /* AlertViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
@@ -3370,6 +3374,7 @@
 				F924C5A32DA65F28001F4660 /* Storekit.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
 				7AB288EE2F55B66000A1850F /* SwiftConnectionModeProvider.swift */,
+				7AC758BD3021DBC6004CDD99 /* TaskError.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				016EE03B2F8524EB0035B25C /* WireGuardKey.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
@@ -4562,6 +4567,7 @@
 				7A2C0E8A2D8B13DB003D8048 /* APIHandlers */,
 				7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */,
 				7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */,
+				7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */,
 				7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */,
 			);
 			path = MullvadAPI;
@@ -6311,6 +6317,7 @@
 				7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */,
 				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
+				7AEC2EC130232B0D00B988B6 /* MullvadApiNetworkTask.swift in Sources */,
 				7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTSubmitVoucherResponse.swift in Sources */,
 				F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */,
@@ -7263,6 +7270,7 @@
 				58D2240C294C90210029F5F8 /* WrappingError.swift in Sources */,
 				F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */,
 				A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */,
+				7AC758BF3021DC65004CDD99 /* TaskError.swift in Sources */,
 				A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */,
 				016EE0442F8640B00035B25C /* DaitaConfiguration.swift in Sources */,
 				016EE0422F8540B00035B25C /* IPAddressRange.swift in Sources */,

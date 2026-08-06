@@ -15,7 +15,9 @@ actor UpdateAccountDataTask {
     private let logger = Logger(label: "UpdateAccountDataTask")
     private let interactor: TunnelInteractor
     private let accountsProxy: RESTAccountHandling
-    private var task: Cancellable?
+    private let cancellationLock = NSLock()
+
+    nonisolated(unsafe) private var task: Cancellable?
 
     init(
         interactor: TunnelInteractor,
@@ -31,7 +33,12 @@ actor UpdateAccountDataTask {
         }
 
         let result: Result<Account, Error> = await withTaskCancellationHandler {
-            await withCheckedContinuation { continuation in
+            return await withCheckedContinuation { continuation in
+                // Return early if task is cancelled before even being started.
+                guard !Task.isCancelled else {
+                    return continuation.resume(returning: .failure(TaskError.cancelled))
+                }
+
                 task = accountsProxy.getAccountData(
                     accountNumber: accountData.number,
                     retryStrategy: .default,
@@ -41,13 +48,13 @@ actor UpdateAccountDataTask {
                 )
             }
         } onCancel: {
-            Task { await cancel() }
+            cancel()
         }
 
         return didReceiveAccountData(result: result)
     }
 
-    func cancel() {
+    nonisolated func cancel() {
         task?.cancel()
         task = nil
     }
@@ -64,7 +71,12 @@ actor UpdateAccountDataTask {
                 storedAccountData.expiry = accountData.expiry
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
 
-                interactor.setDeviceState(newDeviceState, persist: true)
+                // Make sure we don't update any data if cancellation happened in-flight.
+                if Task.isCancelled {
+                    throw TaskError.cancelled
+                } else {
+                    interactor.setDeviceState(newDeviceState, persist: true)
+                }
             default:
                 throw InvalidDeviceStateError()
             }

@@ -22,6 +22,11 @@ public protocol RESTAccountHandling: Sendable {
         completion: @escaping @Sendable ProxyCompletionHandler<Account>
     ) -> Cancellable
 
+    func getAccountData(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Account, Error>
+
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
@@ -77,6 +82,25 @@ extension REST {
                 responseHandler: responseHandler,
                 completionHandler: completion
             )
+        }
+
+        public func getAccountData(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Account, Swift.Error> {
+            let request = APIRequest.getAccount(retryStrategy, accountNumber: accountNumber)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: Account.self,
+                    with: responseDecoder
+                )
+            )
+
+            return await task.startRequest()
         }
 
         public func deleteAccount(

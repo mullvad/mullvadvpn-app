@@ -451,14 +451,15 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let task = UpdateAccountDataTask(
-            interactor: TunnelInteractorProxy(self),
-            accountsProxy: accountsProxy
+        let interactor = AccountInteractor(
+            tunnelManager: self,
+            accountsProxy: accountsProxy,
+            apiProxy: apiProxy,
+            deviceProxy: devicesProxy
         )
 
         Task {
-            let result = await task.start()
-            completionHandler?(result.error)
+            completionHandler?(await interactor.updateAccountData())
         }
     }
 
