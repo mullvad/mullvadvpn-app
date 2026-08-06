@@ -28,16 +28,34 @@ test.describe('Multihop settings', () => {
   });
 
   test.afterEach(async () => {
-    await routes.multihopSettings.setEnableMultihopSwitch(false);
-    const multihopSwitch = routes.multihopSettings.getEnableMultihopSwitch();
-
-    await expect(multihopSwitch).not.toBeChecked();
+    await routes.multihopSettings.selectMultihopMode('When needed');
   });
 
-  test('Should enable multihop when clicking switch', async () => {
-    await routes.multihopSettings.setEnableMultihopSwitch(true);
-    const multihopSwitch = routes.multihopSettings.getEnableMultihopSwitch();
+  test('Should have selected "When needed" multihop mode by default', async () => {
+    const multihopModeItem = routes.multihopSettings.getMultihopModeItem('When needed');
+    await expect(multihopModeItem).toHaveAttribute('aria-selected', 'true');
+  });
 
-    await expect(multihopSwitch).toBeChecked();
+  test('Should select "When needed" from non-default multihop mode', async () => {
+    const multihopModeItemNever = routes.multihopSettings.getMultihopModeItem('Never');
+    await multihopModeItemNever.click();
+    await expect(multihopModeItemNever).toHaveAttribute('aria-selected', 'true');
+
+    const multihopModeItemWhenNeeded = routes.multihopSettings.getMultihopModeItem('When needed');
+    await multihopModeItemWhenNeeded.click();
+    await expect(multihopModeItemWhenNeeded).toHaveAttribute('aria-selected', 'true');
+    await expect(multihopModeItemNever).toHaveAttribute('aria-selected', 'false');
+  });
+
+  test('Should select "Always" multihop mode', async () => {
+    const multihopModeItem = routes.multihopSettings.getMultihopModeItem('Always');
+    await multihopModeItem.click();
+    await expect(multihopModeItem).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('Should select "Never" multihop mode', async () => {
+    const multihopModeItem = routes.multihopSettings.getMultihopModeItem('Never');
+    await multihopModeItem.click();
+    await expect(multihopModeItem).toHaveAttribute('aria-selected', 'true');
   });
 });

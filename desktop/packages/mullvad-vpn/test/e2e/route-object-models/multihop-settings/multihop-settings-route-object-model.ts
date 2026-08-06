@@ -14,16 +14,16 @@ export class MultihopSettingsRouteObjectModel {
     this.selectors = createSelectors(page);
   }
 
-  getEnableMultihopSwitch() {
-    return this.selectors.enableMultihopSwitch();
+  getMultihopModeItems() {
+    return this.selectors.multihopModeItems();
   }
 
-  async setEnableMultihopSwitch(enable: boolean) {
-    const enableMultihopSwitch = this.selectors.enableMultihopSwitch();
-    const checked = await enableMultihopSwitch.isChecked();
+  getMultihopModeItem(label: string) {
+    return this.selectors.multihopModeItem(this.getMultihopModeItems(), label);
+  }
 
-    if ((enable && !checked) || (!enable && checked)) {
-      await enableMultihopSwitch.click();
-    }
+  async selectMultihopMode(label: string) {
+    const multihopModeItem = this.getMultihopModeItem(label);
+    await multihopModeItem.click();
   }
 }

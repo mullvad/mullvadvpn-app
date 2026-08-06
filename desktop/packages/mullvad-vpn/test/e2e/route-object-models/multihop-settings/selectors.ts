@@ -1,5 +1,12 @@
-import { Page } from 'playwright';
+import { Locator, Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
-  enableMultihopSwitch: () => page.getByRole('switch', { name: 'Enable' }),
+  multihopModeItems: () =>
+    page.getByRole('listbox', {
+      name: 'Mode',
+    }),
+  multihopModeItem: (itemsLocator: Locator, name: string) =>
+    itemsLocator.getByRole('option', {
+      name,
+    }),
 });
