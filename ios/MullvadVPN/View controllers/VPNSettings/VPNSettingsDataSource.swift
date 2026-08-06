@@ -100,7 +100,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             case .wireGuardCustomPort:
                 .wireGuardCustomPort
             case .wireGuardAntiCensorship:
-                .wireGuardObfuscationAutomatic  // FIXME: Fix this
+                .antiCensorship
             case .quantumResistanceOn:
                 .quantumResistanceOn
             case .quantumResistanceOff:
