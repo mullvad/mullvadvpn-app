@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -90,9 +90,9 @@
         <target state="final">**หมายเหตุ: การดำเนินการนี้จะเพิ่มปริมาณการใช้งานเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังสำหรับแพกเกจที่มีจำนวนจำกัด**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+      <trans-unit id="**Tap here to read more**" xml:space="preserve" approved="yes">
         <source>**Tap here to read more**</source>
-        <target state="needs-translation">**Tap here to read more**</target>
+        <target state="final">**แตะที่นี่เพื่ออ่านเพิ่มเติม**</target>
         <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
@@ -330,9 +330,9 @@
         <target state="final">ข้อควรระวัง: ตัวกรองจะถูกละเว้นสำหรับเซิร์ฟเวอร์เพิ่มเติมในโหมดนี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <target state="final">ข้อควรระวัง: การดำเนินการนี้จะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ขาเข้าที่ถูกเลือกโดยอัตโนมัติ</target>
         <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
@@ -870,11 +870,6 @@
         <target state="final">เดนเวอร์ รัฐโคโลราโด</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Destructive" xml:space="preserve">
-        <source>Destructive</source>
-        <target state="needs-translation">Destructive</target>
-        <note from="auto-generated">Label for a destructive button.</note>
-      </trans-unit>
       <trans-unit id="Detroit, MI" xml:space="preserve" approved="yes">
         <source>Detroit, MI</source>
         <target state="final">ดีทรอยต์, มิชิแกน</target>
@@ -914,11 +909,6 @@
         <source>Disable “%@”</source>
         <target state="final">ปิดใช้งาน “%@”</target>
         <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
-      </trans-unit>
-      <trans-unit id="Disabled" xml:space="preserve">
-        <source>Disabled</source>
-        <target state="needs-translation">Disabled</target>
-        <note from="auto-generated">Text for a disabled button</note>
       </trans-unit>
       <trans-unit id="Disabling" xml:space="preserve" approved="yes">
         <source>Disabling</source>
@@ -1199,6 +1189,11 @@
         <source>Finland</source>
         <target state="final">ฟินแลนด์</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="For details, please see our blog post" xml:space="preserve" approved="yes">
+        <source>For details, please see our blog post</source>
+        <target state="final">สำหรับรายละเอียดเพิ่มเติม โปรดดูที่โพสต์ในบล็อกของเรา</target>
+        <note from="auto-generated">Link to a blog post explaining why Include All Networks is not available on iOS 16.</note>
       </trans-unit>
       <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
         <source>Force all apps</source>
@@ -1920,9 +1915,9 @@
         <target state="final">ไม่รองรับอีกต่อไป</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers" xml:space="preserve">
+      <trans-unit id="No matching servers" xml:space="preserve" approved="yes">
         <source>No matching servers</source>
-        <target state="needs-translation">No matching servers</target>
+        <target state="final">ไม่มีเซิร์ฟเวอร์ที่ตรงกัน</target>
         <note from="auto-generated">Button title when there are no matching relays to show.</note>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
@@ -1955,9 +1950,9 @@
         <target state="final">นอร์เวย์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve" approved="yes">
         <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
-        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <target state="final">ไม่ใช่ทุกตำแหน่งหรือเซิร์ฟเวอร์ของเราที่จะรองรับทุกฟีเจอร์ในแอป หากตำแหน่ง/เซิร์ฟเวอร์ที่คุณเลือกไม่รองรับฟีเจอร์ที่คุณเปิดใช้งานไว้ แอปจะเชื่อมต่อแบบมัลติฮอปผ่านเซิร์ฟเวอร์ที่รองรับโดยอัตโนมัติ</target>
         <note from="auto-generated">A sentence that describes the feature</note>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
@@ -2190,11 +2185,6 @@
         <target state="final">พบการซื้อก่อนหน้านี้</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Primary" xml:space="preserve">
-        <source>Primary</source>
-        <target state="needs-translation">Primary</target>
-        <note from="auto-generated">Text for the primary button</note>
-      </trans-unit>
       <trans-unit id="Providers" xml:space="preserve" approved="yes">
         <source>Providers</source>
         <target state="final">ผู้ให้บริการ</target>
@@ -2382,11 +2372,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">ซีคอคัส รัฐนิวเจอร์ซีย์</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Secondary" xml:space="preserve">
-        <source>Secondary</source>
-        <target state="needs-translation">Secondary</target>
-        <note from="auto-generated">Button text for a secondary style</note>
-      </trans-unit>
       <trans-unit id="Select %@" xml:space="preserve" approved="yes">
         <source>Select %@</source>
         <target state="final">เลือก %@</target>
@@ -2467,9 +2452,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">ตั้งค่าขาเข้าเป็น “%@”</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
+      <trans-unit id="Set multihop to “%@”" xml:space="preserve" approved="yes">
         <source>Set multihop to “%@”</source>
-        <target state="needs-translation">Set multihop to “%@”</target>
+        <target state="final">ตั้งค่ามัลติฮอปเป็น “%@”</target>
         <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
       </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
@@ -2567,14 +2552,14 @@ Do you want to remove the saved account number?</source>
         <target state="final">ฟีเจอร์บางอย่างของ iOS อาจได้รับผลกระทบ เมื่อใช้คำสั่งบังคับทุกแอป</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <target state="final">การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลงและแก้ไขปัญหาที่อาจเกิดขึ้น</target>
         <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <target state="final">การตั้งค่าบางส่วนของคุณถูกย้ายข้อมูลแล้ว โปรดตรวจสอบการเปลี่ยนแปลง</target>
         <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
@@ -2586,11 +2571,6 @@ Do you want to remove the saved account number?</source>
         <source>Spain</source>
         <target state="final">สเปน</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="Start" xml:space="preserve">
-        <source>Start</source>
-        <target state="needs-translation">Start</target>
-        <note from="auto-generated">Text on a button that starts an action.</note>
       </trans-unit>
       <trans-unit id="Start using the app" xml:space="preserve" approved="yes">
         <source>Start using the app</source>
@@ -2977,9 +2957,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
+      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve" approved="yes">
         <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
-        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
+        <target state="final">หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น “%@”</target>
         <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
       </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
@@ -3332,9 +3312,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">คุณสามารถใช้ฟังก์ชัน "กู้คืนการซื้อ" เพื่อตรวจสอบการชำระเงินในแอปผ่านบริการของ Apple หากมีการชำระเงินที่ยังไม่ได้เครดิต ระบบจะเพิ่มเวลาในบัญชี Mullvad ที่ลงชื่อเข้าใช้อยู่ในปัจจุบัน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
+      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
-        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
+        <target state="final">ขณะนี้คุณกำลังเปิดใช้งานตัวกรองขาเข้าอยู่ หากเลือกตำแหน่งแบบ “อัตโนมัติ” แอปจะละเว้นการตั้งค่าตัวกรองสำหรับเซิร์ฟเวอร์ขาเข้า</target>
         <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
@@ -3450,9 +3430,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ซือริช</target>
         <note/>
       </trans-unit>
-      <trans-unit id="changing" xml:space="preserve">
+      <trans-unit id="changing" xml:space="preserve" approved="yes">
         <source>changing</source>
-        <target state="needs-translation">changing</target>
+        <target state="final">กำลังเปลี่ยน</target>
         <note from="auto-generated">Action that will be performed when showing the disconnect warning alert.</note>
       </trans-unit>
       <trans-unit id="changing mode" xml:space="preserve" approved="yes">
@@ -3519,49 +3499,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3573,21 +3553,21 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3609,14 +3589,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="th" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
