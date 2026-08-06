@@ -44,6 +44,7 @@ use tokio::{
     sync::Notify,
     time::timeout,
 };
+use tokio_rustls::rustls::KeyLogFile;
 use tower::Service;
 use tracing::{Instrument, Level, instrument, trace_span};
 
@@ -351,6 +352,7 @@ async fn cdn_tls_connect(
         Arc::make_mut(&mut config)
             .alpn_protocols
             .push("h2".as_bytes().to_vec());
+        Arc::make_mut(&mut config).key_log = Arc::new(KeyLogFile::new()) as Arc<_>;
         config
     });
 
