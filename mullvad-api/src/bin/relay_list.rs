@@ -17,41 +17,43 @@ mod imp {
         let api_endpoint = ApiEndpoint::from_env_vars();
         let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
-        let relay_list_request = RelayListProxy::new(
-            runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
-        )
-        .relay_list(None)
-        .await;
+        let df = mullvad_api::domain_fronting::resolve().await.unwrap();
+        let proxy = RelayListProxy::new(runtime.mullvad_rest_handle(df.into_provider()));
 
-        let relay_list = match relay_list_request {
-            Ok(relay_list) => relay_list,
-            Err(RestError::TimeoutError) => {
-                eprintln!("Request timed out");
-                process::exit(2);
-            }
-            Err(e @ RestError::DeserializeError(_)) => {
-                eprintln!(
+        loop {
+            let relay_list_request = proxy.relay_list(None).await;
+
+            let relay_list = match relay_list_request {
+                Ok(relay_list) => relay_list,
+                Err(RestError::TimeoutError) => {
+                    eprintln!("Request timed out");
+                    process::exit(2);
+                }
+                Err(e @ RestError::DeserializeError(_)) => {
+                    eprintln!(
+                        "{}",
+                        e.display_chain_with_msg("Failed to deserialize relay list")
+                    );
+                    process::exit(3);
+                }
+                Err(e) => {
+                    eprintln!("{}", e.display_chain_with_msg("Failed to fetch relay list"));
+                    process::exit(1);
+                }
+            };
+
+            // Poor man's clap.
+            if let Some(arg) = std::env::args().nth(1)
+                && arg == "--internal"
+            {
+                println!(
                     "{}",
-                    e.display_chain_with_msg("Failed to deserialize relay list")
+                    serde_json::to_string_pretty(&relay_list.unwrap().into_internal_repr())
+                        .unwrap()
                 );
-                process::exit(3);
+            } else {
+                println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
             }
-            Err(e) => {
-                eprintln!("{}", e.display_chain_with_msg("Failed to fetch relay list"));
-                process::exit(1);
-            }
-        };
-
-        // Poor man's clap.
-        if let Some(arg) = std::env::args().nth(1)
-            && arg == "--internal"
-        {
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&relay_list.unwrap().into_internal_repr()).unwrap()
-            );
-        } else {
-            println!("{}", serde_json::to_string_pretty(&relay_list).unwrap());
         }
     }
 }
