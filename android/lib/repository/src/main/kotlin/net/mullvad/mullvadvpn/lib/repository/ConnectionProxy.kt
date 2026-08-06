@@ -34,7 +34,12 @@ class ConnectionProxy(
     }
 
     private fun GeoIpLocation.translate(translations: Map<String, String>): GeoIpLocation =
-        copy(city = translations[city] ?: city, country = translations[country] ?: country)
+        copy(
+            city = translations[city] ?: city,
+            country = translations[country] ?: country,
+            entryCity = translations[entryCity] ?: entryCity,
+            entryCountry = translations[entryCountry] ?: entryCountry,
+        )
 
     suspend fun connect(): Either<ConnectError, Boolean> = either {
         context.prepareVpnSafe().mapLeft(ConnectError::NotPrepared).bind()

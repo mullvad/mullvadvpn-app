@@ -19,7 +19,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,11 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmationNavKey
-import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmedNavResult
-import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyInfoNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -66,8 +61,6 @@ private fun PreviewDaitaScreen(
         DaitaScreen(
             state = state,
             onDaitaEnabled = { _ -> },
-            onDirectOnlyClick = { _ -> },
-            onDirectOnlyInfoClick = {},
             onBackClick = {},
         )
     }
@@ -82,10 +75,6 @@ fun SharedTransitionScope.Daita(
     val viewModel = koinViewModel<DaitaViewModel> { parametersOf(isModal) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LocalResultStore.current.consumeResult<DaitaDirectOnlyConfirmedNavResult> {
-        viewModel.setDirectOnly(true)
-    }
-
     DaitaScreen(
         state = state,
         modifier =
@@ -95,14 +84,6 @@ fun SharedTransitionScope.Daita(
                     animatedVisibilityScope = animatedVisibilityScope,
                 ),
         onDaitaEnabled = viewModel::setDaita,
-        onDirectOnlyClick = { enable ->
-            if (enable) {
-                navigator.navigate(DaitaDirectOnlyConfirmationNavKey)
-            } else {
-                viewModel.setDirectOnly(false)
-            }
-        },
-        onDirectOnlyInfoClick = dropUnlessResumed { navigator.navigate(DaitaDirectOnlyInfoNavKey) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -111,8 +92,6 @@ fun SharedTransitionScope.Daita(
 fun DaitaScreen(
     state: Lc<Boolean, DaitaUiState>,
     onDaitaEnabled: (enable: Boolean) -> Unit,
-    onDirectOnlyClick: (enable: Boolean) -> Unit,
-    onDirectOnlyInfoClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -146,8 +125,6 @@ fun DaitaScreen(
                     DaitaContent(
                         state = state.value,
                         onDaitaEnabled = onDaitaEnabled,
-                        onDirectOnlyClick = onDirectOnlyClick,
-                        onDirectOnlyInfoClick = onDirectOnlyInfoClick,
                     )
                 }
             }
@@ -159,8 +136,6 @@ fun DaitaScreen(
 private fun DaitaContent(
     state: DaitaUiState,
     onDaitaEnabled: (enable: Boolean) -> Unit,
-    onDirectOnlyClick: (enable: Boolean) -> Unit,
-    onDirectOnlyInfoClick: () -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
     DescriptionPager(pagerState = pagerState)
@@ -169,17 +144,6 @@ private fun DaitaContent(
         title = stringResource(R.string.enable),
         isToggled = state.daitaEnabled,
         onCellClicked = onDaitaEnabled,
-        position = Position.Top,
-        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
-    )
-    HorizontalDivider()
-    SwitchListItem(
-        title = stringResource(R.string.direct_only),
-        isToggled = state.directOnly,
-        isEnabled = state.daitaEnabled,
-        onCellClicked = onDirectOnlyClick,
-        onInfoClicked = onDirectOnlyInfoClick,
-        position = Position.Bottom,
         modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
     )
 }

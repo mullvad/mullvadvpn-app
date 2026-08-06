@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
@@ -116,21 +117,23 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun `when WireguardConstraintsRepository return multihop enabled uiState should return multihop enabled true`() =
+    fun `when WireguardConstraintsRepository return multihop always uiState should return multihop always`() =
         runTest {
             // Arrange
             wireguardConstraints.value =
                 WireguardConstraints(
-                    isMultihopEnabled = true,
+                    multihop = MultihopMode.ALWAYS,
                     entryLocation = Constraint.Any,
                     ipVersion = Constraint.Any,
+                    entryOwnership = Constraint.Any,
+                    entryProviders = Constraint.Any,
                 )
 
             // Act, Assert
             viewModel.uiState.test {
                 val result = awaitItem()
                 assertIs<Lc.Content<SettingsUiState>>(result)
-                assertEquals(true, result.value.multihopEnabled)
+                assertEquals(MultihopMode.ALWAYS, result.value.multihopMode)
             }
         }
 

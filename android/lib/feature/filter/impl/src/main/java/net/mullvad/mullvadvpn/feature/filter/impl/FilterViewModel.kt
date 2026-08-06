@@ -16,13 +16,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 
 class FilterViewModel(
+    private val filterTarget: RelayHopType,
     providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
 ) : ViewModel() {
@@ -34,8 +37,11 @@ class FilterViewModel(
 
     init {
         viewModelScope.launch {
-            selectedProviders.value = relayListFilterRepository.selectedProviders.first()
-            selectedOwnership.value = relayListFilterRepository.selectedOwnership.first()
+            selectedProviders.value =
+                relayListFilterRepository.selectedProviders(filterTarget).first()
+
+            selectedOwnership.value =
+                relayListFilterRepository.selectedOwnership(filterTarget).first()
         }
     }
 
@@ -116,8 +122,9 @@ class FilterViewModel(
 
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
-                newSelectedOwnership,
-                newSelectedProviders,
+                ownership = newSelectedOwnership,
+                providers = newSelectedProviders,
+                filterTarget = filterTarget,
             )
             _uiSideEffect.send(FilterScreenSideEffect.CloseScreen)
         }

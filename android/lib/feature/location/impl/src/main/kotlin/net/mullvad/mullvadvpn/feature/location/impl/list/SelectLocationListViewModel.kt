@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -146,10 +146,10 @@ class SelectLocationListViewModel(
         when (relayListType) {
             RelayListType.Single -> relayListRepository.selectedLocation.value
             is RelayListType.Multihop ->
-                when (relayListType.multihopRelayListType) {
-                    MultihopRelayListType.ENTRY ->
+                when (relayListType.hopType) {
+                    RelayHopType.ENTRY ->
                         wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
-                    MultihopRelayListType.EXIT -> relayListRepository.selectedLocation.value
+                    RelayHopType.EXIT -> relayListRepository.selectedLocation.value
                 }
         }?.getOrNull()
 }

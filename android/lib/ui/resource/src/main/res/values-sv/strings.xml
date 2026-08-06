@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Om dessa datapaket övervakas av en observatör, gör %1$s det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
-    <string name="daita_multihop">%1$s: Multihopp</string>
     <string name="days_were_added_30">30 dagar har lagts till i ditt konto.</string>
     <string name="days_were_added_90">90 dagar har lagts till i ditt konto.</string>
     <string name="delete">Ta bort</string>
@@ -183,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Upp till fem enheter kan vara inloggade på ett Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct">Direkt</string>
-    <string name="direct_only">Endast direkt</string>
     <string name="direct_only_description">Det är inte alla våra servrar som är %1$s-aktiverade. Om du vill använda internet kanske du måste välja en ny plats efter aktivering.</string>
     <string name="disable_multihop">Inaktivera multihopp</string>
     <string name="disable_recents">Inaktivera senaste</string>
@@ -330,7 +328,6 @@
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
-    <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%2$s\" i inställningarna.</string>
     <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
     <string name="multihop_is_enabled">Multihopp är aktiverat</string>
     <string name="name">Namn</string>
@@ -359,7 +356,6 @@
     <string name="on">På</string>
     <string name="ongoing_verification_warning">Ditt senaste köp bekräftas fortfarande. Om du loggar in på ett annat konto kommer bekräftelsen att misslyckas. Vill du fortfarande logga ut?</string>
     <string name="open_app_details">Öppna appinformation</string>
-    <string name="open_feature_settings">Öppna %1$s-inställningarna</string>
     <string name="open_url">Öppna URL</string>
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="overrides_cleared">Åsidosättningar rensade</string>
@@ -445,7 +441,6 @@
     <string name="set_as_multihop_exit_unavailable">Ange som sista multihopp (inte kompatibelt)</string>
     <string name="set_dns_error">Det går inte att konfigurera DNS-server. Skicka en problemrapport.</string>
     <string name="set_firewall_policy_error">Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport.</string>
-    <string name="setting_chip">Inställning: %1$s</string>
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-åtkomst</string>

@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">У разі моніторингу цих пакетів даних %1$s значно ускладнює визначення того, які вебсайти ви відвідуєте або з ким спілкуєтеся.</string>
     <string name="daita_description_slide_2_second_paragraph">Для цього %1$s додає мережевий шум й уніфікує розмір усіх пакетів.</string>
     <string name="daita_info">Після ввімкнення параметра «%1$s» вам потрібно вручну вибрати сервер із підтримкою %2$s. До вибору сумісного сервера в розділі «Вибір розташування» ви можете бути заблоковані.</string>
-    <string name="daita_multihop">%1$s: подвійний VPN</string>
     <string name="days_were_added_30">На баланс облікового запису додано 30 днів.</string>
     <string name="days_were_added_90">На баланс облікового запису додано 90 днів.</string>
     <string name="delete">Видалити</string>
@@ -183,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Ви одночасно можете ввійти у свій обліковий запис Mullvad на 5 пристроях.</string>
     <string name="device_name_info_third_paragraph">Якщо ви вийдете з облікового запису, пристрій і його ім’я будуть видалені. Після повторного входу пристрій отримає нове ім’я.</string>
     <string name="direct">Напряму</string>
-    <string name="direct_only">Лише напряму</string>
     <string name="direct_only_description">Не всі наші сервери підтримують %1$s. Щоб отримати доступ в Інтернет, вам, імовірно, доведеться вибрати нове розташування після ввімкнення цієї функції.</string>
     <string name="disable_multihop">Вимкнути подвійний VPN</string>
     <string name="disable_recents">Вимкнути нещодавні</string>
@@ -330,7 +328,6 @@
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
     <string name="multihop_description">Подвійний VPN спрямовує ваш трафік з одного сервера WireGuard на інший, що ускладнює відстеження. Це збільшує затримку, але підвищує анонімність в Інтернеті.</string>
-    <string name="multihop_entry_disabled_description">Сервер входу для функції «%1$s» зараз перевизначено функцією %2$s. Щоб вибрати сервер входу, спочатку ввімкніть «%3$s» або вимкніть «%2$s» у налаштуваннях.</string>
     <string name="multihop_is_disabled">Подвійний VPN вимкнено</string>
     <string name="multihop_is_enabled">Подвійний VPN увімкнено</string>
     <string name="name">Ім’я</string>
@@ -359,7 +356,6 @@
     <string name="on">Увімк.</string>
     <string name="ongoing_verification_warning">Перевірка вашої останньої покупки ще не завершена. Якщо ви ввійдете в інший обліковий запис, її буде перервано. Усе одно вийти?</string>
     <string name="open_app_details">Відкрити відомості про застосунок</string>
-    <string name="open_feature_settings">Відкрити налаштування %1$s</string>
     <string name="open_url">Відкрити URL</string>
     <string name="out_of_time">Закінчився час</string>
     <string name="overrides_cleared">Перевизначення видалені</string>
@@ -445,7 +441,6 @@
     <string name="set_as_multihop_exit_unavailable">Установити як вихід для подвійного VPN (несумісно)</string>
     <string name="set_dns_error">Не вдалося встановити системний DNS-сервер. Надішліть звіт про проблему.</string>
     <string name="set_firewall_policy_error">Не вдалося застосувати правила брандмауера. Усуньте неполадки або надішліть звіт про проблему.</string>
-    <string name="setting_chip">Налаштування: %1$s</string>
     <string name="settings">Налаштування</string>
     <string name="settings_account">Обліковий запис</string>
     <string name="settings_api_access">Доступ до API</string>

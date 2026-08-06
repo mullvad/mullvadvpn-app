@@ -34,9 +34,11 @@ import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.itemsWithDivider
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
@@ -49,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -68,8 +71,8 @@ private fun PreviewFilterScreen(
 }
 
 @Composable
-fun Filter(navigator: Navigator) {
-    val viewModel = koinViewModel<FilterViewModel>()
+fun Filter(navigator: Navigator, filterTarget: RelayHopType) {
+    val viewModel = koinViewModel<FilterViewModel> { parametersOf(filterTarget) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {

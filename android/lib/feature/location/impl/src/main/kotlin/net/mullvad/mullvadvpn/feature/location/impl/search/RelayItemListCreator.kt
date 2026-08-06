@@ -3,12 +3,13 @@ package net.mullvad.mullvadvpn.feature.location.impl.search
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
@@ -109,6 +110,7 @@ private fun createRelayListItems(
     )
     addAll(
         createLocationSection(
+            selectedItem = selectedItem,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             relayListType = relayListType,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -127,15 +129,20 @@ private fun createRecentsSection(
 
     val shown =
         recents
-            .mapNotNull { recent ->
+            .map { recent ->
                 when (recent) {
                     is RecentItem.Relay -> {
                         val isSelected = recent.item.matches(itemSelection, relayListType)
                         RelayListItem.RecentListItem(item = recent.item, isSelected = isSelected)
                     }
-                    RecentItem.Automatic -> null
+                    RecentItem.Automatic ->
+                        RelayListItem.AutomaticEntryItem.Recent(
+                            isSelected = itemSelection.isEntryLocationAutomatic()
+                        )
                 }
             }
+            // Convert to a set to remove possible duplicates.
+            .toSet()
             .take(RECENTS_MAX_VISIBLE)
 
     addAll(shown)
@@ -159,7 +166,7 @@ private fun RelayItem.matches(
 }
 
 private fun RelayItemSelection.Multiple.getBy(relayListType: RelayListType.Multihop) =
-    if (relayListType.multihopRelayListType == MultihopRelayListType.ENTRY) entryLocation
+    if (relayListType.hopType == RelayHopType.ENTRY) entryLocation
     else exitLocation
 
 private fun createRelayListItemsSearching(
@@ -276,6 +283,7 @@ private fun createCustomListRelayItems(
 }
 
 private fun createLocationSection(
+    selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -283,6 +291,13 @@ private fun createLocationSection(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
+    if (relayListType.isMultihopEntry) {
+        add(
+            RelayListItem.AutomaticEntryItem.RelayList(
+                isSelected = selectedItem.isEntryLocationAutomatic()
+            )
+        )
+    }
     addAll(
         countries.flatMap { country ->
             createGeoLocationEntry(
@@ -475,9 +490,9 @@ internal fun RelayItemId.expandKey(parent: CustomListId? = null) =
 internal fun RelayItemSelection.selectedByThisEntryExitList(relayListType: RelayListType) =
     when (this) {
         is RelayItemSelection.Multiple ->
-            when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
-                MultihopRelayListType.ENTRY -> entryLocation.getOrNull()
-                MultihopRelayListType.EXIT -> exitLocation.getOrNull()
+            when ((relayListType as? RelayListType.Multihop)?.hopType) {
+                RelayHopType.ENTRY -> entryLocation.getOrNull()
+                RelayHopType.EXIT -> exitLocation.getOrNull()
                 else -> null
             }
         is RelayItemSelection.Single -> exitLocation.getOrNull()
@@ -490,9 +505,9 @@ internal fun RelayItemSelection.selectedByOtherEntryExitList(
     when (this) {
         is RelayItemSelection.Multiple -> {
             val location =
-                when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
-                    MultihopRelayListType.ENTRY -> exitLocation
-                    MultihopRelayListType.EXIT -> entryLocation
+                when ((relayListType as? RelayListType.Multihop)?.hopType) {
+                    RelayHopType.ENTRY -> exitLocation
+                    RelayHopType.EXIT -> entryLocation
                     else -> null
                 }?.getOrNull()
             location.singleRelayId(customLists)
@@ -534,9 +549,9 @@ private fun RelayItem.createState(
             is RelayItem.Location.Relay -> selectedByOtherId == id
         }
     return if (isSelectedByOther) {
-        when ((relayListType as? RelayListType.Multihop)?.multihopRelayListType) {
-            MultihopRelayListType.ENTRY -> RelayListItemState.USED_AS_EXIT
-            MultihopRelayListType.EXIT -> RelayListItemState.USED_AS_ENTRY
+        when ((relayListType as? RelayListType.Multihop)?.hopType) {
+            RelayHopType.ENTRY -> RelayListItemState.USED_AS_EXIT
+            RelayHopType.EXIT -> RelayListItemState.USED_AS_ENTRY
             else -> null
         }
     } else {

@@ -20,7 +20,4 @@ fun EntryProviderScope<NavKey2>.daitaEntry(navigator: Navigator) {
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )
     }
-
-    daitaDirectOnlyConfirmationEntry(navigator)
-    daitaDirectOnlyInfoEntry(navigator)
 }

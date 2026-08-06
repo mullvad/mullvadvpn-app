@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.EntryRecent
 import net.mullvad.mullvadvpn.lib.model.ExitRecent
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -146,19 +146,19 @@ class RecentsUseCaseTest {
             }
 
         every {
-            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+            customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.ENTRY))
         } returns flowOf(listOf(CUSTOM_LIST_SWE_NO))
         every {
-            customListsRelayItemUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+            customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.EXIT))
         } returns flowOf(emptyList())
         every {
-            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY))
+            filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.ENTRY))
         } returns flowOf(listOf(SWEDEN, NORWAY))
         every {
-            filteredRelayListUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT))
+            filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.EXIT))
         } returns flowOf(listOf(SWEDEN, NORWAY))
 
-        useCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
+        useCase(RelayListType.Multihop(RelayHopType.ENTRY)).test {
             val recents = awaitItem()
 
             val expectedHops = listOf(CUSTOM_LIST_SWE_NO)
