@@ -64,7 +64,7 @@ class ConnectionTest1 : EndToEndTest() {
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testApiUnavailable() = runTest {
+    fun testApiUnavailable1() = runTest {
 
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage>()
@@ -84,7 +84,7 @@ class ConnectionTest1 : EndToEndTest() {
     }
 
     @Test
-    fun testConnectUsingMultihop() =
+    fun testConnectUsingMultihop1() =
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)
