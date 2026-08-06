@@ -45,10 +45,8 @@ class ConnectionTest : EndToEndTest() {
     private val firewallClient by lazy { FirewallClient() }
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
-    @Test @HasDependencyOnLocalAPI fun testApiUnavailable() = runTest {}
-
     @Test
-    fun atestConnectUsingMultihop() =
+    fun testConnectUsingMultihop() =
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)

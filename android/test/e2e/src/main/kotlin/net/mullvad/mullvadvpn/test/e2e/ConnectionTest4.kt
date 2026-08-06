@@ -66,12 +66,7 @@ class ConnectionTest4 : EndToEndTest() {
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
     @Test
-    @HasDependencyOnLocalAPI
-    fun testApiUnavailable4() = runTest {
-    }
-
-    @Test
-    fun atestConnectUsingMultihop4() =
+    fun testConnectUsingMultihop4() =
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)
