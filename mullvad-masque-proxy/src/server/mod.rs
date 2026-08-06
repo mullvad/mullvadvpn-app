@@ -22,6 +22,7 @@ use crate::{
     DatagramFragmentor, MASQUE_WELL_KNOWN_PATH, MAX_INFLIGHT_PACKETS, MIN_IPV4_MTU, MIN_IPV6_MTU,
     ProxyTaskError, Stopped, TaskError, TaskResult, Tasks, compute_udp_payload_size,
     fragment::{DefragReceived, Fragments},
+    stats::Stats,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -41,6 +42,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct Server {
     endpoint: Endpoint,
     params: Arc<ServerParams>,
+    stats: Arc<Stats>,
 }
 
 #[derive(TypedBuilder)]
@@ -97,6 +99,7 @@ impl Server {
         Ok(Self {
             endpoint,
             params: Arc::new(params),
+            stats: Arc::default(),
         })
     }
 
@@ -122,12 +125,17 @@ impl Server {
             tokio::spawn(Self::handle_incoming_connection(
                 new_connection,
                 Arc::clone(&self.params),
+                Arc::clone(&self.stats),
             ));
         }
         Ok(())
     }
 
-    async fn handle_incoming_connection(connection: Incoming, server_params: Arc<ServerParams>) {
+    async fn handle_incoming_connection(
+        connection: Incoming,
+        server_params: Arc<ServerParams>,
+        stats: Arc<Stats>,
+    ) {
         let conn = match connection.await {
             Ok(conn) => conn,
             Err(err) => {
@@ -149,7 +157,7 @@ impl Server {
             return;
         };
 
-        Self::accept_proxy_request(quinn_conn, connection, server_params).await;
+        Self::accept_proxy_request(quinn_conn, connection, server_params, stats).await;
     }
 
     /// Accept an HTTP request and try to handle it as a proxy request.
@@ -157,6 +165,7 @@ impl Server {
         quic_conn: quinn::Connection,
         mut http_conn: Connection<h3_quinn::Connection, Bytes>,
         server_params: Arc<ServerParams>,
+        stats: Arc<Stats>,
     ) {
         let (http_request, mut stream) = match http_conn.accept().await {
             Ok(Some((req, stream))) => (req, stream),
@@ -201,6 +210,7 @@ impl Server {
                 quic_conn,
                 http_conn,
                 server_params,
+                stats,
             ))
             .await;
 
@@ -241,9 +251,9 @@ impl Server {
             proxy_uri.target_addr,
             Arc::clone(&udp_socket),
             send_tx,
-            DatagramFragmentor::new_without_stats(quic_conn, stream_id, max_udp_payload_size),
+            DatagramFragmentor::new(quic_conn, stream_id, max_udp_payload_size, stats.clone()),
         ));
-        tasks.spawn_task(proxy_tx_task(udp_socket, client_rx));
+        tasks.spawn_task(proxy_tx_task(udp_socket, client_rx, stats));
 
         if let Err(err) = tasks.join_and_abort().await {
             match err {
@@ -260,26 +270,18 @@ impl Server {
 async fn connection_task(
     stream_id: StreamId,
     mut connection: Connection<h3_quinn::Connection, Bytes>,
-    mut send_rx: mpsc::Receiver<Bytes>,
-    client_tx: mpsc::Sender<Datagram>,
+    mut outgoing_datagram_rx: mpsc::Receiver<Bytes>,
+    incoming_datagram_tx: mpsc::Sender<Datagram>,
 ) -> TaskResult {
     loop {
         tokio::select! {
-            outgoing_packet = send_rx.recv() => {
-                let Some(outgoing_packet) = outgoing_packet else {
-                    break; // sender is gone
-                };
-
-                connection.send_datagram(stream_id, outgoing_packet)
-                    .map_err(ProxyTaskError::SendDatagram)?;
-            }
             incoming_packet = connection.read_datagram() => match incoming_packet {
                 Ok(Some(received_packet)) => {
                     if received_packet.stream_id() != stream_id {
                         return Err(ProxyTaskError::UnexpectedStreamId);
                     }
 
-                    if client_tx.send(received_packet).await.is_err() {
+                    if incoming_datagram_tx.send(received_packet).await.is_err() {
                         break; // receiver is gone
                     }
                 }
@@ -288,6 +290,14 @@ async fn connection_task(
                     return Err(ProxyTaskError::ReadDatagram(err));
                 }
             },
+            outgoing_packet = outgoing_datagram_rx.recv() => {
+                let Some(outgoing_packet) = outgoing_packet else {
+                    break; // sender is gone
+                };
+
+                connection.send_datagram(stream_id, outgoing_packet)
+                    .map_err(ProxyTaskError::SendDatagram)?;
+            }
         }
     }
 
@@ -298,6 +308,7 @@ async fn connection_task(
 async fn proxy_tx_task(
     udp_socket: impl AsRef<UdpSocket>,
     mut client_rx: mpsc::Receiver<Datagram>,
+    stats: Arc<Stats>,
 ) -> TaskResult {
     let udp_socket = udp_socket.as_ref();
     let mut fragments = Fragments::default();
@@ -307,11 +318,21 @@ async fn proxy_tx_task(
         };
 
         let quic_payload = quic_datagram.into_payload();
+        let packet_len = quic_payload.len();
 
         let packet = match fragments.handle_incoming_packet(quic_payload) {
-            Ok(DefragReceived::Nonfragmented(packet)) => packet,
-            Ok(DefragReceived::Reassembled(packet)) => packet.freeze(),
-            Ok(DefragReceived::Fragment) => continue,
+            Ok(DefragReceived::Nonfragmented(packet)) => {
+                stats.rx(packet_len, false);
+                packet
+            }
+            Ok(DefragReceived::Reassembled(packet)) => {
+                stats.rx(packet_len, true);
+                packet.freeze()
+            }
+            Ok(DefragReceived::Fragment) => {
+                stats.rx(packet_len, true);
+                continue;
+            }
             Err(err) => {
                 log::trace!("Failed to reassemble incoming packet: {err}");
                 continue;

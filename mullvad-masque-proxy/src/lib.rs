@@ -145,7 +145,7 @@ pub(crate) struct DatagramFragmentor {
     quinn_conn: quinn::Connection,
     stream_id_size: u16,
     max_udp_payload_size: u16,
-    stats: Option<Arc<stats::Stats>>,
+    stats: Arc<stats::Stats>,
     fragment_id: u16,
     read_buf: BytesMut,
     fragments_buf: Vec<Bytes>,
@@ -159,23 +159,6 @@ impl DatagramFragmentor {
         stream_id: StreamId,
         max_udp_payload_size: u16,
         stats: Arc<stats::Stats>,
-    ) -> Self {
-        Self::with_stats(quinn_conn, stream_id, max_udp_payload_size, Some(stats))
-    }
-
-    pub(crate) fn new_without_stats(
-        quinn_conn: quinn::Connection,
-        stream_id: StreamId,
-        max_udp_payload_size: u16,
-    ) -> Self {
-        Self::with_stats(quinn_conn, stream_id, max_udp_payload_size, None)
-    }
-
-    fn with_stats(
-        quinn_conn: quinn::Connection,
-        stream_id: StreamId,
-        max_udp_payload_size: u16,
-        stats: Option<Arc<stats::Stats>>,
     ) -> Self {
         Self {
             quinn_conn,
@@ -216,9 +199,7 @@ impl DatagramFragmentor {
 
         self.fragments_buf.clear();
         if packet.len() <= usize::from(maximum_packet_size) {
-            if let Some(stats) = &self.stats {
-                stats.tx(packet.len(), false);
-            }
+            self.stats.tx(packet.len(), false);
             self.fragments_buf.push(packet);
         } else {
             let mut stripped = packet;
@@ -227,9 +208,7 @@ impl DatagramFragmentor {
                 fragment::fragment_packet(maximum_packet_size, &stripped, self.fragment_id)?
             {
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
-                if let Some(stats) = &self.stats {
-                    stats.tx(fragment.len(), true);
-                }
+                self.stats.tx(fragment.len(), true);
                 self.fragments_buf.push(fragment);
             }
             self.fragment_id = self.fragment_id.wrapping_add(1);
