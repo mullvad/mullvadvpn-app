@@ -4,7 +4,14 @@ import styled, { css } from 'styled-components';
 import { colors, Radius, spacings } from '../../foundations';
 import { TransientProps } from '../../types';
 import { ButtonProvider } from './ButtonContext';
-import { ButtonIcon, ButtonText, StyledButtonIcon, StyledButtonText } from './components';
+import {
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+  StyledButtonIcon,
+  StyledButtonSpinner,
+  StyledButtonText,
+} from './components';
 
 export type ButtonColors = 'neutral' | 'success' | 'destructive';
 export type ButtonVariants = 'primary' | 'secondary';
@@ -95,12 +102,12 @@ export const StyledButton = styled.button<StyledButtonProps>`
         transition: ${backgroundOrBorderColor} var(--transition-duration) ease;
       }
 
-      &&:not(:disabled):hover {
+      &:not(:disabled):hover {
         --transition-duration: 0s;
         ${backgroundOrBorderColor}: var(--hover);
       }
 
-      &&:not(:disabled):active {
+      &:not(:disabled):active {
         --transition-duration: 0s;
         ${backgroundOrBorderColor}: var(--pressed);
       }
@@ -115,24 +122,28 @@ export const StyledButton = styled.button<StyledButtonProps>`
       }
 
       justify-content: space-between;
-      &&:has(${StyledButtonText}:only-child) {
+      &:has(${StyledButtonText}:only-child) {
         justify-content: center;
       }
-      &&:has(${StyledButtonText} + ${StyledButtonIcon}) {
+      &:has(${StyledButtonText} + :is(${StyledButtonSpinner}, ${StyledButtonIcon})) {
         &::before {
-          content: ' ';
+          content: '';
           display: inline-block;
           width: 24px;
         }
       }
-      &&:has(${StyledButtonIcon} + ${StyledButtonText}) {
+      &:has(:is(${StyledButtonIcon}, ${StyledButtonSpinner}) + ${StyledButtonText}) {
         &::after {
-          content: ' ';
+          content: '';
           display: inline-block;
           width: 24px;
         }
       }
-      &&:has(${StyledButtonIcon} + ${StyledButtonText} + ${StyledButtonIcon}) {
+      &:has(
+          :is(${StyledButtonIcon}, ${StyledButtonSpinner})
+            + ${StyledButtonText}
+            + :is(${StyledButtonIcon}, ${StyledButtonSpinner})
+        ) {
         &::before {
           display: none;
         }
@@ -164,6 +175,7 @@ function Button({
 const ButtonNamespace = Object.assign(Button, {
   Text: ButtonText,
   Icon: ButtonIcon,
+  Spinner: ButtonSpinner,
 });
 
 export { ButtonNamespace as Button };
