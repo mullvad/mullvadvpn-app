@@ -64,19 +64,10 @@ class ConnectionTest4 : EndToEndTest() {
 
     @Test
     @HasDependencyOnLocalAPI
-//    @ClearFirewallRules
     fun testApiUnavailable() = runTest {
-        val testRelayIp = relayClient.getDefaultRelayIpAddress()
 
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage>()
-
-        // Block everything except the default relay IP. After this the API is no longer reachable.
-//        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
-
-        // Restarting the activity will re-create the daemon which will try to reach the API.
-//        targetActivity.finishAffinity()
-//        app.launch()
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -131,6 +122,7 @@ class ConnectionTest4 : EndToEndTest() {
             assertEquals(result.ip, outIpv4Address)
             assertEquals(result.mullvadExitIpHostname, exitRelay.relay)
         }
+
 
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 80000L

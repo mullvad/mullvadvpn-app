@@ -42,6 +42,7 @@ import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.RegisterExtension
 
 class ConnectionTest1 : EndToEndTest() {
+
     @RegisterExtension @JvmField val accountTestRule = AccountTestRule()
 
     @RegisterExtension
@@ -63,19 +64,10 @@ class ConnectionTest1 : EndToEndTest() {
 
     @Test
     @HasDependencyOnLocalAPI
-//    @ClearFirewallRules
     fun testApiUnavailable() = runTest {
-        val testRelayIp = relayClient.getDefaultRelayIpAddress()
 
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         on<ConnectPage>()
-
-        // Block everything except the default relay IP. After this the API is no longer reachable.
-//        createFirewallRules { DropRule.blockAllTrafficExceptToDestinationRule(testRelayIp) }
-
-        // Restarting the activity will re-create the daemon which will try to reach the API.
-//        targetActivity.finishAffinity()
-//        app.launch()
 
         on<ConnectPage> { clickSelectLocation() }
 
