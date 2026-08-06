@@ -58,27 +58,8 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapWireGuardObfuscationExpandButton() -> Self {
-        cellExpandButton(AccessibilityIdentifier.wireGuardObfuscationCell).tap()
-
-        return self
-    }
-
-    @discardableResult func tapUDPOverTCPPortSelectorButton() -> Self {
-        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp).tap()
-
-        return self
-    }
-
-    @discardableResult func tapShadowsocksPortSelectorButton() -> Self {
-        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationShadowsocks).tap()
-
-        return self
-    }
-
-    @discardableResult func tapLwoPortSelectorButton() -> Self {
-        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationLwo).tap()
-
+    @discardableResult func tapAntiCensorshipCell() -> Self {
+        app.tables.cells[.antiCensorship].tap()
         return self
     }
 
