@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
     <string name="device_name_info_third_paragraph">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
     <string name="direct">Direkt</string>
-    <string name="direct_only_description">Nicht alle unsere Server sind %1$s-fähig. Um das Internet nutzen zu können, müssen Sie nach der Aktivierung möglicherweise einen neuen Standort auswählen.</string>
     <string name="disable_multihop">Multihop deaktivieren</string>
     <string name="disable_recents">Letzte deaktivieren</string>
     <string name="discard">Verwerfen</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Alle aktivieren und erneut versuchen</string>
     <string name="enable_anyway">Trotzdem aktivieren</string>
     <string name="enable_custom_dns">Benutzerdefinierten DNS-Server verwenden</string>
-    <string name="enable_direct_only">%1$s aktivieren</string>
     <string name="enable_ipv6">In-Tunnel-IPv6</string>
     <string name="enable_location_in_notification">Standort in Benachrichtigung anzeigen</string>
     <string name="enable_method">Methode aktivieren</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">Willkommen, dieses Gerät heißt jetzt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NEUES GERÄT ERSTELLT</string>
     <string name="new_list">Neue Liste</string>
+    <string name="next">Weiter</string>
     <string name="no_custom_lists_available">Keine eigenen Listen verfügbar</string>
     <string name="no_email_app_available">Keine E-Mail-App auf dem Gerät verfügbar</string>
     <string name="no_internet_connection">Keine Internetverbindung</string>

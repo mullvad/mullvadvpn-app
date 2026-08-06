@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
     <string name="direct">Rechtstreeks</string>
-    <string name="direct_only_description">Niet al onze servers zijn geschikt voor %1$s. Om het internet te kunnen gebruiken, moet u na het inschakelen mogelijk een nieuwe locatie selecteren.</string>
     <string name="disable_multihop">Multihop uitschakelen</string>
     <string name="disable_recents">Recente uitschakelen</string>
     <string name="discard">Verwerpen</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Alles inschakelen en opnieuw proberen</string>
     <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
-    <string name="enable_direct_only">%1$s inschakelen</string>
     <string name="enable_ipv6">IPv6 in tunnel</string>
     <string name="enable_location_in_notification">Locatie weergeven in melding</string>
     <string name="enable_method">Methode inschakelen</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">Welkom. De naam van dit apparaat is nu <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="new_list">Nieuwe lijst</string>
+    <string name="next">Volgende</string>
     <string name="no_custom_lists_available">Geen aangepaste lijsten beschikbaar</string>
     <string name="no_email_app_available">Er staat geen e-mailprogramma op het apparaat</string>
     <string name="no_internet_connection">Geen internetverbinding</string>

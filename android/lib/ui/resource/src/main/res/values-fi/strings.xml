@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="direct">Suora</string>
-    <string name="direct_only_description">Kaikissa palvelimissamme ei ole %1$s-tukea. Käyttääksesi internetiä sinun on ehkä valittava uusi sijainti käyttöönoton jälkeen.</string>
     <string name="disable_multihop">Poista multihop käytöstä</string>
     <string name="disable_recents">Poista viimeisimmät käytöstä</string>
     <string name="discard">Hylkää</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Ota kaikki käyttöön ja yritä uudelleen</string>
     <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
-    <string name="enable_direct_only">Ota %1$s käyttöön</string>
     <string name="enable_ipv6">Tunnelin IPv6</string>
     <string name="enable_location_in_notification">Näytä sijainti ilmoituksessa</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
+    <string name="next">Seuraava</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>
     <string name="no_email_app_available">Laitteella ei ole saatavilla sähköpostisovellusta</string>
     <string name="no_internet_connection">Ei verkkoyhteyttä</string>

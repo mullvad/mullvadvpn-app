@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Ви одночасно можете ввійти у свій обліковий запис Mullvad на 5 пристроях.</string>
     <string name="device_name_info_third_paragraph">Якщо ви вийдете з облікового запису, пристрій і його ім’я будуть видалені. Після повторного входу пристрій отримає нове ім’я.</string>
     <string name="direct">Напряму</string>
-    <string name="direct_only_description">Не всі наші сервери підтримують %1$s. Щоб отримати доступ в Інтернет, вам, імовірно, доведеться вибрати нове розташування після ввімкнення цієї функції.</string>
     <string name="disable_multihop">Вимкнути подвійний VPN</string>
     <string name="disable_recents">Вимкнути нещодавні</string>
     <string name="discard">Скинути</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Увімкнути все й повторити</string>
     <string name="enable_anyway">Усе одно увімкнути</string>
     <string name="enable_custom_dns">Використовувати користувацький DNS-сервер</string>
-    <string name="enable_direct_only">Увімкнути режим «%1$s»</string>
     <string name="enable_ipv6">IPv6 у тунелі</string>
     <string name="enable_location_in_notification">Показувати розташування в сповіщенні</string>
     <string name="enable_method">Увімкнути метод</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">Ласкаво просимо! Цей пристрій тепер називається <b>«%1$s»</b>.</string>
     <string name="new_device_notification_title">СТВОРЕНО НОВИЙ ПРИСТРІЙ</string>
     <string name="new_list">Новий список</string>
+    <string name="next">Далі</string>
     <string name="no_custom_lists_available">Немає користувацьких списків</string>
     <string name="no_email_app_available">На пристрої немає застосунку для роботи з ел. поштою</string>
     <string name="no_internet_connection">Немає підключення до Інтернету</string>

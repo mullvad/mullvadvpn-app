@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct">Direct</string>
-    <string name="direct_only_description">Tous nos serveurs ne sont pas compatibles %1$s. Pour utiliser l\'internet, vous devrez peut-être sélectionner une nouvelle localisation après activation.</string>
     <string name="disable_multihop">Désactiver le multihop</string>
     <string name="disable_recents">Désactiver les récents</string>
     <string name="discard">Annuler</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Tout activer et réessayer</string>
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
-    <string name="enable_direct_only">Activer %1$s</string>
     <string name="enable_ipv6">IPv6 en tunnel</string>
     <string name="enable_location_in_notification">Afficher la localisation dans les notifications</string>
     <string name="enable_method">Activer la méthode</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
+    <string name="next">Suivant</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
     <string name="no_email_app_available">Aucune application d\'e-mail disponible sur cet appareil</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>

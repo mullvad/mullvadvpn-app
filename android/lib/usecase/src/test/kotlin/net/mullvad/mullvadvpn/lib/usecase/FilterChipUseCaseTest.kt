@@ -121,7 +121,7 @@ class FilterChipUseCaseTest {
         }
 
     @Test
-    fun `when Daita without direct only is enabled and multihop is disabled should return no filter chip`() =
+    fun `when Daita is enabled and multihop is inactive should return daita filter chip`() =
         runTest {
             // Arrange
             settings.value =
@@ -129,7 +129,9 @@ class FilterChipUseCaseTest {
                     every { tunnelOptions.daitaSettings.enabled } returns true
                 }
 
-            filterChipUseCase(RelayListType.Single).test { assertLists(emptyList(), awaitItem()) }
+            multihopActive.value = MultihopInEffectStatus.Inactive
+
+            filterChipUseCase(RelayListType.Single).test { assertLists(listOf(FilterChip.Daita), awaitItem()) }
         }
 
     @Test

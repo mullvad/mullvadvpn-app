@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</string>
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
     <string name="direct">တိုက်ရိုက်</string>
-    <string name="direct_only_description">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ အင်တာနက်အသုံးပြုရန်အတွက် သင်သည် ၎င်းကို ဖွင့်ပြီးနောက် တည်နေရာအသစ်တစ်ခုကို ရွေးချယ်ရပေမည်။</string>
     <string name="disable_multihop">မာလ်တီဟော့ပ်ကို ပိတ်ရန်</string>
     <string name="disable_recents">လတ်တလောအရာများကို ပိတ်ပါ</string>
     <string name="discard">ပယ်ဖျက်မည်</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">အားလုံးကို ဖွင့်ပြီး ပြန်ကြိုးစားကြည့်ပါ</string>
     <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
-    <string name="enable_direct_only">%1$s ကို ဖွင့်ရန်</string>
     <string name="enable_ipv6">Tunnel-အဝင် IPv6</string>
     <string name="enable_location_in_notification">အသိပေးချက်တွင် တည်နေရာကို ပြရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">ကြိုဆိုပါတယ်၊ ဤစက်ကို ယခု <b>%1$s</b> ဟု ခေါ်ပါသည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
+    <string name="next">ရှေ့သို့</string>
     <string name="no_custom_lists_available">စိတ်ကြိုက် စာရင်းများကို မရရှိနိုင်ပါ</string>
     <string name="no_email_app_available">ဤစက်တွင် မည်သည့်အီးမေးလ်အက်ပ်ကိုမျှ မရရှိနိုင်ပါ</string>
     <string name="no_internet_connection">အင်တာနက် ချိတ်ဆက်မှု မရှိပါ</string>

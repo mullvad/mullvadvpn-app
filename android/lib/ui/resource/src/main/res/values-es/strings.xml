@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="direct">Directo</string>
-    <string name="direct_only_description">No todos nuestros servidores están habilitados para %1$s. Para usar Internet, quizá deba seleccionar una nueva ubicación tras habilitar esta característica.</string>
     <string name="disable_multihop">Deshabilitar salto múltiple</string>
     <string name="disable_recents">Deshabilitar recientes</string>
     <string name="discard">Descartar</string>
@@ -212,7 +211,6 @@
     <string name="enable_all_methods">Habilitar todo e intentar de nuevo</string>
     <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
-    <string name="enable_direct_only">Habilitar %1$s</string>
     <string name="enable_ipv6">Tunelización IPv6</string>
     <string name="enable_location_in_notification">Mostrar la ubicación en la notificación</string>
     <string name="enable_method">Habilitar método</string>
@@ -338,6 +336,7 @@
     <string name="new_device_notification_message">¡Le damos la bienvenida! Este dispositivo ahora se llama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUEVO DISPOSITIVO CREADO</string>
     <string name="new_list">Nueva lista</string>
+    <string name="next">Siguiente</string>
     <string name="no_custom_lists_available">No hay listas personalizadas disponibles</string>
     <string name="no_email_app_available">El dispositivo no dispone de ninguna aplicación de correo electrónico</string>
     <string name="no_internet_connection">No hay conexión a Internet</string>

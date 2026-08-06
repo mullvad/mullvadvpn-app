@@ -225,6 +225,10 @@ class ConnectViewModel(
         changelogRepository.setDismissNewChangelogNotification()
     }
 
+    fun dismissMultihopMigrationWarning() = viewModelScope.launch {
+        userPreferencesRepository.setHasSeenMultihopMigrationGuide()
+    }
+
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
