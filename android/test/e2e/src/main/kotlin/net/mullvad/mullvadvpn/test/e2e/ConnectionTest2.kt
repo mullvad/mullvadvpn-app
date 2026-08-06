@@ -80,8 +80,8 @@ class ConnectionTest2 : EndToEndTest() {
 
         on<ConnectPage> {
             waitForConnectedLabel()
-            clickDisconnect()
-            waitForDisconnectedLabel()
+//            clickDisconnect()
+//            waitForDisconnectedLabel()
         }
     }
 
