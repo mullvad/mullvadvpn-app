@@ -738,7 +738,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     // Reset the migrated settings menu visibility after an app update.
                     // The menu item should only remain visible within the same app version.
                     appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem =
-                        !isAppUpdated && self.appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem
+                        isAppUpdated
+                        ? false : self.appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem
+                    appPreferences.migratedSettingsState.hasCompletedMigrationWizard =
+                        isAppUpdated ? true : self.appPreferences.migratedSettingsState.hasCompletedMigrationWizard
 
                     settingsResolver.resolve(store: self.settingsManager.store) { [self] result in
                         switch result {
