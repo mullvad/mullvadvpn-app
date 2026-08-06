@@ -192,12 +192,9 @@ impl MaybeObfuscatingTransportFactory {
         settings: Option<&ObfuscationSettings>,
         bypass: Arc<dyn SocketBypass>,
     ) -> Self {
-        let make_factory = |bypass| {
-            let socket_factory = udp_socket_factory(optimize_buffer_size);
-            BypassingSocketFactory {
-                bypass,
-                inner: socket_factory,
-            }
+        let make_factory = |bypass| BypassingSocketFactory {
+            bypass,
+            inner: udp_socket_factory(optimize_buffer_size),
         };
         match settings {
             Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
