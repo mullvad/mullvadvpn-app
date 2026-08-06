@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -70,6 +70,11 @@
         <target state="final">%1$@, %2$@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
+        <source>%@-enabled</source>
+        <target state="final">%@ ativado</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
         <source>%d more...</source>
         <target state="final">Mais %d...</target>
@@ -90,9 +95,9 @@
         <target state="final">**Atenção: Isto aumenta o tráfego de rede e também afeta negativamente a velocidade, a latência e a utilização da bateria. Utilize com precaução em planos limitados.**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+      <trans-unit id="**Tap here to read more**" xml:space="preserve" approved="yes">
         <source>**Tap here to read more**</source>
-        <target state="needs-translation">**Tap here to read more**</target>
+        <target state="final">**Toque aqui para ler mais**</target>
         <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
@@ -330,9 +335,9 @@
         <target state="final">Atenção: neste modo, os filtros são ignorados para o servidor adicional.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <target state="final">Atenção: esta ação irá ignorar as definições dos filtros do servidor de entrada que está a ser selecionado automaticamente.</target>
         <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
@@ -1110,9 +1115,9 @@
         <target state="final">Expande esta localização.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
         <source>FAQs &amp; Guides</source>
-        <target state="final">Perguntas frequentes e guias</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to change mode" xml:space="preserve" approved="yes">
@@ -1189,6 +1194,11 @@
         <source>Finland</source>
         <target state="final">Finlândia</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="For details, please see our blog post" xml:space="preserve" approved="yes">
+        <source>For details, please see our blog post</source>
+        <target state="final">Para mais detalhes, consulte a nossa publicação no blogue</target>
+        <note from="auto-generated">Link to a blog post explaining why Include All Networks is not available on iOS 16.</note>
       </trans-unit>
       <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
         <source>Force all apps</source>
@@ -1910,10 +1920,10 @@
         <target state="final">Já não é suportado</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers" xml:space="preserve">
-        <source>No matching servers</source>
-        <target state="needs-translation">No matching servers</target>
-        <note from="auto-generated">Button title when there are no matching relays to show.</note>
+      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
+        <source>No matching servers found.</source>
+        <target state="final">Nenhum servidor correspondente encontrado.</target>
+        <note/>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
         <source>No recent selection history</source>
@@ -1945,10 +1955,25 @@
         <target state="final">Noruega</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve" approved="yes">
         <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
-        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <target state="final">Nem todas as nossas localizações/servidores suportam todas as funcionalidades da aplicação. Se a localização/o servidor selecionado não suportar as funcionalidades que ativou, a aplicação utilizará automaticamente o multihop através de um servidor compatível.</target>
         <note from="auto-generated">A sentence that describes the feature</note>
+      </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</source>
+        <target state="final">Nem todas as nossas localizações/servidores suportam todas as funcionalidades da aplicação. Se a localização/servidor que selecionou não suportar as funcionalidades que ativou, a aplicação irá utilizar automaticamente o multihop através de um servidor compatível.
+
+Isto garante que a sua ligação não é bloqueada devido a definições incompatíveis.
+
+Isto será indicado pelo símbolo %@.
+</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
@@ -2447,11 +2472,6 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Definir entrada como "%@"</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
-        <source>Set multihop to “%@”</source>
-        <target state="needs-translation">Set multihop to “%@”</target>
-        <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
-      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">Configurar notificações</target>
@@ -2485,12 +2505,7 @@ Pretende remover o número de conta guardado?</target>
       <trans-unit id="Show %@ servers" xml:space="preserve" approved="yes">
         <source>Show %@ servers</source>
         <target state="final">Mostrar %@ servidores</target>
-        <note from="auto-generated">A message that appears below a button that filters the list of available relays to only those that match the current filter settings. The argument is the string “99+”.</note>
-      </trans-unit>
-      <trans-unit id="Show %lld servers" xml:space="preserve" approved="yes">
-        <source>Show %lld servers</source>
-        <target state="final">Mostrar %lld servidores</target>
-        <note from="auto-generated">A button that shows the number of available relays.</note>
+        <note/>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve" approved="yes">
         <source>Show account number</source>
@@ -2547,14 +2562,14 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Algumas funcionalidades do iOS são conhecidas por serem afetadas ao utilizar Forçar todas as aplicações.</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <target state="final">Algumas das suas definições foram migradas. Reveja as alterações e resolva quaisquer problemas.</target>
         <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <target state="final">Algumas das suas definições foram migradas. Reveja as alterações.</target>
         <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
@@ -2844,7 +2859,7 @@ Pretende remover o número de conta guardado?</target>
       </trans-unit>
       <trans-unit id="This impacts your anonymity" xml:space="preserve" approved="yes">
         <source>This impacts your anonymity</source>
-        <target state="final">Isso afeta o seu anonimato</target>
+        <target state="final">Esta ação afeta o seu anonimato</target>
         <note/>
       </trans-unit>
       <trans-unit id="This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website." xml:space="preserve" approved="yes">
@@ -2952,11 +2967,6 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
-        <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
-        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
-        <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
-      </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
         <source>To start using the app, you first need to add time to your account.</source>
         <target state="final">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</target>
@@ -3024,7 +3034,7 @@ Pretende remover o número de conta guardado?</target>
       </trans-unit>
       <trans-unit id="USA" xml:space="preserve" approved="yes">
         <source>USA</source>
-        <target state="final">EUA</target>
+        <target state="final">Estados Unidos</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ukraine" xml:space="preserve" approved="yes">
@@ -3217,6 +3227,11 @@ Pretende remover o número de conta guardado?</target>
         <target state="final">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
+        <target state="final">Ao utilizar o DAITA, é necessário um fornecedor com servidores compatíveis com o DAITA</target>
+        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
+      </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
         <target state="final">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</target>
@@ -3306,11 +3321,6 @@ Pretende remover o número de conta guardado?</target>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Pode usar a função "restaurar compras" para verificar se houve algum pagamento na aplicação efetuado através dos serviços da Apple. Se existir um pagamento que ainda não tenha sido creditado, o tempo será adicionado à conta Mullvad com sessão iniciada atualmente.</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
-        <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
-        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
-        <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
@@ -3484,49 +3494,49 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3538,21 +3548,21 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3574,14 +3584,14 @@ Acreditamos firmemente em reter o mínimo de dados possível, porque queremos qu
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="pt" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>

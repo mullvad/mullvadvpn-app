@@ -290,7 +290,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更新があります"
+            "value" : "更新あり"
           }
         },
         "ko" : {
@@ -302,13 +302,13 @@
         "my" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
+            "value" : "အပ်ဒိတ်ရရှိနိုင်ပါပြီ"
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En oppdatering er tilgjengelig"
+            "value" : "Oppdatering er tilgjengelig"
           }
         },
         "nl" : {

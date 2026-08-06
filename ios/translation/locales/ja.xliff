@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -70,6 +70,11 @@
         <target state="final">%1$@、%2$@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@-enabled" xml:space="preserve" approved="yes">
+        <source>%@-enabled</source>
+        <target state="final">%@が有効</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="%d more..." xml:space="preserve" approved="yes">
         <source>%d more...</source>
         <target state="final">その他%d件…</target>
@@ -90,9 +95,9 @@
         <target state="final">**注: これによりネットワークトラフィックが増加し、速度、遅延状況、バッテリー消費量にも悪影響を及ぼします。データ通信量に制限のあるプランでは慎重に利用してください。**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+      <trans-unit id="**Tap here to read more**" xml:space="preserve" approved="yes">
         <source>**Tap here to read more**</source>
-        <target state="needs-translation">**Tap here to read more**</target>
+        <target state="final">**タップして詳細を読む**</target>
         <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
@@ -330,9 +335,9 @@
         <target state="final">注意: このモードでは、追加サーバーに対してフィルター設定は適用されません。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
+        <target state="final">注意: これにより、自動選択される入口サーバーのフィルター設定は無視されます。</target>
         <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
@@ -792,7 +797,7 @@
       </trans-unit>
       <trans-unit id="Czech Republic" xml:space="preserve" approved="yes">
         <source>Czech Republic</source>
-        <target state="final">チェコ共和国</target>
+        <target state="final">チェコ</target>
         <note/>
       </trans-unit>
       <trans-unit id="DAITA" xml:space="preserve" approved="yes">
@@ -1110,9 +1115,9 @@
         <target state="final">この場所を展開します。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="FAQs &amp; Guides" xml:space="preserve" approved="yes">
+      <trans-unit id="FAQs &amp; Guides" xml:space="preserve">
         <source>FAQs &amp; Guides</source>
-        <target state="final">よくある質問とガイド</target>
+        <target/>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to change mode" xml:space="preserve" approved="yes">
@@ -1189,6 +1194,11 @@
         <source>Finland</source>
         <target state="final">フィンランド</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="For details, please see our blog post" xml:space="preserve" approved="yes">
+        <source>For details, please see our blog post</source>
+        <target state="final">詳細については、当社のブログ記事をご覧ください</target>
+        <note from="auto-generated">Link to a blog post explaining why Include All Networks is not available on iOS 16.</note>
       </trans-unit>
       <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
         <source>Force all apps</source>
@@ -1462,7 +1472,7 @@
       </trans-unit>
       <trans-unit id="Invalid account number" xml:space="preserve" approved="yes">
         <source>Invalid account number</source>
-        <target state="final">無効なアカウント番号</target>
+        <target state="final">アカウント番号が無効です</target>
         <note/>
       </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
@@ -1832,7 +1842,7 @@
       </trans-unit>
       <trans-unit id="Name" xml:space="preserve" approved="yes">
         <source>Name</source>
-        <target state="final">氏名</target>
+        <target state="final">名前</target>
         <note/>
       </trans-unit>
       <trans-unit id="Name is already taken." xml:space="preserve" approved="yes">
@@ -1910,10 +1920,10 @@
         <target state="final">サポートは終了しました</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers" xml:space="preserve">
-        <source>No matching servers</source>
-        <target state="needs-translation">No matching servers</target>
-        <note from="auto-generated">Button title when there are no matching relays to show.</note>
+      <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
+        <source>No matching servers found.</source>
+        <target state="final">一致するサーバーが見つかりません。</target>
+        <note/>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
         <source>No recent selection history</source>
@@ -1945,10 +1955,24 @@
         <target state="final">ノルウェー</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve" approved="yes">
         <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
-        <target state="needs-translation">Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</target>
+        <target state="final">すべてのロケーションやサーバーが、アプリ内のすべての機能に対応しているわけではありません。選択したロケーションやサーバーが有効にした機能に対応していない場合、アプリは対応可能なサーバーを経由して自動的にマルチホップ接続を行います。</target>
         <note from="auto-generated">A sentence that describes the feature</note>
+      </trans-unit>
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.&#10;&#10;This ensures your connection does not get blocked due to incompatible settings.&#10;&#10;This will be indicated by the %@ symbol.&#10;" xml:space="preserve" approved="yes">
+        <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.
+
+This ensures your connection does not get blocked due to incompatible settings.
+
+This will be indicated by the %@ symbol.
+</source>
+        <target state="final">すべてのロケーション/サーバーがアプリの全機能に対応しているわけではありません。選択したロケーション/サーバーが有効な機能に対応していない場合、アプリは自動的に互換性のあるサーバーを経由してマルチホップ接続を行います。
+
+これにより、設定の非互換による接続のブロックを防ぐことができます。
+
+この状態は %@ アイコンで示されます。</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
         <source>Not all our servers are %1$@-enabled. Therefore, we use multihop automatically to enable %2$@ with any server.</source>
@@ -2289,7 +2313,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="Report a problem" xml:space="preserve" approved="yes">
         <source>Report a problem</source>
-        <target state="final">問題を報告</target>
+        <target state="final">問題を報告する</target>
         <note/>
       </trans-unit>
       <trans-unit id="Required" xml:space="preserve" approved="yes">
@@ -2374,7 +2398,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
-        <target state="final">場所を選択</target>
+        <target state="final">場所を選択する</target>
         <note/>
       </trans-unit>
       <trans-unit id="Selected" xml:space="preserve" approved="yes">
@@ -2447,11 +2471,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">入口を「%@」に設定</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
-        <source>Set multihop to “%@”</source>
-        <target state="needs-translation">Set multihop to “%@”</target>
-        <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
-      </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
         <source>Set up notifications</source>
         <target state="final">通知を設定</target>
@@ -2485,12 +2504,7 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Show %@ servers" xml:space="preserve" approved="yes">
         <source>Show %@ servers</source>
         <target state="final">%@件のサーバーを表示</target>
-        <note from="auto-generated">A message that appears below a button that filters the list of available relays to only those that match the current filter settings. The argument is the string “99+”.</note>
-      </trans-unit>
-      <trans-unit id="Show %lld servers" xml:space="preserve" approved="yes">
-        <source>Show %lld servers</source>
-        <target state="final">%lld件のサーバーを表示</target>
-        <note from="auto-generated">A button that shows the number of available relays.</note>
+        <note/>
       </trans-unit>
       <trans-unit id="Show account number" xml:space="preserve" approved="yes">
         <source>Show account number</source>
@@ -2547,14 +2561,14 @@ Do you want to remove the saved account number?</source>
         <target state="final">「すべてのアプリを強制」に設定すると、iOSの一部機能に影響が出る可能性があります。</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes and resolve any issues.</target>
+        <target state="final">一部の設定が移行されました。変更内容を確認し、必要に応じて問題を解決してください。</target>
         <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes.</source>
-        <target state="needs-translation">Some of your settings have been migrated, please review the changes.</target>
+        <target state="final">一部の設定が移行されました。変更内容を確認してください。</target>
         <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
@@ -2952,11 +2966,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
-        <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
-        <target state="needs-translation">To manually select an entry server, please switch multihop mode to “%@”.</target>
-        <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
-      </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
         <source>To start using the app, you first need to add time to your account.</source>
         <target state="final">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</target>
@@ -3024,7 +3033,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="USA" xml:space="preserve" approved="yes">
         <source>USA</source>
-        <target state="final">アメリカ</target>
+        <target state="final">アメリカ合衆国</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ukraine" xml:space="preserve" approved="yes">
@@ -3069,7 +3078,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">更新があります</target>
+        <target state="final">更新あり</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Update server list" xml:space="preserve" approved="yes">
@@ -3217,6 +3226,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="When using DAITA, one provider with DAITA-enabled servers is required" xml:space="preserve" approved="yes">
+        <source>When using DAITA, one provider with DAITA-enabled servers is required</source>
+        <target state="final">DAITAを使用する場合、DAITA対応サーバーを備えたプロバイダーが1つ必要です</target>
+        <note from="auto-generated">Description shown when using DAITA and only one provider with DAITA-enabled servers is available.</note>
+      </trans-unit>
       <trans-unit id="Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server." xml:space="preserve" approved="yes">
         <source>Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.</source>
         <target state="final">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</target>
@@ -3306,11 +3320,6 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">「購入を復元する」機能を使用すると、Appleのサービスを介して行われたアプリ内課金を確認できます。未反映の課金がある場合は、現在ログイン中のMullvadアカウントに時間が追加されます。</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
-        <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
-        <target state="needs-translation">You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</target>
-        <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected.</source>
@@ -3484,49 +3493,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3538,21 +3547,21 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3567,21 +3576,21 @@ We strongly believe in retaining as little data as possible because we want you 
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
         <source>Update available</source>
-        <target state="final">更新があります</target>
+        <target state="final">更新あり</target>
         <note/>
       </trans-unit>
     </body>
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="ja" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
     </header>
     <body>
     </body>
