@@ -566,16 +566,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                         case let .failure(error):
                             logger.error("Failed migration from UI Process: \(error)")
-                            let migrationUIHandler =
-                                application.connectedScenes
-                                .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                            MainActor.assumeIsolated {
+                                let migrationUIHandler =
+                                    application.connectedScenes
+                                    .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
-                            if let migrationUIHandler {
-                                migrationUIHandler.showMigrationError(error) {
+                                if let migrationUIHandler {
+                                    migrationUIHandler.showMigrationError(error) {
+                                        continuation.resume(returning: ())
+                                    }
+                                } else {
                                     continuation.resume(returning: ())
                                 }
-                            } else {
-                                continuation.resume(returning: ())
                             }
                         }
                     }
