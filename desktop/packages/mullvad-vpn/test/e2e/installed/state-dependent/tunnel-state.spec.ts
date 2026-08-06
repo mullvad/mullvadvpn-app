@@ -171,11 +171,11 @@ test.describe('Tunnel state and settings', () => {
   });
 
   test('App should show multihop', async () => {
-    await exec('mullvad relay set multihop on');
+    await exec('mullvad relay set multihop always');
     await expectConnected(page);
     const relay = routes.main.getRelayHostname();
     await expect(relay).toHaveText(new RegExp('^' + escapeRegExp(`${HOSTNAME} via`), 'i'));
-    await exec('mullvad relay set multihop off');
+    await exec('mullvad relay set multihop auto');
     await page.getByText('Disconnect').click();
   });
 
