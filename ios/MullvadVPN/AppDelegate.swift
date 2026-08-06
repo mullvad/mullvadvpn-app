@@ -551,40 +551,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // it consumes any error states produced in the process
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
-                MainActor.assumeIsolated {
-                    self.migrationManager
-                        .migrateSettings(store: self.settingsManager.store) { [self] migrationResult in
-                            switch migrationResult {
-                            case .success:
-                                // Tell the tunnel to re-read tunnel configuration after migration.
-                                logger.debug("Successful migration from UI Process")
-                                tunnelManager.reconnectTunnel(selectNewRelay: true)
-                                fallthrough
+                self.migrationManager
+                    .migrateSettings(store: self.settingsManager.store) { [self] migrationResult in
+                        switch migrationResult {
+                        case .success:
+                            // Tell the tunnel to re-read tunnel configuration after migration.
+                            logger.debug("Successful migration from UI Process")
+                            tunnelManager.reconnectTunnel(selectNewRelay: true)
+                            fallthrough
 
-                            case .nothing:
-                                logger.debug("Attempted migration from UI Process, but found nothing to do")
-                                continuation.resume(returning: ())
+                        case .nothing:
+                            logger.debug("Attempted migration from UI Process, but found nothing to do")
+                            continuation.resume(returning: ())
 
-                            case let .failure(error):
-                                logger.error("Failed migration from UI Process: \(error)")
-                                MainActor.assumeIsolated {
-                                    let migrationUIHandler =
-                                        application.connectedScenes
-                                        .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                        case let .failure(error):
+                            logger.error("Failed migration from UI Process: \(error)")
+                            let migrationUIHandler =
+                                application.connectedScenes
+                                .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
-                                    if let migrationUIHandler {
-                                        migrationUIHandler.showMigrationError(error) {
-                                            MainActor.assumeIsolated {
-                                                continuation.resume(returning: ())
-                                            }
-                                        }
-                                    } else {
-                                        continuation.resume(returning: ())
-                                    }
+                            if let migrationUIHandler {
+                                migrationUIHandler.showMigrationError(error) {
+                                    continuation.resume(returning: ())
                                 }
+                            } else {
+                                continuation.resume(returning: ())
                             }
                         }
-                }
+                    }
             }
         }
     }
@@ -611,9 +605,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// (`SettingsManager.getShouldWipeSettings()`)
     /// If (1) is `false` and (2) is `true`, we know that the app has been freshly installed/reinstalled and is
     /// compatible, thus triggering a settings wipe.
-
-    /// this was an AsyncBlockOperation, though is not in itself asynchronous.(It can call `deleteDevice`, but does not await the result)
-    /// The reimplementation is entirely synchronous
     private func doWipeSettingsIfNeeded() {
         defer {
             settingsManager.setShouldWipeSettings()

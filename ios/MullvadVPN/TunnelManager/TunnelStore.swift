@@ -74,22 +74,6 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
             }
     }
 
-    func loadPersistentTunnels(completion: @escaping @Sendable (Error?) -> Void) {
-        TunnelProviderManagerType.loadAllFromPreferences { managers, error in
-            self.lock.lock()
-            defer {
-                self.lock.unlock()
-
-                completion(error)
-            }
-
-            guard error == nil else { return }
-
-            self.setPersistentTunnelsFromManagers(managers ?? [])
-        }
-    }
-
-    // the above function rewritten to be async
     func loadPersistentTunnels() async throws {
         let managers = try await TunnelProviderManagerType.loadAllFromPreferences()
         self.setPersistentTunnelsFromManagers(managers)
