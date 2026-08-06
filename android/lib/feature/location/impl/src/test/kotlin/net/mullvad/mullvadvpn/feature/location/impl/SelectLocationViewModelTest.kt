@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -149,7 +149,7 @@ class SelectLocationViewModelTest {
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                viewModel.modifyMultihop(mockRelayItem, MultihopRelayListType.EXIT)
+                viewModel.modifyMultihop(mockRelayItem, RelayHopType.EXIT)
                 // Await an empty item
                 assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
                 coVerify { mockModifyMultihopUseCase.invoke(multihopChange) }
@@ -170,17 +170,17 @@ class SelectLocationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 awaitItem() // Default value
-                viewModel.selectRelayList(MultihopRelayListType.ENTRY)
+                viewModel.selectRelayList(RelayHopType.ENTRY)
                 // Assert relay list type is entry
                 val firstState = awaitItem()
                 assertIs<Lc.Content<SelectLocationUiState>>(firstState)
-                assertEquals(MultihopRelayListType.ENTRY, firstState.value.multihopListSelection)
+                assertEquals(RelayHopType.ENTRY, firstState.value.multihopListSelection)
                 // Select entry
-                viewModel.modifyMultihop(mockRelayItem, MultihopRelayListType.ENTRY)
+                viewModel.modifyMultihop(mockRelayItem, RelayHopType.ENTRY)
                 // Assert relay list type is exit
                 val secondState = awaitItem()
                 assertIs<Lc.Content<SelectLocationUiState>>(secondState)
-                assertEquals(MultihopRelayListType.EXIT, secondState.value.multihopListSelection)
+                assertEquals(RelayHopType.EXIT, secondState.value.multihopListSelection)
                 coVerify { mockModifyMultihopUseCase.invoke(multihopChange) }
             }
         }
@@ -247,7 +247,7 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             awaitItem() // Initial state
-            viewModel.selectRelayList(MultihopRelayListType.ENTRY)
+            viewModel.selectRelayList(RelayHopType.ENTRY)
             val state = awaitItem()
             assertIs<Lc.Content<SelectLocationUiState>>(state)
             assertLists(expectedFilters, state.value.filterChips)
@@ -267,7 +267,7 @@ class SelectLocationViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            viewModel.selectRelayList(MultihopRelayListType.EXIT)
+            viewModel.selectRelayList(RelayHopType.EXIT)
             val state = awaitItem()
             assertIs<Lc.Content<SelectLocationUiState>>(state)
             assertLists(expectedFilters, state.value.filterChips)

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.feature.location.impl.search
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lce
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
@@ -22,7 +22,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
             Lce.Error(Unit),
@@ -33,7 +33,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     relayListItems =
                         RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
             Lce.Content(
@@ -46,7 +46,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
         )

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.feature.location.impl.list
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lce
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 
@@ -17,7 +17,7 @@ class SelectLocationsListUiStatePreviewParameterProvider :
                             includeCustomLists = true,
                             isSearching = false,
                         ),
-                    relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
+                    relayListType = RelayListType.Multihop(RelayHopType.EXIT),
                     recentsEnabled = false,
                 )
             ),

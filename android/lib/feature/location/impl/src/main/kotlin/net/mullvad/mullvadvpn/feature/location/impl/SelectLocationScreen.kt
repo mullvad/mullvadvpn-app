@@ -96,11 +96,11 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.HopSelection
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.toFilterTarget
+import net.mullvad.mullvadvpn.lib.model.hopType
 import net.mullvad.mullvadvpn.lib.ui.component.FilterState
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
@@ -322,9 +322,9 @@ fun SelectLocation(navigator: Navigator) {
         when (val type = result.relayListType) {
             RelayListType.Single -> navigator.goBack(result = SelectLocationNavResult(true))
             is RelayListType.Multihop ->
-                when (type.multihopRelayListType) {
-                    MultihopRelayListType.ENTRY -> vm.selectRelayList(MultihopRelayListType.EXIT)
-                    MultihopRelayListType.EXIT ->
+                when (type.hopType) {
+                    RelayHopType.ENTRY -> vm.selectRelayList(RelayHopType.EXIT)
+                    RelayHopType.EXIT ->
                         navigator.goBack(result = SelectLocationNavResult(true))
                 }
         }
@@ -367,16 +367,16 @@ fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectSinglehop: (item: RelayItem) -> Unit,
-    onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
+    onModifyMultihop: (relayItem: RelayItem, relayListType: RelayHopType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: (filterTarget: FilterTarget) -> Unit,
+    onFilterClick: (filterTarget: RelayHopType) -> Unit,
     onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
-    removeOwnershipFilter: (filterTarget: FilterTarget) -> Unit,
-    removeProviderFilter: (filterTarget: FilterTarget) -> Unit,
-    onSelectRelayList: (MultihopRelayListType) -> Unit,
+    removeOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
+    removeProviderFilter: (filterTarget: RelayHopType) -> Unit,
+    onSelectRelayList: (RelayHopType) -> Unit,
     setMultihopToAlways: () -> Unit,
     onSelectAutomaticEntry: () -> Unit,
     onAutomaticInfoClick: () -> Unit,
@@ -512,10 +512,10 @@ fun SelectLocationScreen(
                         hasAnyExitFilter = state.value.hasAnyExitFilter,
                         onSelectRelayList = onSelectRelayList,
                         removeOwnershipFilter = {
-                            removeOwnershipFilter(state.value.relayListType.toFilterTarget())
+                            removeOwnershipFilter(state.value.relayListType.hopType())
                         },
                         removeProviderFilter = {
-                            removeProviderFilter(state.value.relayListType.toFilterTarget())
+                            removeProviderFilter(state.value.relayListType.hopType())
                         },
                         scrollToRelayItem = { relayListType: RelayListType, relayItem: RelayItem ->
                             scrollToItem(relayListType to relayItem)
@@ -632,7 +632,7 @@ private fun RelayLists(
     relayListType: RelayListType,
     bottomMargin: Dp,
     onSelect: (item: RelayItem) -> Unit,
-    onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
+    onModifyMultihop: (RelayItem, RelayHopType) -> Unit,
     onSetMultihopToAlways: () -> Unit,
     onSelectAutomaticEntry: () -> Unit,
     onAutomaticInfoClick: () -> Unit,
@@ -642,7 +642,7 @@ private fun RelayLists(
 ) {
     val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
         if (relayListType is RelayListType.Multihop) {
-            onModifyMultihop(relayItem, relayListType.multihopRelayListType)
+            onModifyMultihop(relayItem, relayListType.hopType)
         } else {
             onSelect(relayItem)
         }
@@ -653,8 +653,8 @@ private fun RelayLists(
     Crossfade(relayListType) {
         when (it) {
             is RelayListType.Multihop ->
-                when (it.multihopRelayListType) {
-                    MultihopRelayListType.ENTRY ->
+                when (it.hopType) {
+                    RelayHopType.ENTRY ->
                         SelectLocationList(
                             relayListType = it,
                             bottomMargin = bottomMargin,
@@ -668,7 +668,7 @@ private fun RelayLists(
                             lazyListStates = lazyListStates,
                         )
 
-                    MultihopRelayListType.EXIT ->
+                    RelayHopType.EXIT ->
                         SelectLocationList(
                             relayListType = it,
                             bottomMargin = bottomMargin,
@@ -711,19 +711,19 @@ private fun SelectionContainer(
     userLocation: String?,
     entryCountry: String?,
     entryFilteringEnabled: Boolean,
-    onFilterClick: (filterTarget: FilterTarget) -> Unit,
+    onFilterClick: (filterTarget: RelayHopType) -> Unit,
     hasAnyEntryFilter: Boolean,
     hasAnyExitFilter: Boolean,
     filterChips: List<FilterChip>,
-    onSelectRelayList: (MultihopRelayListType) -> Unit,
+    onSelectRelayList: (RelayHopType) -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
     scrollToRelayItem: (RelayListType, RelayItem) -> Unit,
 ) {
 
-    var multihopListSelector by remember { mutableStateOf(MultihopRelayListType.EXIT) }
+    var multihopListSelector by remember { mutableStateOf(RelayHopType.EXIT) }
     if (relayListType is RelayListType.Multihop) {
-        multihopListSelector = relayListType.multihopRelayListType
+        multihopListSelector = relayListType.hopType
     }
 
     Column {
@@ -746,12 +746,7 @@ private fun SelectionContainer(
                             if (hasAnyExitFilter) FilterState.ActiveAndFiltersSelected
                             else FilterState.Active,
                         onFilterClick = {
-                            onFilterClick(
-                                when (multihopListSelector) {
-                                    MultihopRelayListType.ENTRY -> FilterTarget.Entry
-                                    MultihopRelayListType.EXIT -> FilterTarget.Exit
-                                }
-                            )
+                            onFilterClick(multihopListSelector)
                         },
                         onSelect = {
                             hopSelection.relay?.getOrNull()?.let {
@@ -763,35 +758,35 @@ private fun SelectionContainer(
                 is HopSelection.Multi ->
                     MultihopSelector(
                         userLocation = userLocation,
-                        exitSelected = multihopListSelector == MultihopRelayListType.EXIT,
+                        exitSelected = multihopListSelector == RelayHopType.EXIT,
                         exitLocation = hopSelection.exit.toDisplayName(),
                         exitErrorText =
-                            error.errorText(RelayListType.Multihop(MultihopRelayListType.EXIT)),
+                            error.errorText(RelayListType.Multihop(RelayHopType.EXIT)),
                         onExitClick = {
-                            if (multihopListSelector == MultihopRelayListType.EXIT) {
+                            if (multihopListSelector == RelayHopType.EXIT) {
                                 hopSelection.exit?.getOrNull()?.let {
                                     scrollToRelayItem(
-                                        RelayListType.Multihop(MultihopRelayListType.EXIT),
+                                        RelayListType.Multihop(RelayHopType.EXIT),
                                         it,
                                     )
                                 }
                             } else {
-                                onSelectRelayList(MultihopRelayListType.EXIT)
+                                onSelectRelayList(RelayHopType.EXIT)
                             }
                         },
                         entryLocation = hopSelection.entry.toDisplayName(entryCountry),
                         entryErrorText =
-                            error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
+                            error.errorText(RelayListType.Multihop(RelayHopType.ENTRY)),
                         onEntryClick = {
-                            if (multihopListSelector == MultihopRelayListType.ENTRY) {
+                            if (multihopListSelector == RelayHopType.ENTRY) {
                                 hopSelection.entry?.getOrNull()?.let {
                                     scrollToRelayItem(
-                                        RelayListType.Multihop(MultihopRelayListType.ENTRY),
+                                        RelayListType.Multihop(RelayHopType.ENTRY),
                                         it,
                                     )
                                 }
                             } else {
-                                onSelectRelayList(MultihopRelayListType.ENTRY)
+                                onSelectRelayList(RelayHopType.ENTRY)
                             }
                         },
                         entryFilterState =
@@ -843,7 +838,7 @@ private fun SelectionContainer(
                 modifier = Modifier.layoutId(keyFilters).alpha(EaseInQuint.transform(progress)),
                 filters = filterChips,
                 relayFiltersActive =
-                    entryFilteringEnabled || relayListType.toFilterTarget() == FilterTarget.Exit,
+                    entryFilteringEnabled || relayListType.hopType() == RelayHopType.EXIT,
                 onRemoveOwnershipFilter = { removeOwnershipFilter() },
                 onRemoveProviderFilter = { removeProviderFilter() },
             )
@@ -874,12 +869,12 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
 
         ParameterGenerationError.NoMatchingRelayEntry if
             relayListType is RelayListType.Multihop &&
-                relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+                relayListType.hopType == RelayHopType.ENTRY
          -> stringResource(R.string.no_matching_relay)
 
         ParameterGenerationError.NoMatchingRelayExit if
             relayListType is RelayListType.Multihop &&
-                relayListType.multihopRelayListType == MultihopRelayListType.EXIT
+                relayListType.hopType == RelayHopType.EXIT
          -> stringResource(R.string.no_matching_relay)
 
         else -> null

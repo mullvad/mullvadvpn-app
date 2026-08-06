@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.HopSelection
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -75,7 +75,7 @@ class SelectLocationScreenTest {
         state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
         onSelectHop: (item: RelayItem) -> Unit = {},
         onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit = {},
-        onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
+        onModifyMultihop: (RelayItem, RelayHopType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
         onFilterClick: (FilterTarget) -> Unit = {},
@@ -83,7 +83,7 @@ class SelectLocationScreenTest {
         onEditCustomLists: () -> Unit = {},
         removeOwnershipFilter: (FilterTarget) -> Unit = {},
         removeProviderFilter: (FilterTarget) -> Unit = {},
-        onSelectRelayList: (MultihopRelayListType) -> Unit = {},
+        onSelectRelayList: (RelayHopType) -> Unit = {},
         setMultihopToAlways: () -> Unit = {},
         onSelectAutomaticEntry: () -> Unit = {},
         onAutomaticInfoClick: () -> Unit = {},
@@ -143,7 +143,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -185,7 +185,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -224,7 +224,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -267,7 +267,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -321,7 +321,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -380,7 +380,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = true,
                         isFilterButtonEnabled = true,
                         isRecentsEnabled = true,
@@ -426,7 +426,7 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
+                            multihopListSelection = RelayHopType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = true,
@@ -476,7 +476,7 @@ class SelectLocationScreenTest {
                     Lc.Content(
                         SelectLocationUiState(
                             filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
+                            multihopListSelection = RelayHopType.EXIT,
                             isSearchButtonEnabled = true,
                             isFilterButtonEnabled = true,
                             isRecentsEnabled = false,
@@ -525,7 +525,7 @@ class SelectLocationScreenTest {
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = emptyList(),
-                        multihopListSelection = MultihopRelayListType.EXIT,
+                        multihopListSelection = RelayHopType.EXIT,
                         isSearchButtonEnabled = false,
                         isFilterButtonEnabled = false,
                         isRecentsEnabled = true,

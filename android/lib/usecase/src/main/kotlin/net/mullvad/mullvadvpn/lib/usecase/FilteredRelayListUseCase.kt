@@ -13,8 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
-import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
 import net.mullvad.mullvadvpn.lib.model.PartitionHostname
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -38,8 +37,8 @@ class FilteredRelayListUseCase(
                 .map {
                     when (relayListType) {
                         is RelayListType.Multihop ->
-                            when (relayListType.multihopRelayListType) {
-                                MultihopRelayListType.ENTRY ->
+                            when (relayListType.hopType) {
+                                RelayHopType.ENTRY ->
                                     RelaySelectorPredicate.Entry(
                                         multihopConstraints =
                                             MultihopConstraints(
@@ -48,7 +47,7 @@ class FilteredRelayListUseCase(
                                                 exitConstraints = it.toExitConstraint(),
                                             )
                                     )
-                                MultihopRelayListType.EXIT ->
+                                RelayHopType.EXIT ->
                                     if (it.isWhenNeededMultihop()) {
                                         RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
                                     } else {

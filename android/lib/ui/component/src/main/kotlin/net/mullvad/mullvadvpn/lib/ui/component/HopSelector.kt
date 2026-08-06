@@ -67,7 +67,7 @@ import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
-import net.mullvad.mullvadvpn.lib.model.FilterTarget
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedInactive
 import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedActive
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -215,7 +215,7 @@ fun MultihopSelector(
     exitErrorText: String? = null,
     exitFilterState: FilterState = FilterState.Active,
     onExitClick: () -> Unit = {},
-    onFilterClick: (FilterTarget) -> Unit = {},
+    onFilterClick: (RelayHopType) -> Unit = {},
     expandProgress: Float = 1f,
 ) {
     val scene = MotionScene {
@@ -388,7 +388,7 @@ fun MultihopSelector(
             isError = entryErrorText != null,
             colors = colors,
             filterState = entryFilterState,
-            onFilterClick = { onFilterClick(FilterTarget.Entry) },
+            onFilterClick = { onFilterClick(RelayHopType.ENTRY) },
             onIconGloballyPositioned = { entryIconLC = it },
         )
 
@@ -418,7 +418,7 @@ fun MultihopSelector(
             isError = exitErrorText != null,
             colors = colors,
             filterState = exitFilterState,
-            onFilterClick = { onFilterClick(FilterTarget.Exit) },
+            onFilterClick = { onFilterClick(RelayHopType.EXIT) },
             onIconGloballyPositioned = { exitIconLC = it },
         )
         Text(

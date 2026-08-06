@@ -19,8 +19,7 @@ import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.FilterTarget
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -135,10 +134,10 @@ class SearchLocationViewModel(
             when (relayListType) {
                 is RelayListType.Multihop ->
                     modifyMultihop(
-                        when (relayListType.multihopRelayListType) {
-                            MultihopRelayListType.ENTRY ->
+                        when (relayListType.hopType) {
+                            RelayHopType.ENTRY ->
                                 MultihopChange.Entry(Constraint.Only(relayItem))
-                            MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
+                            RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
                         }
                     )
                 RelayListType.Single -> selectSinglehop(item = relayItem)
@@ -186,9 +185,9 @@ class SearchLocationViewModel(
             filterChips.toMutableList().apply {
                 // Only show entry and exit filter chips if relayListType is Multihop
                 if (relayListType is RelayListType.Multihop) {
-                    when (relayListType.multihopRelayListType) {
-                        MultihopRelayListType.ENTRY -> add(FilterChip.Entry)
-                        MultihopRelayListType.EXIT -> add(FilterChip.Exit)
+                    when (relayListType.hopType) {
+                        RelayHopType.ENTRY -> add(FilterChip.Entry)
+                        RelayHopType.EXIT -> add(FilterChip.Exit)
                     }
                 }
             }
@@ -198,13 +197,13 @@ class SearchLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter(filterTarget: FilterTarget) {
+    fun removeOwnerFilter(filterTarget: RelayHopType) {
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnership(Constraint.Any, filterTarget)
         }
     }
 
-    fun removeProviderFilter(filterTarget: FilterTarget) {
+    fun removeProviderFilter(filterTarget: RelayHopType) {
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedProviders(Constraint.Any, filterTarget)
         }

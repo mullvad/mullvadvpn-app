@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
@@ -143,7 +143,7 @@ class FilterChipUseCaseTest {
 
             multihopActive.value = MultihopInEffectStatus.AlwaysOnInEffect
 
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
+            filterChipUseCase(RelayListType.Multihop(RelayHopType.ENTRY)).test {
                 assertLists(listOf(FilterChip.Daita), awaitItem())
             }
         }
@@ -159,7 +159,7 @@ class FilterChipUseCaseTest {
 
             multihopActive.value = MultihopInEffectStatus.WhenNeededInEffect
 
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
+            filterChipUseCase(RelayListType.Multihop(RelayHopType.ENTRY)).test {
                 assertLists(emptyList(), awaitItem())
             }
         }
@@ -173,7 +173,7 @@ class FilterChipUseCaseTest {
                     every { tunnelOptions.daitaSettings.enabled } returns true
                 }
 
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {
+            filterChipUseCase(RelayListType.Multihop(RelayHopType.EXIT)).test {
                 assertLists(emptyList(), awaitItem())
             }
         }
@@ -187,7 +187,7 @@ class FilterChipUseCaseTest {
                     every { tunnelOptions.daitaSettings.enabled } returns true
                 }
 
-            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.EXIT)).test {
+            filterChipUseCase(RelayListType.Multihop(RelayHopType.EXIT)).test {
                 assertLists(emptyList(), awaitItem())
             }
         }

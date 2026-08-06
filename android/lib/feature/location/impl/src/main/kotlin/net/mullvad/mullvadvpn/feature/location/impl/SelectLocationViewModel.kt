@@ -21,9 +21,8 @@ import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -63,8 +62,8 @@ class SelectLocationViewModel(
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
-    private val _multihopRelayListTypeSelection: MutableStateFlow<MultihopRelayListType> =
-        MutableStateFlow(MultihopRelayListType.EXIT)
+    private val _multihopRelayListTypeSelection: MutableStateFlow<RelayHopType> =
+        MutableStateFlow(RelayHopType.EXIT)
 
     val uiState =
         combine(
@@ -134,16 +133,16 @@ class SelectLocationViewModel(
 
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
-        relayListSelection: MultihopRelayListType,
+        relayListSelection: RelayHopType,
         settings: Settings,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
         val isEntryAndBlocked =
-            isEntryAndBlocked(multihopRelayListType = relayListSelection, settings = settings)
+            isEntryAndBlocked(hopType = relayListSelection, settings = settings)
         return hasRelayListItems && !isEntryAndBlocked
     }
 
-    fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
+    fun selectRelayList(multihopRelayListType: RelayHopType) {
         viewModelScope.launch { _multihopRelayListTypeSelection.emit(multihopRelayListType) }
     }
 
@@ -157,11 +156,11 @@ class SelectLocationViewModel(
         }
     }
 
-    fun modifyMultihop(relayItem: RelayItem, multihopRelayListType: MultihopRelayListType) {
+    fun modifyMultihop(relayItem: RelayItem, multihopRelayListType: RelayHopType) {
         val change =
             when (multihopRelayListType) {
-                MultihopRelayListType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
-                MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
+                RelayHopType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
+                RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
         viewModelScope.launch { modifyMultihop(change = change) }
@@ -174,7 +173,7 @@ class SelectLocationViewModel(
                 {
                     when (change) {
                         is MultihopChange.Entry ->
-                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                            _multihopRelayListTypeSelection.emit(RelayHopType.EXIT)
 
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
@@ -218,13 +217,13 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter(filterTarget: FilterTarget) {
+    fun removeOwnerFilter(filterTarget: RelayHopType) {
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnership(Constraint.Any, filterTarget)
         }
     }
 
-    fun removeProviderFilter(filterTarget: FilterTarget) {
+    fun removeProviderFilter(filterTarget: RelayHopType) {
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedProviders(Constraint.Any, filterTarget)
         }
@@ -252,7 +251,7 @@ class SelectLocationViewModel(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
                         if (enable) {
-                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                            _multihopRelayListTypeSelection.emit(RelayHopType.EXIT)
                         }
                     },
                 )

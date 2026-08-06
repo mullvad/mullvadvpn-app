@@ -15,8 +15,8 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.hopType
 import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
-import net.mullvad.mullvadvpn.lib.model.toFilterTarget
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
@@ -30,8 +30,8 @@ class FilterChipUseCase(
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
-            relayListFilterRepository.selectedOwnership(relayListType.toFilterTarget()),
-            relayListFilterRepository.selectedProviders(relayListType.toFilterTarget()),
+            relayListFilterRepository.selectedOwnership(relayListType.hopType()),
+            relayListFilterRepository.selectedProviders(relayListType.hopType()),
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
             multihopInEffectUseCase(),

@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 
 class RelayListFilterRepository(
     private val managementService: ManagementService,
@@ -31,10 +32,10 @@ class RelayListFilterRepository(
             .map { settings -> settings.relaySettings.relayConstraints.ownership }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    fun selectedOwnership(filterTarget: FilterTarget): StateFlow<Constraint<Ownership>> =
-        when (filterTarget) {
-            FilterTarget.Entry -> selectedEntryOwnership
-            FilterTarget.Exit -> selectedExitOwnership
+    fun selectedOwnership(hopType: RelayHopType): StateFlow<Constraint<Ownership>> =
+        when (hopType) {
+            RelayHopType.ENTRY -> selectedEntryOwnership
+            RelayHopType.EXIT -> selectedExitOwnership
         }
 
     val selectedEntryProviders: StateFlow<Constraint<Providers>> =
@@ -49,10 +50,10 @@ class RelayListFilterRepository(
             .map { settings -> settings.relaySettings.relayConstraints.providers }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    fun selectedProviders(filterTarget: FilterTarget): StateFlow<Constraint<Providers>> =
-        when (filterTarget) {
-            FilterTarget.Entry -> selectedEntryProviders
-            FilterTarget.Exit -> selectedExitProviders
+    fun selectedProviders(hopType: RelayHopType): StateFlow<Constraint<Providers>> =
+        when (hopType) {
+            RelayHopType.ENTRY -> selectedEntryProviders
+            RelayHopType.EXIT -> selectedExitProviders
         }
 
     fun hasAnyFilterFlow(): Flow<FilterActiveState> =
@@ -73,19 +74,19 @@ class RelayListFilterRepository(
     suspend fun updateSelectedOwnershipAndProviderFilter(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>,
-        filterTarget: FilterTarget,
+        filterTarget: RelayHopType,
     ) =
         managementService.setOwnershipAndProviders(
             ownershipConstraint = ownership,
             providersConstraint = providers,
-            filterTarget = filterTarget,
+            hopType = filterTarget,
         )
 
-    suspend fun updateSelectedOwnership(value: Constraint<Ownership>, filterTarget: FilterTarget) =
-        managementService.setOwnership(value, filterTarget)
+    suspend fun updateSelectedOwnership(value: Constraint<Ownership>, hopType: RelayHopType) =
+        managementService.setOwnership(value, hopType)
 
-    suspend fun updateSelectedProviders(value: Constraint<Providers>, filterTarget: FilterTarget) =
-        managementService.setProviders(value, filterTarget)
+    suspend fun updateSelectedProviders(value: Constraint<Providers>, hopType: RelayHopType) =
+        managementService.setProviders(value, hopType)
 }
 
 data class FilterActiveState(val hasAnyEntryFilter: Boolean, val hasAnyExitFilter: Boolean)

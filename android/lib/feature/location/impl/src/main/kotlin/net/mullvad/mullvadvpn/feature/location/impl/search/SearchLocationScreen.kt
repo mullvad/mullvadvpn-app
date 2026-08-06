@@ -51,11 +51,11 @@ import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.FilterTarget
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.toFilterTarget
+import net.mullvad.mullvadvpn.lib.model.hopType
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -207,8 +207,8 @@ fun SearchLocationScreen(
     onAutomaticInfoClick: () -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
-    onRemoveOwnershipFilter: (filterTarget: FilterTarget) -> Unit,
-    onRemoveProviderFilter: (filterTarget: FilterTarget) -> Unit,
+    onRemoveOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
+    onRemoveProviderFilter: (filterTarget: RelayHopType) -> Unit,
     onGoBack: () -> Unit,
     navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
@@ -251,10 +251,10 @@ fun SearchLocationScreen(
                     filterRow(
                         filters = state.value.filterChips,
                         onRemoveOwnershipFilter = {
-                            onRemoveOwnershipFilter(state.value.relayListType.toFilterTarget())
+                            onRemoveOwnershipFilter(state.value.relayListType.hopType())
                         },
                         onRemoveProviderFilter = {
-                            onRemoveProviderFilter(state.value.relayListType.toFilterTarget())
+                            onRemoveProviderFilter(state.value.relayListType.hopType())
                         },
                     )
                 }

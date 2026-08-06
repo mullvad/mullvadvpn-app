@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 
 fun shouldFilterByDaita(
@@ -11,19 +11,19 @@ fun shouldFilterByDaita(
     when (relayListType) {
         RelayListType.Single -> isDaitaEnabled && !isWhenNeededMultihopEnabled
         is RelayListType.Multihop ->
-            isDaitaEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+            isDaitaEnabled && relayListType.hopType == RelayHopType.ENTRY
     }
 
 fun shouldFilterByQuic(isQuicEnabled: Boolean, relayListType: RelayListType) =
     when (relayListType) {
         RelayListType.Single -> isQuicEnabled
         is RelayListType.Multihop ->
-            isQuicEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+            isQuicEnabled && relayListType.hopType == RelayHopType.ENTRY
     }
 
 fun shouldFilterByLwo(isLwoEnable: Boolean, relayListType: RelayListType) =
     when (relayListType) {
         RelayListType.Single -> isLwoEnable
         is RelayListType.Multihop ->
-            isLwoEnable && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+            isLwoEnable && relayListType.hopType == RelayHopType.ENTRY
     }

@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
@@ -70,7 +71,7 @@ private fun PreviewFilterScreen(
 }
 
 @Composable
-fun Filter(navigator: Navigator, filterTarget: FilterTarget) {
+fun Filter(navigator: Navigator, filterTarget: RelayHopType) {
     val viewModel = koinViewModel<FilterViewModel> { parametersOf(filterTarget) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

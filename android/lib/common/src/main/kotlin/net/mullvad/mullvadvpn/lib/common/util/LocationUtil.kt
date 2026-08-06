@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 
@@ -14,8 +14,8 @@ fun RelayListType.isEntryAndBlocked(settings: Settings?): Boolean {
     return settings?.isEntryBlocked() == true
 }
 
-fun isEntryAndBlocked(multihopRelayListType: MultihopRelayListType, settings: Settings?): Boolean {
-    if (multihopRelayListType == MultihopRelayListType.EXIT) {
+fun isEntryAndBlocked(hopType: RelayHopType, settings: Settings?): Boolean {
+    if (hopType == RelayHopType.EXIT) {
         return false
     }
     return settings?.isEntryBlocked() == true
@@ -28,7 +28,7 @@ fun ignoreEntrySelection(settings: Settings?, relayListType: RelayListType) =
     settings?.isEntryBlocked() == true && relayListType.isMultihopExit()
 
 private fun RelayListType.isMultihopExit() =
-    this is RelayListType.Multihop && multihopRelayListType == MultihopRelayListType.EXIT
+    this is RelayListType.Multihop && hopType == RelayHopType.EXIT
 
 private fun RelayListType.isMultihopEntry() =
-    this is RelayListType.Multihop && multihopRelayListType == MultihopRelayListType.ENTRY
+    this is RelayListType.Multihop && hopType == RelayHopType.ENTRY

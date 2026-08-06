@@ -108,6 +108,7 @@ import net.mullvad.mullvadvpn.lib.model.QuantumResistantState as ModelQuantumRes
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.RelayConstraints
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -747,28 +748,28 @@ class ManagementService(
             }
             .mapEmpty()
 
-    private fun FilterTarget.ownership(): Lens<RelaySettings, Constraint<ModelOwnership>> =
+    private fun RelayHopType.ownership(): Lens<RelaySettings, Constraint<ModelOwnership>> =
         when (this) {
-            FilterTarget.Entry -> RelaySettings.relayConstraints.wireguardConstraints.entryOwnership
-            FilterTarget.Exit -> RelaySettings.relayConstraints.ownership
+            RelayHopType.ENTRY -> RelaySettings.relayConstraints.wireguardConstraints.entryOwnership
+            RelayHopType.EXIT -> RelaySettings.relayConstraints.ownership
         }
 
-    private fun FilterTarget.providers(): Lens<RelaySettings, Constraint<ModelProviders>> =
+    private fun RelayHopType.providers(): Lens<RelaySettings, Constraint<ModelProviders>> =
         when (this) {
-            FilterTarget.Entry -> RelaySettings.relayConstraints.wireguardConstraints.entryProviders
-            FilterTarget.Exit -> RelaySettings.relayConstraints.providers
+            RelayHopType.ENTRY -> RelaySettings.relayConstraints.wireguardConstraints.entryProviders
+            RelayHopType.EXIT -> RelaySettings.relayConstraints.providers
         }
 
     suspend fun setOwnershipAndProviders(
         ownershipConstraint: Constraint<ModelOwnership>,
         providersConstraint: Constraint<ModelProviders>,
-        filterTarget: FilterTarget,
+        hopType: RelayHopType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated =
-                    filterTarget.ownership().set(relaySettings, ownershipConstraint).let {
-                        filterTarget.providers().set(it, providersConstraint)
+                    hopType.ownership().set(relaySettings, ownershipConstraint).let {
+                        hopType.providers().set(it, providersConstraint)
                     }
                 val domain = updated.fromDomain()
                 grpc.setRelaySettings(domain)
@@ -779,11 +780,11 @@ class ManagementService(
 
     suspend fun setOwnership(
         ownership: Constraint<ModelOwnership>,
-        filterTarget: FilterTarget,
+        hopType: RelayHopType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated = filterTarget.ownership().set(relaySettings, ownership)
+                val updated = hopType.ownership().set(relaySettings, ownership)
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership error") }
@@ -792,11 +793,11 @@ class ManagementService(
 
     suspend fun setProviders(
         providersConstraint: Constraint<ModelProviders>,
-        filterTarget: FilterTarget,
+        hopType: RelayHopType,
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated = filterTarget.providers().set(relaySettings, providersConstraint)
+                val updated = hopType.providers().set(relaySettings, providersConstraint)
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set providers error") }
