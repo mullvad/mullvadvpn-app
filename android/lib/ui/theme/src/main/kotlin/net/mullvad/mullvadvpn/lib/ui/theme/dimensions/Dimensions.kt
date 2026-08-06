@@ -95,6 +95,7 @@ data class Dimensions(
     val tvMullvadLogoTextStartPadding: Dp = 6.dp,
     val verticalSpace: Dp = 16.dp,
     val dividerButtonWidth: Dp = 64.dp,
+    val featureIndicatorIconSize: Dp = 20.dp,
 )
 
 val defaultDimensions = Dimensions()

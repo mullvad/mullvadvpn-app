@@ -93,10 +93,9 @@ private fun RelayItem.Location.City.filter(
 private fun RelayItem.Location.Relay.filter(
     validHostnames: Map<PartitionHostname, NeedsOtherEntry>
 ): RelayItem.Location.Relay? {
-    val valid = validHostnames[id.code]
-    return valid?.let { needsOtherEntry ->
-        this.copy(needsOtherEntry = needsOtherEntry)
-    }
+    // If host name is not in validHostnames return null
+    val needsOtherEntry = validHostnames[id.code] ?: return null
+    return copy(needsOtherEntry = needsOtherEntry)
 }
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(

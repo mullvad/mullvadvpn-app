@@ -707,8 +707,8 @@ private fun GeoIpLocation?.hostnameText(): String? {
 private data class MultihopEntryInfo(val country: String, val city: String)
 
 @Suppress("ReturnCount")
-private fun GeoIpLocation?.multihopEntryCountryCity(): MultihopEntryInfo? {
-    val country = this?.entryCountry ?: return null
+private fun GeoIpLocation.multihopEntryCountryCity(): MultihopEntryInfo? {
+    val country = entryCountry ?: return null
     val city = entryCity ?: return null
     return MultihopEntryInfo(country, city)
 }

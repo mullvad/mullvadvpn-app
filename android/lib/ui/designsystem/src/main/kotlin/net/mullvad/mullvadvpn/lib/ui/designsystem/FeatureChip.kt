@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.ui.designsystem
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -63,6 +64,7 @@ fun MullvadFeatureChip(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 icon?.let { icon ->
                     Icon(
+                        modifier = Modifier.size(Dimens.featureIndicatorIconSize),
                         imageVector = icon,
                         tint = MaterialTheme.colorScheme.onSurface,
                         contentDescription = null,
