@@ -176,10 +176,9 @@ class ApplicationMain
 
       // If the GPU does not support webgl2 we can force it to use software rendering
       // to allow the map to be shown.
-      const GPUFeatureStatus = app.getGPUFeatureStatus();
-      if (GPUFeatureStatus.webgl2 === 'disabled_off') {
-        app.commandLine.appendSwitch('use-angle', 'swiftshader-webgl');
-      }
+      // void app.getGPUInfo('complete').then((result) => {
+      //   console.log(JSON.stringify(result, null, 2));
+      // });
     }
 
     // Display correct colors regardless of monitor color profile.
@@ -199,7 +198,7 @@ class ApplicationMain
 
     log.verbose(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
     if (!SANDBOX_DISABLED) {
-      app.enableSandbox();
+      // app.enableSandbox();
     }
 
     log.info(`Running version ${this.version.currentVersion.gui}`);
@@ -1283,6 +1282,13 @@ if (CommandLineOptions.help.match) {
 
   process.exit(0);
 } else {
-  const applicationMain = new ApplicationMain();
-  applicationMain.run();
+  app.on('gpu-info-update', () => {
+    const GPUFeatureStatus = app.getGPUFeatureStatus();
+    console.log(JSON.stringify(GPUFeatureStatus, null, 2));
+    if (GPUFeatureStatus.webgl2 === 'disabled_off') {
+      // app.commandLine.appendSwitch('use-angle', 'swiftshader-webgl');
+    }
+    const applicationMain = new ApplicationMain();
+    applicationMain.run();
+  });
 }
