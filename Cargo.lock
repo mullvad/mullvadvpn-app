@@ -1889,7 +1889,7 @@ dependencies = [
 [[package]]
 name = "gotatun"
 version = "0.9.0"
-source = "git+https://github.com/mullvad/gotatun?branch=dual-stack-ipv6-sockets#1adc1aa9d06ed0e988d7b8d6ce7e25b06f1f4f80"
+source = "git+https://github.com/mullvad/gotatun?branch=dual-stack-ipv6-sockets#fe67f0a438132fe27be7f32e23a3a741c0063143"
 dependencies = [
  "aead",
  "base64",
@@ -1923,7 +1923,7 @@ dependencies = [
  "tracing",
  "tun 0.8.14",
  "typed-builder 0.21.2",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
  "x25519-dalek",
  "zerocopy",
 ]
@@ -5564,7 +5564,7 @@ version = "1.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4db69cba1110affc0e9f7bcd48bbf87b3f4fc7c61fc9155afd4c469eb3d6c1b"
 dependencies = [
- "errno 0.2.8",
+ "errno 0.3.14",
  "libc",
 ]
 
