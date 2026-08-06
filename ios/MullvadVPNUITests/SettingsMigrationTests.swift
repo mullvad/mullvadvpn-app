@@ -117,16 +117,18 @@ class SettingsMigrationTests: BaseUITestCase {
             .dismissKeyboard()
             .tapQuantumResistantTunnelExpandButton()
             .tapQuantumResistantTunnelOnCell()
-            .tapWireGuardObfuscationExpandButton()
-            .tapUDPOverTCPPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .navigateToUDPOverTCPObfuscationSettings()
 
         UDPOverTCPObfuscationSettingsPage(app)
             .tapPort5001Cell()
             .tapPort80Cell()
             .tapBackButton()
 
-        VPNSettingsPage(app)
-            .tapShadowsocksPortSelectorButton()
+        AntiCensorshipPage(app)
+            .navigateToShadowsocksObfuscationSettings()
 
         ShadowsocksObfuscationSettingsPage(app)
             .tapAutomaticPortCell()
@@ -134,8 +136,8 @@ class SettingsMigrationTests: BaseUITestCase {
             .enterText("1234")
             .tapBackButton()
 
-        VPNSettingsPage(app)
-            .tapWireGuardObfuscationUdpOverTcpCell()
+        AntiCensorshipPage(app)
+            .selectObfuscationUdpOverTcp()
     }
 
     func testVerifySettingsStillChanged() {
@@ -159,12 +161,13 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapBackButton()
 
         VPNSettingsPage(app)
-            .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
             .tapWireGuardPortsExpandButton()
             .verifyCustomWireGuardPortSelected(portNumber: wireGuardPort)
-            .tapWireGuardObfuscationExpandButton()
-            .tapUDPOverTCPPortSelectorButton()
+            .tapAntiCensorshipCell()
+
+        AntiCensorshipPage(app)
+            .navigateToUDPOverTCPObfuscationSettings()
 
         UDPOverTCPObfuscationSettingsPage(app)
             .verifyUDPOverTCPPort80Selected()
