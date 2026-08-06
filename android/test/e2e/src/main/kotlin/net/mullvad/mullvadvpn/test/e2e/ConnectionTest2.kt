@@ -66,7 +66,27 @@ class ConnectionTest2 : EndToEndTest() {
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
     @Test
-    fun testConnectUsingMultihop2() =
+    @HasDependencyOnLocalAPI
+    fun testApiUnavailable() = runTest {
+
+        app.launchAndLogIn(accountTestRule.validAccountNumber)
+        on<ConnectPage>()
+
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
+
+        device.acceptVpnPermissionDialog()
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            clickDisconnect()
+            waitForDisconnectedLabel()
+        }
+    }
+
+    @Test
+    fun atestConnectUsingMultihop() =
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)
