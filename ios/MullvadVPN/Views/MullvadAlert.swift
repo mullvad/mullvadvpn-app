@@ -172,58 +172,77 @@ struct InputAlertModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .fullScreenCover(item: $alert) { alert in
-                VStack {
-                    Spacer()
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text(alert.title)
-                            .font(.mullvadLarge)
-                            .foregroundStyle(Color.mullvadTextPrimary)
-                            .lineLimit(nil)
-                            .fixedSize(horizontal: false, vertical: true)
-                        MullvadPrimaryTextField(
-                            label: "",
-                            placeholder: alert.placeholder,
-                            text: $text,
-                            isFocused: .constant(true),
-                            validate: alert.validate
-                        )
-                        VStack(spacing: 16) {
-                            MullvadButton(
-                                text: alert.action.title,
-                                style: alert.action.type,
-                                action: {
-                                    Task {
-                                        loading = true
-                                        await alert.action.handler(text)
-                                        loading = false
-                                    }
-                                }
-                            )
-                            .disabled(!(alert.validate?(text) ?? true))
-                            .accessibilityIdentifier(alert.action.identifier)
-                            MullvadButton(
-                                text: alert.dismissButtonTitle,
-                                style: .secondary,
-                                action: { self.alert = nil }
-                            )
-                        }
-                    }
-                    .padding()
-                    .background(Color.mullvadBackground)
-                    .cornerRadius(8)
-                    Spacer()
+                InputAlertContent(alert: alert) {
+                    self.alert = nil
                 }
-                .onAppear {
-                    text = ""
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityIdentifier(.alertContainerView)
-                .padding()
-                .background(ClearBackgroundView())
             }
             .transaction {
                 $0.disablesAnimations = true
             }
+    }
+}
+
+private struct InputAlertContent: View {
+    let alert: MullvadInputAlert
+    let dismiss: () -> Void
+
+    @State private var text = ""
+    @State private var loading = false
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        VStack {
+            Spacer()
+            VStack(alignment: .leading, spacing: 16) {
+                Text(alert.title)
+                    .font(.mullvadLarge)
+                    .foregroundStyle(Color.mullvadTextPrimary)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                ConfigurableTextField(
+                    placeholder: alert.placeholder,
+                    text: $text,
+                    isFocused: $isFocused,
+                    borderStyle: .constant(.normal)
+                )
+                .onAppear {
+                    isFocused = true
+                }
+
+                VStack(spacing: 16) {
+                    MullvadButton(
+                        text: alert.action.title,
+                        style: alert.action.type,
+                        action: {
+                            Task {
+                                loading = true
+                                await alert.action.handler(text)
+                                loading = false
+                            }
+                        }
+                    )
+                    .disabled(!(alert.validate?(text) ?? true))
+                    .accessibilityIdentifier(alert.action.identifier)
+                    MullvadButton(
+                        text: alert.dismissButtonTitle,
+                        style: .secondary,
+                        action: { self.dismiss() }
+                    )
+                }
+            }
+            .padding()
+            .background(Color.mullvadBackground)
+            .cornerRadius(8)
+            Spacer()
+        }
+        .onAppear {
+            text = ""
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(.alertContainerView)
+        .padding()
+        .background(ClearBackgroundView())
     }
 }
 

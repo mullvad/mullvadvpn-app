@@ -91,16 +91,6 @@ class AccountDeletionViewModel: ObservableObject {
         return LocalizedStringKey("Are you sure you want to delete the account \(attributedAccountNumber)?")
     }
 
-    var statusText: LocalizedStringKey? {
-        switch state {
-        case let .failure(error):
-            LocalizedStringKey(error.localizedDescription)
-        case .working:
-            LocalizedStringKey("Deleting account...")
-        default: nil
-        }
-    }
-
     var canDelete: Bool {
         !isWorking && enteredAccountNumberSuffix.count == 4 && accountNumberSuffix == enteredAccountNumberSuffix
     }
