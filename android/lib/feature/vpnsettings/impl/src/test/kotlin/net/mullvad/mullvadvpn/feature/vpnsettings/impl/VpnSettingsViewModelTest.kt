@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -117,7 +118,7 @@ class VpnSettingsViewModelTest {
                 TunnelOptions(
                     mtu = Mtu(0),
                     quantumResistant = expectedResistantState,
-                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                    daitaSettings = DaitaSettings(enabled = false),
                     dnsOptions = mockk(relaxed = true),
                     enableIpv6 = true,
                 )
@@ -208,7 +209,7 @@ class VpnSettingsViewModelTest {
             TunnelOptions(
                 mtu = null,
                 quantumResistant = QuantumResistantState.Off,
-                daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                daitaSettings = DaitaSettings(enabled = false),
                 dnsOptions = mockk(relaxed = true),
                 enableIpv6 = true,
             )
@@ -253,9 +254,11 @@ class VpnSettingsViewModelTest {
                             RelayConstraints(
                                 wireguardConstraints =
                                     WireguardConstraints(
-                                        isMultihopEnabled = false,
+                                        multihop = MultihopMode.NEVER,
                                         entryLocation = Constraint.Any,
                                         ipVersion = Constraint.Any,
+                                        entryOwnership = Constraint.Any,
+                                        entryProviders = Constraint.Any,
                                     ),
                                 providers = Constraint.Any,
                                 ownership = Constraint.Any,
@@ -276,7 +279,7 @@ class VpnSettingsViewModelTest {
                     TunnelOptions(
                         mtu = null,
                         quantumResistant = QuantumResistantState.On,
-                        daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                        daitaSettings = DaitaSettings(enabled = false),
                         dnsOptions = mockk(relaxed = true),
                         enableIpv6 = true,
                     ),

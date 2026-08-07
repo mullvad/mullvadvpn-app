@@ -143,8 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
     <string name="daita_description_slide_2_first_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
-    <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
-    <string name="daita_multihop">%1$s: multihop</string>
     <string name="days_were_added_30">Er zijn 30 dagen toegevoegd aan uw account.</string>
     <string name="days_were_added_90">Er zijn 90 dagen toegevoegd aan uw account.</string>
     <string name="delete">Verwijderen</string>
@@ -183,8 +181,6 @@
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
     <string name="direct">Rechtstreeks</string>
-    <string name="direct_only">Alleen rechtstreeks</string>
-    <string name="direct_only_description">Niet al onze servers zijn geschikt voor %1$s. Om het internet te kunnen gebruiken, moet u na het inschakelen mogelijk een nieuwe locatie selecteren.</string>
     <string name="disable_multihop">Multihop uitschakelen</string>
     <string name="disable_recents">Recente uitschakelen</string>
     <string name="discard">Verwerpen</string>
@@ -214,7 +210,6 @@
     <string name="enable_all_methods">Alles inschakelen en opnieuw proberen</string>
     <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
-    <string name="enable_direct_only">%1$s inschakelen</string>
     <string name="enable_ipv6">IPv6 in tunnel</string>
     <string name="enable_location_in_notification">Locatie weergeven in melding</string>
     <string name="enable_method">Methode inschakelen</string>
@@ -330,7 +325,6 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
-    <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%2$s\" uitschakelen in de instellingen.</string>
     <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
     <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
     <string name="name">Naam</string>
@@ -359,7 +353,6 @@
     <string name="on">Aan</string>
     <string name="ongoing_verification_warning">Uw laatste aankoop wordt nog geverifieerd. Als u zich aanmeldt bij een ander account, mislukt de verificatie. Wilt u zich toch afmelden?</string>
     <string name="open_app_details">Appgegevens openen</string>
-    <string name="open_feature_settings">%1$s-instellingen openen</string>
     <string name="open_url">URL openen</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>
@@ -445,7 +438,6 @@
     <string name="set_as_multihop_exit_unavailable">Instellen als multihop-uitgang (incompatibel)</string>
     <string name="set_dns_error">Kan DNS-server van systeem niet instellen. Stuur een probleemrapport.</string>
     <string name="set_firewall_policy_error">Kan firewallregels niet toepassen. Los problemen op of stuur een probleemmelding.</string>
-    <string name="setting_chip">Instelling: %1$s</string>
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">API-toegang</string>

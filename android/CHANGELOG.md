@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Make the globe interactive, with supports for pan, pinch-to-zoom, and fling. This to discover
   where servers are located as well as displaying your connection path.
+- Added a new multihop design with a new "when needed" option that will automatically multihop
+  when it is needed given the currently active settings (e.g. DAITA is on).
 
 ### Changed
 - Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable

@@ -4,7 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.HopSelection
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
 
@@ -15,12 +15,17 @@ class SelectLocationsUiStatePreviewParameterProvider :
             Lc.Loading(Unit),
             SelectLocationUiState(
                     filterChips = emptyList(),
-                    multihopListSelection = MultihopRelayListType.EXIT,
+                    multihopListSelection = RelayHopType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Single(null),
                     tunnelErrorStateCause = null,
+                    hasAnyEntryFilter = true,
+                    hasAnyExitFilter = true,
+                    isEntryFilteringEnabled = true,
+                    lastKnownLocation = null,
+                    entryCountry = null,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -29,22 +34,32 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Ownership(ownership = ModelOwnership.Rented),
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
-                    multihopListSelection = MultihopRelayListType.EXIT,
+                    multihopListSelection = RelayHopType.EXIT,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Single(null),
                     tunnelErrorStateCause = null,
+                    hasAnyEntryFilter = true,
+                    hasAnyExitFilter = true,
+                    isEntryFilteringEnabled = true,
+                    lastKnownLocation = null,
+                    entryCountry = null,
                 )
                 .toLc(),
             SelectLocationUiState(
                     filterChips = emptyList(),
-                    multihopListSelection = MultihopRelayListType.ENTRY,
+                    multihopListSelection = RelayHopType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Multi(null, null),
                     tunnelErrorStateCause = null,
+                    hasAnyEntryFilter = true,
+                    hasAnyExitFilter = true,
+                    isEntryFilteringEnabled = true,
+                    lastKnownLocation = null,
+                    entryCountry = null,
                 )
                 .toLc(),
             SelectLocationUiState(
@@ -53,12 +68,17 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
-                    multihopListSelection = MultihopRelayListType.ENTRY,
+                    multihopListSelection = RelayHopType.ENTRY,
                     isSearchButtonEnabled = true,
                     isFilterButtonEnabled = true,
                     isRecentsEnabled = true,
                     hopSelection = HopSelection.Multi(null, null),
                     tunnelErrorStateCause = null,
+                    hasAnyEntryFilter = true,
+                    hasAnyExitFilter = true,
+                    isEntryFilteringEnabled = true,
+                    lastKnownLocation = null,
+                    entryCountry = null,
                 )
                 .toLc(),
         )

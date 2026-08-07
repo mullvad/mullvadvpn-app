@@ -10,4 +10,5 @@ object ContentType {
     const val PROGRESS = 6
     const val EMPTY_TEXT = 7
     const val BUTTON = 8
+    const val ICON = 9
 }

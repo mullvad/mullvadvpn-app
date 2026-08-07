@@ -206,6 +206,8 @@ class ConnectViewModelTest {
                 entryHostname = "EntryHost",
                 latitude = 57.7065,
                 longitude = 11.967,
+                entryCountry = "Sweden",
+                entryCity = "Gothenburg",
             )
 
         // Act, Assert
