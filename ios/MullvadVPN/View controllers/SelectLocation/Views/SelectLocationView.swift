@@ -256,12 +256,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
 
     private func activeFilterView(locationContext: LocationContext, transition: AnyTransition) -> some View {
         ActiveFilterView(
-            activeFilter: locationContext.filter,
+            activeFilter: viewModel.visibleFilterChips,
             labelStyle: .general,
             automaticLocationIsActive: locationContext.isAutomaticLocation,
-            shouldShowAutomaticFilterOverrideNotice:
-                locationContext.isAutomaticLocation
-                && locationContext.filter.contains(where: { $0.isOverriddenByAutomaticLocation })
+            shouldShowAutomaticFilterOverrideNotice: locationContext.isFilterOverridden
         ) { filter in
             viewModel.onFilterTapped(filter)
         } onRemove: { filter in
