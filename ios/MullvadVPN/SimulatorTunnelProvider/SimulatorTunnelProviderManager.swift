@@ -117,7 +117,6 @@
         }
 
         static func loadAllFromPreferences() async throws -> [SimulatorTunnelProviderManager] {
-            // locking does not work in async contexts
             tunnels.map { tunnelInfo in
                 SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
             }
