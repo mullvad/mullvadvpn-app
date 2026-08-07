@@ -302,12 +302,12 @@ export class ErrorNotificationProvider
           {
             label: messages.pgettext('troubleshoot', 'Open system settings'),
             action: () => this.context.showFullDiskAccessSettings?.(),
-            variant: 'success',
+            color: 'success',
           },
           {
             label: messages.pgettext('troubleshoot', 'Disable split tunneling'),
             action: () => this.context.disableSplitTunneling?.(),
-            variant: 'destructive',
+            color: 'destructive',
           },
         ];
       }

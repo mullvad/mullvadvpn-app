@@ -309,7 +309,7 @@ function NotificationActionWrapper({
       </Button.Text>
     </Button>
   ) : (
-    <Button variant="success" key="problem-report" onClick={goToProblemReport}>
+    <Button color="success" key="problem-report" onClick={goToProblemReport}>
       <Button.Text>
         {
           // TRANSLATORS: Button label to send a problem report.
@@ -327,8 +327,8 @@ function NotificationActionWrapper({
   ];
 
   if (action.troubleshoot?.buttons) {
-    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => (
-      <Button key={label} variant={variant} onClick={action}>
+    const actionButtons = action.troubleshoot.buttons.map(({ color: variant, label, action }) => (
+      <Button key={label} color={variant} onClick={action}>
         <Button.Text>{label}</Button.Text>
       </Button>
     ));

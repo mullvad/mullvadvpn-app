@@ -212,7 +212,7 @@ export function RedeemVoucherSubmitButton() {
   const disabled = submitting || response?.type === 'success';
 
   return (
-    <Button variant="success" disabled={!valueValid || disabled} onClick={onSubmit}>
+    <Button color="success" disabled={!valueValid || disabled} onClick={onSubmit}>
       <Button.Text>
         {
           // TRANSLATORS: Button label for voucher redemption.
@@ -303,7 +303,7 @@ export function RedeemVoucherButton(props: RedeemVoucherButtonProps) {
 
   return (
     <>
-      <Button variant="success" onClick={onClick} {...props}>
+      <Button color="success" onClick={onClick} {...props}>
         <Button.Text>
           {
             // TRANSLATORS: Button label for redeeming a voucher.

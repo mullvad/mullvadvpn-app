@@ -22,7 +22,7 @@ export function DisconnectButton() {
   const displayAsCancel = tunnelState !== 'connected';
 
   return (
-    <Button variant="destructive" onClick={onDisconnect}>
+    <Button color="destructive" onClick={onDisconnect}>
       <Button.Text>
         {displayAsCancel ? messages.gettext('Cancel') : messages.gettext('Disconnect')}
       </Button.Text>

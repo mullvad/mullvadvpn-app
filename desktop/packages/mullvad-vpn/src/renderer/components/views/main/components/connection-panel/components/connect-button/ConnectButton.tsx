@@ -18,7 +18,7 @@ export function ConnectButton(props: ButtonProps) {
   }, [connectTunnel]);
 
   return (
-    <Button variant="success" onClick={onConnect} {...props}>
+    <Button color="success" onClick={onConnect} {...props}>
       <Button.Text>{messages.pgettext('tunnel-control', 'Connect')}</Button.Text>
     </Button>
   );

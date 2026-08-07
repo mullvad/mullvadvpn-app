@@ -412,7 +412,7 @@ class Login extends React.Component<IProps, IState> {
               </StyledAccountInputGroup>
               <Button
                 type="submit"
-                variant="success"
+                color="success"
                 disabled={!allowLogin}
                 aria-label={
                   // TRANSLATORS: This is used by screenreaders to communicate the login button.
@@ -593,7 +593,7 @@ function BlockMessage() {
     <StyledBlockMessageContainer>
       <StyledBlockTitle>{messages.gettext('Blocking internet')}</StyledBlockTitle>
       <StyledBlockMessage>{message}</StyledBlockMessage>
-      <Button variant="destructive" onClick={unlock}>
+      <Button color="destructive" onClick={unlock}>
         <Button.Text>{buttonText}</Button.Text>
       </Button>
     </StyledBlockMessageContainer>

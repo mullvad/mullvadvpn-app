@@ -48,7 +48,7 @@ export function TroubleshootingModal({ open, onOpenChange }: TroubleshootingModa
         }
       </StatusDialog.Text>
       <StatusDialog.ButtonGroup>
-        <StatusDialog.Button onClick={openSendProblemReport} variant="success">
+        <StatusDialog.Button onClick={openSendProblemReport} color="success">
           <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label for sending a problem report.
