@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix URLs to FAQ pages and blog posts when using some locales
+- Locale-aware sorting of relay list on iOS
 
 ### Removed
 - Remove “Direct only” from Daita
