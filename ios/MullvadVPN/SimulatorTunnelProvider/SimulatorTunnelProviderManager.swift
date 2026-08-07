@@ -116,6 +116,13 @@
             completionHandler(tunnelProviders, nil)
         }
 
+        static func loadAllFromPreferences() async throws -> [SimulatorTunnelProviderManager] {
+            tunnels.map { tunnelInfo in
+                SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
+            }
+
+        }
+
         override required init() {
             tunnelInfo = SimulatorTunnelInfo()
             super.init()

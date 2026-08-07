@@ -51,33 +51,32 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
         return persistentTunnels
     }
 
-    func loadPersistentTunnels(completion: @escaping @Sendable (Error?) -> Void) {
-        TunnelProviderManagerType.loadAllFromPreferences { managers, error in
-            self.lock.lock()
-            defer {
-                self.lock.unlock()
-
-                completion(error)
-            }
-
-            guard error == nil else { return }
-
-            self.persistentTunnels.forEach { tunnel in
-                tunnel.removeObserver(self)
-            }
-
-            self.persistentTunnels =
-                managers?.map { manager in
-                    let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
-                    tunnel.addObserver(self)
-
-                    self.logger.debug(
-                        "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
-                    )
-
-                    return tunnel
-                } ?? []
+    private func setPersistentTunnelsFromManagers(_ managers: [TunnelProviderManagerType]) {
+        self.lock.lock()
+        defer {
+            self.lock.unlock()
         }
+
+        self.persistentTunnels.forEach { tunnel in
+            tunnel.removeObserver(self)
+        }
+
+        self.persistentTunnels =
+            managers.map { manager in
+                let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
+                tunnel.addObserver(self)
+
+                self.logger.debug(
+                    "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+                )
+
+                return tunnel
+            }
+    }
+
+    func loadPersistentTunnels() async throws {
+        let managers = try await TunnelProviderManagerType.loadAllFromPreferences()
+        self.setPersistentTunnelsFromManagers(managers)
     }
 
     func createNewTunnel() -> TunnelType {
