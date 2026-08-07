@@ -17,9 +17,9 @@ protocol DNSSettingsDataSourceDelegate: AnyObject {
 protocol VPNSettingsDataSourceDelegate: AnyObject {
     func didUpdateTunnelSettings(_ update: TunnelSettingsUpdate)
     func showInfo(for: VPNSettingsInfoButtonItem)
-    func showDetails(for: VPNSettingsDetailsButtonItem)
     func showDNSSettings()
     func showIPOverrides()
+    func showAntiCensorshipSettings()
     func didSelectWireGuardPort(_ port: UInt16?)
     func humanReadablePortRepresentation() -> String
     func obfuscationSettingsAreValid(

@@ -9,8 +9,9 @@
 import MullvadSettings
 import SwiftUI
 
-struct LwoObfuscationSettingsView<VM>: View where VM: LwoObfuscationSettingsViewModel {
-    @StateObject var viewModel: VM
+struct LwoObfuscationSettingsView: View {
+    var viewModel: any LwoObfuscationSettingsViewModel
+    var port: Binding<WireGuardObfuscationLwoPort>
 
     var body: some View {
         let portString = NSLocalizedString("Port", comment: "")
@@ -18,7 +19,7 @@ struct LwoObfuscationSettingsView<VM>: View where VM: LwoObfuscationSettingsView
         SingleChoiceList(
             title: portString,
             options: [WireGuardObfuscationLwoPort.automatic],
-            value: $viewModel.value,
+            value: port,
             tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationLwoTable.asString,
             itemDescription: { item in NSLocalizedString("\(item)", comment: "") },
             parseCustomValue: {
@@ -41,13 +42,12 @@ struct LwoObfuscationSettingsView<VM>: View where VM: LwoObfuscationSettingsView
             customInputMinWidth: 100,
             customInputMaxLength: 5,
             customFieldMode: .numericText
-        ).onDisappear {
-            viewModel.commit()
-        }
+        )
     }
 }
 
 #Preview {
+    @Previewable @State var port = WireGuardObfuscationLwoPort.automatic
     let model = MockLwoObfuscationSettingsViewModel(lwoPort: .automatic)
-    return LwoObfuscationSettingsView(viewModel: model)
+    LwoObfuscationSettingsView(viewModel: model, port: $port)
 }
