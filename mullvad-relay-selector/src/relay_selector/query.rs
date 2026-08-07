@@ -176,19 +176,29 @@ impl From<Settings> for RelayQuery {
         // and the entry its corresponding settings from the entry_* fields. However, the entry specific constraints (obfuscation, ip_version, daita)
         // still refer to the entry. Thus we, need to shuffle the fields around to construct the multihop query.
         // TODO: When changing to dedicated multihop variants in settings, we should restructure the settings to match the query structure.
-        let multihop_constraints = |entry_specific, exit| MultihopConstraints {
-            entry: EntryConstraints {
-                entry_specific,
-                general: ExitConstraints {
-                    location: ResolvedLocationConstraint::from_constraint(
-                        wg.entry_location.clone(),
-                        &settings.custom_lists,
-                    ),
-                    providers: wg.entry_providers.clone(),
-                    ownership: wg.entry_ownership,
+        let multihop_constraints = |entry_specific, exit| {
+            // If `wg.entry_location` is `Any`, that indicates that an automatic entry should be used.
+            // These must not use the entry provider and ownership filters, to be consistent with how
+            // `Hops::Auto` works.
+            let (entry_providers, entry_ownership) = if wg.entry_location.is_any() {
+                (Constraint::Any, Constraint::Any)
+            } else {
+                (wg.entry_providers.clone(), wg.entry_ownership)
+            };
+            MultihopConstraints {
+                entry: EntryConstraints {
+                    entry_specific,
+                    general: ExitConstraints {
+                        location: ResolvedLocationConstraint::from_constraint(
+                            wg.entry_location.clone(),
+                            &settings.custom_lists,
+                        ),
+                        providers: entry_providers,
+                        ownership: entry_ownership,
+                    },
                 },
-            },
-            exit,
+                exit,
+            }
         };
 
         let hops = match wg.multihop {
