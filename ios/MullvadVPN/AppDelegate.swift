@@ -523,8 +523,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             doWipeSettingsIfNeeded()
             async let loadTunnelStore: () = doLoadTunnelStore()
             async let getDefaultLocation: () = doGetDefaultLocation()
-            // just doing `await [doLoadTunnelStore(), doGetDefaultLocation()]` would have
-            // executed these sequentially for some reason
             _ = await [loadTunnelStore, getDefaultLocation]
             await doMigrateSettings(application: application)
             await doResolveDeprecatedSettings()
