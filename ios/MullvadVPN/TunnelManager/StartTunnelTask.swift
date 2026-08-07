@@ -1,43 +1,27 @@
 //
-//  StartTunnelOperation.swift
+//  StartTunnelTask.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 15/12/2021.
+//  Created by Jon Petersson on 03/08/2026.
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
-import NetworkExtension
-import Operations
 import PacketTunnelCore
 
-class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
-    typealias EncodeErrorHandler = (Error) -> Void
-
+actor StartTunnelTask {
     private let interactor: TunnelInteractor
-    private let logger = Logger(label: "StartTunnelOperation")
+    private let logger = Logger(label: "StartTunnelTask")
 
-    init(
-        dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
-        completionHandler: @escaping CompletionHandler
-    ) {
+    init(interactor: TunnelInteractor) {
         self.interactor = interactor
-
-        super.init(
-            dispatchQueue: dispatchQueue,
-            completionQueue: dispatchQueue,
-            completionHandler: completionHandler
-        )
     }
 
-    override func main() {
+    func start() async -> Result<Void, Error> {
         guard case .loggedIn = interactor.deviceState else {
-            finish(result: .failure(InvalidDeviceStateError()))
-            return
+            return .failure(InvalidDeviceStateError())
         }
 
         switch interactor.tunnelStatus.state {
@@ -46,29 +30,25 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .disconnecting(.reconnect)
             }
-
-            finish(result: .success(()))
+            return .success(())
 
         case .disconnected, .pendingReconnect, .waitingForConnectivity:
-            makeTunnelProviderAndStartTunnel { error in
-                self.finish(result: error.map { .failure($0) } ?? .success(()))
-            }
+            let result = await makeTunnelProviderAndStartTunnel()
+            return result.map { .failure($0) } ?? .success(())
 
         default:
-            finish(result: .success(()))
+            return .success(())
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping @Sendable (Error?) -> Void) {
-        makeTunnelProvider { result in
-            self.dispatchQueue.async {
-                do {
-                    try self.startTunnel(tunnel: result.get())
-                    completionHandler(nil)
-                } catch {
-                    completionHandler(error)
-                }
-            }
+    private func makeTunnelProviderAndStartTunnel() async -> Error? {
+        let result = await makeTunnelProvider()
+
+        do {
+            try startTunnel(tunnel: result.get())
+            return nil
+        } catch {
+            return error
         }
     }
 
@@ -89,23 +69,22 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: false)
 
+        let isPostQuantum = interactor.settings.tunnelQuantumResistance.isEnabled
+        let isDaita = interactor.settings.daita.isEnabled
+
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .connecting(
                 selectedRelays,
-                isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled,
-                isDaita: interactor.settings.daita.isEnabled
+                isPostQuantum: isPostQuantum,
+                isDaita: isDaita
             )
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())
     }
 
-    private func makeTunnelProvider(
-        completionHandler:
-            @escaping @Sendable (Result<any TunnelProtocol, Error>)
-            -> Void
-    ) {
+    private func makeTunnelProvider() async -> Result<any TunnelProtocol, Error> {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = TunnelConfiguration(
@@ -113,9 +92,11 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
         )
 
-        tunnel.setConfiguration(configuration)
-        tunnel.saveToPreferences { error in
-            completionHandler(error.map { .failure($0) } ?? .success(tunnel))
+        return await withCheckedContinuation { continuation in
+            tunnel.setConfiguration(configuration)
+            tunnel.saveToPreferences { error in
+                continuation.resume(returning: error.map { .failure($0) } ?? .success(tunnel))
+            }
         }
     }
 }
