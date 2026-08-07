@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the device sometimes being incorrectly marked as revoked when the API rejects an expired
   access token.
 
+### Fixed
+- Fix relay list and custom lists not being sorted using locale-aware collation.
+
 
 ## [android/2026.8] - 2026-07-15
 ### Fixed
