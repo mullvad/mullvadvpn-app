@@ -61,7 +61,7 @@ class RelayItemCanBeSelectedUseCase(
                     }
                     // Finally just do a normal check
                     checkValid(
-                        filteredRelayCountries = filteredRelayCountries,
+                        filteredRelayCountries = filteredRelayCountries.countries,
                         selectedRelayItem =
                             when (selectedAs) {
                                 RelayHopType.EXIT -> hopSelection.entry()

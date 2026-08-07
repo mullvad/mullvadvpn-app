@@ -206,8 +206,7 @@ private fun GeoLocationItem(
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
         modifier =
             Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
-        showMultihopWhenNeededIcon =
-            (listItem.item as? RelayItem.Location.Relay)?.needsOtherEntry ?: false,
+        showMultihopWhenNeededIcon = listItem.needsOtherEntry,
     )
 }
 
@@ -313,6 +312,7 @@ private fun CustomListEntryItem(
         onToggleExpand = { expand: Boolean ->
             onToggleExpand(listItem.item.id, listItem.parentId, expand)
         },
+        showMultihopWhenNeededIcon = listItem.needsOtherEntry,
         modifier = Modifier.positionalPadding(listItem.itemPosition),
     )
 }

@@ -1,16 +1,22 @@
 package net.mullvad.mullvadvpn.lib.usecase
 
+import kotlin.collections.forEach
+import kotlin.collections.map
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.FilteredCountry
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
 import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
 import net.mullvad.mullvadvpn.lib.model.PartitionHostname
@@ -24,12 +30,17 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
+data class FilteredCountries(
+    val countries: List<RelayItem.Location.Country>,
+    val relayMetadata: Map<GeoLocationId.Hostname, RelayMetadata>,
+)
+
 class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
     private val managementService: ManagementService,
 ) {
-    operator fun invoke(relayListType: RelayListType) =
+    operator fun invoke(relayListType: RelayListType): Flow<FilteredCountries> =
         combine(
             settingsRepository.settingsUpdates
                 .filterNotNull()
@@ -79,7 +90,12 @@ class FilteredRelayListUseCase(
                 },
             relayListRepository.relayList,
         ) { partitions, relayList ->
-            relayList.filter(partitions.relevantHostnames())
+            val filtered = relayList.filter(partitions.relevantHostnames())
+            val countries = filtered.map { it.country }
+            val metadata = buildMap {
+                filtered.map { it.relayMetadata }.forEach(::putAll)
+            }
+            FilteredCountries(countries = countries, relayMetadata = metadata)
         }
 
     private fun RelayPartitions.relevantHostnames(): Map<PartitionHostname, NeedsOtherEntry> {
@@ -102,7 +118,7 @@ class FilteredRelayListUseCase(
 
     private fun List<RelayItem.Location.Country>.filter(
         validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-    ) = mapNotNull {
+    ): List<FilteredCountry> = mapNotNull {
         it.filter(validHostnames)
     }
 }

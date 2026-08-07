@@ -61,6 +61,7 @@ sealed interface RelayListItem {
     data class CustomListEntryItem(
         val parentId: CustomListId,
         val parentName: CustomListName,
+        val needsOtherEntry: Boolean = false,
         override val item: RelayItem.Location,
         override val expanded: Boolean,
         override val hierarchy: Hierarchy,
@@ -107,6 +108,7 @@ sealed interface RelayListItem {
     }
 
     data class GeoLocationItem(
+        val needsOtherEntry: Boolean = false,
         override val item: RelayItem.Location,
         override val isSelected: Boolean = false,
         override val hierarchy: Hierarchy,

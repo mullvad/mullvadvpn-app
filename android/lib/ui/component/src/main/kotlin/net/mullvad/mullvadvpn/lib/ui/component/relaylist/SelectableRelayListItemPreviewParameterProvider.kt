@@ -21,6 +21,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     expanded = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = true,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -33,6 +34,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -45,6 +47,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     expanded = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -56,6 +59,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -68,6 +72,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -86,6 +91,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    needsOtherEntry = false,
                 ),
             )
         )

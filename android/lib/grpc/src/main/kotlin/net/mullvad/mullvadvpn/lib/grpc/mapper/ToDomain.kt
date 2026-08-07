@@ -660,8 +660,6 @@ internal fun ManagementInterface.Relay.toDomain(
                 null
             },
         lwo = endpointData.lwo,
-        // This will be set later when we get the relay filter partition response.
-        needsOtherEntry = false,
     )
 
 private fun ManagementInterface.Location.toDomain(): LatLong =

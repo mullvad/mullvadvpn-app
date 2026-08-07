@@ -35,7 +35,7 @@ class RecentsUseCase(
             customListsRelayItemUseCase(RelayListType.Single),
         ) { recents, relayList, customLists ->
             recents?.exit?.mapNotNull { recent ->
-                recent.location.findItem(customLists, relayList)
+                recent.location.findItem(customLists, relayList.countries)
             }
         }
 
@@ -55,12 +55,12 @@ class RecentsUseCase(
                         when (recent) {
                             EntryRecent.Automatic -> RecentItem.Automatic
                             is EntryRecent.Location ->
-                                recent.location.findItem(customLists, relayList)
+                                recent.location.findItem(customLists, relayList.countries)
                         }
                     }
                 RelayHopType.EXIT ->
                     enabled.exit.mapNotNull { recent ->
-                        recent.location.findItem(customLists, relayList)
+                        recent.location.findItem(customLists, relayList.countries)
                     }
             }
         }

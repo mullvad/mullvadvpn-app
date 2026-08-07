@@ -1,10 +1,11 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
@@ -21,6 +22,7 @@ const val RECENTS_MAX_VISIBLE: Int = 3
 // Creates a relay list to be displayed by RelayListContent
 internal fun relayListItems(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
     recents: List<RecentItem>?,
@@ -31,6 +33,7 @@ internal fun relayListItems(
 ): List<RelayListItem> {
     return createRelayListItems(
         relayListType = relayListType,
+        relayMetadata = relayMetadata,
         selectedItem = selectedItem,
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -44,6 +47,7 @@ internal fun relayListItems(
 internal fun relayListItemsSearching(
     searchTerm: String = "",
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
     selectedByThisEntryExitList: RelayItemId?,
@@ -54,6 +58,7 @@ internal fun relayListItemsSearching(
 
     return createRelayListItemsSearching(
             relayListType = relayListType,
+            relayMetadata = relayMetadata,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = filteredCustomLists,
@@ -66,6 +71,7 @@ internal fun relayListItemsSearching(
 
 internal fun emptyLocationsRelayListItems(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     customLists: List<RelayItem.CustomList>,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -73,6 +79,7 @@ internal fun emptyLocationsRelayListItems(
 ) =
     createCustomListSection(
         relayListType = relayListType,
+        relayMetadata = relayMetadata,
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
@@ -82,6 +89,7 @@ internal fun emptyLocationsRelayListItems(
 
 private fun createRelayListItems(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -102,6 +110,7 @@ private fun createRelayListItems(
     addAll(
         createCustomListSection(
             relayListType = relayListType,
+            relayMetadata = relayMetadata,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = customLists,
@@ -110,9 +119,10 @@ private fun createRelayListItems(
     )
     addAll(
         createLocationSection(
+            relayListType = relayListType,
+            relayMetadata = relayMetadata,
             selectedItem = selectedItem,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
-            relayListType = relayListType,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
@@ -165,11 +175,11 @@ private fun RelayItem.matches(
 }
 
 private fun RelayItemSelection.Multiple.getBy(relayListType: RelayListType.Multihop) =
-    if (relayListType.hopType == RelayHopType.ENTRY) entryLocation
-    else exitLocation
+    if (relayListType.hopType == RelayHopType.ENTRY) entryLocation else exitLocation
 
 private fun createRelayListItemsSearching(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -178,14 +188,16 @@ private fun createRelayListItemsSearching(
 ): List<RelayListItem> =
     createCustomListSectionSearching(
         relayListType = relayListType,
+        relayMetadata = relayMetadata,
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
         isExpanded = isExpanded,
     ) +
         createLocationSectionSearching(
-            selectedByThisEntryExitList = selectedByThisEntryExitList,
             relayListType = relayListType,
+            relayMetadata = relayMetadata,
+            selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
@@ -193,6 +205,7 @@ private fun createRelayListItemsSearching(
 
 private fun createCustomListSection(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -203,6 +216,7 @@ private fun createCustomListSection(
         createCustomListRelayItems(
             customLists = customLists,
             relayListType = relayListType,
+            relayMetadata = relayMetadata,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             isExpanded = isExpanded,
@@ -213,6 +227,7 @@ private fun createCustomListSection(
 
 private fun createCustomListSectionSearching(
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -224,6 +239,7 @@ private fun createCustomListSectionSearching(
             createCustomListRelayItems(
                 customLists = customLists,
                 relayListType = relayListType,
+                relayMetadata = relayMetadata,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
@@ -235,6 +251,7 @@ private fun createCustomListSectionSearching(
 private fun createCustomListRelayItems(
     customLists: List<RelayItem.CustomList>,
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     isExpanded: (String) -> Boolean,
@@ -270,6 +287,7 @@ private fun createCustomListRelayItems(
                         parent = customList,
                         item = item,
                         relayListType = relayListType,
+                        relayMetadata = relayMetadata,
                         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                         hierarchy = Hierarchy.Child1,
                         isExpanded = isExpanded,
@@ -285,6 +303,7 @@ private fun createLocationSection(
     selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
@@ -303,6 +322,7 @@ private fun createLocationSection(
                 item = country,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 relayListType = relayListType,
+                relayMetadata = relayMetadata,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
                 isLast = true,
@@ -316,6 +336,7 @@ private fun createLocationSectionSearching(
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
+    relayMetadata: RelayMetadataMap,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (countries.isNotEmpty()) {
@@ -324,8 +345,9 @@ private fun createLocationSectionSearching(
             countries.flatMap { country ->
                 createGeoLocationEntry(
                     item = country,
-                    selectedByThisEntryExitList = selectedByThisEntryExitList,
                     relayListType = relayListType,
+                    relayMetadata = relayMetadata,
+                    selectedByThisEntryExitList = selectedByThisEntryExitList,
                     selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                     isExpanded = isExpanded,
                     isLast = true,
@@ -339,6 +361,7 @@ private fun createCustomListEntry(
     parent: RelayItem.CustomList,
     item: RelayItem.Location,
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByOtherEntryExitList: RelayItemId?,
     hierarchy: Hierarchy = Hierarchy.Child1,
     isExpanded: (String) -> Boolean,
@@ -363,6 +386,7 @@ private fun createCustomListEntry(
                 } else {
                     Position.Middle
                 },
+            needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
         )
     )
 
@@ -375,6 +399,7 @@ private fun createCustomListEntry(
                             parent = parent,
                             item = relay,
                             relayListType = relayListType,
+                            relayMetadata = relayMetadata,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
@@ -389,6 +414,7 @@ private fun createCustomListEntry(
                             parent = parent,
                             item = city,
                             relayListType = relayListType,
+                            relayMetadata = relayMetadata,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),
                             isExpanded = isExpanded,
@@ -404,6 +430,7 @@ private fun createCustomListEntry(
 private fun createGeoLocationEntry(
     item: RelayItem.Location,
     relayListType: RelayListType,
+    relayMetadata: RelayMetadataMap,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     hierarchy: Hierarchy = Hierarchy.Parent,
@@ -441,6 +468,7 @@ private fun createGeoLocationEntry(
                         }
                     }
                 },
+            needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
         )
     )
 
@@ -452,6 +480,7 @@ private fun createGeoLocationEntry(
                         createGeoLocationEntry(
                             item = relay,
                             relayListType = relayListType,
+                            relayMetadata = relayMetadata,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),
@@ -466,6 +495,7 @@ private fun createGeoLocationEntry(
                         createGeoLocationEntry(
                             item = city,
                             relayListType = relayListType,
+                            relayMetadata = relayMetadata,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),

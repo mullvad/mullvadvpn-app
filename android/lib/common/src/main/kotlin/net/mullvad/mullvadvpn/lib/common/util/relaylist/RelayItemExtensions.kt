@@ -55,25 +55,26 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-fun RelayItem.CustomList.filter(
-    validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-): RelayItem.CustomList {
-    val newLocations = locations.mapNotNull {
-        when (it) {
-            is RelayItem.Location.Country -> it.filter(validHostnames)
-            is RelayItem.Location.City -> it.filter(validHostnames)
-            is RelayItem.Location.Relay -> it.filter(validHostnames)
-        }
-    }
-    return copy(locations = newLocations)
-}
+typealias RelayMetadataMap = Map<GeoLocationId.Hostname, RelayMetadata>
+data class RelayMetadata(val needsOtherEntry: Boolean)
+data class FilteredCountry(val country: RelayItem.Location.Country, val relayMetadata: RelayMetadataMap)
+data class FilteredCity(val city: RelayItem.Location.City, val relayMetadata: RelayMetadataMap)
+data class FilteredRelay(val relay: RelayItem.Location.Relay, val relayMetadata: RelayMetadata)
 
 fun RelayItem.Location.Country.filter(
     validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-): RelayItem.Location.Country? {
+): FilteredCountry? {
     val cities = cities.mapNotNull { it.filter(validHostnames) }
+
     return if (cities.isNotEmpty()) {
-        this.copy(cities = cities)
+        val cityItems = cities.map { it.city }
+        val metadata = buildMap {
+            cities.map(FilteredCity::relayMetadata).forEach(::putAll)
+        }
+        FilteredCountry(
+            country = this.copy(cities = cityItems),
+            relayMetadata = metadata
+        )
     } else {
         null
     }
@@ -81,10 +82,16 @@ fun RelayItem.Location.Country.filter(
 
 private fun RelayItem.Location.City.filter(
     validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-): RelayItem.Location.City? {
+): FilteredCity? {
     val relays = relays.mapNotNull { it.filter(validHostnames) }
+
     return if (relays.isNotEmpty()) {
-        this.copy(relays = relays)
+        val relayItems = relays.map { it.relay }
+        val metadata = relays.associate { it.relay.id to it.relayMetadata }
+        FilteredCity(
+            city = this.copy(relays = relayItems),
+            relayMetadata = metadata
+        )
     } else {
         null
     }
@@ -92,10 +99,10 @@ private fun RelayItem.Location.City.filter(
 
 private fun RelayItem.Location.Relay.filter(
     validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-): RelayItem.Location.Relay? {
+): FilteredRelay? {
     // If host name is not in validHostnames return null
     val needsOtherEntry = validHostnames[id.code] ?: return null
-    return copy(needsOtherEntry = needsOtherEntry)
+    return FilteredRelay(relay = this, relayMetadata = RelayMetadata(needsOtherEntry = needsOtherEntry))
 }
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(

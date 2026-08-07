@@ -69,19 +69,19 @@ class SearchLocationViewModel(
                 _expandOverrides,
             ) {
                 searchTerm,
-                relayCountries,
+                filteredCountries,
                 filteredCustomLists,
                 customLists,
                 selectedItem,
                 filterChips,
                 expandOverrides ->
-                if (relayCountries.isEmpty()) {
+                if (filteredCountries.countries.isEmpty()) {
                     return@combine Lce.Error(Unit)
                 }
                 val (expandSet, relayListLocations) =
                     searchRelayListLocations(
                         searchTerm = searchTerm,
-                        relayCountries = relayCountries,
+                        relayCountries = filteredCountries.countries,
                     )
                 val expandedItems = expandSet.with(expandOverrides)
                 val settings = settingsRepository.settingsUpdates.value
@@ -93,6 +93,7 @@ class SearchLocationViewModel(
                             relayListItemsSearching(
                                 searchTerm = searchTerm,
                                 relayCountries = relayListLocations,
+                                relayMetadata = filteredCountries.relayMetadata,
                                 relayListType = relayListType,
                                 customLists = filteredCustomLists,
                                 selectedByThisEntryExitList =

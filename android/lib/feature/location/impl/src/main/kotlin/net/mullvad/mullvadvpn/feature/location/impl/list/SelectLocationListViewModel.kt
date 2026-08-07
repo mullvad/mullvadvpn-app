@@ -92,11 +92,12 @@ class SelectLocationListViewModel(
             recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
-        ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
+        ) { filteredCountries, customLists, recents, selectedItem, expandedItems ->
             // If we have no locations we have an empty relay list and we should show an error
-            if (relayCountries.isEmpty()) {
+            if (filteredCountries.countries.isEmpty()) {
                 emptyLocationsRelayListItems(
                     relayListType = relayListType,
+                    relayMetadata = filteredCountries.relayMetadata,
                     customLists = customLists,
                     selectedByThisEntryExitList =
                         selectedItem.selectedByThisEntryExitList(relayListType),
@@ -107,7 +108,8 @@ class SelectLocationListViewModel(
             } else {
                 val settings = settingsRepository.settingsUpdates.value
                 relayListItems(
-                    relayCountries = relayCountries,
+                    relayCountries = filteredCountries.countries,
+                    relayMetadata = filteredCountries.relayMetadata,
                     relayListType = relayListType,
                     customLists = customLists,
                     recents = recents,
