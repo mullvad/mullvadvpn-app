@@ -9,4 +9,5 @@ nftnl-sys
 pfctl
 system-configuration
 system-configuration-sys
+wfp
 windows-service
