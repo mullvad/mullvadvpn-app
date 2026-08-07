@@ -13,6 +13,10 @@ struct LocationContext {
         selectedLocation is AutomaticLocationNode
     }
 
+    var isFilterOverridden: Bool {
+        isAutomaticLocation && filter.contains(where: { $0.isOverriddenByAutomaticLocation })
+    }
+
     init(
         recents: [LocationNode] = [],
         locations: [LocationNode] = [],

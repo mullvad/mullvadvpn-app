@@ -17,8 +17,8 @@ struct ActiveFilterView: View {
     }
     var body: some View {
         VStack(alignment: .leading, spacing: sortedFilters.isEmpty ? 8 : 16) {
-            ScrollView(.horizontal) {
-                if !activeFilter.isEmpty {
+            if !sortedFilters.isEmpty {
+                ScrollView(.horizontal) {
                     HStack {
                         ForEach(sortedFilters, id: \.hashValue) { filter in
                             Button {
@@ -51,9 +51,10 @@ struct ActiveFilterView: View {
                         }
                     }
                     .padding(.horizontal, 16)
+
                 }
+                .scrollIndicators(.never)
             }
-            .scrollIndicators(.never)
 
             if shouldShowAutomaticFilterOverrideNotice {
                 HStack(spacing: 4) {
