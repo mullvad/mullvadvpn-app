@@ -6,6 +6,7 @@ use std::{
     sync::Arc,
 };
 
+use arc_swap::ArcSwap;
 use ipnetwork::IpNetwork;
 use pfctl::{
     AnchorChange, AnchorKind, FilterRuleAction, FilterRuleBuilder, PfCtl, RedirectRuleAction,
@@ -24,9 +25,11 @@ const DEFAULT_MTU: u16 = 1500;
 
 mod utun_router;
 
-#[derive(Default)]
+/// The rules of every label, snapshotted as a whole so a packet is never judged by half an update.
+pub(crate) type RuleMap = BTreeMap<uuid::Uuid, Vec<BlockRule>>;
+
 pub struct BlockList {
-    rules: BTreeMap<uuid::Uuid, Vec<BlockRule>>,
+    rules: Arc<ArcSwap<RuleMap>>,
 }
 
 impl BlockList {
@@ -36,25 +39,31 @@ impl BlockList {
         //     DEFAULT_MTU
         // });
 
-        utun_router::Router::spawn(tunnel_devices);
-        Self {
-            rules: Default::default(),
-        }
+        let rules = Arc::new(ArcSwap::from_pointee(RuleMap::default()));
+        utun_router::Router::spawn(tunnel_devices, rules.clone());
+        Self { rules }
     }
 
     pub fn add_rules(&mut self, rules: &[BlockRule], label: uuid::Uuid) -> io::Result<()> {
-        let rules_for_label = self.rules.entry(label).or_default();
-        rules_for_label.extend_from_slice(rules);
+        self.rules.rcu(|current| {
+            let mut updated = RuleMap::clone(current);
+            updated.entry(label).or_default().extend_from_slice(rules);
+            updated
+        });
         self.apply_rules()
     }
 
     pub fn clear_rules_with_label(&mut self, label: &uuid::Uuid) -> io::Result<()> {
-        let _ = self.rules.remove(label);
+        self.rules.rcu(|current| {
+            let mut updated = RuleMap::clone(current);
+            updated.remove(label);
+            updated
+        });
         self.apply_rules()
     }
 
-    pub fn rules(&self) -> &BTreeMap<uuid::Uuid, Vec<BlockRule>> {
-        &self.rules
+    pub fn rules(&self) -> RuleMap {
+        RuleMap::clone(&self.rules.load())
     }
 
     fn apply_rules(&mut self) -> io::Result<()> {
@@ -65,6 +74,7 @@ impl BlockList {
 
         let filter_rules: Vec<pfctl::FilterRule> = self
             .rules
+            .load()
             .values()
             .flatten()
             .flat_map(|rule| create_pf_filter_rules(rule))
@@ -278,7 +288,7 @@ pub fn setup_utun(client_ip: Ipv4Addr) -> Result<TunnelDevices, io::Error> {
         .build_async()?;
     let source_name = source.name()?;
     let sink = DeviceBuilder::new()
-        .ipv4("10.0.0.2", 24, Some("10.0.0.1"))
+        .ipv4("10.0.0.3", 24, Some("10.0.0.2"))
         .packet_information(false)
         .build_async()?;
     let sink_name = sink.name()?;
