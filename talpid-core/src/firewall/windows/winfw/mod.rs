@@ -6,7 +6,9 @@ use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
 
 mod sys;
 use sys::*;
-pub use sys::{WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings};
+pub use sys::{
+    WinFwActivePolicy, WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings,
+};
 
 /// Timeout for acquiring the WFP transaction lock
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
@@ -54,6 +56,15 @@ pub(super) fn deinit(cleanup_policy: WinFwCleanupPolicy) -> Result<(), Error> {
     // Will simply return false if WinFw already has been deinitialized.
     let deinit = unsafe { WinFw_Deinitialize(cleanup_policy) };
     deinit.into_result()
+}
+
+/// Return the policy currently in effect.
+///
+/// Returns [WinFwActivePolicy::None] if [winfw](self) is not initialized.
+pub(super) fn active_policy() -> WinFwActivePolicy {
+    // SAFETY: WinFw_ActivePolicy is always safe to call, even before WinFW has been
+    // initialized and after WinFW has been deinitialized.
+    unsafe { WinFw_ActivePolicy() }
 }
 
 /// Reset all firewall policies applied by [winfw](self).

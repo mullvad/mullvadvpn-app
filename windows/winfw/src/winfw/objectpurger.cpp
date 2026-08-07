@@ -70,47 +70,6 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
 }
 
 //static
-ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
-{
-	return [](wfp::FilterEngine &engine)
-	{
-		std::unordered_set<GUID> filtersToRemove;
-		wfp::ObjectEnumerator::Filters(engine, [&](const auto &filter) -> bool
-		{
-			// Delete only non-persistent filters
-			if (HasMullvadProvider(filter))
-			{
-				filtersToRemove.insert(filter.filterKey);
-			}
-			return true;
-		});
-
-		std::unordered_set<GUID> sublayersToRemove;
-		wfp::ObjectEnumerator::Sublayers(engine, [&](const auto &sublayer) -> bool
-		{
-			// Delete only non-persistent sublayers
-			if (HasMullvadProvider(sublayer))
-			{
-				sublayersToRemove.insert(sublayer.subLayerKey);
-			}
-			return true;
-		});
-
-		for (const auto &filter : filtersToRemove)
-		{
-			wfp::ObjectDeleter::DeleteFilter(engine, filter);
-		}
-
-		for (const auto &sublayer : sublayersToRemove)
-		{
-			wfp::ObjectDeleter::DeleteSublayer(engine, sublayer);
-		}
-
-		wfp::ObjectDeleter::DeleteProvider(engine, MullvadGuids::Provider());
-	};
-}
-
-//static
 bool ObjectPurger::Execute(RemovalFunctor f)
 {
 	auto engine = wfp::FilterEngine::StandardSession();
