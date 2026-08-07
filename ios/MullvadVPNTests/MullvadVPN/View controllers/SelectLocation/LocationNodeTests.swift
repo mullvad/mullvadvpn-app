@@ -91,6 +91,15 @@ class LocationNodeTests: XCTestCase {
     func testFindDescendantByNodeCode() {
         XCTAssertTrue(listNode.descendantNode(for: [hostNode.code]) == hostNode)
     }
+
+    func testOrderingIsLocaleSpecific() {
+        XCTAssertEqual(
+            "Åland".compare("Zimbabwe", options: [], range: nil, locale: Locale(identifier: "en_US")), .orderedAscending
+        )
+        XCTAssertEqual(
+            "Åland".compare("Zimbabwe", options: [], range: nil, locale: Locale(identifier: "sv_SE")),
+            .orderedDescending)
+    }
 }
 
 extension LocationNodeTests {
