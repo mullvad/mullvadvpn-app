@@ -3,15 +3,12 @@
 
 use super::{CloseMsg, Error, TunnelType, config::Config, obfuscation::ObfuscatorHandle};
 
-#[cfg(target_os = "android")]
-use std::sync::Mutex;
 use std::{
     net::IpAddr,
     sync::{Arc, mpsc as sync_mpsc},
     time::Duration,
 };
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider::TunProvider;
+use talpid_net::bypass::SocketBypass;
 
 use ipnetwork::IpNetwork;
 use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
@@ -29,6 +26,7 @@ pub async fn config_ephemeral_peers(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> std::result::Result<(), CloseMsg> {
     let iface_name = {
         let tunnel = tunnel.lock().await;
@@ -42,8 +40,15 @@ pub async fn config_ephemeral_peers(
     log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
     try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
 
-    config_ephemeral_peers_inner(tunnel, config, retry_attempt, obfuscator, close_obfs_sender)
-        .await?;
+    config_ephemeral_peers_inner(
+        tunnel,
+        config,
+        retry_attempt,
+        obfuscator,
+        close_obfs_sender,
+        bypass,
+    )
+    .await?;
 
     log::trace!("Resetting tunnel MTU");
     try_set_ipv4_mtu(&iface_name, config.mtu);
@@ -72,7 +77,7 @@ pub async fn config_ephemeral_peers(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
         tunnel,
@@ -80,8 +85,7 @@ pub async fn config_ephemeral_peers(
         retry_attempt,
         obfuscator,
         close_obfs_sender,
-        #[cfg(target_os = "android")]
-        tun_provider,
+        bypass,
     )
     .await
 }
@@ -92,7 +96,7 @@ async fn config_ephemeral_peers_inner(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -127,8 +131,7 @@ async fn config_ephemeral_peers_inner(
             None,
             obfuscator.clone(),
             close_obfs_sender,
-            #[cfg(target_os = "android")]
-            &tun_provider,
+            bypass.clone(),
         )
         .await?;
 
@@ -161,8 +164,7 @@ async fn config_ephemeral_peers_inner(
         daita,
         obfuscator,
         close_obfs_sender,
-        #[cfg(target_os = "android")]
-        &tun_provider,
+        bypass,
     )
     .await?;
 
@@ -178,7 +180,7 @@ async fn reconfigure_tunnel(
     daita: Option<DaitaSettings>,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    tun_provider: &Arc<Mutex<TunProvider>>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -188,7 +190,7 @@ async fn reconfigure_tunnel(
                 &mut config.entry_peer,
                 obfuscation_settings,
                 close_obfs_sender,
-                tun_provider.clone(),
+                bypass,
             )
             .await
             .map_err(CloseMsg::ObfuscatorFailed)?;
@@ -219,6 +221,7 @@ async fn reconfigure_tunnel(
     daita: Option<DaitaSettings>,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    bypass: Arc<dyn SocketBypass>,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(old_obfuscator_handle) = obfs_guard.take() {
@@ -228,8 +231,7 @@ async fn reconfigure_tunnel(
                 &mut config.entry_peer,
                 obfuscation_settings,
                 close_obfs_sender,
-                #[cfg(target_os = "linux")]
-                config.fwmark,
+                bypass,
             )
             .await
             .map_err(CloseMsg::ObfuscatorFailed)?;

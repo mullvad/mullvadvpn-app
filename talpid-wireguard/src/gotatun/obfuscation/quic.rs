@@ -5,18 +5,20 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
-use talpid_net::bypass::{BypassSocket, SocketBypass};
+use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
 use tokio::sync::mpsc;
 
 #[derive(Clone)]
 pub struct QuicSend {
     packet_tx: mpsc::Sender<Packet>,
+    _bypass_guard: Arc<BypassGuard>,
 }
 
 pub struct QuicRecv {
     /// packets incoming from the network
     packet_rx: mpsc::Receiver<BytesMut>,
     target_addr: SocketAddr,
+    _bypass_guard: Arc<BypassGuard>,
 }
 
 impl UdpRecv for QuicRecv {
@@ -51,15 +53,13 @@ pub struct QuicTransportFactory {
 }
 
 impl UdpTransportFactory for QuicTransportFactory {
-    type SendV4 = QuicSend;
-    type SendV6 = NoopSend;
-    type RecvV4 = QuicRecv;
-    type RecvV6 = NoopRecv;
+    type Send = QuicSend;
+    type Recv = QuicRecv;
 
     async fn bind(
         &mut self,
         _params: &UdpTransportFactoryParams,
-    ) -> io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
+    ) -> io::Result<(Self::Send, Self::Recv)> {
         log::debug!("Starting QUIC proxy using userspace transport");
         if self.running_client.is_some() {
             log::debug!("Reconnecting to QUIC proxy");
@@ -68,13 +68,14 @@ impl UdpTransportFactory for QuicTransportFactory {
 
         let BypassSocket {
             socket: quinn_socket,
-            guard: _bypass,
+            guard: bypass_guard,
         } = tunnel_obfuscation::socket::create_remote_socket(
             &self.bypass,
             self.settings.quic_endpoint().is_ipv4(),
         )
         .await
         .map_err(io::Error::other)?;
+        let bypass_guard = Arc::new(bypass_guard);
 
         let config = self.settings.build_client_config(quinn_socket);
 
@@ -88,37 +89,15 @@ impl UdpTransportFactory for QuicTransportFactory {
             mpsc::channel(tunnel_obfuscation::quic::MAX_INFLIGHT_PACKETS);
         let send = QuicSend {
             packet_tx: outgoing_tx,
+            _bypass_guard: bypass_guard.clone(),
         };
         let recv = QuicRecv {
             packet_rx: incoming_rx,
             target_addr: self.settings.wireguard_endpoint(),
+            _bypass_guard: bypass_guard,
         };
         let running_client = client.proxy_channels(outgoing_rx, incoming_tx);
         self.running_client = Some(running_client);
-        Ok(((send, recv), (NoopSend, NoopRecv)))
-    }
-}
-
-// The internal WireGuard endpoint for QUIC is always IPv4 (Ipv4Addr::LOCALHOST, 51820), but we must
-// implement an internal transport for IPv6. These will never actually be called,
-#[derive(Clone)]
-pub struct NoopSend;
-pub struct NoopRecv;
-impl UdpRecv for NoopRecv {
-    type RecvManyBuf = ();
-    async fn recv_from(&mut self, _: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
-        std::future::pending().await
-    }
-}
-
-impl UdpSend for NoopSend {
-    type SendManyBuf = ();
-
-    async fn send_to(&self, _: Packet, destination: SocketAddr) -> io::Result<()> {
-        log::error!("Got unexpected packet to {destination:?}");
-        Err(io::Error::new(
-            io::ErrorKind::AddrNotAvailable,
-            "Proxying IPv6 WireGuard packets inside QUIC is not supported",
-        ))
+        Ok((send, recv))
     }
 }
