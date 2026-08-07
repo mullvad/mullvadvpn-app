@@ -179,7 +179,9 @@ extension LocationNode: Hashable {
 
 extension LocationNode: Comparable {
     static func < (lhs: LocationNode, rhs: LocationNode) -> Bool {
-        lhs.name.lowercased() < rhs.name.lowercased()
+        // Sort using the current locale's collation rules (via `Locale.current`) rather than
+        // raw Unicode scalar comparison.
+        lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
     }
 }
 
