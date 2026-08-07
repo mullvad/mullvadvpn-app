@@ -141,8 +141,7 @@ private fun createRecentsSection(
                         )
                 }
             }
-            // Convert to a set to remove possible duplicates.
-            .toSet()
+            .distinct()
             .take(RECENTS_MAX_VISIBLE)
 
     addAll(shown)

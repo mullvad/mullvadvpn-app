@@ -17,9 +17,8 @@ val RelayListType.isMultihopEntry
             else -> false
         }
 
-fun RelayListType?.hopType(): RelayHopType =
+fun RelayListType.hopType(): RelayHopType =
     when (this) {
         is RelayListType.Multihop -> hopType
-        RelayListType.Single,
-        null -> RelayHopType.EXIT
+        RelayListType.Single -> RelayHopType.EXIT
     }

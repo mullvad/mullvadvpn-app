@@ -83,7 +83,8 @@ class FilteredRelayListUseCase(
         }
 
     private fun RelayPartitions.relevantHostnames(): Map<PartitionHostname, NeedsOtherEntry> {
-        val discardsToShow = discards.filter { it.shouldBeShown() }.map { Pair(it.hostname, false) }
+        val discardsToShow =
+            discards.filter { it.shouldBeShown() }.associate { it.hostname to false }
         return matches + discardsToShow
     }
 

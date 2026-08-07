@@ -766,10 +766,10 @@ class ManagementService(
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated =
-                    hopType.ownership().set(relaySettings, ownershipConstraint).let {
-                        hopType.providers().set(it, providersConstraint)
-                    }
+                val updated = relaySettings.copy {
+                    hopType.providers() set providersConstraint
+                    hopType.ownership() set ownershipConstraint
+                }
                 val domain = updated.fromDomain()
                 grpc.setRelaySettings(domain)
             }
