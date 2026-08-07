@@ -527,9 +527,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // executed these sequentially for some reason
             _ = await [loadTunnelStore, getDefaultLocation]
             await doMigrateSettings(application: application)
-            async let initTunnelManager: () = doInitTunnelManager()
-            async let resolveDeprecatedSettings: () = doResolveDeprecatedSettings()
-            _ = await [initTunnelManager, resolveDeprecatedSettings]
+            await doResolveDeprecatedSettings()
+            await doInitTunnelManager()
             await self.storePaymentManager.start()
         }
     }
