@@ -566,6 +566,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                         case let .failure(error):
                             logger.error("Failed migration from UI Process: \(error)")
+                            // SAFETY NOTE: We can assume this to be running on the same thread that
+                            // `MigrationManager.migrateSettings` was called from, as the callback is
+                            // called through `NSFileCoordinator`, which runs synchronously on one thread
+                            // and is used for locking between processes using the filesystem.
                             MainActor.assumeIsolated {
                                 let migrationUIHandler =
                                     application.connectedScenes
