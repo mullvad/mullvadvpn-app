@@ -66,11 +66,13 @@ extension RelayFilterSelection {
         init(
             tunnelManager: RelayFilterViewModelSettingsProviding,
             relaySelectorWrapper: RelaySelectorProtocol,
-            multihopContext: MultihopContext
+            multihopContext: MultihopContext,
+            isFilterOverridden: Bool
         ) {
             self.relaySelectorWrapper = relaySelectorWrapper
             self.multihopContext = multihopContext
             self.tunnelManager = tunnelManager
+            self.shouldShowAutomaticFilterOverrideNotice = isFilterOverridden
 
             // Load filter settings from store.
             relayFilter =

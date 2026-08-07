@@ -182,7 +182,8 @@ extension LocationCoordinator {
             navigationController: CustomNavigationController(),
             tunnelManager: tunnelManager,
             multihopContext: multihopContext,
-            relaySelectorWrapper: relaySelectorWrapper
+            relaySelectorWrapper: relaySelectorWrapper,
+            isFilterOverridden: selectLocationViewModel.currentLocationContext.isFilterOverridden
         )
 
         relayFilterCoordinator.didFinish = {

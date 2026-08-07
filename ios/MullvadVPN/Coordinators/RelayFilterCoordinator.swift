@@ -15,6 +15,7 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     private let tunnelManager: TunnelManager
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let multihopContext: MultihopContext
+    private let isFilterOverridden: Bool
 
     let navigationController: UINavigationController
 
@@ -29,19 +30,22 @@ class RelayFilterCoordinator: Coordinator, Presentable {
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
         multihopContext: MultihopContext,
-        relaySelectorWrapper: RelaySelectorWrapper
+        relaySelectorWrapper: RelaySelectorWrapper,
+        isFilterOverridden: Bool
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.multihopContext = multihopContext
         self.relaySelectorWrapper = relaySelectorWrapper
+        self.isFilterOverridden = isFilterOverridden
     }
 
     func start() {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
-            multihopContext: multihopContext
+            multihopContext: multihopContext,
+            isFilterOverridden: isFilterOverridden
         )
         let relayFilterView = RelayFilterView(viewModel: viewModel)
 

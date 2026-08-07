@@ -128,7 +128,8 @@ struct RelayFilterView: View {
                 settings: LatestTunnelSettings(daita: DAITASettings(daitaState: .off))
             ),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: RelaySelectorStub.nonFallible().relayCache),
-            multihopContext: .entry
+            multihopContext: .entry,
+            isFilterOverridden: true
         )
     )
 }

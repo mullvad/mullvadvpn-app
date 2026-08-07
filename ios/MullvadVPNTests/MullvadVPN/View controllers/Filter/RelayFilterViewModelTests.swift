@@ -35,7 +35,8 @@ struct RelayFilterViewModelTests {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: settings),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
+            multihopContext: .exit,
+            isFilterOverridden: false
         )
         let filteredRelays = viewModel.availableRelays
 
@@ -55,7 +56,8 @@ struct RelayFilterViewModelTests {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
+            multihopContext: .exit,
+            isFilterOverridden: false
         )
 
         viewModel.toggleItem(ownershipItem)
@@ -76,7 +78,8 @@ struct RelayFilterViewModelTests {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
+            multihopContext: .exit,
+            isFilterOverridden: false
         )
 
         let initialFilter = viewModel.relayFilter
@@ -102,7 +105,8 @@ struct RelayFilterViewModelTests {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
+            multihopContext: .exit,
+            isFilterOverridden: false
         )
 
         let initialFilter = viewModel.relayFilter
@@ -131,7 +135,8 @@ struct RelayFilterViewModelTests {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
+            multihopContext: .exit,
+            isFilterOverridden: false
         )
         let ownership = viewModel.ownership(for: ownershipItem)
 

@@ -41,6 +41,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                         })
                 ])
         )
+        .padding(.top)
         .mullvadAlert(item: $multihopWarningAlert)
     }
 
