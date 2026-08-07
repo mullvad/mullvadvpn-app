@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
+import java.text.Collator
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
@@ -50,5 +51,6 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
     this.filter { codes.contains(it.id) } +
         this.flatMap { it.descendants() }.filter { codes.contains(it.id) }
 
+// Sort using the default locale's collation rules rather than raw Unicode value comparison.
 fun <T : RelayItem> List<T>.sortedByName() =
-    this.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+    this.sortedWith(compareBy(Collator.getInstance()) { it.name })

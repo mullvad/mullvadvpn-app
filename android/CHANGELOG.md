@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable
   the use SOCKS5 proxies on other relays together with Local network sharing.
 
+### Fixed
+- Fix relay list and custom lists not being sorted using locale-aware collation.
+
 
 ## [android/2026.8] - 2026-07-15
 ### Fixed
