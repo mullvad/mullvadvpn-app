@@ -16,8 +16,7 @@ async fn main() {
     let args = parse_args();
 
     #[cfg(target_os = "macos")]
-    let tunnel_device =
-        firewall::setup_utun(args.client_ip).expect("Failed to create a tunnel device");
+    let tunnel_device = firewall::setup_utun().expect("Failed to create a tunnel device");
 
     let interface = {
         #[cfg(target_os = "linux")]
@@ -66,8 +65,6 @@ async fn main() {
 struct Args {
     bind_address: String,
     interface: Option<String>,
-    #[cfg(target_os = "macos")]
-    client_ip: std::net::Ipv4Addr,
 }
 
 fn parse_args() -> Args {
@@ -78,23 +75,11 @@ fn parse_args() -> Args {
         .expect("First arg must be listening address");
 
     let mut interface = None;
-    #[cfg(target_os = "macos")]
-    let mut client_ip = None;
 
     while let Some(arg) = args_iter.next() {
         match arg.as_str() {
             "--interface" => {
                 interface = Some(args_iter.next().expect("--interface requires an argument"));
-            }
-            #[cfg(target_os = "macos")]
-            "--client-ip" => {
-                client_ip = Some(
-                    args_iter
-                        .next()
-                        .expect("--client-ip requires an argument")
-                        .parse()
-                        .expect("--client-ip must be a valid IPv4 address"),
-                );
             }
             other => {
                 panic!("Unknown argument: {other}");
@@ -105,8 +90,6 @@ fn parse_args() -> Args {
     Args {
         bind_address,
         interface,
-        #[cfg(target_os = "macos")]
-        client_ip: client_ip.unwrap(),
     }
 }
 
