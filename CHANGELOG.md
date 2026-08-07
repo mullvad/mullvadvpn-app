@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.4-beta2] - 2026-08-07
 ### Fixed
 #### macOS
 - Fix split tunneling related parse error on macOS 27.
