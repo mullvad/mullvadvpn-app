@@ -1,5 +1,1 @@
-Add Ukrainian translations.
-[macOS] Reduce size of app updates by 50%.
-[Windows] Problem report now collect logs from `Install Mullvad VPN.exe`.
-[macOS] Problem report now collect logs from `Install Mullvad VPN.dmg`.
-Additional bug and security fixes.
+[macOS] Fix split tunneling issues on macOS 27 Beta
