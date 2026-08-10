@@ -31,8 +31,8 @@ import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 data class FilteredCountries(
-    val countries: List<RelayItem.Location.Country>,
-    val relayMetadata: Map<GeoLocationId.Hostname, RelayMetadata>,
+    val countries: List<RelayItem.Location.Country> = emptyList(),
+    val relayMetadata: Map<GeoLocationId.Hostname, RelayMetadata> = emptyMap(),
 )
 
 class FilteredRelayListUseCase(
