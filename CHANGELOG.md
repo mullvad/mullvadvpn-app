@@ -55,6 +55,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix infinite loop of account checks when account ran out of time.
 - Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 
+#### Linux
+- Fix `mullvad split-tunnel clear` failing with "Error in split tunneling" when one of the excluded
+  processes had already exited.
+
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
   enabled in order to prevent toggle switches and other custom-styled controls from becoming
