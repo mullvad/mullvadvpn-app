@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddLocationAlt
-import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.FilterListOff
@@ -70,6 +69,7 @@ import androidx.constraintlayout.compose.layoutId
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedInactive
 import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedActive
+import net.mullvad.mullvadvpn.lib.ui.icon.LocationOn
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -411,7 +411,7 @@ fun MultihopSelector(
                         end = 4.dp,
                         bottom = if (exitErrorText == null) 4.dp else 0.dp,
                     ),
-            leadingIcon = Icons.Outlined.LocationOn,
+            leadingIcon = LocationOn,
             text = exitLocation,
             selected = exitSelected,
             onSelect = onExitClick,
@@ -560,7 +560,7 @@ fun Singlehop(
         Hop(
             modifier =
                 Modifier.layoutId(AnimationKey.Exit).padding(horizontal = Dimens.tinyPadding),
-            leadingIcon = Icons.Outlined.LocationOn,
+            leadingIcon = LocationOn,
             text = exitLocation,
             selected = true,
             onSelect = onSelect,
@@ -591,7 +591,7 @@ private fun PreviewHop() {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Hop(
-                    leadingIcon = Icons.Outlined.LocationOn,
+                    leadingIcon = LocationOn,
                     text = "Sweden",
                     selected = true,
                     onSelect = {},
@@ -602,7 +602,7 @@ private fun PreviewHop() {
                 )
 
                 Hop(
-                    leadingIcon = Icons.Outlined.LocationOn,
+                    leadingIcon = LocationOn,
                     text = "Sweden",
                     selected = true,
                     onSelect = {},
@@ -624,7 +624,7 @@ private fun PreviewHop() {
                 )
 
                 Hop(
-                    leadingIcon = Icons.Outlined.LocationOn,
+                    leadingIcon = LocationOn,
                     text = "Sweden",
                     selected = false,
                     onSelect = {},
