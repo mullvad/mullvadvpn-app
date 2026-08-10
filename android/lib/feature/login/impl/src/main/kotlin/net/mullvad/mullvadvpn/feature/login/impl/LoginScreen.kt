@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -332,13 +333,21 @@ private fun ColumnScope.LoginInput(
     onDeleteHistoryClick: () -> Unit,
     onShowApiUnreachableDialog: (LoginAction) -> Unit,
 ) {
-
     var showPassword by remember { mutableStateOf(false) }
-    var showLastChar by remember { mutableStateOf(false) }
+    var showLastChars by remember { mutableStateOf(false) }
+    var charsToShow by remember { mutableIntStateOf(1) }
+
+    // If we get an error when logging in we need to reset the number of chars we show to 1.
+    if (state.loginState.isError()) {
+        charsToShow = 1
+    }
+
     LaunchedEffect(state.accountNumberInput) {
-        showLastChar = true
+        showLastChars = true
         delay(LAST_CHAR_VISIBILITY_TIMEOUT)
-        showLastChar = false
+        // If the input changed because we came from the history entry we don't want to hide
+        // when we log in.
+        showLastChars = charsToShow == ACCOUNT_NUMBER_CHUNK_SIZE
     }
 
     val outputTransformation =
@@ -346,7 +355,7 @@ private fun ColumnScope.LoginInput(
             accountNumberOutputTransformation(
                 showAccount = showPassword,
                 // HACK! See comment in accountNumberOutputTransformation for more information.
-                showLastX = { if (showLastChar) 1 else 0 },
+                showLastX = { if (showLastChars) charsToShow else 0 },
             )
         }
 
@@ -452,6 +461,7 @@ private fun ColumnScope.LoginInput(
                 showPassword = showPassword,
                 onClick = {
                     state.lastUsedAccount?.let {
+                        charsToShow = ACCOUNT_NUMBER_CHUNK_SIZE
                         accountState.setTextAndPlaceCursorAtEnd(it.value)
                         onLoginClick(it.value)
                     }
