@@ -527,7 +527,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             await doMigrateSettings(application: application)
             await doResolveDeprecatedSettings()
             await doInitTunnelManager()
-            await self.storePaymentManager.start()
+            await storePaymentManager.start()
         }
     }
 
@@ -612,7 +612,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         defer {
             settingsManager.setShouldWipeSettings()
         }
-        if self.appPreferences.hasDoneFirstTimeLaunch { return }
+        guard !self.appPreferences.hasDoneFirstTimeLaunch else { return }
 
         if !settingsManager.getShouldWipeSettings() {
             // the app has never been launched
