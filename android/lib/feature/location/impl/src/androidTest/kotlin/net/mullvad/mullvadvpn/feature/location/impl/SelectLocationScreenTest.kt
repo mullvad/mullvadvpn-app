@@ -351,9 +351,10 @@ class SelectLocationScreenTest {
                         relayListItems =
                             listOf(
                                 RelayListItem.GeoLocationItem(
-                                    relayItem,
+                                    item = relayItem,
                                     itemPosition = Position.Single,
                                     hierarchy = Hierarchy.Parent,
+                                    needsOtherEntry = false,
                                 )
                             ),
                         relayListType = RelayListType.Single,
