@@ -62,7 +62,6 @@
 		06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */; };
 		06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66528F83CA30033DD93 /* RESTURLSession.swift */; };
 		06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66E28F83CA40033DD93 /* RESTProxy.swift */; };
-		06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */; };
 		06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RetryStrategy.swift */; };
 		06799AF028F98E4800ACD94E /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
 		06799AF128F98E4800ACD94E /* RESTSubmitVoucherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */; };
@@ -1814,7 +1813,6 @@
 		06FAE66E28F83CA40033DD93 /* RESTProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTProxy.swift; sourceTree = "<group>"; };
 		06FAE67128F83CA40033DD93 /* HTTP.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTP.swift; sourceTree = "<group>"; };
 		06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTSubmitVoucherResponse.swift; sourceTree = "<group>"; };
-		06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
 		06FAE67628F83CA40033DD93 /* RetryStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategy.swift; sourceTree = "<group>"; };
 		06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRelaysResponse.swift; sourceTree = "<group>"; };
 		06FAE67828F83CA50033DD93 /* StorePaymentOutcome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorePaymentOutcome.swift; sourceTree = "<group>"; };
@@ -5017,7 +5015,6 @@
 				589E76BF2A9378F100E502F3 /* RESTRequestExecutor.swift */,
 				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
 				06FAE67328F83CA40033DD93 /* RESTSubmitVoucherResponse.swift */,
-				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
 				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
@@ -6262,7 +6259,6 @@
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				7A2C0E8C2D8B13F0003D8048 /* MullvadAPIProxy.swift in Sources */,
 				7A964BBC2E699C8500C6A4EC /* QuicObfuscator.swift in Sources */,
-				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */,
 				F0791F1B2D76377500449F6D /* RelayCandidates.swift in Sources */,
 				F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */,
