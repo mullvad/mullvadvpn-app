@@ -369,7 +369,6 @@ class CustomListLocationsViewModelTest {
                                             countryName = "Sweden",
                                             cityName = "Gothenburg",
                                             latLong = LatLong(0f, 0f),
-                                            needsOtherEntry = false,
                                         )
                                     ),
                                 countryName = "Sweden",
@@ -394,7 +393,6 @@ class CustomListLocationsViewModelTest {
                 cityName = "Copenhagen",
                 countryName = "Denmark",
                 latLong = LatLong(0f, 0f),
-                needsOtherEntry = false,
             )
     }
 }
