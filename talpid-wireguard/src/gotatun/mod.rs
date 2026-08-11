@@ -554,7 +554,10 @@ async fn create_devices(
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
         let factory = udp_obfuscator_factory(
-            config.obfuscation_settings().as_ref(),
+            config
+                .obfuscation_settings()
+                .as_ref()
+                .and_then(|settings| settings.single()),
             optimize_buffer_size,
             #[cfg(target_os = "android")]
             android_tun,

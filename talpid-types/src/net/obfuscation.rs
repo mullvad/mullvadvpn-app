@@ -20,7 +20,7 @@ pub enum Obfuscators {
     },
 }
 
-#[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
+#[derive(Clone, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
 pub enum ObfuscatorConfig {
     Udp2Tcp {
         endpoint: SocketAddr,

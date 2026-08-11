@@ -17,7 +17,7 @@ use futures::{
     },
 };
 use talpid_routing::RouteManagerHandle;
-use talpid_types::net::AllowedTunnelTraffic;
+use talpid_types::net::{AllowedTunnelTraffic, obfuscation::ObfuscatorConfig};
 use tun_provider::TunProvider;
 
 /// Size of IPv4 header in bytes
@@ -93,6 +93,15 @@ impl TunnelMetadata {
     }
 }
 
+/// The single transport that the tunnel has committed to.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum SelectedObfuscation {
+    /// Traffic is sent directly to the relay, without obfuscation.
+    Direct,
+    /// Traffic passes through this obfuscator.
+    Obfuscated(ObfuscatorConfig),
+}
+
 /// Possible events from the VPN tunnel and the child process managing it.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum TunnelEvent {
@@ -101,7 +110,17 @@ pub enum TunnelEvent {
     /// Sent when the tunnel interface has been created, before routes are set up.
     InterfaceUp(TunnelMetadata, AllowedTunnelTraffic),
     /// Sent when the tunnel comes up and is ready for traffic.
-    Up(TunnelMetadata),
+    Up {
+        metadata: TunnelMetadata,
+        /// The transport that the obfuscation multiplexer settled on, or `None`.
+        ///
+        /// This is only set when obfuscation is multiplexed over several candidates,
+        /// in which case only one of them is in use once the tunnel is up.
+        ///
+        /// If set, this must replace the previous endpoints in
+        /// [talpid_types::net::wireguard::TunnelParameters].
+        selected_obfuscation: Option<SelectedObfuscation>,
+    },
     /// Sent when the tunnel goes down, but before destroying the tunnel device.
     Down,
 }

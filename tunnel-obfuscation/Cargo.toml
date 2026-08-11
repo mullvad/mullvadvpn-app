@@ -28,7 +28,8 @@ tokio = { workspace = true, features = [
   "io-util",
   "macros",
   "net",
-  "rt-multi-thread"
+  "rt-multi-thread",
+  "sync"
 ] }
 tokio-util = { workspace = true, features = ["rt"] }
 udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "00c8482f303aa23a69cfe9ee10903582cba3eb1e" }

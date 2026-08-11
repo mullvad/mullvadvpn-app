@@ -64,13 +64,17 @@ pub trait LocalSocketObfuscator: Send {
     fn packet_overhead(&self) -> u16;
 }
 
+/// Settings for a single obfuscator.
+///
+/// The multiplexer, which races several obfuscators against each other, is deliberately not
+/// included here. It is constructed directly via [`multiplexer::Multiplexer::new`], so that it
+/// cannot be nested within itself.
 #[derive(Debug, Clone)]
 pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
     Lwo(lwo::Settings),
-    Multiplexer(multiplexer::Settings),
 }
 
 pub async fn create_local_socket_obfuscator(
@@ -92,9 +96,6 @@ pub async fn create_local_socket_obfuscator_with_bypass(
             .await
             .map(box_obfuscator),
         Settings::Lwo(s) => lwo::Lwo::new(bypass, s).await.map(box_obfuscator),
-        Settings::Multiplexer(s) => multiplexer::Multiplexer::new(bypass, s)
-            .await
-            .map(box_obfuscator),
     }
 }
 
