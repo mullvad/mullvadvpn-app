@@ -378,7 +378,13 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            event_hook.on_event(TunnelEvent::Up(metadata)).await;
+            let selected_endpoint = selected_obfuscation_endpoint(&obfuscator).await;
+            event_hook
+                .on_event(TunnelEvent::Up {
+                    metadata,
+                    selected_endpoint,
+                })
+                .await;
 
             if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
                 .run(Arc::downgrade(&tunnel))
@@ -551,7 +557,13 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            event_hook.on_event(TunnelEvent::Up(metadata)).await;
+            let selected_endpoint = selected_obfuscation_endpoint(&obfuscator).await;
+            event_hook
+                .on_event(TunnelEvent::Up {
+                    metadata,
+                    selected_endpoint,
+                })
+                .await;
 
             if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
                 .run(Arc::downgrade(&tunnel))
@@ -940,6 +952,16 @@ impl WireguardMonitor {
             ipv6_gateway: config.ipv6_gateway,
         }
     }
+}
+
+/// Return the remote endpoint that the obfuscator has committed to, if it is known.
+///
+/// This must be read from the current obfuscator rather than cached. The multiplexer must have
+/// selected one obfuscator.
+async fn selected_obfuscation_endpoint(
+    obfuscator: &AsyncMutex<Option<ObfuscatorHandle>>,
+) -> Option<Endpoint> {
+    obfuscator.lock().await.as_ref()?.selected_endpoint()
 }
 
 fn get_obfuscator(

@@ -3,7 +3,7 @@ use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 
 use talpid_tunnel::{TunnelEvent, TunnelMetadata};
-use talpid_types::net::{AllowedClients, AllowedEndpoint, wireguard::TunnelParameters};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, Endpoint, wireguard::TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
 
@@ -27,6 +27,9 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
+    /// The single remote endpoint that the tunnel settled on, if it is known. See
+    /// [`TunnelEvent::Up`].
+    selected_endpoint: Option<Endpoint>,
     tunnel_close_event: TunnelCloseEvent,
     tunnel_close_tx: oneshot::Sender<()>,
 }
@@ -35,6 +38,7 @@ impl ConnectedState {
     pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
         metadata: TunnelMetadata,
+        selected_endpoint: Option<Endpoint>,
         tunnel_events: TunnelEventsReceiver,
         tunnel_parameters: TunnelParameters,
         tunnel_close_event: TunnelCloseEvent,
@@ -44,6 +48,7 @@ impl ConnectedState {
             metadata,
             tunnel_events,
             tunnel_parameters,
+            selected_endpoint,
             tunnel_close_event,
             tunnel_close_tx,
         };
@@ -103,7 +108,12 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
-        let endpoints = self.tunnel_parameters.get_next_hop_endpoints();
+        // While connecting, every candidate endpoint has to be allowed. Now that the tunnel is up,
+        // only the endpoint that it settled on needs to be.
+        let endpoints = match self.selected_endpoint {
+            Some(endpoint) => vec![endpoint],
+            None => self.tunnel_parameters.get_next_hop_endpoints(),
+        };
 
         #[cfg(target_os = "windows")]
         let clients = AllowedClients::from(vec![std::env::current_exe().unwrap()]);

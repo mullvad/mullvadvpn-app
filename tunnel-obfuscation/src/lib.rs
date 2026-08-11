@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use std::{net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{NoopBypass, SocketBypass};
+use talpid_types::net::{Endpoint, TransportProtocol};
 use tokio::io;
 
 pub mod lwo;
@@ -71,6 +72,35 @@ pub enum Settings {
     Quic(quic::Settings),
     Lwo(lwo::Settings),
     Multiplexer(multiplexer::Settings),
+}
+
+impl Settings {
+    /// Return the remote endpoint, i.e. the first remote hop that the obfuscator will connect to.
+    ///
+    /// Returns `None` for [`Settings::Multiplexer`], since it connects to one out of several
+    /// endpoints, and which one is not known until runtime. See
+    /// [`multiplexer::Settings::selected_endpoint`].
+    pub fn remote_endpoint(&self) -> Option<Endpoint> {
+        match self {
+            Settings::Udp2Tcp(settings) => Some(Endpoint::from_socket_address(
+                settings.peer,
+                TransportProtocol::Tcp,
+            )),
+            Settings::Shadowsocks(settings) => Some(Endpoint::from_socket_address(
+                settings.shadowsocks_endpoint,
+                TransportProtocol::Udp,
+            )),
+            Settings::Quic(settings) => Some(Endpoint::from_socket_address(
+                settings.quic_endpoint(),
+                TransportProtocol::Udp,
+            )),
+            Settings::Lwo(settings) => Some(Endpoint::from_socket_address(
+                settings.server_addr,
+                TransportProtocol::Udp,
+            )),
+            Settings::Multiplexer(_) => None,
+        }
+    }
 }
 
 pub async fn create_local_socket_obfuscator(

@@ -30,7 +30,8 @@ use std::{
 
 use async_trait::async_trait;
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use tokio::net::UdpSocket;
+use talpid_types::net::{Endpoint, TransportProtocol};
+use tokio::{net::UdpSocket, sync::watch};
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::socket::create_remote_socket;
@@ -56,16 +57,33 @@ pub struct Multiplexer {
     /// IPv6 socket for communicating with obfuscation proxies
     proxy_socket_v6: Arc<BypassSocket<UdpSocket>>,
     /// Map of currently active transport endpoints and their configurations
-    running_endpoints: BTreeMap<SocketAddr, Transport>,
+    running_endpoints: BTreeMap<SocketAddr, RunningTransport>,
     /// Queue of transports to spawn (in priority order)
     transports: VecDeque<Transport>,
     /// Buffer of initial packets received from WireGuard to replay to new transports
     initial_packets_to_send: Vec<Vec<u8>>,
-    /// Handles to spawned obfuscation tasks
-    tasks: Vec<AbortOnDropHandle<()>>,
     /// Address of WG endpoint socket
     wg_addr: Option<SocketAddr>,
+    /// Notified with the remote endpoint of the selected transport, if set
+    selected_endpoint: Option<SelectedEndpointTx>,
     bypass: Arc<dyn SocketBypass>,
+}
+
+/// A transport that has been spawned and is being fanned out to.
+struct RunningTransport {
+    transport: Transport,
+    /// Handle to the task running the obfuscator. `None` for [`Transport::Direct`], which needs
+    /// no obfuscator. Only held so that dropping it aborts the obfuscator.
+    #[expect(dead_code)]
+    task: Option<AbortOnDropHandle<()>>,
+}
+
+/// The transport that the multiplexer has committed to, and the peer it forwards traffic for.
+struct Selection {
+    /// Address of the local WireGuard instance
+    wg_addr: SocketAddr,
+    /// Local address of the selected obfuscator
+    proxy_addr: SocketAddr,
 }
 
 impl Multiplexer {
@@ -95,9 +113,9 @@ impl Multiplexer {
             proxy_socket_v6: Arc::new(proxy_socket_v6),
             running_endpoints: BTreeMap::new(),
             transports: VecDeque::from(settings.transports.clone()),
-            tasks: vec![],
             initial_packets_to_send: vec![],
             wg_addr: None,
+            selected_endpoint: settings.selected_endpoint.clone(),
             bypass,
         })
     }
@@ -120,6 +138,24 @@ impl Multiplexer {
     async fn start(mut self) -> io::Result<()> {
         log::debug!("Running multiplexer obfuscation");
 
+        let Some(selection) = self.run_discovery().await? else {
+            return Ok(());
+        };
+
+        // Stop all transports but the selected one. Their traffic will be dropped by the firewall
+        // once it has been tightened to only allow the selected endpoint.
+        self.running_endpoints
+            .retain(|addr, _| *addr == selection.proxy_addr);
+
+        self.run_connected(selection.wg_addr, selection.proxy_addr)
+            .await
+    }
+
+    /// Fan traffic out to all transports until one of them responds.
+    ///
+    /// Returns the selected transport, or `None` if the local WireGuard instance went away before
+    /// any transport was selected.
+    async fn run_discovery(&mut self) -> io::Result<Option<Selection>> {
         let mut wg_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
         let mut obfs_recv_v4_buf = vec![0u8; MAX_DATAGRAM_SIZE];
         let mut obfs_recv_v6_buf = vec![0u8; MAX_DATAGRAM_SIZE];
@@ -128,7 +164,7 @@ impl Multiplexer {
 
         /// Helper to fan out a packet to all currently running endpoints
         async fn send_to_all<'a>(
-            endpoints: &BTreeMap<SocketAddr, Transport>,
+            endpoints: &BTreeMap<SocketAddr, RunningTransport>,
             get_socket: impl Fn(SocketAddr) -> &'a Arc<BypassSocket<UdpSocket>>,
             packet: &[u8],
         ) {
@@ -179,19 +215,23 @@ impl Multiplexer {
                         },
                         Err(err) => {
                             log::error!("Failed to receive traffic from local WireGuard instance: {err}");
-                            return Ok(());
+                            return Ok(None);
                         }
                     }
                 },
 
                 // From any IPv4 proxy
                 obfuscator_recv = self.proxy_socket_v4.recv_from(&mut obfs_recv_v4_buf) => {
-                    self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v4_buf[..n], addr))).await?;
+                    if let Some(selection) = self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v4_buf[..n], addr))).await? {
+                        return Ok(Some(selection));
+                    }
                 },
 
                 // From any IPv6 proxy
                 obfuscator_recv = self.proxy_socket_v6.recv_from(&mut obfs_recv_v6_buf) => {
-                    self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v6_buf[..n], addr))).await?;
+                    if let Some(selection) = self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v6_buf[..n], addr))).await? {
+                        return Ok(Some(selection));
+                    }
                 },
 
                 // Spawning the next transport
@@ -210,34 +250,56 @@ impl Multiplexer {
     /// If received bytes were forwarded from an obfuscator back to wireguard, this indicates that
     /// a handshake response was received (hopefully) and that we should switch to connected mode.
     ///
-    /// If a packet was received, this continues running until `run_connected` returns.
+    /// Returns the selected transport if the received packet selected one.
     async fn process_obfuscator_recv(
         &self,
         obfuscator_recv: io::Result<(&[u8], SocketAddr)>,
-    ) -> io::Result<()> {
+    ) -> io::Result<Option<Selection>> {
         match obfuscator_recv {
             Ok((received, obfuscator_addr)) => {
-                let Some(transport_config) = self.running_endpoints.get(&obfuscator_addr) else {
+                let Some(running) = self.running_endpoints.get(&obfuscator_addr) else {
                     log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
-                    return Ok(());
+                    return Ok(None);
                 };
                 let Some(wg_addr) = self.wg_addr else {
                     log::trace!(
                         "Received data from {obfuscator_addr} before receiving any data from WireGuard"
                     );
-                    return Ok(());
+                    return Ok(None);
                 };
                 log::debug!(
                     "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
-                    transport_config
+                    running.transport
                 );
+
+                self.announce_selection(&running.transport);
+
                 let _ = self.client_socket.send_to(received, wg_addr).await;
-                self.run_connected(wg_addr, obfuscator_addr).await
+                Ok(Some(Selection {
+                    wg_addr,
+                    proxy_addr: obfuscator_addr,
+                }))
             }
             Err(err) => {
                 log::error!("Failed to receive traffic from obfuscators: {err}");
                 Err(err)
             }
+        }
+    }
+
+    /// Announce the remote endpoint of the selected transport
+    fn announce_selection(&self, transport: &Transport) {
+        let Some(selected_endpoint) = &self.selected_endpoint else {
+            return;
+        };
+        match transport.remote_endpoint() {
+            Some(endpoint) => {
+                log::debug!("Selected obfuscation endpoint: {endpoint}");
+                let _ = selected_endpoint.send(Some(endpoint));
+            }
+            // Only reachable for a nested multiplexer, which is never constructed.
+            // TODO: unreachable?
+            None => log::error!("Failed to determine remote endpoint for {transport:?}"),
         }
     }
 
@@ -309,7 +371,13 @@ impl Multiplexer {
     async fn spawn_new_transport(&mut self, transport: Transport) -> crate::Result<()> {
         let endpoint = match transport.clone() {
             Transport::Direct(addr) => {
-                self.running_endpoints.insert(addr, transport);
+                self.running_endpoints.insert(
+                    addr,
+                    RunningTransport {
+                        transport,
+                        task: None,
+                    },
+                );
                 log::info!("Spawning direct forwarder");
                 Ok(addr)
             }
@@ -320,13 +388,17 @@ impl Multiplexer {
                 )
                 .await?;
                 let endpoint = obfuscator.endpoint();
-                self.running_endpoints
-                    .insert(endpoint, Transport::Obfuscated(obfuscator_settings));
-                self.tasks
-                    .push(AbortOnDropHandle::new(tokio::spawn(async move {
-                        log::info!("Spawning new obfuscator");
-                        let _ = obfuscator.run().await;
-                    })));
+                let task = AbortOnDropHandle::new(tokio::spawn(async move {
+                    log::info!("Spawning new obfuscator");
+                    let _ = obfuscator.run().await;
+                }));
+                self.running_endpoints.insert(
+                    endpoint,
+                    RunningTransport {
+                        transport: Transport::Obfuscated(obfuscator_settings),
+                        task: Some(task),
+                    },
+                );
                 Ok(endpoint)
             }
         }?;
@@ -346,6 +418,9 @@ impl Multiplexer {
     }
 }
 
+/// Notifies interested parties about which remote endpoint the multiplexer has committed to.
+pub type SelectedEndpointTx = Arc<watch::Sender<Option<Endpoint>>>;
+
 /// Configuration settings for multiplexer obfuscation
 #[derive(Debug, Clone)]
 pub struct Settings {
@@ -353,6 +428,9 @@ pub struct Settings {
     /// Spawn these transports progressively and select
     /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
+    /// Notified with the remote endpoint of the selected transport, once one has been selected.
+    /// The value is only ever set once, as the multiplexer never reconsiders its choice.
+    pub selected_endpoint: Option<SelectedEndpointTx>,
 }
 
 /// Represents a transport method that the multiplexer can use.
@@ -362,6 +440,20 @@ pub enum Transport {
     Direct(SocketAddr),
     /// An obfuscated transport (UDP2TCP, Shadowsocks, QUIC, etc.)
     Obfuscated(crate::Settings),
+}
+
+impl Transport {
+    /// Return the remote endpoint that this transport connects to.
+    ///
+    /// Returns `None` for a nested [`crate::Settings::Multiplexer`], which is never constructed.
+    pub fn remote_endpoint(&self) -> Option<Endpoint> {
+        match self {
+            Transport::Direct(addr) => {
+                Some(Endpoint::from_socket_address(*addr, TransportProtocol::Udp))
+            }
+            Transport::Obfuscated(settings) => settings.remote_endpoint(),
+        }
+    }
 }
 
 #[async_trait]
@@ -399,11 +491,13 @@ mod tests {
         let server_addr2 = server_socket2.local_addr().unwrap();
 
         // Create multiplexer pointing to a single direct transport
+        let (selected_tx, selected_rx) = watch::channel(None);
         let settings = Settings {
             transports: vec![
                 Transport::Direct(server_addr),
                 Transport::Direct(server_addr2),
             ],
+            selected_endpoint: Some(Arc::new(selected_tx)),
         };
 
         let multiplexer = Multiplexer::new(Arc::new(NoopBypass), &settings)
@@ -448,6 +542,15 @@ mod tests {
         let (bytes_received, _) = client_socket.recv_from(&mut client_buf).await.unwrap();
 
         assert_eq!(&client_buf[..bytes_received], response_data);
+
+        // The selected endpoint should have been announced
+        assert_eq!(
+            *selected_rx.borrow(),
+            Some(Endpoint::from_socket_address(
+                server_addr,
+                TransportProtocol::Udp
+            ))
+        );
 
         // Packets from unselected transports should not be forwarded after the
         // multiplexer has picked a transport.
