@@ -10,10 +10,8 @@ import SwiftUI
 
 struct AccountDeletionView: View {
     @ObservedObject var viewModel: AccountDeletionViewModel
-
-    @ScaledMetric var spinnerSize = 20.0
-    @ScaledMetric var spinnerStatusGap = 10.0
-
+    @State private var borderStyle: BorderStyle = .normal
+    @State private var message: MessageView.Message? = nil
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -39,29 +37,22 @@ struct AccountDeletionView: View {
                 .padding(.bottom, 8)
 
                 // accountTextField
-                let placeholder = "XXXX"
-                MullvadPrimaryTextField(
-                    label: "Last 4 digits",
-                    placeholder: LocalizedStringKey(placeholder),
+                ConfigurableTextField(
+                    title: "Last 4 digits",
+                    placeholder: "XXXX",
                     text: $viewModel.enteredAccountNumberSuffix,
-                    keyboardType: .numberPad
+                    message: $message,
+                    accessibilityIdentifier: .deleteAccountTextField,
+                    borderStyle: $borderStyle,
+                    configuration: TextFieldNamespace.Configuration(
+                        formatter: GroupedTextFormatter(
+                            configuration: .init(
+                                allowedInput: .numeric,
+                                groupSeparator: "-",
+                                groupSize: 4, maxGroups: 1)),
+                        keyboardType: .numberPad)
                 )
-                .accessibilityIdentifier(.deleteAccountTextField)
-                .padding(.bottom, 4)
-
-                // Status information
-                HStack {
-                    if viewModel.isWorking {
-                        ProgressView()
-                            .progressViewStyle(MullvadProgressViewStyle(size: spinnerSize))
-                        Spacer().frame(width: spinnerStatusGap)
-                    }
-                    if let statusText = viewModel.statusText {
-                        Text(statusText)
-                            .font(.mullvadSmall)
-                            .foregroundStyle(Color.white)
-                    }
-                }
+                .padding(.bottom, 4.0)
 
                 Spacer()
 
@@ -78,6 +69,19 @@ struct AccountDeletionView: View {
         }
         .padding(16)
         .background(Color.mullvadBackground)
+        .onReceive(viewModel.$state) { state in
+            switch state {
+            case .failure(let error):
+                borderStyle = .error
+                message = .init(text: error.localizedDescription, appearance: .error)
+            case .working:
+                message = .init(text: "Deleting account...", appearance: .loading)
+                borderStyle = .normal
+            default:
+                borderStyle = .normal
+                message = nil
+            }
+        }
     }
 }
 

@@ -106,10 +106,17 @@ extension Color {
         static let border: Color = .MullvadOpacities.chalk40
         static let borderFocused: Color = .MullvadNewGraphicalProfile.chalk
         static let borderError: Color = .MullvadNewGraphicalProfile.red
+        static let borderDisabled: Color = .clear
     }
 
     enum MullvadDashboard {
         static let background: Color = MullvadDarkBlue._10_alpha80
+    }
+
+    enum MullvadSuggestionsDropdown {
+        static let foregroundColor: Color = .mullvadTextPrimary
+        static let separator: Color = .MullvadOpacities.chalk40
+        static let background: Color = .MullvadBlue._80
     }
 
     private enum MullvadOpacities {
@@ -123,4 +130,5 @@ extension Color {
         static let chalk: Color = .init(red: 0.97, green: 0.97, blue: 0.95)
         static let dark: Color = .init(red: 0.31, green: 0.29, blue: 0.29)
     }
+
 }

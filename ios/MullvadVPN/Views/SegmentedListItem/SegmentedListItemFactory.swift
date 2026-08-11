@@ -262,8 +262,9 @@ struct SegmentedListItemFactory {
                         image
                     }
                 case .input(let placeholder, let text):
-                    MullvadPrimaryTextField(label: nil, placeholder: LocalizedStringKey(placeholder), text: text)
-                        .multilineTextAlignment(.leading)
+                    ConfigurableTextField(
+                        placeholder: LocalizedStringKey(placeholder), text: text,
+                        borderStyle: .constant(.none))
                 case .padding(let width):
                     Spacer()
                         .frame(width: width)
