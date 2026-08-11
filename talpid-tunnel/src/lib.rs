@@ -17,7 +17,7 @@ use futures::{
     },
 };
 use talpid_routing::RouteManagerHandle;
-use talpid_types::net::AllowedTunnelTraffic;
+use talpid_types::net::{AllowedTunnelTraffic, Endpoint};
 use tun_provider::TunProvider;
 
 /// Size of IPv4 header in bytes
@@ -101,7 +101,15 @@ pub enum TunnelEvent {
     /// Sent when the tunnel interface has been created, before routes are set up.
     InterfaceUp(TunnelMetadata, AllowedTunnelTraffic),
     /// Sent when the tunnel comes up and is ready for traffic.
-    Up(TunnelMetadata),
+    Up {
+        metadata: TunnelMetadata,
+        /// The remote endpoint that the tunnel has committed to, if it is known.
+        ///
+        /// This is only narrower than the set of endpoints in the tunnel parameters when
+        /// obfuscation is multiplexed over several candidate endpoints, in which case only one
+        /// of them is actually in use once the tunnel is up.
+        selected_endpoint: Option<Endpoint>,
+    },
     /// Sent when the tunnel goes down, but before destroying the tunnel device.
     Down,
 }

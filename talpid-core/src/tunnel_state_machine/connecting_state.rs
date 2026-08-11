@@ -596,9 +596,16 @@ impl ConnectingState {
                     ),
                 }
             }
-            Some((TunnelEvent::Up(metadata), _)) => NewState(ConnectedState::enter(
+            Some((
+                TunnelEvent::Up {
+                    metadata,
+                    selected_endpoint,
+                },
+                _,
+            )) => NewState(ConnectedState::enter(
                 shared_values,
                 metadata,
+                selected_endpoint,
                 self.tunnel_events,
                 self.tunnel_parameters,
                 self.tunnel_close_event,

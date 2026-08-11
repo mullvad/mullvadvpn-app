@@ -15,10 +15,12 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
     ErrorExt,
     net::{
+        Endpoint,
         obfuscation::{ObfuscatorConfig, Obfuscators},
         wireguard::{PeerConfig, PublicKey},
     },
 };
+use tokio::sync::watch;
 use tunnel_obfuscation::{
     Settings as ObfuscationSettings, create_local_socket_obfuscator_with_bypass, lwo, multiplexer,
     quic, shadowsocks, udp2tcp,
@@ -34,12 +36,20 @@ use tunnel_obfuscation::{
 /// * fwmark - (Linux only) firewall mark to apply to the obfuscator's remote socket
 pub async fn spawn_local_socket_obfuscator(
     entry_peer: &mut PeerConfig,
-    obfuscation_settings: tunnel_obfuscation::Settings,
+    mut obfuscation_settings: tunnel_obfuscation::Settings,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> Result<ObfuscatorHandle> {
     log::trace!("Obfuscation settings: {obfuscation_settings:?}");
+
+    // The multiplexer connects to one out of several endpoints, and only commits to one of them
+    // at runtime. Have it announce its choice so that the firewall can be tightened accordingly.
+    let (selected_endpoint_tx, selected_endpoint) =
+        watch::channel(obfuscation_settings.remote_endpoint());
+    if let ObfuscationSettings::Multiplexer(settings) = &mut obfuscation_settings {
+        settings.selected_endpoint = Some(Arc::new(selected_endpoint_tx));
+    }
 
     let bypass = Arc::new(ObfuscatorSocketBypass {
         #[cfg(target_os = "linux")]
@@ -79,6 +89,7 @@ pub async fn spawn_local_socket_obfuscator(
     Ok(ObfuscatorHandle {
         obfuscation_task,
         packet_overhead,
+        selected_endpoint,
     })
 }
 
@@ -130,7 +141,10 @@ pub fn settings_from_config(
                 );
                 transports.push(multiplexer::Transport::Obfuscated(settings));
             }
-            ObfuscationSettings::Multiplexer(multiplexer::Settings { transports })
+            ObfuscationSettings::Multiplexer(multiplexer::Settings {
+                transports,
+                selected_endpoint: None,
+            })
         }
     }
 }
@@ -182,6 +196,7 @@ fn settings_from_single_config(
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
     packet_overhead: u16,
+    selected_endpoint: watch::Receiver<Option<Endpoint>>,
 }
 
 impl ObfuscatorHandle {
@@ -191,6 +206,14 @@ impl ObfuscatorHandle {
 
     pub fn packet_overhead(&self) -> u16 {
         self.packet_overhead
+    }
+
+    /// The remote endpoint that the obfuscator connects to, if it has committed to one.
+    ///
+    /// This is known up front for all obfuscators except the multiplexer, which only decides
+    /// once one of its transports has responded.
+    pub fn selected_endpoint(&self) -> Option<Endpoint> {
+        *self.selected_endpoint.borrow()
     }
 }
 
