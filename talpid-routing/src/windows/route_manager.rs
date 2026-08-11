@@ -6,7 +6,7 @@ use super::{
 use crate::NetNode;
 use ipnetwork::IpNetwork;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, Mutex},
@@ -436,6 +436,30 @@ impl RouteManagerInternal {
 
         routes.clear();
         Ok(())
+    }
+
+    /// Delete all applied routes whose destination is one of `destinations`.
+    ///
+    /// Routes that could not be deleted are kept, so that they are attempted again by
+    /// [`Self::delete_applied_routes`].
+    pub fn delete_applied_routes_to(&mut self, destinations: &HashSet<IpAddr>) {
+        let mut routes = self.routes.lock().unwrap();
+
+        routes.retain(|record| {
+            if !destinations.contains(&record.registered_route.network.ip()) {
+                return true;
+            }
+            match Self::delete_from_routing_table(&record.registered_route) {
+                Ok(()) => false,
+                Err(error) => {
+                    log::error!(
+                        "Failed to delete route {}: {error}",
+                        record.registered_route
+                    );
+                    true
+                }
+            }
+        });
     }
 
     pub fn register_default_route_changed_callback(&self, callback: Callback) -> CallbackHandle {

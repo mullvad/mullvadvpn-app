@@ -19,7 +19,7 @@ use futures::stream::Stream;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::collections::HashSet;
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::net::IpAddr;
 
 #[expect(clippy::module_inception)]
@@ -119,6 +119,8 @@ pub(crate) enum RouteManagerCommand {
         oneshot::Sender<Result<(), PlatformError>>,
     ),
     ClearRoutes,
+    /// Remove applied routes whose destination is one of these addresses.
+    RemoveRoutes(HashSet<IpAddr>),
     Shutdown(oneshot::Sender<()>),
     RefreshRoutes,
     NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
@@ -242,6 +244,22 @@ impl RouteManagerHandle {
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutes)
             .map_err(|_| Error::RouteManagerDown)
+    }
+
+    /// Removes the routes previously applied in [`RouteManagerHandle::add_routes`] whose
+    /// destination is one of `destinations`.
+    #[cfg(target_os = "macos")]
+    pub fn remove_routes(&self, destinations: HashSet<IpAddr>) -> Result<(), Error> {
+        self.tx
+            .unbounded_send(RouteManagerCommand::RemoveRoutes(destinations))
+            .map_err(|_| Error::RouteManagerDown)
+    }
+
+    /// (Linux) This is a no-op, since no routes are applied per destination. Policy based
+    /// routing is used to keep traffic outside of the tunnel instead.
+    #[cfg(target_os = "linux")]
+    pub fn remove_routes(&self, _destinations: HashSet<IpAddr>) -> Result<(), Error> {
+        Ok(())
     }
 
     /// (Android) This is a noop since we don't directly control the routes on Android.

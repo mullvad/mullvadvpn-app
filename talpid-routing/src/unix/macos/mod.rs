@@ -246,6 +246,10 @@ impl RouteManagerImpl {
                                 log::error!("Failed to clean up rotues: {err}");
                             }
                         },
+                        Some(RouteManagerCommand::RemoveRoutes(destinations)) => {
+                            log::debug!("Removing routes to: {destinations:?}");
+                            self.remove_routes_to(&destinations).await;
+                        },
 
                         Some(RouteManagerCommand::NewInterfaceChangeListener(tx)) => {
                             let (events_tx, events_rx) = mpsc::unbounded();
@@ -628,6 +632,22 @@ impl RouteManagerImpl {
         self.non_tunnel_routes.clear();
 
         Ok(())
+    }
+
+    /// Remove all routes whose destination address is in `destinations`.
+    async fn remove_routes_to(&mut self, destinations: &HashSet<IpAddr>) {
+        // These must also be forgotten, or `apply_non_tunnel_routes` adds them back the next
+        // time the default route changes.
+        self.non_tunnel_routes
+            .retain(|destination| !destinations.contains(&destination.ip()));
+
+        self.remove_applied_routes(|route| {
+            matches!(
+                route.destination_ip(),
+                Ok(Some(destination)) if destinations.contains(&destination.ip())
+            )
+        })
+        .await;
     }
 
     /// Remove all applied routes for which `filter` returns true

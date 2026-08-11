@@ -7,6 +7,8 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
+#[cfg(not(target_os = "android"))]
+use std::collections::HashSet;
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -19,7 +21,7 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
-use talpid_routing::{self, RequiredRoute};
+use talpid_routing::{self, RequiredRoute, RouteManagerHandle};
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
 use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 
@@ -379,6 +381,16 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let selected_endpoint = selected_obfuscation_endpoint(&obfuscator).await;
+
+            if let Some(selected_endpoint) = selected_endpoint {
+                // Remove routes for candidate endpoints (used by multiplexer)
+                Self::remove_unused_endpoint_routes(
+                    &args.route_manager,
+                    &endpoint_addrs,
+                    selected_endpoint,
+                );
+            }
+
             event_hook
                 .on_event(TunnelEvent::Up {
                     metadata,
@@ -807,6 +819,36 @@ impl WireguardMonitor {
                 talpid_routing::NetNode::DefaultNode,
             )
         })
+    }
+
+    /// Remove the routes added by [`Self::get_endpoint_routes`] for every endpoint but
+    /// `selected_endpoint`.
+    ///
+    /// While connecting, the tunnel may reach out to any of the candidate endpoints, so all of
+    /// them need a route outside of the tunnel. Only the selected one is used from here on.
+    #[cfg(not(target_os = "android"))]
+    fn remove_unused_endpoint_routes(
+        route_manager: &RouteManagerHandle,
+        endpoint_addrs: &[IpAddr],
+        selected_endpoint: Endpoint,
+    ) {
+        let unused: HashSet<IpAddr> = endpoint_addrs
+            .iter()
+            .copied()
+            .filter(|addr| *addr != selected_endpoint.address.ip())
+            .collect();
+
+        if unused.is_empty() {
+            return;
+        }
+
+        // Failing to remove these is not fatal. The firewall blocks them either way.
+        if let Err(error) = route_manager.remove_routes(unused) {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to remove unused endpoint routes")
+            );
+        }
     }
 
     #[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
