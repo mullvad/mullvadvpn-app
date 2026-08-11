@@ -1,24 +1,22 @@
 //! Quic obfuscation
 
 use async_trait::async_trait;
+use bytes::BytesMut;
 use mullvad_masque_proxy::client::ClientConfig;
-use std::{
-    io,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::Arc,
-};
+use std::{io, net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
-use tokio::net::UdpSocket;
-use tokio_util::sync::CancellationToken;
+use tokio::{
+    net::UdpSocket,
+    sync::{Mutex, mpsc},
+};
+use tokio_util::task::AbortOnDropHandle;
 
 pub use mullvad_masque_proxy::{
     HTTP_MASQUE_DATAGRAM_CONTEXT_ID, MAX_INFLIGHT_PACKETS,
     client::{Client, RunningClient},
 };
 
-use crate::{LocalSocketObfuscator, socket::create_remote_socket};
-
-type Result<T> = std::result::Result<T, Error>;
+use crate::{socket::create_remote_socket, transport::ObfuscatedTransport};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -28,11 +26,15 @@ pub enum Error {
     MasqueProxyError(#[from] mullvad_masque_proxy::client::Error),
 }
 
-pub struct QuicLocalSocket {
-    local_endpoint: SocketAddr,
-    /// Local UDP socket that WireGuard sends to and receives from.
-    local_socket: UdpSocket,
-    config: ClientConfig,
+/// Tunnels WireGuard packets through a MASQUE proxy over QUIC.
+pub struct QuicTransport {
+    /// Plaintext packets to be proxied to the remote.
+    outgoing_tx: mpsc::Sender<BytesMut>,
+    /// Plaintext packets received from the remote. Only ever drained by [ObfuscatedTransport::recv],
+    /// so the lock is uncontended.
+    incoming_rx: Mutex<mpsc::Receiver<BytesMut>>,
+    /// Aborts the QUIC client when this transport is dropped.
+    _client: AbortOnDropHandle<()>,
     _bypass: BypassGuard,
 }
 
@@ -143,19 +145,11 @@ impl std::str::FromStr for AuthToken {
     }
 }
 
-impl QuicLocalSocket {
+impl QuicTransport {
     pub(crate) async fn new(
         bypass: Arc<dyn SocketBypass>,
         settings: &Settings,
     ) -> crate::Result<Self> {
-        // The address family of the local QUIC client socket has to match the address family
-        // of the endpoint we're connecting to. The address itself is not important to consumers
-        // wanting to obfuscate traffic. It is solely used by the local proxy client to know
-        // where the QUIC obfuscator is running.
-        let (local_socket, local_udp_client_addr) =
-            QuicLocalSocket::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
-                .await
-                .map_err(crate::Error::CreateQuicObfuscator)?;
         let BypassSocket {
             socket: quic_socket,
             guard: _bypass,
@@ -163,81 +157,70 @@ impl QuicLocalSocket {
 
         let config = settings.build_client_config(quic_socket);
 
-        let quic = QuicLocalSocket {
-            local_endpoint: local_udp_client_addr,
-            local_socket,
-            config,
+        let (outgoing_tx, outgoing_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (incoming_tx, incoming_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        let client = tokio::spawn(run_client(config, outgoing_rx, incoming_tx));
+
+        Ok(Self {
+            outgoing_tx,
+            incoming_rx: Mutex::new(incoming_rx),
+            _client: AbortOnDropHandle::new(client),
             _bypass,
-        };
-
-        Ok(quic)
+        })
     }
+}
 
-    async fn run_forwarding(
-        client: Client,
-        local_socket: UdpSocket,
-        cancel_token: CancellationToken,
-    ) -> Result<()> {
-        let client = client.proxy_socket(local_socket);
-        log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
-        tokio::select! {
-            _ = cancel_token.cancelled() => log::trace!("Stopping QUIC obfuscation"),
-            _result = client.until_closed() => log::trace!("QUIC client closed"),
-        };
+async fn run_client(
+    config: ClientConfig,
+    outgoing_rx: mpsc::Receiver<BytesMut>,
+    incoming_tx: mpsc::Sender<BytesMut>,
+) {
+    let client = match Client::connect(config).await {
+        Ok(client) => client,
+        Err(err) => {
+            log::error!("Failed to connect QUIC client: {err}");
+            return;
+        }
+    };
+    log::trace!("QUIC client is running! QUIC Obfuscator is serving traffic 🎉");
 
-        Ok(())
-    }
-
-    /// Create a local proxy client.
-    ///
-    /// The resulting UdpSocket/the SocketAddr where programs that want to obfuscate their
-    /// traffic with QUIC will write to.
-    async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> {
-        let random_bind_addr = if ipv4 {
-            SocketAddr::from((Ipv4Addr::LOCALHOST, 0))
-        } else {
-            SocketAddr::from((Ipv6Addr::LOCALHOST, 0))
-        };
-        let local_udp_socket = UdpSocket::bind(random_bind_addr)
-            .await
-            .map_err(Error::BindError)?;
-        let udp_client_addr = local_udp_socket.local_addr().unwrap();
-
-        Ok((local_udp_socket, udp_client_addr))
+    if let Err(err) = client
+        .proxy_channels(outgoing_rx, incoming_tx)
+        .until_closed()
+        .await
+    {
+        log::debug!("QUIC client closed: {err}");
     }
 }
 
 #[async_trait]
-impl LocalSocketObfuscator for QuicLocalSocket {
-    fn endpoint(&self) -> SocketAddr {
-        self.local_endpoint
+impl ObfuscatedTransport for QuicTransport {
+    async fn send(&self, packet: &mut [u8]) -> io::Result<()> {
+        self.outgoing_tx
+            .send(BytesMut::from(&packet[..]))
+            .await
+            .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "QUIC client stopped"))
     }
 
-    async fn run(self: Box<Self>) -> crate::Result<()> {
-        let Self {
-            config,
-            local_socket,
-            ..
-        } = *self;
-
-        let token = CancellationToken::new();
-        let child_token = token.child_token();
-        // This will always cancel `child_token` as soon as `run` is finished or aborted.
-        let _drop_guard = token.drop_guard();
-
-        let client = Client::connect(config)
+    async fn recv(&self, buf: &mut [u8]) -> io::Result<usize> {
+        let packet = self
+            .incoming_rx
+            .lock()
             .await
-            .map_err(Error::MasqueProxyError)
-            .map_err(crate::Error::RunQuicObfuscator)?;
+            .recv()
+            .await
+            .ok_or_else(|| io::Error::new(io::ErrorKind::BrokenPipe, "QUIC client stopped"))?;
 
-        tokio::spawn(QuicLocalSocket::run_forwarding(
-            client,
-            local_socket,
-            child_token,
-        ))
-        .await
-        .unwrap()
-        .map_err(crate::Error::RunQuicObfuscator)
+        if packet.len() > buf.len() {
+            return Err(io::Error::other(format!(
+                "QUIC packet of {} bytes does not fit in a {} byte buffer",
+                packet.len(),
+                buf.len()
+            )));
+        }
+        buf[..packet.len()].copy_from_slice(&packet);
+        Ok(packet.len())
     }
 
     fn packet_overhead(&self) -> u16 {
