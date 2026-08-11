@@ -5,13 +5,5 @@ export function useIsLocationSelectorExpanded(): boolean {
   const { scrollTop } = useScrollPositionContext();
   const isLocationSelectorIsolated = useIsLocationSelectorIsolated();
 
-  if (isLocationSelectorIsolated) {
-    return false;
-  }
-
-  if (scrollTop > 20) {
-    return false;
-  }
-
-  return true;
+  return !isLocationSelectorIsolated && scrollTop < 20;
 }

@@ -14,7 +14,7 @@ import {
   useShowSelectLocationSelectorExitItem,
 } from './hooks';
 
-export function SelectLocationSelector() {
+export function SelectLocationSelector({ expanded: expandedProp }: { expanded?: boolean }) {
   const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive: showFilterChips } = useActiveFilters(locationType);
   const expanded = useIsLocationSelectorExpanded();
@@ -30,7 +30,7 @@ export function SelectLocationSelector() {
     <LocationSelector
       selectedItem={selectedItem}
       onSelectedItemChange={handleSelectedItemChange}
-      expanded={expanded}
+      expanded={expandedProp || expanded}
       variant={variant}>
       <LocationSelector.Row position="top">
         <LocationSelector.Row.Content>

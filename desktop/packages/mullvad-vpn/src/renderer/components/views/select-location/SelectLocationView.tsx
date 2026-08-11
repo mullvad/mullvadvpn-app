@@ -1,9 +1,10 @@
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { LocationType } from '../../../features/locations/types';
+import { useMeasure } from '../../../hooks';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
@@ -29,10 +30,21 @@ import {
 
 const StyledStickyContainer = styled.div`
   position: sticky;
-  top: 0;
+  top: 0px;
   z-index: 20;
+`;
+
+const StyledLocationSelectorContainer = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
   width: 100%;
   background-color: ${colors.darkBlue};
+`;
+
+const StyledLocationSelectorContainerWrapper = styled.div`
+  position: relative;
 `;
 
 export function SelectLocationViewImpl() {
@@ -52,8 +64,17 @@ export function SelectLocationViewImpl() {
     [setScrollTop],
   );
 
+  const [measureRefHidden, { height: heightHidden }] = useMeasure();
+
   return (
     <View backgroundColor="darkBlue">
+      <FlexColumn
+        ref={measureRefHidden}
+        style={{ position: 'fixed', visibility: 'hidden', transform: 'translateX(-100%)' }}>
+        <FlexColumn margin={{ horizontal: 'medium' }} padding={{ bottom: 'small' }}>
+          <SelectLocationSelector expanded />
+        </FlexColumn>
+      </FlexColumn>
       <BackAction action={onClose}>
         <NavigationContainer>
           <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
@@ -66,16 +87,21 @@ export function SelectLocationViewImpl() {
                 titleVisible>
                 <HeaderMenuIconButton />
               </AppNavigationHeader>
-              <FlexColumn
-                margin={{ horizontal: 'medium' }}
-                padding={{ bottom: 'small' }}
-                gap="small">
-                <SelectLocationSelector />
-              </FlexColumn>
+              <StyledLocationSelectorContainerWrapper>
+                <StyledLocationSelectorContainer>
+                  <FlexColumn margin={{ horizontal: 'medium' }} padding={{ bottom: 'small' }}>
+                    <SelectLocationSelector />
+                  </FlexColumn>
+                </StyledLocationSelectorContainer>
+              </StyledLocationSelectorContainerWrapper>
             </StyledStickyContainer>
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
+                  <motion.div
+                    animate={{ height: `${heightHidden}px` }}
+                    transition={{ duration: 0.15 }}
+                  />
                   <AnimatePresence mode="wait" initial={false}>
                     {locationType === LocationType.entry ? (
                       <LocationListSlide key="entry">
