@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.daita.impl
+package net.mullvad.mullvadvpn.feature.location.impl.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -7,23 +7,21 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.EmptyNavigator
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewDaitaDirectOnlyInfoDialog() {
-    AppTheme { DaitaDirectOnlyInfo(EmptyNavigator) }
+private fun PreviewAutomaticEntryInfoDialog() {
+    AppTheme { AutomaticEntryInfo(EmptyNavigator) }
 }
 
 @Composable
-fun DaitaDirectOnlyInfo(navigator: Navigator) {
+fun AutomaticEntryInfo(navigator: Navigator) {
     InfoDialog(
-        message =
-            stringResource(
-                id = R.string.daita_info,
-                stringResource(id = R.string.direct_only),
-                stringResource(id = R.string.daita),
-            ),
+        title = stringResource(R.string.automatic),
+        message = stringResource(R.string.automatic_entry_info_first_paragraph),
+        additionalInfo = stringResource(R.string.automatic_entry_warning),
         onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }

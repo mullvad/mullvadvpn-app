@@ -5,6 +5,7 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import java.time.ZonedDateTime
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -43,6 +44,7 @@ class RecentsMockApiTest : MockApiTest() {
     @Test
     fun testRecentsEnableDisable() = runTest {
         app.launchAndLogIn(validAccountNumber)
+        app.applySettings(multihop = MultihopMode.NEVER)
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -82,7 +84,7 @@ class RecentsMockApiTest : MockApiTest() {
         app.launchAndLogIn(validAccountNumber)
 
         // Enable Multihop
-        app.applySettings(multihop = true)
+        app.applySettings(multihop = MultihopMode.ALWAYS)
 
         on<ConnectPage> {
             clickConnect()

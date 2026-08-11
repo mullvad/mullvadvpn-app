@@ -143,8 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür.</string>
     <string name="daita_description_slide_2_first_paragraph">Bir gözlemci bu veri paketlerini izliyorsa, %1$s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
-    <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
-    <string name="daita_multihop">%1$s: Çoklu geçiş</string>
     <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
     <string name="days_were_added_90">Hesabınıza 90 gün eklendi.</string>
     <string name="delete">Sil</string>
@@ -183,8 +181,6 @@
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
     <string name="direct">Doğrudan</string>
-    <string name="direct_only">Yalnızca doğrudan</string>
-    <string name="direct_only_description">%1$s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir.</string>
     <string name="disable_multihop">Çoklu geçişi devre dışı bırak</string>
     <string name="disable_recents">Son filtreleri devre dışı bırak</string>
     <string name="discard">İptal et</string>
@@ -214,7 +210,6 @@
     <string name="enable_all_methods">Tümünü etkinleştir ve tekrar dene</string>
     <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
-    <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
     <string name="enable_ipv6">Tünel içi IPv6</string>
     <string name="enable_location_in_notification">Bildirimlerde konumu göster</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
@@ -330,7 +325,6 @@
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
     <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
-    <string name="multihop_entry_disabled_description">%1$s için giriş sunucusu şu anda %2$s tarafından geçersiz kılınıyor. Bir giriş sunucusu seçmek için lütfen önce \"%3$s\"\' seçeneğini etkinleştirin veya \"%2$s\" seçeneğini devre dışı bırakın.</string>
     <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
     <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
     <string name="name">Ad</string>
@@ -359,7 +353,6 @@
     <string name="on">Açık</string>
     <string name="ongoing_verification_warning">Son satın alma işleminiz hâlâ doğrulanıyor. Başka bir hesaba giriş yapmak doğrulamanın başarısız olmasına neden olur. Yine de çıkış yapmak istiyor musunuz?</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
-    <string name="open_feature_settings">%1$s ayarlarını aç</string>
     <string name="open_url">URL\'yi aç</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>
@@ -445,7 +438,6 @@
     <string name="set_as_multihop_exit_unavailable">Çoklu geçiş çıkışı olarak ayarla (uyumlu değil)</string>
     <string name="set_dns_error">Sistem DNS sunucusu ayarlanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin.</string>
-    <string name="setting_chip">Ayar: %1$s</string>
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_api_access">API erişimi</string>

@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
+import net.mullvad.mullvadvpn.lib.usecase.FilteredCountries
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
@@ -50,7 +51,7 @@ class SearchLocationViewModelTest {
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
 
-    private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
+    private val filteredRelayList = MutableStateFlow(FilteredCountries())
     private val selectedLocation =
         MutableStateFlow<RelayItemSelection>(RelayItemSelection.Single(Constraint.Any))
     private val filteredCustomListRelayItems =
@@ -94,7 +95,7 @@ class SearchLocationViewModelTest {
     fun `on onSearchTermInput call uiState should emit with filtered countries`() = runTest {
         // Arrange
         val mockSearchString = "got"
-        filteredRelayList.value = testCountries
+        filteredRelayList.value = FilteredCountries(testCountries)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -117,7 +118,7 @@ class SearchLocationViewModelTest {
     @Test
     fun `when onSearchTermInput returns empty result uiState should return empty list`() = runTest {
         // Arrange
-        filteredRelayList.value = testCountries
+        filteredRelayList.value = FilteredCountries(testCountries)
         val mockSearchString = "SEARCH"
 
         // Act, Assert

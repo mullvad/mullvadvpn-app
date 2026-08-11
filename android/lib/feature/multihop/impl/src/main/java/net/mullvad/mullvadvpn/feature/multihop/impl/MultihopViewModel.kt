@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
 class MultihopViewModel(
@@ -21,16 +22,16 @@ class MultihopViewModel(
     val uiState: StateFlow<Lc<Boolean, MultihopUiState>> =
         wireguardConstraintsRepository.wireguardConstraints
             .filterNotNull()
-            .map { Lc.Content(MultihopUiState(it.isMultihopEnabled, isModal = isModal)) }
+            .map { Lc.Content(MultihopUiState(mode = it.multihop, isModal = isModal)) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(isModal),
             )
 
-    fun setMultihop(enable: Boolean) {
-        viewModelScope.launch { wireguardConstraintsRepository.setMultihop(enable) }
+    fun setMultihopMode(mode: MultihopMode) {
+        viewModelScope.launch { wireguardConstraintsRepository.setMultihop(mode) }
     }
 }
 
-data class MultihopUiState(val enable: Boolean, val isModal: Boolean = false)
+data class MultihopUiState(val mode: MultihopMode, val isModal: Boolean = false)

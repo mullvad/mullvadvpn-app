@@ -143,8 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">정교한 AI를 사용하면, 트래픽이 암호화된 경우라도 장치를 드나드는 데이터 패킷의 트래픽을 분석하는 것이 가능합니다.</string>
     <string name="daita_description_slide_2_first_paragraph">이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %1$s는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 크기로 만들어 이를 달성합니다.</string>
-    <string name="daita_info">“%1$s”을 활성화하면 %2$s가 활성화된 서버를 수동으로 선택해야 합니다. 이로 인해 “위치 선택” 창에서 호환되는 서버를 선택할 때까지 차단된 상태에 빠질 수 있습니다.</string>
-    <string name="daita_multihop">%1$s: 멀티홉</string>
     <string name="days_were_added_30">귀하의 계정에 30일이 추가되었습니다.</string>
     <string name="days_were_added_90">계정에 90일이 추가되었습니다.</string>
     <string name="delete">삭제</string>
@@ -183,8 +181,6 @@
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
     <string name="direct">다이렉트</string>
-    <string name="direct_only">직접 전용</string>
-    <string name="direct_only_description">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 인터넷 사용을 위해 활성화 후 새 위치를 선택해야 할 수 있습니다.</string>
     <string name="disable_multihop">멀티홉 비활성화</string>
     <string name="disable_recents">최근 항목 비활성화</string>
     <string name="discard">취소</string>
@@ -214,7 +210,6 @@
     <string name="enable_all_methods">모두 활성화 후 재시도</string>
     <string name="enable_anyway">그래도 사용</string>
     <string name="enable_custom_dns">사용자 지정 DNS 서버 사용</string>
-    <string name="enable_direct_only">%1$s 활성화</string>
     <string name="enable_ipv6">터널 내 IPv6</string>
     <string name="enable_location_in_notification">알림에 위치 표시</string>
     <string name="enable_method">방법 활성화</string>
@@ -330,7 +325,6 @@
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="multihop">멀티홉</string>
     <string name="multihop_description">멀티홉은 사용자의 트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 추적을 더 어렵게 만듭니다. 그로 인해 대기 시간은 증가하지만 온라인 익명성은 증대됩니다.</string>
-    <string name="multihop_entry_disabled_description">%1$s 진입 서버가 현재 %2$s에 의해 재정의되었습니다. 진입 서버를 선택하려면 먼저 설정에서 \"%3$s\"을 활성화하거나 \"%2$s\"를 비활성화하세요.</string>
     <string name="multihop_is_disabled">멀티홉이 비활성화되었습니다</string>
     <string name="multihop_is_enabled">멀티홉이 활성화되었습니다</string>
     <string name="name">이름</string>
@@ -359,7 +353,6 @@
     <string name="on">켜기</string>
     <string name="ongoing_verification_warning">아직 최신 구매 내역을 확인하고 있습니다. 다른 계정으로 로그인하면 확인 작업에 실패합니다. 그래도 로그아웃하시겠습니까?</string>
     <string name="open_app_details">앱 세부 정보 열기</string>
-    <string name="open_feature_settings">%1$s 설정 열기</string>
     <string name="open_url">URL 열기</string>
     <string name="out_of_time">시간 초과</string>
     <string name="overrides_cleared">재정의 지워짐</string>
@@ -445,7 +438,6 @@
     <string name="set_as_multihop_exit_unavailable">멀티홉 출구로 설정(호환 불가)</string>
     <string name="set_dns_error">시스템 DNS 서버를 설정할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="set_firewall_policy_error">방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
-    <string name="setting_chip">설정: %1$s</string>
     <string name="settings">설정</string>
     <string name="settings_account">계정</string>
     <string name="settings_api_access">API 액세스</string>

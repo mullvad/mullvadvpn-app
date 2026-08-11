@@ -9,10 +9,11 @@ import io.mockk.mockkStatic
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.lib.common.util.multihopMode
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
@@ -44,7 +45,6 @@ class ModifyMultihopUseCaseTest {
     fun setUp() {
         mockkStatic(SETTINGS_UTIL)
         every { any<Settings>().isDaitaEnabled() } returns false
-        every { any<Settings>().isDaitaDirectOnly() } returns false
         every { mockSettingsRepository.settingsUpdates } returns settingsFlow
     }
 
@@ -54,11 +54,14 @@ class ModifyMultihopUseCaseTest {
         val mockRelayItemId: GeoLocationId.Hostname = mockk()
         val mockRelayItem: RelayItem.Location.Relay = mockk()
         val mockSettings: Settings = mockk()
-        every { mockSettings.relaySettings.relayConstraints.location } returns
-            Constraint.Only(mockRelayItemId)
+
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns true
-        val change = MultihopChange.Entry(mockRelayItem)
+        every { mockSettings.multihopMode() } returns MultihopMode.ALWAYS
+        every { mockSettings.relaySettings.relayConstraints.location } returns
+            Constraint.Only(mockRelayItemId)
+
+        val change = MultihopChange.Entry(Constraint.Only(mockRelayItem))
 
         // Act
         settingsFlow.value = mockSettings
@@ -75,11 +78,14 @@ class ModifyMultihopUseCaseTest {
         val mockRelayItemId: GeoLocationId.Hostname = mockk()
         val mockRelayItem: RelayItem.Location.Relay = mockk()
         val mockSettings: Settings = mockk()
+
+        every { mockRelayItem.id } returns mockRelayItemId
+        every { mockRelayItem.active } returns true
+        every { mockSettings.multihopMode() } returns MultihopMode.ALWAYS
         every {
             mockSettings.relaySettings.relayConstraints.wireguardConstraints.entryLocation
         } returns Constraint.Only(mockRelayItemId)
-        every { mockRelayItem.id } returns mockRelayItemId
-        every { mockRelayItem.active } returns true
+
         val change = MultihopChange.Exit(mockRelayItem)
 
         // Act
@@ -92,27 +98,35 @@ class ModifyMultihopUseCaseTest {
     }
 
     @Test
-    fun `when changing entry and exit is the same but daita is enabled without direct only should not throw error`() =
+    fun `when changing entry and exit is the same but when needed multihop enabled should not throw error`() =
         runTest {
             // Arrange
             val mockRelayItemId: GeoLocationId.Hostname = mockk()
             val mockRelayItem: RelayItem.Location.Relay = mockk()
             val mockSettings: Settings = mockk()
-            every { mockSettings.relaySettings.relayConstraints.location } returns
-                Constraint.Only(mockRelayItemId)
+
             every { mockRelayItem.id } returns mockRelayItemId
             every { mockRelayItem.active } returns true
-            every { mockSettings.isDaitaEnabled() } returns true
-            coEvery { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) } returns
-                Unit.right()
-            val change = MultihopChange.Entry(mockRelayItem)
+            every { mockSettings.multihopMode() } returns MultihopMode.WHEN_NEEDED
+            every { mockSettings.relaySettings.relayConstraints.location } returns
+                Constraint.Only(mockRelayItemId)
+            coEvery {
+                mockWireguardConstraintsRepository.setEntryLocation(
+                    Constraint.Only(mockRelayItemId)
+                )
+            } returns Unit.right()
+            val change = MultihopChange.Entry(Constraint.Only(mockRelayItem))
 
             // Act
             settingsFlow.value = mockSettings
             val result = modifyMultihopUseCase(change = change).getOrNull()
 
             // Assert
-            coVerify { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) }
+            coVerify {
+                mockWireguardConstraintsRepository.setEntryLocation(
+                    Constraint.Only(mockRelayItemId)
+                )
+            }
             assertNotNull(result)
         }
 
@@ -123,7 +137,7 @@ class ModifyMultihopUseCaseTest {
         val mockRelayItem: RelayItem.Location.Relay = mockk()
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns false
-        val change = MultihopChange.Entry(mockRelayItem)
+        val change = MultihopChange.Entry(Constraint.Only(mockRelayItem))
 
         // Act
         val error = modifyMultihopUseCase(change = change).leftOrNull()

@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -92,11 +92,12 @@ class SelectLocationListViewModel(
             recentsUseCase(relayListType = relayListType),
             selectedLocationUseCase(),
             _expandedItems,
-        ) { relayCountries, customLists, recents, selectedItem, expandedItems ->
+        ) { filteredCountries, customLists, recents, selectedItem, expandedItems ->
             // If we have no locations we have an empty relay list and we should show an error
-            if (relayCountries.isEmpty()) {
+            if (filteredCountries.countries.isEmpty()) {
                 emptyLocationsRelayListItems(
                     relayListType = relayListType,
+                    relayMetadata = filteredCountries.relayMetadata,
                     customLists = customLists,
                     selectedByThisEntryExitList =
                         selectedItem.selectedByThisEntryExitList(relayListType),
@@ -107,7 +108,8 @@ class SelectLocationListViewModel(
             } else {
                 val settings = settingsRepository.settingsUpdates.value
                 relayListItems(
-                    relayCountries = relayCountries,
+                    relayCountries = filteredCountries.countries,
+                    relayMetadata = filteredCountries.relayMetadata,
                     relayListType = relayListType,
                     customLists = customLists,
                     recents = recents,
@@ -146,10 +148,10 @@ class SelectLocationListViewModel(
         when (relayListType) {
             RelayListType.Single -> relayListRepository.selectedLocation.value
             is RelayListType.Multihop ->
-                when (relayListType.multihopRelayListType) {
-                    MultihopRelayListType.ENTRY ->
+                when (relayListType.hopType) {
+                    RelayHopType.ENTRY ->
                         wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
-                    MultihopRelayListType.EXIT -> relayListRepository.selectedLocation.value
+                    RelayHopType.EXIT -> relayListRepository.selectedLocation.value
                 }
         }?.getOrNull()
 }

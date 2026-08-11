@@ -29,7 +29,7 @@ fun generateRelayItemCountry(
             },
     )
 
-private fun generateRelayItemCity(
+fun generateRelayItemCity(
     name: String,
     countryName: String,
     countryCode: GeoLocationId.Country,
@@ -53,7 +53,7 @@ private fun generateRelayItemCity(
         countryName = countryName,
     )
 
-private fun generateRelayItemRelay(
+fun generateRelayItemRelay(
     cityCode: GeoLocationId.City,
     hostName: String,
     cityName: String,
