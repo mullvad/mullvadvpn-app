@@ -76,6 +76,8 @@ include(
     ":lib:feature:managedevices:api",
     ":lib:feature:multihop:impl",
     ":lib:feature:multihop:api",
+    ":lib:feature:multihopmigration:impl",
+    ":lib:feature:multihopmigration:api",
     ":lib:feature:notification:impl",
     ":lib:feature:notification:api",
     ":lib:feature:problemreport:impl",

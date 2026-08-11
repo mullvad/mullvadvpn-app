@@ -66,6 +66,7 @@ import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDev
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.loginEntry
 import net.mullvad.mullvadvpn.feature.managedevices.impl.navigation.manageDevicesEntry
 import net.mullvad.mullvadvpn.feature.multihop.impl.navigation.multihopEntry
+import net.mullvad.mullvadvpn.feature.multihopmigration.impl.navigation.multihopMigrationEntry
 import net.mullvad.mullvadvpn.feature.notification.impl.navigation.notificationEntry
 import net.mullvad.mullvadvpn.feature.problemreport.impl.navigation.problemReportEntry
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.navigation.redeemVoucherEntry
@@ -148,6 +149,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         loginEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)
+        multihopMigrationEntry(nav3)
         noDaemonEntry(nav3)
         notificationEntry(nav3)
         privacyDisclaimerEntry(nav3)
