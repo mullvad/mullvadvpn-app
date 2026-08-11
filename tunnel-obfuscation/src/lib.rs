@@ -3,6 +3,7 @@ use std::{net::SocketAddr, sync::Arc};
 use talpid_net::bypass::{NoopBypass, SocketBypass};
 use tokio::io;
 
+pub mod direct;
 pub mod local_socket;
 pub mod lwo;
 pub mod multiplexer;
