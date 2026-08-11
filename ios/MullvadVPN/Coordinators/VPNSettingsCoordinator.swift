@@ -9,6 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 import Routing
+import SwiftUI
 import UIKit
 
 enum VPNSettingsSection: Equatable {
@@ -50,6 +51,17 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
             if case let .vpnSettings(route) = route { route } else {
                 nil
             }
+
+        /// Specific check for hotlinking to the `AntiCensorShipView` from the `ConnectionView`
+        /// `AntiCensorshipView` does not have a coordinator, this is why it's pushed from here instead.
+        if section == .obfuscation {
+            let host = makeAntiCensorshipView()
+            addDoneButton(to: host)
+
+            navigationController.pushViewController(host, animated: true)
+            return
+        }
+
         let controller = VPNSettingsViewController(
             interactor: interactorFactory.makeVPNSettingsInteractor(),
             alertPresenter: AlertPresenter(context: self),
@@ -61,17 +73,31 @@ class VPNSettingsCoordinator: Coordinator, Presenting, Presentable, SettingsChil
         navigationController.pushViewController(controller, animated: animated)
     }
 
+    fileprivate func addDoneButton(to viewController: UIViewController) {
+        let doneButton = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                guard let self else { return }
+                didFinish?(self)
+            })
+        )
+        viewController.navigationItem.rightBarButtonItem = doneButton
+    }
+
     private func customiseNavigation(on viewController: UIViewController) {
         if case .vpnSettings = route {
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
-                primaryAction: UIAction(handler: { [weak self] _ in
-                    guard let self else { return }
-                    didFinish?(self)
-                })
-            )
-            viewController.navigationItem.rightBarButtonItem = doneButton
+            addDoneButton(to: viewController)
         }
+    }
+
+    func makeAntiCensorshipView() -> UIHostingController<some View> {
+        let view = AntiCensorshipView(settingsInteractor: interactorFactory.makeVPNSettingsInteractor())
+
+        let host = UIHostingController(rootView: view)
+        host.title = NSLocalizedString("Anti-censorship", comment: "")
+        host.view.setAccessibilityIdentifier(.antiCensorship)
+
+        return host
     }
 }
 
@@ -86,5 +112,10 @@ extension VPNSettingsCoordinator: @preconcurrency VPNSettingsViewControllerDeleg
 
         addChild(coordinator)
         coordinator.start(animated: true)
+    }
+
+    func showAntiCensorshipSettings() {
+        let host = makeAntiCensorshipView()
+        navigationController.pushViewController(host, animated: true)
     }
 }

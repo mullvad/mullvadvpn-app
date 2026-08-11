@@ -8,26 +8,22 @@
 
 import Foundation
 import MullvadSettings
+import SwiftUI
 
-protocol LwoObfuscationSettingsViewModel: ObservableObject {
-    var value: WireGuardObfuscationLwoPort { get set }
-    var portRanges: [[UInt16]] { get }
-
-    func commit()
+protocol LwoObfuscationSettingsViewModel {
+    var port: Binding<WireGuardObfuscationLwoPort> { get }
     func validatePort(_ port: UInt16) -> WireGuardObfuscationLwoPort?
     func portRangesString() -> String
 }
 
 /** A simple mock view model for use in Previews and similar */
 class MockLwoObfuscationSettingsViewModel: LwoObfuscationSettingsViewModel {
-    @Published var value: WireGuardObfuscationLwoPort
+    var port: Binding<WireGuardObfuscationLwoPort>
     let portRanges: [[UInt16]] = []
 
-    init(lwoPort: WireGuardObfuscationLwoPort = .automatic) {
-        self.value = lwoPort
+    init(port: Binding<WireGuardObfuscationLwoPort>) {
+        self.port = port
     }
-
-    func commit() {}
 
     func validatePort(_ port: UInt16) -> WireGuardObfuscationLwoPort? {
         .custom(port)
@@ -39,20 +35,13 @@ class MockLwoObfuscationSettingsViewModel: LwoObfuscationSettingsViewModel {
 }
 
 /// ** The live view model which interfaces with the TunnelManager  */
-class TunnelLwoObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
-    WireGuardObfuscationLwoPort
->,
-LwoObfuscationSettingsViewModel
-{
+class TunnelLwoObfuscationSettingsViewModel: LwoObfuscationSettingsViewModel {
+    var port: Binding<WireGuardObfuscationLwoPort>
     let portRanges: [[UInt16]]
 
-    init(tunnelManager: TunnelManager, portRanges: [[UInt16]]) {
+    init(port: Binding<WireGuardObfuscationLwoPort>, portRanges: [[UInt16]]) {
+        self.port = port
         self.portRanges = portRanges
-
-        super.init(
-            tunnelManager: tunnelManager,
-            keyPath: \.lwoPort
-        )
     }
 
     func validatePort(_ port: UInt16) -> WireGuardObfuscationLwoPort? {

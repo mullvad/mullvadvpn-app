@@ -98,6 +98,7 @@ public enum AccessibilityIdentifier: Equatable {
     case relayFilterProviderCell
     case wireGuardPortsCell
     case wireGuardObfuscationCell
+    case antiCensorship
     case udpOverTCPPortCell
     case quantumResistantTunnelCell
     case customListEditNameFieldCell

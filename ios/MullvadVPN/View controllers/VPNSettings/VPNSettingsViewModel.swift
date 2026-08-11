@@ -10,6 +10,15 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
+@Observable
+public class ObservableVPNSettings: @unchecked Sendable {
+    var tunnelSettings: LatestTunnelSettings
+
+    init(tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
+        self.tunnelSettings = tunnelSettings
+    }
+}
+
 enum CustomDNSPrecondition {
     /// Custom DNS can be enabled
     case satisfied
