@@ -61,13 +61,16 @@ Line wrap the file at 100 chars.                                              Th
   invisible.
 - Fix the installer UI from looking blurry by making the installer DPI-aware.
 
-#### macOS
-- Fix split tunneling related parse error on macOS 27.
-
 ### Security
 #### macOS
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
+
+
+## [2026.4-beta2] - 2026-08-07
+### Fixed
+#### macOS
+- Fix split tunneling related parse error on macOS 27.
 
 
 ## [2026.4-beta1] - 2026-08-03
