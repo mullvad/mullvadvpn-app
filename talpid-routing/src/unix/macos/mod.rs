@@ -246,6 +246,10 @@ impl RouteManagerImpl {
                                 log::error!("Failed to clean up rotues: {err}");
                             }
                         },
+                        Some(RouteManagerCommand::RemoveRoutes(destinations)) => {
+                            log::debug!("Removing routes to: {destinations:?}");
+                            self.remove_routes_to(&destinations).await;
+                        },
 
                         Some(RouteManagerCommand::NewInterfaceChangeListener(tx)) => {
                             let (events_tx, events_rx) = mpsc::unbounded();
@@ -459,8 +463,10 @@ impl RouteManagerImpl {
         log::trace!("Refreshing routes");
 
         // Remove any existing ifscoped default route that we've added
-        self.remove_applied_routes(|route| route.ifscope() && route.is_default().unwrap_or(false))
-            .await;
+        self.remove_applied_routes(|_dest, route| {
+            route.ifscope() && route.is_default().unwrap_or(false)
+        })
+        .await;
 
         // Substitute route with a tunnel route
         self.apply_tunnel_default_routes().await?;
@@ -615,7 +621,7 @@ impl RouteManagerImpl {
     }
 
     async fn cleanup_routes(&mut self) -> Result<()> {
-        self.remove_applied_routes(|_| true).await;
+        self.remove_applied_routes(|_, _| true).await;
 
         // We have already removed the applied default routes
         self.tunnel_default_routes.remove(interface::Family::V4);
@@ -630,12 +636,26 @@ impl RouteManagerImpl {
         Ok(())
     }
 
+    /// Remove all routes whose destination is in `destinations`.
+    async fn remove_routes_to(&mut self, destinations: &HashSet<IpNetwork>) {
+        // These must also be forgotten, or `apply_non_tunnel_routes` adds them back the next
+        // time the default route changes.
+        self.non_tunnel_routes
+            .retain(|destination| !destinations.contains(destination));
+
+        self.remove_applied_routes(|dest, _route| destinations.contains(&dest.network))
+            .await;
+    }
+
     /// Remove all applied routes for which `filter` returns true
-    async fn remove_applied_routes(&mut self, filter: impl Fn(&RouteMessage) -> bool) {
+    async fn remove_applied_routes(
+        &mut self,
+        filter: impl Fn(&RouteDestination, &RouteMessage) -> bool,
+    ) {
         let mut deleted_routes = vec![];
 
-        self.applied_routes.retain(|_dest, route| {
-            if filter(route) {
+        self.applied_routes.retain(|dest, route| {
+            if filter(dest, route) {
                 deleted_routes.push(route.clone());
                 return false;
             }

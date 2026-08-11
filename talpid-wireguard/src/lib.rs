@@ -7,6 +7,8 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
+#[cfg(not(target_os = "android"))]
+use std::collections::HashSet;
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -19,7 +21,7 @@ use std::{
     sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(not(target_os = "android"))]
-use talpid_routing::{self, RequiredRoute};
+use talpid_routing::{self, RequiredRoute, RouteManagerHandle};
 use talpid_tunnel::{
     EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider,
 };
@@ -27,6 +29,8 @@ use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_tunnel_config_client::DaitaSettings;
+#[cfg(not(target_os = "android"))]
+use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::{
     BoxedError, ErrorExt,
     net::{AllowedTunnelTraffic, Endpoint, TransportProtocol, wireguard::TunnelParameters},
@@ -390,6 +394,19 @@ impl WireguardMonitor {
             let selected_obfuscation = selected_obfuscation(&obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
+
+            if let Some(selected_addr) = selected_obfuscation
+                .as_ref()
+                .and_then(|selected| selected_endpoint_addr(selected, &config))
+            {
+                // Remove routes for candidate endpoints (used by multiplexer)
+                Self::remove_unused_endpoint_routes(
+                    &args.route_manager,
+                    &endpoint_addrs,
+                    selected_addr,
+                );
+            }
+
             event_hook
                 .on_event(TunnelEvent::Up {
                     metadata,
@@ -822,6 +839,43 @@ impl WireguardMonitor {
         })
     }
 
+    /// Remove the routes for every endpoint but `selected_addr`.
+    ///
+    /// While connecting, the tunnel may reach out to any of the candidate endpoints, so all of
+    /// them need a route outside of the tunnel. Only the selected one is used from here on.
+    #[cfg_attr(target_os = "linux", expect(unused_variables))]
+    #[cfg(not(target_os = "android"))]
+    fn remove_unused_endpoint_routes(
+        route_manager: &RouteManagerHandle,
+        endpoint_addrs: &[IpAddr],
+        selected_addr: IpAddr,
+    ) {
+        #[cfg(target_os = "linux")]
+        {
+            // No-op as we use policy-based routing (via fwmark).
+            return;
+        }
+
+        let unused: HashSet<ipnetwork::IpNetwork> = endpoint_addrs
+            .iter()
+            .copied()
+            .filter(|addr| *addr != selected_addr)
+            .map(ipnetwork::IpNetwork::from)
+            .collect();
+
+        if unused.is_empty() {
+            return;
+        }
+
+        // Failing to remove these is not fatal. The firewall blocks them either way.
+        if let Err(error) = route_manager.remove_routes(unused) {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to remove unused endpoint routes")
+            );
+        }
+    }
+
     #[cfg_attr(not(target_os = "windows"), expect(unused_variables))]
     #[cfg(not(target_os = "android"))]
     fn get_tunnel_nodes(
@@ -997,6 +1051,21 @@ async fn selected_obfuscation(
 
     log::debug!("Selected obfuscation: {selected:?}");
     Ok(Some(selected))
+}
+
+/// Return the address of the remote endpoint that `selected` connects to, if it is known.
+///
+/// [`SelectedObfuscation::Direct`] carries no address of its own: it refers to the direct
+/// transport of the multiplexer, whose endpoint is the relay itself.
+#[cfg(not(target_os = "android"))]
+fn selected_endpoint_addr(selected: &SelectedObfuscation, config: &Config) -> Option<IpAddr> {
+    match selected {
+        SelectedObfuscation::Obfuscated(obfuscator) => Some(obfuscator.endpoint().address.ip()),
+        SelectedObfuscation::Direct => match config.obfuscator_config.as_ref()? {
+            Obfuscators::Multiplexer { direct, .. } => Some(direct.as_ref()?.ip()),
+            Obfuscators::Single(_) => None,
+        },
+    }
 }
 
 fn get_obfuscator(

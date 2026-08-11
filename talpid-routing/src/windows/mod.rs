@@ -8,6 +8,7 @@ use futures::{
     },
 };
 pub use get_best_default_route::{InterfaceAndGateway, get_best_default_route};
+use ipnetwork::IpNetwork;
 use net::AddressFamily;
 pub use route_manager::{Callback, CallbackHandle, Route, RouteManagerInternal};
 use std::{collections::HashSet, io, net::IpAddr};
@@ -107,6 +108,8 @@ pub enum RouteManagerCommand {
     AddRoutes(HashSet<RequiredRoute>, oneshot::Sender<Result<()>>),
     GetMtuForRoute(IpAddr, oneshot::Sender<Result<u16>>),
     ClearRoutes,
+    /// Remove applied routes whose destination is one of these networks.
+    RemoveRoutes(HashSet<IpNetwork>),
     RegisterDefaultRouteChangeCallback(Callback, oneshot::Sender<CallbackHandle>),
     Shutdown(oneshot::Sender<()>),
 }
@@ -172,6 +175,14 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)
     }
 
+    /// Removes the routes previously applied in [`RouteManagerInternal::add_routes`] whose
+    /// destination is one of `destinations`.
+    pub fn remove_routes(&self, destinations: HashSet<IpNetwork>) -> Result<()> {
+        self.tx
+            .unbounded_send(RouteManagerCommand::RemoveRoutes(destinations))
+            .map_err(|_| Error::RouteManagerDown)
+    }
+
     async fn run(
         mut manage_rx: UnboundedReceiver<RouteManagerCommand>,
         mut internal: RouteManagerInternal,
@@ -212,6 +223,10 @@ impl RouteManagerHandle {
                     log::error!("{}", e.display_chain_with_msg("Could not clear routes"));
                 }
                 RouteManagerCommand::ClearRoutes => {}
+                RouteManagerCommand::RemoveRoutes(destinations) => {
+                    log::debug!("Removing routes to: {destinations:?}");
+                    internal.delete_applied_routes_to(&destinations);
+                }
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }
