@@ -7,13 +7,10 @@ import { View } from '../../../../../lib/components/view';
 import { useMountLayoutEffect } from '../../../../../lib/hooks';
 import type { IScrollEvent } from '../../../../CustomScrollbars';
 import { NavigationScrollbars } from '../../../../NavigationScrollbars';
-import {
-  ScrollPositionContextProvider,
-  useScrollPositionContext,
-} from '../../ScrollPositionContext';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { LocationLists } from '../location-lists';
 import { SpacePreAllocationView } from '../space-pre-allocation-view';
+import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 
 export type LocationSlideProps = {
   type: LocationType;

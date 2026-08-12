@@ -1,11 +1,11 @@
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 
-import { useRecents } from '../../../features/locations/hooks';
-import { LocationType } from '../../../features/locations/types';
-import { useDebounce } from '../../../lib/hooks/use-debounce';
-import { useStyledRef } from '../../../lib/utility-hooks';
-import { CustomScrollbarsRef } from '../../CustomScrollbars';
-import { SpacePreAllocationView } from './components';
+import { useRecents } from '../../../../../features/locations/hooks';
+import { LocationType } from '../../../../../features/locations/types';
+import { useDebounce } from '../../../../../lib/hooks/use-debounce';
+import { useStyledRef } from '../../../../../lib/utility-hooks';
+import { CustomScrollbarsRef } from '../../../../CustomScrollbars';
+import { SpacePreAllocationView } from '..';
 
 // Context containing the scroll position for each location type and methods to interact with it.
 interface ScrollPositionContext {
