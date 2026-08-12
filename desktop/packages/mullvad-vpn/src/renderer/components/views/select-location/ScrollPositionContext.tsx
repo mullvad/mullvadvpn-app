@@ -17,8 +17,6 @@ interface ScrollPositionContext {
   spacePreAllocationViewRef: React.RefObject<SpacePreAllocationView | null>;
   scrollIntoView: (rect: DOMRect) => void;
   resetHeight: () => void;
-  scrollTop: number;
-  setScrollTop: (value: number) => void;
   resetScroll: () => void;
 }
 

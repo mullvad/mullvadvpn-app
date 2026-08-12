@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { useScrollPositionContext } from '../ScrollPositionContext';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
 
 export function useIsLocationSelectorExpanded(collapsibleContentHeight: number): boolean {
-  const { scrollTop } = useScrollPositionContext();
-  const { locationSelectorExpanded, setLocationSelectorExpanded } = useSelectLocationViewContext();
+  const { locationSelectorExpanded, setLocationSelectorExpanded, scrollTop } =
+    useSelectLocationViewContext();
 
   // The deadzone is a buffer area that prevents the location selector from rapidly toggling
   // between expanded and collapsed when the user scrolls near the threshold.

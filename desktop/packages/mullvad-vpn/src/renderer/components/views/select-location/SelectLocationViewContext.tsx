@@ -4,6 +4,7 @@ import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
 import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
+import { useDebounce } from '../../../lib/hooks/use-debounce';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
@@ -16,6 +17,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
   locationSelectorExpanded: boolean;
   setLocationSelectorExpanded: React.Dispatch<React.SetStateAction<boolean>>;
+  scrollTop: number;
+  setScrollTop: (value: number) => void;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -53,6 +56,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     return LocationType.exit;
   }, [locationTypeSelector, multihop]);
 
+  const [scrollTop, setScrollTop] = React.useState(0);
+  const debouncedScrollTop = useDebounce(scrollTop, 50);
+
   const value = React.useMemo(
     () => ({
       locationType,
@@ -63,8 +69,17 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setIsolatedItem,
       locationSelectorExpanded,
       setLocationSelectorExpanded,
+      scrollTop: debouncedScrollTop,
+      setScrollTop,
     }),
-    [locationType, setSelectLocationView, searchTerm, isolatedItem, locationSelectorExpanded],
+    [
+      locationType,
+      setSelectLocationView,
+      searchTerm,
+      isolatedItem,
+      locationSelectorExpanded,
+      debouncedScrollTop,
+    ],
   );
 
   return (
