@@ -142,11 +142,22 @@ extension XCUIElement {
         // 10 sec * 3 tries + 2 sec + 2 sec ^ 2 = 36
         case longerThanMullvadAPITimeout = 37
         case extremelyLong = 180
-    }
 
-    private struct PredicatePollerDefaults {
-        static let pollInterval = 0.2
-        static let maxIterations = 100
+        var pollInterval: TimeInterval {
+            switch self {
+            case .short, .default, .long, .veryLong: 0.2
+            case .longerThanMullvadAPITimeout: 0.5
+            case .extremelyLong: 1
+            }
+        }
+
+        var maxIterations: Int {
+            switch self {
+            case .short, .default, .long, .veryLong, .longerThanMullvadAPITimeout: 100
+            // 1 check per second for 180 seconds < 200
+            case .extremelyLong: 200
+            }
+        }
     }
 
     // This function actively polls the hierarchy on a set interval. This speeds up the waiting process
@@ -168,7 +179,7 @@ extension XCUIElement {
 
         while Date() < timeoutDate {
             iterationCount += 1
-            if iterationCount > PredicatePollerDefaults.maxIterations {
+            if iterationCount > timeout.maxIterations {
                 return false
             }
 
@@ -177,7 +188,7 @@ extension XCUIElement {
                 return true
             }
 
-            RunLoop.current.run(until: Date().addingTimeInterval(PredicatePollerDefaults.pollInterval))
+            RunLoop.current.run(until: Date().addingTimeInterval(timeout.pollInterval))
         }
 
         return false
