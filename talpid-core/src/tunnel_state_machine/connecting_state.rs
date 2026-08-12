@@ -8,8 +8,9 @@ use futures::future::Fuse;
 use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::ErrorExt;
+use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::{
     AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,
 };
@@ -599,18 +600,34 @@ impl ConnectingState {
             Some((
                 TunnelEvent::Up {
                     metadata,
-                    selected_endpoint,
+                    selected_obfuscation,
                 },
                 _,
-            )) => NewState(ConnectedState::enter(
-                shared_values,
-                metadata,
-                selected_endpoint,
-                self.tunnel_events,
-                self.tunnel_parameters,
-                self.tunnel_close_event,
-                self.tunnel_close_tx,
-            )),
+            )) => {
+                let mut tunnel_parameters = self.tunnel_parameters;
+
+                // While connecting, the parameters may list several candidate transports. Now
+                // that the tunnel is up, replace them with the one it committed to, so that
+                // everything derived from the parameters -- the firewall policy and the
+                // endpoint we broadcast -- refers to the transport that is actually in use.
+                if let Some(selected_obfuscation) = selected_obfuscation {
+                    tunnel_parameters.obfuscation = match selected_obfuscation {
+                        SelectedObfuscation::Direct => None,
+                        SelectedObfuscation::Obfuscated(config) => {
+                            Some(Obfuscators::Single(config))
+                        }
+                    };
+                }
+
+                NewState(ConnectedState::enter(
+                    shared_values,
+                    metadata,
+                    self.tunnel_events,
+                    tunnel_parameters,
+                    self.tunnel_close_event,
+                    self.tunnel_close_tx,
+                ))
+            }
             Some((TunnelEvent::Down, _)) => {
                 // It is important to reset this before the tunnel device is down,
                 // or else commands that reapply the firewall rules will fail since
