@@ -978,7 +978,7 @@ async fn selected_obfuscation(
         .lock()
         .await
         .as_mut()
-        .and_then(ObfuscatorHandle::selected_transport_rx)
+        .and_then(ObfuscatorHandle::take_selected_transport_rx)
     else {
         return Ok(None);
     };

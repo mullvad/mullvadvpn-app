@@ -264,7 +264,7 @@ impl ObfuscatorHandle {
     /// Notified with the transport that the obfuscator commits to.
     ///
     /// Only a multiplexer has a choice to make, so this is `None` for every other obfuscator.
-    pub fn selected_transport_rx(&mut self) -> Option<oneshot::Receiver<Transport>> {
+    pub fn take_selected_transport_rx(&mut self) -> Option<oneshot::Receiver<Transport>> {
         self.selected_transport_rx.take()
     }
 }
