@@ -5,10 +5,10 @@ import { type GeographicalLocation } from '../../../../../features/locations/typ
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
 import { useLocationAriaLabel } from '../../hooks';
-import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
+import { useScrollPositionContext } from '../location-slide/ScrollPositionContext';
 import { GeographicalLocationTrailingActions } from './components';
 import {
   GeographicalLocationProvider,

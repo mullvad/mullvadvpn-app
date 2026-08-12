@@ -6,13 +6,10 @@ import { Carousel } from '../../../../../lib/components/carousel';
 import { View } from '../../../../../lib/components/view';
 import type { IScrollEvent } from '../../../../CustomScrollbars';
 import { NavigationScrollbars } from '../../../../NavigationScrollbars';
-import {
-  ScrollPositionContextProvider,
-  useScrollPositionContext,
-} from '../../ScrollPositionContext';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { LocationLists } from '../location-lists';
 import { SpacePreAllocationView } from '../space-pre-allocation-view';
+import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 
 export type LocationSlideProps = {
   type: LocationType;
