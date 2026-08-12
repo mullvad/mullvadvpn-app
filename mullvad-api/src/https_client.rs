@@ -269,6 +269,18 @@ impl InnerConnectionMode {
         let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
         Ok(ApiConnection::new(Box::new(tls_stream)))
     }
+
+    /// How long a connection may sit idle before it should be evicted.
+    pub const fn idle_timeout(&self) -> Duration {
+        let default = Duration::from_secs(60);
+        match self {
+            InnerConnectionMode::Direct => default,
+            InnerConnectionMode::Shadowsocks(..) => default,
+            InnerConnectionMode::Socks5(..) => default,
+            InnerConnectionMode::EncryptedDnsProxy(..) => default,
+            InnerConnectionMode::DomainFronting(..) => crate::domain_fronting::IDLE_TIMEOUT,
+        }
+    }
 }
 
 /// Establish a TLS connection to the CDN without certificate verification.

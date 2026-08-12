@@ -1,6 +1,6 @@
 //! Built-in domain fronting access method configuration.
 
-use std::{net::SocketAddr, str::FromStr, sync::LazyLock};
+use std::{net::SocketAddr, str::FromStr, sync::LazyLock, time::Duration};
 
 use http::Uri;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -15,6 +15,11 @@ pub const SESSION_KEY: &str = "X-Mullvad-Session";
 
 /// Whether we should use HTTP/2 (instead of HTTP/1.1) to talk to CDN77.
 pub const USE_HTTP2: bool = true;
+
+/// How long we may keep a domain fronting connection idle.
+///
+/// CDN77 has an idle timeout of 5 seconds, so we set our timeout just below that.
+pub const IDLE_TIMEOUT: Duration = Duration::from_millis(4_500);
 
 pub type DfConfig = domain_fronting::DomainFronting;
 
