@@ -224,26 +224,21 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let task = StartTunnelTask(interactor: TunnelInteractorProxy(self))
-
-        Task {
-            let result = await task.start()
-
-            if let error = result.error {
-                self.logger.error(
-                    error: error,
-                    message: "Failed to start the tunnel."
-                )
-
-                let tunnelError = StartTunnelError(underlyingError: error)
-
-                self.observerList.notify { observer in
-                    observer.tunnelManager(self, didFailWithError: tunnelError)
-                }
-            }
-
-            completionHandler?(result.error)
-        }
+        //        let task = StartTunnelTask(interactor: TunnelInteractorProxy(self))
+        //        do {
+        //            try await task.start()
+        //        } catch {
+        //            self.logger.error(
+        //                error: error,
+        //                message: "Failed to start the tunnel."
+        //            )
+        //
+        //            let tunnelError = StartTunnelError(underlyingError: error)
+        //
+        //            self.observerList.notify { observer in
+        //                observer.tunnelManager(self, didFailWithError: tunnelError)
+        //            }
+        //        }
     }
 
     func stopTunnel(isOnDemandEnabled: Bool = false, completionHandler: ((Error?) -> Void)? = nil) {

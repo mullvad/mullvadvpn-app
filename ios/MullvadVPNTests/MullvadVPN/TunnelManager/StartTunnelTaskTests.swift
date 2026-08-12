@@ -9,15 +9,12 @@
 import MullvadSettings
 import MullvadTypes
 import Network
-import XCTest
+import Testing
 
 @testable import MullvadMockData
 
-class StartTunnelTaskTests: XCTestCase {
+struct StartTunnelTaskTests {
     // MARK: utility code for setting up tests
-
-    let testQueue = DispatchQueue(label: "StartTunnelTaskTests.testQueue")
-
     let loggedInDeviceState = DeviceState.loggedIn(
         StoredAccountData(
             identifier: "",
@@ -49,39 +46,52 @@ class StartTunnelTaskTests: XCTestCase {
 
     // MARK: the tests
 
+    @Test
     func testFailsIfNotLoggedIn() async throws {
         let task = StartTunnelTask(interactor: makeInteractor(deviceState: .loggedOut))
-        let result = await task.start()
-
-        switch result {
-        case .success:
-            XCTFail("Task returned \(result), not failure")
-        case .failure:
-            XCTAssertTrue(true)
+        await #expect(throws: InvalidDeviceStateError.self) {
+            try await task.start()
         }
     }
 
-    func testSetsReconnectIfDisconnecting() async {
+    @Test
+    func testSetsReconnectIfDisconnecting() async throws {
         let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
-
-        nonisolated(unsafe) var tunnelStatus = TunnelStatus()
+        var tunnelStatus = TunnelStatus()
         interactor.onUpdateTunnelStatus = {
             status in tunnelStatus = status
         }
 
         let task = StartTunnelTask(interactor: interactor)
-        _ = await task.start()
+        try await task.start()
 
-        XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
+        #expect(tunnelStatus.state == .disconnecting(.reconnect))
     }
 
-    func testStartsTunnelIfDisconnected() async {
+    @Test
+    func testStartsTunnelIfDisconnected() async throws {
         let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
 
         let task = StartTunnelTask(interactor: interactor)
-        _ = await task.start()
+        try await task.start()
 
-        XCTAssertNotNil(interactor.tunnel)
-        XCTAssertNotNil(interactor.tunnel?.startDate)
+        #expect(interactor.tunnel != nil)
+        #expect(interactor.tunnel?.startDate != nil)
+    }
+
+    @Test
+    func testTaskCanBeCancelled() async throws {
+        let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnected)
+        let startTunnelTask = StartTunnelTask(interactor: interactor)
+
+        let task = Task {
+            try await startTunnelTask.start()
+        }
+
+        task.cancel()
+
+        try await task.value
+
+        #expect(interactor.tunnel == nil)
     }
 }

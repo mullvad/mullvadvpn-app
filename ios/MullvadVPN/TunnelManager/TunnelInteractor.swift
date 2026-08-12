@@ -12,7 +12,7 @@ import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 
-protocol TunnelInteractor {
+protocol TunnelInteractor: Sendable {
     // MARK: - Tunnel manipulation
 
     var tunnel: (any TunnelProtocol)? { get }

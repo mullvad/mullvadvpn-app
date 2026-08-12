@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadSettings
 import PacketTunnelCore
 
-actor StartTunnelTask {
+final class StartTunnelTask: Sendable {
     private let interactor: TunnelInteractor
     private let logger = Logger(label: "StartTunnelTask")
 
@@ -19,37 +19,32 @@ actor StartTunnelTask {
         self.interactor = interactor
     }
 
-    func start() async -> Result<Void, Error> {
+    func start() async throws {
+        try Task.checkCancellation()
         guard case .loggedIn = interactor.deviceState else {
-            return .failure(InvalidDeviceStateError())
+            throw InvalidDeviceStateError()
         }
 
         switch interactor.tunnelStatus.state {
         case .disconnecting(.nothing):
             interactor.updateTunnelStatus { tunnelStatus in
+                //if !Task.isCancelled {
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .disconnecting(.reconnect)
+                //}
             }
-            return .success(())
 
         case .disconnected, .pendingReconnect, .waitingForConnectivity:
-            let result = await makeTunnelProviderAndStartTunnel()
-            return result.map { .failure($0) } ?? .success(())
-
+            try await makeTunnelProviderAndStartTunnel()
         default:
-            return .success(())
+            break
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel() async -> Error? {
-        let result = await makeTunnelProvider()
-
-        do {
-            try startTunnel(tunnel: result.get())
-            return nil
-        } catch {
-            return error
-        }
+    private func makeTunnelProviderAndStartTunnel() async throws {
+        let tunnel = try await makeTunnelProvider()
+        try Task.checkCancellation()
+        try startTunnel(tunnel: tunnel)
     }
 
     private func startTunnel(tunnel: any TunnelProtocol) throws {
@@ -73,29 +68,40 @@ actor StartTunnelTask {
         let isDaita = interactor.settings.daita.isEnabled
 
         interactor.updateTunnelStatus { tunnelStatus in
+            //if !Task.isCancelled {
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .connecting(
                 selectedRelays,
                 isPostQuantum: isPostQuantum,
                 isDaita: isDaita
             )
+            //}
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())
     }
 
-    private func makeTunnelProvider() async -> Result<any TunnelProtocol, Error> {
+    private func makeTunnelProvider() async throws -> any TunnelProtocol {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = TunnelConfiguration(
             includeAllNetworks: interactor.settings.includeAllNetworks.includeAllNetworksIsEnabled,
             excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
         )
+        tunnel.setConfiguration(configuration)
+        try await saveToPreferences(tunnel)
+        try Task.checkCancellation()
+        return tunnel
+    }
 
-        return await withCheckedContinuation { continuation in
-            tunnel.setConfiguration(configuration)
+    private func saveToPreferences(_ tunnel: any TunnelProtocol) async throws {
+        return try await withCheckedThrowingContinuation { continuation in
             tunnel.saveToPreferences { error in
-                continuation.resume(returning: error.map { .failure($0) } ?? .success(tunnel))
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(returning: ())
             }
         }
     }
