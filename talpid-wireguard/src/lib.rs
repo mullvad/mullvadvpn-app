@@ -395,11 +395,13 @@ impl WireguardMonitor {
                 .await
                 .map_err(CloseMsg::SetupError)?;
 
+            #[cfg(not(target_os = "linux"))]
             if let Some(selected_addr) = selected_obfuscation
                 .as_ref()
                 .and_then(|selected| selected_endpoint_addr(selected, &config))
             {
                 // Remove routes for candidate endpoints (used by multiplexer)
+                // Not applicable on Linux since we use policy-based routing (via fwmark).
                 Self::remove_unused_endpoint_routes(
                     &args.route_manager,
                     &endpoint_addrs,
@@ -843,19 +845,12 @@ impl WireguardMonitor {
     ///
     /// While connecting, the tunnel may reach out to any of the candidate endpoints, so all of
     /// them need a route outside of the tunnel. Only the selected one is used from here on.
-    #[cfg_attr(target_os = "linux", expect(unused_variables))]
-    #[cfg(not(target_os = "android"))]
+    #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
     fn remove_unused_endpoint_routes(
         route_manager: &RouteManagerHandle,
         endpoint_addrs: &[IpAddr],
         selected_addr: IpAddr,
     ) {
-        #[cfg(target_os = "linux")]
-        {
-            // No-op as we use policy-based routing (via fwmark).
-            return;
-        }
-
         let unused: HashSet<ipnetwork::IpNetwork> = endpoint_addrs
             .iter()
             .copied()
