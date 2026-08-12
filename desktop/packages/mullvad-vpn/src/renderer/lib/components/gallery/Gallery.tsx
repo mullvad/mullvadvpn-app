@@ -1,14 +1,25 @@
+import styled from 'styled-components';
+
+import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
-import { Image } from '../image';
-import { GalleryText, GalleryTextGroup } from './components';
+import { Image, StyledImage } from '../image';
+import { GalleryText, GalleryTextGroup, StyledGalleryTextGroup } from './components';
 
 export type GalleryProps = FlexProps;
 
+export const StyledGallery = styled(Flex)`
+  &:has(${StyledImage} + ${StyledGalleryTextGroup}) {
+    ${StyledImage} {
+      margin-bottom: ${spacings.small};
+    }
+  }
+`;
+
 function Gallery({ children, ...props }: GalleryProps) {
   return (
-    <Flex flexDirection="column" gap="small" {...props}>
+    <StyledGallery flexDirection="column" {...props}>
       {children}
-    </Flex>
+    </StyledGallery>
   );
 }
 
