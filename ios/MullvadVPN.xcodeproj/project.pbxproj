@@ -451,7 +451,6 @@
 		58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
-		58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
 		58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */; };
 		58FBFBEA291622580020E046 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */; };
@@ -877,7 +876,6 @@
 		A9A5F9FD2ACB05160083449F /* NotificationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5877F94D2A0A59AA0052D9E9 /* NotificationResponse.swift */; };
 		A9A5F9FE2ACB05160083449F /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B7535266528A200DEF7E9 /* NotificationManager.swift */; };
 		A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */; };
-		A9A5FA012ACB05160083449F /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
 		A9A5FA022ACB05160083449F /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
 		A9A5FA032ACB05160083449F /* SimulatorTunnelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */; };
 		A9A5FA042ACB05160083449F /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
@@ -2185,7 +2183,6 @@
 		58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperStub.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
-		58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerObserver.swift; sourceTree = "<group>"; };
 		58FBFBE6291622580020E046 /* MullvadRESTTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRESTTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExponentialBackoffTests.swift; sourceTree = "<group>"; };
 		58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitor.swift; sourceTree = "<group>"; };
@@ -3820,7 +3817,6 @@
 		585DA87526B0249A00B8C587 /* RelayCacheTracker */ = {
 			isa = PBXGroup;
 			children = (
-				58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */,
 				58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */,
 			);
 			path = RelayCacheTracker;
@@ -6400,7 +6396,6 @@
 				A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */,
 				7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */,
 				87A647B96EC28D42434F4D03 /* AllLocationDataSourceBenchmarkTests.swift in Sources */,
-				A9A5FA012ACB05160083449F /* RelayCacheTrackerObserver.swift in Sources */,
 				A9A5FA022ACB05160083449F /* RelayCacheTracker.swift in Sources */,
 				A9A5FA032ACB05160083449F /* SimulatorTunnelInfo.swift in Sources */,
 				7AE16DD52FA0DF6300A72A39 /* MultihopDataGatherer.swift in Sources */,
@@ -6830,7 +6825,6 @@
 				5820EDA9288FE064006BF4E4 /* DeviceManaging.swift in Sources */,
 				F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */,
 				7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */,
-				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */,
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				440DA5C5300540F60057069A /* MullvadButton.swift in Sources */,

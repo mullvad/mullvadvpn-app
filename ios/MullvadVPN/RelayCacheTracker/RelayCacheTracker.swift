@@ -19,8 +19,6 @@ protocol RelayCacheTrackerProtocol: RelayCacheTrackerProviding {
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func getNextUpdateDate() -> Date
-    func addObserver(_ observer: RelayCacheTrackerObserver)
-    func removeObserver(_ observer: RelayCacheTrackerObserver)
     func refreshCachedRelays() throws
 }
 
@@ -50,9 +48,6 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
     /// API proxy.
     private let apiProxy: APIQuerying
-
-    /// Observers.
-    private let observerList = ObserverList<RelayCacheTrackerObserver>()
 
     /// Memory cache.
     private var cachedRelays: CachedRelays?
@@ -219,12 +214,6 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         relayCacheLock.lock()
         cachedRelays = newCachedRelays
         relayCacheLock.unlock()
-
-        DispatchQueue.main.async {
-            self.observerList.notify { observer in
-                observer.relayCacheTracker(self, didUpdateCachedRelays: newCachedRelays)
-            }
-        }
     }
 
     func getNextUpdateDate() -> Date {
@@ -232,16 +221,6 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         defer { relayCacheLock.unlock() }
 
         return _getNextUpdateDate()
-    }
-
-    // MARK: - Observation
-
-    func addObserver(_ observer: RelayCacheTrackerObserver) {
-        observerList.append(observer)
-    }
-
-    func removeObserver(_ observer: RelayCacheTrackerObserver) {
-        observerList.remove(observer)
     }
 
     // MARK: - Private

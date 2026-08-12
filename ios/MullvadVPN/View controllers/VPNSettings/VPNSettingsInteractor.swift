@@ -54,9 +54,3 @@ final class VPNSettingsInteractor {
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
     }
 }
-
-extension VPNSettingsInteractor: RelayCacheTrackerObserver {
-    func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
-        cachedRelaysDidChange?(cachedRelays)
-    }
-}
