@@ -14,6 +14,10 @@ name = "lwo"
 harness = false
 name = "obfuscation_throughput"
 
+[[bench]]
+harness = false
+name = "multiplexer_throughput"
+
 [dependencies]
 async-trait = { workspace = true }
 bytes = { workspace = true }
