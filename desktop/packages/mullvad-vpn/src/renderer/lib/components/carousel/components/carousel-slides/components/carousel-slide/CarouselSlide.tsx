@@ -22,7 +22,7 @@ function CarouselSlide({ children, ...props }: CarouselSlideProps) {
     <StyledSlide
       id={id}
       tabIndex={-1}
-      aria-hidden={!isActiveSlide}
+      inert={!isActiveSlide}
       data-carousel-slide
       role="group"
       aria-roledescription="slide"
