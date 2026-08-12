@@ -7,7 +7,7 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
-#[cfg(not(target_os = "android"))]
+#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 use std::env;
 #[cfg(windows)]
@@ -20,8 +20,10 @@ use std::{
     pin::Pin,
     sync::{Arc, mpsc as sync_mpsc},
 };
+#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
+use talpid_routing::RouteManagerHandle;
 #[cfg(not(target_os = "android"))]
-use talpid_routing::{self, RequiredRoute, RouteManagerHandle};
+use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{
     EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider,
 };
@@ -29,7 +31,7 @@ use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
 use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_tunnel_config_client::DaitaSettings;
-#[cfg(not(target_os = "android"))]
+#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::{
     BoxedError, ErrorExt,
@@ -1052,7 +1054,7 @@ async fn selected_obfuscation(
 ///
 /// [`SelectedObfuscation::Direct`] carries no address of its own: it refers to the direct
 /// transport of the multiplexer, whose endpoint is the relay itself.
-#[cfg(not(target_os = "android"))]
+#[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 fn selected_endpoint_addr(selected: &SelectedObfuscation, config: &Config) -> Option<IpAddr> {
     match selected {
         SelectedObfuscation::Obfuscated(obfuscator) => Some(obfuscator.endpoint().address.ip()),
