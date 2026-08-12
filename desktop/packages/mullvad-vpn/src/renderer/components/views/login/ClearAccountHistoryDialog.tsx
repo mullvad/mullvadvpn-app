@@ -27,7 +27,7 @@ export default function ClearAccountHistoryDialog({ open, onOpenChange, onConfir
         }
       </StatusDialog.Text>
       <StatusDialog.ButtonGroup>
-        <StatusDialog.Button onClick={onConfirm} variant="destructive">
+        <StatusDialog.Button onClick={onConfirm} color="destructive">
           <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label in confirmation dialog that confirms a remove action.

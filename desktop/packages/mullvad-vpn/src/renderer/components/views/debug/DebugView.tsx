@@ -42,7 +42,7 @@ function ThrowErrorButton() {
   }, []);
 
   return (
-    <Button variant="destructive" onClick={handleClick}>
+    <Button color="destructive" onClick={handleClick}>
       <Button.Text>Throw error</Button.Text>
     </Button>
   );
@@ -54,7 +54,7 @@ function UnhandledRejectionButton() {
   }, []);
 
   return (
-    <Button variant="destructive" onClick={handleClick}>
+    <Button color="destructive" onClick={handleClick}>
       <Button.Text>Unhandled rejection</Button.Text>
     </Button>
   );
@@ -68,7 +68,7 @@ function ErrorDuringRender() {
   }
 
   return (
-    <Button variant="destructive" onClick={setError}>
+    <Button color="destructive" onClick={setError}>
       <Button.Text>Error next render</Button.Text>
     </Button>
   );

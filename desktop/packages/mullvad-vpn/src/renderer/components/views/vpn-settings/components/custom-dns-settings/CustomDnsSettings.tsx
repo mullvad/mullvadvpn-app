@@ -401,7 +401,7 @@ function ConfirmationDialog({ abort, confirm, open }: IConfirmationDialogProps) 
     <StatusDialog variant="caution" open={open} onOpenChange={handleOpenChange}>
       <StatusDialog.Text>{message}</StatusDialog.Text>
       <StatusDialog.ButtonGroup>
-        <StatusDialog.Button variant="destructive" onClick={confirm}>
+        <StatusDialog.Button color="destructive" onClick={confirm}>
           <StatusDialog.Button.Text>
             {
               // TRANSLATORS: Button label to add a private IP DNS server despite warning.

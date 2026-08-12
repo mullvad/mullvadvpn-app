@@ -47,7 +47,7 @@ function LockdownModeSwitch({ children, ...props }: LockdownModeSwitchProp) {
           )}
         </StatusDialog.Text>
         <StatusDialog.ButtonGroup>
-          <StatusDialog.Button variant="destructive" onClick={confirmLockdownMode}>
+          <StatusDialog.Button color="destructive" onClick={confirmLockdownMode}>
             <StatusDialog.Button.Text>{messages.gettext('Enable anyway')}</StatusDialog.Button.Text>
           </StatusDialog.Button>
           <StatusDialog.CloseButton>

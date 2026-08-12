@@ -83,7 +83,7 @@ function ExpiredAccountErrorViewComponent() {
 
             <FlexColumn gap="medium">
               {recoveryAction === RecoveryAction.disconnect && (
-                <Button variant="destructive" disabled={disconnecting} onClick={disconnect}>
+                <Button color="destructive" disabled={disconnecting} onClick={disconnect}>
                   <Button.Text>
                     {
                       // TRANSLATORS: Button label for disconnecting from the VPN.
@@ -95,7 +95,7 @@ function ExpiredAccountErrorViewComponent() {
 
               <ExternalPaymentButton />
 
-              <Button variant="success" onClick={navigateToRedeemVoucher}>
+              <Button color="success" onClick={navigateToRedeemVoucher}>
                 <Button.Text>
                   {
                     // TRANSLATORS: Button label for navigating to the voucher redemption view.
@@ -205,7 +205,7 @@ function ExternalPaymentButton() {
 
   return (
     <Button
-      variant="success"
+      color="success"
       disabled={openingExternalPayment || recoveryAction === RecoveryAction.disconnect}
       onClick={openExternalPayment}
       aria-description={

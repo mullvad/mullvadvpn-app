@@ -14,7 +14,7 @@ export function QuitButton() {
   }, [quit]);
 
   return (
-    <Button variant="destructive" onClick={handleClick}>
+    <Button color="destructive" onClick={handleClick}>
       <Button.Text>
         {isConnected ? messages.gettext('Disconnect & quit') : messages.gettext('Quit')}
       </Button.Text>

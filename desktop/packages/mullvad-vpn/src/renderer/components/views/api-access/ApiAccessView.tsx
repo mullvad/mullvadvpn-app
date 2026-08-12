@@ -392,7 +392,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           </StatusDialog.Text>
         )}
         <StatusDialog.ButtonGroup>
-          <StatusDialog.Button onClick={confirmRemove} variant="destructive">
+          <StatusDialog.Button onClick={confirmRemove} color="destructive">
             <StatusDialog.Button.Text>{messages.gettext('Delete')}</StatusDialog.Button.Text>
           </StatusDialog.Button>
           <StatusDialog.CloseButton>
