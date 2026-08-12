@@ -10,7 +10,7 @@ import { NavigationScrollbars } from '../../../../NavigationScrollbars';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { LocationLists } from '../location-lists';
 import { SpacePreAllocationView } from '../space-pre-allocation-view';
-import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
+import { LocationSlideContextProvider, useLocationSlideContext } from './LocationSlideContext';
 
 export type LocationSlideProps = {
   type: LocationType;
@@ -22,7 +22,7 @@ const StyledCarouselSlide = styled(Carousel.Slides.Slide)`
 `;
 
 function LocationSlideImpl({ type }: LocationSlideProps) {
-  const { resetScroll, spacePreAllocationViewRef, scrollViewRef } = useScrollPositionContext();
+  const { resetScroll, spacePreAllocationViewRef, scrollViewRef } = useLocationSlideContext();
   const { setScrollTop } = useSelectLocationViewContext();
 
   useMountLayoutEffect(resetScroll);
@@ -49,8 +49,8 @@ function LocationSlideImpl({ type }: LocationSlideProps) {
 
 export function LocationSlide({ type }: LocationSlideProps) {
   return (
-    <ScrollPositionContextProvider>
+    <LocationSlideContextProvider>
       <LocationSlideImpl type={type} />
-    </ScrollPositionContextProvider>
+    </LocationSlideContextProvider>
   );
 }

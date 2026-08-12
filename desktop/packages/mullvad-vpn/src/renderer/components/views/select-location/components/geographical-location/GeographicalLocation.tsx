@@ -8,7 +8,7 @@ import { useLocationAriaLabel } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
-import { useScrollPositionContext } from '../location-slide/ScrollPositionContext';
+import { useLocationSlideContext } from '../location-slide/LocationSlideContext';
 import { GeographicalLocationTrailingActions } from './components';
 import {
   GeographicalLocationProvider,
@@ -37,7 +37,7 @@ function GeographicalLocationImpl({
   const [expanded, setExpanded] = useState(location.expanded);
   const [lastSearchTerm, setLastSearchTerm] = useState(searchTerm);
   const locationChildren = getLocationChildren(location);
-  const { selectedLocationRef } = useScrollPositionContext();
+  const { selectedLocationRef } = useLocationSlideContext();
   const { hasRecents } = useRecents();
 
   const ariaLabel = useLocationAriaLabel(location.label);

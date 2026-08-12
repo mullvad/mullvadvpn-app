@@ -1,14 +1,13 @@
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import React from 'react';
 
 import { useRecents } from '../../../../../features/locations/hooks';
-import { LocationType } from '../../../../../features/locations/types';
 import { useDebounce } from '../../../../../lib/hooks/use-debounce';
 import { useStyledRef } from '../../../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../../../CustomScrollbars';
 import { SpacePreAllocationView } from '..';
 
 // Context containing the scroll position for each location type and methods to interact with it.
-interface ScrollPositionContext {
+type LocationSlideContextProps = Omit<LocationSlideContextProviderProps, 'children'> & {
   // The selected location element is used to scroll to it when opening the view
   selectedLocationRef: React.RefObject<HTMLDivElement | null>;
   // The scroll view container is used to get the current scroll position and to restore an old one
@@ -18,40 +17,39 @@ interface ScrollPositionContext {
   scrollIntoView: (rect: DOMRect) => void;
   resetHeight: () => void;
   resetScroll: () => void;
+};
+
+const LocationSlideContext = React.createContext<LocationSlideContextProps | undefined>(undefined);
+
+export function useLocationSlideContext() {
+  const context = React.useContext(LocationSlideContext);
+  if (!context) {
+    throw new Error('useLocationSlideContext must be used within a LocationSlideContextProvider');
+  }
+  return context;
 }
 
-type ScrollPosition = [number, number];
+type LocationSlideContextProviderProps = React.PropsWithChildren;
 
-const scrollPositionContext = React.createContext<ScrollPositionContext | undefined>(undefined);
-
-export function useScrollPositionContext() {
-  return useContext(scrollPositionContext)!;
-}
-
-interface ScrollPositionContextProps {
-  children: React.ReactNode;
-}
-
-export function ScrollPositionContextProvider(props: ScrollPositionContextProps) {
+export function LocationSlideContextProvider(props: LocationSlideContextProviderProps) {
   const { hasRecents } = useRecents();
 
-  const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
-  const scrollViewRef = useRef<CustomScrollbarsRef>(null);
+  const scrollViewRef = React.useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
-  const selectedLocationRef = useRef<HTMLDivElement>(null);
+  const selectedLocationRef = React.useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = React.useState(0);
   const debouncedScrollTop = useDebounce(scrollTop, 50);
 
-  const scrollIntoView = useCallback((rect: DOMRect) => {
+  const scrollIntoView = React.useCallback((rect: DOMRect) => {
     scrollViewRef.current?.scrollIntoView(rect);
   }, []);
 
-  const resetHeight = useCallback(
+  const resetHeight = React.useCallback(
     () => spacePreAllocationViewRef.current?.reset(),
     [spacePreAllocationViewRef],
   );
 
-  const resetScroll = useCallback(() => {
+  const resetScroll = React.useCallback(() => {
     if (hasRecents) {
       // Scroll to top if there are recents.
       scrollViewRef.current?.scrollToTop();
@@ -66,9 +64,8 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     }
   }, [hasRecents]);
 
-  const value = useMemo(
+  const value = React.useMemo(
     () => ({
-      scrollPositions,
       selectedLocationRef,
       scrollViewRef,
       spacePreAllocationViewRef,
@@ -82,6 +79,6 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
   );
 
   return (
-    <scrollPositionContext.Provider value={value}>{props.children}</scrollPositionContext.Provider>
+    <LocationSlideContext.Provider value={value}>{props.children}</LocationSlideContext.Provider>
   );
 }
