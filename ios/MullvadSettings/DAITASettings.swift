@@ -35,25 +35,39 @@ public enum DAITASettingsCompatibilityError {
 }
 
 public struct DAITASettings: Codable, Equatable, Sendable {
+    private enum CodingKeys: String, CodingKey {
+        case state
+        case daitaState
+        case directOnlyState
+    }
+
     @available(*, deprecated, renamed: "daitaState")
     public let state: DAITAState = .off
 
     public var daitaState: DAITAState
+    private var _directOnlyState: DirectOnlyState
 
     @available(
         *, deprecated,
-        message: "Deprecated: Do not use this API in new implementations. It is supported only for multihop migration."
+        message: "Deprecated: Do not use in new implementations. It is supported only for multihop migration."
     )
-    public var directOnlyState: DirectOnlyState
+    public var directOnlyState: DirectOnlyState {
+        _directOnlyState
+    }
 
     public var isEnabled: Bool {
         get { daitaState == .on }
         set { daitaState = newValue ? .on : .off }
     }
 
+    /// Whether the legacy direct-only mode was enabled. For use in multihop migration only.
+    public var isDirectOnly: Bool {
+        _directOnlyState.isEnabled
+    }
+
     public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
         self.daitaState = daitaState
-        self.directOnlyState = directOnlyState
+        self._directOnlyState = directOnlyState
     }
 
     public init(from decoder: any Decoder) throws {
@@ -64,11 +78,17 @@ public struct DAITASettings: Codable, Equatable, Sendable {
             ?? container.decodeIfPresent(DAITAState.self, forKey: .state)
             ?? .off
 
-        directOnlyState =
+        _directOnlyState =
             try container.decodeIfPresent(
                 DirectOnlyState.self,
                 forKey: .directOnlyState
             )
             ?? .off
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(daitaState, forKey: .daitaState)
+        try container.encode(_directOnlyState, forKey: .directOnlyState)
     }
 }
