@@ -23,6 +23,8 @@ private enum GotaTunEvent: Sendable {
     case reconnect(NextRelays, ActorReconnectReason)
     case networkReachability(NWPath.Status)
     case setErrorState(BlockedStateReason)
+    case notifyKeyRotation(Date?)
+    case switchKey
     case sleep
     case wake
     #if NEVER_IN_PRODUCTION
@@ -46,6 +48,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
 
     // MARK: - Dependencies
 
+    private let timings: GotaTunActorTimings
+    private let clock: any Clock<Duration>
     private let providerDelegate: TunnelProviderDelegate
     private let settingsReader: SettingsReaderProtocol
     private let relaySelector: RelaySelectorProtocol
@@ -73,6 +77,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     /// Incremented whenever the current adapter is replaced or stopped. Events tagged with an
     /// older generation come from an adapter no longer in use and are dropped.
     private var adapterGeneration: UInt64 = 0
+    private var keySwitchTask: AutoCancellingTask?
+    private var keyPolicy = GotaTunKeyPolicy()
 
     // MARK: - Event channel
 
@@ -108,6 +114,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     // MARK: - Init
 
     public init(
+        timings: GotaTunActorTimings = GotaTunActorTimings(),
+        clock: any Clock<Duration> = ContinuousClock(),
         providerDelegate: sending TunnelProviderDelegate,
         settingsReader: SettingsReaderProtocol,
         relaySelector: RelaySelectorProtocol,
@@ -115,6 +123,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
         adapterFactory: GotaTunAdapterFactory
     ) {
+        self.timings = timings
+        self.clock = clock
         self.providerDelegate = providerDelegate
         self.settingsReader = settingsReader
         self.relaySelector = relaySelector
@@ -128,6 +138,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     deinit {
+        recoveryTask?.cancel()
+        keySwitchTask?.cancel()
         Task { [defaultPathObserver] in await defaultPathObserver.stop() }
         eventContinuation.finish()
     }
@@ -200,8 +212,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         eventContinuation.yield(.reconnect(nextRelays, reconnectReason))
     }
 
-    // TODO: implement key rotation handling
-    nonisolated public func notifyKeyRotation(date: Date?) {}
+    nonisolated public func notifyKeyRotation(date: Date?) {
+        eventContinuation.yield(.notifyKeyRotation(date))
+    }
 
     nonisolated public func setErrorState(reason: BlockedStateReason) {
         eventContinuation.yield(.setErrorState(reason))
@@ -237,6 +250,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             await handleNetworkReachability(pathStatus)
         case let .setErrorState(reason):
             handleSetErrorState(reason)
+        case let .notifyKeyRotation(date):
+            handleNotifyKeyRotation(date)
+        case .switchKey:
+            await handleSwitchKey()
         case .sleep:
             currentAdapter?.suspendTunnel()
         case .wake:
@@ -273,6 +290,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return
         default:
             stopCurrentAdapter()
+            keySwitchTask = nil
+            keyPolicy.endRotation()
             await defaultPathObserver.stop()
             observedState = .disconnected
             logger.debug("Stopped, entering disconnected state")
@@ -393,6 +412,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
 
         default:
             stopCurrentAdapter()
+            keyPolicy.endRotation()
+            cancelKeySwitchTask()
             observedState = .error(
                 ObservedBlockedState(
                     reason: reason,
@@ -400,6 +421,36 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
                 ))
             logger.debug("Entering error state: \(reason)")
         }
+    }
+
+    // MARK: - Key rotation
+
+    private func handleNotifyKeyRotation(_ date: Date?) {
+        guard case .connected = observedState else { return }
+
+        keyPolicy.beginRotation()
+
+        // Publishing the rotation date is what tells the app to reload device state from the keychain.
+        observedState.mutateConnectionState { $0.lastKeyRotation = date }
+
+        logger.debug(
+            "Key rotation notified, caching prior key and scheduling switch in \(timings.wgKeyPropagationDelay)")
+
+        keySwitchTask = Task { [weak self, timings, clock] in
+            try? await clock.sleep(for: timings.wgKeyPropagationDelay)
+            guard !Task.isCancelled else { return }
+            self?.eventContinuation.yield(.switchKey)
+        }
+    }
+
+    private func handleSwitchKey() async {
+        keyPolicy.endRotation()
+        cancelKeySwitchTask()
+
+        guard observedState.connectionState != nil else { return }
+
+        logger.debug("Key propagation delay elapsed, reconnecting with new key")
+        await restartConnection(nextRelays: .random)
     }
 
     // MARK: - Connection management
@@ -464,10 +515,12 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return
         }
 
+        let privateKey = keyPolicy.connectionKey(settingsKey: settings.privateKey)
+
         let config = Self.makeGotaTunConfig(
             settings: settings,
             selectedRelays: selectedRelays,
-            privateKey: settings.privateKey,
+            privateKey: privateKey,
             fd: fd,
             ipv4Address: ipv4Address,
             ipv6Address: ipv6Address,
@@ -480,7 +533,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             relayConstraints: settings.tunnelSettings.relayConstraints,
             networkReachability: currentReachability,
             connectionAttemptCount: attemptCount,
-            lastKeyRotation: nil
+            lastKeyRotation: currentLastKeyRotation
         )
 
         observedState = isReconnect ? .reconnecting(connectionState) : .connecting(connectionState)
@@ -629,6 +682,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         default:
             return false
         }
+    }
+
+    private var currentLastKeyRotation: Date? {
+        observedState.connectionState?.lastKeyRotation
     }
 
     private static func computeEstablishTimeout(attemptCount: UInt) -> UInt32 {

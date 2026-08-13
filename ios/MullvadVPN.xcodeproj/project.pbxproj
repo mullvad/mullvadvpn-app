@@ -25,6 +25,7 @@
 		0107F42D2F5F62950012451B /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		0107F4322F5F62C80012451B /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		0107F4362F5F62CE0012451B /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		01335D422F89B711008AB806 /* GotaTunActorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D402F89B711008AB806 /* GotaTunActorTimings.swift */; };
 		01335D432F89B711008AB806 /* GotaTunAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */; };
 		01335D442F89B711008AB806 /* GotaTunActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D3E2F89B711008AB806 /* GotaTunActor.swift */; };
 		01335D4A2F89B88E008AB806 /* GotaTunAdapterStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */; };
@@ -54,6 +55,7 @@
 		01C981E92F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */; };
 		01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */; };
 		01C981EB2F45D5C20002D284 /* TunnelControlPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */; };
+		01CBA33C302C9E4600D41B65 /* GotaTunKeyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA33B302C9E4600D41B65 /* GotaTunKeyPolicy.swift */; };
 		01CBA340302CA3C800D41B65 /* TunnelProviderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01CBA33F302CA3C800D41B65 /* TunnelProviderDelegate.swift */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
 		01FFF9582F0469FC00BDAF45 /* IPVersionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */; };
@@ -1789,6 +1791,7 @@
 		0107F4212F5B97F30012451B /* RelayListCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayListCacheTests.swift; sourceTree = "<group>"; };
 		01335D3E2F89B711008AB806 /* GotaTunActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActor.swift; sourceTree = "<group>"; };
 		01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunAdapterProtocol.swift; sourceTree = "<group>"; };
+		01335D402F89B711008AB806 /* GotaTunActorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTimings.swift; sourceTree = "<group>"; };
 		01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunAdapterStub.swift; sourceTree = "<group>"; };
 		01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTests.swift; sourceTree = "<group>"; };
 		01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapter.swift; sourceTree = "<group>"; };
@@ -1811,6 +1814,7 @@
 		01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlockedStateReason+Localization.swift"; sourceTree = "<group>"; };
 		01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStateAccessibilityAnnouncer.swift; sourceTree = "<group>"; };
 		01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPageTests.swift; sourceTree = "<group>"; };
+		01CBA33B302C9E4600D41B65 /* GotaTunKeyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunKeyPolicy.swift; sourceTree = "<group>"; };
 		01CBA33F302CA3C800D41B65 /* TunnelProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderDelegate.swift; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
@@ -3045,9 +3049,11 @@
 		01335D412F89B711008AB806 /* GotaTun */ = {
 			isa = PBXGroup;
 			children = (
+				01CBA33B302C9E4600D41B65 /* GotaTunKeyPolicy.swift */,
 				01335D3E2F89B711008AB806 /* GotaTunActor.swift */,
 				01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */,
 				01335D672F89E400008AB806 /* GotaTunPathObserver.swift */,
+				01335D402F89B711008AB806 /* GotaTunActorTimings.swift */,
 			);
 			path = GotaTun;
 			sourceTree = "<group>";
@@ -6649,11 +6655,13 @@
 				44DF8AC42BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift in Sources */,
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */,
+				01335D422F89B711008AB806 /* GotaTunActorTimings.swift in Sources */,
 				01335D432F89B711008AB806 /* GotaTunAdapterProtocol.swift in Sources */,
 				01335D682F89E400008AB806 /* GotaTunPathObserver.swift in Sources */,
 				01335D442F89B711008AB806 /* GotaTunActor.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
+				01CBA33C302C9E4600D41B65 /* GotaTunKeyPolicy.swift in Sources */,
 				583832292AC3DF1300EA2071 /* PacketTunnelActorCommand.swift in Sources */,
 				58CF95A22AD6F35800B59F5D /* ObservedState.swift in Sources */,
 				449275422C3570CA000526DE /* ICMP.swift in Sources */,
