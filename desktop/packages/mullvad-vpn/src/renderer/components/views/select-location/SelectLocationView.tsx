@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
@@ -29,10 +30,13 @@ const StyledStickyContainer = styled.div`
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { locationType } = useSelectLocationViewContext();
+  const [slideIndex, setSlideIndex] = React.useState(locationType === LocationType.entry ? 0 : 1);
+
+  React.useLayoutEffect(() => {
+    setSlideIndex(locationType === LocationType.entry ? 0 : 1);
+  }, [locationType]);
 
   const onClose = useCallback(() => history.pop(), [history]);
-
-  const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
     <View backgroundColor="darkBlue">
@@ -51,7 +55,7 @@ export function SelectLocationViewImpl() {
               <SelectLocationSelector />
             </FlexColumn>
           </StyledStickyContainer>
-          <Carousel disableScroll slideIndex={slideIndex}>
+          <Carousel disableScroll slideIndex={slideIndex} onSlideIndexChange={setSlideIndex}>
             <Carousel.Slides>
               <LocationSlide type={LocationType.entry} />
               <LocationSlide type={LocationType.exit} />

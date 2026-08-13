@@ -10,18 +10,17 @@ export const StyledCarousel = styled.section``;
 
 export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
   slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
   disableScroll?: boolean;
 };
 
-function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
+function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
-  const { carouselRef } = useCarouselContext();
+  const { carouselRef, slideIndex } = useCarouselContext();
   const { goToSlide } = useSlides();
 
   React.useEffect(() => {
-    if (slideIndex !== undefined) {
-      goToSlide(slideIndex);
-    }
+    goToSlide(slideIndex);
   }, [slideIndex, goToSlide]);
 
   useFocusCarousel();
@@ -40,9 +39,18 @@ function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
   );
 }
 
-function Carousel({ children, disableScroll, ...props }: CarouselProps) {
+function Carousel({
+  slideIndex,
+  onSlideIndexChange,
+  disableScroll,
+  children,
+  ...props
+}: CarouselProps) {
   return (
-    <CarouselProvider disableScroll={disableScroll}>
+    <CarouselProvider
+      slideIndex={slideIndex}
+      onSlideIndexChange={onSlideIndexChange}
+      disableScroll={disableScroll}>
       <CarouselImpl {...props}>{children}</CarouselImpl>
     </CarouselProvider>
   );
