@@ -12,12 +12,17 @@ import Foundation
 
 /// Timing configuration for the GotaTun actor.
 public struct GotaTunActorTimings: Sendable {
+    /// How often the recovery task retries when in a recoverable error state.
+    public let bootRecoveryPeriodicity: Duration
+
     /// How long to wait after a key rotation before switching to the new key.
     public let wgKeyPropagationDelay: Duration
 
     public init(
+        bootRecoveryPeriodicity: Duration = .seconds(5),
         wgKeyPropagationDelay: Duration = .seconds(120)
     ) {
+        self.bootRecoveryPeriodicity = bootRecoveryPeriodicity
         self.wgKeyPropagationDelay = wgKeyPropagationDelay
     }
 }

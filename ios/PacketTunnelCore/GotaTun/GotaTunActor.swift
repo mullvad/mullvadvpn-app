@@ -77,7 +77,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     /// Incremented whenever the current adapter is replaced or stopped. Events tagged with an
     /// older generation come from an adapter no longer in use and are dropped.
     private var adapterGeneration: UInt64 = 0
-    private var keySwitchTask: AutoCancellingTask?
+    private var recoveryTask: Task<Void, Never>?
+    private var keySwitchTask: Task<Void, Never>?
     private var keyPolicy = GotaTunKeyPolicy()
 
     // MARK: - Event channel
@@ -290,7 +291,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return
         default:
             stopCurrentAdapter()
-            keySwitchTask = nil
+            cancelRecoveryTask()
+            cancelKeySwitchTask()
             keyPolicy.endRotation()
             await defaultPathObserver.stop()
             observedState = .disconnected
@@ -343,6 +345,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
                 return
             }
             logger.debug("Reconnecting from error state")
+            cancelRecoveryTask()
             stopCurrentAdapter()
             await startConnection(nextRelays: nextRelays)
         case .connecting, .connected, .reconnecting:
@@ -384,6 +387,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
                 blocked.reason.recoverableError()
             else { return }
             logger.debug("Network reachable, restoring connectivity from \(blocked.reason)")
+            cancelRecoveryTask()
             await startConnection(nextRelays: .random)
 
         default:
@@ -421,6 +425,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
                 ))
             logger.debug("Entering error state: \(reason)")
         }
+
+        cancelRecoveryTask()
+        recoveryTask = makeRecoveryTaskIfNeeded(reason: reason)
     }
 
     // MARK: - Key rotation
@@ -666,6 +673,30 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             isPostQuantum: config.isPostQuantum,
             isDaitaEnabled: config.isDaitaEnabled
         )
+    }
+
+    // MARK: - Recovery
+
+    private func makeRecoveryTaskIfNeeded(reason: BlockedStateReason) -> Task<Void, Never>? {
+        guard reason.shouldRestartAutomatically else { return nil }
+
+        return Task { [weak self, timings, clock] in
+            while !Task.isCancelled {
+                try? await clock.sleep(for: timings.bootRecoveryPeriodicity)
+                guard !Task.isCancelled else { return }
+                self?.eventContinuation.yield(.reconnect(.random, .userInitiated))
+            }
+        }
+    }
+
+    private func cancelRecoveryTask() {
+        recoveryTask?.cancel()
+        recoveryTask = nil
+    }
+
+    private func cancelKeySwitchTask() {
+        keySwitchTask?.cancel()
+        keySwitchTask = nil
     }
 
     // MARK: - Helpers
