@@ -103,21 +103,21 @@ final class WireGuardGoTunnelImplementation: TunnelImplementation, @unchecked Se
 
     func startTunnel(options: StartOptions) async {
         startObservingActorState()
-        actor.start(options: options)
+        await actor.start(options: options)
     }
 
     func stopTunnel() async {
-        actor.stop()
+        await actor.stop()
         await actor.waitUntilDisconnected()
         stopObservingActorState()
     }
 
     func sleep() async {
-        actor.onSleep()
+        await actor.onSleep()
     }
 
     func wake() {
-        actor.onWake()
+        _actor.onWake()
     }
 }
 
@@ -218,6 +218,6 @@ extension WireGuardGoTunnelImplementation: EphemeralPeerReceiving {
     func ephemeralPeerExchangeFailed() {
         // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
         // and it will not try to reconnect
-        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+        _actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
 }

@@ -36,16 +36,16 @@ public final class GotaTunTunnelImplementation: TunnelImplementation, @unchecked
     public func startTunnel(options: StartOptions) async {
         // NO startObservingActorState() - this is the key architectural difference.
         // The GotaTun actor handles state internally.
-        actor.start(options: options)
+        await actor.start(options: options)
     }
 
     public func stopTunnel() async {
-        actor.stop()
+        await actor.stop()
         await actor.waitUntilDisconnected()
     }
 
     public func sleep() async {
-        actor.onSleep()
+        await actor.onSleep()
     }
 
     public func wake() {

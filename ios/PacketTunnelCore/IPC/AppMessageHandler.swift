@@ -55,12 +55,12 @@ public final class AppMessageHandler {
 
         case .privateKeyRotation:
             logMessageWithLastGetTunnelStatus(message)
-            packetTunnelActor.notifyKeyRotation(date: Date())
+            await packetTunnelActor.notifyKeyRotation(date: Date())
             return nil
 
         case let .reconnectTunnel(nextRelay):
             logMessageWithLastGetTunnelStatus(message)
-            packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
+            await packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
             // Instead of waiting for the UI process to send another `getTunnelStatus` message, reply immediately that the PacketTunnel is reconnecting
             guard let observedState = await packetTunnelActor.observedState.connectionState else { return nil }
             let reconnectingState = ObservedState.reconnecting(observedState)
