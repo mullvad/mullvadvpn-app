@@ -41,6 +41,7 @@ public struct DAITASettings: Codable, Equatable, Sendable {
         case directOnlyState
     }
 
+    // We should use @diagnose when we move to Swift 6.4. It will make handling warnings easier.
     @available(*, deprecated, renamed: "daitaState")
     public let state: DAITAState = .off
 
