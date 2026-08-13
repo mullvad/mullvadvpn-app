@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2026-07-10 07:35\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d más..."
