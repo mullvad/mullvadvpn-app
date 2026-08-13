@@ -38,6 +38,11 @@ export function SelectLocationViewImpl() {
   const history = useHistory();
   const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
   const { locationType } = useSelectLocationViewContext();
+  const [slideIndex, setSlideIndex] = React.useState(locationType === LocationType.entry ? 0 : 1);
+
+  React.useLayoutEffect(() => {
+    setSlideIndex(locationType === LocationType.entry ? 0 : 1);
+  }, [locationType]);
 
   const onClose = useCallback(() => history.pop(), [history]);
 
@@ -47,8 +52,6 @@ export function SelectLocationViewImpl() {
     },
     [setScrollTop],
   );
-
-  const slideIndex = locationType === LocationType.entry ? 0 : 1;
 
   return (
     <View backgroundColor="darkBlue">
@@ -74,7 +77,10 @@ export function SelectLocationViewImpl() {
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
-                  <Carousel disableScroll slideIndex={slideIndex}>
+                  <Carousel
+                    disableScroll
+                    slideIndex={slideIndex}
+                    onSlideIndexChange={setSlideIndex}>
                     <Carousel.Slides>
                       <Carousel.Slides.Slide key="entry">
                         <AnimatePresence>
