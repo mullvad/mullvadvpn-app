@@ -22,14 +22,18 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
-### Added
+
+### Fixed
+- Locale-aware sorting of relay list on iOS
+
+## [2026.4 - 2026-08-11]
+### Added
 - Add support for connecting over IPv6.
 - Add automatic entry location selection.
 - Add "When needed" multihop mode.
 
 ### Fixed
 - Fix URLs to FAQ pages and blog posts when using some locales
-- Locale-aware sorting of relay list on iOS
 
 ### Removed
 - Remove “Direct only” from Daita
