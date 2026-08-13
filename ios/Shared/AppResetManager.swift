@@ -71,7 +71,9 @@ final class AppResetManager {
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 guard let self else { return }
                 if tunnelStatus.observedState != .disconnected {
-                    tunnelManager.stopTunnel()
+                    Task {
+                        await tunnelManager.stopTunnel()
+                    }
                 } else if case .disconnected = tunnelStatus.observedState {
                     Task {
                         await reset()

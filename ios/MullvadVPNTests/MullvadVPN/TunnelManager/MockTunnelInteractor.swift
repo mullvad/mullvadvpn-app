@@ -31,18 +31,19 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
         isConfigurationLoaded: Bool,
         settings: LatestTunnelSettings,
         deviceState: DeviceState,
+        tunnel: (any TunnelProtocol)? = nil,
         onUpdateTunnelStatus: ((TunnelStatus) -> Void)? = nil
     ) {
         self.isConfigurationLoaded = isConfigurationLoaded
         self.settings = settings
         self.deviceState = deviceState
         self.onUpdateTunnelStatus = onUpdateTunnelStatus
-        self.tunnel = nil
+        self.tunnel = tunnel
         self.tunnelStatus = TunnelStatus()
     }
 
     func getPersistentTunnels() -> [any TunnelProtocol] {
-        return []
+        return tunnel == nil ? [] : [tunnel!]
     }
 
     func createNewTunnel() -> any TunnelProtocol {
