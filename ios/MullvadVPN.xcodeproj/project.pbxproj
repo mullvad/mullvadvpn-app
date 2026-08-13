@@ -25,6 +25,7 @@
 		0107F42D2F5F62950012451B /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		0107F4322F5F62C80012451B /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		0107F4362F5F62CE0012451B /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		01335D432F89B711008AB806 /* GotaTunAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */; };
 		01335D5E2F89C6B2008AB903 /* mullvad_gotatunFFI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01335D5F2F89C6B2008AB904 /* mullvad_gotatunFFI.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		01335D612F89D400008AB806 /* ObservedStateBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */; };
 		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
@@ -1778,6 +1779,7 @@
 		0064CB0EF9AACDC812F39635 /* LogRedacting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedacting.swift; sourceTree = "<group>"; };
 		0107F3F82F56E3ED0012451B /* RelayCacheTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerTests.swift; sourceTree = "<group>"; };
 		0107F4212F5B97F30012451B /* RelayListCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayListCacheTests.swift; sourceTree = "<group>"; };
+		01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunAdapterProtocol.swift; sourceTree = "<group>"; };
 		01335D5F2F89C6B2008AB904 /* mullvad_gotatunFFI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mullvad_gotatunFFI.h; path = include/mullvad_gotatunFFI.h; sourceTree = "<group>"; };
 		01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservedStateBroadcaster.swift; sourceTree = "<group>"; };
 		014E8C2F2F294FB000837D0A /* relays-test-data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "relays-test-data.json"; sourceTree = "<group>"; };
@@ -3030,6 +3032,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01335D412F89B711008AB806 /* GotaTun */ = {
+			isa = PBXGroup;
+			children = (
+				01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */,
+			);
+			path = GotaTun;
+			sourceTree = "<group>";
+		};
 		01C981E72F43C3410002D284 /* Accessibility */ = {
 			isa = PBXGroup;
 			children = (
@@ -4124,6 +4134,7 @@
 		58C7A4372A863F450060C66F /* PacketTunnelCore */ = {
 			isa = PBXGroup;
 			children = (
+				01335D412F89B711008AB806 /* GotaTun */,
 				A9840BB12C69F7190030F05E /* Daita */,
 				58C7A4382A863F450060C66F /* PacketTunnelCore.h */,
 				58C9B8C52ABB23B400040B46 /* IPC */,
@@ -6636,6 +6647,7 @@
 				44DF8AC42BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift in Sources */,
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */,
+				01335D432F89B711008AB806 /* GotaTunAdapterProtocol.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
 				583832292AC3DF1300EA2071 /* PacketTunnelActorCommand.swift in Sources */,
