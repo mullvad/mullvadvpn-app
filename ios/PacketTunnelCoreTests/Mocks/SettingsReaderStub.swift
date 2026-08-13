@@ -26,7 +26,7 @@ extension SettingsReaderStub {
     static func staticConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: WireGuard.PrivateKey(),
-            interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
+            interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!, IPAddressRange(from: "fc00::1/128")!],
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
@@ -45,7 +45,7 @@ extension SettingsReaderStub {
     static func noPostQuantumConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: WireGuard.PrivateKey(),
-            interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
+            interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!, IPAddressRange(from: "fc00::1/128")!],
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
