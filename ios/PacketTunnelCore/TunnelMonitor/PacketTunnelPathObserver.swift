@@ -1,19 +1,16 @@
 //
 //  PacketTunnelPathObserver.swift
-//  PacketTunnel
+//  PacketTunnelCore
 //
 //  Created by pronebird on 10/08/2023.
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+import Foundation
 import MullvadLogging
-import MullvadTypes
 import Network
-import NetworkExtension
-import PacketTunnelCore
 
-final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
+public final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
     private let eventQueue: DispatchQueue
     private let pathMonitor = NWPathMonitor()
     let logger = Logger(label: "PacketTunnelPathObserver")
@@ -29,11 +26,11 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
         }
     }
 
-    init(eventQueue: DispatchQueue) {
+    public init(eventQueue: DispatchQueue) {
         self.eventQueue = eventQueue
     }
 
-    func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
+    public func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
         stateLock.withLock {
             guard started == false else { return }
             defer { started = true }
@@ -58,7 +55,7 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
         }
     }
 
-    func stop() {
+    public func stop() {
         stateLock.withLock {
             guard started == true else { return }
             defer { started = false }

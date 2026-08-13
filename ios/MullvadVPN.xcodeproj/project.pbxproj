@@ -4397,6 +4397,7 @@
 			isa = PBXGroup;
 			children = (
 				58225D252A84E8A10083D7F1 /* DefaultPathObserverProtocol.swift */,
+				58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */,
 				A95EEE372B722DFC00A8A39B /* PingStats.swift */,
 				582403162A821FD700163DE8 /* TunnelDeviceInfoProtocol.swift */,
 				58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */,
@@ -4497,7 +4498,6 @@
 				580D6B912AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift */,
 				58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
-				58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */,
 				58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
 				DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */,
@@ -6626,6 +6626,7 @@
 				58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */,
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
 				58C7A4562A863FB90060C66F /* DefaultPathObserverProtocol.swift in Sources */,
+				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				F08B6B782C528B8A00D0A121 /* EphemeralPeerExchangingProtocol.swift in Sources */,
 				58FE25DA2AA72A8F003D1918 /* PacketTunnelActor.swift in Sources */,
 				587A5E522ADD7569003A70F1 /* ObservedState+Extensions.swift in Sources */,
@@ -7222,7 +7223,6 @@
 				F0570CD22C4FB8E1007BDF2D /* SingleHopEphemeralPeerExchanger.swift in Sources */,
 				F0570CD42C4FB8E1007BDF2D /* MultiHopEphemeralPeerExchanger.swift in Sources */,
 				44C18DE32C74DF93009BE3E1 /* TunnelPinger.swift in Sources */,
-				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
 				D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */,
