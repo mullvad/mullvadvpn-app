@@ -4,26 +4,22 @@ import styled from 'styled-components';
 import { Flex } from '../flex';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import { CarouselControls, CarouselSlides } from './components';
-import { useFocusCarousel, useHandleKeyboardNavigation, useSlides } from './hooks';
+import { useEffectScrollToSlide, useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
 export const StyledCarousel = styled.section``;
 
 export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
   slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
+  onSlideSettled?: (slideIndex: number) => void;
   disableScroll?: boolean;
 };
 
-function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
+function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
   const { carouselRef } = useCarouselContext();
-  const { goToSlide } = useSlides();
 
-  React.useEffect(() => {
-    if (slideIndex !== undefined) {
-      goToSlide(slideIndex);
-    }
-  }, [slideIndex, goToSlide]);
-
+  useEffectScrollToSlide();
   useFocusCarousel();
 
   return (
@@ -40,9 +36,20 @@ function CarouselImpl({ slideIndex, children, ...props }: CarouselProps) {
   );
 }
 
-function Carousel({ children, disableScroll, ...props }: CarouselProps) {
+function Carousel({
+  slideIndex,
+  onSlideIndexChange,
+  onSlideSettled,
+  disableScroll,
+  children,
+  ...props
+}: CarouselProps) {
   return (
-    <CarouselProvider disableScroll={disableScroll}>
+    <CarouselProvider
+      slideIndex={slideIndex}
+      onSlideIndexChange={onSlideIndexChange}
+      onSlideSettled={onSlideSettled}
+      disableScroll={disableScroll}>
       <CarouselImpl {...props}>{children}</CarouselImpl>
     </CarouselProvider>
   );
