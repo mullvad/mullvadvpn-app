@@ -106,19 +106,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                 providerLogger.info("Using GotaTun implementation (debug)")
                 implementation = GotaTunTunnelImplementation()
             } else {
-                implementation = makeWireGuardGoImplementation()
+                implementation = makeWireGuardGoImplementation(
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader,
+                    apiTransportProvider: apiTransportProvider
+                )
             }
         #else
-            implementation = makeWireGuardGoImplementation()
+            implementation = makeWireGuardGoImplementation(
+                ipOverrideWrapper: ipOverrideWrapper,
+                settingsReader: settingsReader,
+                apiTransportProvider: apiTransportProvider
+            )
         #endif
-
-        implementation.setUp(
-            provider: self,
-            internalQueue: internalQueue,
-            ipOverrideWrapper: ipOverrideWrapper,
-            settingsReader: settingsReader,
-            apiTransportProvider: apiTransportProvider
-        )
 
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
@@ -266,9 +266,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
-    private func makeWireGuardGoImplementation() -> WireGuardGoTunnelImplementation {
+    /// WireGuardGo wires its dependencies in a second phase; GotaTun takes them at init instead.
+    private func makeWireGuardGoImplementation(
+        ipOverrideWrapper: IPOverrideWrapper,
+        settingsReader: sending TunnelSettingsManager,
+        apiTransportProvider: APITransportProvider
+    ) -> WireGuardGoTunnelImplementation {
         let wgImpl = WireGuardGoTunnelImplementation()
         wgImpl.onDeviceCheck = { [weak self] in self?.startDeviceCheck() }
+        wgImpl.setUp(
+            provider: self,
+            internalQueue: internalQueue,
+            ipOverrideWrapper: ipOverrideWrapper,
+            settingsReader: settingsReader,
+            apiTransportProvider: apiTransportProvider
+        )
         return wgImpl
     }
 
