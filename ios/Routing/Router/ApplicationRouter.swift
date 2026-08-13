@@ -27,7 +27,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
     /**
      Designated initializer.
-    
+
      Delegate object is unonwed and the caller has to guarantee that the router does not outlive it.
      */
     public init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
