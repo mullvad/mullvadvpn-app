@@ -56,6 +56,10 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
             break
         }
 
+        #if NEVER_IN_PRODUCTION
+            features.append(GotaTunFeature())
+        #endif
+
         return
             features
             .filter { $0.isEnabled }
