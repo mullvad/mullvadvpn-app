@@ -8,7 +8,10 @@
 
 import Network
 
-extension IPv4Address: Codable {
+extension IPv4Address: @retroactive Decodable {}
+extension IPv4Address: @retroactive Encodable {}
+
+extension IPv4Address {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let ipString = try container.decode(String.self)
@@ -30,7 +33,10 @@ extension IPv4Address: Codable {
     }
 }
 
-extension IPv6Address: Codable {
+extension IPv6Address: @retroactive Decodable {}
+extension IPv6Address: @retroactive Encodable {}
+
+extension IPv6Address {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let ipString = try container.decode(String.self)

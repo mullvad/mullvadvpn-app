@@ -23,7 +23,7 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
         overridesSubject.eraseToAnyPublisher()
     }
 
-    nonisolated(unsafe) private let logger = Logger(label: "IPOverrideRepository")
+    private let logger = Logger(label: "IPOverrideRepository")
     private let readWriteLock = NSLock()
 
     private let settingsStore: SettingsStore

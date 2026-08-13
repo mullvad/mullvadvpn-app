@@ -15,7 +15,7 @@ import UIKit
  */
 @MainActor
 public final class ApplicationRouter<RouteType: AppRouteProtocol> {
-    nonisolated(unsafe) private let logger = Logger(label: "ApplicationRouter")
+    private let logger = Logger(label: "ApplicationRouter")
 
     private(set) var modalStack: [RouteType.RouteGroupType] = []
     private(set) var presentedRoutes: [RouteType.RouteGroupType: [PresentedRoute<RouteType>]] = [:]
