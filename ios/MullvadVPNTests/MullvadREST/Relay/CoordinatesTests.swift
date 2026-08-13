@@ -57,7 +57,7 @@ final class CoordinatesTests: XCTestCase {
     }
 }
 
-extension CLLocationCoordinate2D: Equatable {
+extension CLLocationCoordinate2D: @retroactive Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
     }
