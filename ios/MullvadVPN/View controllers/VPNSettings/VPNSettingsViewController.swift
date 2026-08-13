@@ -68,9 +68,6 @@ class VPNSettingsViewController: UITableViewController {
         dataSource?.update(from: interactor.tunnelSettings)
 
         dataSource?.setAvailablePortRanges(interactor.cachedRelays?.relays.wireguard.portRanges ?? [])
-        interactor.cachedRelaysDidChange = { [weak self] cachedRelays in
-            self?.dataSource?.setAvailablePortRanges(cachedRelays.relays.wireguard.portRanges)
-        }
 
         let showsSingleSection = section != nil
         tableView.tableHeaderView = UIView(
