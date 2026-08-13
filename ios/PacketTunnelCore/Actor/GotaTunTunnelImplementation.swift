@@ -7,8 +7,6 @@
 //
 
 import MullvadLogging
-import MullvadREST
-@preconcurrency import NetworkExtension
 
 /// GotaTun tunnel implementation.
 /// Unlike WireGuardGo, this implementation does NOT use an external state observer.
@@ -20,18 +18,6 @@ public final class GotaTunTunnelImplementation: TunnelImplementation, @unchecked
     public var actor: any PacketTunnelActorProtocol { _actor }
 
     public init() {}
-
-    public func setUp(
-        provider: NEPacketTunnelProvider,
-        internalQueue: DispatchQueue,
-        ipOverrideWrapper: IPOverrideWrapper,
-        settingsReader: sending TunnelSettingsManager,
-        apiTransportProvider: APITransportProvider
-    ) {
-        // GotaTun-specific setup will go here when the actor is no longer a stub.
-        // The actor will internally manage state transitions, path observation,
-        // and system API calls through its own mechanisms.
-    }
 
     public func startTunnel(options: StartOptions) async {
         // NO startObservingActorState() - this is the key architectural difference.
