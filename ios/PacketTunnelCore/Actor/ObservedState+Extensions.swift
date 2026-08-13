@@ -57,6 +57,30 @@ extension ObservedState {
         }
     }
 
+    /// Applies `body` to the associated connection state, preserving the current case.
+    /// No-op in states that carry no connection state.
+    public mutating func mutateConnectionState(_ body: (inout ObservedConnectionState) -> Void) {
+        switch self {
+        case var .connecting(connectionState):
+            body(&connectionState)
+            self = .connecting(connectionState)
+        case var .reconnecting(connectionState):
+            body(&connectionState)
+            self = .reconnecting(connectionState)
+        case var .connected(connectionState):
+            body(&connectionState)
+            self = .connected(connectionState)
+        case .negotiatingEphemeralPeer(var connectionState, let privateKey):
+            body(&connectionState)
+            self = .negotiatingEphemeralPeer(connectionState, privateKey)
+        case var .disconnecting(connectionState):
+            body(&connectionState)
+            self = .disconnecting(connectionState)
+        case .initial, .disconnected, .error:
+            break
+        }
+    }
+
     public var blockedState: ObservedBlockedState? {
         switch self {
         case let .error(blockedState):
