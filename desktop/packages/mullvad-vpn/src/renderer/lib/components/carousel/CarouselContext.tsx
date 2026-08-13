@@ -6,7 +6,8 @@ import { getSlides } from './utils/get-slides';
 type CarouselContextextProps = {
   disableScroll: boolean;
   slideIndex: number;
-  setSlideIndex: React.Dispatch<React.SetStateAction<number>>;
+  onSlideIndexChange?: (slideIndex: number) => void;
+  onSlideSettled?: (slideIndex: number) => void;
   numberOfSlides: number;
   carouselRef: React.RefObject<HTMLDivElement | null>;
   slidesRef: React.RefObject<HTMLDivElement | null>;
@@ -29,11 +30,17 @@ export const useCarouselContext = (): CarouselContextextProps => {
 
 export type CarouselProviderProps = React.PropsWithChildren<{
   disableScroll?: boolean;
+  slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
+  onSlideSettled?: (slideIndex: number) => void;
 }>;
 
 export function CarouselProvider({
   children,
   disableScroll: disableScrollProp,
+  slideIndex: slideIndexProp,
+  onSlideIndexChange: onSlideIndexChangeProp,
+  onSlideSettled,
 }: CarouselProviderProps) {
   const carouselRef = React.useRef<HTMLDivElement | null>(null);
   const slidesRef = useStyledRef<HTMLDivElement>();
@@ -41,7 +48,8 @@ export function CarouselProvider({
   const prevButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const firstIndicatorRef = React.useRef<HTMLButtonElement | null>(null);
   const lastIndicatorRef = React.useRef<HTMLButtonElement | null>(null);
-  const [slideIndex, setSlideIndex] = React.useState(0);
+
+  const [slideIndex, setSlideIndex] = React.useState(slideIndexProp ?? 0);
   const [slides, setSlides] = React.useState<HTMLElement[]>([]);
 
   React.useLayoutEffect(() => {
@@ -52,8 +60,9 @@ export function CarouselProvider({
     <CarouselContextext.Provider
       value={{
         disableScroll: disableScrollProp ?? false,
-        slideIndex,
-        setSlideIndex,
+        slideIndex: slideIndexProp ?? slideIndex,
+        onSlideIndexChange: onSlideIndexChangeProp ?? setSlideIndex,
+        onSlideSettled,
         numberOfSlides: slides.length,
         carouselRef,
         slidesRef,
