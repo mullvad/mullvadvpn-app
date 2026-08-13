@@ -37,6 +37,7 @@
 		01335D602F89D000008AB806 /* GotaTunProviderProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */; };
 		01335D612F89D400008AB806 /* ObservedStateBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */; };
 		01335D662F89E200008AB806 /* ObservedState+Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D652F89E200008AB806 /* ObservedState+Testing.swift */; };
+		01335D682F89E400008AB806 /* GotaTunPathObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D672F89E400008AB806 /* GotaTunPathObserver.swift */; };
 		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		014E8C302F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
 		014E8C312F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
@@ -1796,6 +1797,7 @@
 		01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunProviderProxy.swift; sourceTree = "<group>"; };
 		01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservedStateBroadcaster.swift; sourceTree = "<group>"; };
 		01335D652F89E200008AB806 /* ObservedState+Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObservedState+Testing.swift"; sourceTree = "<group>"; };
+		01335D672F89E400008AB806 /* GotaTunPathObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunPathObserver.swift; sourceTree = "<group>"; };
 		014E8C2F2F294FB000837D0A /* relays-test-data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "relays-test-data.json"; sourceTree = "<group>"; };
 		014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorBenchmarkTests.swift; sourceTree = "<group>"; };
 		014E8C392F2D594400837D0A /* RustLogRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogRedactor.swift; sourceTree = "<group>"; };
@@ -3043,6 +3045,7 @@
 			children = (
 				01335D3E2F89B711008AB806 /* GotaTunActor.swift */,
 				01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */,
+				01335D672F89E400008AB806 /* GotaTunPathObserver.swift */,
 			);
 			path = GotaTun;
 			sourceTree = "<group>";
@@ -6644,6 +6647,7 @@
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */,
 				01335D432F89B711008AB806 /* GotaTunAdapterProtocol.swift in Sources */,
+				01335D682F89E400008AB806 /* GotaTunPathObserver.swift in Sources */,
 				01335D442F89B711008AB806 /* GotaTunActor.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
