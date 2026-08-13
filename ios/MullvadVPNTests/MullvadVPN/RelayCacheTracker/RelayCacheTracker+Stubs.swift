@@ -33,9 +33,5 @@ struct RelayCacheTrackerStub: RelayCacheTrackerProtocol {
         Date()
     }
 
-    func addObserver(_ observer: RelayCacheTrackerObserver) {}
-
-    func removeObserver(_ observer: RelayCacheTrackerObserver) {}
-
     func refreshCachedRelays() throws {}
 }
