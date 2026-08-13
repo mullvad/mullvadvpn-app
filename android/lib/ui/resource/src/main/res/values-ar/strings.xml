@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">هذا هو رقم حسابك. احفظه!</string>
     <string name="hide_account_number">إخفاء رقم الحساب</string>
     <string name="hint_default">افتراضي</string>
+    <string name="how_it_works">كيف يعمل الأمر</string>
     <string name="icon_and_title">الرمز والعنوان</string>
     <string name="import_override_textfield_placeholder">الصق أو اكتب التجاوزات المراد استيرادها</string>
     <string name="import_overrides_bottom_sheet_override_warning">قد يحل استيراد التجاوزات الجديدة محل بعض التجاوزات التي تم استيرادها سابقًا.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">من خلال ربط رمز حسابك، يتم ربط هذا البلاغ بحسابك، مما يساعدنا على حل مشكلتك بشكلٍ أسرع. يتم حذف جميع البلاغات تلقائيًا بعد فترة زمنية مُحدَّدة.</string>
     <string name="include_account_token_warning_message_second">للحصول على التفاصيل، يُرجى الاطلاع على %1$s لدينا.</string>
     <string name="include_account_token_warning_title">يؤثر ذلك على إخفاء هويتك</string>
+    <string name="info">المعلومات</string>
     <string name="internet">الإنترنت</string>
     <string name="invalid_address_blank_warning">الرجاء إدخال عنوان IP</string>
     <string name="invalid_address_invalid_warning">عنوان IP غير صالح</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">جارٍ تحميل المنتجات</string>
     <string name="loading_verifying">جارٍ التحقُّق من عملية الشراء...</string>
     <string name="local_network_sharing">مشاركة الشبكة المحلية</string>
+    <string name="local_network_sharing_info">قم بتمكين هذا الإعداد مع خدمات مثل مشاركة الملفات والطباعة وبث الوسائط واكتشاف الأجهزة لكي تعمل أثناء الاتصال بـ VPN.</string>
+    <string name="local_network_sharing_info2"><b>قد يؤثر ذلك على إخفاء هويتك.</b> تجنب تمكين هذا الإعداد على الشبكات العامة أو غير الموثوق بها، نظرًا لأن جهازك قد يكون مرئيًا للآخرين.</string>
+    <string name="local_network_sharing_info3">يسمح التطبيق بحركة بيانات الشبكة المحلية للإرسال المتعدد والبث، بالإضافة إلى حركة البيانات إلى نطاقات IP الخاصة ومنها، لتجاوز قناة VPN.</string>
+    <string name="local_network_sharing_info4"><b>نطاقات عناوين IP الخاصة</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>تنبيه:</b> مشاركة الشبكة المحلية لا يتوافق مع ميزة “حظر الاتصالات من دون VPN”.</string>
     <string name="location_added">%1$s (تمت إضافته)</string>
     <string name="location_was_added_to_list">تمت إضافة %1$s إلى \"%2$s\"</string>
     <string name="location_was_removed_from_list">تمت إزالة %1$s من \"%2$s\"</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">يبدو أنك أدخلت رقم حساب بدلًا من رمز قسيمة. لتغيير الحساب النشط، يُرجى تسجيل الخروج أولًا.</string>
     <string name="voucher_success_title">تم استرداد القسيمة بنجاح.</string>
     <string name="voucher_too_short">رمز القسيمة قصير جدًا</string>
+    <string name="vpn_dialog_activity_not_found">تعذر فتح مربع حوار إذن VPN، يرجى التحقق من تكوين نظام التشغيل لديك</string>
     <string name="vpn_permission_denied_error">تم رفض إذن شبكة VPN أو يوجد تطبيق آخر تم تفعيل خيار \"تشغيل VPN دائمًا\" عليه</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">تم رفض إذن شبكة VPN</string>
     <string name="vpn_permission_error_notification_message">يُرجى الضغط على \"اتصال\" لطلب إذن VPN</string>

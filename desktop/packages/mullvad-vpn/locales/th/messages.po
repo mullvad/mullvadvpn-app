@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -286,6 +286,18 @@ msgstr "ค้นหาตำแหน่งที่ตั้งหรือเ
 
 msgid "SECURE CONNECTION"
 msgstr "การเชื่อมต่อที่ปลอดภัย"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "ตั้งเป็นทางเข้า Multihop"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "ตั้งเป็นทางเข้า Multihop (ไม่รองรับ)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "ตั้งเป็นทางออก Multihop"
 
 msgid "Settings"
 msgstr "การตั้งค่า"
@@ -1146,7 +1158,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (เพิ่มแล้ว)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1901,7 +1913,6 @@ msgstr "ล้มเหลวในการเปิดใช้การแย
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "ไม่สามารถเริ่มต้น %(splitTunneling)s ได้ หากต้องการปลดบล็อกการรับส่งข้อมูลเครือข่าย ให้ปิดใช้งาน %(splitTunneling)s"
@@ -1961,10 +1972,6 @@ msgstr "ไม่สามารถบล็อกการรับส่งข
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองอัปเดตเคอร์เนลของคุณ หรือส่งรายงานปัญหา"
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "ไม่สามารถสื่อสารกับไดรเวอร์เคอร์เนลของ Mullvad ได้ โปรดลองเชื่อมต่อใหม่ หรือส่งรายงานปัญหา"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2078,6 +2085,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "รายการกำหนดเอง"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "ปิดใช้งานมัลติฮอป"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "ปิดใช้งานล่าสุด"
@@ -2086,6 +2098,11 @@ msgstr "ปิดใช้งานล่าสุด"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "ว่าง"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "เปิดใช้มัลติฮอป"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2334,8 +2351,8 @@ msgstr "รีสตาร์ตบริการ Mullavad"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "หากต้องการใช้ %(splitTunneling)s โปรดอัปเดตเป็นเวอร์ชันเคอร์เนล Linux ที่รองรับ cgroup v2"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "หากต้องการใช้ %(splitTunneling)s โปรดเปลี่ยนเป็นเวอร์ชันเคอร์เนล Linux ที่รองรับ cgroup v1"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2566,12 +2583,20 @@ msgid "Language"
 msgstr "ภาษา"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "ไอคอนแถบเมนูแบบสีเดียว"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "ไอคอนถาดแบบสีเดียว"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "การแจ้งเตือน"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "แสดงเฉพาะไอคอนแถบเมนู เมื่อเริ่มแอป"
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2581,9 +2606,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "เริ่มใช้งานในมุมมองแบบย่อ"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "ถอนหมุดแอปออกจากแถบเมนู"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "ถอนหมุดแอปจากแถบงาน"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "ใช้ไอคอนแถบเมนูแบบสีเดียวแทนแบบสี"
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3000,6 +3035,9 @@ msgstr "<b>ไม่สามารถกู้คืนบัญชีได้
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>โปรดทราบ: การตั้งค่า DNS อาจไม่ได้มีผลทันที</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>ข้อควรระวัง:</b> การแชร์เครือข่ายท้องถิ่นไม่รองรับการใช้งานร่วมกับ \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\""
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>ข้อควรระวัง:</b> มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด"
 
@@ -3012,8 +3050,14 @@ msgstr "<b>ตัวบล็อกเนื้อหา DNS</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>ช่วง IP ส่วนตัว</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>การดำเนินการนี้ไม่สามารถย้อนกลับได้</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>รายการนี้อาจส่งผลกระทบต่อการไม่ระบุตัวตนของคุณ</b> หลีกเลี่ยงการเปิดใช้งานรายการบนเครือข่ายสาธารณะหรือไม่น่าเชื่อถือ เนื่องจากอุปกรณ์ของคุณอาจปรากฏให้ผู้อื่นเห็นได้"
 
 msgid "<b>Warning:</b>"
 msgstr "<b>คำเตือน:</b>"
@@ -3105,9 +3149,6 @@ msgstr "คุณแน่ใจหรือไม่ว่าต้องกา
 msgid "At least one method needs to be enabled"
 msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "โปรดทราบ: แอปแยกจะไม่มีอินเทอร์เน็ต ในกรณีที่เปิดใช้งาน \"ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN\" โปรดทราบว่า การการแยกอุโมงค์จะก่อให้เกิดความเสี่ยงต่อความเป็นส่วนตัว"
 
@@ -3156,6 +3197,9 @@ msgstr "เชื่อมต่อกับเครือข่ายอื่
 msgid "Connecting..."
 msgstr "กำลังเชื่อมต่อ..."
 
+msgid "Contact support"
+msgstr "ติดต่อฝ่ายสนับสนุน"
+
 msgid "Continue"
 msgstr "ดำเนินการต่อ"
 
@@ -3186,9 +3230,6 @@ msgstr "ที่อยู่เซิร์ฟเวอร์ DNS ที่ก�
 msgid "DNS settings"
 msgstr "การตั้งค่า DNS"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "การตั้งค่า DNS อาจไม่มีผลทันที"
-
 msgid "Delete \"%s\"?"
 msgstr "ลบ \"%s\" หรือไม่"
 
@@ -3212,9 +3253,6 @@ msgstr "โดยตรง"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ปิดใช้งาน \"%s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้"
-
-msgid "Disable multihop"
-msgstr "ปิดใช้งานมัลติฮอป"
 
 msgid "Discard"
 msgstr "ละทิ้ง"
@@ -3255,8 +3293,8 @@ msgstr "เปิดใช้งานวิธีการเข้าถึง
 msgid "Enable method"
 msgstr "เปิดใช้งานวิธีการ"
 
-msgid "Enable multihop"
-msgstr "เปิดใช้มัลติฮอป"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "เปิดใช้งานรายการนี้เพื่อให้ส่วนบริการต่างๆ เช่น การแชร์ไฟล์ การพิมพ์ การสตรีมสื่อ และการตรวจหาอุปกรณ์ สามารถทำงานได้ในขณะที่เชื่อมต่อกับ VPN"
 
 msgid "Enter MTU"
 msgstr "ป้อน MTU"
@@ -3321,8 +3359,14 @@ msgstr "กำลังชำระเงิน Google Play"
 msgid "Google Play payment pending, this might take some time"
 msgstr "การชำระเงินผ่าน Google Play อยู่ระหว่างดำเนินการ อาจใช้เวลาสักครู่"
 
+msgid "Google Play payment verification failed"
+msgstr "การตรวจสอบการชำระเงินของ Google Play ล้มเหลว"
+
 msgid "Google Play unavailable"
 msgstr "Google Play ไม่พร้อมใช้งาน"
+
+msgid "How it works"
+msgstr "วิธีการทำงาน"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\""
@@ -3356,6 +3400,9 @@ msgstr "ผลิตภัณฑ์ในแอปไม่พร้อมใช
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "รวมโทเค็นบัญชีของฉันเพื่อรับความช่วยเหลือเกี่ยวกับการชำระเงิน หรือปัญหาที่เกี่ยวข้องกับบัญชีได้รวดเร็วยิ่งขึ้น"
+
+msgid "Info"
+msgstr "ข้อมูล"
 
 msgid "Internet"
 msgstr "อินเทอร์เน็ต"
@@ -3570,15 +3617,6 @@ msgstr "ส่งอีเมล"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ถูกต้อง: %1$d - %2$d"
 
-msgid "Set as multihop entry"
-msgstr "ตั้งเป็นทางเข้า Multihop"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "ตั้งเป็นทางเข้า Multihop (ไม่รองรับ)"
-
-msgid "Set as multihop exit"
-msgstr "ตั้งเป็นทางออก Multihop"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "ตั้งเป็นทางออก Multihop (ไม่รองรับ)"
 
@@ -3599,6 +3637,9 @@ msgstr "แสดงสถานะอุโมงค์ VPN ในปัจจ�
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "เกิดข้อผิดพลาดขณะตรวจสอบยืนยันการซื้อของคุณ โปรดติดต่อฝ่ายสนับสนุน"
 
 msgid "Submit"
 msgstr "ส่ง"
@@ -3629,6 +3670,9 @@ msgstr "โหมดล็อกดาวน์ถูกเรียกว่า
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "วิธีการ \"ปัจจุบัน\" แสดงถึงวิธีที่แอปใช้ในการเข้าถึง API"
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "แอปอนุญาตให้การรับส่งข้อมูลทางเครือข่ายมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการรับส่งข้อมูลเข้าและออกจากช่วง IP ส่วนตัว สามารถบายพาสอุโมงค์ VPN ได้"
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน"
@@ -3690,6 +3734,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ไม่สามารถใช้กฎไฟร์วอลล์ได้ โปรดแก้ไขปัญหา หรือส่งรายงานปัญหา"
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "ไม่สามารถเปิดกล่องโต้ตอบขออนุญาต VPN ได้ โปรดตรวจสอบการกำหนดค่าระบบปฏิบัติการของคุณ"
+
 msgid "Unable to parse patch"
 msgstr "ไม่สามารถแยกวิเคราะห์แพตช์ได้"
 
@@ -3707,6 +3754,9 @@ msgstr "ไม่สามารถเริ่มการเชื่อมต
 
 msgid "Unable to verify account number, please contact support"
 msgstr "ไม่สามารถยืนยันหมายเลขบัญชีได้ โปรดติดต่อฝ่ายสนับสนุน"
+
+msgid "Unable to verify purchase"
+msgstr "ไม่สามารถตรวจสอบการซื้อได้"
 
 msgid "Unavailable"
 msgstr "ไม่พร้อมใช้งาน"
@@ -3774,6 +3824,12 @@ msgstr "คำเตือน"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "เรากำลังตรวจสอบการสั่งซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ หากการตรวจสอบเสร็จสมบูรณ์ เราจะเพิ่มเวลาของคุณ"
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "เราไม่สามารถตรวจสอบการซื้อล่าสุดของคุณได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง หากปัญหายังคงอยู่ โปรดติดต่อฝ่ายสนับสนุน"
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "เราไม่สามารถตรวจสอบการซื้อของคุณได้ โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองใหม่อีกครั้ง"
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด "
 
@@ -3812,6 +3868,9 @@ msgstr "คุณจะสูญเสียจำนวนวันที่เ
 
 msgid "Your device"
 msgstr "อุปกรณ์ของคุณ"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "การซื้อล่าสุดของคุณกำลังอยู่ในระหว่างการตรวจสอบ การเข้าสู่ระบบบัญชีอื่นจะทำให้การตรวจสอบล้มเหลว คุณยังต้องการออกจากระบบอยู่หรือไม่"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" ถูกสร้างแล้ว"

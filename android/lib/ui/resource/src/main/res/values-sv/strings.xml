@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
     <string name="hide_account_number">Dölj kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="how_it_works">Så fungerar det</string>
     <string name="icon_and_title">Ikon och titel</string>
     <string name="import_override_textfield_placeholder">Klistra in eller skriv åsidosättningar som ska importeras</string>
     <string name="import_overrides_bottom_sheet_override_warning">Om du importerar nya åsidosättningar kan tidigare importerade åsidosättningar ersättas.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Om du bifogar din kontotoken länkas den här rapporten till ditt konto, vilket hjälper oss att lösa problemet snabbare. Alla rapporter tas bort automatiskt efter ett tag.</string>
     <string name="include_account_token_warning_message_second">Du hittar mer information i vår %1$s.</string>
     <string name="include_account_token_warning_title">Detta påverkar din anonymitet</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Ange en IP-adress</string>
     <string name="invalid_address_invalid_warning">Ogiltig IP-adress</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Läser in produkter</string>
     <string name="loading_verifying">Verifierar köp ...</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
+    <string name="local_network_sharing_info">Aktivera detta för att tjänster som fildelning, utskrifter, medieströmning och enhetsupptäckt ska fungera när du är ansluten till en VPN.</string>
+    <string name="local_network_sharing_info2"><b>Det här kan påverka din anonymitet.</b> Undvik att aktivera det här på offentliga eller opålitliga nätverk eftersom din enhet kan bli synlig för andra.</string>
+    <string name="local_network_sharing_info3">Appen tillåter lokal multisändning och sändning av nätverkstrafik samt trafik till och från privata IP-intervall för att kringgå VPN-tunneln.</string>
+    <string name="local_network_sharing_info4"><b>Privata IP-intervall</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Obs!</b> Lokal nätverksdelning är inte kompatibel med \"Blockera anslutningar utan VPN\".</string>
     <string name="location_added">%1$s (har lagts till)</string>
     <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="voucher_too_short">Kupongkoden är för kort</string>
+    <string name="vpn_dialog_activity_not_found">Det går inte att öppna dialogrutan för VPN-behörighet, kontrollera anslutningen</string>
     <string name="vpn_permission_denied_error">VPN-behörighet avvisades eller så har en annan app aktiverat \"Alltid på-VPN\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-behörighet har nekats</string>
     <string name="vpn_permission_error_notification_message">Tryck på anslut för att begära VPN-behörighet</string>

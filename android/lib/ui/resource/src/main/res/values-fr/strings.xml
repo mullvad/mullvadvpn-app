@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>
     <string name="hide_account_number">Masquer le numéro de compte</string>
     <string name="hint_default">Par défaut</string>
+    <string name="how_it_works">Fonctionnement</string>
     <string name="icon_and_title">Icône et titre</string>
     <string name="import_override_textfield_placeholder">Collez ou saisissez les substitutions à importer</string>
     <string name="import_overrides_bottom_sheet_override_warning">L\'importation de nouvelles substitutions peut remplacer certaines substitutions importées précédemment.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Joindre votre jeton de compte rattachera ce rapport à votre compte, ce qui nous aidera à résoudre votre problème plus vite. Tous les rapports sont automatiquement supprimés après une certaine période.</string>
     <string name="include_account_token_warning_message_second">Pour plus d\'informations, veuillez consulter notre %1$s.</string>
     <string name="include_account_token_warning_title">Ceci affecte votre anonymat</string>
+    <string name="info">Informations</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Veuillez saisir une adresse IP</string>
     <string name="invalid_address_invalid_warning">Adresse IP non valide</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Chargement des produits</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
     <string name="local_network_sharing">Partage réseau local</string>
+    <string name="local_network_sharing_info">Activez cette option pour que les services tels que le partage de fichiers, l\'impression, la diffusion multimédia et la détection des périphériques fonctionnent quand le VPN est connecté.</string>
+    <string name="local_network_sharing_info2"><b>Ceci peut impacter votre anonymat.</b> Évitez d\'activer cette option sur des réseaux publics ou non fiables, car votre appareil pourrait devenir visible pour d\'autres utilisateurs.</string>
+    <string name="local_network_sharing_info3">L\'application permet au trafic réseau local de multidiffusion et de diffusion, ainsi qu\'au trafic à destination et en provenance de plages d\'adresses IP privées, de contourner le tunnel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Plages d\'IP privées</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Attention :</b> le partage sur réseau local n\'est pas compatible avec « Bloquer les connexions sans VPN ».</string>
     <string name="location_added">%1$s (ajouté)</string>
     <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
     <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="voucher_too_short">Le code du bon est trop court</string>
+    <string name="vpn_dialog_activity_not_found">Impossible d\'ouvrir la boîte de dialogue d\'autorisation VPN. Veuillez vérifier la configuration de votre système d\'exploitation</string>
     <string name="vpn_permission_denied_error">L\'autorisation VPN a été refusée ou une autre application a activé « Toujours exiger un VPN ».</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">L\'autorisation VPN a été refusée</string>
     <string name="vpn_permission_error_notification_message">Veuillez appuyer sur connexion pour demander l\'autorisation VPN</string>

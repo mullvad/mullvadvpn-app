@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hide_account_number">ซ่อนหมายเลขบัญชี</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
+    <string name="how_it_works">วิธีการทำงาน</string>
     <string name="icon_and_title">ไอคอนและชื่อ</string>
     <string name="import_override_textfield_placeholder">วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า</string>
     <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง</string>
     <string name="include_account_token_warning_message_second">สำหรับรายละเอียดเพิ่มเติม โปรดดูที่ %1$s ของเรา</string>
     <string name="include_account_token_warning_title">สิ่งนี้ส่งผลต่อความไม่เปิดเผยตัวตนของคุณ</string>
+    <string name="info">ข้อมูล</string>
     <string name="internet">อินเทอร์เน็ต</string>
     <string name="invalid_address_blank_warning">โปรดป้อนที่อยู่ IP</string>
     <string name="invalid_address_invalid_warning">ที่อยู่ IP ไม่ถูกต้อง</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">กำลังโหลดผลิตภัณฑ์</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
+    <string name="local_network_sharing_info">เปิดใช้งานรายการนี้เพื่อให้ส่วนบริการต่างๆ เช่น การแชร์ไฟล์ การพิมพ์ การสตรีมสื่อ และการตรวจหาอุปกรณ์ สามารถทำงานได้ในขณะที่เชื่อมต่อกับ VPN</string>
+    <string name="local_network_sharing_info2"><b>รายการนี้อาจส่งผลกระทบต่อการไม่ระบุตัวตนของคุณ</b> หลีกเลี่ยงการเปิดใช้งานรายการบนเครือข่ายสาธารณะหรือไม่น่าเชื่อถือ เนื่องจากอุปกรณ์ของคุณอาจปรากฏให้ผู้อื่นเห็นได้</string>
+    <string name="local_network_sharing_info3">แอปอนุญาตให้การรับส่งข้อมูลทางเครือข่ายมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการรับส่งข้อมูลเข้าและออกจากช่วง IP ส่วนตัว สามารถบายพาสอุโมงค์ VPN ได้</string>
+    <string name="local_network_sharing_info4"><b>ช่วง IP ส่วนตัว</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>ข้อควรระวัง:</b> การแชร์เครือข่ายท้องถิ่นไม่รองรับการใช้งานร่วมกับ \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\"</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
     <string name="location_was_added_to_list">เพิ่ม %1$s ลงใน \"%2$s\" แล้ว</string>
     <string name="location_was_removed_from_list">%1$s ถูกลบออกจาก \"%2$s” แล้ว</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
     <string name="voucher_too_short">รหัสบัตรกำนัลสั้นเกินไป</string>
+    <string name="vpn_dialog_activity_not_found">ไม่สามารถเปิดกล่องโต้ตอบขออนุญาต VPN ได้ โปรดตรวจสอบการกำหนดค่าระบบปฏิบัติการของคุณ</string>
     <string name="vpn_permission_denied_error">สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">การอนุญาต VPN ถูกปฏิเสธ</string>
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>

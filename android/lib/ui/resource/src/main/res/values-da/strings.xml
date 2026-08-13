@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
+    <string name="how_it_works">Sådan fungerer det</string>
     <string name="icon_and_title">Ikon og titel</string>
     <string name="import_override_textfield_placeholder">Indsæt eller skriv tilsidesættelser, der skal importeres</string>
     <string name="import_overrides_bottom_sheet_override_warning">Import af nye tilsidesættelser vil muligvis erstatte nogle tidligere importerede tilsidesættelser.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Ved at vedhæfte dit konto-token knyttes denne rapport til din konto, og det hjælper os med at løse dit problem hurtigere. Alle rapporter bliver automatisk slettet efter noget tid.</string>
     <string name="include_account_token_warning_message_second">Se vores %1$s for at få flere oplysninger.</string>
     <string name="include_account_token_warning_title">Dette påvirker din anonymitet</string>
+    <string name="info">Info</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Indtast en IP-adresse</string>
     <string name="invalid_address_invalid_warning">Ugyldig IP-adresse</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
+    <string name="local_network_sharing_info">Aktivér dette for at tjenester som fildeling, udskrivning, mediestreaming og enhedsregistrering kan fungere, mens du er forbundet til VPN\'en.</string>
+    <string name="local_network_sharing_info2"><b>Dette kan påvirke din anonymitet.</b> Undgå at aktivere dette på offentlige eller upålidelige netværk, da din enhed kan blive synlig for andre.</string>
+    <string name="local_network_sharing_info3">Appen tillader lokal multicast- og broadcast-netværkstrafik samt trafik til og fra private IP-intervaller for at omgå VPN-tunnelen.</string>
+    <string name="local_network_sharing_info4"><b>Private IP-intervaller</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Bemærk:</b> Lokal netværksdeling er ikke kompatibel med \"Bloker forbindelser uden VPN\".</string>
     <string name="location_added">%1$s (tilføjet)</string>
     <string name="location_was_added_to_list">%1$s blev tilføjet til \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s blev fjernet fra \"%2$s\"</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Det lader til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge af.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="voucher_too_short">Kuponkode er for kort</string>
+    <string name="vpn_dialog_activity_not_found">Kan ikke åbne dialogboksen for VPN-tilladelser. Kontrollér din OS-konfiguration</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev afvist, eller en anden app har \"VPN altid aktiveret\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-tilladelse blev afvist</string>
     <string name="vpn_permission_error_notification_message">Tryk på Opret forbindelse for at anmode om VPN-tilladelse</string>

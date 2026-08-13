@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>
     <string name="hide_account_number">隐藏帐号</string>
     <string name="hint_default">默认</string>
+    <string name="how_it_works">运作方式</string>
     <string name="icon_and_title">图标和标题</string>
     <string name="import_override_textfield_placeholder">粘贴或编写要导入的覆盖设置</string>
     <string name="import_overrides_bottom_sheet_override_warning">导入新覆盖设置可能会替换一些先前导入的覆盖设置。</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。</string>
     <string name="include_account_token_warning_message_second">有关详情，请参阅我们的%1$s。</string>
     <string name="include_account_token_warning_title">这会影响您的匿名性</string>
+    <string name="info">信息</string>
     <string name="internet">互联网</string>
     <string name="invalid_address_blank_warning">请输入 IP 地址</string>
     <string name="invalid_address_invalid_warning">IP 地址无效</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">正在加载商品</string>
     <string name="loading_verifying">正在验证购买…</string>
     <string name="local_network_sharing">本地网络共享</string>
+    <string name="local_network_sharing_info">启用此功能后，在连接 VPN 时，仍可正常使用文件共享、打印、媒体流式传输以及设备发现等服务。</string>
+    <string name="local_network_sharing_info2"><b>这可能会影响您的匿名性</b>。请避免在公共或不可信的网络上使用此功能，否则您的设备可能会对他人可见。</string>
+    <string name="local_network_sharing_info3">该应用允许本地组播、广播网络流量以及往返于私有 IP 范围的流量绕过 VPN 隧道。</string>
+    <string name="local_network_sharing_info4"><b>私有 IP 范围</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>注意</b>：“本地网络共享”与“屏蔽未使用 VPN 的所有连接”不兼容。</string>
     <string name="location_added">%1$s（已添加）</string>
     <string name="location_was_added_to_list">%1$s已添加到“%2$s”中</string>
     <string name="location_was_removed_from_list">%1$s已从“%2$s”中移除</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="voucher_too_short">代金券代码过短</string>
+    <string name="vpn_dialog_activity_not_found">无法打开 VPN 权限对话框，请检查您的操作系统配置</string>
     <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 权限被拒绝</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>

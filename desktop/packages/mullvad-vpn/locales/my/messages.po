@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -286,6 +286,18 @@ msgstr "တည်နေရာများ သို့မဟုတ် ဆာဗ�
 
 msgid "SECURE CONNECTION"
 msgstr "လုံခြုံသည့် ချိတ်ဆက်မှု"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
 
 msgid "Settings"
 msgstr "ဆက်တင်"
@@ -1146,7 +1158,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (ထည့်ပြီး)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1901,7 +1913,6 @@ msgstr "Split Tunneling ကို ဖွင့်၍မရခဲ့ပါ။ ပ
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)s စတင်၍ မရပါ။ ကွန်ရက် ဒေတာကူးလူးမှုကို ပြန်ဖွင့်ရန် %(splitTunneling)s ကို ပိတ်ပါ။"
@@ -1961,10 +1972,6 @@ msgstr "ကွန်ရက် ကူးလူးမှု အားလုံး�
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ သင့် Kernel ကို အပ်ဒိတ်လုပ်ကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။"
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Mullvad Kernel Driver နှင့် ဆက်သွယ်၍ မရနိုင်ပါ။ ပြန်လည်ချိတ်ဆက်ကြည့်ပါ သို့မဟုတ် ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပါ။"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2078,6 +2085,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "စိတ်ကြိုက်စာရင်းများ"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "မာလ်တီဟော့ပ်ကို ပိတ်ရန်"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "လတ်တလောအရာများကို ပိတ်ပါ"
@@ -2086,6 +2098,11 @@ msgstr "လတ်တလောအရာများကို ပိတ်ပါ"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "အလွတ်"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "မာလ်တီဟော့ပ်ကို ဖွင့်ရန်"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2334,8 +2351,8 @@ msgstr "Mullvad ဝန်ဆောင်မှုကို ပြန်လည်
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "%(splitTunneling)s ကို သုံးရန် cgroup v2 ကို သုံးနိုင်စေသည့် Linux Kernel ဗာရှင်းသို့ အပ်ဒိတ်လုပ်ပေးပါ။"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)s ကိုသုံးလိုပါက cgroup v1 ကို ပံ့ပိုးပေးသည့် Linux Kernel ဗားရှင်းသို့ ပြောင်းပါ။"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2566,12 +2583,20 @@ msgid "Language"
 msgstr "ဘာသာစကား"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "အဖြူအမည်း မီနူးဘားအိုင်ကွန်"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "အသိပေးချက်များ"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "အက်ပ်စတင်သည်နှင့် မီနူးဘားအိုင်ကွန်ကိုသာ ပြသသည်။"
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2581,9 +2606,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "စတင်မှု အကျဉ်းချုံ့ထားမှု"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "အက်ပ်ကို မီနူးဘားမှ ပင်ဖြုတ်ရန်"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "အက်ပ်ကို လုပ်ဆောင်ချက်ဘားတွင် ပင်တွဲထားသည်မှ ဖြုတ်ရန်"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "အရောင်ပါအိုင်ကွန်အစား အဖြူအမည်း မီနူးဘားအိုင်ကွန်ကို သုံးသည်။"
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3000,6 +3035,9 @@ msgstr "<b>အကောင့်ပြန်ဆယ်၍ ရနိုင်မ�
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>သတိ-DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။ </b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>သတိပြုရန်-</b> “VPN မသုံးသော ချိတ်ဆက်မှုများကို ပိတ်ပင်ရန်” ကို ဖွင့်လျက် စက်တွင်းကွန်ရက်မျှဝေခြင်းကို သုံး၍မရပါ။"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>သတိပြုရန်-</b> ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။"
 
@@ -3012,8 +3050,14 @@ msgstr "<b>DNS အကြောင်းအရာ ပိတ်ဆို့ရေ�
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>သီးသန့် IP အပိုင်းအခြားများ</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>ဤလုပ်ဆောင်မှုကို ပြန်ပြင်၍မရပါ။</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>ယင်းက သင့်အမည်ဝှက်ခြင်းအပေါ် သက်ရောက်မှုရှိနိုင်သည်။</b> သင့်စက်ကို အခြားသူများ မြင်နိုင်မည်ဖြစ်သောကြောင့် အများသုံးကွန်ရက် သို့မဟုတ် မယုံကြည်ရသောကွန်ရက်များတွင် ၎င်းကို မဖွင့်ပါနှင့်။"
 
 msgid "<b>Warning:</b>"
 msgstr "<b>သတိပေးချက်-</b>"
@@ -3105,9 +3149,6 @@ msgstr "<b>%s</b> မှ ထွက်လိုသည်မှာ သေချာ
 msgid "At least one method needs to be enabled"
 msgstr "အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "သတိပြုရန်- \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက \"လိုကယ် ကွန်ရက် ဝေမျှမှု\" အလုပ်လုပ်မည် မဟုတ်ပါ။"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "သတိပြုရန်- \"VPN မသုံးဘဲချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက Split အက်ပ်များသည် အင်တာနက်သုံး၍ရမည်မဟုတ်ပါ။ တစ်စိတ်တစ်ပိုင်း လိုင်းကျော်သုံးခြင်းသည် ကိုယ်ရေးလုံခြုံမှုအန္တရာယ်ဖြစ်စေကြောင်း အမြဲသတိရပါ။"
 
@@ -3156,6 +3197,9 @@ msgstr "အခြားကွန်ရက်တစ်ခုကို ချိ�
 msgid "Connecting..."
 msgstr "ချိတ်ဆက်နေဆဲ..."
 
+msgid "Contact support"
+msgstr "ကူညီရေးအဖွဲ့ကို ဆက်သွယ်ရန်"
+
 msgid "Continue"
 msgstr "ဆက်လုပ်မည်"
 
@@ -3186,9 +3230,6 @@ msgstr "စိတ်ကြိုက် DNS ဆာဗာ လိပ်စာမျ
 msgid "DNS settings"
 msgstr "DNS ဆက်တင်များ"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။"
-
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" ကို ဖျက်မည်လား။"
 
@@ -3212,9 +3253,6 @@ msgstr "တိုက်ရိုက်"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ \"%s\" အားလုံးကို ပိတ်ပါ။"
-
-msgid "Disable multihop"
-msgstr "မာလ်တီဟော့ပ်ကို ပိတ်ရန်"
 
 msgid "Discard"
 msgstr "ပယ်ဖျက်မည်"
@@ -3255,8 +3293,8 @@ msgstr "အက်ပ်တွင် ရယူသုံးစွဲခွင့�
 msgid "Enable method"
 msgstr "နည်းလမ်းကို ဖွင့်ရန်"
 
-msgid "Enable multihop"
-msgstr "မာလ်တီဟော့ပ်ကို ဖွင့်ရန်"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "ဖိုင်မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ မီဒီယာ တိုက်ရိုက်ထုတ်လွှင့်ခြင်းနှင့် စက်ရှာဖွေခြင်းကဲ့သို့သော ဝန်ဆောင်မှုများ အလုပ်လုပ်စေရန်အတွက် VPN ချိတ်ဆက်ထားစဉ်တွင် ဖွင့်ပါ။"
 
 msgid "Enter MTU"
 msgstr "MTU ကို ရိုက်ထည့်ရန်"
@@ -3321,8 +3359,14 @@ msgstr "Google Play ပေးချေမှုကို ဆိုင်းင�
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play ငွေပေးချေမှုကို စောင့်ဆိုင်းနေပါသည်၊ အချိန်အနည်းငယ် ကြာနိုင်ပါသည်"
 
+msgid "Google Play payment verification failed"
+msgstr "Google Play ဖြင့် ငွေပေးချေမှု အတည်ပြုခြင်း မအောင်မြင်ပါ"
+
 msgid "Google Play unavailable"
 msgstr "Google Play ကို မရရှိနိုင်ပါ"
+
+msgid "How it works"
+msgstr "အလုပ်လုပ်ပုံ"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။"
@@ -3356,6 +3400,9 @@ msgstr "အက်ပ်တွင်း ထုတ်ကုန်များက�
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "ငွေပေးချေမှု သို့မဟုတ် အကောင့်ဆိုင်ရာ ပြဿနာများအတွက် ပိုမိုမြန်ဆန်စွာ အကူအညီရရှိနိုင်ရန် ကျွန်ုပ်၏ အကောင့်တိုကင်ကို ထည့်ပါမည်"
+
+msgid "Info"
+msgstr "အချက်အလက်"
 
 msgid "Internet"
 msgstr "အင်တာနက်"
@@ -3570,15 +3617,6 @@ msgstr "အီးမေးလ်ပို့ရန်"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။"
 
-msgid "Set as multihop entry"
-msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Multihop အဝင်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)"
-
-msgid "Set as multihop exit"
-msgstr "Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန်"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Multihop အထွက်ပွိုင့်အဖြစ် သတ်မှတ်ရန် (တွဲဖက်သုံး၍ မရပါ)"
 
@@ -3599,6 +3637,9 @@ msgstr "လက်ရှိ VPN Tunnel အခြေအနေကို ပြသ�
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "သင့်ဝယ်ယူမှုကို အတည်ပြုနေစဉ် တစ်စုံတစ်ရာ မှားယွင်းသွားသည်။ ကူညီရေးအဖွဲ့ကို ဆက်သွယ်ပါ။"
 
 msgid "Submit"
 msgstr "ပေးပို့ရန်"
@@ -3629,6 +3670,9 @@ msgstr "လော့ခ်ဒေါင်းစနစ်ကို Android စန
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"လက်ရှိ\" စနစ်သည် API နှင့်ချိတ်ရန် အက်ပ်က အသုံးပြုသည့် နည်းလမ်းကို ဆိုလိုသည်။"
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "အက်ပ်သည် VPN လမ်းကြောင်းအတွင်းမှ မဖြတ်သန်းဘဲ စက်တွင်း အုပ်စုလိုက်ထုတ်လွှင့်မှုနှင့် ထုတ်လွှင့်မှု ကွန်ရက် ဒေတာစီးဆင်းမှုအပြင် သီးသန့် IP အပိုင်းအခြားများအကြား ဒေတာအပြန်အလှန်စီးဆင်းမှုကို ခွင့်ပြုသည်။"
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ"
@@ -3690,6 +3734,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Firewall စည်းမျဉ်းများကို အသုံးချ၍ မရနိုင်ပါ။ ပြစ်ချက် ရှာဖွေဖယ်ရှာပေးပါ သို့မဟုတ် ပြဿနာ ရီပို့တ် ပေးပို့ပေးပါ။"
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "VPN ခွင့်ပြုချက် ဒိုင်ယာလော့ဂ်ကို ဖွင့်၍မရပါ၊ သင့် OS စီစဉ်သတ်မှတ်မှုကို စစ်ဆေးပါ"
+
 msgid "Unable to parse patch"
 msgstr "Patch ကို ခွဲခြမ်းစိတ်ဖြာ၍ မရပါ"
 
@@ -3707,6 +3754,9 @@ msgstr "Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရ
 
 msgid "Unable to verify account number, please contact support"
 msgstr "အကောင့်နံပါတ်ကို အတည်ပြု၍မရပါ၊ ပံ့ပိုးကူညီမှုအဖွဲ့ကို ဆက်သွယ်ပါ"
+
+msgid "Unable to verify purchase"
+msgstr "ဝယ်ယူမှုကို အတည်မပြုနိုင်ပါ"
 
 msgid "Unavailable"
 msgstr "မရနိုင်ပါ"
@@ -3774,6 +3824,12 @@ msgstr "သတိပေးချက်"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "ကျွန်ုပ်တို့သည် သင့်ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ ဖြစ်သည်၊ အချိန်အနည်းငယ် ကြာနိုင်သည်။ စစ်ဆေးမှု အောင်မြင်ပါက သင့်အချိန်ကို တိုးလိုက်ပါမည်။"
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "သင့်နောက်ဆုံးဝယ်ယူမှုကို အတည်မပြုနိုင်ပါ။ သင့်အင်တာနက်ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်လုပ်ကြည့်ပါ။ ပြဿနာဆက်ရှိနေပါက ကူညီရေးအဖွဲ့ကို ဆက်သွယ်ပါ။"
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "သင့်ဝယ်ယူမှုကို အတည်မပြုနိုင်ပါ။ သင့်အင်တာနက်ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်လုပ်ကြည့်ပါ။"
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။"
 
@@ -3812,6 +3868,9 @@ msgstr "သင်သည် သင့်လက်ကျန်ကို ဆုံ�
 
 msgid "Your device"
 msgstr "သင့်စက်"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "သင့်နောက်ဆုံးဝယ်ယူမှုကို အတည်ပြုနေဆဲဖြစ်သည်။ အခြားအကောင့်သို့ ဝင်ရောက်ပါက အတည်ပြုမှု မအောင်မြင်နိုင်တော့ပါ။ အကောင့်ထွက်လိုပါသလား။"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" ကို ဖန်တီးလိုက်ပြီ"

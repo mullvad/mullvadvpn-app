@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Este es un número de cuenta. ¡Guárdelo bien!</string>
     <string name="hide_account_number">Ocultar número de cuenta</string>
     <string name="hint_default">Predeterminado</string>
+    <string name="how_it_works">Cómo funciona</string>
     <string name="icon_and_title">Icono y título</string>
     <string name="import_override_textfield_placeholder">Pegue o escriba las anulaciones que se deben importar</string>
     <string name="import_overrides_bottom_sheet_override_warning">Importar nuevas anulaciones podría reemplazar algunas anulaciones anteriormente importadas.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Al adjuntar el token de su cuenta, vincula este informe con su cuenta, lo que nos ayuda a resolver su problema más rápidamente. Todos los informes se eliminan automáticamente tras un periodo de tiempo.</string>
     <string name="include_account_token_warning_message_second">Para más información, consulte nuestra %1$s.</string>
     <string name="include_account_token_warning_title">Esto afecta a su anonimato</string>
+    <string name="info">Información</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Introduzca una dirección IP</string>
     <string name="invalid_address_invalid_warning">Dirección IP no válida</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Cargando productos</string>
     <string name="loading_verifying">Verificando la compra…</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
+    <string name="local_network_sharing_info">Active esta opción para que servicios como el uso compartido de archivos, la impresión, la transmisión multimedia y la detección de dispositivos funcionen mientras esté conectado a la red VPN.</string>
+    <string name="local_network_sharing_info2"><b>Esto puede afectar a su anonimato.</b> Evite activar esta opción en redes públicas o que no sean de confianza, ya que otros usuarios podrían ver su dispositivo.</string>
+    <string name="local_network_sharing_info3">La aplicación permite que el tráfico de red local de difusión y multidifusión, así como el tráfico desde y hacia intervalos de IP privadas, sortee el túnel VPN.</string>
+    <string name="local_network_sharing_info4"><b>Intervalos de IP privadas</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Atención:</b> El uso compartido en la red local no es compatible con la opción «Bloquear conexiones sin VPN».</string>
     <string name="location_added">%1$s (añadido)</string>
     <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
     <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="voucher_too_short">Código de cupón demasiado corto</string>
+    <string name="vpn_dialog_activity_not_found">No se puede abrir el cuadro de diálogo de permiso de la VPN. Compruebe la configuración de su sistema operativo</string>
     <string name="vpn_permission_denied_error">Se ha denegado el permiso de VPN u otra aplicación tiene habilitada la opción «VPN siempre activa»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Se ha denegado el permiso de VPN</string>
     <string name="vpn_permission_error_notification_message">Pulse conectar para solicitar el permiso de VPN</string>

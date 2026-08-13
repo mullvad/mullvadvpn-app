@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">این هم شمارهٔ حساب شما. آن را ذخیره کنید!</string>
     <string name="hide_account_number">پنهان کردن شمارهٔ حساب</string>
     <string name="hint_default">پیش‌فرض</string>
+    <string name="how_it_works">نحوه عملکرد</string>
     <string name="icon_and_title">آیکون و عنوان</string>
     <string name="import_override_textfield_placeholder">جایگزینی‌هایی را که می‌خواهید وارد کنید، جایگذاری کنید یا بنویسید</string>
     <string name="import_overrides_bottom_sheet_override_warning">وارد کردن جایگزین‌های جدید ممکن است جایگزین برخی از جایگزین‌های قبلاً وارد شده شود.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">با پیوست کردن توکن حساب‌تان، این گزارش به حساب شما متصل می‌شود و به ما کمک می‌کند مشکل‌تان را سریع‌تر حل کنیم. همهٔ گزارش‌ها پس از مدتی به‌صورت خودکار حذف می‌شوند.</string>
     <string name="include_account_token_warning_message_second">برای بررسی جزئیات، لطفاً %1$s ما را ببینید.</string>
     <string name="include_account_token_warning_title">این مورد بر ناشناس‌ماندن شما تأثیر می‌گذارد</string>
+    <string name="info">اطلاعات</string>
     <string name="internet">اینترنت</string>
     <string name="invalid_address_blank_warning">لطفاً یک آدرس IP معتبر را وارد کنید</string>
     <string name="invalid_address_invalid_warning">آدرس IP نامعتبر است</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">در حال بارگذاری محصولات</string>
     <string name="loading_verifying">در حال تأیید خرید...</string>
     <string name="local_network_sharing">اشتراک‌گذاری شبکهٔ محلی</string>
+    <string name="local_network_sharing_info">این گزینه را فعال کنید تا سرویس‌هایی مانند اشتراک‌گذاری فایل، چاپ، پخش رسانه و شناسایی دستگاه، هنگام اتصال به VPN به‌درستی کار کنند.</string>
+    <string name="local_network_sharing_info2"><b>این کار می‌تواند ناشناس‌ماندن شما را تحت تأثیر قرار دهد.</b> از فعال کردن این قابلیت در شبکه‌های عمومی یا غیرقابل‌اعتماد خودداری کنید، زیرا ممکن است دستگاه شما برای دیگران قابل مشاهده شود.</string>
+    <string name="local_network_sharing_info3">این برنامه به ترافیک شبکهٔ محلیِ چندپخشی (multicast) و پخشی (broadcast)، و همچنین ترافیک ورودی و خروجیِ محدوده‌های IP خصوصی، اجازه می‌دهد تونل VPN را دور بزنند.</string>
+    <string name="local_network_sharing_info4"><b>محدوده‌های IP خصوصی</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>توجه:</b> اشتراک‌گذاری در شبکهٔ محلی با گزینهٔ «مسدود کردن اتصال‌ها بدون VPN» سازگار نیست.</string>
     <string name="location_added">%1$s (اضافه شد)</string>
     <string name="location_was_added_to_list">%1$s به «%2$s» اضافه شد</string>
     <string name="location_was_removed_from_list">%1$s از «%2$s» حذف شد</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">به نظر می‌رسد که به جای کد ووچر، شمارهٔ حساب وارد کرده‌اید. اگر می‌خواهید حساب فعال را تغییر دهید، لطفاً ابتدا خارج شوید.</string>
     <string name="voucher_success_title">ووچر با موفقیت فعال شد.</string>
     <string name="voucher_too_short">کد ووچر بیش از حد کوتاه است</string>
+    <string name="vpn_dialog_activity_not_found">امکان باز کردن پنجره درخواست مجوز VPN وجود ندارد. لطفاً تنظیمات سیستم‌عامل خود را بررسی کنید</string>
     <string name="vpn_permission_denied_error">اجازهٔ VPN رد شده است یا یک اپلیکیشن دیگر گزینهٔ «VPN همیشه‌فعال» را فعال کرده است</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">اجازهٔ VPN رد شد</string>
     <string name="vpn_permission_error_notification_message">لطفاً برای درخواست اجازهٔ VPN دکمهٔ اتصال را فشار دهید</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -292,6 +292,18 @@ msgstr "Konumları veya sunucuları arayın"
 
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "Çoklu geçiş girişi olarak ayarla"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "Çoklu geçiş girişi olarak ayarla (uyumlu değil)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "Çoklu geçiş çıkışı olarak ayarla"
 
 msgid "Settings"
 msgstr "Ayarlar"
@@ -1152,7 +1164,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (Eklendi)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1907,7 +1919,6 @@ msgstr "Bölünmüş tünelleme etkinleştirilemedi. Lütfen yeniden bağlanmay�
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)s başlatılamadı. Ağ trafiği engelini kaldırmak için %(splitTunneling)s özelliğini devre dışı bırakın."
@@ -1967,10 +1978,6 @@ msgstr "Tüm ağ trafiği engellenemiyor. Üçüncü taraf antivirüs veya güve
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "Tüm ağ trafiği engellenemiyor. İşletim sistemi çekirdeğinizi güncellemeyi deneyin veya bir hata raporu gönderin."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Mullvad çekirdek sürücüsü ile iletişim kurulamıyor. Yeniden bağlanmayı deneyin veya bir hata raporu gönderin."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2084,6 +2091,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Özel listeler"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "Çoklu geçişi devre dışı bırak"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Son filtreleri devre dışı bırak"
@@ -2092,6 +2104,11 @@ msgstr "Son filtreleri devre dışı bırak"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Boş"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "Çoklu geçişi etkinleştir"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2340,8 +2357,8 @@ msgstr "Mullvad Hizmetini Yeniden Başlat"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "%(splitTunneling)s özelliğini kullanmak için lütfen cgroup v2'yi destekleyen bir Linux çekirdek sürümüne güncelleyin."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)s özelliğini kullanmak için lütfen cgroup v1'i destekleyen bir Linux çekirdek sürümüne geçin."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2572,12 +2589,20 @@ msgid "Language"
 msgstr "Dil"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "Monokrom menü çubuğu simgesi"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "Monokrom tepsi simgesi"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "Bildirimler"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "Uygulama başlatıldığında sadece menü çubuğu simgesini göster."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2587,9 +2612,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "Küçültülmüş olarak başlat"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "Uygulamayı menü çubuğundan kaldır"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "Uygulamayı görev çubuğundan kaldır"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "Renkli menü çubuğu simgesi yerine monokrom simge kullan."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3006,6 +3041,9 @@ msgstr "<b>Hesap kurtarma mümkün olmayacaktır.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>Dikkat: DNS ayarları hemen geçerli olmayabilir.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>Dikkat:</b> Yerel ağ paylaşımı, \"VPN üzerinden olmayan bağlantıları engelle\" seçeneğiyle uyumlu değil."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Dikkat:</b> Sadece bazı sunucular tam bağlantı noktası aralığını destekler."
 
@@ -3018,8 +3056,14 @@ msgstr "<b>DNS içerik engelleyiciler</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>Özel IP aralıkları</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>Bu işlem geri alınamaz.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>Bu durum anonimliğinizi etkileyebilir.</b> Cihazınız başkaları tarafından görülebileceğinden bu özelliği güvenli olmayan veya herkese açık ağlarda etkinleştirmeyin."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>Uyarı:</b>"
@@ -3111,9 +3155,6 @@ msgstr "<b>%s</b> adlı cihazdan çıkış yapmak istediğinizden emin misiniz?"
 msgid "At least one method needs to be enabled"
 msgstr "En az bir yöntemin etkinleştirilmesi gerekiyor"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse \"Yerel ağ paylaşımı\" etkinleşmez."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun."
 
@@ -3162,6 +3203,9 @@ msgstr "Farklı bir ağa bağlan"
 msgid "Connecting..."
 msgstr "Bağlanılıyor..."
 
+msgid "Contact support"
+msgstr "Destek ekibiyle iletişime geçin"
+
 msgid "Continue"
 msgstr "İleri"
 
@@ -3192,9 +3236,6 @@ msgstr "Özel DNS sunucu adresleri (%1$s) geçersiz"
 msgid "DNS settings"
 msgstr "DNS ayarları"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS ayarları hemen etkili olmayabilir"
-
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" silinsin mi\"?"
 
@@ -3218,9 +3259,6 @@ msgstr "Doğrudan"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki \"%s\" seçeneklerinin tümünü devre dışı bırakın."
-
-msgid "Disable multihop"
-msgstr "Çoklu geçişi devre dışı bırak"
 
 msgid "Discard"
 msgstr "İptal et"
@@ -3261,8 +3299,8 @@ msgstr "Uygulamadaki tüm erişim yöntemlerini etkinleştir"
 msgid "Enable method"
 msgstr "Yöntemi etkinleştir"
 
-msgid "Enable multihop"
-msgstr "Çoklu geçişi etkinleştir"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "Dosya paylaşımı, yazdırma, medya akışı ve cihaz keşfi gibi hizmetlerin VPN'e bağlıyken çalışması için bu özelliği etkinleştirin."
 
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
@@ -3327,8 +3365,14 @@ msgstr "Google Play ödemesi bekleniyor"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play ödemesi bekleniyor. Bu işlem biraz zaman alabilir"
 
+msgid "Google Play payment verification failed"
+msgstr "Google Play ödemesi doğrulanamadı"
+
 msgid "Google Play unavailable"
 msgstr "Google Play kullanılamıyor"
+
+msgid "How it works"
+msgstr "İşleyiş şekli"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin."
@@ -3362,6 +3406,9 @@ msgstr "Uygulama içi ürünler kullanılamıyor. Lütfen Google Play'in en yeni
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Ödeme veya hesapla ilgili sorunlarda daha hızlı yardım almak için hesap token'ımı ekle"
+
+msgid "Info"
+msgstr "Bilgiler"
 
 msgid "Internet"
 msgstr "İnternet"
@@ -3576,15 +3623,6 @@ msgstr "E-posta gönder"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d."
 
-msgid "Set as multihop entry"
-msgstr "Çoklu geçiş girişi olarak ayarla"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "Çoklu geçiş girişi olarak ayarla (uyumlu değil)"
-
-msgid "Set as multihop exit"
-msgstr "Çoklu geçiş çıkışı olarak ayarla"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "Çoklu geçiş çıkışı olarak ayarla (uyumlu değil)"
 
@@ -3605,6 +3643,9 @@ msgstr "Mevcut VPN tünelinin durumunu gösterir"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "Satın alma işleminizi doğrularken bir sorun oluştu. Lütfen destek ekibiyle iletişime geçin."
 
 msgid "Submit"
 msgstr "Gönder"
@@ -3635,6 +3676,9 @@ msgstr "Android sistem ayarlarında \"Kilitleme modu VPN üzerinden olmayan bağ
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Geçerli\" yöntem, uygulamanın API'ye ulaşmak için kullandığı yöntemi temsil eder."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "Bu uygulama, yerel çok noktaya yayın ve yayın ağ trafiğinin yanı sıra özel IP aralıklarına giden ve bu aralıklardan gelen trafiğin VPN tünelini atlamasına olanak tanır."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "Uygulama internet bağlantısını engelliyor. Lütfen önce bağlantıyı kesin"
@@ -3696,6 +3740,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Lütfen sorunu çözmeye çalışın veya bir hata raporu gönderin."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "VPN izin iletişim kutusu açılamıyor, lütfen işletim sisteminizin yapılandırmasını kontrol edin"
+
 msgid "Unable to parse patch"
 msgstr "Yama ayrıştırılamıyor"
 
@@ -3713,6 +3760,9 @@ msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce 
 
 msgid "Unable to verify account number, please contact support"
 msgstr "Hesap numaranız doğrulanamıyor, lütfen destek ekibiyle iletişime geçin"
+
+msgid "Unable to verify purchase"
+msgstr "Satın alma işlemi doğrulanamadı"
 
 msgid "Unavailable"
 msgstr "Mevcut değil"
@@ -3780,6 +3830,12 @@ msgstr "Uyarı"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Satın alma işleminiz doğrulanıyor. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "Lütfen internet bağlantınızı kontrol ederek tekrar deneyin. Sorun devam ederse destek ekibiyle iletişime geçin."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "Satın alma işleminizi doğrulayamadık. Lütfen internet bağlantınızı kontrol ederek tekrar deneyin."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "Ödeme işlemini başlatamadık. Lütfen Google Play'in en son sürümüne sahip olduğunuzdan emin olun."
 
@@ -3818,6 +3874,9 @@ msgstr "Kalan bakiyenizi kaybedeceksiniz"
 
 msgid "Your device"
 msgstr "Cihazınız"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "Son satın alma işleminiz hâlâ doğrulanıyor. Başka bir hesaba giriş yapmak doğrulamanın başarısız olmasına neden olur. Yine de çıkış yapmak istiyor musunuz?"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" oluşturuldu"

@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
     <string name="hint_default">ပုံသေ</string>
+    <string name="how_it_works">အလုပ်လုပ်ပုံ</string>
     <string name="icon_and_title">အိုင်ကွန်နှင့် ခေါင်းစဉ်</string>
     <string name="import_override_textfield_placeholder">ကျော်လွန် ပယ်ဖျက်မှုများကို ထည့်သွင်းရန် ကူးထည့်ပါ သို့မဟုတ် ရေးပါ</string>
     <string name="import_overrides_bottom_sheet_override_warning">ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။</string>
     <string name="include_account_token_warning_message_second">အသေးစိတ်အချက်အလက်များအတွက် ကျွန်ုပ်တို့၏ %1$s ကို ကြည့်ပါ။</string>
     <string name="include_account_token_warning_title">ဤအရာကို ရွေးချယ်ပါက သင်၏ အမည်ဝှက်မှုကို သက်ရောက်မှု ရှိပါမည်</string>
+    <string name="info">အချက်အလက်</string>
     <string name="internet">အင်တာနက်</string>
     <string name="invalid_address_blank_warning">IP လိပ်စာ တစ်ခု ထည့်ပေးပါ</string>
     <string name="invalid_address_invalid_warning">IP လိပ်စာ မမှန်ကန်ပါ</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">ထုတ်ကုန်များကို လုပ်ဆောင်နေသည်</string>
     <string name="loading_verifying">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ...</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
+    <string name="local_network_sharing_info">ဖိုင်မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ မီဒီယာ တိုက်ရိုက်ထုတ်လွှင့်ခြင်းနှင့် စက်ရှာဖွေခြင်းကဲ့သို့သော ဝန်ဆောင်မှုများ အလုပ်လုပ်စေရန်အတွက် VPN ချိတ်ဆက်ထားစဉ်တွင် ဖွင့်ပါ။</string>
+    <string name="local_network_sharing_info2"><b>ယင်းက သင့်အမည်ဝှက်ခြင်းအပေါ် သက်ရောက်မှုရှိနိုင်သည်။</b> သင့်စက်ကို အခြားသူများ မြင်နိုင်မည်ဖြစ်သောကြောင့် အများသုံးကွန်ရက် သို့မဟုတ် မယုံကြည်ရသောကွန်ရက်များတွင် ၎င်းကို မဖွင့်ပါနှင့်။</string>
+    <string name="local_network_sharing_info3">အက်ပ်သည် VPN လမ်းကြောင်းအတွင်းမှ မဖြတ်သန်းဘဲ စက်တွင်း အုပ်စုလိုက်ထုတ်လွှင့်မှုနှင့် ထုတ်လွှင့်မှု ကွန်ရက် ဒေတာစီးဆင်းမှုအပြင် သီးသန့် IP အပိုင်းအခြားများအကြား ဒေတာအပြန်အလှန်စီးဆင်းမှုကို ခွင့်ပြုသည်။</string>
+    <string name="local_network_sharing_info4"><b>သီးသန့် IP အပိုင်းအခြားများ</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>သတိပြုရန်-</b> “VPN မသုံးသော ချိတ်ဆက်မှုများကို ပိတ်ပင်ရန်” ကို ဖွင့်လျက် စက်တွင်းကွန်ရက်မျှဝေခြင်းကို သုံး၍မရပါ။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
     <string name="location_was_added_to_list">%1$s ကို \"%2$s\" တွင် ထည့်ထားပါသည်</string>
     <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားထားပါသည်</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">ဘောက်ချာကုဒ်မဟုတ်ဘဲ အကောင့်နံပါတ်ကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။</string>
     <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
     <string name="voucher_too_short">ဘောက်ချာကုဒ်တိုလွန်းသည်</string>
+    <string name="vpn_dialog_activity_not_found">VPN ခွင့်ပြုချက် ဒိုင်ယာလော့ဂ်ကို ဖွင့်၍မရပါ၊ သင့် OS စီစဉ်သတ်မှတ်မှုကို စစ်ဆေးပါ</string>
     <string name="vpn_permission_denied_error">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည် သို့မဟုတ် အခြားအက်ပ်တွင် \"အမြဲဖွင့် VPN\" ဖွင့်ထားသည်</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည်</string>
     <string name="vpn_permission_error_notification_message">VPN ခွင့်ပြုချက်တောင်းရန် ချိတ်ဆက်ရန်ကို နှိပ်ပေးပါ</string>

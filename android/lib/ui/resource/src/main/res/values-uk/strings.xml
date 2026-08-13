@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Ось номер вашого облікового запису. Збережіть його!</string>
     <string name="hide_account_number">Приховати номер облікового запису</string>
     <string name="hint_default">За замовчуванням</string>
+    <string name="how_it_works">Як це працює</string>
     <string name="icon_and_title">Значок і назва</string>
     <string name="import_override_textfield_placeholder">Вставте або напишіть перевизначення для імпорту</string>
     <string name="import_overrides_bottom_sheet_override_warning">Імпорт нових перевизначень може замінити перевизначення, які імпортувалися раніше.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Якщо ви прикріпите токен свого облікового запису, цей звіт буде прив’язано до вашого облікового запису і ми зможемо швидше розв’язати вашу проблему. Усі звіти автоматично видаляються через деякий час.</string>
     <string name="include_account_token_warning_message_second">Більше інформації тут: %1$s.</string>
     <string name="include_account_token_warning_title">Це впливає на вашу анонімність</string>
+    <string name="info">Інформація</string>
     <string name="internet">Інтернет</string>
     <string name="invalid_address_blank_warning">Введіть IP-адресу</string>
     <string name="invalid_address_invalid_warning">Недійсна IP-адреса</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Завантаження продуктів</string>
     <string name="loading_verifying">Покупка перевіряється…</string>
     <string name="local_network_sharing">Обмін даними в локальній мережі</string>
+    <string name="local_network_sharing_info">Увімкніть цю функцію, щоб під час використання VPN були доступні спільний доступ до файлів, друк, потокове передавання мультимедіа та виявлення пристроїв.</string>
+    <string name="local_network_sharing_info2"><b>Це може негативно вплинути на вашу анонімність.</b> Не вмикайте цю функцію в загальнодоступних і ненадійних мережах, оскільки, можливо, ваш пристрій зможуть бачити інші користувачі.</string>
+    <string name="local_network_sharing_info3">Застосунок дозволяє локальному мультикастовому та широкомовним трафікам, а також трафіку до діапазонів приватних IP-адрес і з них обходити VPN-тунель.</string>
+    <string name="local_network_sharing_info4"><b>Діапазони приватних IP-адрес</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Увага:</b> обмін даними в локальній мережі несумісний з функцією «Блокувати зʼєднання без VPN».</string>
     <string name="location_added">%1$s (додано)</string>
     <string name="location_was_added_to_list">Розташування %1$s додано до списку «%2$s»</string>
     <string name="location_was_removed_from_list">Розташування %1$s вилучено зі списку «%2$s»</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Схоже, ви ввели номер облікового запису замість коду ваучера. Якщо хочете змінити активний обліковий запис, спочатку вийдіть з облікового запису.</string>
     <string name="voucher_success_title">Ваучер використано.</string>
     <string name="voucher_too_short">Код ваучера закороткий</string>
+    <string name="vpn_dialog_activity_not_found">Не вдалося відкрити діалогове вікно із запитом на дозвіл на підключення до VPN. Перевірте налаштування операційної системи.</string>
     <string name="vpn_permission_denied_error">Дозвіл на VPN відхилено або в іншому застосунку увімкнено опцію «Завжди увімкнений VPN»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Дозвіл на VPN відхилено</string>
     <string name="vpn_permission_error_notification_message">Щоб запросити дозвіл для VPN, натисніть «Підключити»</string>

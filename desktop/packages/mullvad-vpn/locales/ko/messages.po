@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -286,6 +286,18 @@ msgstr "지역 또는 서버 검색"
 
 msgid "SECURE CONNECTION"
 msgstr "보안 연결"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "멀티홉 입구로 설정"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "멀티홉 입구로 설정(호환 불가)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "멀티홉 출구로 설정"
 
 msgid "Settings"
 msgstr "설정"
@@ -1146,7 +1158,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s(추가됨)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1901,7 +1913,6 @@ msgstr "분할 터널링을 활성화하지 못했습니다. 다시 연결하거
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)s 시작에 실패했습니다. 네트워크 트래픽 차단을 해제하려면 %(splitTunneling)s을 비활성화하세요."
@@ -1961,10 +1972,6 @@ msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 타사 �
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "모든 네트워크 트래픽을 차단할 수는 없습니다. 커널을 업데이트하거나 문제 보고서를 보내주세요."
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Mullvad 커널 드라이버와 통신할 수 없습니다. 다시 연결하거나 문제 보고서를 보내주세요."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2078,6 +2085,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "사용자 지정 목록"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "멀티홉 비활성화"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "최근 항목 비활성화"
@@ -2086,6 +2098,11 @@ msgstr "최근 항목 비활성화"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "비어 있음"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "멀티홉 사용"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2334,8 +2351,8 @@ msgstr "Mullvad 서비스 다시 시작"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "%(splitTunneling)s을 사용하려면 cgroup v2를 지원하는 Linux 커널 버전으로 업데이트하세요."
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)s을(를) 사용하려면 cgroup v1을 지원하는 Linux 커널 버전으로 변경하세요."
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2566,12 +2583,20 @@ msgid "Language"
 msgstr "언어"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "단색 메뉴 바 아이콘"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "단색 트레이 아이콘"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "알림"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "앱이 시작될 때 메뉴 바 아이콘만 표시합니다."
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2581,9 +2606,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "최소화 상태로 시작"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "메뉴 바에서 앱 고정 해제"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "작업 표시줄에서 앱 고정 해제"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "컬러 메뉴 바 대신 단색 메뉴 바 아이콘을 사용합니다."
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3000,6 +3035,9 @@ msgstr "<b>계정을 복구할 수 없습니다.</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>주의: DNS 설정이 즉시 적용되지 않을 수도 있습니다.</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>주의:</b> 로컬 네트워크 공유는 \"VPN 없이 연결 차단\"과 호환되지 않습니다."
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>주의:</b> 일부 서버에서만 전체 포트 범위를 지원합니다."
 
@@ -3012,8 +3050,14 @@ msgstr "<b>DNS 콘텐츠 차단기</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>다음 방법은 성능을 향상하는 것이 아니며 시스템 사용률 및 배터리 소모량이 증가할 수 있습니다.</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>사설 IP 대역</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>이 작업은 되돌릴 수 없습니다.</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>이 기능은 익명성에 영향을 미칠 수 있습니다.</b> 사용 중인 장치가 다른 사람들에게 표시될 수 있으므로 공공 네트워크 또는 신뢰할 수 없는 네트워크에서 활성화하지 마세요."
 
 msgid "<b>Warning:</b>"
 msgstr "<b>경고:</b>"
@@ -3105,9 +3149,6 @@ msgstr "<b>%s</b>에서 로그아웃하시겠습니까?"
 msgid "At least one method needs to be enabled"
 msgstr "1개 이상의 방법이 활성화되어 있어야 합니다"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 인터넷이 연결되지 않습니다. 분할 터널링 시 개인 정보가 위험해질 수 있음에 항상 유의하시기 바랍니다."
 
@@ -3156,6 +3197,9 @@ msgstr "다른 네트워크에 연결"
 msgid "Connecting..."
 msgstr "연결 중..."
 
+msgid "Contact support"
+msgstr "지원팀에 문의"
+
 msgid "Continue"
 msgstr "계속"
 
@@ -3186,9 +3230,6 @@ msgstr "사용자 지정 DNS 서버 주소 %1$s이(가) 잘못되었습니다"
 msgid "DNS settings"
 msgstr "DNS 설정"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS 설정이 즉시 적용되지 않을 수도 있습니다"
-
 msgid "Delete \"%s\"?"
 msgstr "\"%s\"을(를) 삭제하시겠습니까?"
 
@@ -3212,9 +3253,6 @@ msgstr "다이렉트"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
-
-msgid "Disable multihop"
-msgstr "멀티홉 비활성화"
 
 msgid "Discard"
 msgstr "취소"
@@ -3255,8 +3293,8 @@ msgstr "앱의 모든 액세스 방법을 활성화합니다"
 msgid "Enable method"
 msgstr "방법 활성화"
 
-msgid "Enable multihop"
-msgstr "멀티홉 사용"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "파일 공유, 인쇄, 미디어 스트리밍 및 장치 검색 등의 서비스에 이 기능을 활성화하여 VPN을 연결한 상태로 업무를 진행하세요."
 
 msgid "Enter MTU"
 msgstr "MTU 입력"
@@ -3321,8 +3359,14 @@ msgstr "Google Play 결제 보류 중"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play 결제가 보류 중입니다. 다소 시간이 소요될 수 있습니다"
 
+msgid "Google Play payment verification failed"
+msgstr "Google Play 결제 인증 실패"
+
 msgid "Google Play unavailable"
 msgstr "Google Play 사용 불가"
+
+msgid "How it works"
+msgstr "사용 방법"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4를 사용할 수 없습니다. \"장치 IP 버전\" 설정을 변경해 보세요."
@@ -3356,6 +3400,9 @@ msgstr "인앱 제품을 사용할 수 없습니다. Google Play의 최신 버�
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "결제 또는 계정 관련 문제에 대해 더 빠른 도움을 받을 수 있도록 계정 토큰을 포함합니다"
+
+msgid "Info"
+msgstr "정보"
 
 msgid "Internet"
 msgstr "인터넷"
@@ -3570,15 +3617,6 @@ msgstr "이메일 전송"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d."
 
-msgid "Set as multihop entry"
-msgstr "멀티홉 입구로 설정"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "멀티홉 입구로 설정(호환 불가)"
-
-msgid "Set as multihop exit"
-msgstr "멀티홉 출구로 설정"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "멀티홉 출구로 설정(호환 불가)"
 
@@ -3599,6 +3637,9 @@ msgstr "현재 VPN 터널 상태 표시"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "계정 시간이 만료되려고 할 때 알림 표시"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "구매를 확인하는 중에 문제가 발생했습니다. 지원팀에 문의하세요."
 
 msgid "Submit"
 msgstr "제출"
@@ -3629,6 +3670,9 @@ msgstr "잠금 모드는 Android 시스템 설정에서 \"VPN 없이 연결 차�
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방법을 나타냅니다."
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "본 앱은 사설 IP 대역을 오가는 트래픽은 물론 로컬 멀티캐스트 및 브로드캐스트 네트워크 트래픽을 허용하여 VPN 터널을 우회합니다."
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "해당 앱이 인터넷을 차단하고 있습니다. 먼저 연결 해제하세요"
@@ -3690,6 +3734,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "VPN 권한 관련 대화창을 열 수 없습니다. OS 구성을 확인하세요"
+
 msgid "Unable to parse patch"
 msgstr "패치를 파싱할 수 없음"
 
@@ -3707,6 +3754,9 @@ msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기
 
 msgid "Unable to verify account number, please contact support"
 msgstr "계정 번호를 식별하지 못했습니다. 지원팀에 문의하세요"
+
+msgid "Unable to verify purchase"
+msgstr "구매를 확인할 수 없습니다"
 
 msgid "Unavailable"
 msgstr "사용할 수 없음"
@@ -3774,6 +3824,12 @@ msgstr "경고"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "아직 구매를 확인하고 있으며, 다소 시간이 걸릴 수 있습니다. 확인이 완료되면 시간이 추가됩니다."
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "최신 구매 내역을 확인하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요. 문제가 계속되는 경우 지원팀으로 문의해 주시기 바랍니다."
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "구매 내역을 확인하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요."
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요."
 
@@ -3812,6 +3868,9 @@ msgstr "남은 일수가 상실됩니다"
 
 msgid "Your device"
 msgstr "내 장치"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "아직 최신 구매 내역을 확인하고 있습니다. 다른 계정으로 로그인하면 확인 작업에 실패합니다. 그래도 로그아웃하시겠습니까?"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\"이(가) 생성되었습니다"

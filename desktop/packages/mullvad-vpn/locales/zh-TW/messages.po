@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個…"
@@ -286,6 +286,18 @@ msgstr "搜尋位置或伺服器"
 
 msgid "SECURE CONNECTION"
 msgstr "安全連線"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "設為多點跳躍進站點"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "設為多點跳躍進站點 (不相容)"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "設為多點跳躍出站點"
 
 msgid "Settings"
 msgstr "設定"
@@ -1146,7 +1158,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (已新增)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1901,7 +1913,6 @@ msgstr "無法啟用分割通道。請嘗試重新連線或停用分割通道。
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "無法啟動 %(splitTunneling)s。如要解除網路流量封鎖，請停用%(splitTunneling)s。"
@@ -1961,10 +1972,6 @@ msgstr "無法封鎖所有網路流量。請嘗試暫時停用任何第三方防
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "無法封鎖所有網路流量。請嘗試更新您的核心或傳送問題回報。"
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "無法與 Mullvad 核心驅動程式通訊。請嘗試重新連線或傳送問題回報。"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2078,6 +2085,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "自訂清單"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "停用多點跳躍"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "停用最近使用"
@@ -2086,6 +2098,11 @@ msgstr "停用最近使用"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "空"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "啟用多點跳躍"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2334,8 +2351,8 @@ msgstr "重新啟動 Mullvad 服務"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "若要使用 %(splitTunneling)s，請將 Linux 核心更新至支援 cgroup v2 的版本。"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "若要使用 %(splitTunneling)s，請改為使用支援 cgroup v1 的 Linux 核心版本。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2566,12 +2583,20 @@ msgid "Language"
 msgstr "語言"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "單色選單列圖示"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "單色系統匣圖示"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "通知"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "啟動應用程式時，僅顯示選單列圖示。"
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2581,9 +2606,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "啟動時最小化"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "將應用程式從選單列中取消釘選"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "將應用程式從工作列中取消釘選"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "使用單色選單列圖示，而不是彩色圖示。"
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3000,6 +3035,9 @@ msgstr "<b>將無法恢復帳戶。</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>注意：DNS 設定可能不會立即生效。</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>注意：</b>本機網路共享與「在沒有 VPN 的情況下封鎖連線」不相容。"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>請注意：</b>並非所有伺服器都支援完整連接埠範圍。"
 
@@ -3012,8 +3050,14 @@ msgstr "<b>DNS 內容封鎖程式</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>私人 IP 範圍</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>此操作無法復原。</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>這可能會影響您的匿名性。</b>若使用公開或不受信任的網路，請避免啟用此功能，否則其他人可能會看到您的裝置。"
 
 msgid "<b>Warning:</b>"
 msgstr "<b>警告：</b>"
@@ -3105,9 +3149,6 @@ msgstr "確定要將 <b>%s</b> 登出嗎？"
 msgid "At least one method needs to be enabled"
 msgstr "至少需要啟用一種方式"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，將無法使用「本機網路共享」功能。"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。"
 
@@ -3156,6 +3197,9 @@ msgstr "連上其他網路"
 msgid "Connecting..."
 msgstr "正在連線…"
 
+msgid "Contact support"
+msgstr "聯絡支援團隊"
+
 msgid "Continue"
 msgstr "繼續"
 
@@ -3186,9 +3230,6 @@ msgstr "自訂 DNS 伺服器位址 %1$s 無效"
 msgid "DNS settings"
 msgstr "DNS 設定"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS 設定可能不會立即生效"
-
 msgid "Delete \"%s\"?"
 msgstr "要刪除「%s」嗎？"
 
@@ -3212,9 +3253,6 @@ msgstr "直接"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "停用上方所有「%s」以啟動此設定。"
-
-msgid "Disable multihop"
-msgstr "停用多點跳躍"
 
 msgid "Discard"
 msgstr "捨棄"
@@ -3255,8 +3293,8 @@ msgstr "啟用應用程式中所有存取方式"
 msgid "Enable method"
 msgstr "啟用方式"
 
-msgid "Enable multihop"
-msgstr "啟用多點跳躍"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "啟用後，在連至 VPN 時仍能使用檔案共享、列印、媒體串流與裝置探索等服務。"
 
 msgid "Enter MTU"
 msgstr "輸入 MTU"
@@ -3321,8 +3359,14 @@ msgstr "Google Play 付款尚待處理"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Play 付款待處理，這可能需要花一些時間"
 
+msgid "Google Play payment verification failed"
+msgstr "Google Play 付款驗證失敗"
+
 msgid "Google Play unavailable"
 msgstr "Google Play 無法使用"
+
+msgid "How it works"
+msgstr "運作方式"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "無法使用 IPv4，請嘗試變更「裝置 IP 版本」設定。"
@@ -3356,6 +3400,9 @@ msgstr "無法取得應用程式內產品，請確認您是否擁有最新版本
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "加入我的帳戶權杖，就能更快取得付款或帳戶相關問題的協助"
+
+msgid "Info"
+msgstr "資訊"
 
 msgid "Internet"
 msgstr "網際網路"
@@ -3570,15 +3617,6 @@ msgstr "傳送電子郵件"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。"
 
-msgid "Set as multihop entry"
-msgstr "設為多點跳躍進站點"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "設為多點跳躍進站點 (不相容)"
-
-msgid "Set as multihop exit"
-msgstr "設為多點跳躍出站點"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "設為多點跳躍出站點 (不相容)"
 
@@ -3599,6 +3637,9 @@ msgstr "顯示目前的 VPN 通道狀態"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帳戶時間即將到期時顯示提醒"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "驗證購買流程時發生問題。請聯絡支援團隊。"
 
 msgid "Submit"
 msgstr "提交"
@@ -3629,6 +3670,9 @@ msgstr "在 Android 系統設定中，鎖定模式稱為「在沒有 VPN 的情�
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "「目前」方式表示應用程式正用來存取 API 的方式。"
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "此應用程式允許本機多點傳送與廣播網路流量，以及往返私人 IP 範圍的流量繞過 VPN 通道。"
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "此應用程式正在封鎖網際網路，請先中斷連線"
@@ -3690,6 +3734,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "無法套用防火牆規則。請排除故障或傳送問題回報。"
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "無法開啟 VPN 權限對話方塊，請檢查您的作業系統組態"
+
 msgid "Unable to parse patch"
 msgstr "無法剖析修補檔"
 
@@ -3707,6 +3754,9 @@ msgstr "無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 <b>%
 
 msgid "Unable to verify account number, please contact support"
 msgstr "無法驗證帳號，請聯絡支援團隊"
+
+msgid "Unable to verify purchase"
+msgstr "無法驗證購買"
 
 msgid "Unavailable"
 msgstr "無法使用"
@@ -3774,6 +3824,12 @@ msgstr "警告"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "我們仍在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。"
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "我們無法驗證您最近一次的購買。請檢查您的網際網路連線並再試一次。如果問題持續發生，請聯絡支援團隊。"
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "我們無法驗證您的購買。請檢查您的網際網路連線並再試一次。"
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。"
 
@@ -3812,6 +3868,9 @@ msgstr "您將失去剩餘的"
 
 msgid "Your device"
 msgstr "您的裝置"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "您最近一次的購買仍在驗證中。此時登入其他帳戶會導致驗證失敗。您仍要登出嗎？"
 
 msgid "\"%s\" was created"
 msgstr "已建立「%s」"

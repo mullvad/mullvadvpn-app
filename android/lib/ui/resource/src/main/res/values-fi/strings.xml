@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hide_account_number">Piilota tilin numero</string>
     <string name="hint_default">Oletus</string>
+    <string name="how_it_works">Näin se toimii</string>
     <string name="icon_and_title">Kuvake ja otsikko</string>
     <string name="import_override_textfield_placeholder">Liitä tai kirjoita ohitukset, jotka haluat tuoda</string>
     <string name="import_overrides_bottom_sheet_override_warning">Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä auttaa meitä ratkaisemaan ongelmasi nopeammin. Kaikki raportit poistetaan automaattisesti tietyn ajan kuluttua.</string>
     <string name="include_account_token_warning_message_second">Lisätietoja antaa %1$s.</string>
     <string name="include_account_token_warning_title">Tämä vaikuttaa anonymiteettiisi</string>
+    <string name="info">Tietoa</string>
     <string name="internet">Internet</string>
     <string name="invalid_address_blank_warning">Syötä IP-osoite</string>
     <string name="invalid_address_invalid_warning">Virheellinen IP-osoite</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Ladataan tuotteita</string>
     <string name="loading_verifying">Ostosta vahvistetaan...</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
+    <string name="local_network_sharing_info">Tätä asetusta käyttämällä palvelut, kuten tiedostojen jakaminen, tulostaminen, median suoratoisto ja laitteiden havaitseminen toimivat, kun olet yhteydessä VPN:ään.</string>
+    <string name="local_network_sharing_info2"><b>Tämä saattaa vaikuttaa anonymiteettiisi.</b> Vältä asetuksen käyttämistä julkisissa tai epäluotettavissa verkoissa, sillä laitteesi saattaa näkyä muille.</string>
+    <string name="local_network_sharing_info3">Sovellus sallii VPN-tunnelin ohittamisen paikalliselle lähetys- ja monilähetysverkkoliikenteelle sekä liikenteelle yksityisille IP-alueille ja yksityisiltä IP-alueilta.</string>
+    <string name="local_network_sharing_info4"><b>Yksityiset IP-alueet</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Huomio:</b> paikallisen verkon jakaminen ei sovi yhteen Estä yhteydet ilman VPN:ää -asetuksen kanssa.</string>
     <string name="location_added">%1$s (lisätty)</string>
     <string name="location_was_added_to_list">%1$s lisättiin luetteloon \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s poistettiin luettelosta \"%2$s\"</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="voucher_too_short">Kuponkikoodi on liian lyhyt</string>
+    <string name="vpn_dialog_activity_not_found">VPN-käyttöoikeusvalintaikkunan avaaminen ei onnistu, tarkista käyttöjärjestelmäsi määritys</string>
     <string name="vpn_permission_denied_error">VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina päällä oleva VPN käytössä</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN:n käyttöoikeus evättiin</string>
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>

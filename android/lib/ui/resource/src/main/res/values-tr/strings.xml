@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
+    <string name="how_it_works">İşleyiş şekli</string>
     <string name="icon_and_title">Simge ve başlık</string>
     <string name="import_override_textfield_placeholder">İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın</string>
     <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir.</string>
     <string name="include_account_token_warning_message_second">Ayrıntılar için lütfen %1$s sayfamıza göz atın.</string>
     <string name="include_account_token_warning_title">Bu, anonimliğinizi etkileyebilir</string>
+    <string name="info">Bilgiler</string>
     <string name="internet">İnternet</string>
     <string name="invalid_address_blank_warning">Lütfen bir IP adresi girin</string>
     <string name="invalid_address_invalid_warning">Geçersiz IP adresi</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">Ürünler yükleniyor</string>
     <string name="loading_verifying">Satın alma işlemi doğrulanıyor...</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
+    <string name="local_network_sharing_info">Dosya paylaşımı, yazdırma, medya akışı ve cihaz keşfi gibi hizmetlerin VPN\'e bağlıyken çalışması için bu özelliği etkinleştirin.</string>
+    <string name="local_network_sharing_info2"><b>Bu durum anonimliğinizi etkileyebilir.</b> Cihazınız başkaları tarafından görülebileceğinden bu özelliği güvenli olmayan veya herkese açık ağlarda etkinleştirmeyin.</string>
+    <string name="local_network_sharing_info3">Bu uygulama, yerel çok noktaya yayın ve yayın ağ trafiğinin yanı sıra özel IP aralıklarına giden ve bu aralıklardan gelen trafiğin VPN tünelini atlamasına olanak tanır.</string>
+    <string name="local_network_sharing_info4"><b>Özel IP aralıkları</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Dikkat:</b> Yerel ağ paylaşımı, \"VPN üzerinden olmayan bağlantıları engelle\" seçeneğiyle uyumlu değil.</string>
     <string name="location_added">%1$s (eklendi)</string>
     <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
     <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="voucher_too_short">Kupon kodu çok kısa</string>
+    <string name="vpn_dialog_activity_not_found">VPN izin iletişim kutusu açılamıyor, lütfen işletim sisteminizin yapılandırmasını kontrol edin</string>
     <string name="vpn_permission_denied_error">VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" seçeneği etkinleştirildi</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN izni reddedildi</string>
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>

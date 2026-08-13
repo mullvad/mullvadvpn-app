@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2026-06-01 13:05\n"
+"PO-Revision-Date: 2026-08-13 08:51\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -286,6 +286,18 @@ msgstr "場所またはサーバーを検索"
 
 msgid "SECURE CONNECTION"
 msgstr "セキュリティ保護された接続"
+
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr "マルチホップの入口に設定"
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr "マルチホップの入口に設定（非対応）"
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr "マルチホップの出口に設定"
 
 msgid "Settings"
 msgstr "設定"
@@ -1146,7 +1158,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr "%(customList)s (追加済み)"
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -1901,7 +1913,6 @@ msgstr "スプリットトンネリングを有効化できませんでした。
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
-#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
 msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
 msgstr "%(splitTunneling)sの開始に失敗しました。ネットワークトラフィックのブロックを解除するには、%(splitTunneling)sを無効にしてください。"
@@ -1961,10 +1972,6 @@ msgstr "すべてのネットワークトラフィックをブロックできま
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
 msgstr "すべてのネットワークトラフィックをブロックできません。カーネルを更新するか、問題の報告を送信してください。"
-
-msgctxt "notifications"
-msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
-msgstr "Mullvadカーネルドライバーと通信できません。再接続を試すか、問題の報告を送信してください。"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -2078,6 +2085,11 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "カスタムリスト"
 
+#. Used in button to disable multihop.
+msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr "マルチホップを無効化する"
+
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "最近の項目を無効化"
@@ -2086,6 +2098,11 @@ msgstr "最近の項目を無効化"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "空"
+
+#. Used in button to enable multihop.
+msgctxt "select-location-view"
+msgid "Enable multihop"
+msgstr "マルチホップを有効化する"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2334,8 +2351,8 @@ msgstr "Mullvadサービスを再起動"
 #. Available placeholders:
 #. %(splitTunneling)s - will be replaced with Split tunneling
 msgctxt "split-tunneling-view"
-msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
-msgstr "%(splitTunneling)sを使用するには、cgroup v2をサポートしているLinuxカーネルバージョンに更新してください。"
+msgid "To use %(splitTunneling)s, please change to a Linux kernel version that supports cgroup v1."
+msgstr "%(splitTunneling)sを使用するには、cgroup v1をサポートしているLinuxカーネルバージョンに変更してください。"
 
 msgctxt "split-tunneling-view"
 msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
@@ -2566,12 +2583,20 @@ msgid "Language"
 msgstr "言語"
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr "モノクロのメニューバーアイコン"
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr "モノクロのトレイアイコン"
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
 msgstr "通知"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
+msgstr "アプリ起動時にメニューバーアイコンのみを表示します。"
 
 msgctxt "user-interface-settings-view"
 msgid "Show only the tray icon when the app starts."
@@ -2581,9 +2606,19 @@ msgctxt "user-interface-settings-view"
 msgid "Start minimized"
 msgstr "最小化状態で起動"
 
+#. Label for a setting to unpin the app window from the macOS "menu bar"
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from menu bar"
+msgstr "メニューバーからアプリのピン留め解除"
+
+#. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
 msgstr "タスクバーからアプリのピン留めを外す"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
+msgstr "カラーアイコンの代わりにモノクロのメニューバーアイコンを使用します。"
 
 msgctxt "user-interface-settings-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -3000,6 +3035,9 @@ msgstr "<b>アカウントの復旧はできません。</b>"
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr "<b>注意：DNS設定はすぐに反映されない場合があります。</b>"
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr "<b>注意: </b>ローカルネットワーク共有と「VPNなしの接続をブロック」は併用できません。"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>注意:</b> 全ポート範囲をサポートしているのは一部のサーバーのみです。"
 
@@ -3012,8 +3050,14 @@ msgstr "<b>DNSコンテンツブロッカー</b>"
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b>"
 
+msgid "<b>Private IP ranges</b>"
+msgstr "<b>プライベートIPアドレス範囲</b>"
+
 msgid "<b>This action cannot be undone.</b>"
 msgstr "<b>この操作は取り消すことができません。</b>"
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
+msgstr "<b>匿名性が損なわれる可能性があります。</b> 公共のネットワークや信頼できないネットワークでは有効にしないでください。デバイスが他のユーザーから見える状態になる可能性があります。"
 
 msgid "<b>Warning:</b>"
 msgstr "<b>警告：</b>"
@@ -3105,9 +3149,6 @@ msgstr "本当に<b>%s</b>をログアウトしますか？"
 msgid "At least one method needs to be enabled"
 msgstr "方法は少なくとも 1 つは有効化する必要があります"
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr "注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。"
 
@@ -3156,6 +3197,9 @@ msgstr "別のネットワークに接続する"
 msgid "Connecting..."
 msgstr "接続中..."
 
+msgid "Contact support"
+msgstr "サポートに問い合わせる"
+
 msgid "Continue"
 msgstr "続行"
 
@@ -3186,9 +3230,6 @@ msgstr "カスタムDNSサーバーアドレス %1$s は無効です"
 msgid "DNS settings"
 msgstr "DNS設定"
 
-msgid "DNS settings might not go into effect immediately"
-msgstr "DNS設定はすぐに適用されない可能性があります"
-
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" を削除しますか？"
 
@@ -3212,9 +3253,6 @@ msgstr "ダイレクト"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
-
-msgid "Disable multihop"
-msgstr "マルチホップを無効化する"
 
 msgid "Discard"
 msgstr "破棄"
@@ -3255,8 +3293,8 @@ msgstr "アプリですべてのアクセス方法を有効にする"
 msgid "Enable method"
 msgstr "方法を有効化する"
 
-msgid "Enable multihop"
-msgstr "マルチホップを有効化する"
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr "VPN接続中にファイル共有、印刷、メディアストリーミング、デバイス検出などの機能を使用できるようにします。"
 
 msgid "Enter MTU"
 msgstr "MTU を入力"
@@ -3321,8 +3359,14 @@ msgstr "Google Playの決済は未完了です"
 msgid "Google Play payment pending, this might take some time"
 msgstr "Google Playの決済は未完了です。これには時間がかかる場合があります"
 
+msgid "Google Play payment verification failed"
+msgstr "Google Playの支払い確認に失敗しました"
+
 msgid "Google Play unavailable"
 msgstr "Google Playを使用できません"
+
+msgid "How it works"
+msgstr "仕組み"
 
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr "IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。"
@@ -3356,6 +3400,9 @@ msgstr "アプリ内アイテムを利用できません。最新バージョン
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "お支払いやアカウント関連の問題を迅速に解決するために、私のアカウントトークンを含めます"
+
+msgid "Info"
+msgstr "情報"
 
 msgid "Internet"
 msgstr "インターネット"
@@ -3570,15 +3617,6 @@ msgstr "メールを送信する"
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d"
 
-msgid "Set as multihop entry"
-msgstr "マルチホップの入口に設定"
-
-msgid "Set as multihop entry (incompatible)"
-msgstr "マルチホップの入口に設定（非対応）"
-
-msgid "Set as multihop exit"
-msgstr "マルチホップの出口に設定"
-
 msgid "Set as multihop exit (incompatible)"
 msgstr "マルチホップの出口に設定（非対応）"
 
@@ -3599,6 +3637,9 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
+
+msgid "Something went wrong while verifying your purchase. Please contact support."
+msgstr "購入の確認中に問題が発生しました。サポートにお問い合わせください。"
 
 msgid "Submit"
 msgstr "送信"
@@ -3629,6 +3670,9 @@ msgstr "このロックダウンモードは、Androidのシステム設定で�
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"現在の設定\" の方法は、アプリが API に到達するために使用する方法を指しています。"
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr "このアプリでは、ローカルのマルチキャストおよびブロードキャスト通信、ならびにプライベートIPアドレス範囲との通信をVPNトンネルを経由せずに許可します。"
 
 msgid "The app is blocking internet, please disconnect first"
 msgstr "アプリがインターネットをブロックしています。先に切断してください"
@@ -3690,6 +3734,9 @@ msgstr "UDP"
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。"
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr "VPN権限ダイアログを開けませんでした。OSの設定を確認してください"
+
 msgid "Unable to parse patch"
 msgstr "パッチを解析できません"
 
@@ -3707,6 +3754,9 @@ msgstr "トンネル接続を開始できません。Mullvad VPNを使用する�
 
 msgid "Unable to verify account number, please contact support"
 msgstr "アカウント番号を確認できません。サポートまでお問い合わせください"
+
+msgid "Unable to verify purchase"
+msgstr "購入を確認できません"
 
 msgid "Unavailable"
 msgstr "使用不可"
@@ -3774,6 +3824,12 @@ msgstr "警告"
 msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "現在購入の確認を行っており、これには時間がかかる場合があります。確認が完了すると、時間が追加されます。"
 
+msgid "We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support."
+msgstr "最新の購入内容を確認できませんでした。インターネット接続を確認してから、もう一度お試しください。問題が解決しない場合は、サポートまでお問い合わせください。"
+
+msgid "We couldn’t verify your purchase. Please check your internet connection and try again."
+msgstr "購入を確認できませんでした。インターネット接続を確認してから、もう一度お試しください。"
+
 msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
 msgstr "決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。"
 
@@ -3812,6 +3868,9 @@ msgstr "残り期間が失われます"
 
 msgid "Your device"
 msgstr "お使いのデバイス"
+
+msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr "最新の購入情報を現在確認中です。別のアカウントにログインすると確認処理が失敗します。それでもログアウトしますか？"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" が作成されました"

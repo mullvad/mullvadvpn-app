@@ -255,6 +255,7 @@
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
+    <string name="how_it_works">仕組み</string>
     <string name="icon_and_title">アイコンとタイトル</string>
     <string name="import_override_textfield_placeholder">インポートするオーバーライドを貼り付けるか、または記入してください</string>
     <string name="import_overrides_bottom_sheet_override_warning">新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。</string>
@@ -266,6 +267,7 @@
     <string name="include_account_token_warning_message_first">アカウントトークンを添付するとこのレポートがアカウントに関連付けられ、より迅速に問題を解決することができます。すべてのレポートは一定期間が経過した後に自動で削除されます。</string>
     <string name="include_account_token_warning_message_second">詳細については、当社の%1$sをご覧ください。</string>
     <string name="include_account_token_warning_title">これはあなたの匿名性に影響を与えます</string>
+    <string name="info">情報</string>
     <string name="internet">インターネット</string>
     <string name="invalid_address_blank_warning">IPアドレスを入力してください</string>
     <string name="invalid_address_invalid_warning">無効なIPアドレス</string>
@@ -288,6 +290,11 @@
     <string name="loading_products">製品を読み込み中</string>
     <string name="loading_verifying">購入を確認中...</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
+    <string name="local_network_sharing_info">VPN接続中にファイル共有、印刷、メディアストリーミング、デバイス検出などの機能を使用できるようにします。</string>
+    <string name="local_network_sharing_info2"><b>匿名性が損なわれる可能性があります。</b> 公共のネットワークや信頼できないネットワークでは有効にしないでください。デバイスが他のユーザーから見える状態になる可能性があります。</string>
+    <string name="local_network_sharing_info3">このアプリでは、ローカルのマルチキャストおよびブロードキャスト通信、ならびにプライベートIPアドレス範囲との通信をVPNトンネルを経由せずに許可します。</string>
+    <string name="local_network_sharing_info4"><b>プライベートIPアドレス範囲</b></string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>注意: </b>ローカルネットワーク共有と「VPNなしの接続をブロック」は併用できません。</string>
     <string name="location_added">%1$s (追加済み)</string>
     <string name="location_was_added_to_list">%1$sが「%2$s」に追加されました</string>
     <string name="location_was_removed_from_list">%1$sが「%2$s」から削除されました</string>
@@ -503,6 +510,7 @@
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="voucher_too_short">バウチャーコードが短すぎます</string>
+    <string name="vpn_dialog_activity_not_found">VPN権限ダイアログを開けませんでした。OSの設定を確認してください</string>
     <string name="vpn_permission_denied_error">VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPNへアクセスする許可がありません</string>
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
