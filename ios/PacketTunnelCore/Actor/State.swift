@@ -273,6 +273,7 @@ public enum NextRelays: Equatable, Codable, Sendable {
     case random
 
     /// Use currently selected relays, fallback to random if not set.
+    /// Only used by WireGuardGo; remove when WireGuardGo is removed.
     case current
 
     /// Use pre-selected relays.
