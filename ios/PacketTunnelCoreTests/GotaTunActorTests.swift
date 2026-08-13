@@ -25,12 +25,14 @@ final class GotaTunActorTests: XCTestCase {
         providerDelegate: TunnelProviderDelegate = TunnelProviderDelegateStub(),
         settingsReader: SettingsReaderProtocol = SettingsReaderStub.staticConfiguration(),
         relaySelector: RelaySelectorProtocol = RelaySelectorStub.nonFallible(),
+        defaultPathObserver: GotaTunPathObserverFake = GotaTunPathObserverFake(),
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol = BlockedStateErrorMapperStub()
     ) -> GotaTunActor {
         GotaTunActor(
             providerDelegate: providerDelegate,
             settingsReader: settingsReader,
             relaySelector: relaySelector,
+            defaultPathObserver: defaultPathObserver,
             blockedStateErrorMapper: blockedStateErrorMapper,
             adapterFactory: adapterFactory
         )
@@ -166,6 +168,28 @@ final class GotaTunActorTests: XCTestCase {
                 await actor.start(options: launchOptions)
                 await actor.start(options: launchOptions)
             })
+    }
+
+    // MARK: - Stop
+
+    func testStopGoesToDisconnected() async throws {
+        let actor = makeActor()
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(actor, until: { $0.isDisconnected }, while: { actor.stop() })
+    }
+
+    func testStopIsNoopBeforeStart() async throws {
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(defaultPathObserver: pathObserver)
+        actor.stop()
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertEqual(state, .disconnected)
+        let stopCount = await pathObserver.stopCount
+        XCTAssertEqual(stopCount, 1, "Stopping must tear observation down")
     }
 
     // MARK: - Timeout handling
@@ -432,7 +456,188 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(factory.adaptersCreated.count, 0, "Stopping before start must not connect anything")
     }
 
-    func testStopFromConnecting() async throws {
+    // MARK: - Network reachability
+
+    func testOfflineEntersErrorState() async throws {
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline },
+            while: {
+                await pathObserver.updatePath(.unsatisfied)
+            })
+    }
+
+    func testOfflinePathUpdateWhileConnectedBlocksAndStopsAdapter() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+        XCTAssertFalse(factory.adaptersCreated[0].isStopped)
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline },
+            while: {
+                await pathObserver.updatePath(.unsatisfied)
+            })
+        await actor.drainEvents()
+
+        XCTAssertTrue(
+            factory.adaptersCreated[0].isStopped,
+            "The tunnel must be torn down when the path is lost")
+        XCTAssertEqual(
+            factory.adaptersCreated.count, 1,
+            "Going offline must block rather than start another attempt")
+    }
+
+    func testPathObserverStartsWithTheActor() async throws {
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(defaultPathObserver: pathObserver)
+
+        await actor.drainEvents()
+        var startCount = await pathObserver.startCount
+        XCTAssertEqual(startCount, 1)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        startCount = await pathObserver.startCount
+        XCTAssertEqual(startCount, 1, "Starting the tunnel must not restart observation")
+    }
+
+    func testStartedWhileOfflineBlocksImmediately() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake(status: .unsatisfied)
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await actor.start(options: launchOptions) })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 0, "Must not attempt to connect while offline")
+    }
+
+    func testStartedWhileOfflineThenOnlineConnects() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake(status: .unsatisfied)
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await pathObserver.updatePath(.satisfied) })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+    }
+
+    func testPathObserverStoppedOnTeardown() async throws {
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(actor, until: { $0.isDisconnected }, while: { actor.stop() })
+
+        let stopCount = await pathObserver.stopCount
+        XCTAssertEqual(stopCount, 1)
+        let isStarted = await pathObserver.isStarted
+        XCTAssertFalse(isStarted)
+    }
+
+    func testSatisfiedPathRecyclesSockets() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        let recycled = expectation(description: "Sockets recycled")
+        factory.adaptersCreated[0].onRecycleUdpSockets = { recycled.fulfill() }
+
+        await pathObserver.updatePath(.satisfied)
+        await fulfillment(of: [recycled], timeout: 2.0)
+
+        XCTAssertEqual(factory.adaptersCreated[0].recycleUdpSocketsCount, 1)
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+
+        let state = await actor.observedState
+        XCTAssertTrue(state.isConnected, "Expected to remain connected, got \(state.name)")
+    }
+
+    func testRequiresConnectionDoesNotGoOffline() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await pathObserver.updatePath(.requiresConnection)
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertTrue(state.isConnected, "Expected to remain connected, got \(state.name)")
+        XCTAssertEqual(state.connectionState?.networkReachability, .reachable)
+    }
+
+    func testRepeatedUnsatisfiedDoesNotChurn() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        let offlineExpectation = expectation(description: "Offline error emitted exactly once")
+        offlineExpectation.assertForOverFulfill = true
+
+        let states = await actor.observedStates
+        let task = Task {
+            for await state in states where state.blockedReason == .offline {
+                offlineExpectation.fulfill()
+            }
+        }
+
+        await pathObserver.updatePath(.unsatisfied)
+        await pathObserver.updatePath(.unsatisfied)
+        await pathObserver.updatePath(.unsatisfied)
+        await fulfillment(of: [offlineExpectation], timeout: 2.0)
+        await actor.drainEvents()
+        task.cancel()
+
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+    }
+
+    func testObservedReachabilityTracksPath() async throws {
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(defaultPathObserver: pathObserver)
+
+        await waitFor(
+            actor,
+            until: { $0.isConnecting && $0.connectionState?.networkReachability == .reachable },
+            while: { await actor.start(options: launchOptions) }
+        )
+    }
+
+    func testOnlineAfterOfflineReconnects() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(adapterFactory: factory, defaultPathObserver: pathObserver)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await pathObserver.updatePath(.unsatisfied) })
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await pathObserver.updatePath(.satisfied) })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 2)
+    }
+
+    // MARK: - Stop during connection
+
+    func testStopDuringConnecting() async throws {
         // The adapter never reports, so the actor stays in `.connecting` until stopped.
         let factory = GotaTunAdapterFactoryStub(outcome: .never)
         let actor = makeActor(adapterFactory: factory)
