@@ -767,6 +767,138 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(afterRotation.connectionState?.lastKeyRotation, rotationDate)
     }
 
+    // MARK: - Cascading errors
+
+    func testCascadingErrorsWithRecovery() async throws {
+        // Settings unreadable for the first two attempts (e.g. device locked at boot), then readable.
+        // Should retry automatically via the boot recovery timer, with no adapter created until settings
+        // are actually readable.
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            guard readAttempts > 2 else { throw POSIXError(.EPERM) }
+            return Settings(
+                privateKey: WireGuard.PrivateKey(),
+                interfaceAddresses: [
+                    IPAddressRange(from: "127.0.0.1/32")!,
+                    IPAddressRange(from: "fc00::1/128")!,
+                ],
+                tunnelSettings: LatestTunnelSettings()
+            )
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .deviceLocked }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceLocked }, while: { await actor.start(options: launchOptions) })
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 1)
+
+        await clock.waitForSleepers()
+        await clock.advance(by: timings.bootRecoveryPeriodicity)
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 2)
+        XCTAssertEqual(factory.adaptersCreated.count, 0, "No adapter while settings are unreadable")
+
+        await clock.waitForSleepers()
+        await waitFor(
+            actor, until: { $0.isConnected },
+            while: {
+                Task { await clock.advance(by: timings.bootRecoveryPeriodicity) }
+            })
+
+        XCTAssertEqual(readAttempts, 3, "Should have retried settings read until it succeeded")
+        XCTAssertEqual(factory.adaptersCreated.count, 1, "Adapter should only be created once settings are readable")
+    }
+
+    func testNonAutoRestartableErrorDoesNotRetry() async throws {
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            throw POSIXError(.EPERM)
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .readSettings }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .readSettings }, while: { await actor.start(options: launchOptions) })
+
+        await actor.drainEvents()
+        XCTAssertEqual(clock.sleeperCount, 0, "No recovery timer should be armed")
+
+        // Span many recovery periods instantly; nothing should be scheduled to act on them.
+        await clock.advance(by: timings.bootRecoveryPeriodicity * 20)
+        await actor.drainEvents()
+
+        XCTAssertEqual(readAttempts, 1, "readSettings is not auto-restartable and must not be retried")
+        XCTAssertEqual(factory.adaptersCreated.count, 0)
+    }
+
+    func testRecoveryStopsWhenReasonBecomesNonRestartable() async throws {
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            throw POSIXError(.EPERM)
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .deviceLocked }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceLocked }, while: { await actor.start(options: launchOptions) })
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 1)
+
+        // Each period wakes the recovery timer exactly once. The timer is replaced on every
+        // cycle, so wait for the new one to arm before advancing again.
+        for expectedAttempts in 2...4 {
+            await clock.waitForSleepers()
+            await clock.advance(by: timings.bootRecoveryPeriodicity)
+            await actor.drainEvents()
+            XCTAssertEqual(readAttempts, expectedAttempts, "deviceLocked should be retried once per recovery period")
+        }
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceRevoked },
+            while: {
+                actor.setErrorState(reason: .deviceRevoked)
+            })
+
+        await actor.drainEvents()
+        XCTAssertEqual(clock.sleeperCount, 0, "Recovery timer must be cancelled")
+
+        await clock.advance(by: timings.bootRecoveryPeriodicity * 20)
+        await actor.drainEvents()
+
+        XCTAssertEqual(readAttempts, 4, "Recovery must stop once the reason is not restartable")
+    }
+
     // MARK: - Stop during connection
 
     func testStopDuringConnecting() async throws {
