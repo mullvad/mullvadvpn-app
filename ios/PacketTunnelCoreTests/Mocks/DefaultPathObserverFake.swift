@@ -34,3 +34,40 @@ class DefaultPathObserverFake: DefaultPathObserverProtocol, @unchecked Sendable 
     /// Simulate network path update.
     func updatePath(_ newPath: Network.NWPath.Status) {}
 }
+
+/// GotaTun path observer fake that keeps current path in actor state and provides a method to
+/// simulate path change from tests.
+actor GotaTunPathObserverFake: GotaTunPathObserverProtocol {
+    private var pathStatus: Network.NWPath.Status
+    private var defaultPathHandler: (@Sendable (Network.NWPath.Status) -> Void)?
+
+    private(set) var startCount = 0
+    private(set) var stopCount = 0
+
+    init(status: Network.NWPath.Status = .satisfied) {
+        self.pathStatus = status
+    }
+
+    var isStarted: Bool {
+        defaultPathHandler != nil
+    }
+
+    @discardableResult
+    func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) -> Network.NWPath.Status {
+        startCount += 1
+        guard defaultPathHandler == nil else { return pathStatus }
+        defaultPathHandler = body
+        return pathStatus
+    }
+
+    func stop() {
+        defaultPathHandler = nil
+        stopCount += 1
+    }
+
+    /// Simulate network path update.
+    func updatePath(_ newPath: Network.NWPath.Status) {
+        pathStatus = newPath
+        defaultPathHandler?(newPath)
+    }
+}
