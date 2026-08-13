@@ -21,7 +21,11 @@ use gotatun::{
     device::{DeviceBuilder, Peer},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::MtuWatcher,
-    udp::{channel::new_udp_tun_channel, socket::UdpSocketFactory},
+    udp::{
+        UdpTransportFactory, UdpTransportFactoryParams,
+        channel::new_udp_tun_channel,
+        socket::{UdpSocket, UdpSocketFactory},
+    },
     x25519::StaticSecret,
 };
 use ipnetwork::IpNetwork;
@@ -55,6 +59,38 @@ impl ObfuscationGuard {
 impl Drop for ObfuscationGuard {
     fn drop(&mut self) {
         self.task.abort();
+    }
+}
+
+/// A UDP transport bound ahead of the tunnel starting.
+/// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection
+/// fail fast.
+#[derive(Clone)]
+pub struct BoundUdpTransports {
+    socket: UdpSocket,
+}
+
+impl BoundUdpTransports {
+    /// Bind the socket, or fail describing why.
+    pub async fn bind() -> io::Result<Self> {
+        let params = UdpTransportFactoryParams {
+            addr: None,
+            port: 0,
+        };
+        let (socket, _recv) = UdpSocketFactory::default().bind(&params).await?;
+        Ok(Self { socket })
+    }
+}
+
+impl UdpTransportFactory for BoundUdpTransports {
+    type Send = UdpSocket;
+    type Recv = UdpSocket;
+
+    async fn bind(
+        &mut self,
+        _params: &UdpTransportFactoryParams,
+    ) -> io::Result<(Self::Send, Self::Recv)> {
+        Ok((self.socket.clone(), self.socket.clone()))
     }
 }
 
@@ -152,6 +188,7 @@ impl IosTunnelAdapter {
     pub fn start(
         runtime: tokio::runtime::Handle,
         config: TunnelConfig,
+        udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
     ) -> Self {
         let stopped = Arc::new(AtomicBool::new(false));
@@ -159,6 +196,7 @@ impl IosTunnelAdapter {
 
         let task = runtime.spawn(Self::run(
             config,
+            udp,
             callback,
             stopped.clone(),
             stop_notify.clone(),
@@ -204,13 +242,14 @@ impl IosTunnelAdapter {
 
     async fn run(
         config: TunnelConfig,
+        udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
         stopped: Arc<AtomicBool>,
         stop_notify: Arc<Notify>,
     ) {
         // Every phase below returns a `Result`; the callback is fired exactly
         // once, here, based on the final outcome.
-        match Self::run_inner(config, &callback, &stopped, &stop_notify).await {
+        match Self::run_inner(config, udp, &callback, &stopped, &stop_notify).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(TunnelError::Timeout) => Self::fire_timeout(&stopped, &callback),
             Err(TunnelError::Error(msg)) => Self::fire_error(&stopped, &callback, msg),
@@ -219,6 +258,7 @@ impl IosTunnelAdapter {
 
     async fn run_inner(
         mut config: TunnelConfig,
+        udp: BoundUdpTransports,
         callback: &Arc<dyn TunnelCallbackHandler>,
         stopped: &AtomicBool,
         stop_notify: &Notify,
@@ -229,7 +269,7 @@ impl IosTunnelAdapter {
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = Self::negotiate_pq(&mut config, stopped).await?;
+        let pq = Self::negotiate_pq(&mut config, &udp, stopped).await?;
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
@@ -255,7 +295,7 @@ impl IosTunnelAdapter {
             });
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
 
-        let devices = Self::build_devices(&config, pq, mux_recv, mux_send).await?;
+        let devices = Self::build_devices(&config, &udp, pq, mux_recv, mux_send).await?;
         if stopped.load(Ordering::SeqCst) {
             devices.stop().await;
             return Err(TunnelError::Timeout);
@@ -295,6 +335,7 @@ impl IosTunnelAdapter {
     /// device(s) with - `entry` is `Some` only for multihop PQ.
     async fn negotiate_pq(
         config: &mut TunnelConfig,
+        udp: &BoundUdpTransports,
         stopped: &AtomicBool,
     ) -> Result<PqResult, TunnelError> {
         // No PQ/DAITA: the device peer is just the static configured exit peer.
@@ -316,9 +357,14 @@ impl IosTunnelAdapter {
             config.enable_daita
         );
 
-        let (first_key, mut first_peer) =
-            Self::run_pq_exchange(config, first_peer_config, parent_pubkey.clone(), pq_timeout)
-                .await?;
+        let (first_key, mut first_peer) = Self::run_pq_exchange(
+            config,
+            udp,
+            first_peer_config,
+            parent_pubkey.clone(),
+            pq_timeout,
+        )
+        .await?;
 
         if !is_multihop {
             return Ok((None, first_key, first_peer));
@@ -383,7 +429,7 @@ impl IosTunnelAdapter {
 
         // Entry device: real UDP, channel IP pair.
         let pq2_entry = match DeviceBuilder::new()
-            .with_udp(UdpSocketFactory::default())
+            .with_udp(udp.clone())
             .with_ip_pair(ch_tx, ch_rx)
             .with_peer(entry_peer)
             .with_private_key(first_key.clone())
@@ -441,6 +487,7 @@ impl IosTunnelAdapter {
     /// their peers.
     async fn build_devices(
         config: &TunnelConfig,
+        udp: &BoundUdpTransports,
         pq: PqResult,
         mux_recv: tun_device::IosTunIpRecv,
         mux_send: tun_device::IosTunIpSend,
@@ -450,7 +497,7 @@ impl IosTunnelAdapter {
         let Some(entry_peer_config) = config.entry_peer.as_ref() else {
             // Singlehop: one device, mux'd IP pair, real UDP.
             let device = DeviceBuilder::new()
-                .with_udp(UdpSocketFactory::default())
+                .with_udp(udp.clone())
                 .with_ip_pair(mux_send, mux_recv)
                 .with_private_key(pq_exit_key)
                 .with_peer(pq_exit_peer.with_endpoint(config.exit_peer.endpoint))
@@ -493,7 +540,7 @@ impl IosTunnelAdapter {
         let entry_peer = entry_peer.with_endpoint(entry_peer_config.endpoint);
 
         let entry_device = match DeviceBuilder::new()
-            .with_udp(UdpSocketFactory::default())
+            .with_udp(udp.clone())
             .with_ip_pair(tun_channel_tx, tun_channel_rx)
             .with_peer(entry_peer)
             .with_private_key(entry_key)
@@ -548,6 +595,7 @@ impl IosTunnelAdapter {
     /// configure peer, negotiate.
     async fn run_pq_exchange(
         config: &TunnelConfig,
+        udp: &BoundUdpTransports,
         peer_config: &PeerConfig,
         parent_pubkey: PublicKey,
         timeout: Duration,
@@ -572,7 +620,7 @@ impl IosTunnelAdapter {
         initial_peer.allowed_ips = Self::config_service_allowed_ips();
 
         let pq_device = DeviceBuilder::new()
-            .with_udp(UdpSocketFactory::default())
+            .with_udp(udp.clone())
             .with_ip_pair(ip_send, ip_recv)
             .with_private_key(StaticSecret::from(config.private_key))
             .with_peer(initial_peer)
@@ -869,14 +917,14 @@ fn localhost_wg_endpoint(peer: SocketAddr) -> SocketAddr {
 enum Devices {
     Singlehop(
         gotatun::device::Device<(
-            UdpSocketFactory,
+            BoundUdpTransports,
             tun_device::IosTunIpSend,
             tun_device::IosTunIpRecv,
         )>,
     ),
     Multihop {
         entry: gotatun::device::Device<(
-            UdpSocketFactory,
+            BoundUdpTransports,
             gotatun::tun::channel::TunChannelTx,
             gotatun::tun::channel::TunChannelRx,
         )>,
