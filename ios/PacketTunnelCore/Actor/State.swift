@@ -95,14 +95,14 @@ public enum NetworkReachability: Equatable, Codable, Sendable {
 
 protocol StateAssociatedData {
     var currentKey: WireGuard.PrivateKey? { get set }
-    var keyPolicy: State.KeyPolicy { get set }
+    var keyPolicy: State.KeyRotationPolicy { get set }
     var networkReachability: NetworkReachability { get set }
     var lastKeyRotation: Date? { get set }
 }
 
 extension State {
     /// Policy describing what WG key to use for tunnel communication.
-    enum KeyPolicy: Sendable {
+    enum KeyRotationPolicy: Sendable {
         /// Use current key stored in device data.
         case useCurrent
 
@@ -124,7 +124,7 @@ extension State {
         public var currentKey: WireGuard.PrivateKey?
 
         /// Policy describing the current key that should be used by the tunnel.
-        public var keyPolicy: KeyPolicy
+        public var keyPolicy: KeyRotationPolicy
 
         /// Whether network connectivity outside of tunnel is available.
         public var networkReachability: NetworkReachability
@@ -173,7 +173,7 @@ extension State {
         public var currentKey: WireGuard.PrivateKey?
 
         /// Policy describing the current key that should be used by the tunnel.
-        public var keyPolicy: KeyPolicy
+        public var keyPolicy: KeyRotationPolicy
 
         /// Whether network connectivity outside of tunnel is available.
         public var networkReachability: NetworkReachability

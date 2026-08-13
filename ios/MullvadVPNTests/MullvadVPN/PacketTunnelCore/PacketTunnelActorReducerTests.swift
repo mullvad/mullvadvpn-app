@@ -27,7 +27,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
         )
     }
 
-    func makeConnectionData(keyPolicy: State.KeyPolicy = .useCurrent) -> State.ConnectionData {
+    func makeConnectionData(keyPolicy: State.KeyRotationPolicy = .useCurrent) -> State.ConnectionData {
         State.ConnectionData(
             selectedRelays: selectedRelays,
             relayConstraints: RelayConstraints(),
@@ -269,7 +269,8 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleNotifyKeyRotatedWhileUsingPriorKey() {
         // Given
-        let keyPolicy = State.KeyPolicy.usePrior(WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
+        let keyPolicy = State.KeyRotationPolicy.usePrior(
+            WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
         var state = State.connected(makeConnectionData(keyPolicy: keyPolicy))
         let date = Date()
 
@@ -295,14 +296,15 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleSwitchKeyFromUsePrior() {
         // Given
-        let keyPolicy = State.KeyPolicy.usePrior(WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
+        let keyPolicy = State.KeyRotationPolicy.usePrior(
+            WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
         var state = State.connected(makeConnectionData(keyPolicy: keyPolicy))
 
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .switchKey)
 
         // then
-        XCTAssertEqual(state.keyPolicy, State.KeyPolicy.useCurrent)
+        XCTAssertEqual(state.keyPolicy, State.KeyRotationPolicy.useCurrent)
         XCTAssertEqual(
             effects,
             [

@@ -117,7 +117,7 @@ extension State {
         self.connectionData ?? self.blockedData
     }
 
-    var keyPolicy: KeyPolicy? {
+    var keyPolicy: KeyRotationPolicy? {
         associatedData?.keyPolicy
     }
 
@@ -163,12 +163,12 @@ extension State {
 
     /// Apply a mutating function to the state's key policy
     /// - parameter modifier: A function that takes an `inout KeyPolicy` and modifies it
-    mutating func mutateKeyPolicy(_ modifier: (inout KeyPolicy) -> Void) {
+    mutating func mutateKeyPolicy(_ modifier: (inout KeyRotationPolicy) -> Void) {
         self.mutateAssociatedData { modifier(&$0.keyPolicy) }
     }
 }
 
-extension State.KeyPolicy {
+extension State.KeyRotationPolicy {
     func logFormat() -> String {
         switch self {
         case .useCurrent:
@@ -179,8 +179,8 @@ extension State.KeyPolicy {
     }
 }
 
-extension State.KeyPolicy: Equatable {
-    static func == (lhs: State.KeyPolicy, rhs: State.KeyPolicy) -> Bool {
+extension State.KeyRotationPolicy: Equatable {
+    static func == (lhs: State.KeyRotationPolicy, rhs: State.KeyRotationPolicy) -> Bool {
         switch (lhs, rhs) {
         case (.useCurrent, .useCurrent): true
         case let (.usePrior(priorA, _), .usePrior(priorB, _)): priorA == priorB

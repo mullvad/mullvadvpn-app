@@ -328,7 +328,7 @@ extension PacketTunnelActor {
         settings: Settings,
         reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
-        var keyPolicy: State.KeyPolicy = .useCurrent
+        var keyPolicy: State.KeyRotationPolicy = .useCurrent
         var networkReachability = defaultPathObserver.currentPathStatus.networkReachability
         var lastKeyRotation: Date?
 
