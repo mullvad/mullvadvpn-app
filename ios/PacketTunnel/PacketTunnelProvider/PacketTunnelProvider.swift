@@ -104,7 +104,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         #if DEBUG
             if PacketTunnelDebugSettings.useGotaTun {
                 providerLogger.info("Using GotaTun implementation (debug)")
-                implementation = GotaTunTunnelImplementation()
+                implementation = GotaTunTunnelImplementation(
+                    providerDelegate: GotaTunProviderProxy(provider: self),
+                    blockedStateErrorMapper: BlockedStateErrorMapper(),
+                    adapterFactory: RustGotaTunAdapterFactory(),
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader
+                )
             } else {
                 implementation = makeWireGuardGoImplementation(
                     ipOverrideWrapper: ipOverrideWrapper,
