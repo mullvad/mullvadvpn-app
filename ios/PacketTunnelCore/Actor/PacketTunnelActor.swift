@@ -35,7 +35,13 @@ public actor PacketTunnelActor {
         }
     }
 
-    @Published internal(set) public var observedState: ObservedState = .initial
+    internal(set) public var observedState: ObservedState = .initial {
+        didSet {
+            stateBroadcaster.send(observedState)
+        }
+    }
+
+    let stateBroadcaster = ObservedStateBroadcaster()
 
     nonisolated let logger = Logger(label: "PacketTunnelActor")
 

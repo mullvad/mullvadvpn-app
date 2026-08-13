@@ -6,7 +6,6 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-@preconcurrency import Combine
 import MullvadTypes
 import Network
 import XCTest
@@ -17,7 +16,7 @@ import XCTest
 @testable import PacketTunnelCore
 
 final class PacketTunnelActorTests: XCTestCase {
-    private var stateSink: Combine.Cancellable?
+    private var stateSink: Task<Void, Never>?
     private let launchOptions = StartOptions(launchSource: .app)
 
     override func tearDown() async throws {
@@ -46,23 +45,21 @@ final class PacketTunnelActorTests: XCTestCase {
             connectedStateExpectation,
         ]
 
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
-                switch newState {
-                case .initial:
-                    initialStateExpectation.fulfill()
-                case .negotiatingEphemeralPeer:
-                    negotiatingPeerExpectation.fulfill()
-                    actor.notifyEphemeralPeerNegotiated()
-                case .connecting:
-                    connectingExpectation.fulfill()
-                case .connected:
-                    connectedStateExpectation.fulfill()
-                default:
-                    break
-                }
+        stateSink = await observeState(on: actor) { newState in
+            switch newState {
+            case .initial:
+                initialStateExpectation.fulfill()
+            case .negotiatingEphemeralPeer:
+                negotiatingPeerExpectation.fulfill()
+                actor.notifyEphemeralPeerNegotiated()
+            case .connecting:
+                connectingExpectation.fulfill()
+            case .connected:
+                connectedStateExpectation.fulfill()
+            default:
+                break
             }
+        }
 
         actor.start(options: launchOptions)
 
@@ -86,23 +83,21 @@ final class PacketTunnelActorTests: XCTestCase {
             connectedStateExpectation,
         ]
 
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
-                switch newState {
-                case .initial:
-                    initialStateExpectation.fulfill()
-                case .negotiatingEphemeralPeer:
-                    negotiatingPeerExpectation.fulfill()
-                    actor.notifyEphemeralPeerNegotiated()
-                case .connecting:
-                    connectingExpectation.fulfill()
-                case .connected:
-                    connectedStateExpectation.fulfill()
-                default:
-                    break
-                }
+        stateSink = await observeState(on: actor) { newState in
+            switch newState {
+            case .initial:
+                initialStateExpectation.fulfill()
+            case .negotiatingEphemeralPeer:
+                negotiatingPeerExpectation.fulfill()
+                actor.notifyEphemeralPeerNegotiated()
+            case .connecting:
+                connectingExpectation.fulfill()
+            case .connected:
+                connectedStateExpectation.fulfill()
+            default:
+                break
             }
+        }
 
         actor.start(options: launchOptions)
         actor.start(options: launchOptions)
@@ -122,10 +117,10 @@ final class PacketTunnelActorTests: XCTestCase {
         )
         let connectingStateExpectation = expectation(description: "Expect connecting state")
         connectingStateExpectation.expectedFulfillmentCount = 5
-        var nextAttemptCount: UInt = 0
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
+        let states = await actor.observedStates
+        stateSink = Task {
+            var nextAttemptCount: UInt = 0
+            for await newState in states {
                 switch newState {
                 case .initial:
                     break
@@ -140,6 +135,7 @@ final class PacketTunnelActorTests: XCTestCase {
                     XCTFail("Received invalid state: \(newState.name).")
                 }
             }
+        }
 
         actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(of: [connectingStateExpectation], timeout: .UnitTest.timeout)
@@ -150,10 +146,10 @@ final class PacketTunnelActorTests: XCTestCase {
         let actor = PacketTunnelActor.mock(tunnelMonitor: tunnelMonitor)
         let negotiatingPostQuantumKeyStateExpectation = expectation(description: "Expect post quantum state")
         negotiatingPostQuantumKeyStateExpectation.expectedFulfillmentCount = 5
-        var nextAttemptCount: UInt = 0
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
+        let states = await actor.observedStates
+        stateSink = Task {
+            var nextAttemptCount: UInt = 0
+            for await newState in states {
                 switch newState {
                 case .initial:
                     break
@@ -168,6 +164,7 @@ final class PacketTunnelActorTests: XCTestCase {
                     XCTFail("Received invalid state: \(newState.name).")
                 }
             }
+        }
 
         actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(of: [negotiatingPostQuantumKeyStateExpectation], timeout: .UnitTest.timeout)
@@ -187,10 +184,10 @@ final class PacketTunnelActorTests: XCTestCase {
         let connectedStateExpectation = expectation(description: "Expect connected state")
         let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
         reconnectingStateExpectation.expectedFulfillmentCount = 5
-        var nextAttemptCount: UInt = 0
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
+        let states = await actor.observedStates
+        stateSink = Task {
+            var nextAttemptCount: UInt = 0
+            for await newState in states {
                 switch newState {
                 case .initial:
                     break
@@ -211,6 +208,7 @@ final class PacketTunnelActorTests: XCTestCase {
                     XCTFail("Received invalid state: \(newState.name).")
                 }
             }
+        }
 
         actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(
@@ -225,7 +223,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
         let connectedStateExpectation = expectation(description: "Expect connected state")
 
-        let expression: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
+        let expression: @Sendable (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
 
         await expect(expression, on: actor) {
             connectedStateExpectation.fulfill()
@@ -271,7 +269,7 @@ final class PacketTunnelActorTests: XCTestCase {
         /// `start` and `stop` cannot be chained together, otherwise there is a risk that the `start` command
         /// gets coalesced by the `stop` command, and leaves the actor in its `.initial` state.
         /// Guarantee here that the actor reaches the `.connecting` state before moving on.
-        let expression: (ObservedState) -> Bool = { if case .connecting = $0 { true } else { false } }
+        let expression: @Sendable (ObservedState) -> Bool = { if case .connecting = $0 { true } else { false } }
         await expect(expression, on: actor) {
             connectingStateExpectation.fulfill()
         }
@@ -279,18 +277,16 @@ final class PacketTunnelActorTests: XCTestCase {
         actor.notifyEphemeralPeerNegotiated()
         await fulfillment(of: [connectingStateExpectation], timeout: .UnitTest.timeout)
 
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
-                switch newState {
-                case .error:
-                    errorStateExpectation.fulfill()
-                case .disconnected:
-                    disconnectedStateExpectation.fulfill()
-                default:
-                    break
-                }
+        stateSink = await observeState(on: actor) { newState in
+            switch newState {
+            case .error:
+                errorStateExpectation.fulfill()
+            case .disconnected:
+                disconnectedStateExpectation.fulfill()
+            default:
+                break
             }
+        }
 
         actor.stop()
         actor.setErrorState(reason: .readSettings)
@@ -304,7 +300,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let reconnectingStateExpectation = expectation(description: "Expect initial state")
         reconnectingStateExpectation.isInverted = true
 
-        let expression: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
+        let expression: @Sendable (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
 
         await expect(expression, on: actor) {
             reconnectingStateExpectation.fulfill()
@@ -322,7 +318,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let actor = PacketTunnelActor.mock()
 
         let connectedStateExpectation = expectation(description: "Expect connected state")
-        let connectedState: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
+        let connectedState: @Sendable (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
         await expect(connectedState, on: actor) {
             connectedStateExpectation.fulfill()
         }
@@ -339,7 +335,9 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
         reconnectingStateExpectation.isInverted = true
-        let reconnectingState: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
+        let reconnectingState: @Sendable (ObservedState) -> Bool = {
+            if case .reconnecting = $0 { true } else { false }
+        }
         await expect(reconnectingState, on: actor) { reconnectingStateExpectation.fulfill() }
 
         actor.reconnect(to: .random, reconnectReason: .userInitiated)
@@ -363,7 +361,9 @@ final class PacketTunnelActorTests: XCTestCase {
         let actor = PacketTunnelActor.mock(tunnelMonitor: tunnelMonitor)
         let connectedExpectation = expectation(description: "Expect connected state")
 
-        let expression: (ObservedState) -> Bool = { if case .connected = $0 { return true } else { return false } }
+        let expression: @Sendable (ObservedState) -> Bool = {
+            if case .connected = $0 { return true } else { return false }
+        }
         await expect(expression, on: actor) {
             connectedExpectation.fulfill()
         }
@@ -397,20 +397,18 @@ final class PacketTunnelActorTests: XCTestCase {
 
         actor.start(options: launchOptions)
 
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
-                switch newState {
-                case .error:
-                    errorStateExpectation.fulfill()
-                case .connecting:
-                    connectingStateExpectation.fulfill()
-                case .connected:
-                    fatalError("Unexpected connected state")
-                default:
-                    break
-                }
+        stateSink = await observeState(on: actor) { newState in
+            switch newState {
+            case .error:
+                errorStateExpectation.fulfill()
+            case .connecting:
+                connectingStateExpectation.fulfill()
+            case .connected:
+                fatalError("Unexpected connected state")
+            default:
+                break
             }
+        }
 
         actor.setErrorState(reason: .tunnelAdapter)
 
@@ -423,8 +421,27 @@ final class PacketTunnelActorTests: XCTestCase {
 }
 
 extension PacketTunnelActorTests {
-    func expect(_ state: ObservedState, on actor: PacketTunnelActor, _ action: @escaping () -> Void) async {
-        stateSink = await actor.$observedState.receive(on: DispatchQueue.main).sink { newState in
+    /// Observe the actor's state stream until the returned task is cancelled.
+    /// The stream is created before returning, so states emitted by actions taken after the
+    /// call are not missed.
+    func observeState(
+        on actor: PacketTunnelActor,
+        _ handler: @escaping @Sendable (ObservedState) -> Void
+    ) async -> Task<Void, Never> {
+        let states = await actor.observedStates
+        return Task {
+            for await newState in states {
+                handler(newState)
+            }
+        }
+    }
+
+    func expect(
+        _ state: ObservedState,
+        on actor: PacketTunnelActor,
+        _ action: @escaping @Sendable () -> Void
+    ) async {
+        stateSink = await observeState(on: actor) { newState in
             if state == newState {
                 action()
             }
@@ -432,11 +449,11 @@ extension PacketTunnelActorTests {
     }
 
     func expect(
-        _ expression: @escaping (ObservedState) -> Bool,
+        _ expression: @escaping @Sendable (ObservedState) -> Bool,
         on actor: PacketTunnelActor,
-        _ action: @escaping () -> Void
+        _ action: @escaping @Sendable () -> Void
     ) async {
-        stateSink = await actor.$observedState.receive(on: DispatchQueue.main).sink { newState in
+        stateSink = await observeState(on: actor) { newState in
             if expression(newState) {
                 action()
             }
