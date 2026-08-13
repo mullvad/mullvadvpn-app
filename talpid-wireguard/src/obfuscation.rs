@@ -19,10 +19,29 @@ use talpid_types::{
         wireguard::{PeerConfig, PublicKey},
     },
 };
+use tokio::sync::oneshot;
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_local_socket_obfuscator_with_bypass, lwo, multiplexer,
+    LocalSocketObfuscator, create_local_socket_obfuscator_with_bypass, lwo,
+    multiplexer::{self, Transport},
     quic, shadowsocks, udp2tcp,
 };
+
+/// Settings for the local socket obfuscator to run: either a single obfuscator or a multiplexer.
+#[derive(Debug, Clone)]
+pub enum ObfuscationSettings {
+    Single(tunnel_obfuscation::Settings),
+    Multiplexer(Vec<tunnel_obfuscation::multiplexer::Transport>),
+}
+
+impl ObfuscationSettings {
+    /// Return the settings of the single obfuscator to run, if this is not a multiplexer.
+    pub fn single(&self) -> Option<&tunnel_obfuscation::Settings> {
+        match self {
+            ObfuscationSettings::Single(settings) => Some(settings),
+            ObfuscationSettings::Multiplexer(_) => None,
+        }
+    }
+}
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
 /// to point to an endpoint on localhost.
@@ -34,7 +53,7 @@ use tunnel_obfuscation::{
 /// * fwmark - (Linux only) firewall mark to apply to the obfuscator's remote socket
 pub async fn spawn_local_socket_obfuscator(
     entry_peer: &mut PeerConfig,
-    obfuscation_settings: tunnel_obfuscation::Settings,
+    obfuscation_settings: ObfuscationSettings,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
@@ -52,9 +71,31 @@ pub async fn spawn_local_socket_obfuscator(
         tun_provider,
     });
 
-    let obfuscator = create_local_socket_obfuscator_with_bypass(bypass, &obfuscation_settings)
-        .await
-        .map_err(Error::ObfuscationError)?;
+    let mut selected_transport_rx = None;
+
+    let obfuscator: Box<dyn LocalSocketObfuscator> = match obfuscation_settings {
+        ObfuscationSettings::Single(settings) => {
+            create_local_socket_obfuscator_with_bypass(bypass, &settings)
+                .await
+                .map_err(Error::ObfuscationError)?
+        }
+        ObfuscationSettings::Multiplexer(transports) => {
+            let (selected_transport_tx, selected_transport) = oneshot::channel();
+            let settings = multiplexer::Settings {
+                transports,
+                selected_transport: selected_transport_tx,
+            };
+            // The multiplexer connects to one out of several endpoints, and only commits to one
+            // of them. Have it announce its choice so that the firewall can be
+            // tightened accordingly.
+            selected_transport_rx = Some(selected_transport);
+            Box::new(
+                multiplexer::Multiplexer::new(bypass, settings)
+                    .await
+                    .map_err(Error::ObfuscationError)?,
+            )
+        }
+    };
 
     let packet_overhead = obfuscator.packet_overhead();
 
@@ -79,6 +120,7 @@ pub async fn spawn_local_socket_obfuscator(
     Ok(ObfuscatorHandle {
         obfuscation_task,
         packet_overhead,
+        selected_transport_rx,
     })
 }
 
@@ -107,12 +149,14 @@ pub fn settings_from_config(
     mtu: u16,
 ) -> ObfuscationSettings {
     match obfuscation_config {
-        Obfuscators::Single(obfuscation_config) => settings_from_single_config(
-            client_public_key,
-            server_public_key,
-            obfuscation_config,
-            mtu,
-        ),
+        Obfuscators::Single(obfuscation_config) => {
+            ObfuscationSettings::Single(settings_from_single_config(
+                client_public_key,
+                server_public_key,
+                obfuscation_config,
+                mtu,
+            ))
+        }
         Obfuscators::Multiplexer {
             direct,
             configs: (first_obfs, remaining_obfs),
@@ -130,7 +174,7 @@ pub fn settings_from_config(
                 );
                 transports.push(multiplexer::Transport::Obfuscated(settings));
             }
-            ObfuscationSettings::Multiplexer(multiplexer::Settings { transports })
+            ObfuscationSettings::Multiplexer(transports)
         }
     }
 }
@@ -140,13 +184,13 @@ fn settings_from_single_config(
     server_public_key: PublicKey,
     obfuscation_config: &ObfuscatorConfig,
     mtu: u16,
-) -> ObfuscationSettings {
+) -> tunnel_obfuscation::Settings {
     match obfuscation_config {
         ObfuscatorConfig::Udp2Tcp { endpoint } => {
-            ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer: *endpoint })
+            tunnel_obfuscation::Settings::Udp2Tcp(udp2tcp::Settings { peer: *endpoint })
         }
         ObfuscatorConfig::Shadowsocks { endpoint } => {
-            ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
+            tunnel_obfuscation::Settings::Shadowsocks(shadowsocks::Settings {
                 shadowsocks_endpoint: *endpoint,
                 wireguard_endpoint: if endpoint.is_ipv4() {
                     SocketAddr::from((Ipv4Addr::LOCALHOST, 51820))
@@ -168,9 +212,9 @@ fn settings_from_single_config(
                 wireguard_endpoint,
             )
             .mtu(mtu);
-            ObfuscationSettings::Quic(settings)
+            tunnel_obfuscation::Settings::Quic(settings)
         }
-        ObfuscatorConfig::Lwo { endpoint } => ObfuscationSettings::Lwo(lwo::Settings {
+        ObfuscatorConfig::Lwo { endpoint } => tunnel_obfuscation::Settings::Lwo(lwo::Settings {
             server_addr: *endpoint,
             client_public_key,
             server_public_key,
@@ -178,10 +222,34 @@ fn settings_from_single_config(
     }
 }
 
+/// The inverse of [`settings_from_single_config`].
+///
+/// The settings carry derived state that the config does not -- the local WireGuard endpoint and
+/// the MTU -- which is simply dropped.
+pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> ObfuscatorConfig {
+    match settings {
+        tunnel_obfuscation::Settings::Udp2Tcp(settings) => ObfuscatorConfig::Udp2Tcp {
+            endpoint: settings.peer,
+        },
+        tunnel_obfuscation::Settings::Shadowsocks(settings) => ObfuscatorConfig::Shadowsocks {
+            endpoint: settings.shadowsocks_endpoint,
+        },
+        tunnel_obfuscation::Settings::Quic(settings) => ObfuscatorConfig::Quic {
+            hostname: settings.hostname().to_owned(),
+            endpoint: settings.quic_endpoint(),
+            auth_token: settings.auth_token().to_owned(),
+        },
+        tunnel_obfuscation::Settings::Lwo(settings) => ObfuscatorConfig::Lwo {
+            endpoint: settings.server_addr,
+        },
+    }
+}
+
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
     packet_overhead: u16,
+    selected_transport_rx: Option<oneshot::Receiver<Transport>>,
 }
 
 impl ObfuscatorHandle {
@@ -191,6 +259,13 @@ impl ObfuscatorHandle {
 
     pub fn packet_overhead(&self) -> u16 {
         self.packet_overhead
+    }
+
+    /// Notified with the transport that the obfuscator commits to.
+    ///
+    /// Only a multiplexer has a choice to make, so this is `None` for every other obfuscator.
+    pub fn take_selected_transport_rx(&mut self) -> Option<oneshot::Receiver<Transport>> {
+        self.selected_transport_rx.take()
     }
 }
 

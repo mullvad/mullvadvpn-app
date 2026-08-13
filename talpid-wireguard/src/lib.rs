@@ -20,8 +20,11 @@ use std::{
 };
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider};
+use talpid_tunnel::{
+    EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata, tun_provider,
+};
 use talpid_tunnel::{IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, WIREGUARD_HEADER_SIZE};
+use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
@@ -74,6 +77,11 @@ pub enum Error {
     #[error("Tunnel obfuscation failed")]
     ObfuscationError(#[source] tunnel_obfuscation::Error),
 
+    /// Failed to determine which obfuscator the multiplexer settled on. Without it, the firewall
+    /// cannot be restricted to the endpoint that is actually in use.
+    #[error("Failed to determine the selected obfuscator")]
+    UnknownSelectedObfuscator,
+
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
     ConnectivityMonitorError(#[source] connectivity::Error),
@@ -98,6 +106,7 @@ impl Error {
     pub fn is_recoverable(&self) -> bool {
         match self {
             Error::ObfuscationError(_) => true,
+            Error::UnknownSelectedObfuscator => true,
             Error::EphemeralPeerNegotiationError(_) => true,
             Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
 
@@ -378,7 +387,15 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            event_hook.on_event(TunnelEvent::Up(metadata)).await;
+            let selected_obfuscation = selected_obfuscation(&obfuscator)
+                .await
+                .map_err(CloseMsg::SetupError)?;
+            event_hook
+                .on_event(TunnelEvent::Up {
+                    metadata,
+                    selected_obfuscation,
+                })
+                .await;
 
             if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
                 .run(Arc::downgrade(&tunnel))
@@ -551,7 +568,15 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            event_hook.on_event(TunnelEvent::Up(metadata)).await;
+            let selected_obfuscation = selected_obfuscation(&obfuscator)
+                .await
+                .map_err(CloseMsg::SetupError)?;
+            event_hook
+                .on_event(TunnelEvent::Up {
+                    metadata,
+                    selected_obfuscation,
+                })
+                .await;
 
             if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
                 .run(Arc::downgrade(&tunnel))
@@ -940,6 +965,38 @@ impl WireguardMonitor {
             ipv6_gateway: config.ipv6_gateway,
         }
     }
+}
+
+/// Return the transport that the obfuscator has committed to, if it had a choice to make.
+///
+/// Only a multiplexer has one, so this is `Ok(None)` for every other configuration, whose tunnel
+/// parameters already describe the single transport in use.
+async fn selected_obfuscation(
+    obfuscator: &AsyncMutex<Option<ObfuscatorHandle>>,
+) -> Result<Option<SelectedObfuscation>> {
+    let Some(rx) = obfuscator
+        .lock()
+        .await
+        .as_mut()
+        .and_then(ObfuscatorHandle::take_selected_transport_rx)
+    else {
+        return Ok(None);
+    };
+
+    let transport = rx.await.map_err(|_err| {
+        log::error!("The multiplexer stopped before selecting a transport");
+        Error::UnknownSelectedObfuscator
+    })?;
+
+    let selected = match transport {
+        Transport::Direct(_) => SelectedObfuscation::Direct,
+        Transport::Obfuscated(settings) => {
+            SelectedObfuscation::Obfuscated(obfuscation::config_from_single_settings(&settings))
+        }
+    };
+
+    log::debug!("Selected obfuscation: {selected:?}");
+    Ok(Some(selected))
 }
 
 fn get_obfuscator(

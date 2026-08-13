@@ -118,11 +118,11 @@ impl Config {
         Ok(config)
     }
 
-    /// Derive [tunnel_obfuscation::Settings] from the current config state.
+    /// Derive [crate::obfuscation::ObfuscationSettings] from the current config state.
     ///
     /// This is computed on demand so that it always reflects the current
     /// private key (which may change during ephemeral peer negotiation).
-    pub fn obfuscation_settings(&self) -> Option<tunnel_obfuscation::Settings> {
+    pub fn obfuscation_settings(&self) -> Option<crate::obfuscation::ObfuscationSettings> {
         self.obfuscator_config.as_ref().map(|obfuscator_config| {
             crate::obfuscation::settings_from_config(
                 self.tunnel.private_key.public_key(),

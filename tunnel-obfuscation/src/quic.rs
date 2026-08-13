@@ -101,6 +101,15 @@ impl Settings {
     pub fn quic_endpoint(&self) -> SocketAddr {
         self.quic_endpoint
     }
+
+    pub fn hostname(&self) -> &str {
+        &self.hostname
+    }
+
+    /// The authentication token, without the "Bearer " prefix. See [`Settings::token`].
+    pub fn auth_token(&self) -> &str {
+        &self.token.0
+    }
 }
 
 /// Authorization Token used when connecting to a masque-proxy.
