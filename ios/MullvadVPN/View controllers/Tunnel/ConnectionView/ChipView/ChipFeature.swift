@@ -31,6 +31,9 @@ enum FeatureType {
     case includeAllNetworks
     case localNetworkSharing
     case ipVersion
+    #if DEBUG
+        case gotaTun
+    #endif
 }
 
 struct DaitaFeature: ChipFeature {
@@ -191,3 +194,15 @@ struct IPVersionFeature: ChipFeature {
         NSLocalizedString("IPv6", comment: "")
     }
 }
+
+#if DEBUG
+    struct GotaTunFeature: ChipFeature {
+        let id: FeatureType = .gotaTun
+
+        var isEnabled: Bool {
+            PacketTunnelDebugSettings.useGotaTun
+        }
+
+        let name = "GotaTun"
+    }
+#endif
