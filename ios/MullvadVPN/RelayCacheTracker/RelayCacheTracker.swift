@@ -29,7 +29,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     static let relayUpdateInterval: Duration = .hours(1)
 
     /// Tracker log.
-    nonisolated(unsafe) private let logger = Logger(label: "RelayCacheTracker")
+    private let logger = Logger(label: "RelayCacheTracker")
 
     /// Relay cache.
     private let cache: RelayCacheProtocol
