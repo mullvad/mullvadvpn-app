@@ -9,7 +9,6 @@ use mullvad_api::{
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, do_request_with_empty_body,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
@@ -36,43 +35,30 @@ pub unsafe extern "C" fn mullvad_ios_get_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: See documentation for `into_rust`
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: See param documentation for `account_number`.
     let account_number = unsafe { CStr::from_ptr(account_number.cast()) }
         .to_str()
         .unwrap();
     let account_number = String::from(account_number);
 
-    let init = move |completion: *mut libc::c_void| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion = SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.clone().spawn(async move {
-            match mullvad_ios_get_account_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-            )
-            .await
-            {
-                Ok(response) => completion.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion.finish(SwiftMullvadApiResponse::rest_error(err));
-                }
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion| match mullvad_ios_get_account_inner(
+            api_context.rest_handle(),
+            retry_strategy,
+            account_number,
+        )
+        .await
+        {
+            Ok(response) => completion.finish(response),
+            Err(err) => {
+                log::error!("{err:?}");
+                completion.finish(SwiftMullvadApiResponse::rest_error(err));
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// # Safety
@@ -93,20 +79,10 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
     api_context: SwiftApiContext,
     retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: See notes for `into_rust`
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
-
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-        let task = tokio_handle.clone().spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_create_account_inner(api_context.rest_handle(), retry_strategy).await
             {
                 Ok(response) => completion_handler.finish(response),
@@ -115,11 +91,9 @@ pub unsafe extern "C" fn mullvad_ios_create_account(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// # Safety
@@ -143,26 +117,16 @@ pub unsafe extern "C" fn mullvad_ios_delete_account(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: See notes for `into_rust`
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: See param documentation for `account_number`.
     let account_number = unsafe { CStr::from_ptr(account_number.cast()) }
         .to_str()
         .unwrap();
     let account_number = String::from(account_number);
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.clone().spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_delete_account_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -176,11 +140,9 @@ pub unsafe extern "C" fn mullvad_ios_delete_account(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 async fn mullvad_ios_get_account_inner(

@@ -8,7 +8,6 @@ use std::os::raw::c_char;
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    completion::{CompletionCookie, SwiftCompletionHandler},
     do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
@@ -40,34 +39,24 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     retry_strategy: SwiftRetryStrategy,
     request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: See safety notes for `into_rust`
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: See safety notes for `from_swift_parameters`
     let result = unsafe { ProblemReportRequest::from_swift_parameters(request) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-        let completion = completion_handler.clone();
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
+            let Some(problem_report_request) = result else {
+                let err = Error::ApiError(
+                    rest::StatusCode::BAD_REQUEST,
+                    "Failed to send problem report: invalid address, message, or log data."
+                        .to_string(),
+                );
+                log::error!("{err:?}");
+                completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                return;
+            };
 
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let Some(problem_report_request) = result else {
-            let err = Error::ApiError(
-                rest::StatusCode::BAD_REQUEST,
-                "Failed to send problem report: invalid address, message, or log data.".to_string(),
-            );
-            log::error!("{err:?}");
-            completion.finish(SwiftMullvadApiResponse::rest_error(err));
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
             match mullvad_ios_send_problem_report_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -75,17 +64,15 @@ pub unsafe extern "C" fn mullvad_ios_send_problem_report(
             )
             .await
             {
-                Ok(response) => completion.finish(response),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 async fn mullvad_ios_send_problem_report_inner(
