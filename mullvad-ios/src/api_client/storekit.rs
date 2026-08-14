@@ -9,7 +9,6 @@ use mullvad_types::account::AccountNumber;
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
@@ -36,25 +35,13 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-
-    // SAFETY: See SwiftRetryStrategy::into_rust.
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
-
     // SAFETY: See param documentation for `account_number`.
     let account_number = AccountNumber::from(unsafe { get_string(account_number) });
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_init_storekit_payment_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -68,11 +55,9 @@ pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 async fn mullvad_ios_init_storekit_payment_inner(
@@ -111,23 +96,12 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
     body: *const u8,
     body_size: usize,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: See SwiftRetryStrategy::into_rust.
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
-
     // SAFETY: See param documentation for `body`.
     let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_check_storekit_payment_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -141,11 +115,9 @@ pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 async fn mullvad_ios_check_storekit_payment_inner(

@@ -7,7 +7,6 @@ use mullvad_api::{
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    completion::{CompletionCookie, SwiftCompletionHandler},
     do_request, do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
     retry_strategy::{RetryStrategy, SwiftRetryStrategy},
@@ -41,25 +40,15 @@ pub unsafe extern "C" fn mullvad_ios_get_device(
     account_number: *const c_char,
     identifier: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: The caller must guarantee that `retry_strategy` is not null and has not been freed
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
     let account_number = unsafe { get_string(account_number) };
     // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
     let identifier = unsafe { get_string(identifier) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_get_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -74,11 +63,9 @@ pub unsafe extern "C" fn mullvad_ios_get_device(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// Get devices info via the Mullvad API client.
@@ -104,23 +91,13 @@ pub unsafe extern "C" fn mullvad_ios_get_devices(
     retry_strategy: SwiftRetryStrategy,
     account_number: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: The caller must guarantee that `retry_strategy` is not null and has not been freed
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
     let account_number = unsafe { get_string(account_number) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_get_devices_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -134,11 +111,9 @@ pub unsafe extern "C" fn mullvad_ios_get_devices(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// create device via the Mullvad API client.
@@ -166,25 +141,15 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
     account_number: *const c_char,
     public_key: *const u8,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // Safety: The caller must guarantee that `retry_strategy` is not null and has not been freed
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
     let account_number = unsafe { get_string(account_number) };
     // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_create_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -199,11 +164,9 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// delete device via the Mullvad API client.
@@ -230,25 +193,15 @@ pub unsafe extern "C" fn mullvad_ios_delete_device(
     account_number: *const c_char,
     identifier: *const c_char,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: The caller must guarantee that `retry_strategy` is not null and has not been freed
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
     let account_number = unsafe { get_string(account_number) };
     // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
     let identifier = unsafe { get_string(identifier) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_delete_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -263,11 +216,9 @@ pub unsafe extern "C" fn mullvad_ios_delete_device(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 /// rotate device key via the Mullvad API client.
@@ -296,9 +247,6 @@ pub unsafe extern "C" fn mullvad_ios_rotate_device_key(
     identifier: *const c_char,
     public_key: *const u8,
 ) -> SwiftCancelHandle {
-    let api_context = api_context.rust_context();
-    // SAFETY: The caller must guarantee that `retry_strategy` is not null and has not been freed
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
     // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
     let account_number = unsafe { get_string(account_number) };
     // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
@@ -306,17 +254,10 @@ pub unsafe extern "C" fn mullvad_ios_rotate_device_key(
     // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };
 
-    let init = move |completion_cookie| {
-        // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-        let completion_handler =
-            SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-            return None;
-        };
-
-        let task = tokio_handle.spawn(async move {
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_rotate_device_key_inner(
                 api_context.rest_handle(),
                 retry_strategy,
@@ -332,11 +273,9 @@ pub unsafe extern "C" fn mullvad_ios_rotate_device_key(
                     completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
                 }
             }
-        });
-        Some(task)
-    };
-
-    RequestCancelHandle::new(init).into_swift()
+        },
+    )
+    .into_swift()
 }
 
 async fn mullvad_ios_get_device_inner(
