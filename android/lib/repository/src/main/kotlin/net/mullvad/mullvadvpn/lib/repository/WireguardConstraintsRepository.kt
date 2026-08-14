@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.lib.repository
 
-import arrow.core.Either
-import arrow.core.right
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.SetWireguardConstraintsError
 
 class WireguardConstraintsRepository(
     private val managementService: ManagementService,

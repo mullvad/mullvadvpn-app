@@ -936,7 +936,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setEntryLocation(
-        entryLocation: Constraint<RelayItemId>,
+        entryLocation: Constraint<RelayItemId>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings

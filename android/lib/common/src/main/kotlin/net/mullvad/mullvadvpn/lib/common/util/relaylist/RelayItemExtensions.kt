@@ -56,9 +56,16 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
     }
 
 typealias RelayMetadataMap = Map<GeoLocationId.Hostname, RelayMetadata>
+
 data class RelayMetadata(val needsOtherEntry: Boolean)
-data class FilteredCountry(val country: RelayItem.Location.Country, val relayMetadata: RelayMetadataMap)
+
+data class FilteredCountry(
+    val country: RelayItem.Location.Country,
+    val relayMetadata: RelayMetadataMap,
+)
+
 data class FilteredCity(val city: RelayItem.Location.City, val relayMetadata: RelayMetadataMap)
+
 data class FilteredRelay(val relay: RelayItem.Location.Relay, val relayMetadata: RelayMetadata)
 
 fun RelayItem.Location.Country.filter(
@@ -68,12 +75,10 @@ fun RelayItem.Location.Country.filter(
 
     return if (cities.isNotEmpty()) {
         val cityItems = cities.map { it.city }
-        val metadata = buildMap {
-            cities.map(FilteredCity::relayMetadata).forEach(::putAll)
-        }
+        val metadata = buildMap { cities.map(FilteredCity::relayMetadata).forEach(::putAll) }
         FilteredCountry(
             country = this.copy(cities = cityItems),
-            relayMetadata = metadata
+            relayMetadata = metadata,
         )
     } else {
         null
@@ -90,7 +95,7 @@ private fun RelayItem.Location.City.filter(
         val metadata = relays.associate { it.relay.id to it.relayMetadata }
         FilteredCity(
             city = this.copy(relays = relayItems),
-            relayMetadata = metadata
+            relayMetadata = metadata,
         )
     } else {
         null
@@ -102,7 +107,10 @@ private fun RelayItem.Location.Relay.filter(
 ): FilteredRelay? {
     // If host name is not in validHostnames return null
     val needsOtherEntry = validHostnames[id.code] ?: return null
-    return FilteredRelay(relay = this, relayMetadata = RelayMetadata(needsOtherEntry = needsOtherEntry))
+    return FilteredRelay(
+        relay = this,
+        relayMetadata = RelayMetadata(needsOtherEntry = needsOtherEntry),
+    )
 }
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(

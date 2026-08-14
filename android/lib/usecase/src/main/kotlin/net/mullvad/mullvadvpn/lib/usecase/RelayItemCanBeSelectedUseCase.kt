@@ -31,9 +31,9 @@ class RelayItemCanBeSelectedUseCase(
                     }
                 }
             RelayListType.Single ->
-                validEntries(RelayHopType.ENTRY).zip(
-                    validEntries(RelayHopType.EXIT)
-                ) { entries, exits ->
+                validEntries(RelayHopType.ENTRY).zip(validEntries(RelayHopType.EXIT)) {
+                    entries,
+                    exits ->
                     ValidSelection.Both(entryIds = entries, exitIds = exits)
                 }
         }
@@ -53,10 +53,7 @@ class RelayItemCanBeSelectedUseCase(
                         return@filter false
                     }
                     // If exit selection, check if entry is blocked
-                    if (
-                        selectedAs == RelayHopType.ENTRY &&
-                            settings?.isEntryBlocked() == true
-                    ) {
+                    if (selectedAs == RelayHopType.ENTRY && settings?.isEntryBlocked() == true) {
                         return@filter false
                     }
                     // Finally just do a normal check

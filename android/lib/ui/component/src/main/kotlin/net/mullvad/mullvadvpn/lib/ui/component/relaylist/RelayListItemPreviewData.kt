@@ -72,7 +72,7 @@ object RelayListItemPreviewData {
                     expanded = true,
                     state = null,
                     itemPosition = Position.Middle,
-                    needsOtherEntry = false
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
@@ -81,7 +81,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Middle,
-                    needsOtherEntry = false
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
@@ -90,7 +90,7 @@ object RelayListItemPreviewData {
                     expanded = true,
                     state = null,
                     itemPosition = Position.Middle,
-                    needsOtherEntry = true
+                    needsOtherEntry = true,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
@@ -99,7 +99,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
                     itemPosition = Position.Middle,
-                    needsOtherEntry = false
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
@@ -108,7 +108,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Middle,
-                    needsOtherEntry = false
+                    needsOtherEntry = false,
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
@@ -117,7 +117,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Bottom,
-                    needsOtherEntry = false
+                    needsOtherEntry = false,
                 ),
             )
         )

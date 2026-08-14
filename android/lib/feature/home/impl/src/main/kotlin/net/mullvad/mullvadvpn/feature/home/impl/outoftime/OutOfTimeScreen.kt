@@ -86,10 +86,7 @@ private fun PreviewOutOfTimeScreen(
 @Composable
 fun OutOfTime(navigator: Navigator) {
     val activity = LocalActivity.current as ComponentActivity
-    val vm =
-        koinViewModel<OutOfTimeViewModel> {
-            parametersOf(activity.lifecycle)
-        }
+    val vm = koinViewModel<OutOfTimeViewModel> { parametersOf(activity.lifecycle) }
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }

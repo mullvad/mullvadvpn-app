@@ -95,8 +95,8 @@ import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
-import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.hopType
@@ -323,8 +323,7 @@ fun SelectLocation(navigator: Navigator) {
             is RelayListType.Multihop ->
                 when (type.hopType) {
                     RelayHopType.ENTRY -> vm.selectRelayList(RelayHopType.EXIT)
-                    RelayHopType.EXIT ->
-                        navigator.goBack(result = SelectLocationNavResult(true))
+                    RelayHopType.EXIT -> navigator.goBack(result = SelectLocationNavResult(true))
                 }
         }
     }
@@ -744,9 +743,7 @@ private fun SelectionContainer(
                         filterState =
                             if (hasAnyExitFilter) FilterState.ActiveAndFiltersSelected
                             else FilterState.Active,
-                        onFilterClick = {
-                            onFilterClick(multihopListSelector)
-                        },
+                        onFilterClick = { onFilterClick(multihopListSelector) },
                         onSelect = {
                             hopSelection.relay?.getOrNull()?.let {
                                 scrollToRelayItem(RelayListType.Single, it)
@@ -759,8 +756,7 @@ private fun SelectionContainer(
                         userLocation = userLocation,
                         exitSelected = multihopListSelector == RelayHopType.EXIT,
                         exitLocation = hopSelection.exit.toDisplayName(),
-                        exitErrorText =
-                            error.errorText(RelayListType.Multihop(RelayHopType.EXIT)),
+                        exitErrorText = error.errorText(RelayListType.Multihop(RelayHopType.EXIT)),
                         onExitClick = {
                             if (multihopListSelector == RelayHopType.EXIT) {
                                 hopSelection.exit?.getOrNull()?.let {
@@ -867,13 +863,11 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
             stringResource(R.string.no_matching_relay)
 
         ParameterGenerationError.NoMatchingRelayEntry if
-            relayListType is RelayListType.Multihop &&
-                relayListType.hopType == RelayHopType.ENTRY
+            relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.ENTRY
          -> stringResource(R.string.no_matching_relay)
 
         ParameterGenerationError.NoMatchingRelayExit if
-            relayListType is RelayListType.Multihop &&
-                relayListType.hopType == RelayHopType.EXIT
+            relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.EXIT
          -> stringResource(R.string.no_matching_relay)
 
         else -> null

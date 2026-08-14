@@ -20,9 +20,9 @@ import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
-import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -151,10 +151,7 @@ class SelectLocationListViewModelTest {
     fun `given relay list type exit and entry blocked no item should be selected in the entry list`() =
         runTest {
             // Arrange
-            viewModel =
-                createSelectLocationListViewModel(
-                    RelayListType.Multihop(RelayHopType.EXIT)
-                )
+            viewModel = createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.EXIT))
             filteredRelayList.value = FilteredCountries(testCountries)
             val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
             selectedLocationFlow.value =
@@ -187,8 +184,7 @@ class SelectLocationListViewModelTest {
     @Test
     fun `given relay type entry list and entry blocked uiState should be error`() = runTest {
         // Arrange
-        viewModel =
-            createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.ENTRY))
+        viewModel = createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.ENTRY))
         filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
@@ -205,8 +201,7 @@ class SelectLocationListViewModelTest {
     @Test
     fun `given relay type exit list and entry blocked should work`() = runTest {
         // Arrange
-        viewModel =
-            createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.EXIT))
+        viewModel = createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.EXIT))
         filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()

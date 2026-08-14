@@ -7,9 +7,9 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.EntryRecent
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -39,9 +39,7 @@ class RecentsUseCase(
             }
         }
 
-    private fun multihopRecents(
-        multihopRelayListType: RelayHopType
-    ): Flow<List<RecentItem>?> =
+    private fun multihopRecents(multihopRelayListType: RelayHopType): Flow<List<RecentItem>?> =
         combine(
             recents(),
             filteredRelayListUseCase(RelayListType.Multihop(multihopRelayListType)),

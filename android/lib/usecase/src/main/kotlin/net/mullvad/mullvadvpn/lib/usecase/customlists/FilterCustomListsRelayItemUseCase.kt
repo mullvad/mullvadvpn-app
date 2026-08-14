@@ -16,6 +16,7 @@ class FilterCustomListsRelayItemUseCase(
         combine(customListsRepository.customLists, filteredRelayListUseCase(relayListType)) {
             customLists,
             filteredRelayList ->
-            customLists?.map { it.toRelayItemCustomList(filteredRelayList.countries) } ?: emptyList()
+            customLists?.map { it.toRelayItemCustomList(filteredRelayList.countries) }
+                ?: emptyList()
         }
 }

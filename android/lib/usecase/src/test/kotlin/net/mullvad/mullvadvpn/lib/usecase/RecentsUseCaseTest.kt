@@ -97,9 +97,7 @@ class RecentsUseCaseTest {
             )
         val recent = ExitRecent(location = id)
         settingsFlow.value =
-            mockk<Settings> {
-                every { recents } returns enabled(exit = listOf(recent))
-            }
+            mockk<Settings> { every { recents } returns enabled(exit = listOf(recent)) }
         every { customListsRelayItemUseCase(any()) } returns flowOf(listOf(customList))
         every { filteredRelayListUseCase(any()) } returns flowOf(FilteredCountries())
 
@@ -148,18 +146,14 @@ class RecentsUseCaseTest {
                     )
             }
 
-        every {
-            customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.ENTRY))
-        } returns flowOf(listOf(CUSTOM_LIST_SWE_NO))
-        every {
-            customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.EXIT))
-        } returns flowOf(emptyList())
-        every {
-            filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.ENTRY))
-        } returns flowOf(FilteredCountries(countries = listOf(SWEDEN, NORWAY)))
-        every {
-            filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.EXIT))
-        } returns flowOf(FilteredCountries(countries = listOf(SWEDEN, NORWAY)))
+        every { customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.ENTRY)) } returns
+            flowOf(listOf(CUSTOM_LIST_SWE_NO))
+        every { customListsRelayItemUseCase(RelayListType.Multihop(RelayHopType.EXIT)) } returns
+            flowOf(emptyList())
+        every { filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.ENTRY)) } returns
+            flowOf(FilteredCountries(countries = listOf(SWEDEN, NORWAY)))
+        every { filteredRelayListUseCase(RelayListType.Multihop(RelayHopType.EXIT)) } returns
+            flowOf(FilteredCountries(countries = listOf(SWEDEN, NORWAY)))
 
         useCase(RelayListType.Multihop(RelayHopType.ENTRY)).test {
             val recents = awaitItem()

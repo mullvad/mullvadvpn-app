@@ -824,10 +824,7 @@ internal fun ManagementInterface.ExitRecent.toDomain(): ExitRecent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches =
-            matchesList.associate {
-                it.relay.hostname to it.metadata.needsOtherEntry
-            },
+        matches = matchesList.associate { it.relay.hostname to it.metadata.needsOtherEntry },
         discards = discardsList.map { it.toDomain() },
     )
 

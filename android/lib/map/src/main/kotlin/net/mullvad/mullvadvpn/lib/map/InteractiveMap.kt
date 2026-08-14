@@ -207,12 +207,8 @@ internal fun rememberMapCameraController(
     zoomRange: ClosedFloatingPointRange<Float> = ZOOM_RANGE,
     scope: CoroutineScope = rememberCoroutineScope(),
 ): MapCameraController {
-    val controller = remember {
-        MapCameraController(scope, zoomRange, currentLocation)
-    }
-    LaunchedEffect(currentLocation) {
-        controller.onCurrentLocationChanged(currentLocation)
-    }
+    val controller = remember { MapCameraController(scope, zoomRange, currentLocation) }
+    LaunchedEffect(currentLocation) { controller.onCurrentLocationChanged(currentLocation) }
     return controller
 }
 
@@ -285,9 +281,7 @@ fun InteractiveMap(
             view = glSurfaceView
             glSurfaceView.setData(globeViewState)
         },
-        onRelease = {
-            it.lifecycle = null
-        },
+        onRelease = { it.lifecycle = null },
     )
 }
 
