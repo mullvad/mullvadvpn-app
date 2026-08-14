@@ -1,11 +1,16 @@
 use std::{
     mem::swap,
+    pin::Pin,
     sync::{Arc, Mutex},
 };
 
 use tokio::task::JoinHandle;
 
-use crate::api_client::completion::CompletionCookie;
+use crate::api_client::{
+    ApiContext, SwiftApiContext,
+    completion::CompletionCookie,
+    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+};
 
 use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiResponse};
 
@@ -38,9 +43,19 @@ pub struct RequestCancelHandle {
     inner: HandleState,
 }
 
+#[expect(clippy::type_complexity)]
 enum HandleState {
     ToStart {
-        task: Box<dyn FnOnce(*mut libc::c_void) -> Option<JoinHandle<()>> + Send>,
+        api_context: Arc<ApiContext>,
+        retry_strategy: RetryStrategy,
+        task: Box<
+            dyn FnOnce(
+                    Arc<ApiContext>,
+                    RetryStrategy,
+                    SwiftCompletionHandler,
+                ) -> Pin<Box<dyn Future<Output = ()> + Send>>
+                + Send,
+        >,
     },
     // This is used in `start` to safetly swap out the state.
     // A RequestCancelHandle method should never return and leave the state as this.
@@ -52,34 +67,52 @@ enum HandleState {
 }
 
 impl RequestCancelHandle {
-    pub fn new(
-        task: impl FnOnce(*mut libc::c_void) -> Option<JoinHandle<()>> + Send + 'static,
-    ) -> Self {
+    pub fn new<I, F>(
+        api_context: SwiftApiContext,
+        retry_strategy: SwiftRetryStrategy,
+        task: I,
+    ) -> Self
+    where
+        I: FnOnce(Arc<ApiContext>, RetryStrategy, SwiftCompletionHandler) -> F + Send + 'static,
+        F: Future<Output = ()> + Send + 'static,
+    {
         Self {
             inner: HandleState::ToStart {
-                task: Box::new(task),
+                // SAFETY: See notes for `into_rust`
+                retry_strategy: unsafe { retry_strategy.into_rust() },
+                api_context: api_context.rust_context(),
+                task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
             },
         }
     }
 
-    pub fn start(&mut self, completion_cookie: *mut libc::c_void) {
+    pub fn start(&mut self, completion: SwiftCompletionHandler) {
         if !matches!(self.inner, HandleState::ToStart { .. }) {
             return;
         }
         let mut data = HandleState::Intermediate;
         swap(&mut data, &mut self.inner);
-        let HandleState::ToStart { task } = data else {
-            return;
-        };
-        let Some(task) = task(completion_cookie) else {
+        let HandleState::ToStart {
+            api_context,
+            retry_strategy,
+            task,
+        } = data
+        else {
             return;
         };
 
-        // SAFETY: See notes for `CompletionCookie::new`
-        let completion =
-            unsafe { SwiftCompletionHandler::new(CompletionCookie::new(completion_cookie)) };
+        let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+            completion.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            return;
+        };
 
-        self.inner = HandleState::Started { task, completion }
+        let task = task(api_context, retry_strategy, completion.clone());
+        let handle = tokio_handle.spawn(task);
+
+        self.inner = HandleState::Started {
+            task: handle,
+            completion,
+        }
     }
 
     pub fn into_swift(self) -> SwiftCancelHandle {
@@ -114,11 +147,14 @@ extern "C" fn mullvad_api_start_task(
 ) {
     // SAFETY: See safety notes above
     let handle = unsafe { &*handle_ptr.ptr };
+    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
+    let completion =
+        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
     let Ok(mut handle) = handle.0.lock() else {
         return;
     };
     if let Some(handle) = &mut *handle {
-        handle.start(completion_cookie);
+        handle.start(completion);
     }
 }
 
