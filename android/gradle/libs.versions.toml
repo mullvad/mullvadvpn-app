@@ -187,7 +187,7 @@ android-library = { id = "com.android.library", version.ref = "android-gradle-pl
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
+dependency-versions = { id = "io.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 # noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
