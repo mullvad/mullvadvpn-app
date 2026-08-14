@@ -8,7 +8,9 @@
 
 import MullvadTypes
 
-public final class MullvadApiCancellable: Cancellable, @unchecked Sendable {
+extension SwiftCancelHandle: @retroactive @unchecked Sendable {}
+
+public final class MullvadApiCancellable: Cancellable, Sendable {
     private let handle: SwiftCancelHandle
 
     public init(handle: consuming SwiftCancelHandle) {
