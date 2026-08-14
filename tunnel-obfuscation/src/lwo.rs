@@ -65,6 +65,10 @@ impl ObfuscatedTransport for Lwo {
         }
     }
 
+    fn endpoint(&self) -> SocketAddr {
+        self.server_addr
+    }
+
     fn packet_overhead(&self) -> u16 {
         0
     }

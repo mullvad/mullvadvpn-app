@@ -3,6 +3,7 @@
 
 mod lwo;
 mod quic;
+mod transport;
 
 use std::{io, net::SocketAddr, sync::Arc};
 
@@ -14,12 +15,13 @@ use gotatun::{
     },
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use tunnel_obfuscation::Settings as ObfuscationSettings;
+use tunnel_obfuscation::{Settings as ObfuscationSettings, create_transport};
 
 use crate::gotatun::obfuscation::quic::QuicTransportFactory;
 
 use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory};
 use quic::{QuicRecv, QuicSend};
+use transport::{ObfuscatingRecv, ObfuscatingSend};
 
 #[derive(Clone)]
 pub struct BypassedUdpSend(Arc<BypassSocket<UdpSocket>>);
@@ -81,6 +83,7 @@ pub enum MaybeObfuscatingSend {
     Plain(BypassedUdpSend),
     Lwo(LwoSend<BypassedUdpSend>),
     Quic(QuicSend),
+    Transport(ObfuscatingSend),
 }
 
 impl UdpSend for MaybeObfuscatingSend {
@@ -91,6 +94,7 @@ impl UdpSend for MaybeObfuscatingSend {
             Self::Plain(inner) => inner.send_to(packet, destination).await,
             Self::Lwo(inner) => inner.send_to(packet, destination).await,
             Self::Quic(inner) => inner.send_to(packet, destination).await,
+            Self::Transport(inner) => inner.send_to(packet, destination).await,
         }
     }
 
@@ -99,6 +103,7 @@ impl UdpSend for MaybeObfuscatingSend {
             Self::Plain(inner) => inner.max_number_of_packets_to_send(),
             Self::Lwo(inner) => inner.max_number_of_packets_to_send(),
             Self::Quic(inner) => inner.max_number_of_packets_to_send(),
+            Self::Transport(inner) => inner.max_number_of_packets_to_send(),
         }
     }
 
@@ -111,6 +116,7 @@ impl UdpSend for MaybeObfuscatingSend {
             Self::Plain(inner) => inner.send_many_to(send_buf, packets).await,
             Self::Lwo(inner) => inner.send_many_to(send_buf, packets).await,
             Self::Quic(inner) => inner.send_many_to(&mut (), packets).await,
+            Self::Transport(inner) => inner.send_many_to(&mut (), packets).await,
         }
     }
 
@@ -119,6 +125,7 @@ impl UdpSend for MaybeObfuscatingSend {
             Self::Plain(inner) => inner.local_addr(),
             Self::Lwo(inner) => inner.local_addr(),
             Self::Quic(inner) => inner.local_addr(),
+            Self::Transport(inner) => inner.local_addr(),
         }
     }
 
@@ -128,6 +135,7 @@ impl UdpSend for MaybeObfuscatingSend {
             Self::Plain(inner) => inner.set_fwmark(mark),
             Self::Lwo(inner) => inner.set_fwmark(mark),
             Self::Quic(inner) => inner.set_fwmark(mark),
+            Self::Transport(inner) => inner.set_fwmark(mark),
         }
     }
 }
@@ -137,6 +145,7 @@ pub enum MaybeObfuscatingRecv {
     Plain(BypassedUdpRecv),
     Lwo(LwoRecv<BypassedUdpRecv>),
     Quic(QuicRecv),
+    Transport(ObfuscatingRecv),
 }
 
 impl UdpRecv for MaybeObfuscatingRecv {
@@ -147,6 +156,7 @@ impl UdpRecv for MaybeObfuscatingRecv {
             Self::Plain(inner) => inner.recv_from(pool).await,
             Self::Lwo(inner) => inner.recv_from(pool).await,
             Self::Quic(inner) => inner.recv_from(pool).await,
+            Self::Transport(inner) => inner.recv_from(pool).await,
         }
     }
 
@@ -160,6 +170,7 @@ impl UdpRecv for MaybeObfuscatingRecv {
             Self::Plain(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
             Self::Lwo(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
             Self::Quic(inner) => inner.recv_many_from(&mut (), pool, packets).await,
+            Self::Transport(inner) => inner.recv_many_from(&mut (), pool, packets).await,
         }
     }
 
@@ -168,6 +179,7 @@ impl UdpRecv for MaybeObfuscatingRecv {
             Self::Plain(inner) => inner.enable_udp_gro(),
             Self::Lwo(inner) => inner.enable_udp_gro(),
             Self::Quic(inner) => inner.enable_udp_gro(),
+            Self::Transport(inner) => inner.enable_udp_gro(),
         }
     }
 }
@@ -183,6 +195,7 @@ pub enum MaybeObfuscatingTransportFactory {
     Plain(BypassingSocketFactory),
     Lwo(LwoUdpTransportFactory<BypassingSocketFactory>),
     Quic(QuicTransportFactory),
+    Transport(ObfuscationSettings, Arc<dyn SocketBypass>),
 }
 
 impl MaybeObfuscatingTransportFactory {
@@ -209,8 +222,14 @@ impl MaybeObfuscatingTransportFactory {
                 bypass,
             }),
 
-            // Use `Self::Plain` for proxy socket obfuscation or no obfuscation
-            _ => Self::Plain(make_factory(bypass)),
+            // These reach the relay over a connection of their own, rather than decorating the
+            // plain socket, so they are driven through `ObfuscatedTransport` alike.
+            Some(
+                settings @ (ObfuscationSettings::Udp2Tcp(_) | ObfuscationSettings::Shadowsocks(_)),
+            ) => Self::Transport(settings.clone(), bypass),
+
+            // Use `Self::Plain` when there is no obfuscation
+            None => Self::Plain(make_factory(bypass)),
         }
     }
 }
@@ -273,6 +292,18 @@ impl UdpTransportFactory for MaybeObfuscatingTransportFactory {
             Self::Quic(factory) => {
                 let (sv, rv) = factory.bind(params).await?;
                 Ok((Send::Quic(sv), Recv::Quic(rv)))
+            }
+            // The transport binds and excludes a socket of its own, so the addresses and the
+            // fwmark in `params` do not apply to it.
+            Self::Transport(settings, bypass) => {
+                let transport = create_transport(Arc::clone(bypass), settings)
+                    .await
+                    .map_err(io::Error::other)?;
+                let (sv, rv) = transport::split(transport);
+                Ok((
+                    MaybeObfuscatingSend::Transport(sv),
+                    MaybeObfuscatingRecv::Transport(rv),
+                ))
             }
         }
     }

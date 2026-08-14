@@ -32,6 +32,7 @@ pub struct Shadowsocks {
     socket: ShadowSocket,
     shadowsocks_endpoint: SocketAddr,
     wireguard_endpoint: Address,
+    wireguard_addr: SocketAddr,
 }
 
 #[derive(Debug, Clone)]
@@ -43,10 +44,7 @@ pub struct Settings {
 }
 
 impl Shadowsocks {
-    pub(crate) async fn new(
-        bypass: Arc<dyn SocketBypass>,
-        settings: &Settings,
-    ) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let remote_socket =
             create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
@@ -57,6 +55,7 @@ impl Shadowsocks {
             socket,
             shadowsocks_endpoint: settings.shadowsocks_endpoint,
             wireguard_endpoint: Address::SocketAddress(settings.wireguard_endpoint),
+            wireguard_addr: settings.wireguard_endpoint,
         })
     }
 }
@@ -115,6 +114,10 @@ impl ObfuscatedTransport for Shadowsocks {
 
             return Ok(n);
         }
+    }
+
+    fn endpoint(&self) -> SocketAddr {
+        self.wireguard_addr
     }
 
     fn packet_overhead(&self) -> u16 {
