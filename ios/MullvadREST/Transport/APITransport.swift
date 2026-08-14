@@ -40,6 +40,11 @@ public final class APITransport: APITransportProtocol {
                 }
 
                 rustTaskHandle.start { response in
+                    guard !Task.isCancelled else {
+                        continuation.resume(throwing: TaskError.cancelled)
+                        return
+                    }
+
                     let error: APIError? =
                         if !response.success {
                             APIError(

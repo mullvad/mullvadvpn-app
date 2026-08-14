@@ -51,6 +51,10 @@ extension REST {
 
                 let response = try await transport.sendRequest(request)
 
+                guard !Task.isCancelled else {
+                    return .failure(TaskError.cancelled)
+                }
+
                 logger.debug("\(#function): \(request.name) API response received")
 
                 if let apiError = response.error {

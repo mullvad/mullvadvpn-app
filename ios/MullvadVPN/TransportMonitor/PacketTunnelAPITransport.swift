@@ -40,6 +40,11 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
                 )
 
                 cancellable = tunnel.sendAPIRequest(proxyRequest) { result in
+                    guard !Task.isCancelled else {
+                        continuation.resume(throwing: TaskError.cancelled)
+                        return
+                    }
+
                     switch result {
                     case let .success(reply):
                         continuation.resume(returning: reply)
