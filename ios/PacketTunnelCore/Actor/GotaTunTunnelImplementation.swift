@@ -8,20 +8,14 @@
 
 import MullvadLogging
 
-/// GotaTun tunnel implementation.
-/// Unlike WireGuardGo, this implementation does NOT use an external state observer.
-/// State transitions are handled internally by the GotaTun actor.
-public final class GotaTunTunnelImplementation: TunnelImplementation, @unchecked Sendable {
-    private let logger = Logger(label: "GotaTunTunnelImplementation")
-
+/// GotaTun tunnel implementation. Once WireGuardGo is gone, PacketTunnelProvider can interact with GotaTunActor directly. This component is here only to bridge the gap whilst both are available
+public final class GotaTunTunnelImplementation: TunnelImplementation, Sendable {
     private let _actor = GotaTunActor()
     public var actor: any PacketTunnelActorProtocol { _actor }
 
     public init() {}
 
     public func startTunnel(options: StartOptions) async {
-        // NO startObservingActorState() - this is the key architectural difference.
-        // The GotaTun actor handles state internally.
         await actor.start(options: options)
     }
 
