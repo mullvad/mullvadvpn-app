@@ -1,6 +1,6 @@
 //! The interface between plaintext WireGuard traffic and an obfuscation method.
 
-use std::io;
+use std::{io, net::SocketAddr};
 
 use async_trait::async_trait;
 
@@ -31,6 +31,12 @@ pub trait ObfuscatedTransport: Send + Sync {
     ///
     /// Blocks until a packet arrives, which may be indefinitely.
     async fn recv(&self, buf: &mut [u8]) -> io::Result<usize>;
+
+    /// The address to report as the source of packets from [Self::recv].
+    ///
+    /// An obfuscation protocol delivers a datagram without saying which address it arrived from,
+    /// so a caller that needs one per packet has nowhere else to take it from.
+    fn endpoint(&self) -> SocketAddr;
 
     /// The overhead (in bytes) of this obfuscation protocol.
     fn packet_overhead(&self) -> u16;
