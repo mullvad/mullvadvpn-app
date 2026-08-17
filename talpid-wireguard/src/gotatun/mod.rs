@@ -47,9 +47,11 @@ use gotatun::tun::{
 
 mod conversions;
 mod obfuscation;
+mod source_filter;
 
 use conversions::to_gotatun_peer;
 use obfuscation::MaybeObfuscatingTransportFactory;
+use source_filter::SourceFilter;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -59,8 +61,12 @@ type UdpFactory = UdpSocketFactory;
 
 type TransportFactory = MaybeObfuscatingTransportFactory<UdpFactory>;
 
-type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, GotaTunDevice)>;
-type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
+type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, SourceFilter<GotaTunDevice>)>;
+type ExitDevice = Device<(
+    UdpChannelFactory,
+    GotaTunDevice,
+    SourceFilter<GotaTunDevice>,
+)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
 type EntryDevice = Device<(TransportFactory, TunChannelTx, TunChannelRx)>;
@@ -560,27 +566,19 @@ async fn create_devices(
             android_tun,
             bypass,
         );
+        // The addresses assigned to the tun device, i.e. the only source addresses we accept
+        // packets from. See [SourceFilter].
+        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+            IpAddr::V6(..) => None,
+        });
+        let source_v6 = config.tunnel.addresses.iter().find_map(|ip| match ip {
+            &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+            IpAddr::V4(..) => None,
+        });
+
         let devices = if let Some(exit_peer) = &config.exit_peer {
             // Multihop setup
-            let source_v4 = config
-                .tunnel
-                .addresses
-                .iter()
-                .find_map(|ip| match ip {
-                    &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-                    IpAddr::V6(..) => None,
-                })
-                .unwrap_or(Ipv4Addr::UNSPECIFIED);
-
-            let source_v6 = config
-                .tunnel
-                .addresses
-                .iter()
-                .find_map(|ip| match ip {
-                    &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-                    IpAddr::V4(..) => None,
-                })
-                .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
             // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
             let multihop_overhead = match exit_peer.endpoint.ip() {
@@ -591,12 +589,17 @@ async fn create_devices(
             let exit_mtu = tun_dev.mtu();
             let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
 
-            let (tun_channel_tx, tun_channel_rx, udp_channels) =
-                new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
+            let (tun_channel_tx, tun_channel_rx, udp_channels) = new_udp_tun_channel(
+                PACKET_CHANNEL_CAPACITY,
+                source_v4.unwrap_or(Ipv4Addr::UNSPECIFIED),
+                source_v6.unwrap_or(Ipv6Addr::UNSPECIFIED),
+                entry_mtu,
+            );
 
+            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
             let exit_device = DeviceBuilder::new()
                 .with_udp(udp_channels)
-                .with_ip(tun_dev)
+                .with_ip_pair(tun_dev, tun_rx)
                 .build()
                 .await?;
 
@@ -620,9 +623,10 @@ async fn create_devices(
         } else {
             // Singlehop setup
 
+            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
             let device = DeviceBuilder::new()
                 .with_udp(factory)
-                .with_ip(tun_dev)
+                .with_ip_pair(tun_dev, tun_rx)
                 .build()
                 .await?;
             let mut device = Singlehop { device };
