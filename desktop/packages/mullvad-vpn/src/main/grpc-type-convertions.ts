@@ -53,6 +53,7 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   SocksAuth,
   TunnelParameterError,
@@ -456,6 +457,22 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     relayOverrides,
     recents,
   };
+}
+
+export function convertFromMigrationEvent(
+  splitFilterMigration: grpcTypes.SplitFilterMigration,
+): SettingsMigration[] {
+  if (!splitFilterMigration.hasScenario()) {
+    return [];
+  }
+  const eventObject = splitFilterMigration.toObject();
+  return [
+    {
+      type: 'split-filter',
+      // Since we have checked that we have a scenario, we can safely cast it to a number
+      scenario: eventObject.scenario as number,
+    },
+  ];
 }
 
 function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | undefined {

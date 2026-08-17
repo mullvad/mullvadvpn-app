@@ -8,6 +8,7 @@ import {
   ObfuscationSettings,
   type Recents,
   RelayOverride,
+  type SettingsMigration,
   type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
@@ -133,6 +134,11 @@ export interface ISetRecents {
   recents?: Recents;
 }
 
+export interface ISetMigrations {
+  type: 'SET_MIGRATIONS';
+  migrations: SettingsMigration[];
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -154,6 +160,7 @@ export type SettingsAction =
   | ISetObfuscationSettings
   | ISetCustomLists
   | ISetRecents
+  | ISetMigrations
   | ISetApiAccessMethods
   | ISetCurrentApiAccessMethod
   | ISetRelayOverrides
@@ -332,6 +339,13 @@ function updateRecents(recents?: Recents): ISetRecents {
   };
 }
 
+function updateMigrations(migrations: SettingsMigration[]): ISetMigrations {
+  return {
+    type: 'SET_MIGRATIONS',
+    migrations,
+  };
+}
+
 function updateShadowsocksCiphers(ciphers: ShadowsocksCipher[]): ISetShadowsocksCiphers {
   return {
     type: 'SET_SHADOWSOCKS_CIPHERS',
@@ -363,5 +377,6 @@ export default {
   updateCurrentApiAccessMethod,
   updateRelayOverrides,
   updateRecents,
+  updateMigrations,
   updateShadowsocksCiphers,
 };

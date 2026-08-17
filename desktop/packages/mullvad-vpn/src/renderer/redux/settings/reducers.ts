@@ -17,6 +17,7 @@ import {
   RelayLocation,
   RelayOverride,
   RelayProtocol,
+  type SettingsMigration,
   type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
@@ -104,6 +105,7 @@ export interface ISettingsReduxState {
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
   recents?: Recents;
+  migrations?: SettingsMigration[];
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
@@ -192,6 +194,7 @@ const initialState: ISettingsReduxState = {
   },
   customLists: [],
   recents: undefined,
+  migrations: [],
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],
@@ -329,6 +332,12 @@ export default function (
       return {
         ...state,
         recents: action.recents,
+      };
+
+    case 'SET_MIGRATIONS':
+      return {
+        ...state,
+        migrations: action.migrations,
       };
 
     case 'SET_API_ACCESS_METHODS':

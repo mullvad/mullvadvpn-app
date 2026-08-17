@@ -26,6 +26,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
   VoucherResponse,
@@ -75,6 +76,7 @@ export interface IAppStateSnapshot {
   relayList?: IRelayListWithEndpointData;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
+  migrations: SettingsMigration[];
   guiSettings: IGuiSettingsState;
   translations: ITranslations;
   splitTunnelingApplications?: ISplitTunnelingApplication[];
