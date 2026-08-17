@@ -264,3 +264,9 @@ reason = "The app does not use netty for external http communication"
 id = "GHSA-93wv-jw9v-4972"
 ignoreUntil = 2026-11-01
 reason = "No impact on this app, requires remote attacker, we only use netty with gRPC within the package."
+
+# JetBrains Kotlin: Unsafe Deserialization in Kotlin Build Cache Enables Code Execution
+[[IgnoredVulns]]
+id = "CVE-2026-53914"  # GHSA-r937-wjx7-w2jp
+ignoreUntil = 2026-11-01
+reason = "The app does not use dependency directly, it is used to compile the app, no impact on app"
