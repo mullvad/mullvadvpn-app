@@ -28,7 +28,7 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
 
     @ViewBuilder
     var recentLocationListItem: some View {
-        Color.clear.frame(height: 4)
+        Color.clear.frame(height: 4).accessibilityHidden(true)
 
         SegmentedListItem(
             userInteraction: location.isExcluded ? .disabled : .enabled,

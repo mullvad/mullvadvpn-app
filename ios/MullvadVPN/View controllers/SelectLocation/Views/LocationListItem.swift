@@ -35,7 +35,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         let isCustomList = location.asCustomListNode != nil
 
         if level == 0 {
-            Color.clear.frame(height: 4)
+            Color.clear.frame(height: 4).accessibilityHidden(true)
         }
 
         SegmentedListItem(
