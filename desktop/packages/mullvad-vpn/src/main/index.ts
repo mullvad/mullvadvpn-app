@@ -19,6 +19,7 @@ import {
   ErrorStateCause,
   IRelayListWithEndpointData,
   ISettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
 } from '../shared/daemon-rpc-types';
@@ -136,6 +137,8 @@ class ApplicationMain
 
   private relayList?: IRelayListWithEndpointData;
 
+  private migrations: SettingsMigration[];
+
   private currentApiAccessMethod?: AccessMethodSetting;
 
   private shadowsocksCiphers?: ShadowsocksCipher[];
@@ -154,6 +157,7 @@ class ApplicationMain
     this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
     this.account = new Account(this, this.daemonRpc);
     this.appUpgrade = new AppUpgrade(this.daemonRpc);
+    this.migrations = [];
   }
 
   public run() {
@@ -667,6 +671,16 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // fetch settings migrations
+    try {
+      this.migrations = await this.daemonRpc.getSettingsMigrations();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch settings migrations: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     // fetch the daemon's version
     try {
       this.version.setDaemonVersion(await this.daemonRpc.getCurrentVersion());
@@ -865,6 +879,7 @@ class ApplicationMain
       relayList: this.relayList,
       currentVersion: this.version.currentVersion,
       upgradeVersion: this.version.upgradeVersion,
+      migrations: this.migrations,
       guiSettings: this.settings.gui.state,
       translations: this.translations,
       splitTunnelingApplications: this.splitTunnelingApplications,
