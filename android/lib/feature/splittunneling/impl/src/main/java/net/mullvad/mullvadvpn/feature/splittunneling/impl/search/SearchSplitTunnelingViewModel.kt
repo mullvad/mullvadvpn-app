@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.PackageName
+import net.mullvad.mullvadvpn.lib.model.search
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
 class SearchSplitTunnelingViewModel(
@@ -46,11 +46,14 @@ class SearchSplitTunnelingViewModel(
             map { SearchAppItem.Default(appName = it.name, packageName = it.packageName) }
         } else {
             mapNotNull { appData ->
-                HighlightedString.findHighlights(appData.name, searchTerm)?.let {
-                    SearchAppItem.Match(it, packageName = appData.packageName)
+                appData.name.search(searchTerm)?.let {
+                    SearchAppItem.Match(
+                        match = it,
+                        packageName = appData.packageName,
+                    )
                 }
             }
-                .sortedBy { it.appName.highlights.first().first }
+                .sortedByDescending { it.match }
         }
 
     fun onSearchInputChanged(searchTerm: String) {

@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PartitionHostname
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 fun RelayItem.children(): List<RelayItem> {
     return when (this) {
@@ -55,18 +56,44 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-typealias RelayMetadataMap = Map<GeoLocationId.Hostname, RelayMetadata>
+typealias RelayMetadataMap = Map<RelayItemId, RelayMetadata>
 
-data class RelayMetadata(val needsOtherEntry: Boolean)
+/// Merges two metadata maps into a new one. Keys in other (if set) will overwrite keys
+/// in this.
+fun RelayMetadataMap.merge(other: RelayMetadataMap): RelayMetadataMap {
+    val merged = toMutableMap()
+    other.forEach { (otherItemId, otherMetadata) ->
+        merged[otherItemId] = merged[otherItemId]?.merge(otherMetadata) ?: otherMetadata
+    }
+    return merged
+}
+
+// Metadata that can be set for a given RelayItem. If a field in this class is null, it means
+// that metadata value has not been set for that relay.
+data class RelayMetadata(
+    val needsOtherEntry: Boolean? = null,
+    val titleHighlights: List<IntRange>? = null,
+) {
+    /// Merges two metadata objects into a new one. Keys in other (if set) will overwrite keys
+    /// in this.
+    fun merge(other: RelayMetadata): RelayMetadata =
+        RelayMetadata(
+            needsOtherEntry = other.needsOtherEntry ?: this.needsOtherEntry,
+            titleHighlights = other.titleHighlights ?: this.titleHighlights,
+        )
+}
 
 data class FilteredCountry(
     val country: RelayItem.Location.Country,
     val relayMetadata: RelayMetadataMap,
 )
 
-data class FilteredCity(val city: RelayItem.Location.City, val relayMetadata: RelayMetadataMap)
+private data class FilteredCity(
+    val city: RelayItem.Location.City,
+    val relayMetadata: RelayMetadataMap,
+)
 
-data class FilteredRelay(val relay: RelayItem.Location.Relay, val relayMetadata: RelayMetadata)
+private data class FilteredRelay(val relay: RelayItem.Location.Relay, val needsOtherEntry: Boolean)
 
 fun RelayItem.Location.Country.filter(
     validHostnames: Map<PartitionHostname, NeedsOtherEntry>
@@ -92,7 +119,9 @@ private fun RelayItem.Location.City.filter(
 
     return if (relays.isNotEmpty()) {
         val relayItems = relays.map { it.relay }
-        val metadata = relays.associate { it.relay.id to it.relayMetadata }
+        val metadata = relays.associate {
+            (it.relay.id as RelayItemId) to RelayMetadata(needsOtherEntry = it.needsOtherEntry)
+        }
         FilteredCity(
             city = this.copy(relays = relayItems),
             relayMetadata = metadata,
@@ -107,10 +136,7 @@ private fun RelayItem.Location.Relay.filter(
 ): FilteredRelay? {
     // If host name is not in validHostnames return null
     val needsOtherEntry = validHostnames[id.code] ?: return null
-    return FilteredRelay(
-        relay = this,
-        relayMetadata = RelayMetadata(needsOtherEntry = needsOtherEntry),
-    )
+    return FilteredRelay(relay = this, needsOtherEntry = needsOtherEntry)
 }
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
@@ -151,6 +177,7 @@ fun RelayItem.isTheSameAs(other: RelayItem): Boolean {
             (other is RelayItem.Location.Relay && this.id == other.id) ||
                 (other is RelayItem.CustomList && other.onlyContains(this))
         }
+
         is RelayItem.CustomList -> {
             (other is RelayItem.Location.Relay && this.onlyContains(other)) ||
                 (other is RelayItem.CustomList &&
@@ -158,6 +185,7 @@ fun RelayItem.isTheSameAs(other: RelayItem): Boolean {
                     this.locations.first() is RelayItem.Location.Relay &&
                     other.onlyContains(this.locations.first()))
         }
+
         else -> false
     }
 }

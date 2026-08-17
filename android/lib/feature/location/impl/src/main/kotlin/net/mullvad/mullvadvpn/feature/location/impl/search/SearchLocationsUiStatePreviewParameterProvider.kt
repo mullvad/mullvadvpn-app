@@ -15,6 +15,7 @@ class SearchLocationsUiStatePreviewParameterProvider :
             Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "",
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                     filterChips = listOf(FilterChip.Entry),
                     relayListItems =
                         RelayListItemPreviewData.generateRelayListItems(
@@ -22,23 +23,23 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
             Lce.Error(Unit),
             Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "Mullvad",
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                     filterChips = listOf(FilterChip.Entry),
                     relayListItems =
                         RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
             Lce.Content(
                 SearchLocationUiState(
                     searchTerm = "Germany",
+                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                     filterChips = listOf(FilterChip.Entry),
                     relayListItems =
                         RelayListItemPreviewData.generateRelayListItems(
@@ -46,7 +47,6 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    relayListType = RelayListType.Multihop(RelayHopType.ENTRY),
                 )
             ),
         )
