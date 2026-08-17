@@ -6,8 +6,8 @@ use crate::{
     tls_stream::TlsStream,
 };
 use domain_fronting::client::ProxyConnection;
-use futures::FutureExt;
-use futures::{StreamExt, channel::mpsc, future, pin_mut};
+use futures::{FutureExt, select};
+use futures::{StreamExt, channel::mpsc, future};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
@@ -23,7 +23,6 @@ use shadowsocks::{
     crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
 };
-use std::ops::Deref;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
@@ -44,7 +43,6 @@ use tokio::{
     sync::Notify,
     time::timeout,
 };
-use tokio_rustls::rustls::KeyLogFile;
 use tower::Service;
 use tracing::{Instrument, Level, instrument, trace_span};
 
@@ -203,7 +201,12 @@ impl InnerConnectionMode {
                         socket_bypass_tx.clone(),
                     )
                     .await?;
-                    cdn_tls_connect(tcp_stream, domain_fronting.front_host(), use_http2).await
+                    crate::domain_fronting::cdn_tls_connect(
+                        tcp_stream,
+                        domain_fronting.front_host(),
+                        use_http2,
+                    )
+                    .await
                 };
 
                 let proxy = if use_http2 {
@@ -282,89 +285,6 @@ impl InnerConnectionMode {
             InnerConnectionMode::DomainFronting(..) => crate::domain_fronting::IDLE_TIMEOUT,
         }
     }
-}
-
-/// Establish a TLS connection to the CDN without certificate verification.
-///
-/// Certificate verification is intentionally skipped because the security of domain fronting
-/// does not depend on the CDN TLS — the actual API connection is secured by the inner TLS
-/// layer to `api.mullvad.net`.
-#[instrument(level = Level::TRACE, skip(stream), ret)]
-async fn cdn_tls_connect(
-    stream: TcpStream,
-    front_domain: &str,
-    http2: bool,
-) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
-    use std::sync::LazyLock;
-    use tokio_rustls::rustls::{self, client::danger, pki_types};
-
-    #[derive(Debug)]
-    struct NoCertVerification;
-
-    impl danger::ServerCertVerifier for NoCertVerification {
-        fn verify_server_cert(
-            &self,
-            _: &pki_types::CertificateDer<'_>,
-            _: &[pki_types::CertificateDer<'_>],
-            _: &pki_types::ServerName<'_>,
-            _: &[u8],
-            _: pki_types::UnixTime,
-        ) -> Result<danger::ServerCertVerified, rustls::Error> {
-            Ok(danger::ServerCertVerified::assertion())
-        }
-
-        fn verify_tls12_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn verify_tls13_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
-            rustls::crypto::ring::default_provider()
-                .signature_verification_algorithms
-                .supported_schemes()
-        }
-    }
-
-    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        Arc::new(
-            rustls::ClientConfig::builder()
-                .dangerous()
-                .with_custom_certificate_verifier(Arc::new(NoCertVerification))
-                .with_no_client_auth(),
-        )
-    });
-
-    static CDN_TLS_CONFIG_HTTP2: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        let mut config = CDN_TLS_CONFIG.deref().clone();
-        Arc::make_mut(&mut config)
-            .alpn_protocols
-            .push("h2".as_bytes().to_vec());
-        Arc::make_mut(&mut config).key_log = Arc::new(KeyLogFile::new()) as Arc<_>;
-        config
-    });
-
-    let config = if http2 {
-        &CDN_TLS_CONFIG_HTTP2
-    } else {
-        &CDN_TLS_CONFIG
-    };
-    let connector = tokio_rustls::TlsConnector::from(Arc::clone(config));
-    let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
-    connector.connect(server_name, stream).await
 }
 
 #[derive(Clone, Debug)]
@@ -593,7 +513,7 @@ impl Service<Uri> for HttpsConnector {
             // Loop until we have established a connection. This starts over if a new endpoint
             // is selected while connecting.
             let stream = loop {
-                let notify = abort_notify.notified();
+                let should_abort = abort_notify.notified();
                 let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
                 let stream_fut = proxy_config.connect(
                     &hostname,
@@ -604,13 +524,10 @@ impl Service<Uri> for HttpsConnector {
                     disable_tls,
                 );
 
-                pin_mut!(stream_fut);
-                pin_mut!(notify);
-
                 // Wait for connection. Abort and retry if we switched to a different server.
-                if let future::Either::Left((stream, _)) = future::select(stream_fut, notify).await
-                {
-                    break stream?;
+                select! {
+                    _ = should_abort.fuse() => continue,
+                    stream = stream_fut.fuse() => break stream?,
                 }
             };
 
