@@ -496,6 +496,44 @@ class ConnectionTest : EndToEndTest() {
         }
 
     @Test
+    fun testConnectUsingMultihopAnyEntry() =
+        runTest(timeout = 2.minutes) {
+            // Given
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
+
+            app.applySettings(multihop = MultihopMode.ALWAYS)
+
+            // Select entry and exit relay
+            val exitRelay = relayProvider.getNonDaitaRelay()
+            on<ConnectPage> { clickSelectLocation() }
+            on<SelectLocationPage> {
+                // Select entry list
+                clickEntryHopSelector()
+
+                uiDevice.waitForStableInActiveWindow()
+
+                // Select entry relay
+                clickAutomaticEntry()
+
+                uiDevice.waitForStableInActiveWindow()
+                assertEntryHasText("Automatic")
+
+                // Select exit relay
+                selectRelayUsingSearch(exitRelay)
+            }
+
+            device.acceptVpnPermissionDialog()
+
+            on<ConnectPage> { waitForConnectedLabel() }
+
+            // Enable DAITA
+            app.applySettings(daita = true)
+
+            // Make sure we can still connect
+            on<ConnectPage> { waitForConnectedLabel() }
+        }
+
+    @Test
     @Disabled(
         "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. "
     )
