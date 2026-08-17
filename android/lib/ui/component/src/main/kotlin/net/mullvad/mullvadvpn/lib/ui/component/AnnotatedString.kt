@@ -11,12 +11,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import net.mullvad.mullvadvpn.lib.model.HighlightedString
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 
-fun HighlightedString.toAnnotatedString(highlightColor: Color): AnnotatedString =
+fun SearchMatch.toAnnotatedString(highlightColor: Color): AnnotatedString =
     buildAnnotatedString {
         append(text)
-        highlights.forEach {
+        matchRange.forEach {
             addStyle(SpanStyle(background = highlightColor), it.first, it.last + 1)
         }
     }

@@ -111,6 +111,7 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
+                                highlights = emptyMap(),
                             )
                         ),
                 )
@@ -138,6 +139,7 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
+                                highlights = emptyMap(),
                             )
                         ),
                 ),
@@ -166,6 +168,7 @@ class CustomListLocationsScreenTest {
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
+                                highlights = emptyMap(),
                             )
                         ),
                 ),
@@ -198,6 +201,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
                                 locations = emptyList(),
+                                highlights = emptyMap(),
                             )
                         ),
                 ),
@@ -232,6 +236,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = true,
                                 hasUnsavedChanges = true,
                                 searchTerm = "",
+                                highlights = emptyMap(),
                             )
                         ),
                 ),
@@ -260,6 +265,7 @@ class CustomListLocationsScreenTest {
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
                                 searchTerm = "",
+                                highlights = emptyMap(),
                             )
                         ),
                 ),

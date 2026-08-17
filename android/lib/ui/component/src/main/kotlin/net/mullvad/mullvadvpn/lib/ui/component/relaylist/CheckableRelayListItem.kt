@@ -8,12 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
@@ -43,15 +45,15 @@ private fun PreviewCheckableRelayListItem(
 fun CheckableRelayListItem(
     modifier: Modifier = Modifier,
     item: CheckableRelayListItem,
+    annotatedTitle: AnnotatedString? = null,
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
-
     CheckableListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title = item.item.name,
+        title = annotatedTitle ?: item.item.name.toAnnotatedString(),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {

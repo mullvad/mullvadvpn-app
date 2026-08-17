@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 
@@ -11,4 +14,5 @@ data class SearchLocationUiState(
     val filterChips: List<FilterChip>,
     val relayListItems: List<RelayListItem>,
     val customLists: List<RelayItem.CustomList>,
+    val highlights: Map<RelayItemId, SearchMatch>,
 )

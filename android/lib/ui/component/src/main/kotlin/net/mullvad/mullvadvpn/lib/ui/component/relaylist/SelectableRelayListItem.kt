@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -27,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -66,6 +69,7 @@ private fun PreviewSelectableRelayLocationItem(
 fun SelectableRelayListItem(
     modifier: Modifier = Modifier,
     relayListItem: RelayListItem.SelectableItem,
+    annotatedTitle: AnnotatedString? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
@@ -119,7 +123,7 @@ fun SelectableRelayListItem(
         },
         content = {
             Name(
-                name = relayListItem.item.name,
+                name = annotatedTitle ?: relayListItem.item.name.toAnnotatedString(),
                 state = relayListItem.state,
                 colors.headlineColor(enabled = active, selected = selected),
             )
@@ -153,7 +157,7 @@ fun SelectableRelayListItem(
 }
 
 @Composable
-internal fun Name(name: String, state: RelayListItemState?, textColor: Color) {
+internal fun Name(name: AnnotatedString, state: RelayListItemState?, textColor: Color) {
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
         maxLines = 1,
@@ -163,11 +167,39 @@ internal fun Name(name: String, state: RelayListItemState?, textColor: Color) {
 }
 
 @Composable
-private fun String.withSuffix(state: RelayListItemState) =
+private fun AnnotatedString.withSuffix2(state: RelayListItemState) =
     when (state) {
         RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
         RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
     }
+
+@Composable
+private fun AnnotatedString.withSuffix(state: RelayListItemState): AnnotatedString {
+    val resId = when (state) {
+        RelayListItemState.USED_AS_EXIT -> R.string.x_exit
+        RelayListItemState.USED_AS_ENTRY -> R.string.x_entry
+    }
+
+    val template = stringResource(resId)
+
+    val placeholder = when {
+        template.contains("%1\$s") -> "%1\$s"
+        template.contains("%s") -> "%s"
+        else -> null
+    }
+
+    // We need to do this instead of using stringResource to prevent stripping the annotations.
+    return buildAnnotatedString {
+        if (placeholder != null) {
+            val parts = template.split(placeholder, limit = 2)
+            append(parts[0])
+            append(this@withSuffix)
+            append(parts[1])
+        } else {
+            append(this@withSuffix)
+        }
+    }
+}
 
 @Composable
 fun InactiveRelayIndicator(modifier: Modifier = Modifier, tint: Color) {

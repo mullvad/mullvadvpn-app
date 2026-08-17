@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
@@ -54,14 +55,13 @@ internal fun relayListItemsSearching(
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
 ): List<RelayListItem> {
-    val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
     return createRelayListItemsSearching(
             relayListType = relayListType,
             relayMetadata = relayMetadata,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-            customLists = filteredCustomLists,
+            customLists = customLists,
             countries = relayCountries,
         ) {
             it in expandedItems

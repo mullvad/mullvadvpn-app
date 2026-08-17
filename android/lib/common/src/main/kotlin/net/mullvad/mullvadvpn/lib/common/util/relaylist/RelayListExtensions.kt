@@ -2,39 +2,111 @@ package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
+import net.mullvad.mullvadvpn.lib.model.search
 
-fun List<RelayItem.Location.Country>.search(searchTerm: String): List<GeoLocationId> =
-    withDescendants().filter { it.name.contains(searchTerm, ignoreCase = true) }.map { it.id }
+fun List<RelayItem.Location.Country>.newFilterOnSearch(searchTerm: String): RelayListSearchResult {
+    return SearchProcessor(searchTerm).process(this)
+}
 
-fun List<GeoLocationId>.expansionSet() = flatMap { it.ancestors() }.toSet()
+private class SearchProcessor(private val searchTerm: String) {
+    val expansionSet = mutableSetOf<RelayItemId>()
+    val highlights = mutableMapOf<RelayItemId, SearchMatch>()
 
-fun List<RelayItem.Location.Country>.newFilterOnSearch(
-    searchTerm: String
-): Pair<Set<GeoLocationId>, List<RelayItem.Location.Country>> {
-    val matchesIds = search(searchTerm)
-    val expansionSet = matchesIds.expansionSet()
+    fun process(countries: List<RelayItem.Location.Country>): RelayListSearchResult {
+        val matchedCountries =
+            countries
+                .mapNotNull { processCountry(it) }
+                .sortedByDescending { it.second }
+                .map { it.first }
 
-    val filteredCountryList = mapNotNull { country ->
-        if (country.id in matchesIds) {
-            country
-        } else if (country.id in expansionSet) {
-            country.copy(
-                cities =
-                    country.cities.mapNotNull { city ->
-                        if (city.id in matchesIds) {
-                            city
-                        } else if (city.id in expansionSet) {
-                            city.copy(
-                                relays = city.relays.filter { relay -> relay.id in matchesIds }
-                            )
-                        } else null
-                    }
-            )
+        return RelayListSearchResult(
+            matchedCountries = matchedCountries,
+            expansionSet = expansionSet,
+            highlights = highlights,
+        )
+    }
+
+    private fun processCountry(
+        country: RelayItem.Location.Country
+    ): Pair<RelayItem.Location.Country, SearchMatch>? {
+
+        val scoredCities =
+            country.cities.mapNotNull { processCity(it) }.sortedByDescending { it.second }
+
+        val countryMatch = country.name.search(searchTerm)
+
+        return if (scoredCities.isEmpty()) {
+            val match = countryMatch ?: return null
+
+            highlights[country.id] = match
+            country to match
         } else {
-            null
+            expansionSet.add(country.id)
+
+            if (countryMatch != null) {
+                highlights[country.id] = countryMatch
+            }
+
+            // If a child's score is higher than its parent's, we need to update the parent's score
+            // to the child's so that the sort order is correct.
+            val maxChildScore = scoredCities[0].second.score
+            val highestScore = maxOf(maxChildScore, countryMatch?.score ?: 0)
+
+            // If we don't have a match on the country name, we still need to create a SearchMatch
+            // so that the sorting works.
+            val finalMatch =
+                countryMatch?.copy(score = highestScore)
+                    ?: SearchMatch(text = country.name, score = highestScore)
+
+            val filteredCities = scoredCities.map { it.first }
+
+            country.copy(cities = filteredCities) to finalMatch
         }
     }
-    return expansionSet to filteredCountryList
+
+    private fun processCity(
+        city: RelayItem.Location.City
+    ): Pair<RelayItem.Location.City, SearchMatch>? {
+
+        val scoredRelays =
+            city.relays
+                .mapNotNull { relay ->
+                    relay.name.search(searchTerm)?.let { match ->
+                        highlights[relay.id] = match
+                        relay to match
+                    }
+                }
+                .sortedByDescending { it.second }
+
+        val cityMatch = city.name.search(searchTerm)
+
+        return if (scoredRelays.isEmpty()) {
+            val match = cityMatch ?: return null
+
+            highlights[city.id] = match
+            city to match
+        } else {
+            expansionSet.add(city.id)
+
+            if (cityMatch != null) {
+                highlights[city.id] = cityMatch
+            }
+
+            val maxChildScore = scoredRelays[0].second.score
+            val highestScore = maxOf(maxChildScore, cityMatch?.score ?: 0)
+
+            val finalMatch =
+                cityMatch?.copy(score = highestScore)
+                    ?: SearchMatch(text = city.name, score = highestScore)
+
+            val filteredRelays = scoredRelays.map { it.first }
+
+            city.copy(relays = filteredRelays) to finalMatch
+        }
+    }
 }
 
 fun GeoLocationId.ancestors(): List<GeoLocationId> =

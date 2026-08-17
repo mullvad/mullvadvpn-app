@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomListSearchResult
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.search
 
 fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Location.Country>
@@ -12,11 +14,20 @@ fun CustomList.toRelayItemCustomList(
         locations = locations.mapNotNull { relayCountries.findByGeoLocationId(it) },
     )
 
-fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String) =
+fun List<RelayItem.CustomList>.filterOnSearchTerm(searchTerm: String): CustomListSearchResult =
     if (searchTerm.isNotEmpty()) {
-        this.filter { it.name.contains(searchTerm, ignoreCase = true) }
+        val filtered = this.mapNotNull { it.name.search(searchTerm)?.to(it) }
+            .sortedByDescending { it.first }
+
+        CustomListSearchResult(
+            matchedCustomLists = filtered.map { it.second },
+            highlights = filtered.associate { it.second.id to it.first },
+        )
     } else {
-        this
+        CustomListSearchResult(
+            matchedCustomLists = this,
+            highlights = emptyMap(),
+        )
     }
 
 fun RelayItem.CustomList.canAddLocation(location: RelayItem) =

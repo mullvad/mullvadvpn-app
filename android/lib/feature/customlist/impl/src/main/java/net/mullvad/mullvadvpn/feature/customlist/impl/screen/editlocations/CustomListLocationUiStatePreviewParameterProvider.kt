@@ -29,18 +29,19 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                     CheckableRelayListItem(
                                         item =
                                             generateRelayItemCountry(
-                                                    name = "Another relay",
-                                                    cityNames =
-                                                        listOf("City X", "City Y", "City Z"),
-                                                    relaysPerCity = 1,
-                                                    active = false,
-                                                )
+                                                name = "Another relay",
+                                                cityNames =
+                                                    listOf("City X", "City Y", "City Z"),
+                                                relaysPerCity = 1,
+                                                active = false,
+                                            )
                                                 .copy(id = GeoLocationId.Country("se"))
                                     ),
                                 ),
                             searchTerm = "",
                             saveEnabled = true,
                             hasUnsavedChanges = true,
+                            highlights = emptyMap(),
                         )
                     ),
             ),

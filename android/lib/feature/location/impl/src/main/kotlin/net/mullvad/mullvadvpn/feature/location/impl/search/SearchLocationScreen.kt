@@ -270,6 +270,7 @@ fun SearchLocationScreen(
                         relayListContent(
                             relayListItems = state.value.relayListItems,
                             relayListType = state.value.relayListType,
+                            highlights = state.value.highlights,
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },

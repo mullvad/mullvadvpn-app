@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.feature.location.impl.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.collections.map
+import kotlin.collections.toSet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,12 +18,14 @@ import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
@@ -78,12 +82,14 @@ class SearchLocationViewModel(
                 if (filteredCountries.countries.isEmpty()) {
                     return@combine Lce.Error(Unit)
                 }
-                val (expandSet, relayListLocations) =
+                val relaySearch =
                     searchRelayListLocations(
                         searchTerm = searchTerm,
                         relayCountries = filteredCountries.countries,
                     )
+                val expandSet = relaySearch.expansionSet.map { it.expandKey() }.toSet()
                 val expandedItems = expandSet.with(expandOverrides)
+                val customListSearch = filteredCustomLists.filterOnSearchTerm(searchTerm)
                 val settings = settingsRepository.settingsUpdates.value
                 Lce.Content(
                     SearchLocationUiState(
@@ -92,10 +98,10 @@ class SearchLocationViewModel(
                         relayListItems =
                             relayListItemsSearching(
                                 searchTerm = searchTerm,
-                                relayCountries = relayListLocations,
+                                relayCountries = relaySearch.matchedCountries,
                                 relayMetadata = filteredCountries.relayMetadata,
                                 relayListType = relayListType,
-                                customLists = filteredCustomLists,
+                                customLists = customListSearch.matchedCustomLists,
                                 selectedByThisEntryExitList =
                                     selectedItem.selectedByThisEntryExitList(relayListType),
                                 selectedByOtherEntryExitList =
@@ -111,6 +117,7 @@ class SearchLocationViewModel(
                             ),
                         customLists = customLists,
                         filterChips = filterChips,
+                        highlights = relaySearch.highlights + customListSearch.highlights,
                     )
                 )
             }
@@ -136,8 +143,7 @@ class SearchLocationViewModel(
                 is RelayListType.Multihop ->
                     modifyMultihop(
                         when (relayListType.hopType) {
-                            RelayHopType.ENTRY ->
-                                MultihopChange.Entry(Constraint.Only(relayItem))
+                            RelayHopType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
                             RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
                         }
                     )
@@ -173,12 +179,15 @@ class SearchLocationViewModel(
     private fun searchRelayListLocations(
         searchTerm: String,
         relayCountries: List<RelayItem.Location.Country>,
-    ) =
+    ): RelayListSearchResult =
         if (searchTerm.isNotEmpty()) {
-            val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-            exp.map { it.expandKey() }.toSet() to filteredRelayCountries
+            relayCountries.newFilterOnSearch(searchTerm)
         } else {
-            emptySet<String>() to relayCountries
+            RelayListSearchResult(
+                matchedCountries = relayCountries,
+                expansionSet = emptySet(),
+                highlights = emptyMap(),
+            )
         }
 
     private fun filterChips() =

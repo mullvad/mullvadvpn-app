@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -51,6 +52,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -123,7 +125,7 @@ fun CustomListLocationsScreen(
                     R.string.add_locations
                 } else {
                     R.string.edit_locations
-                }
+                },
             ),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         actions = {
@@ -136,7 +138,8 @@ fun CustomListLocationsScreen(
         Column(modifier = modifier) {
             SearchTextField(
                 modifier =
-                    Modifier.fillMaxWidth()
+                    Modifier
+                        .fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
                         .testTag(CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG)
                         .padding(horizontal = Dimens.mediumPadding),
@@ -151,7 +154,8 @@ fun CustomListLocationsScreen(
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
-                    Modifier.drawVerticalScrollbar(
+                    Modifier
+                        .drawVerticalScrollbar(
                             state = lazyListState,
                             color =
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -228,8 +232,13 @@ private fun LazyListScope.content(
     } else {
         items(uiState.locations, key = { listItem -> listItem.item.id }) { listItem ->
             CheckableRelayListItem(
-                modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
+                modifier = Modifier
+                    .animateItem()
+                    .positionalPadding(listItem.itemPosition),
                 item = listItem,
+                annotatedTitle = uiState.highlights[listItem.item.id]?.toAnnotatedString(
+                    MaterialTheme.colorScheme.highlight,
+                ),
                 onRelayCheckedChange = { isChecked ->
                     onRelaySelectedChanged(listItem.item, isChecked)
                 },
@@ -258,6 +267,7 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
         Position.Top,
         Position.Single -> padding(top = Dimens.miniPadding)
+
         Position.Middle -> padding(top = Dimens.listItemDivider)
         Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
