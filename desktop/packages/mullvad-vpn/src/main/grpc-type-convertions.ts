@@ -53,8 +53,10 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   SocksAuth,
+  type SplitFilterMigrationScenario,
   TunnelParameterError,
   TunnelState,
   wrapConstraint,
@@ -456,6 +458,57 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     relayOverrides,
     recents,
   };
+}
+
+export function convertFromMigrationEvent(
+  splitFilterMigration: grpcTypes.SplitFilterMigration,
+): SettingsMigration[] {
+  if (!splitFilterMigration.hasScenario()) {
+    return [];
+  }
+  const eventObject = splitFilterMigration.toObject();
+  return [
+    {
+      type: 'split-filter',
+      // Since we have checked that we have a scenario, we can safely assert that it is not undefined here.
+      scenario: convertFromSplitFilterMigrationScenario(eventObject.scenario!),
+    },
+  ];
+}
+
+function convertFromSplitFilterMigrationScenario(
+  scenario: grpcTypes.SplitFilterMigration.Scenario,
+): SplitFilterMigrationScenario {
+  switch (scenario) {
+    case grpcTypes.SplitFilterMigration.Scenario.ONEA:
+      return 'one-a';
+    case grpcTypes.SplitFilterMigration.Scenario.ONEB:
+      return 'one-b';
+    case grpcTypes.SplitFilterMigration.Scenario.TWO:
+      return 'two';
+    case grpcTypes.SplitFilterMigration.Scenario.THREEA:
+      return 'three-a';
+    case grpcTypes.SplitFilterMigration.Scenario.THREEB:
+      return 'three-b';
+    case grpcTypes.SplitFilterMigration.Scenario.FOURA:
+      return 'four-a';
+    case grpcTypes.SplitFilterMigration.Scenario.FOURB:
+      return 'four-b';
+    case grpcTypes.SplitFilterMigration.Scenario.FIVEA:
+      return 'five-a';
+    case grpcTypes.SplitFilterMigration.Scenario.FIVEB:
+      return 'five-b';
+    case grpcTypes.SplitFilterMigration.Scenario.SIXA:
+      return 'six-a';
+    case grpcTypes.SplitFilterMigration.Scenario.SIXB:
+      return 'six-b';
+    case grpcTypes.SplitFilterMigration.Scenario.SEVENA:
+      return 'seven-a';
+    case grpcTypes.SplitFilterMigration.Scenario.SEVENB:
+      return 'seven-b';
+    default:
+      return scenario satisfies never;
+  }
 }
 
 function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | undefined {

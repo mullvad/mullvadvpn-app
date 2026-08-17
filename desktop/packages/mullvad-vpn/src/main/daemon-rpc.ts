@@ -28,6 +28,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
   VoucherResponse,
@@ -41,6 +42,7 @@ import {
   convertFromDevice,
   convertFromDeviceState,
   convertFromGrpcShadowsocksCiphers,
+  convertFromMigrationEvent,
   convertFromRelayList,
   convertFromSettings,
   convertFromTunnelState,
@@ -363,6 +365,14 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
   public async getSettings(): Promise<ISettings> {
     const response = await this.callEmpty<grpcTypes.Settings>(this.client.getSettings);
     return convertFromSettings(response)!;
+  }
+
+  public async getSettingsMigrations(): Promise<SettingsMigration[]> {
+    const response = await this.callEmpty<grpcTypes.SplitFilterMigration>(
+      this.client.getMigrationEvent,
+    );
+    const migrations = convertFromMigrationEvent(response);
+    return migrations;
   }
 
   public async getAccountHistory(): Promise<AccountNumber | undefined> {
