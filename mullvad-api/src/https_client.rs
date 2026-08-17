@@ -6,8 +6,7 @@ use crate::{
     tls_stream::TlsStream,
 };
 use domain_fronting::client::ProxyConnection;
-use futures::{FutureExt, select};
-use futures::{StreamExt, channel::mpsc, future};
+use futures::{FutureExt, future, select};
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
 use http::uri::Scheme;
@@ -28,7 +27,7 @@ use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     fmt,
     future::Future,
-    io,
+    io, mem,
     net::{IpAddr, SocketAddr},
     pin::Pin,
     str,
@@ -55,28 +54,22 @@ const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 /// Created via [HttpsConnector::spawn].
 #[derive(Clone)]
 pub struct HttpsConnectorHandle {
-    tx: mpsc::UnboundedSender<HttpsConnectorRequest>,
+    state: Arc<Mutex<HttpsConnectorInner>>,
 }
 
 impl HttpsConnectorHandle {
-    /// Stop all streams produced by this connector
+    /// Stop all streams produced by the connector
     pub fn reset(&self) {
-        let _ = self.tx.unbounded_send(HttpsConnectorRequest::Reset);
+        let mut state = self.state.lock().unwrap();
+        state.reset();
     }
 
     /// Change the proxy settings for the connector
     pub fn set_connection_mode(&self, proxy: ApiConnectionMode) {
-        let _ = self
-            .tx
-            .unbounded_send(HttpsConnectorRequest::SetConnectionMode(proxy));
+        let mut state = self.state.lock().unwrap();
+        state.proxy_config = InnerConnectionMode::from(proxy);
+        state.reset();
     }
-}
-
-/// Requests for the HttpsConnector actor.
-#[derive(Debug)]
-enum HttpsConnectorRequest {
-    Reset,
-    SetConnectionMode(ApiConnectionMode),
 }
 
 #[derive(Clone, Debug)]
@@ -350,7 +343,7 @@ impl From<ApiConnectionMode> for InnerConnectionMode {
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnector {
-    inner: Arc<Mutex<HttpsConnectorInner>>,
+    state: Arc<Mutex<HttpsConnectorInner>>,
     abort_notify: Arc<Notify>,
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
@@ -362,6 +355,17 @@ pub struct HttpsConnector {
 struct HttpsConnectorInner {
     stream_handles: Vec<AbortableStreamHandle>,
     proxy_config: InnerConnectionMode,
+    abort_notify: Arc<Notify>,
+}
+
+impl HttpsConnectorInner {
+    /// Stop all streams produced by this connector
+    fn reset(&mut self) {
+        for handle in mem::take(&mut self.stream_handles) {
+            handle.close();
+        }
+        self.abort_notify.notify_waiters();
+    }
 }
 
 #[cfg(target_os = "android")]
@@ -381,10 +385,11 @@ impl HttpsConnector {
         let connector = Arc::new(Mutex::new(HttpsConnectorInner {
             proxy_config,
             stream_handles: Default::default(),
+            abort_notify: abort_notify.clone(),
         }));
 
         HttpsConnector {
-            inner: connector,
+            state: connector,
             abort_notify,
             dns_resolver,
             #[cfg(target_os = "android")]
@@ -396,16 +401,8 @@ impl HttpsConnector {
 
     /// Start listening for incoming [HttpsConnectorRequest]s from the created [HttpsConnectorHandle].
     pub fn spawn(&self) -> HttpsConnectorHandle {
-        let (tx, requests) = mpsc::unbounded();
-        let connector = self.inner.clone();
-        let notify = self.abort_notify.clone();
-        let request_handler = RequestHandler {
-            connector,
-            notify,
-            requests,
-        };
-        tokio::spawn(request_handler.run());
-        HttpsConnectorHandle { tx }
+        let state = self.state.clone();
+        HttpsConnectorHandle { state }
     }
 
     /// Establishes a TCP connection with a peer at the specified socket address.
@@ -476,13 +473,13 @@ impl Service<Uri> for HttpsConnector {
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
 
     fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        let mut inner = self.inner.lock().unwrap();
+        let mut inner = self.state.lock().unwrap();
         inner.stream_handles.retain(|handle| !handle.is_closed());
         Poll::Ready(Ok(()))
     }
 
     fn call(&mut self, uri: Uri) -> Self::Future {
-        let inner = self.inner.clone();
+        let inner = self.state.clone();
         let abort_notify = self.abort_notify.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
@@ -546,39 +543,5 @@ impl Service<Uri> for HttpsConnector {
         .instrument(span);
 
         Box::pin(fut)
-    }
-}
-
-struct RequestHandler {
-    connector: Arc<Mutex<HttpsConnectorInner>>,
-    notify: Arc<Notify>,
-    requests: mpsc::UnboundedReceiver<HttpsConnectorRequest>,
-}
-
-impl RequestHandler {
-    /// Process requests from an associated [HttpsConnectorHandle].
-    async fn run(mut self) {
-        while let Some(request) = self.requests.next().await {
-            self.handle(request);
-        }
-    }
-
-    /// Process a single request from a connected [HttpsConnectorHandle].
-    #[instrument(level = Level::TRACE, skip(self))]
-    fn handle(&mut self, request: HttpsConnectorRequest) {
-        let handles = {
-            let mut inner = self.connector.lock().unwrap();
-            match request {
-                HttpsConnectorRequest::Reset => std::mem::take(&mut inner.stream_handles),
-                HttpsConnectorRequest::SetConnectionMode(config) => {
-                    inner.proxy_config = InnerConnectionMode::from(config);
-                    std::mem::take(&mut inner.stream_handles)
-                }
-            }
-        };
-        for handle in handles {
-            handle.close();
-        }
-        self.notify.notify_waiters();
     }
 }
