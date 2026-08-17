@@ -32,7 +32,7 @@ tokio = { workspace = true, features = [
   "sync"
 ] }
 tokio-util = { workspace = true, features = ["rt"] }
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "00c8482f303aa23a69cfe9ee10903582cba3eb1e" }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "06e6438d3a2537786efde7185f5675ce5e38d45e" }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
