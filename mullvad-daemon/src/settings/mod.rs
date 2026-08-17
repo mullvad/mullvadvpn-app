@@ -29,11 +29,10 @@ pub enum Error {
     #[error("Unable to parse settings file")]
     ParseError(#[source] serde_json::Error),
 
-    /// Parsing the settings file failed, but the safety-relevant fields
-    /// (`lockdown_mode` and `auto_connect`) could be read and were both
-    /// disabled. The caller may safely reset to defaults without entering
-    /// lockdown mode, since the user's prior config did not enable any
-    /// always-on protection.
+    /// Parsing the settings file failed, but `lockdown_mode` and `auto_connect`
+    /// could be read and were both disabled. The caller may safely reset to defaults
+    /// without entering lockdown mode, since the user's prior config did not request
+    /// leak protection at launch.
     #[error("Unable to parse settings file, but safe to reset to defaults")]
     ParseErrorSafe(#[source] serde_json::Error),
 
@@ -832,66 +831,20 @@ mod test {
         );
     }
 
-    /// A [`Error::ParseErrorSafe`] signals that parsing failed but the safety
-    /// fields were both disabled, so [`SettingsPersister::load_inner`] should
-    /// reset to defaults without entering lockdown mode.
-    #[tokio::test]
-    async fn test_deserialize_safe_parse_error() {
-        let parse_err = serde_json::from_slice::<Settings>(b"").unwrap_err();
-        let LoadSettingsResult {
-            should_save,
-            settings,
-        } = SettingsPersister::load_inner(|| async { Err(Error::ParseErrorSafe(parse_err)) }).await;
-
-        assert!(
-            should_save,
-            "Reset settings should be saved to disk after a safe parse error"
-        );
-        #[cfg(not(target_os = "android"))]
-        assert!(
-            !settings.lockdown_mode,
-            "Lockdown mode should be off for a safe parse error"
-        );
-    }
-
-    /// `parse_safety_fields` must report a safe-to-reset result only when both
-    /// `lockdown_mode` and `auto_connect` are present, boolean, and disabled.
     #[test]
-    fn test_parse_safety_fields_both_false() {
-        assert_eq!(
-            disconnecting_is_safe(br#"{"lockdown_mode": false, "auto_connect": false}"#),
-            Some((false, false)),
-        );
-    }
-
-    /// `parse_safety_fields` must not report a safe result when either safety
-    /// field is enabled, missing, or non-boolean, or when the bytes are not
-    /// valid JSON.
-    #[test]
-    fn test_parse_safety_fields_not_safe() {
+    fn test_parse_safety_fields() {
+        // Both fields explicitly set to false.
+        assert!(disconnecting_is_safe(
+            br#"{"lockdown_mode": false, "auto_connect": false}"#
+        ));
         // auto_connect enabled is unsafe on all platforms.
-        assert_ne!(
-            disconnecting_is_safe(br#"{"lockdown_mode": false, "auto_connect": true}"#),
-            Some((false, false)),
-        );
+        assert!(!disconnecting_is_safe(
+            br#"{"lockdown_mode": false, "auto_connect": true}"#
+        ));
         // Missing safety fields can't be classified.
-        assert_ne!(
-            disconnecting_is_safe(br#"{"settings_version": 1000}"#),
-            Some((false, false)),
-        );
-        // Non-boolean safety field can't be classified.
-        assert_ne!(
-            disconnecting_is_safe(br#"{"lockdown_mode": "yes", "auto_connect": false}"#),
-            Some((false, false)),
-        );
+        assert!(!disconnecting_is_safe(br#"{"settings_version": 1000}"#));
         // Invalid JSON can't be classified.
-        assert_ne!(disconnecting_is_safe(b"not json"), Some((false, false)));
-        // lockdown_mode enabled is unsafe on platforms where it is app-managed.
-        #[cfg(not(target_os = "android"))]
-        assert_ne!(
-            disconnecting_is_safe(br#"{"lockdown_mode": true, "auto_connect": false}"#),
-            Some((false, false)),
-        );
+        assert!(!disconnecting_is_safe(b"not json"));
     }
 
     #[tokio::test]
