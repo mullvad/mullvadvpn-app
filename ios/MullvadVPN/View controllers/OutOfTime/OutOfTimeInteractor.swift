@@ -18,7 +18,7 @@ final class OutOfTimeInteractor: Sendable {
 
     nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
 
-    nonisolated(unsafe) private let logger = Logger(label: "OutOfTimeInteractor")
+    private let logger = Logger(label: "OutOfTimeInteractor")
 
     private let accountUpdateTimerInterval: Duration = .minutes(1)
     nonisolated(unsafe) private var accountUpdateTimer: DispatchSourceTimer?

@@ -31,7 +31,7 @@ struct RustProblemReportRequestTests {
         )
         let rustRequest = RustProblemReportRequest(from: request)
         let rustStruct = rustRequest.toRust()
-        #expect(rustStruct.metadata != nil, "Metadata should not be for \(metadata)")
+        #expect(rustStruct.metadata.inner != nil, "Metadata should not be nil for \(metadata)")
     }
 
     @Test("Test invalid metadata insertion for SendProblemReport")

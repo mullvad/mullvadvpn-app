@@ -13,7 +13,6 @@ import Testing
 
 @Suite("LogFileOutputStream Tests")
 actor LogFileOutputStreamTests {
-    let fileManager = FileManager.default
     var directoryPath: URL!
 
     init() async throws {
@@ -22,14 +21,14 @@ actor LogFileOutputStreamTests {
             isDirectory: true
         )
 
-        try fileManager.createDirectory(
+        try FileManager.default.createDirectory(
             at: directoryPath,
             withIntermediateDirectories: true
         )
     }
 
     deinit {
-        try? fileManager.removeItem(at: directoryPath)
+        try? FileManager.default.removeItem(at: directoryPath)
     }
 
     @Test func logFileOutputStreamWritesHeader() throws {
@@ -40,9 +39,7 @@ actor LogFileOutputStreamTests {
         stream.write(logMessage)
         stream.synchronize()
 
-        let contents = try #require(
-            try String(contentsOf: fileURL, encoding: .utf8)
-        )
+        let contents = try String(contentsOf: fileURL, encoding: .utf8)
         let expectedContents = "\(headerText)\n\(logMessage)"
         #expect(contents == expectedContents)
     }
@@ -82,9 +79,7 @@ actor LogFileOutputStreamTests {
         stream.write("new")
         stream.synchronize()
 
-        let fileContents = try #require(
-            try String(contentsOf: fileURL, encoding: .utf8)
-        )
+        let fileContents = try String(contentsOf: fileURL, encoding: .utf8)
         let expectedContents = """
             header
             old
@@ -125,9 +120,7 @@ actor LogFileOutputStreamTests {
             old
             newa
             """
-        let fileContents = try #require(
-            try String(contentsOf: fileURL, encoding: .utf8)
-        )
+        let fileContents = try String(contentsOf: fileURL, encoding: .utf8)
         #expect(fileContents == expectedContents)
     }
 }

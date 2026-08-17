@@ -60,7 +60,7 @@ enum MultihopMigrationTrackerFactory {
         let scenario2 = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 2"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .never && input.daita.isEnabled && !input.daita.isDirectOnly
                 && input.relayConstraints.exitFilter == .any
         } transform: { input in
 
@@ -87,7 +87,7 @@ enum MultihopMigrationTrackerFactory {
                 isMultihopNeeded = true
             }
             return input.tunnelMultihopState == .never && input.daita.isEnabled
-                && !input.daita.directOnlyState.isEnabled
+                && !input.daita.isDirectOnly
                 && input.relayConstraints.exitFilter != .any && !isMultihopNeeded
         } transform: { input in
             input.tunnelMultihopState = .never
@@ -117,7 +117,7 @@ enum MultihopMigrationTrackerFactory {
                 isMultihopNeeded = true
             }
             return input.tunnelMultihopState == .never && input.daita.isEnabled
-                && !input.daita.directOnlyState.isEnabled
+                && !input.daita.isDirectOnly
                 && input.relayConstraints.exitFilter != .any && isMultihopNeeded
         } transform: { input in
 
@@ -146,7 +146,7 @@ enum MultihopMigrationTrackerFactory {
         let scenario4A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 4A"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.isDirectOnly
                 && input.relayConstraints.exitFilter == .any
         } transform: { input in
 
@@ -164,7 +164,7 @@ enum MultihopMigrationTrackerFactory {
         let scenario4B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 4B"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.isDirectOnly
                 && input.relayConstraints.exitFilter != .any
         } transform: { input in
 
@@ -216,7 +216,7 @@ enum MultihopMigrationTrackerFactory {
         let scenario6A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 6A"
         ) { input in
-            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.isDirectOnly
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
@@ -236,7 +236,7 @@ enum MultihopMigrationTrackerFactory {
             name: "Scenario 6B"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.isDirectOnly
                 && input.relayConstraints.entryFilter != .any
         } transform: { input in
             let newValue: MultihopStateV2 = .always
@@ -266,7 +266,7 @@ enum MultihopMigrationTrackerFactory {
             name: "Scenario 7A"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.isDirectOnly
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
@@ -284,7 +284,7 @@ enum MultihopMigrationTrackerFactory {
             name: "Scenario 7B"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
+            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.isDirectOnly
                 && input.relayConstraints.entryFilter != .any
         } transform: { input in
 

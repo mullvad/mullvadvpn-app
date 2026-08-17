@@ -93,8 +93,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsNeverWhenDirectOnlyIsEnabledAndNoExitFilter() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .never
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .on
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
         let output = try multihopMigrationTracker.run(input: &tunnelSettings)
@@ -105,8 +104,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsNeverWhenDirectOnlyIsEnabledAndExitFilterIsOn() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .never
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .on
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
         let output = try multihopMigrationTracker.run(input: &tunnelSettings)
@@ -141,8 +139,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsAlwaysWhenDaitaIsOnAndNoEntryFilter() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .always
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .off
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .off)
         tunnelSettings.relayConstraints.entryFilter = .any
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
@@ -154,8 +151,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsAlwaysWhenDaitaIsOnAndEntryFilterIsOn() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .always
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .off
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .off)
         tunnelSettings.relayConstraints.entryFilter = .only(RelayFilter(ownership: .owned, providers: .only(["Blix"])))
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
@@ -168,8 +164,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsAlwaysWhenDaitaWithDirectOnlyIsOnAndNoEntryFilter() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .always
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .on
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
         tunnelSettings.relayConstraints.entryFilter = .any
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
@@ -181,8 +176,7 @@ final class MultihopMigrationTrackerTests {
     @Test func testKeepsAlwaysWhenDaitaWithDirectOnlyIsOnAndEntryFilterIsOn() async throws {
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.tunnelMultihopState = .always
-        tunnelSettings.daita.daitaState = .on
-        tunnelSettings.daita.directOnlyState = .on
+        tunnelSettings.daita = DAITASettings(daitaState: .on, directOnlyState: .on)
         tunnelSettings.relayConstraints.entryFilter = .only(RelayFilter(ownership: .owned, providers: .only(["Blix"])))
 
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
