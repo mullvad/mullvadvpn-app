@@ -375,6 +375,10 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     return migrations;
   }
 
+  public async clearSettingsMigrations(): Promise<void> {
+    await this.callEmpty(this.client.clearMigrationMessage);
+  }
+
   public async getAccountHistory(): Promise<AccountNumber | undefined> {
     const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
     return response.getNumber()?.getValue();

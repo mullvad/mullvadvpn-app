@@ -216,6 +216,8 @@ export const ipcSchema = {
     clearAllRelayOverrides: invoke<void, void>(),
     setEnableDaita: invoke<boolean, void>(),
     setEnableRecents: invoke<boolean, void>(),
+    migrationsChange: notifyRenderer<SettingsMigration[]>(),
+    clearMigrations: invoke<void, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

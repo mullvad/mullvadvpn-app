@@ -83,6 +83,12 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetEnableRecents((enabled) => {
       return this.daemonRpc.setEnableRecents(enabled);
     });
+    IpcMainEventChannel.settings.handleClearMigrations(async () => {
+      await this.daemonRpc.clearSettingsMigrations();
+
+      const migrations = await this.daemonRpc.getSettingsMigrations();
+      IpcMainEventChannel.settings.notifyMigrationsChange?.(migrations);
+    });
     IpcMainEventChannel.settings.handleImportText((text) => {
       return this.daemonRpc.applyJsonSettings(text);
     });
