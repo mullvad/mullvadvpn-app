@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -270,7 +271,19 @@ private fun Content(
 
     LaunchedEffect(state.customDnsEnabled) {
         if (state.customDnsEnabled) {
-            lazyListState.requestScrollToItem(lazyListState.layoutInfo.totalItemsCount - 1)
+            // This added so that the list state has time to update the totalItemsCount before
+            // scrolling to the last item.
+            // It is not guaranteed that the item count is correct after this, but theoretically it
+            // should help.
+            awaitFrame()
+
+            // Attempt to scroll to the last item in the list, if the list is not laid out yet
+            // (i.e. totalItemsCount = 0), then we will just let the user enter the screen at the
+            // top.
+            val lastIndex = lazyListState.layoutInfo.totalItemsCount - 1
+            if (lastIndex >= 0) {
+                lazyListState.requestScrollToItem(lastIndex)
+            }
         }
     }
 
