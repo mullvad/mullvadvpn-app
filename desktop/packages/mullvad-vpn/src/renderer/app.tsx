@@ -137,6 +137,10 @@ export default class AppRenderer {
       }
     });
 
+    IpcRendererEventChannel.settings.listenMigrationsChange((migrations) => {
+      this.reduxActions.settings.updateMigrations(migrations);
+    });
+
     IpcRendererEventChannel.daemon.listenConnected(() => {
       void this.onDaemonConnected();
     });
@@ -477,6 +481,9 @@ export default class AppRenderer {
   public clearAllRelayOverrides = () => IpcRendererEventChannel.settings.clearAllRelayOverrides();
   public setEnabledRecents = (enabled: boolean) =>
     IpcRendererEventChannel.settings.setEnableRecents(enabled);
+  public clearSettingsMigrations = () => {
+    return IpcRendererEventChannel.settings.clearMigrations();
+  };
   public getMapData = () => IpcRendererEventChannel.map.getData();
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
