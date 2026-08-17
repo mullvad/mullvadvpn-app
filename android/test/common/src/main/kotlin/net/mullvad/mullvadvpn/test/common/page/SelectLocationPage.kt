@@ -36,6 +36,11 @@ class SelectLocationPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(By.text("DAITA"))
     }
 
+    fun assertEntryHasText(text: String) {
+        val entry = uiDevice.findObjectWithTimeout(By.res(HOP_SELECTOR_ENTRY_TEST_TAG))
+        entry.findObjectWithTimeout(By.text(text))
+    }
+
     fun clickEntryHopSelector() {
         val entry = uiDevice.findObjectWithTimeout(By.res(HOP_SELECTOR_ENTRY_TEST_TAG))
 
@@ -44,5 +49,9 @@ class SelectLocationPage internal constructor() : Page() {
 
     fun clickSearchLocation() {
         uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG)).click()
+    }
+
+    fun clickAutomaticEntry() {
+        uiDevice.findObjectWithTimeout(By.text("Automatic")).click()
     }
 }

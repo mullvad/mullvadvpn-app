@@ -98,6 +98,7 @@ class AppInteractor(
         multihop: MultihopMode? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
         location: RelayItemId? = null,
+        entryLocation: Constraint<RelayItemId>? = null,
     ) = coroutineScope {
         try {
             val job = launch {
@@ -116,6 +117,7 @@ class AppInteractor(
                 multihop?.let { service.setMultihop(it) }
                 deviceIpVersion?.let { service.setDeviceIpVersion(deviceIpVersion) }
                 location?.let { service.setRelayLocation(it) }
+                entryLocation?.let { service.setEntryLocation(it) }
                 cancel()
             }
             job.join()
