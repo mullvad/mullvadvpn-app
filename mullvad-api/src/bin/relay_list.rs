@@ -7,9 +7,7 @@
 
 #[cfg(not(target_os = "android"))]
 mod imp {
-    use mullvad_api::{
-        ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
-    };
+    use mullvad_api::{ApiEndpoint, RelayListProxy, rest::Error as RestError};
     use std::process;
     use talpid_types::ErrorExt;
 
