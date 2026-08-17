@@ -236,9 +236,6 @@ private fun LazyListScope.content(
                     .animateItem()
                     .positionalPadding(listItem.itemPosition),
                 item = listItem,
-                annotatedTitle = uiState.highlights[listItem.item.id]?.toAnnotatedString(
-                    MaterialTheme.colorScheme.highlight,
-                ),
                 onRelayCheckedChange = { isChecked ->
                     onRelaySelectedChanged(listItem.item, isChecked)
                 },
@@ -267,7 +264,6 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
         Position.Top,
         Position.Single -> padding(top = Dimens.miniPadding)
-
         Position.Middle -> padding(top = Dimens.listItemDivider)
         Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }

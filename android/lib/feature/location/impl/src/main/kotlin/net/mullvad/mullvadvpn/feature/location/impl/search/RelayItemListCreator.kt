@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataKey
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -271,6 +272,7 @@ private fun createCustomListRelayItems(
                         selectedByOtherId = selectedByOtherEntryExitList,
                     ),
                 expanded = expanded,
+                highlights = relayMetadata[customList.id]?.get(RelayMetadataKey.TitleHighlights),
                 itemPosition =
                     if (expanded) {
                         Position.Top
@@ -386,7 +388,7 @@ private fun createCustomListEntry(
                 } else {
                     Position.Middle
                 },
-            needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
+            needsOtherEntry = relayMetadata[item.id]?.get(RelayMetadataKey.NeedsOtherEntry) ?: false,
         )
     )
 
@@ -450,6 +452,7 @@ private fun createGeoLocationEntry(
                 ),
             hierarchy = hierarchy,
             expanded = expanded,
+            highlights = relayMetadata[item.id]?.get(RelayMetadataKey.TitleHighlights),
             itemPosition =
                 when (item) {
                     is RelayItem.Location.Country -> {
@@ -468,7 +471,7 @@ private fun createGeoLocationEntry(
                         }
                     }
                 },
-            needsOtherEntry = relayMetadata[item.id]?.needsOtherEntry ?: false,
+            needsOtherEntry = relayMetadata[item.id]?.get(RelayMetadataKey.NeedsOtherEntry) ?: false,
         )
     )
 

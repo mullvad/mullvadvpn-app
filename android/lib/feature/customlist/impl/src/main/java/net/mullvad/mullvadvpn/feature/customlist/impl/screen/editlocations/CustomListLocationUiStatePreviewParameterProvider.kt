@@ -41,7 +41,6 @@ class CustomListLocationUiStatePreviewParameterProvider :
                             searchTerm = "",
                             saveEnabled = true,
                             hasUnsavedChanges = true,
-                            highlights = emptyMap(),
                         )
                     ),
             ),

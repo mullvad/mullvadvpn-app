@@ -96,7 +96,6 @@ class CustomListLocationsViewModelTest {
                             hasUnsavedChanges = false,
                             searchTerm = "",
                             locations = expectedList,
-                            highlights = emptyMap(),
                         )
                     ),
                 )

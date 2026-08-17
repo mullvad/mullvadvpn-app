@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Composable
 @Preview
@@ -45,7 +46,6 @@ private fun PreviewCheckableRelayListItem(
 fun CheckableRelayListItem(
     modifier: Modifier = Modifier,
     item: CheckableRelayListItem,
-    annotatedTitle: AnnotatedString? = null,
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
@@ -53,7 +53,8 @@ fun CheckableRelayListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title = annotatedTitle ?: item.item.name.toAnnotatedString(),
+        title = item.searchMatch?.toAnnotatedString(highlightColor = MaterialTheme.colorScheme.highlight)
+            ?: item.item.name.toAnnotatedString(),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {

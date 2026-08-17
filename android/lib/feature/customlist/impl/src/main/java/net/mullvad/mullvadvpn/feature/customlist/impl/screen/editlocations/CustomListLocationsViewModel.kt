@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
@@ -91,6 +92,7 @@ class CustomListLocationsViewModel(
                                                     isSelected = { it in selectedLocations },
                                                     isExpanded = { it in expandedLocations },
                                                     isLastChild = true,
+                                                    highlights = searchResult.highlights,
                                                 )
                                             },
                                         saveEnabled =
@@ -98,7 +100,6 @@ class CustomListLocationsViewModel(
                                                 selectedLocations != _initialLocations.value,
                                         hasUnsavedChanges =
                                             selectedLocations != _initialLocations.value,
-                                        highlights = searchResult.highlights,
                                     )
                                 ),
                         )
@@ -265,6 +266,7 @@ class CustomListLocationsViewModel(
         isExpanded: (RelayItemId) -> Boolean,
         hierarchy: Hierarchy,
         isLastChild: Boolean,
+        highlights: Map<RelayItemId, SearchMatch>,
     ): List<CheckableRelayListItem> = buildList {
         val expanded = isExpanded(id)
         add(
@@ -280,6 +282,7 @@ class CustomListLocationsViewModel(
                         isLastChild && !expanded -> Position.Bottom
                         else -> Position.Middle
                     },
+                searchMatch = highlights[this@toRelayItems.id],
             )
         )
         if (expanded) {
@@ -292,6 +295,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == relays.lastIndex,
+                                highlights = highlights,
                             )
                         }
                     )
@@ -304,6 +308,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == cities.lastIndex,
+                                highlights = highlights,
                             )
                         }
                     )

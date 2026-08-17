@@ -14,5 +14,4 @@ data class SearchLocationUiState(
     val filterChips: List<FilterChip>,
     val relayListItems: List<RelayListItem>,
     val customLists: List<RelayItem.CustomList>,
-    val highlights: Map<RelayItemId, SearchMatch>,
 )

@@ -13,13 +13,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import net.mullvad.mullvadvpn.lib.model.SearchMatch
 
-fun SearchMatch.toAnnotatedString(highlightColor: Color): AnnotatedString =
+fun List<IntRange>.applyHighlights(to: String, highlightColor: Color): AnnotatedString =
     buildAnnotatedString {
-        append(text)
-        matchRange.forEach {
+        append(to)
+        forEach {
             addStyle(SpanStyle(background = highlightColor), it.first, it.last + 1)
         }
     }
+
+fun SearchMatch.toAnnotatedString(highlightColor: Color): AnnotatedString =
+    matchRange.applyHighlights(to = text, highlightColor = highlightColor)
 
 fun CharSequence.toAnnotatedString(): AnnotatedString =
     if (this is Spanned) {
@@ -36,8 +39,10 @@ fun CharSequence.toAnnotatedString(): AnnotatedString =
                         when (span.style) {
                             Typeface.BOLD ->
                                 addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
+
                             Typeface.ITALIC ->
                                 addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
+
                             Typeface.BOLD_ITALIC ->
                                 addStyle(
                                     SpanStyle(
@@ -48,6 +53,7 @@ fun CharSequence.toAnnotatedString(): AnnotatedString =
                                     end,
                                 )
                         }
+
                     is UnderlineSpan ->
                         addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
                 }

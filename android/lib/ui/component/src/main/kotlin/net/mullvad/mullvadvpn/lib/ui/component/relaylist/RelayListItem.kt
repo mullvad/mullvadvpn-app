@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 
@@ -37,6 +38,7 @@ sealed interface RelayListItem {
         val expanded: Boolean
         val canExpand: Boolean
         val state: RelayListItemState?
+        val highlights: List<IntRange>?
         val itemPosition: Position
     }
 
@@ -50,6 +52,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        override val highlights: List<IntRange>? = null,
         override val itemPosition: Position = Position.Single,
     ) : SelectableItem {
         override val key = item.id
@@ -66,6 +69,7 @@ sealed interface RelayListItem {
         override val expanded: Boolean,
         override val hierarchy: Hierarchy,
         override val state: RelayListItemState? = null,
+        override val highlights: List<IntRange>? = null,
         override val itemPosition: Position,
     ) : SelectableItem {
         override val key = parentId to item.id
@@ -114,6 +118,7 @@ sealed interface RelayListItem {
         override val hierarchy: Hierarchy,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        override val highlights: List<IntRange>? = null,
         override val itemPosition: Position,
     ) : SelectableItem {
         override val key = item.id
@@ -131,6 +136,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
+        override val highlights: List<IntRange>? = null,
         override val itemPosition: Position = Position.Single,
     ) : SelectableItem {
         override val key = "recents_${item.id}"
@@ -163,6 +169,7 @@ sealed interface RelayListItem {
 data class CheckableRelayListItem(
     val item: RelayItem.Location,
     val checked: Boolean = false,
+    val searchMatch: SearchMatch? = null,
     val expanded: Boolean = false,
     val itemPosition: Position = Position.Single,
     val hierarchy: Hierarchy = Hierarchy.Parent,

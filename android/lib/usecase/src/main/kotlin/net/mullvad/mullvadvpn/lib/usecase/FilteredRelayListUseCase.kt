@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.lib.usecase
 
-import kotlin.collections.forEach
-import kotlin.collections.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -9,14 +7,13 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.FilteredCountry
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadata
+import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
 import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
 import net.mullvad.mullvadvpn.lib.model.PartitionHostname
@@ -32,7 +29,7 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 data class FilteredCountries(
     val countries: List<RelayItem.Location.Country> = emptyList(),
-    val relayMetadata: Map<GeoLocationId.Hostname, RelayMetadata> = emptyMap(),
+    val relayMetadata: RelayMetadataMap = emptyMap(),
 )
 
 class FilteredRelayListUseCase(

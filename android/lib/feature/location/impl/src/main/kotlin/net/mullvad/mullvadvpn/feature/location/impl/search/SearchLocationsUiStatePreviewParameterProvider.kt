@@ -23,7 +23,6 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    highlights = emptyMap(),
                 )
             ),
             Lce.Error(Unit),
@@ -35,7 +34,6 @@ class SearchLocationsUiStatePreviewParameterProvider :
                     relayListItems =
                         RelayListItemPreviewData.generateEmptyList("Mullvad", isSearching = true),
                     customLists = emptyList(),
-                    highlights =  emptyMap(),
                 )
             ),
             Lce.Content(
@@ -49,7 +47,6 @@ class SearchLocationsUiStatePreviewParameterProvider :
                             isSearching = true,
                         ),
                     customLists = emptyList(),
-                    highlights =  emptyMap(),
                 )
             ),
         )

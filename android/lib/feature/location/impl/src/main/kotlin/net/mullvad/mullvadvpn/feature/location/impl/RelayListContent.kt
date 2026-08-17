@@ -26,12 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.applyHighlights
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -54,15 +53,14 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     relayListType: RelayListType,
-    highlights: Map<RelayItemId, SearchMatch> = emptyMap(),
     onSelectRelayItem: (RelayItem) -> Unit,
     onSelectAutomaticEntry: () -> Unit,
     onAutomaticInfoClick: () -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customListHeader:
-        @Composable
-        (LazyItemScope.(listItem: RelayListItem.CustomListHeader) -> Unit) =
+    @Composable
+    (LazyItemScope.(listItem: RelayListItem.CustomListHeader) -> Unit) =
         {},
     locationHeader: @Composable (LazyItemScope.() -> Unit) = { RelayLocationHeader() },
 ) {
@@ -78,14 +76,15 @@ fun LazyListScope.relayListContent(
                         CustomListItem(
                             listItem = listItem,
                             relayListType = relayListType,
-                            annotatedTitle =
-                                highlights[listItem.item.id]?.toAnnotatedString(
-                                    MaterialTheme.colorScheme.highlight
-                                ),
+                            annotatedTitle = listItem.highlights?.applyHighlights(
+                                listItem.item.name,
+                                highlightColor = MaterialTheme.colorScheme.highlight,
+                            ),
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem = listItem,
@@ -94,6 +93,7 @@ fun LazyListScope.relayListContent(
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
                     RelayListItem.LocationHeader -> locationHeader()
                     is RelayListItem.AutomaticEntryItem ->
@@ -102,14 +102,15 @@ fun LazyListScope.relayListContent(
                             onSelectAutomaticEntry = onSelectAutomaticEntry,
                             onAutomaticInfoClick = onAutomaticInfoClick,
                         )
+
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem = listItem,
                             relayListType = relayListType,
-                            annotatedTitle =
-                                highlights[listItem.item.id]?.toAnnotatedString(
-                                    MaterialTheme.colorScheme.highlight
-                                ),
+                            annotatedTitle = listItem.highlights?.applyHighlights(
+                                listItem.item.name,
+                                highlightColor = MaterialTheme.colorScheme.highlight,
+                            ),
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -123,6 +124,7 @@ fun LazyListScope.relayListContent(
                             onSelect = onSelectRelayItem,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
@@ -151,6 +153,7 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
         Position.Top,
         Position.Single -> padding(top = Dimens.miniPadding)
+
         Position.Middle -> padding(top = Dimens.listItemDivider)
         Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
@@ -165,7 +168,9 @@ private fun AutomaticItem(
 
     MullvadListItem(
         modifier =
-            Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
+            Modifier
+                .positionalPadding(listItem.itemPosition)
+                .testTag(LOCATION_CELL_TEST_TAG),
         isSelected = listItem.isSelected,
         isEnabled = true,
         onClick = onSelectAutomaticEntry,
@@ -216,12 +221,14 @@ private fun GeoLocationItem(
                 LocationBottomSheetState.ShowLocationBottomSheet(
                     item = listItem.item,
                     relayListType = relayListType,
-                )
+                ),
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
         modifier =
-            Modifier.positionalPadding(listItem.itemPosition).testTag(LOCATION_CELL_TEST_TAG),
+            Modifier
+                .positionalPadding(listItem.itemPosition)
+                .testTag(LOCATION_CELL_TEST_TAG),
         showMultihopWhenNeededIcon = listItem.needsOtherEntry,
     )
 }
@@ -241,6 +248,7 @@ private fun RecentListItem(
                     relayItem.countryName,
                     relayItem.cityName,
                 )
+
             is RelayItem.Location.City -> relayItem.countryName
             is RelayItem.Location.Country,
             is RelayItem.CustomList -> null
@@ -261,14 +269,15 @@ private fun RecentListItem(
                         LocationBottomSheetState.ShowEditCustomListBottomSheet(
                             item = entry,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
+
                 is RelayItem.Location ->
                     onUpdateBottomSheetState(
                         LocationBottomSheetState.ShowLocationBottomSheet(
                             item = entry,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
             }
         },
@@ -293,7 +302,7 @@ private fun CustomListItem(
                 LocationBottomSheetState.ShowEditCustomListBottomSheet(
                     item = listItem.item,
                     relayListType = relayListType,
-                )
+                ),
             )
         },
         onToggleExpand = { onToggleExpand(listItem.item.id, null, it) },
@@ -321,7 +330,7 @@ private fun CustomListEntryItem(
                             customListId = listItem.parentId,
                             item = listItem.item,
                             relayListType = relayListType,
-                        )
+                        ),
                     )
                 }
             } else {
@@ -367,7 +376,7 @@ private fun CustomListFooter(item: RelayListItem.CustomListFooter) {
                 stringResource(R.string.to_add_locations_to_a_list)
             } else {
                 stringResource(R.string.to_create_a_custom_list)
-            }
+            },
     )
 }
 
@@ -376,7 +385,7 @@ private fun RelayLocationHeader() {
     ListHeader(
         content = {
             Text(text = stringResource(R.string.all_locations), overflow = TextOverflow.Ellipsis)
-        }
+        },
     )
 }
 
@@ -385,7 +394,7 @@ private fun RecentsListHeader() {
     ListHeader(
         content = {
             Text(text = stringResource(id = R.string.recents), overflow = TextOverflow.Ellipsis)
-        }
+        },
     )
 }
 
