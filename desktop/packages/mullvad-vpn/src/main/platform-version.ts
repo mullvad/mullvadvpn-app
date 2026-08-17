@@ -10,6 +10,12 @@ export function isMacOs13OrNewer() {
   return process.platform === 'darwin' && major >= 22;
 }
 
+export function isMacOs27OrNewer() {
+  const [major] = parseVersion();
+  return process.platform === 'darwin' && major >= 27;
+}
+
+
 // Windows 11 has the internal version 10.0.22000+.
 export function isWindows11OrNewer() {
   const [major, minor, patch] = parseVersion();
