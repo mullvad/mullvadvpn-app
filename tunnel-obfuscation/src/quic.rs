@@ -147,10 +147,7 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl QuicTransport {
-    pub(crate) async fn new(
-        bypass: Arc<dyn SocketBypass>,
-        settings: &Settings,
-    ) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let BypassSocket {
             socket: quic_socket,
             guard: _bypass,
