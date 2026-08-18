@@ -125,17 +125,11 @@ impl RelayListProxy {
         &self,
         digest: &RelayListDigest,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let service = self.handle.service.clone();
-        let request = self
-            .handle
-            .factory
-            .get(&format!("trl/{SIGSUM_API_VERSION}/data/{digest}"));
-
-        let request = request?
+        self.handle
+            .get(&format!("trl/{SIGSUM_API_VERSION}/data/{digest}"))?
             .timeout(RELAY_LIST_TIMEOUT)
-            .expected_status(&[StatusCode::OK]);
-
-        service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 
     /// Fetch the relay list sigsum timestamp
@@ -156,17 +150,12 @@ impl RelayListProxy {
     }
 
     async fn relay_list_timestamp_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
-        let service = self.handle.service.clone();
-        let request = self
-            .handle
+        self.handle
             .factory
-            .get(&format!("trl/{SIGSUM_API_VERSION}/timestamps/latest"));
-
-        let request = request?
+            .get(&format!("trl/{SIGSUM_API_VERSION}/timestamps/latest"))?
             .timeout(RELAY_LIST_TIMEOUT)
-            .expected_status(&[StatusCode::OK]);
-
-        service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 }
 /// The unparsed relay list bytes together with a digest of the content.
