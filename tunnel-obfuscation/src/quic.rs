@@ -37,6 +37,7 @@ pub struct QuicTransport {
     _client: AbortOnDropHandle<()>,
     _bypass: BypassGuard,
     wireguard_endpoint: SocketAddr,
+    packet_overhead: u16,
 }
 
 #[derive(Debug, Clone)]
@@ -95,6 +96,13 @@ impl Settings {
             .auth_header(Some(self.auth_header()))
             .mtu(self.mtu.unwrap_or(1500))
             .build()
+    }
+
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
+        // The above would prevent mullvad-masque-proxy-level fragmentation
+        0
     }
 
     pub fn wireguard_endpoint(&self) -> SocketAddr {
@@ -166,6 +174,7 @@ impl QuicTransport {
             _client: AbortOnDropHandle::new(client),
             _bypass,
             wireguard_endpoint: settings.wireguard_endpoint,
+            packet_overhead: settings.packet_overhead(),
         })
     }
 }
@@ -227,8 +236,6 @@ impl ObfuscatedTransport for QuicTransport {
     }
 
     fn packet_overhead(&self) -> u16 {
-        // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
-        // The above would prevent mullvad-masque-proxy-level fragmentation
-        0
+        self.packet_overhead
     }
 }

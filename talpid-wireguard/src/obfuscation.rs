@@ -41,6 +41,16 @@ impl ObfuscationSettings {
             ObfuscationSettings::Multiplexer(_) => None,
         }
     }
+
+    /// The overhead (in bytes) that this obfuscation adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        match self {
+            ObfuscationSettings::Single(settings) => settings.packet_overhead(),
+            // FIXME: This should ideally be the max overhead of all transports,
+            // and be lowered when a transport is selected.
+            ObfuscationSettings::Multiplexer(_) => 60,
+        }
+    }
 }
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -84,8 +94,6 @@ pub async fn spawn_local_socket_obfuscator(
         }
     };
 
-    let packet_overhead = obfuscator.packet_overhead();
-
     patch_endpoint(entry_peer, obfuscator.endpoint());
 
     let obfuscation_task = tokio::spawn(async move {
@@ -106,7 +114,6 @@ pub async fn spawn_local_socket_obfuscator(
 
     Ok(ObfuscatorHandle {
         obfuscation_task,
-        packet_overhead,
         selected_transport_rx,
     })
 }
@@ -235,17 +242,12 @@ pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> O
 /// Simple wrapper that automatically cancels the future which runs an obfuscator.
 pub struct ObfuscatorHandle {
     obfuscation_task: tokio::task::JoinHandle<()>,
-    packet_overhead: u16,
     selected_transport_rx: Option<oneshot::Receiver<Transport>>,
 }
 
 impl ObfuscatorHandle {
     pub fn abort(&self) {
         self.obfuscation_task.abort();
-    }
-
-    pub fn packet_overhead(&self) -> u16 {
-        self.packet_overhead
     }
 
     /// Notified with the transport that the obfuscator commits to.
