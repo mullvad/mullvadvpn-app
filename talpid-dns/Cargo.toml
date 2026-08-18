@@ -29,7 +29,6 @@ system-configuration.workspace = true
 talpid-routing = { path = "../talpid-routing" }
 
 [target."cfg(windows)".dependencies]
-once_cell = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 windows-registry = { workspace = true }
 windows-result = { workspace = true }

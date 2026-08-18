@@ -5917,7 +5917,6 @@ dependencies = [
  "inotify 0.10.2",
  "log",
  "nix 0.31.3",
- "once_cell",
  "parking_lot",
  "resolv-conf",
  "system-configuration",
