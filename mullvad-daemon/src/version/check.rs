@@ -97,7 +97,7 @@ impl VersionUpdater {
         // load the last known AppVersionInfo from cache
         let last_app_version_info = load_cache(&cache_path).await;
 
-        api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
+        api_handle.set_default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
         let platform_version = talpid_platform_metadata::short_version();
 
