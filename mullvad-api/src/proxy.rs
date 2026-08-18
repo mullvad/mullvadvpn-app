@@ -21,15 +21,15 @@ use crate::domain_fronting::DfConfigResolved;
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-pub trait ConnectionModeProvider: Send {
+pub trait ConnectionModeProvider: Send + Sync {
     /// Initial connection mode
     fn initial(&self) -> ApiConnectionMode;
 
     /// Request a new connection mode from the provider
-    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send;
+    fn rotate(&self) -> impl Future<Output = ()> + Send;
 
     /// Receive changes to the connection mode, announced by the provider
-    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send;
+    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send;
 }
 
 pub struct StaticConnectionModeProvider {
@@ -47,11 +47,11 @@ impl ConnectionModeProvider for StaticConnectionModeProvider {
         self.mode.clone()
     }
 
-    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
+    fn rotate(&self) -> impl Future<Output = ()> + Send {
         futures::future::ready(())
     }
 
-    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
+    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send {
         futures::future::pending()
     }
 }
