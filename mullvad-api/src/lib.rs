@@ -17,7 +17,6 @@ pub mod rest;
 #[cfg(not(target_os = "ios"))]
 pub mod version;
 
-mod abortable_stream;
 pub mod access_mode;
 pub mod domain_fronting;
 mod https_client;
@@ -458,8 +457,8 @@ impl<B: AddressCacheBacking> Runtime<B> {
         &self.address_cache
     }
 
-    /// Returns a request factory initialized to create requests for the master API Assumes an API
-    /// endpoint that is constructed from env vars, or uses default values.
+    /// Returns a request factory initialized to create requests for the master API.
+    /// Assumes an API endpoint that is constructed from env vars, or uses default values.
     pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
         &self,
         connection_mode_provider: T,
@@ -472,9 +471,8 @@ impl<B: AddressCacheBacking> Runtime<B> {
             #[cfg(any(feature = "api-override", test))]
             self.endpoint.disable_tls,
         );
-        let hostname = self.endpoint.host().to_owned();
-        let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
-        let factory = rest::RequestFactory::new(hostname, Some(token_store));
+        let token_store = access::AccessTokenStore::new(service.clone());
+        let factory = service.request().with_access_token_store(token_store);
 
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
@@ -488,6 +486,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
+            self.endpoint.host(),
             self.api_availability.clone(),
             connection_mode_provider,
             dns_resolver,
@@ -532,15 +531,14 @@ impl AccountsProxy {
         account: AccountNumber,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let span = trace_span!("get_data_response");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
         async move {
-            let request = factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
+            request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?;
-            service.request(request).await
+                .account(account)?
+                .await
         }
         .instrument(span)
     }
@@ -567,16 +565,8 @@ impl AccountsProxy {
         &self,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
         let span = trace_span!("create_account_response");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
-        async move {
-            let request = factory
-                .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
-                .expected_status(&[StatusCode::CREATED]);
-            service.request(request).await
-        }
-        .instrument(span)
+        let request = self.handle.post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"));
+        async move { request?.expected_status(&[StatusCode::CREATED]).await }.instrument(span)
     }
 
     pub fn submit_voucher(
@@ -590,16 +580,17 @@ impl AccountsProxy {
         }
 
         let span = trace_span!("submit_voucher");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
         let submission = VoucherSubmission { voucher_code };
-
+        let request = self
+            .handle
+            .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission);
         async move {
-            let request = factory
-                .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission)?
+            request?
                 .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            service.request(request).await?.deserialize().await
+                .expected_status(&[StatusCode::OK])
+                .await?
+                .deserialize()
+                .await
         }
         .instrument(span)
     }
@@ -609,17 +600,15 @@ impl AccountsProxy {
         account: AccountNumber,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         let span = trace_span!("delete_account");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
         async move {
-            let request = factory
-                .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
+            request?
                 .account(account.clone())?
                 .header("Mullvad-Account-Number", &account)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
-
-            let _ = service.request(request).await?;
+                .expected_status(&[StatusCode::NO_CONTENT])
+                .await?;
             Ok(())
         }
         .instrument(span)
@@ -630,13 +619,11 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
             .expected_status(&[StatusCode::OK])
-            .account(account)?;
-        self.handle.service.request(request).await
+            .account(account)?
+            .await
     }
 
     #[cfg(target_os = "ios")]
@@ -644,12 +631,10 @@ impl AccountsProxy {
         &self,
         body: Vec<u8>,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
-            .expected_status(&[StatusCode::OK]);
-        self.handle.service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 
     #[cfg(target_os = "android")]
@@ -663,15 +648,14 @@ impl AccountsProxy {
         }
 
         let span = trace_span!("init_play_purchase");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &());
         async move {
-            let request = factory
-                .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &())?
+            let response = request?
                 .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            let response = service.request(request).await?;
+                .expected_status(&[StatusCode::OK])
+                .await?;
 
             let PlayPurchaseInitResponse { obfuscated_id } = response.deserialize().await?;
 
@@ -687,19 +671,16 @@ impl AccountsProxy {
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         let span = trace_span!("verify_play_purchase");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self.handle.post_json(
+            &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+            &play_purchase,
+        );
         async move {
-            let request = factory
-                .post_json(
-                    &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
-                    &play_purchase,
-                )?
+            let response = request?
                 .account(account)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
+                .expected_status(&[StatusCode::NO_CONTENT])
+                .await;
 
-            let response = service.request(request).await;
             match response {
                 Err(e) => {
                     tracing::error!("verify_play_purchase failed: #{:?}", e);
@@ -720,16 +701,16 @@ impl AccountsProxy {
             auth_token: String,
         }
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .post(&format!("{APP_URL_PREFIX}/www-auth-token"));
         async move {
-            let request = factory
-                .post(&format!("{APP_URL_PREFIX}/www-auth-token"))?
+            let response: AuthTokenResponse = request?
                 .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            let response = service.request(request).await?;
-            let response: AuthTokenResponse = response.deserialize().await?;
+                .expected_status(&[StatusCode::OK])
+                .await?
+                .deserialize()
+                .await?;
             Ok(response.auth_token)
         }
     }
@@ -767,14 +748,11 @@ impl ProblemReportProxy {
         };
 
         let span = trace_span!("problem_report");
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report);
         async move {
-            let request = factory
-                .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
-            service.request(request).await?;
+            request?.expected_status(&[StatusCode::NO_CONTENT]).await?;
             Ok(())
         }
         .instrument(span)
@@ -798,25 +776,21 @@ impl ApiProxy {
 
     #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn get_api_addrs_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
-            .expected_status(&[StatusCode::OK]);
-
-        self.handle.service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 
     /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
     #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn api_addrs_available(&self) -> Result<bool, rest::Error> {
-        let request = self
+        let response = self
             .handle
-            .factory
             .head(&format!("{APP_URL_PREFIX}/api-addrs"))?
-            .expected_status(&[StatusCode::OK]);
+            .expected_status(&[StatusCode::OK])
+            .await?;
 
-        let response = self.handle.service.request(request).await?;
         Ok(response.status().is_success())
     }
 }
