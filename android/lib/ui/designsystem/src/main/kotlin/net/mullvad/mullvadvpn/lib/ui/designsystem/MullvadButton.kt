@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -172,6 +173,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     text: AnnotatedString,
     modifier: Modifier = Modifier,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
     colors: ButtonColors =
         ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -193,6 +195,7 @@ fun PrimaryButton(
         isLoading = isLoading,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
+        inlineContent = inlineContent,
     )
 }
 
@@ -328,6 +331,7 @@ private fun BaseButton(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -350,6 +354,7 @@ private fun BaseButton(
             isLoading = isLoading,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
+            inlineContent = inlineContent,
         )
     }
 }
@@ -374,6 +379,7 @@ fun SmallPrimaryButton(
 private fun RowScope.BaseButtonContent(
     text: AnnotatedString,
     isLoading: Boolean,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
     textDecoration: TextDecoration = TextDecoration.None,
     leadingIcon: @Composable (() -> Unit)?,
     trailingIcon: @Composable (() -> Unit)?,
@@ -401,6 +407,7 @@ private fun RowScope.BaseButtonContent(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
+            inlineContent = inlineContent,
         )
     }
     when {

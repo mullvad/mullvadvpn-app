@@ -30,6 +30,7 @@ class MultihopMigrationScreenTest {
         onCloseClick: () -> Unit = {},
         onBackClick: () -> Unit = {},
         onNextClick: () -> Unit = {},
+        onSetPage: (Int) -> Unit = {},
         onFinishMigration: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -39,6 +40,7 @@ class MultihopMigrationScreenTest {
                 onCloseClick = onCloseClick,
                 onBackClick = onBackClick,
                 onNextClick = onNextClick,
+                onSetPage = onSetPage,
                 onFinishMigration = onFinishMigration,
                 onSetEntry = {},
                 onSetMultihopMode = {},
@@ -52,7 +54,13 @@ class MultihopMigrationScreenTest {
         val pages =
             listOf(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -67,7 +75,13 @@ class MultihopMigrationScreenTest {
         val pages =
             listOf(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_WHEN_NEEDED))
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -85,7 +99,13 @@ class MultihopMigrationScreenTest {
         val pages =
             listOf(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_ALWAYS))
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -103,7 +123,13 @@ class MultihopMigrationScreenTest {
         val pages =
             listOf(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -117,7 +143,13 @@ class MultihopMigrationScreenTest {
         // Arrange
         val pages = listOf(MultihopMigrationPage.DirectOnlyRemoved)
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -129,7 +161,13 @@ class MultihopMigrationScreenTest {
         // Arrange
         val pages = listOf(MultihopMigrationPage.SeparateFilters)
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -141,7 +179,13 @@ class MultihopMigrationScreenTest {
         // Arrange
         val pages = listOf(MultihopMigrationPage.SuggestedMultihopEntry)
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -153,7 +197,13 @@ class MultihopMigrationScreenTest {
         // Arrange
         val pages = listOf(MultihopMigrationPage.SuggestedAction)
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null)
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                )
         )
 
         // Assert
@@ -171,7 +221,13 @@ class MultihopMigrationScreenTest {
                 MultihopMigrationPage.SuggestedAction,
             )
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 1, entryLocation = null),
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 1,
+                    entryLocation = null,
+                    multihopMode = null,
+                ),
             onBackClick = onBackClick,
         )
 
@@ -193,7 +249,13 @@ class MultihopMigrationScreenTest {
                 MultihopMigrationPage.SuggestedAction,
             )
         initScreen(
-            state = MultihopMigrationUiState(pages, currentPageIndex = 0, entryLocation = null),
+            state =
+                MultihopMigrationUiState(
+                    pages,
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                ),
             onNextClick = onNextClick,
         )
 
