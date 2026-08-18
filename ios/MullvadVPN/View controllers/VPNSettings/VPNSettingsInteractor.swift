@@ -16,7 +16,6 @@ final class VPNSettingsInteractor {
     private let relayCacheTracker: RelayCacheTracker
 
     var tunnelSettingsDidChange: ((LatestTunnelSettings) -> Void)?
-    var cachedRelaysDidChange: ((CachedRelays) -> Void)?
 
     var tunnelSettings: LatestTunnelSettings {
         tunnelManager.settings
@@ -52,11 +51,5 @@ final class VPNSettingsInteractor {
         }
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
-    }
-}
-
-extension VPNSettingsInteractor: RelayCacheTrackerObserver {
-    func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
-        cachedRelaysDidChange?(cachedRelays)
     }
 }
