@@ -5,5 +5,6 @@ enum class PlayPurchaseVerifyError {
     MissingObfuscatedAccountId,
     NoPurchaseToken,
     InvalidPurchase,
+    ApiUnreachable,
     OtherError,
 }

@@ -11,6 +11,8 @@ fun PlayPurchaseVerifyError.toPurchaseVerificationError(): VerificationError.Pla
         PlayPurchaseVerifyError.NoPurchaseToken,
         PlayPurchaseVerifyError.InvalidPurchase ->
             VerificationError.PlayVerificationError.VerificationFailed
+        PlayPurchaseVerifyError.ApiUnreachable ->
+            VerificationError.PlayVerificationError.ApiUnreachable
         PlayPurchaseVerifyError.OtherError -> VerificationError.PlayVerificationError.Other
     }
 
@@ -21,5 +23,7 @@ fun PlayPurchaseVerifyError.toPurchaseResultError(): PurchaseResult.Error.Verifi
         PlayPurchaseVerifyError.NoPurchaseToken,
         PlayPurchaseVerifyError.InvalidPurchase ->
             PurchaseResult.Error.VerificationError.VerificationFailed
+        PlayPurchaseVerifyError.ApiUnreachable ->
+            PurchaseResult.Error.VerificationError.ApiUnreachable
         PlayPurchaseVerifyError.OtherError -> PurchaseResult.Error.VerificationError.Other
     }
