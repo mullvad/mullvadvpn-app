@@ -1,11 +1,6 @@
-//! DNS monitor that uses `SetInterfaceDnsSettings`. According to
-//! <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-setinterfacednssettings>,
-//! it requires at least Windows 10, build 19041. For that reason, use run-time linking and fall
-//! back on other methods if it is not available.
-#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+//! DNS monitor that uses `SetInterfaceDnsSettings`.
 
 use super::{DnsMonitorT, ResolvedDnsConfig};
-use once_cell::sync::OnceCell;
 use std::{
     ffi::OsString,
     io,
@@ -16,16 +11,11 @@ use std::{
 use talpid_types::win32_err;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
-    Win32::{
-        Foundation::{ERROR_PROC_NOT_FOUND, FreeLibrary, WIN32_ERROR},
-        NetworkManagement::IpHelper::{
-            DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1, DNS_SETTING_IPV6,
-            DNS_SETTING_NAMESERVER,
-        },
-        System::LibraryLoader::{GetProcAddress, LOAD_LIBRARY_SEARCH_SYSTEM32, LoadLibraryExW},
+    Win32::NetworkManagement::IpHelper::{
+        DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1, DNS_SETTING_IPV6,
+        DNS_SETTING_NAMESERVER, SetInterfaceDnsSettings,
     },
     core::GUID,
-    s, w,
 };
 
 /// Errors that can happen when configuring DNS on Windows.
@@ -46,70 +36,6 @@ pub enum Error {
     /// Failure to flush DNS cache.
     #[error("Failed to flush DNS resolver cache")]
     FlushResolverCache(#[source] super::dnsapi::Error),
-
-    /// Failed to load iphlpapi.dll.
-    #[error("Failed to load iphlpapi.dll")]
-    LoadDll(#[source] io::Error),
-
-    /// Failed to obtain exported function.
-    #[error("Failed to obtain DNS function")]
-    GetFunction(#[source] io::Error),
-}
-
-type SetInterfaceDnsSettingsFn = unsafe extern "system" fn(
-    interface: GUID,
-    settings: *const DNS_INTERFACE_SETTINGS,
-) -> WIN32_ERROR;
-
-struct IphlpApi {
-    set_interface_dns_settings: SetInterfaceDnsSettingsFn,
-}
-
-unsafe impl Send for IphlpApi {}
-unsafe impl Sync for IphlpApi {}
-
-static IPHLPAPI_HANDLE: OnceCell<IphlpApi> = OnceCell::new();
-
-impl IphlpApi {
-    fn new() -> Result<Self, Error> {
-        let module = unsafe {
-            LoadLibraryExW(
-                w!("iphlpapi.dll"),
-                ptr::null_mut(),
-                LOAD_LIBRARY_SEARCH_SYSTEM32,
-            )
-        };
-        if module.is_null() {
-            log::error!("Failed to load iphlpapi.dll");
-            return Err(Error::LoadDll(io::Error::last_os_error()));
-        }
-
-        // This function is loaded at runtime since it may be unavailable. See the module-level
-        // docs. TODO: `windows_sys` can be used directly when support for versions older
-        // than Windows 10, 2004, is dropped.
-        let set_interface_dns_settings =
-            unsafe { GetProcAddress(module, s!("SetInterfaceDnsSettings")) };
-        let set_interface_dns_settings = set_interface_dns_settings.ok_or_else(|| {
-            let error = io::Error::last_os_error();
-
-            if error.raw_os_error() != Some(ERROR_PROC_NOT_FOUND as i32) {
-                log::error!(
-                    "Could not find SetInterfaceDnsSettings due to an unexpected error: {error}"
-                );
-            }
-
-            unsafe { FreeLibrary(module) };
-            Error::GetFunction(error)
-        })?;
-
-        // NOTE: Leaking `module` here, since we're lazily initializing it
-
-        Ok(Self {
-            set_interface_dns_settings: unsafe {
-                *((&raw const set_interface_dns_settings).cast())
-            },
-        })
-    }
 }
 
 pub struct DnsMonitor {
@@ -118,7 +44,9 @@ pub struct DnsMonitor {
 
 impl DnsMonitor {
     pub fn is_supported() -> bool {
-        IPHLPAPI_HANDLE.get_or_try_init(IphlpApi::new).is_ok()
+        // `SetInterfaceDnsSettings` is available on all Windows versions that Mullvad supports. See
+        // `supported-platforms.md`.
+        true
     }
 }
 
@@ -159,12 +87,12 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        if let Some(guid) = self.current_guid.take() {
-            set_interface_dns_servers_v4(&guid, &[])
-                .and(set_interface_dns_servers_v6(&guid, &[]))
-                .and(flush_dns_cache())?;
-        }
-        Ok(())
+        let Some(guid) = self.current_guid.take() else {
+            return Ok(());
+        };
+        set_interface_dns_servers_v4(&guid, &[])
+            .and(set_interface_dns_servers_v6(&guid, &[]))
+            .and(flush_dns_cache())
     }
 
     fn reset_before_interface_removal(&mut self) -> Result<(), Self::Error> {
@@ -175,20 +103,18 @@ impl DnsMonitorT for DnsMonitor {
 }
 
 fn set_interface_dns_servers_v4(guid: &GUID, servers: &[&Ipv4Addr]) -> Result<(), Error> {
-    set_interface_dns_servers(guid, servers, DNS_SETTING_NAMESERVER)
+    set_interface_dns_servers(guid, servers, ConfigureNameServer::Ipv4)
 }
 
 fn set_interface_dns_servers_v6(guid: &GUID, servers: &[&Ipv6Addr]) -> Result<(), Error> {
-    set_interface_dns_servers(guid, servers, DNS_SETTING_NAMESERVER | DNS_SETTING_IPV6)
+    set_interface_dns_servers(guid, servers, ConfigureNameServer::Ipv6)
 }
 
 fn set_interface_dns_servers<T: ToString>(
     guid: &GUID,
     servers: &[T],
-    flags: u32,
+    flags: ConfigureNameServer,
 ) -> Result<(), Error> {
-    let iphlpapi = IPHLPAPI_HANDLE.get_or_try_init(IphlpApi::new)?;
-
     // Create comma-separated nameserver list
     let nameservers = servers
         .iter()
@@ -202,7 +128,7 @@ fn set_interface_dns_servers<T: ToString>(
 
     let dns_interface_settings = DNS_INTERFACE_SETTINGS {
         Version: DNS_INTERFACE_SETTINGS_VERSION1,
-        Flags: u64::from(flags),
+        Flags: flags as u64,
         Domain: ptr::null_mut(),
         NameServer: nameservers.as_mut_ptr(),
         SearchList: ptr::null_mut(),
@@ -213,10 +139,27 @@ fn set_interface_dns_servers<T: ToString>(
         ProfileNameServer: ptr::null_mut(),
     };
 
+    // SAFETY:
+    // - `&raw const dns_interface_settings` is a valid pointer to a DNS_INTERFACE_SETTINGS-type structure.
+    // - `dns_interface_settings` is live for the entire call to SetInterfaceDnsSettings.
+    // - DNS_INTERFACE_SETTINGS::Version member is set to DNS_INTERFACE_SETTINGS_VERSION1.
+    // - DNS_INTERFACE_SETTINGS.NameServer member is populated while the other members are zeroed.
     win32_err!(unsafe {
-        (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &raw const dns_interface_settings)
+        // <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-setinterfacednssettings>.
+        SetInterfaceDnsSettings(guid.to_owned(), &raw const dns_interface_settings)
     })
     .map_err(Error::SetInterfaceDnsSettings)
+}
+
+/// DNS_INTERFACE_SETTINGS.Flags argument for configures static adapter DNS servers on the specified interface via the NameServer member.
+///
+/// See <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/ns-netioapi-dns_interface_settings>.
+#[repr(u32)]
+enum ConfigureNameServer {
+    /// DNS_SETTING_NAMESERVER.
+    Ipv4 = DNS_SETTING_NAMESERVER,
+    /// DNS_SETTING_NAMESERVER | DNS_SETTING_IPV6.
+    Ipv6 = (DNS_SETTING_NAMESERVER | DNS_SETTING_IPV6),
 }
 
 fn flush_dns_cache() -> Result<(), Error> {
