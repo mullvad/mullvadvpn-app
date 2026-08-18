@@ -7,7 +7,7 @@ use axum::{
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
-use crate::{block_list::BlockList, capture::Capture};
+use crate::{firewall::BlockList, capture::Capture};
 
 mod firewall;
 mod ip;

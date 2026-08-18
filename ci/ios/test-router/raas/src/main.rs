@@ -1,6 +1,6 @@
 use std::{fs, io, net::SocketAddr, path::Path, time::Duration};
 
-mod block_list;
+mod firewall;
 mod capture;
 mod web;
 
