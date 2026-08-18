@@ -9,6 +9,7 @@ license.workspace = true
 dbus = { version = "0.9", optional = true }
 libc = "0.2"
 log = { workspace = true }
+resolv-conf = "0.7.6"
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
