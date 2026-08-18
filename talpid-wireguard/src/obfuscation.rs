@@ -120,14 +120,14 @@ pub async fn spawn_local_socket_obfuscator(
 
 /// Returns `true` when the obfuscation config can be applied inline in userspace WireGuard
 /// (GotaTun), avoiding the need for a local socket obfuscator.
+///
+/// Every single obfuscation method is an `ObfuscatedTransport`, which GotaTun drives directly.
+/// The multiplexer is not: it races several transports against each other and only commits to
+/// one of them once it answers, so it is still reached over a local socket.
 pub fn userspace_transport_available(
     params: &talpid_types::net::wireguard::TunnelParameters,
 ) -> bool {
-    matches!(
-        params.obfuscation.as_ref(),
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
-            | Some(Obfuscators::Single(ObfuscatorConfig::Quic { .. }))
-    )
+    matches!(params.obfuscation.as_ref(), Some(Obfuscators::Single(_)))
 }
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
