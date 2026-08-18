@@ -1,4 +1,6 @@
 {
+  lib,
+  stdenv,
   rustPlatform,
   pkg-config,
   libmnl,
@@ -15,9 +17,10 @@ rustPlatform.buildRustPackage rec {
   cargoLock.lockFile = ./raas/Cargo.lock;
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [
-    libmnl
-    libnftnl
-    libpcap
-  ];
+  buildInputs =
+    [ libpcap ]
+    ++ lib.optionals stdenv.hostPlatform.isLinux [
+      libmnl
+      libnftnl
+    ];
 }
