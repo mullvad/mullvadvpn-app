@@ -9,7 +9,6 @@ import {
   IpVersion,
   IWireguardEndpointData,
   LiftedConstraint,
-  MultihopMode,
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
@@ -30,7 +29,7 @@ export type NormalRelaySettingsRedux = {
   ownership: Ownership;
   wireguard: {
     ipVersion: LiftedConstraint<IpVersion>;
-    multihop: MultihopMode;
+    useMultihop: boolean;
     entryLocation: LiftedConstraint<RelayLocation>;
   };
 };
@@ -130,11 +129,7 @@ const initialState: ISettingsReduxState = {
       location: 'any',
       providers: [],
       ownership: Ownership.any,
-      wireguard: {
-        ipVersion: 'any',
-        multihop: 'when-needed',
-        entryLocation: 'any',
-      },
+      wireguard: { ipVersion: 'any', useMultihop: false, entryLocation: 'any' },
     },
   },
   relayLocations: [],

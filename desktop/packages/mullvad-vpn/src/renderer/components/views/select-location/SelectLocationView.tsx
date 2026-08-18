@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { useIsDaitaEnabledWithoutDirectOnly } from '../../../features/daita/hooks';
+import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
@@ -33,6 +33,8 @@ export function SelectLocationViewImpl() {
     useScrollPositionContext();
   const { locationType, setLocationType } = useSelectLocationViewContext();
 
+  const { daitaEnabled } = useDaitaEnabled();
+  const { daitaDirectOnly } = useDaitaDirectOnly();
   const { multihop } = useMultihop();
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
@@ -46,13 +48,10 @@ export function SelectLocationViewImpl() {
     [saveScrollPosition, setLocationType],
   );
 
-  const isEntrySelection = locationType === LocationType.entry;
-  const isDaitaWithoutDirectOnly = useIsDaitaEnabledWithoutDirectOnly();
-
-  const showDisabledEntrySelection = isEntrySelection && isDaitaWithoutDirectOnly;
+  const showDisabledEntrySelection =
+    locationType === LocationType.entry && daitaEnabled && !daitaDirectOnly && multihop;
   const showFilters = isAnyFilterActive && !showDisabledEntrySelection;
   const showSearchField = !showDisabledEntrySelection;
-  const showEntryExitBar = multihop !== 'never';
 
   return (
     <View backgroundColor="darkBlue">
@@ -71,12 +70,13 @@ export function SelectLocationViewImpl() {
             flexDirection="column"
             horizontalMargin="medium"
             padding={{ bottom: 'small' }}>
-            {showEntryExitBar && (
+            {multihop && (
               <StyledScopeBar selectedIndex={locationType} onChange={changeLocationType}>
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Entry')}</ScopeBarItem>
                 <ScopeBarItem>{messages.pgettext('select-location-view', 'Exit')}</ScopeBarItem>
               </StyledScopeBar>
             )}
+
             {showFilters && <FilterChips />}
             {showSearchField && <LocationSearchField />}
           </View.Container>

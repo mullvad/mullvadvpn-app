@@ -373,37 +373,10 @@ pub struct TransportPort {
 pub struct WireguardConstraints {
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub multihop: Multihop,
+    pub use_multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
-}
-
-/// Possible multihop setting states.
-#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
-pub enum Multihop {
-    /// Always route VPN traffic through multiple relays.
-    #[serde(rename = "always")]
-    Always,
-    /// Depending on the combination of features + location constraints, the VPN may be routed
-    /// through one or more relays.
-    #[default]
-    #[serde(rename = "auto")]
-    Auto,
-    /// Never route VPN traffic through more than one relay.
-    #[serde(rename = "never")]
-    Never,
-}
-
-impl fmt::Display for Multihop {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
-        match self {
-            Multihop::Always => "Always".fmt(f),
-            Multihop::Auto => "Auto".fmt(f),
-            Multihop::Never => "Never".fmt(f),
-        }
-    }
 }
 
 pub use allowed_ip::AllowedIps;
@@ -415,7 +388,7 @@ pub mod allowed_ip {
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-    pub struct AllowedIps(Vec<IpNetwork>);
+    pub struct AllowedIps(pub Vec<IpNetwork>);
 
     impl Default for AllowedIps {
         fn default() -> Self {
@@ -450,11 +423,6 @@ pub mod allowed_ip {
     /// including allowing all IPs, parsing from string representations, and
     /// converting into a constraint.
     impl AllowedIps {
-        /// All allowed IP networks.
-        pub fn networks(&self) -> &[IpNetwork] {
-            &self.0
-        }
-
         /// Creates an `AllowedIps` instance that allows all IP addresses.
         ///
         /// # Returns
@@ -527,13 +495,13 @@ pub mod allowed_ip {
     /// If the constraint is `Constraint::Any` or `Constraint::Only` with an empty list, it allows all IPs.
     /// Returns a vector of `IpNetwork` containing the resolved allowed IPs.
     pub fn resolve_from_constraint(
-        allowed_ips: Constraint<&AllowedIps>,
+        allowed_ips: &Constraint<AllowedIps>,
         host_ipv4: Option<Ipv4Addr>,
         host_ipv6: Option<Ipv6Addr>,
     ) -> Vec<IpNetwork> {
         match allowed_ips {
             Constraint::Any => AllowedIps::allow_all(),
-            Constraint::Only(ips) if ips.networks().is_empty() => AllowedIps::allow_all(),
+            Constraint::Only(ips) if ips.0.is_empty() => AllowedIps::allow_all(),
             Constraint::Only(ips) => ips.clone(),
         }
         .resolve(host_ipv4, host_ipv6)
@@ -542,13 +510,13 @@ pub mod allowed_ip {
 
 impl WireguardConstraints {
     /// Enable or disable multihop.
-    pub fn multihop(&mut self, multihop: Multihop) {
-        self.multihop = multihop
+    pub fn use_multihop(&mut self, multihop: bool) {
+        self.use_multihop = multihop
     }
 
-    /// Check if multihop may be in effect.
-    pub fn multihop_entry(&self) -> Option<&LocationConstraint> {
-        self.entry_location.as_ref().option()
+    /// Check if multihop is enabled.
+    pub fn multihop(&self) -> bool {
+        self.use_multihop
     }
 }
 
@@ -559,15 +527,16 @@ pub struct WireguardConstraintsFormatter<'a> {
 
 impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // FIXME: What is going on with this formatting ??
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {ip_version},")?;
         }
-        if let Some(entry) = self.constraints.multihop_entry() {
-            let location = LocationConstraintFormatter {
-                constraint: entry,
-                custom_lists: self.custom_lists,
-            };
+        if self.constraints.multihop() {
+            let location = self.constraints.entry_location.as_ref().map(|location| {
+                LocationConstraintFormatter {
+                    constraint: location,
+                    custom_lists: self.custom_lists,
+                }
+            });
             write!(f, ", multihop entry {location}")?;
         }
         Ok(())

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
@@ -28,17 +28,10 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
     onOpenChange?.(false);
   }, [onOpenChange, setEnabledRecents]);
 
-  const handleMultihopAlways = useCallback(
-    () => setMultihop({ multihop: 'always' }),
-    [setMultihop],
-  );
-
-  const handleMultihopNever = useCallback(() => setMultihop({ multihop: 'never' }), [setMultihop]);
-
-  const handleMultihopWhenNeeded = useCallback(
-    () => setMultihop({ multihop: 'when-needed' }),
-    [setMultihop],
-  );
+  const toggleMultihop = React.useCallback(async () => {
+    await setMultihop({ enabled: !multihop });
+    onOpenChange?.(false);
+  }, [multihop, onOpenChange, setMultihop]);
 
   return (
     <>
@@ -52,67 +45,22 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
               </Menu.Option.Item>
             </Menu.Option.Trigger>
           </Menu.Option>
-          <Menu.Title>
-            {
-              // TRANSLATORS: Title for a menu with items for the Multihop mode setting options.
-              messages.pgettext('select-location-view', 'Multihop mode')
-            }
-          </Menu.Title>
           <Menu.Option>
-            <Menu.Option.Trigger onClick={handleMultihopWhenNeeded}>
+            <Menu.Option.Trigger onClick={toggleMultihop}>
               <Menu.Option.Item>
-                {multihop === 'when-needed' ? (
-                  <Menu.Option.Item.Icon icon="checkmark" />
-                ) : (
-                  <Menu.Option.Item.Icon icon="placeholder" />
-                )}
+                <Menu.Option.Item.Icon icon="location-add" />
                 <Menu.Option.Item.Label>
-                  {
-                    // TRANSLATORS: Label for a menu option to change the Multihop mode setting
-                    // TRANSLATORS: option to "When needed".
-                    messages.pgettext('select-location-view', 'When needed')
-                  }
+                  {multihop
+                    ? // This line is here to prevent the following one to be moved up here by prettier
+                      // TRANSLATORS: Used in button to disable multihop.
+                      messages.pgettext('select-location-view', 'Disable multihop')
+                    : // This line is here to prevent the following one to be moved up here by prettier
+                      // TRANSLATORS: Used in button to enable multihop.
+                      messages.pgettext('select-location-view', 'Enable multihop')}
                 </Menu.Option.Item.Label>
               </Menu.Option.Item>
             </Menu.Option.Trigger>
           </Menu.Option>
-          <Menu.Option>
-            <Menu.Option.Trigger onClick={handleMultihopAlways}>
-              <Menu.Option.Item>
-                {multihop === 'always' ? (
-                  <Menu.Option.Item.Icon icon="checkmark" />
-                ) : (
-                  <Menu.Option.Item.Icon icon="placeholder" />
-                )}
-                <Menu.Option.Item.Label>
-                  {
-                    // TRANSLATORS: Label for a menu option to change the Multihop mode setting
-                    // TRANSLATORS: option to "Always".
-                    messages.pgettext('select-location-view', 'Always')
-                  }
-                </Menu.Option.Item.Label>
-              </Menu.Option.Item>
-            </Menu.Option.Trigger>
-          </Menu.Option>
-          <Menu.Option>
-            <Menu.Option.Trigger onClick={handleMultihopNever}>
-              <Menu.Option.Item>
-                {multihop === 'never' ? (
-                  <Menu.Option.Item.Icon icon="checkmark" />
-                ) : (
-                  <Menu.Option.Item.Icon icon="placeholder" />
-                )}
-                <Menu.Option.Item.Label>
-                  {
-                    // TRANSLATORS: Label for a menu option to change the Multihop mode setting
-                    // TRANSLATORS: option to "Never".
-                    messages.pgettext('select-location-view', 'Never')
-                  }
-                </Menu.Option.Item.Label>
-              </Menu.Option.Item>
-            </Menu.Option.Trigger>
-          </Menu.Option>
-          <Menu.Divider />
           <Menu.Option>
             <Menu.Option.Trigger onClick={hasRecents ? openDisableRecentsDialog : enableRecents}>
               <Menu.Option.Item>

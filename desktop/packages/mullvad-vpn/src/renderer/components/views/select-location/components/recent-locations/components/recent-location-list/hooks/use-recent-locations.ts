@@ -10,7 +10,7 @@ export function useRecentLocations() {
     recentSinglehopLocations,
   } = useSelectLocationViewContext();
   const { multihop } = useMultihop();
-  if (multihop === 'never') {
+  if (!multihop) {
     if (recentSinglehopLocations) {
       return recentSinglehopLocations;
     }

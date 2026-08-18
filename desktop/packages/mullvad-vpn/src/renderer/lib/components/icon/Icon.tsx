@@ -4,21 +4,11 @@ import { Colors, colors } from '../../foundations';
 import { icons } from './types';
 
 export type IconProps = {
-  icon: keyof typeof icons | 'placeholder';
+  icon: keyof typeof icons;
   size?: 'tiny' | 'small' | 'medium' | 'large' | 'big';
   color?: Colors;
   className?: string;
 } & React.HTMLAttributes<HTMLDivElement>;
-
-export const StyledPlaceholder = styled.div<{ $size: number }>`
-  ${({ $size }) => {
-    return css`
-      flex-shrink: 0;
-      width: ${$size}px;
-      height: ${$size}px;
-    `;
-  }}
-`;
 
 export const StyledIcon = styled.div<{ $color: string; $size: number; $src: string }>`
   ${({ $size, $src, $color }) => {
@@ -43,19 +33,13 @@ export const iconSizes = {
 
 export const Icon = ({
   icon: iconProp,
-  size: sizeProp = 'medium',
+  size = 'medium',
   color: colorProp = 'white',
   ...props
 }: IconProps) => {
-  const size = iconSizes[sizeProp];
-
-  if (iconProp === 'placeholder') {
-    return <StyledPlaceholder $size={size} />;
-  }
-
   const icon = icons[iconProp];
   const src = iconProp.startsWith('data:') ? iconProp : `assets/icons/${icon}.svg`;
 
   const color = colors[colorProp];
-  return <StyledIcon $src={src} $size={size} $color={color} role="img" {...props} />;
+  return <StyledIcon $src={src} $size={iconSizes[size]} $color={color} role="img" {...props} />;
 };

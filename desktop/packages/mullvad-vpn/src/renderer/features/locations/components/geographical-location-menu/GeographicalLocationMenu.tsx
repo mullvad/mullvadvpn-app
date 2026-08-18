@@ -2,17 +2,18 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../shared/gettext';
+import { useSelectLocationViewContext } from '../../../../components/views/select-location/SelectLocationViewContext';
 import { Menu, type MenuProps } from '../../../../lib/components/menu';
 import { CreateCustomListDialog } from '../../../custom-lists/components';
 import { useCustomLists } from '../../../custom-lists/hooks';
-import { type GeographicalLocation } from '../../types';
+import { useMultihop } from '../../../multihop/hooks';
+import { DisabledReason, type GeographicalLocation, LocationType } from '../../types';
 import {
   AddLocationToCustomListMenuOption,
   CreateCustomListMenuOption,
   SetAsEntryMenuOption,
   SetAsExitMenuOption,
 } from './components';
-import { useShowSetAsEntryMenuOption, useShowSetAsExitMenuOption } from './hooks';
 
 export type GeographicalMenuProps = MenuProps & {
   location: GeographicalLocation;
@@ -24,16 +25,24 @@ export function GeographicalLocationMenu({
   ...props
 }: GeographicalMenuProps) {
   const { customLists } = useCustomLists();
+  const { multihop } = useMultihop();
+  const { locationType } = useSelectLocationViewContext();
   const [createCustomListDialogOpen, setCreateCustomListDialogOpen] = React.useState(false);
-
   const handleOpenCreateCustomListDialog = React.useCallback(() => {
     setCreateCustomListDialogOpen(true);
     onOpenChange?.(false);
   }, [onOpenChange]);
 
-  const showSetAsEntryMenuOption = useShowSetAsEntryMenuOption(location);
-  const showSetAsExitMenuOption = useShowSetAsExitMenuOption(location);
-  const showMenuDivider = showSetAsEntryMenuOption || showSetAsExitMenuOption;
+  const showSetAsEntryMenuOption =
+    !multihop ||
+    (multihop &&
+      locationType === LocationType.exit &&
+      location.disabledReason !== DisabledReason.entry);
+
+  const showSetAsExitMenuOption =
+    multihop &&
+    locationType === LocationType.entry &&
+    location.disabledReason !== DisabledReason.exit;
 
   return (
     <>
@@ -41,7 +50,7 @@ export function GeographicalLocationMenu({
         <Menu.Popup>
           {showSetAsEntryMenuOption && <SetAsEntryMenuOption location={location} />}
           {showSetAsExitMenuOption && <SetAsExitMenuOption location={location} />}
-          {showMenuDivider && <Menu.Divider />}
+          {(showSetAsEntryMenuOption || showSetAsExitMenuOption) && <Menu.Divider />}
           <Menu.Title>
             {sprintf(
               // TRANSLATORS: This is a label shown above a list of options related to custom lists.

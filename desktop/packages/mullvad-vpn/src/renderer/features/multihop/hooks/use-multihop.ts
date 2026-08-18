@@ -1,26 +1,22 @@
 import React from 'react';
 
-import {
-  MultihopMode,
-  type RelayLocation,
-  wrapConstraint,
-} from '../../../../shared/daemon-rpc-types';
+import { type RelayLocation, wrapConstraint } from '../../../../shared/daemon-rpc-types';
 import log from '../../../../shared/logging';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 
 export function useMultihop() {
   const normalRelaySettings = useNormalRelaySettings();
-  const multihop = normalRelaySettings?.wireguard.multihop ?? 'when-needed';
+  const multihop = normalRelaySettings?.wireguard.useMultihop ?? false;
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const setMultihop = React.useCallback(
     async ({
-      multihop,
+      enabled,
       entryLocation,
       exitLocation,
     }: {
-      multihop: MultihopMode;
+      enabled: boolean;
       entryLocation?: RelayLocation;
       exitLocation?: RelayLocation;
     }) => {
@@ -32,7 +28,7 @@ export function useMultihop() {
           if (exitLocation) {
             settings.location = wrapConstraint(exitLocation);
           }
-          settings.wireguardConstraints.multihop = multihop;
+          settings.wireguardConstraints.useMultihop = enabled;
           return settings;
         });
       } catch (error) {

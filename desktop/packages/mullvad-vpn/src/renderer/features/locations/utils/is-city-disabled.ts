@@ -1,13 +1,16 @@
-import { compareRelayLocation, type RelayLocationCity } from '../../../../shared/daemon-rpc-types';
+import {
+  compareRelayLocation,
+  type RelayLocation,
+  type RelayLocationCity,
+} from '../../../../shared/daemon-rpc-types';
 import type { IRelayLocationCityRedux } from '../../../redux/settings/reducers';
-import { useDisabledLocation } from '../hooks';
 import { DisabledReason } from '../types';
 import { isRelayDisabled } from './is-relay-disabled';
 
 export function isCityDisabled(
   city: IRelayLocationCityRedux,
   location: RelayLocationCity,
-  disabledLocation?: ReturnType<typeof useDisabledLocation>,
+  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
   const relaysDisabled = city.relays.map((relay) =>
     isRelayDisabled(relay, { ...location, hostname: relay.hostname }, disabledLocation),
@@ -28,7 +31,7 @@ export function isCityDisabled(
   }
 
   if (
-    disabledLocation?.location &&
+    disabledLocation &&
     compareRelayLocation(location, disabledLocation.location) &&
     city.relays.filter((relay) => relay.active).length <= 1
   ) {

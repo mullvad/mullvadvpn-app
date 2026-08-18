@@ -13,7 +13,7 @@ export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal {
     ownership: Ownership.any,
     wireguardConstraints: {
       ipVersion: 'any',
-      multihop: 'when-needed',
+      useMultihop: false,
       entryLocation: 'any',
     },
   };

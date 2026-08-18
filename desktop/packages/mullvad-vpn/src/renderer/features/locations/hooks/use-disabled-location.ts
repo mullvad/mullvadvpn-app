@@ -9,24 +9,21 @@ export function useDisabledLocation(locationType: LocationType) {
   const relaySettings = useNormalRelaySettings();
 
   return React.useMemo(() => {
-    if (relaySettings?.wireguard.multihop !== 'never') {
+    if (relaySettings?.wireguard.useMultihop) {
       if (locationType === LocationType.exit && relaySettings?.wireguard.entryLocation !== 'any') {
         return {
           location: relaySettings?.wireguard.entryLocation,
           reason: DisabledReason.entry,
         };
       } else if (locationType === LocationType.entry && relaySettings?.location !== 'any') {
-        return {
-          location: relaySettings?.location,
-          reason: DisabledReason.exit,
-        };
+        return { location: relaySettings?.location, reason: DisabledReason.exit };
       }
     }
 
     return undefined;
   }, [
     locationType,
-    relaySettings?.wireguard.multihop,
+    relaySettings?.wireguard.useMultihop,
     relaySettings?.wireguard.entryLocation,
     relaySettings?.location,
   ]);

@@ -42,7 +42,6 @@ import {
   IWireguardEndpointData,
   LoggedInDeviceState,
   LoggedOutDeviceState,
-  MultihopMode,
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
@@ -370,8 +369,6 @@ function convertFromFeatureIndicator(
     case grpcTypes.FeatureIndicator.MULTIHOP:
       return FeatureIndicator.multihop;
     case grpcTypes.FeatureIndicator.SPLIT_TUNNELING:
-    case grpcTypes.FeatureIndicator.MULTIHOP_AUTO:
-      return FeatureIndicator.multihopAuto;
       return FeatureIndicator.splitTunneling;
     case grpcTypes.FeatureIndicator.LOCKDOWN_MODE:
       return FeatureIndicator.lockdownMode;
@@ -389,6 +386,8 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.customMtu;
     case grpcTypes.FeatureIndicator.DAITA:
       return FeatureIndicator.daita;
+    case grpcTypes.FeatureIndicator.DAITA_MULTIHOP:
+      return FeatureIndicator.daitaMultihop;
     case grpcTypes.FeatureIndicator.SHADOWSOCKS:
       return FeatureIndicator.shadowsocks;
     case grpcTypes.FeatureIndicator.QUIC:
@@ -803,40 +802,12 @@ export function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
   }
 }
 
-function convertFromMultihop(multihop: grpcTypes.WireguardConstraints.Multihop): MultihopMode {
-  switch (multihop) {
-    case grpcTypes.WireguardConstraints.Multihop.ALWAYS:
-      return 'always';
-    case grpcTypes.WireguardConstraints.Multihop.NEVER:
-      return 'never';
-    case grpcTypes.WireguardConstraints.Multihop.AUTO:
-      return 'when-needed';
-    default:
-      return multihop satisfies never;
-  }
-}
-
-function convertToMultihop(multihop: MultihopMode): grpcTypes.WireguardConstraints.Multihop {
-  switch (multihop) {
-    case 'always':
-      return grpcTypes.WireguardConstraints.Multihop.ALWAYS;
-    case 'never':
-      return grpcTypes.WireguardConstraints.Multihop.NEVER;
-    case 'when-needed':
-      return grpcTypes.WireguardConstraints.Multihop.AUTO;
-    default:
-      return multihop satisfies never;
-  }
-}
-
 function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
-  const multihop = convertFromMultihop(constraints.getMultihop());
-
   const result: IWireguardConstraints = {
-    multihop,
     ipVersion: 'any',
+    useMultihop: constraints.getUseMultihop(),
     entryLocation: 'any',
   };
 
@@ -1022,8 +993,8 @@ function convertToWireguardConstraints(
       wireguardConstraints.setIpVersion(ipVersionProtocol);
     }
 
-    if (constraint.multihop !== undefined) {
-      wireguardConstraints.setMultihop(convertToMultihop(constraint.multihop));
+    if (constraint.useMultihop) {
+      wireguardConstraints.setUseMultihop(constraint.useMultihop);
     }
 
     const entryLocation = unwrapConstraint(constraint.entryLocation);

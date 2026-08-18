@@ -7,9 +7,9 @@ use mullvad_types::{
     constraints::{Constraint, Match},
     location::CountryCode,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter, Multihop,
-        Ownership, Provider, Providers, RelayConstraints, RelayOverride, RelaySettings,
-        WireguardConstraints, allowed_ip::AllowedIps,
+        GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter, Ownership,
+        Provider, Providers, RelayConstraints, RelayOverride, RelaySettings, WireguardConstraints,
+        allowed_ip::AllowedIps,
     },
     relay_list::RelayListCountry,
 };
@@ -20,7 +20,7 @@ use std::{
 };
 use talpid_types::net::{IpVersion, wireguard};
 
-use super::relay_constraints::LocationArgs;
+use super::{BooleanOption, relay_constraints::LocationArgs};
 use crate::{cmds::receive_confirmation, print_option};
 
 #[derive(Subcommand, Debug)]
@@ -96,9 +96,12 @@ pub enum SetCommands {
         ip_version: Constraint<IpVersion>,
     },
 
-    /// Configure multihop. The location constraints are specified with 'entry location' and
-    /// 'location' subcommands.
-    Multihop { multihop: Multihop },
+    /// Enable or disable multihop
+    Multihop {
+        /// Whether to enable multihop. The location constraints are specified with
+        /// 'entry-location'.
+        use_multihop: BooleanOption,
+    },
 
     /// Set entry location constraints for multihop
     #[clap(subcommand)]
@@ -239,7 +242,14 @@ impl Relay {
 
                 print_option!("IP protocol", constraints.wireguard_constraints.ip_version,);
 
-                print_option!("Multihop state", constraints.wireguard_constraints.multihop);
+                print_option!(
+                    "Multihop state",
+                    if constraints.wireguard_constraints.multihop() {
+                        "enabled"
+                    } else {
+                        "disabled"
+                    },
+                );
                 print_option!(
                     "Multihop entry",
                     constraints
@@ -342,11 +352,11 @@ impl Relay {
                 })
                 .await
             }
-            SetCommands::Multihop { multihop } => {
+            SetCommands::Multihop { use_multihop } => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
 
-                wireguard_constraints.multihop(multihop);
+                wireguard_constraints.use_multihop(*use_multihop);
 
                 Self::update_constraints(|constraints| {
                     constraints.wireguard_constraints = wireguard_constraints;

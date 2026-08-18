@@ -3,9 +3,9 @@ use crate::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, Multihop, ObfuscationSettings,
-        RelayConstraints, RelayOverride, RelaySettings, RelaySettingsFormatter,
-        SelectedObfuscation, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, RelayConstraints,
+        RelayOverride, RelaySettings, RelaySettingsFormatter, SelectedObfuscation,
+        WireguardConstraints,
     },
     wireguard,
 };
@@ -174,39 +174,34 @@ impl TryFrom<&RelaySettings> for Recent {
                     .ok_or("Location must be Constraint::Only")?
                     .clone();
 
-                let recent = match constraints.wireguard_constraints.multihop {
-                    Multihop::Always => {
-                        let entry = constraints
-                            .wireguard_constraints
-                            .entry_location
-                            .as_ref()
-                            .option()
-                            .ok_or("Location must be Constraint::Only")?
-                            .clone();
+                let recent = if constraints.wireguard_constraints.use_multihop {
+                    let entry = constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .as_ref()
+                        .option()
+                        .ok_or("Location must be Constraint::Only")?
+                        .clone();
 
-                        if matches!(
-                            entry,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && matches!(
-                            location,
-                            LocationConstraint::Location(GeographicLocationConstraint::Hostname(
-                                ..
-                            ))
-                        ) && entry == location
-                        {
-                            return Err(
-                                "Multihop recent cannot have identical (country, city, host) triple.",
-                            );
-                        }
-
-                        Recent::Multihop {
-                            entry,
-                            exit: location,
-                        }
+                    if matches!(
+                        entry,
+                        LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
+                    ) && matches!(
+                        location,
+                        LocationConstraint::Location(GeographicLocationConstraint::Hostname(..))
+                    ) && entry == location
+                    {
+                        return Err(
+                            "Multihop recent cannot have identical (country, city, host) triple.",
+                        );
                     }
-                    Multihop::Never | Multihop::Auto => Recent::Singlehop(location),
+
+                    Recent::Multihop {
+                        entry,
+                        exit: location,
+                    }
+                } else {
+                    Recent::Singlehop(location)
                 };
 
                 Ok(recent)

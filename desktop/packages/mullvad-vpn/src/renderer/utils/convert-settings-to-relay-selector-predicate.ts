@@ -138,8 +138,8 @@ export function convertSettingsToRelaySelectorQueries(
     return null;
   }
 
-  const multihop = normalRelaySettings?.wireguard.multihop;
-  if (multihop === 'always') {
+  const multihop = normalRelaySettings?.wireguard.useMultihop;
+  if (multihop) {
     // We perform 2 different queries here as there are performance
     // benefits to looking up both entry and exit queries in tandem.
     //
@@ -204,10 +204,12 @@ export function convertSettingsToRelaySelectorQueries(
     },
   });
 
-  if (multihop === 'when-needed') {
+  const daita = settings.wireguard.daita;
+  const autohop = daita?.enabled && !daita?.directOnly;
+  if (autohop) {
     return [
       {
-        // Use this when looking at the Select location view when multihop is set to when needed
+        // Use this when looking at the Select location view with daita without direct only
         context: 'exit',
         predicate: {
           type: 'autohop',
@@ -219,7 +221,7 @@ export function convertSettingsToRelaySelectorQueries(
 
   return [
     {
-      // Use this when looking at the Select location view when multihop is set to never
+      // Use this when looking at the Select location view without daita or with daita and direct only
       context: 'exit',
       predicate: {
         type: 'singlehop',

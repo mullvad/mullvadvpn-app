@@ -124,10 +124,11 @@ impl EntryConstraints {
     pub fn into_autohop(self) -> MultihopConstraints {
         MultihopConstraints {
             entry: Self {
+                // TODO: After the change a dedicated autohop setting, we will set the providers/ownership constraints to auto
                 general: ExitConstraints {
                     location: Constraint::Any,
-                    providers: Constraint::Any,
-                    ownership: Constraint::Any,
+                    providers: self.general.providers.clone(),
+                    ownership: self.general.ownership,
                 },
                 entry_specific: self.entry_specific,
             },

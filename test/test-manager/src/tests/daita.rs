@@ -2,7 +2,6 @@ use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-use mullvad_types::relay_constraints::Multihop;
 use mullvad_types::{
     constraints::Constraint, relay_constraints::GeographicLocationConstraint, states::TunnelState,
 };
@@ -126,13 +125,13 @@ pub async fn test_daita(
         log::info!("Successfully singlehopped with 'direct_only' disabled");
     }
 
-    log::info!("Connecting to a daita relay set as entry in a multihop configuration should work");
+    log::info!("Connecting to a daita relay as entry for multihop and `direct_only` should work");
     {
         helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
             constraint.location = Constraint::Only(non_daita_relay_location.clone().into());
             constraint.wireguard_constraints.entry_location =
                 Constraint::Only(daita_relay_location.clone().into());
-            constraint.wireguard_constraints.multihop = Multihop::Always;
+            constraint.wireguard_constraints.use_multihop = true;
         })
         .await?;
         mullvad_client.set_daita_direct_only(true).await?;
@@ -148,13 +147,15 @@ pub async fn test_daita(
         log::info!("Successfully connected with multihop");
     }
 
-    log::info!("Connecting to a non daita relay as entry in a multihop configuration should fail");
+    log::info!(
+        "Connecting to a non daita relay as entry for multihop and `direct_only` should fail"
+    );
     {
         helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
             constraint.location = Constraint::Only(daita_relay_location.clone().into());
             constraint.wireguard_constraints.entry_location =
                 Constraint::Only(non_daita_relay_location.into());
-            constraint.wireguard_constraints.multihop = Multihop::Always;
+            constraint.wireguard_constraints.use_multihop = true;
         })
         .await?;
         mullvad_client.set_daita_direct_only(true).await?;

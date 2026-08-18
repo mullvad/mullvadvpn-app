@@ -1,4 +1,3 @@
-import { MultihopMode } from '../../../../shared/daemon-rpc-types';
 import type {
   IRelayLocationCountryRedux,
   RelayLocationsFilterContext,
@@ -11,7 +10,7 @@ export function filterLocationsByRelayLocationsFiltered(
   locations: IRelayLocationCountryRedux[],
   relayLocationsFiltered: RelayLocationsFiltered,
   context: RelayLocationsFilterContext,
-  multihop: MultihopMode,
+  multihop: boolean,
 ): IRelayLocationCountryRedux[] {
   const filters = [getRelayLocationsFilteredFilter(relayLocationsFiltered, context, multihop)];
 

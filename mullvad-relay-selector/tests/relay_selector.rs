@@ -890,7 +890,7 @@ mod relay_selection {
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
         assert!(matches!(
-            relay_selector.get_relay_by_query(RelayQueryBuilder::new().build()),
+            relay_selector.get_relay(0, talpid_types::net::IpAvailability::Ipv4),
             Err(Error::NoRelay(_))
         ));
 
@@ -961,7 +961,6 @@ mod relay_selection {
         // Should be able to connect to non-DAITA relay with autohop
         let query = RelayQueryBuilder::new()
             .autohop()
-            .daita()
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
@@ -1737,7 +1736,8 @@ mod partition_relays {
         }
     }
 
-    /// "Daita + Autohop + Provider. Providers only affect exit relays, while DAITA only affects entry relays.
+    /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
+    /// relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
         let mut relay_list = RelayListBuilder::new();

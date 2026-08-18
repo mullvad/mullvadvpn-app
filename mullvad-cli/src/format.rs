@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 use mullvad_types::{
-    auth_failed::AuthFailed, features::FeatureIndicators, location::GeoIpLocation,
+    auth_failed::AuthFailed,
+    features::{FeatureIndicator, FeatureIndicators},
+    location::GeoIpLocation,
     states::TunnelState,
 };
 use talpid_types::{
@@ -147,8 +149,8 @@ fn connection_information(
 ) -> HashMap<&'static str, Option<String>> {
     let mut info: HashMap<&'static str, Option<String>> = HashMap::new();
 
-    let endpoint_fmt =
-        endpoint.map(|endpoint| format_relay_connection(endpoint, location, verbose));
+    let endpoint_fmt = endpoint
+        .map(|endpoint| format_relay_connection(endpoint, location, verbose, &feature_indicators));
     info.insert("Relay", endpoint_fmt);
     let tunnel_interface_fmt = endpoint
         .filter(|_| verbose)
@@ -213,9 +215,10 @@ fn format_relay_connection(
     endpoint: &TunnelEndpoint,
     location: Option<&GeoIpLocation>,
     verbose: bool,
+    feature_indicators: &Option<&FeatureIndicators>,
 ) -> String {
     let first_hop = endpoint.entry_endpoint.as_ref().map(|entry| {
-        format_endpoints(
+        let endpoint = format_endpoints(
             location.and_then(|l| l.entry_hostname.as_deref()),
             // Check if we *actually* want to print an obfuscator endpoint ..
             match endpoint.obfuscation {
@@ -223,7 +226,23 @@ fn format_relay_connection(
                 _ => vec![*entry],
             },
             verbose,
-        )
+        );
+        // If DAITA has automatically selected a multihop entry endpoint, we should clarify that
+        match feature_indicators {
+            Some(f)
+                if f.active_features()
+                    .contains(&FeatureIndicator::DaitaMultihop) =>
+            {
+                format!(" via {endpoint} (multihop enabled to support DAITA)")
+            }
+            Some(f)
+                if f.active_features().contains(&FeatureIndicator::Multihop)
+                    && f.active_features().contains(&FeatureIndicator::Daita) =>
+            {
+                format!(" via {endpoint} (multihop entry overriden by DAITA)")
+            }
+            _ => format!(" via {endpoint}"),
+        }
     });
 
     let exit_endpoint = format_endpoints(
@@ -237,10 +256,10 @@ fn format_relay_connection(
         verbose,
     );
 
-    match first_hop {
-        None => exit_endpoint,
-        Some(first_hop) => format!("{exit_endpoint} via {first_hop}"),
-    }
+    format!(
+        "{exit_endpoint}{first_hop}",
+        first_hop = first_hop.unwrap_or_default(),
+    )
 }
 
 fn format_endpoints(

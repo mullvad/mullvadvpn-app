@@ -10,6 +10,12 @@ import { TransitionType, useHistory } from '../../../../../../../../../lib/histo
 export const useGetFeatureIndicator = () => {
   const history = useHistory();
 
+  const gotoDaitaFeature = React.useCallback(() => {
+    history.push(RoutePath.daitaSettings, {
+      transition: TransitionType.show,
+    });
+  }, [history]);
+
   const gotoEnableDaitaFeature = React.useCallback(() => {
     history.push(RoutePath.daitaSettings, {
       transition: TransitionType.show,
@@ -135,13 +141,18 @@ export const useGetFeatureIndicator = () => {
 
   const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
     [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoEnableDaitaFeature },
-    [FeatureIndicator.multihopAuto]: {
+    [FeatureIndicator.daitaMultihop]: {
       label: sprintf(
-        // TRANSLATORS: This is used as a feature indicator to show that multihop is used
-        // TRANSLATORS: to enable the connection.
-        messages.pgettext('connect-view', 'Automatic multihop'),
+        // TRANSLATORS: This is used as a feature indicator to show that DAITA is enabled through
+        // TRANSLATORS: multihop.
+        // TRANSLATORS: Available placeholders:
+        // TRANSLATORS: %(DAITA)s - Is a non-translatable feature "DAITA"
+        messages.pgettext('connect-view', '%(DAITA)s: Multihop'),
+        {
+          DAITA: strings.daita,
+        },
       ),
-      onClick: gotoMultihopFeature,
+      onClick: gotoDaitaFeature,
     },
     [FeatureIndicator.udp2tcp]: {
       label: messages.pgettext('wireguard-settings-view', 'UDP-over-TCP'),
