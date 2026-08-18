@@ -1,7 +1,7 @@
 use std::{fs, io, net::SocketAddr, path::Path, time::Duration};
 
-mod block_list;
 mod capture;
+mod firewall;
 mod web;
 
 #[tokio::main]

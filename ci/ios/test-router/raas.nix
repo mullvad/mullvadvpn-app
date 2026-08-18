@@ -1,4 +1,6 @@
 {
+  lib,
+  stdenv,
   rustPlatform,
   pkg-config,
   libmnl,
@@ -16,8 +18,10 @@ rustPlatform.buildRustPackage rec {
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [
+    libpcap
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     libmnl
     libnftnl
-    libpcap
   ];
 }
