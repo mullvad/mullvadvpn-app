@@ -17,12 +17,6 @@ class VersionNotificationUseCase(
             .distinctUntilChanged()
 
     private fun unsupportedVersionNotification(versionInfo: VersionInfo): InAppNotification? {
-        if (!isVersionInfoNotificationEnabled) {
-            return null
-        }
-
-        return if (!versionInfo.isSupported) {
-            InAppNotification.UnsupportedVersion(versionInfo)
-        } else null
+        return null
     }
 }
