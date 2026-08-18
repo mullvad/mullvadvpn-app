@@ -5,7 +5,13 @@ import { Carousel } from '../../../../../carousel';
 import type { CarouselSlideProps } from '../../../../../carousel/components/carousel-slides/components';
 import { Gallery } from '../../../../../gallery';
 import { StyledGalleryTextGroup } from '../../../../../gallery/components';
-import { StyledSlideIcon, StyledSlideTitle, WizardSlideIcon, WizardSlideTitle } from './components';
+import {
+  StyledSlideIcon,
+  StyledSlideTitle,
+  WizardSlideIcon,
+  WizardSlideText,
+  WizardSlideTitle,
+} from './components';
 
 export type WizardSlideProps = CarouselSlideProps;
 
@@ -29,7 +35,7 @@ function WizardSlide(props: WizardSlideProps) {
 const WizardSlideNamespace = Object.assign(WizardSlide, {
   Title: WizardSlideTitle,
   Icon: WizardSlideIcon,
-  Text: Gallery.Text,
+  Text: WizardSlideText,
   TextGroup: Gallery.TextGroup,
   Image: Gallery.Image,
 });
