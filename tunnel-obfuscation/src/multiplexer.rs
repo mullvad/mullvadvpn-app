@@ -436,12 +436,6 @@ impl crate::LocalSocketObfuscator for Multiplexer {
         self.client_socket_addr
     }
 
-    fn packet_overhead(&self) -> u16 {
-        // FIXME: This should ideally be the max overhead of all transports,
-        // and be lowered when a transport is selected.
-        60
-    }
-
     async fn run(self: Box<Self>) -> crate::Result<()> {
         self.start()
             .await

@@ -20,6 +20,13 @@ pub struct Settings {
     pub server_public_key: PublicKey,
 }
 
+impl Settings {
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        0
+    }
+}
+
 /// Obfuscates the WireGuard header in place and forwards the packet to the LWO/WG server.
 pub struct Lwo {
     remote_socket: BypassSocket<UdpSocket>,
