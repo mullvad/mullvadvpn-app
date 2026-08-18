@@ -67,6 +67,10 @@ Line wrap the file at 100 chars.                                              Th
   to obtain root privileges during uninstall.
 
 
+## [2026.4] - 2026-08-17
+This release is identical to 2026.4-beta2.
+
+
 ## [2026.4-beta2] - 2026-08-07
 ### Fixed
 #### macOS
