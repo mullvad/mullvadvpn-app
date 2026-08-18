@@ -1,13 +1,13 @@
 use std::sync::{Arc, Mutex};
 
 use axum::{
-    routing::{delete, get, post, put},
     Router,
+    routing::{delete, get, post, put},
 };
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
-use crate::{block_list::BlockList, capture::Capture};
+use crate::{capture::Capture, firewall::BlockList};
 
 mod firewall;
 mod ip;

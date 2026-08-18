@@ -3,7 +3,7 @@ use std::{collections::BTreeSet, net::IpAddr};
 use axum::{
     body::Body,
     extract::{Json, Path, State},
-    http::{header, StatusCode},
+    http::{StatusCode, header},
     response::IntoResponse,
 };
 use uuid::Uuid;
@@ -21,7 +21,7 @@ pub async fn start(
 
     let result = async {
         let mut state = state.capture.lock().await;
-        state.start(label)?;
+        state.start(label).await?;
         log::info!("Started capture for label {label}");
         Ok(())
     }
