@@ -42,4 +42,5 @@ export type LocalizationContexts =
   | 'lwo-settings-view'
   | 'custom-list-feature'
   | 'locations-feature'
-  | 'kill-switch-view';
+  | 'kill-switch-view'
+  | 'migrated-settings-view';
