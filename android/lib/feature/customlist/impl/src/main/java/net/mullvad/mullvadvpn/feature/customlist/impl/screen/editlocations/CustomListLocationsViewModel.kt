@@ -24,6 +24,8 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelayListSearchResult
+import net.mullvad.mullvadvpn.lib.model.SearchMatch
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
@@ -71,9 +73,12 @@ class CustomListLocationsViewModel(
                         )
 
                     else -> {
-                        val (expandSet, filteredRelayCountries) =
-                            searchRelayListLocations(searchTerm, relayCountries)
-                        val expandedLocations = expandSet.with(expandOverrides)
+                        val searchResult =
+                            searchRelayListLocations(
+                                searchTerm = searchTerm,
+                                relayCountries = relayCountries,
+                            )
+                        val expandedLocations = searchResult.expansionSet.with(expandOverrides)
                         CustomListLocationsUiState(
                             newList = navArgs.newList,
                             content =
@@ -81,12 +86,13 @@ class CustomListLocationsViewModel(
                                     CustomListLocationsData(
                                         searchTerm = searchTerm,
                                         locations =
-                                            filteredRelayCountries.flatMap {
+                                            searchResult.matchedCountries.flatMap {
                                                 it.toRelayItems(
                                                     hierarchy = Hierarchy.Parent,
                                                     isSelected = { it in selectedLocations },
                                                     isExpanded = { it in expandedLocations },
                                                     isLastChild = true,
+                                                    highlights = searchResult.highlights,
                                                 )
                                             },
                                         saveEnabled =
@@ -113,13 +119,18 @@ class CustomListLocationsViewModel(
     private fun searchRelayListLocations(
         searchTerm: String,
         relayCountries: List<RelayItem.Location.Country>,
-    ) =
+    ): RelayListSearchResult =
         if (searchTerm.isNotEmpty()) {
-            val (exp, filteredRelayCountries) = relayCountries.newFilterOnSearch(searchTerm)
-            exp.toSet() to filteredRelayCountries
+            relayCountries.newFilterOnSearch(searchTerm)
         } else {
-            initialExpands(_selectedLocations.value?.calculateLocationsToSave() ?: emptyList()) to
-                relayCountries
+            RelayListSearchResult(
+                matchedCountries = relayCountries,
+                expansionSet =
+                    initialExpands(
+                        _selectedLocations.value?.calculateLocationsToSave() ?: emptyList()
+                    ),
+                highlights = emptyMap(),
+            )
         }
 
     fun save() {
@@ -255,6 +266,7 @@ class CustomListLocationsViewModel(
         isExpanded: (RelayItemId) -> Boolean,
         hierarchy: Hierarchy,
         isLastChild: Boolean,
+        highlights: Map<RelayItemId, SearchMatch>,
     ): List<CheckableRelayListItem> = buildList {
         val expanded = isExpanded(id)
         add(
@@ -270,6 +282,7 @@ class CustomListLocationsViewModel(
                         isLastChild && !expanded -> Position.Bottom
                         else -> Position.Middle
                     },
+                searchMatch = highlights[this@toRelayItems.id],
             )
         )
         if (expanded) {
@@ -282,6 +295,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == relays.lastIndex,
+                                highlights = highlights,
                             )
                         }
                     )
@@ -294,6 +308,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == cities.lastIndex,
+                                highlights = highlights,
                             )
                         }
                     )

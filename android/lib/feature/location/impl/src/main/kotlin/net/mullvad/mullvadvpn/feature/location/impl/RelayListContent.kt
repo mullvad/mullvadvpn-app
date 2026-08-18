@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.applyHighlights
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -44,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 /** Used by both the select location screen and search select location screen */
 fun LazyListScope.relayListContent(
@@ -72,10 +75,16 @@ fun LazyListScope.relayListContent(
                         CustomListItem(
                             listItem = listItem,
                             relayListType = relayListType,
+                            annotatedTitle =
+                                listItem.highlights?.applyHighlights(
+                                    listItem.item.name,
+                                    highlightColor = MaterialTheme.colorScheme.highlight,
+                                ),
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     is RelayListItem.CustomListEntryItem ->
                         CustomListEntryItem(
                             listItem = listItem,
@@ -84,6 +93,7 @@ fun LazyListScope.relayListContent(
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
                     RelayListItem.LocationHeader -> locationHeader()
                     is RelayListItem.AutomaticEntryItem ->
@@ -92,10 +102,16 @@ fun LazyListScope.relayListContent(
                             onSelectAutomaticEntry = onSelectAutomaticEntry,
                             onAutomaticInfoClick = onAutomaticInfoClick,
                         )
+
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem = listItem,
                             relayListType = relayListType,
+                            annotatedTitle =
+                                listItem.highlights?.applyHighlights(
+                                    listItem.item.name,
+                                    highlightColor = MaterialTheme.colorScheme.highlight,
+                                ),
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -109,6 +125,7 @@ fun LazyListScope.relayListContent(
                             onSelect = onSelectRelayItem,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
                         )
+
                     RelayListItem.RecentsListFooter -> RecentsListFooter()
                     is RelayListItem.EmptyRelayList -> EmptyRelayListText()
                     is RelayListItem.LocationsEmptyText -> LocationsEmptyText(listItem.searchTerm)
@@ -137,6 +154,7 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
     when (itemPosition) {
         Position.Top,
         Position.Single -> padding(top = Dimens.miniPadding)
+
         Position.Middle -> padding(top = Dimens.listItemDivider)
         Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
@@ -188,12 +206,14 @@ private fun AutomaticItem(
 private fun GeoLocationItem(
     listItem: RelayListItem.GeoLocationItem,
     relayListType: RelayListType,
+    annotatedTitle: AnnotatedString?,
     onSelect: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
+        annotatedTitle = annotatedTitle,
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             onUpdateBottomSheetState(
@@ -225,6 +245,7 @@ private fun RecentListItem(
                     relayItem.countryName,
                     relayItem.cityName,
                 )
+
             is RelayItem.Location.City -> relayItem.countryName
             is RelayItem.Location.Country,
             is RelayItem.CustomList -> null
@@ -247,6 +268,7 @@ private fun RecentListItem(
                             relayListType = relayListType,
                         )
                     )
+
                 is RelayItem.Location ->
                     onUpdateBottomSheetState(
                         LocationBottomSheetState.ShowLocationBottomSheet(
@@ -263,12 +285,14 @@ private fun RecentListItem(
 private fun CustomListItem(
     listItem: RelayListItem.CustomListItem,
     relayListType: RelayListType,
+    annotatedTitle: AnnotatedString? = null,
     onSelect: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
+        annotatedTitle = annotatedTitle,
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             onUpdateBottomSheetState(

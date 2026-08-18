@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RecentItem
@@ -54,14 +53,13 @@ internal fun relayListItemsSearching(
     selectedByOtherEntryExitList: RelayItemId?,
     expandedItems: Set<String>,
 ): List<RelayListItem> {
-    val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
     return createRelayListItemsSearching(
             relayListType = relayListType,
             relayMetadata = relayMetadata,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-            customLists = filteredCustomLists,
+            customLists = customLists,
             countries = relayCountries,
         ) {
             it in expandedItems
@@ -271,6 +269,7 @@ private fun createCustomListRelayItems(
                         selectedByOtherId = selectedByOtherEntryExitList,
                     ),
                 expanded = expanded,
+                highlights = relayMetadata[customList.id]?.titleHighlights,
                 itemPosition =
                     if (expanded) {
                         Position.Top
@@ -450,6 +449,7 @@ private fun createGeoLocationEntry(
                 ),
             hierarchy = hierarchy,
             expanded = expanded,
+            highlights = relayMetadata[item.id]?.titleHighlights,
             itemPosition =
                 when (item) {
                     is RelayItem.Location.Country -> {

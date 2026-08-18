@@ -256,7 +256,7 @@ internal fun LazyListScope.searchAppItems(
                 when (listItem) {
                     is SearchAppItem.Default -> AnnotatedString(listItem.appName)
                     is SearchAppItem.Match ->
-                        listItem.appName.toAnnotatedString(MaterialTheme.colorScheme.highlight)
+                        listItem.match.toAnnotatedString(MaterialTheme.colorScheme.highlight)
                 },
             iconState = icon,
             isSelected = excluded,

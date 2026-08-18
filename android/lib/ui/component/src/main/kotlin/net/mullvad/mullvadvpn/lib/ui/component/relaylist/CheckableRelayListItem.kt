@@ -14,10 +14,12 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Composable
 @Preview
@@ -46,12 +48,14 @@ fun CheckableRelayListItem(
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
-
     CheckableListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title = item.item.name,
+        title =
+            item.searchMatch?.toAnnotatedString(
+                highlightColor = MaterialTheme.colorScheme.highlight
+            ) ?: item.item.name.toAnnotatedString(),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {
