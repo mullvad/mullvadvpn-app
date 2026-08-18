@@ -52,12 +52,13 @@ fun MullvadFilterChip(
         shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
-                    containerColor = if (active) containerColor else MaterialTheme.colorScheme.primaryDisabled,
-                    disabledContainerColor = containerColor,
-                    labelColor = if (active) labelColor else labelColor.copy(alpha = AlphaInactive),
-                    disabledLabelColor = labelColor,
-                    iconColor = iconColor,
-                ),
+                containerColor =
+                    if (active) containerColor else MaterialTheme.colorScheme.primaryDisabled,
+                disabledContainerColor = containerColor,
+                labelColor = if (active) labelColor else labelColor.copy(alpha = AlphaInactive),
+                disabledLabelColor = labelColor,
+                iconColor = iconColor,
+            ),
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = borderColor,

@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Recents
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -137,8 +137,7 @@ class SelectLocationViewModel(
         settings: Settings,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
-        val isEntryAndBlocked =
-            isEntryAndBlocked(hopType = relayListSelection, settings = settings)
+        val isEntryAndBlocked = isEntryAndBlocked(hopType = relayListSelection, settings = settings)
         return hasRelayListItems && !isEntryAndBlocked
     }
 

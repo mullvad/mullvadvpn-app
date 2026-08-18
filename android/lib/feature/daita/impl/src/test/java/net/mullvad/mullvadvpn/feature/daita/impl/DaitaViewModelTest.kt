@@ -36,10 +36,7 @@ class DaitaViewModelTest {
         // Arrange
         val expectedState = DaitaUiState(daitaEnabled = true)
         settings.value = mockk {
-            every { tunnelOptions.daitaSettings } returns
-                mockk {
-                    every { enabled } returns true
-                }
+            every { tunnelOptions.daitaSettings } returns mockk { every { enabled } returns true }
         }
 
         // Act, Assert
@@ -55,10 +52,7 @@ class DaitaViewModelTest {
         // Arrange
         val expectedState = DaitaUiState(daitaEnabled = false)
         settings.value = mockk {
-            every { tunnelOptions.daitaSettings } returns
-                mockk {
-                    every { enabled } returns false
-                }
+            every { tunnelOptions.daitaSettings } returns mockk { every { enabled } returns false }
         }
 
         // Act, Assert

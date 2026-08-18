@@ -136,8 +136,7 @@ class SearchLocationViewModel(
                 is RelayListType.Multihop ->
                     modifyMultihop(
                         when (relayListType.hopType) {
-                            RelayHopType.ENTRY ->
-                                MultihopChange.Entry(Constraint.Only(relayItem))
+                            RelayHopType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
                             RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
                         }
                     )

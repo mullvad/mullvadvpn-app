@@ -81,12 +81,11 @@ fun FilterContainer(
             onRemoveProviderFilter = onRemoveProviderFilter,
         )
 
-        val showInactiveFiltersInfo = !relayFiltersActive && filters.any { it.type == FilterChip.Type.Relay }
+        val showInactiveFiltersInfo =
+            !relayFiltersActive && filters.any { it.type == FilterChip.Type.Relay }
         if (showInactiveFiltersInfo) {
             FirstBaselineAlignedIconAndText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.mediumSpacer),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.mediumSpacer),
                 text = stringResource(R.string.entry_filters_overridden_info),
                 icon = Icons.Rounded.Info,
                 iconSize = Dimens.smallIconSize,
@@ -97,7 +96,6 @@ fun FilterContainer(
         }
     }
 }
-
 
 @Composable
 fun FilterRow(
@@ -110,9 +108,7 @@ fun FilterRow(
     val scrollState = rememberScrollState()
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(scrollState),
+        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
     ) {
         Spacer(modifier = Modifier.width(Dimens.smallPadding))

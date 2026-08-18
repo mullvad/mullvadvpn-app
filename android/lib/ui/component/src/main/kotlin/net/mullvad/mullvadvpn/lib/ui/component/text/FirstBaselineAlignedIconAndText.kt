@@ -45,7 +45,6 @@ private fun PreviewFirstBaselineAlignedIconAndText() {
     }
 }
 
-
 @Composable
 fun FirstBaselineAlignedIconAndText(
     modifier: Modifier = Modifier,
@@ -62,9 +61,7 @@ fun FirstBaselineAlignedIconAndText(
 
     // Calculate vertical offset using the exact scaled font size.
     val centerToBaselineOffsetPx =
-        with(density) {
-            (textStyle.fontSize.toPx() * 0.35f).roundToInt()
-        }
+        with(density) { (textStyle.fontSize.toPx() * 0.35f).roundToInt() }
 
     val scalableIconSize = with(density) { iconSize.value.sp.toDp() }
 

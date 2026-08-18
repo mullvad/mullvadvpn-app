@@ -67,8 +67,8 @@ import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
-import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedInactive
 import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedActive
+import net.mullvad.mullvadvpn.lib.ui.icon.FilterSelectedInactive
 import net.mullvad.mullvadvpn.lib.ui.icon.LocationOn
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG

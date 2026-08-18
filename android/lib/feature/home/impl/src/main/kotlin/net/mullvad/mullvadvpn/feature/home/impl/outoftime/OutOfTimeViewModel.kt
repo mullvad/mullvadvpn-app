@@ -70,9 +70,7 @@ class OutOfTimeViewModel(
 
     init {
         viewModelScope.launch {
-            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                pollAccountExpiry()
-            }
+            activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) { pollAccountExpiry() }
         }
         viewModelScope.launch {
             activityLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {

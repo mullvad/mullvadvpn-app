@@ -76,9 +76,7 @@ private fun getPublicKeyFilePath(context: Context, targetContext: Context): Stri
 
     if (!outFile.exists()) {
         context.assets.open("iperf3/iperf3.pem").use { input ->
-            outFile.outputStream().use { output ->
-                input.copyTo(output)
-            }
+            outFile.outputStream().use { output -> input.copyTo(output) }
         }
     }
 

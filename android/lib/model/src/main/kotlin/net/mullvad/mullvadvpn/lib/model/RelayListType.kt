@@ -12,8 +12,7 @@ sealed interface RelayListType : Parcelable {
 val RelayListType.isMultihopEntry
     get() =
         when (this) {
-            is RelayListType.Multihop if hopType == RelayHopType.ENTRY ->
-                true
+            is RelayListType.Multihop if hopType == RelayHopType.ENTRY -> true
             else -> false
         }
 

@@ -281,9 +281,7 @@ val uiModule = module {
         )
     }
 
-    single {
-        ConnectionPathUseCase(get(), get(), get())
-    }
+    single { ConnectionPathUseCase(get(), get(), get()) }
     single { InAppNotificationController(getAll(), MainScope()) }
 
     single { ChangelogDataProvider(get()) }

@@ -92,9 +92,7 @@ class FilteredRelayListUseCase(
         ) { partitions, relayList ->
             val filtered = relayList.filter(partitions.relevantHostnames())
             val countries = filtered.map { it.country }
-            val metadata = buildMap {
-                filtered.map { it.relayMetadata }.forEach(::putAll)
-            }
+            val metadata = buildMap { filtered.map { it.relayMetadata }.forEach(::putAll) }
             FilteredCountries(countries = countries, relayMetadata = metadata)
         }
 
@@ -118,9 +116,7 @@ class FilteredRelayListUseCase(
 
     private fun List<RelayItem.Location.Country>.filter(
         validHostnames: Map<PartitionHostname, NeedsOtherEntry>
-    ): List<FilteredCountry> = mapNotNull {
-        it.filter(validHostnames)
-    }
+    ): List<FilteredCountry> = mapNotNull { it.filter(validHostnames) }
 }
 
 private fun Settings.toEntryConstraint(
