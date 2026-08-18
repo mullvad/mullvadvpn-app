@@ -21,7 +21,7 @@ use crate::domain_fronting::DomainFrontingAddr;
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-pub trait ConnectionModeProvider: Send {
+pub trait ConnectionModeProvider: Send + Sync {
     /// Initial connection mode
     fn initial(&self) -> ApiConnectionMode;
 

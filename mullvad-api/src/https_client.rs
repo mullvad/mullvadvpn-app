@@ -458,11 +458,54 @@ impl HttpsConnector {
         };
         Ok(SocketAddr::new(addr.ip(), port))
     }
+
+    /// Establish an HTTPS [`ApiConnection`] to `addr`, with HTTP host `hostname`.
+    pub async fn connect(
+        &mut self,
+        addr: SocketAddr,
+        hostname: &str,
+        // TODO: this is ass
+    ) -> io::Result<(TokioIo<AbortableStream<ApiConnection>>, Duration)> {
+        let inner = self.state.clone();
+        let abort_notify = self.abort_notify.clone();
+
+        // Loop until we have established a connection. This starts over if a new endpoint
+        // is selected while connecting.
+        loop {
+            let should_abort = abort_notify.notified();
+            // TODO: should_abort + Mutex<ProxyConfig> smells like it could be a tokio::Watch instead
+            let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
+            let idle_timeout = proxy_config.idle_timeout();
+            let stream_fut = proxy_config.connect(
+                &hostname,
+                &addr,
+                #[cfg(target_os = "android")]
+                self.socket_bypass_tx.clone(),
+                #[cfg(any(feature = "api-override", test))]
+                self.disable_tls,
+            );
+
+            // Wait for connection. Abort and retry if we switched to a different server.
+            let stream = select! {
+                _ = should_abort.fuse() => continue,
+                stream = stream_fut.fuse() => stream?,
+            };
+
+            let (stream, socket_handle) = AbortableStream::new(stream);
+
+            {
+                let mut inner = inner.lock().unwrap();
+                inner.stream_handles.push(socket_handle);
+            }
+
+            return Ok((TokioIo::new(stream), idle_timeout));
+        }
+    }
 }
 
 impl fmt::Debug for HttpsConnector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HttpsConnector").finish()
+        f.debug_struct("HttpsConnector").finish() // TODO
     }
 }
 

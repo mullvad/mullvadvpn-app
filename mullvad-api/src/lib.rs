@@ -458,8 +458,8 @@ impl<B: AddressCacheBacking> Runtime<B> {
         &self.address_cache
     }
 
-    /// Returns a request factory initialized to create requests for the master API Assumes an API
-    /// endpoint that is constructed from env vars, or uses default values.
+    /// Returns a request factory initialized to create requests for the master API.
+    /// Assumes an API endpoint that is constructed from env vars, or uses default values.
     pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
         &self,
         connection_mode_provider: T,
