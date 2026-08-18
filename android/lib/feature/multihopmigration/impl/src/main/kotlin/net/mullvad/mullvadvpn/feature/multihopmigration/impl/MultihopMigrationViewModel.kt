@@ -45,7 +45,12 @@ class MultihopMigrationViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                MultihopMigrationUiState(emptyList(), 0, null),
+                MultihopMigrationUiState(
+                    multihopMigrationPages = emptyList(),
+                    currentPageIndex = 0,
+                    entryLocation = null,
+                    multihopMode = null,
+                ),
             )
 
     init {
@@ -61,6 +66,7 @@ class MultihopMigrationViewModel(
             multihopMigrationPages = pages,
             currentPageIndex = page,
             entryLocation = wireguardConstraints.entryLocation,
+            multihopMode = wireguardConstraints.multihop,
         )
 
     @Suppress("CyclomaticComplexMethod")
@@ -143,6 +149,12 @@ class MultihopMigrationViewModel(
     fun previousPage() {
         if (currentPage.value > 0) {
             currentPage.value -= 1
+        }
+    }
+
+    fun setPage(page: Int) {
+        if (page in pages.indices) {
+            currentPage.value = page
         }
     }
 
