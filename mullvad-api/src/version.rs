@@ -80,9 +80,8 @@ impl AppVersionProxy {
         rollout: Rollout,
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
         let path = format!("app/releases/{platform}.json");
-        let request = self.handle.factory.get(&path);
+        let request = self.handle.get(&path);
 
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
@@ -100,7 +99,7 @@ impl AppVersionProxy {
             if let Some(ref tag) = etag {
                 request = request.header(header::IF_NONE_MATCH, tag)?;
             }
-            let response = service.request(request).await?;
+            let response = request.await?;
             if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
                 return Ok(None);
             }
@@ -143,7 +142,7 @@ impl AppVersionProxy {
     ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = "app/releases/android.json".to_string();
-        let request = self.handle.factory.get(&path);
+        let request = self.handle.get(&path);
 
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);

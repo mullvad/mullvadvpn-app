@@ -98,14 +98,14 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
+        let request = self
+            .handle
+            .delete(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"));
         async move {
-            let request = factory
-                .delete(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
+            request?
                 .expected_status(&[StatusCode::NO_CONTENT])
-                .account(account)?;
-            service.request(request).await?;
+                .account(account)?
+                .await?;
             Ok(())
         }
     }
@@ -136,15 +136,14 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"));
         async move {
-            let request = factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
+            request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?;
-            service.request(request).await
+                .account(account)?
+                .await
         }
     }
 
@@ -152,15 +151,12 @@ impl DevicesProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self.handle.get(&format!("{ACCOUNTS_URL_PREFIX}/devices"));
         async move {
-            let request = factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/devices"))?
+            request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?;
-            service.request(request).await
+                .account(account)?
+                .await
         }
     }
 
@@ -176,18 +172,15 @@ impl DevicesProxy {
         }
         let req_body = RotateDevicePubkey { pubkey };
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self.handle.put_json(
+            &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}/pubkey"),
+            &req_body,
+        );
         async move {
-            let request = factory
-                .put_json(
-                    &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}/pubkey"),
-                    &req_body,
-                )?
+            request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?;
-            service.request(request).await
+                .account(account)?
+                .await
         }
     }
 
@@ -207,15 +200,14 @@ impl DevicesProxy {
             hijack_dns: false,
         };
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .post_json(&format!("{ACCOUNTS_URL_PREFIX}/devices"), &submission);
         async move {
-            let request = factory
-                .post_json(&format!("{ACCOUNTS_URL_PREFIX}/devices"), &submission)?
+            request?
+                .expected_status(&[StatusCode::CREATED])
                 .account(account)?
-                .expected_status(&[StatusCode::CREATED]);
-            service.request(request).await
+                .await
         }
     }
 }
