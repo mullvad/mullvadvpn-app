@@ -36,4 +36,5 @@ export enum RoutePath {
   wireguardPort = '/settings/advanced/wireguard-port',
   lwo = '/settings/advanced/lwo',
   killSwitch = '/settings/advanced/kill-switch',
+  migratedSettings = '/migrated-settings',
 }
