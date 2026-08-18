@@ -709,22 +709,26 @@ pub fn device_is_ready(device_state: u32) -> bool {
 
 // Verify that the contents of /etc/resolv.conf match what NM expects them to be.
 fn verify_etc_resolv_conf_contents() -> bool {
-    let actual_resolv_conf = {
-        let Ok(mut file) = File::open("/etc/resolv.conf") else {
-            return false;
+    let parse_resolv_conf_file = |path| {
+        let Ok(mut file) = File::open(path) else {
+            return None;
         };
         let mut buf = Vec::with_capacity(4096);
-        file.read_to_end(&mut buf).unwrap(); // TODO: unwrap.
-        resolv_conf::Config::parse(&buf).unwrap() // TODO: unwrap.
+        match file.read_to_end(&mut buf) {
+            Ok(_n) => (),
+            Err(_) => return None,
+        }
+        resolv_conf::Config::parse(&buf).ok()
     };
-    let expected_resolv_conf = {
-        let Ok(mut file) = File::open("/var/run/NetworkManager/resolv.conf") else {
-            return false;
-        };
-        let mut buf = Vec::with_capacity(4096);
-        file.read_to_end(&mut buf).unwrap(); // TODO: unwrap.
-        resolv_conf::Config::parse(&buf).unwrap() // TODO: unwrap.
+
+    let Some(actual_resolv_conf) = parse_resolv_conf_file("/etc/resolv.conf") else {
+        return false;
     };
+    let Some(expected_resolv_conf) = parse_resolv_conf_file("/var/run/NetworkManager/resolv.conf")
+    else {
+        return false;
+    };
+
     actual_resolv_conf == expected_resolv_conf
 }
 
