@@ -6,6 +6,8 @@ sealed interface VerificationError {
     sealed interface PlayVerificationError : VerificationError {
         data object VerificationFailed : PlayVerificationError
 
+        data object ApiUnreachable : PlayVerificationError
+
         data object Other : PlayVerificationError
     }
 }

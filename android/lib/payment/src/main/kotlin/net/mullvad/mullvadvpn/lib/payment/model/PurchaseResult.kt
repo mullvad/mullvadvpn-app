@@ -30,6 +30,8 @@ sealed interface PurchaseResult {
         sealed interface VerificationError : Error {
             data object VerificationFailed : VerificationError
 
+            data object ApiUnreachable : VerificationError
+
             data object Other : VerificationError
         }
     }

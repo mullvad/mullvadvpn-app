@@ -176,6 +176,8 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
             is VerificationError.BillingError ->
                 Logger.e("Verification Billing error code ${error.errorCode}")
             VerificationError.PlayVerificationError.Other -> Logger.e("Verification Other Error")
+            VerificationError.PlayVerificationError.ApiUnreachable ->
+                Logger.e("Verification Failed API Unreachable")
             VerificationError.PlayVerificationError.VerificationFailed ->
                 Logger.e("Verification Failed API Error")
         }
@@ -188,6 +190,8 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                 PurchaseResult.Error.VerificationError.VerificationFailed
             is VerificationError.PlayVerificationError.Other ->
                 PurchaseResult.Error.VerificationError.Other
+            is VerificationError.PlayVerificationError.ApiUnreachable ->
+                PurchaseResult.Error.VerificationError.ApiUnreachable
         }
 
     companion object {

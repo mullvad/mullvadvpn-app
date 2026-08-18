@@ -833,11 +833,15 @@ class ManagementService(
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
         Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
-            .mapLeft { error ->
-                if (error is StatusException && error.status.code == Status.Code.INVALID_ARGUMENT) {
-                    PlayPurchaseVerifyError.InvalidPurchase
-                } else {
-                    PlayPurchaseVerifyError.OtherError
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.INVALID_ARGUMENT -> PlayPurchaseVerifyError.InvalidPurchase
+                    Status.Code.UNAVAILABLE,
+                    Status.Code.DEADLINE_EXCEEDED -> PlayPurchaseVerifyError.ApiUnreachable
+                    else -> {
+                        Logger.e("Unknown verify play purchase error code ${it.status.code}")
+                        PlayPurchaseVerifyError.OtherError
+                    }
                 }
             }
             .mapEmpty()
@@ -936,7 +940,7 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setEntryLocation(
-        entryLocation: Constraint<RelayItemId>,
+        entryLocation: Constraint<RelayItemId>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings

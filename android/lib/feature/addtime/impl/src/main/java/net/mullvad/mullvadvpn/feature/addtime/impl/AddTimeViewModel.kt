@@ -145,7 +145,8 @@ class AddTimeViewModel(
                 PurchaseState.Error.OtherError(productId = productId)
             is PurchaseResult.Error.VerificationError.VerificationFailed ->
                 PurchaseState.Error.VerificationError.Unrecoverable
-            is PurchaseResult.Error.VerificationError.Other ->
+            is PurchaseResult.Error.VerificationError.Other,
+            is PurchaseResult.Error.VerificationError.ApiUnreachable ->
                 PurchaseState.Error.VerificationError.Recoverable
         }
 }
