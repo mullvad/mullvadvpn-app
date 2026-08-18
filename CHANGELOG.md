@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.5-beta1] - 2026-08-18
 ### Added
 - Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
   `debug` and `trace`.
@@ -40,7 +43,6 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Switch winreg out for windows_registry.
-
 
 ### Fixed
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
