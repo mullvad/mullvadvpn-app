@@ -129,13 +129,17 @@ extension IncludeAllNetworksSettingsViewModel {
 extension IncludeAllNetworksSettingsViewModel {
     func getEnableNotificationsAlert(completion: @escaping () -> Void) -> MullvadAlert {
         let message =
-            "We can send you a notification when an update is available so that you can disable "
-            + "this feature or disconnect before updating. This can be changed at any time "
-            + "in system settings."
+            LocalizedStringKey(
+                """
+                We can send you a notification when an update is available so that you can disable 
+                this feature or disconnect before updating. This can be changed at any time 
+                in system settings.
+                """
+            )
 
         return MullvadAlert(
             type: .warning,
-            messages: [LocalizedStringKey(message)],
+            messages: [message],
             actions: [
                 MullvadAlert.Action(
                     type: .primary,
