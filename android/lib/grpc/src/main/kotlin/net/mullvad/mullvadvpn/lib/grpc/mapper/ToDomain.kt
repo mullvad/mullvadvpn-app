@@ -849,7 +849,7 @@ internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.ma
 }
 
 internal fun ManagementInterface.SplitFilterMigration.toDomain(): SplitFilterMigration =
-    SplitFilterMigration(scenario = scenario.toDomain())
+    SplitFilterMigration(scenario = if (hasScenario()) scenario.toDomain() else null)
 
 internal fun ManagementInterface.SplitFilterMigration.Scenario.toDomain(): Scenario =
     when (this) {
