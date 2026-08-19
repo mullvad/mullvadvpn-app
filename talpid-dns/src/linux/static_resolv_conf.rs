@@ -2,7 +2,7 @@ use futures::StreamExt;
 use inotify::{Inotify, WatchMask};
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
-use std::{fs, io, net::IpAddr, sync::Arc};
+use std::{fs, io, net::IpAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 use triggered::{Listener, Trigger, trigger};
 
@@ -20,10 +20,10 @@ pub enum Error {
     WriteResolvConf(&'static str, #[source] io::Error),
 
     #[error("Failed to read from {0}")]
-    ReadResolvConf(&'static str, #[source] io::Error),
+    ReadResolvConf(String, #[source] io::Error),
 
     #[error("resolv.conf at {0} could not be parsed")]
-    Parse(&'static str, #[source] resolv_conf::ParseError),
+    Parse(String, #[source] resolv_conf::ParseError),
 
     #[error("Failed to remove stale resolv.conf backup at {0}")]
     RemoveBackup(&'static str, #[source] io::Error),
@@ -51,7 +51,7 @@ impl StaticResolvConf {
         let mut state = self.state.lock();
         let new_state = match state.take() {
             None => {
-                let backup = read_config()?;
+                let backup = read_config()?.unwrap_or_default();
                 write_backup(&backup)?;
 
                 State {
@@ -169,7 +169,7 @@ impl DnsWatcher {
 
     fn update(state: Option<&mut State>) -> Result<()> {
         if let Some(state) = state {
-            let mut new_config = read_config()?;
+            let mut new_config = read_config()?.unwrap_or_default();
             let desired_nameservers = state
                 .desired_dns
                 .iter()
@@ -194,16 +194,29 @@ impl DnsWatcher {
     }
 }
 
-fn read_config() -> Result<Config> {
-    if !std::path::Path::new(RESOLV_CONF_PATH).exists() {
-        return Ok(Config::new());
+/// Read `resolv.conf` config from [RESOLV_CONF_PATH]. If [RESOLV_CONF_PATH] does not exist, return
+/// [`None`].
+fn read_config() -> Result<Option<Config>> {
+    read_config_at(RESOLV_CONF_PATH)
+}
+
+/// Read `resolv.conf` config from [RESOLV_CONF_BACKUP_PATH]. If [RESOLV_CONF_BACKUP_PATH] does not
+/// exist, return [`None`].
+fn read_backup() -> Result<Option<Config>> {
+    read_config_at(RESOLV_CONF_BACKUP_PATH)
+}
+
+fn read_config_at(path: impl AsRef<Path>) -> Result<Option<Config>> {
+    match fs::read(&path) {
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(e) => Err(Error::ReadResolvConf(
+            path.as_ref().display().to_string(),
+            e,
+        )),
+        Ok(buf) => Config::parse(buf)
+            .map_err(|e| Error::Parse(path.as_ref().display().to_string(), e))
+            .map(Some),
     }
-
-    let contents = fs::read_to_string(RESOLV_CONF_PATH)
-        .map_err(|e| Error::ReadResolvConf(RESOLV_CONF_PATH, e))?;
-    let config = Config::parse(contents).map_err(|e| Error::Parse(RESOLV_CONF_PATH, e))?;
-
-    Ok(config)
 }
 
 fn write_config(config: &Config) -> Result<()> {
@@ -216,22 +229,14 @@ fn write_backup(backup: &Config) -> Result<()> {
         .map_err(|e| Error::WriteResolvConf(RESOLV_CONF_BACKUP_PATH, e))
 }
 
+/// Swap `resolv.conf` config at [RESOLV_CONF_BACKUP_PATH] to [RESOLV_CONF_PATH], deleting file at
+/// [RESOLV_CONF_BACKUP_PATH] upon completion.
 fn restore_from_backup() -> Result<()> {
-    match fs::read_to_string(RESOLV_CONF_BACKUP_PATH) {
-        Ok(backup) => {
-            log::info!("Restoring DNS state from backup");
-            let config =
-                Config::parse(backup).map_err(|e| Error::Parse(RESOLV_CONF_BACKUP_PATH, e))?;
-
-            write_config(&config)?;
-
-            fs::remove_file(RESOLV_CONF_BACKUP_PATH)
-                .map_err(|e| Error::RemoveBackup(RESOLV_CONF_BACKUP_PATH, e))
-        }
-        Err(ref error) if error.kind() == io::ErrorKind::NotFound => {
-            log::debug!("No DNS state backup to restore");
-            Ok(())
-        }
-        Err(error) => Err(Error::ReadResolvConf(RESOLV_CONF_BACKUP_PATH, error)),
-    }
+    let Some(config) = read_backup()? else {
+        log::debug!("No DNS state backup to restore");
+        return Ok(());
+    };
+    write_config(&config)?;
+    fs::remove_file(RESOLV_CONF_BACKUP_PATH)
+        .map_err(|e| Error::RemoveBackup(RESOLV_CONF_BACKUP_PATH, e))
 }
