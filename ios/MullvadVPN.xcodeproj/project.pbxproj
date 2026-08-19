@@ -841,8 +841,6 @@
 		A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */; };
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
 		A98207EB2D9190F100654558 /* ShadowsocksConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */; };
-		A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */; };
-		A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */; };
 		A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */; };
 		A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98502022B627B120061901E /* LocalNetworkProbe.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -2553,8 +2551,6 @@
 		A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationStub.swift; sourceTree = "<group>"; };
 		A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredWgKeyData.swift; sourceTree = "<group>"; };
 		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
-		A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksBridgeProviding.swift; sourceTree = "<group>"; };
-		A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadShadowsocksBridgeProvider.swift; sourceTree = "<group>"; };
 		A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccessMethodReceiver.swift; sourceTree = "<group>"; };
 		A9840BB32C69F78A0030F05E /* Maybenot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Maybenot.swift; sourceTree = "<group>"; };
 		A98502022B627B120061901E /* LocalNetworkProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkProbe.swift; sourceTree = "<group>"; };
@@ -3388,7 +3384,6 @@
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				01FFF95E2F0BE13900BDAF45 /* SelectedEndpoint.swift */,
-				A98207EE2D9192A300654558 /* ShadowsocksBridgeProviding.swift */,
 				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
 				F924C5A32DA65F28001F4660 /* Storekit.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
@@ -4947,7 +4942,6 @@
 				7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */,
 				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
 				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
-				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
 				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				014E8C392F2D594400837D0A /* RustLogRedactor.swift */,
 				F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */,
@@ -7285,7 +7279,6 @@
 				01FFF95F2F0BE13900BDAF45 /* SelectedEndpoint.swift in Sources */,
 				44EC6C5A2E3BB3F60087F54A /* PersistentProxyConfiguration.swift in Sources */,
 				016EE03C2F8524EB0035B25C /* WireGuardKey.swift in Sources */,
-				A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */,
 				58D2240E294C90210029F5F8 /* Error+Chain.swift in Sources */,
 				7A460FA12F35D854005A265D /* InAppNotificationDescriptor.swift in Sources */,
 				586168692976F6BD00EF8598 /* DisplayError.swift in Sources */,
@@ -7469,7 +7462,6 @@
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
 				A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */,
-				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
 				44DFB71C2F3DD8AB002C528E /* SwiftData.swift in Sources */,
 				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,
