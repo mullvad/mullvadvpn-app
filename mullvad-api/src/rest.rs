@@ -21,7 +21,7 @@ use hyper::{
 };
 use mullvad_types::account::AccountNumber;
 use std::{
-    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, str::FromStr,
+    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, io, str::FromStr,
     sync::Arc, time::Duration,
 };
 use tokio::time::sleep;
@@ -42,14 +42,17 @@ pub enum Error {
     #[error("Request cancelled")]
     Aborted,
 
-    #[error("Legacy hyper error")]
-    LegacyHyperError(#[from] Arc<hyper_util::client::legacy::Error>),
-
     #[error("Hyper error")]
     HyperError(#[from] Arc<hyper::Error>),
 
     #[error("Invalid header value")]
     InvalidHeaderError,
+
+    #[error("Connection failed")]
+    Connect(#[source] Arc<io::Error>),
+
+    #[error("DNS lookup failed")]
+    Dns(#[source] Arc<io::Error>),
 
     #[error("HTTP error")]
     HttpError(#[from] Arc<http::Error>),
@@ -90,23 +93,19 @@ impl Error {
     pub fn is_network_error(&self) -> bool {
         matches!(
             self,
-            Error::HyperError(_) | Error::LegacyHyperError(_) | Error::TimeoutError
+            Error::HyperError(_) | Error::TimeoutError | Error::Connect(..) | Error::Dns(..)
         )
     }
 
     /// Return true if there was no route to the destination
     pub fn is_offline(&self) -> bool {
         match self {
-            Error::LegacyHyperError(error)
-                if error.is_connect()
-                    && let Some(cause) = error.source()
+            Error::Connect(error) | Error::Dns(error)
+                if let Some(cause) = error.source()
                     && let Some(err) = cause.downcast_ref::<std::io::Error>() =>
             {
                 err.raw_os_error() == Some(libc::ENETUNREACH)
             }
-            // TODO: Currently, we use the legacy hyper client for all REST requests. If this
-            // changes in the future, we likely need to match on `Error::HyperError` here and
-            // determine how to achieve the equivalent behavior. See DES-1288.
             _ => false,
         }
     }
@@ -244,9 +243,20 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             None => {
                 let host = request.uri().host().unwrap(); // TODO:
                 tracing::trace!("resolving {host:?}");
-                let &addr = self.dns_resolver.resolve(host.to_string()).await.unwrap(/* TODO */).first().unwrap();
+                let addr = self
+                    .dns_resolver
+                    .resolve(host.to_string())
+                    .await
+                    .and_then(|addrs| addrs.first().copied().ok_or(io::ErrorKind::NotFound.into()))
+                    .map_err(Arc::new)
+                    .map_err(Error::Dns)?;
                 tracing::trace!("connecting to {addr} ({host:?})");
-                let (connection, idle_timeout) = self.connector.connect(addr, host).await.unwrap();
+                let (connection, idle_timeout) = self
+                    .connector
+                    .connect(addr, host)
+                    .await
+                    .map_err(Arc::new)
+                    .map_err(Error::Connect)?;
                 let (send_request, connection) = http1::handshake(connection).await?;
                 tokio::spawn(connection);
                 self.connection.insert(Connection {
@@ -257,18 +267,22 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         };
 
         let api_availability = self.api_availability.clone();
-        request
+        let result = request
             .map(|r| http::Request::map(r, BodyExt::boxed))
             .into_future(&mut connection.send_request, api_availability.clone())
             .map_err(|error| error.map_aborted())
-            .or_else(async |err| {
-                if err.is_network_error() && !self.api_availability.is_offline() {
-                    tracing::warn!("{uri:?} request failed: {err:?}");
-                    self.connection_mode_provider.rotate().await;
-                }
-                Err(err)
-            })
-            .await
+            .await;
+
+        if let Err(err) = &result
+            && err.is_network_error()
+            && !self.api_availability.is_offline()
+        {
+            tracing::warn!("{uri:?} request failed: {err:?}");
+            self.connection = None;
+            self.connection_mode_provider.rotate().await;
+        }
+
+        result
     }
 }
 
