@@ -456,21 +456,23 @@ impl Request<BoxBody<Bytes, Error>> {
             expected_status,
             ..
         } = self;
+
         let (parts, body) = request.into_parts();
         let body = BodyExt::collect(body).await?.to_bytes();
+        let auth = account.zip(access_token_store);
 
-        let mut token_invalidated = false;
-
-        loop {
+        let send = async || {
             let mut request =
                 hyper::Request::from_parts(parts.clone(), box_body(Full::new(body.clone())));
 
             // Obtain access token first
-            if let (Some(account), Some(store)) = (&account, &access_token_store) {
+            if let Some((account, store)) = &auth {
                 let access_token = store.get_token(account).await?;
-                let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
+                let authorization = HeaderValue::from_str(&format!("Bearer {access_token}"))
                     .map_err(|_| Error::InvalidHeaderError)?;
-                request.headers_mut().insert(header::AUTHORIZATION, auth);
+                request
+                    .headers_mut()
+                    .insert(header::AUTHORIZATION, authorization);
             }
 
             // Make request to hyper client
@@ -490,25 +492,26 @@ impl Request<BoxBody<Bytes, Error>> {
                     );
                 }
                 if !response.status().is_success() {
-                    let error = handle_error_response(response).await;
-
-                    // The access token may have expired since it was obtained. Notify the access
-                    // token store, and give the request another chance with a new token.
-                    if let (Some(account), Some(store)) = (&account, &access_token_store)
-                        && !token_invalidated
-                        && matches!(&error, Error::ApiError(_, code) if code == crate::INVALID_ACCESS_TOKEN)
-                    {
-                        log::debug!("Access token was rejected. Retrying with a new one");
-                        store.invalidate_token(account);
-                        token_invalidated = true;
-                        continue;
-                    }
-
-                    return Err(error);
+                    return Err(handle_error_response(response).await);
                 }
             }
 
-            return Ok(Response::new(response));
+            Ok(Response::new(response))
+        };
+
+        let result = send().await;
+
+        // The access token may have expired since it was obtained. Notify the access token store,
+        // and give the request another chance with a new token.
+        if let Some((account, store)) = &auth
+            && matches!(&result, Err(Error::ApiError(_, code)) if code == crate::INVALID_ACCESS_TOKEN)
+        {
+            log::debug!("Access token was rejected. Retrying with a new one");
+            store.invalidate_token(account);
+            // Retry with new token
+            send().await
+        } else {
+            result
         }
     }
 }
