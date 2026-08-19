@@ -270,3 +270,9 @@ reason = "No impact on this app, requires remote attacker, we only use netty wit
 id = "CVE-2026-53914"  # GHSA-r937-wjx7-w2jp
 ignoreUntil = 2026-11-01
 reason = "The app does not use dependency directly, it is used to compile the app, no impact on app"
+
+# Netty Vulnerable to Cache Poisoning and Information Disclosure via CORS Vary Header Overwrite
+[[IgnoredVulns]]
+id = "CVE-2026-59903"  # GHSA-8c42-7qj2-3j46
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
