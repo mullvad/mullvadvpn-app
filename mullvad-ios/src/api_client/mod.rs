@@ -73,12 +73,12 @@ pub struct WrappedShadowsocks {
 
 #[uniffi::export]
 pub trait BridgeProvider: Sync + Send {
-    fn swift_get_shadowsocks_bridges(&self) -> WrappedShadowsocks;
+    fn get_bridges(&self) -> Option<Arc<WrappedShadowsocks>>;
 }
 
 #[uniffi::export]
 pub trait ApiContextCallback: Send + Sync {
-    fn access_method_change(&self, context: UnsafePtr, uuid: &[u8]);
+    fn access_method_change(&self, context: Arc<dyn ApiContextCallbackContext>, uuid: &[u8]);
 }
 
 #[uniffi::export]
@@ -90,6 +90,32 @@ pub struct ApiContext {
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
 }
+#[cfg(feature = "api-override")]
+#[uniffi::export]
+impl ApiContext {
+    #[uniffi::constructor]
+    pub fn new_tls_disabled(
+        host: String,
+        address: String,
+        domain: String,
+        bridge_provider: Arc<dyn BridgeProvider>,
+        settings_provider: Arc<SwiftAccessMethodSettingsContext>,
+        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
+        access_method_change_context: Arc<dyn ApiContextCallbackContext>,
+    ) -> Self {
+        return Self::new_inner(
+            host,
+            address,
+            domain,
+            true,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        );
+    }
+}
+
 #[uniffi::export]
 impl ApiContext {
     // TODO: this needs to be removed
@@ -99,18 +125,126 @@ impl ApiContext {
             ptr: Arc::into_raw(clone) as u64,
         }
     }
-
     #[uniffi::constructor]
-    pub fn new_raw(
-        host: &str,
-        address: &str,
-        domain: &str,
+    pub fn new(
+        host: String,
+        address: String,
+        domain: String,
         bridge_provider: Arc<dyn BridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
-        access_method_change_callback: Arc<dyn ApiContextCallback>,
+        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
         access_method_change_context: Arc<dyn ApiContextCallbackContext>,
-    ) -> SwiftApiContext {
-        todo!()
+    ) -> Self {
+        #[cfg(feature = "api-override")]
+        return Self::new_inner(
+            host,
+            address,
+            domain,
+            false,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        );
+        #[cfg(not(feature = "api-override"))]
+        Self::new_inner(
+            host,
+            address,
+            domain,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        )
+    }
+}
+impl ApiContext {
+    fn new_inner(
+        host: String,
+        address: String,
+        domain: String,
+        #[cfg(feature = "api-override")] disable_tls: bool,
+        bridge_provider: Arc<dyn BridgeProvider>,
+        settings_provider: Arc<SwiftAccessMethodSettingsContext>,
+        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
+        access_method_change_context: Arc<dyn ApiContextCallbackContext>,
+    ) -> Self {
+        // The iOS client provides a different default endpoint based on its configuration
+        // Debug and Release builds use the standard endpoints
+        // Staging builds will use the staging endpoint
+        let endpoint = ApiEndpoint {
+            host: Some(host),
+            address: Some(address.parse().unwrap()),
+            #[cfg(feature = "api-override")]
+            disable_tls,
+            #[cfg(feature = "api-override")]
+            force_direct: false,
+        };
+
+        let tokio_handle = crate::mullvad_ios_runtime().unwrap();
+
+        let access_method_settings = settings_provider.convert_access_method().unwrap();
+        let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
+
+        tokio_handle.clone().block_on(async move {
+            let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
+
+            // SAFETY: The callback is expected to be called from the Swift side
+            if let Some(callback) = access_method_change_callback {
+                tokio::spawn(async move {
+                    let access_method_change_context = access_method_change_context;
+                    while let Some((event, _sender)) = rx.next().await {
+                        let AccessMethodEvent::New {
+                            setting,
+                            connection_mode: _,
+                            endpoint: _,
+                        } = event
+                        else {
+                            continue;
+                        };
+                        let uuid = setting.get_id();
+                        let uuid_bytes = uuid.as_bytes();
+                        // SAFETY: The callback is expected to be safe to call
+                        callback
+                            .access_method_change(access_method_change_context.clone(), uuid_bytes);
+                    }
+                });
+            }
+
+            // It is imperative that the REST runtime is created within an async context, otherwise
+            // ApiAvailability panics.
+
+            let api_client = mullvad_api::Runtime::with_cache_backing(
+                tokio_handle,
+                &endpoint,
+                Arc::new(IOSAddressCacheBacking {}),
+            )
+            .await;
+            let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
+                endpoint.clone(),
+                domain,
+                encrypted_dns_proxy_state,
+                bridge_provider,
+                api_client.address_cache().clone(),
+            );
+
+            let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
+                method_resolver,
+                access_method_settings,
+                #[cfg(feature = "api-override")]
+                endpoint.clone(),
+                tx,
+            )
+            .await
+            .expect("Could now spawn AccessModeSelector");
+            let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
+
+            ApiContext {
+                api_client,
+                rest_client,
+                access_mode_handler,
+            }
+        })
     }
 }
 impl ApiContext {
@@ -218,205 +352,6 @@ pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: Swi
             }
         }
     });
-}
-
-/// # Safety
-///
-/// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
-/// This hostname will be used for TLS validation but not used for domain name resolution.
-///
-/// `address` must be a pointer to a null terminated string representing a socket address through which
-/// the Mullvad API can be reached directly.
-///
-/// If a context cannot be constructed this function will panic since the call site would not be able
-/// to proceed in a meaningful way anyway.
-///
-/// This function is safe.
-#[cfg(feature = "api-override")]
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_new_tls_disabled(
-    host: *const c_char,
-    address: *const c_char,
-    domain: *const c_char,
-    bridge_provider: SwiftShadowsocksLoaderWrapper,
-    settings_provider: SwiftAccessMethodSettingsWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void,
-) -> SwiftApiContext {
-    mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        true,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    )
-}
-
-/// # Safety
-///
-/// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
-/// This hostname will be used for TLS validation but not used for domain name resolution.
-///
-/// `address` must be a pointer to a null terminated string representing a socket address through which
-/// the Mullvad API can be reached directly.
-///
-/// address_method_change_callback is a function with the C calling convention which will be called
-/// whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
-/// of the access method's UUID. Note that this callback must remain valid for the lifetime of the
-/// program.
-///
-/// access_method_change_context is the pointer passed verbatim to the callback. It is not dereferenced
-/// by the Rust code, but remains opaque.
-///
-/// If a context cannot be constructed this function will panic since the call site would not be able
-/// to proceed in a meaningful way anyway.
-///
-/// This function is safe.
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_new(
-    host: *const c_char,
-    address: *const c_char,
-    domain: *const c_char,
-    bridge_provider: SwiftShadowsocksLoaderWrapper,
-    settings_provider: SwiftAccessMethodSettingsWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void,
-) -> SwiftApiContext {
-    #[cfg(feature = "api-override")]
-    return mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        false,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    );
-    #[cfg(not(feature = "api-override"))]
-    mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    )
-}
-
-/// # Safety
-///
-/// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
-/// This hostname will be used for TLS validation but not used for domain name resolution.
-///
-/// `address` must be a pointer to a null terminated string representing a socket address through which
-/// the Mullvad API can be reached directly.
-///
-/// If a context cannot be constructed this function will panic since the call site would not be able
-/// to proceed in a meaningful way anyway.
-///
-/// This function is safe.
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_inner(
-    host: *const c_char,
-    address: *const c_char,
-    domain: *const c_char,
-    #[cfg(feature = "api-override")] disable_tls: bool,
-    bridge_provider: SwiftShadowsocksLoaderWrapper,
-    settings_provider: SwiftAccessMethodSettingsWrapper,
-    access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
-    access_method_change_context: *const c_void,
-) -> SwiftApiContext {
-    // Safety: See notes for `get_string`
-    let (host, address, domain) =
-        unsafe { (get_string(host), get_string(address), get_string(domain)) };
-
-    // The iOS client provides a different default endpoint based on its configuration
-    // Debug and Release builds use the standard endpoints
-    // Staging builds will use the staging endpoint
-    let endpoint = ApiEndpoint {
-        host: Some(host),
-        address: Some(address.parse().unwrap()),
-        #[cfg(feature = "api-override")]
-        disable_tls,
-        #[cfg(feature = "api-override")]
-        force_direct: false,
-    };
-
-    let tokio_handle = crate::mullvad_ios_runtime().unwrap();
-
-    // SAFETY: See notes for `into_rust_context`
-    let settings_context = unsafe { settings_provider.into_rust_context() };
-    let access_method_settings = settings_context.convert_access_method().unwrap();
-    let encrypted_dns_proxy_state = EncryptedDnsProxyState::default();
-
-    let access_method_change_ctx: ForeignPtr = ForeignPtr {
-        ptr: access_method_change_context,
-    };
-    let api_context = tokio_handle.clone().block_on(async move {
-        let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
-
-        // SAFETY: The callback is expected to be called from the Swift side
-        if let Some(callback) = access_method_change_callback {
-            tokio::spawn(async move {
-                let access_method_change_ctx = access_method_change_ctx;
-                while let Some((event, _sender)) = rx.next().await {
-                    let AccessMethodEvent::New {
-                        setting,
-                        connection_mode: _,
-                        endpoint: _,
-                    } = event
-                    else {
-                        continue;
-                    };
-                    let uuid = setting.get_id();
-                    let uuid_bytes = uuid.as_bytes();
-                    // SAFETY: The callback is expected to be safe to call
-                    unsafe { callback(access_method_change_ctx.ptr, uuid_bytes.as_ptr()) };
-                }
-            });
-        }
-
-        // It is imperative that the REST runtime is created within an async context, otherwise
-        // ApiAvailability panics.
-
-        let api_client = mullvad_api::Runtime::with_cache_backing(
-            tokio_handle,
-            &endpoint,
-            Arc::new(IOSAddressCacheBacking {}),
-        )
-        .await;
-        let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
-            endpoint.clone(),
-            domain,
-            encrypted_dns_proxy_state,
-            bridge_provider,
-            api_client.address_cache().clone(),
-        );
-
-        let (access_mode_handler, access_mode_provider) = AccessModeSelector::spawn(
-            method_resolver,
-            access_method_settings,
-            #[cfg(feature = "api-override")]
-            endpoint.clone(),
-            tx,
-        )
-        .await
-        .expect("Could now spawn AccessModeSelector");
-        let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
-
-        ApiContext {
-            api_client,
-            rest_client,
-            access_mode_handler,
-        }
-    });
-
-    SwiftApiContext::new(api_context)
 }
 
 async fn do_request<F, T>(

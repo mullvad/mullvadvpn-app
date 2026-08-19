@@ -42,14 +42,6 @@ typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
 
-typedef struct SwiftShadowsocksLoaderWrapperContext {
-  const void *shadowsocks_loader;
-} SwiftShadowsocksLoaderWrapperContext;
-
-typedef struct SwiftShadowsocksLoaderWrapper {
-  struct SwiftShadowsocksLoaderWrapperContext _0;
-} SwiftShadowsocksLoaderWrapper;
-
 typedef struct SwiftData {
   void *ptr;
 } SwiftData;
@@ -92,6 +84,14 @@ typedef struct SwiftProblemReportRequest {
   const char *log;
   struct ProblemReportMetadata metadata;
 } SwiftProblemReportRequest;
+
+typedef struct SwiftShadowsocksLoaderWrapperContext {
+  const void *shadowsocks_loader;
+} SwiftShadowsocksLoaderWrapperContext;
+
+typedef struct SwiftShadowsocksLoaderWrapper {
+  struct SwiftShadowsocksLoaderWrapperContext _0;
+} SwiftShadowsocksLoaderWrapper;
 
 typedef struct DaitaParameters {
   uint8_t *machines;
@@ -157,84 +157,6 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
  * needs to be valid, and the function should not be called concurrently.
  */
 void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
-
-/**
- * # Safety
- *
- * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
- * This hostname will be used for TLS validation but not used for domain name resolution.
- *
- * `address` must be a pointer to a null terminated string representing a socket address through which
- * the Mullvad API can be reached directly.
- *
- * If a context cannot be constructed this function will panic since the call site would not be able
- * to proceed in a meaningful way anyway.
- *
- * This function is safe.
- */
-struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
-                                                         const char *address,
-                                                         const char *domain,
-                                                         struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                                         struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                                         void (*access_method_change_callback)(const void*,
-                                                                                               const uint8_t*),
-                                                         const void *access_method_change_context);
-
-/**
- * # Safety
- *
- * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
- * This hostname will be used for TLS validation but not used for domain name resolution.
- *
- * `address` must be a pointer to a null terminated string representing a socket address through which
- * the Mullvad API can be reached directly.
- *
- * address_method_change_callback is a function with the C calling convention which will be called
- * whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
- * of the access method's UUID. Note that this callback must remain valid for the lifetime of the
- * program.
- *
- * access_method_change_context is the pointer passed verbatim to the callback. It is not dereferenced
- * by the Rust code, but remains opaque.
- *
- * If a context cannot be constructed this function will panic since the call site would not be able
- * to proceed in a meaningful way anyway.
- *
- * This function is safe.
- */
-struct SwiftApiContext mullvad_api_init_new(const char *host,
-                                            const char *address,
-                                            const char *domain,
-                                            struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                            struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                            void (*access_method_change_callback)(const void*,
-                                                                                  const uint8_t*),
-                                            const void *access_method_change_context);
-
-/**
- * # Safety
- *
- * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
- * This hostname will be used for TLS validation but not used for domain name resolution.
- *
- * `address` must be a pointer to a null terminated string representing a socket address through which
- * the Mullvad API can be reached directly.
- *
- * If a context cannot be constructed this function will panic since the call site would not be able
- * to proceed in a meaningful way anyway.
- *
- * This function is safe.
- */
-struct SwiftApiContext mullvad_api_init_inner(const char *host,
-                                              const char *address,
-                                              const char *domain,
-                                              bool disable_tls,
-                                              struct SwiftShadowsocksLoaderWrapper bridge_provider,
-                                              struct SwiftAccessMethodSettingsWrapper settings_provider,
-                                              void (*access_method_change_callback)(const void*,
-                                                                                    const uint8_t*),
-                                              const void *access_method_change_context);
 
 extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 
