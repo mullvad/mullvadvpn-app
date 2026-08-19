@@ -29,7 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
@@ -96,6 +96,7 @@ private fun PreviewMultihopMigrationScreen(
             onCloseClick = {},
             onBackClick = {},
             onNextClick = {},
+            onSetPage = {},
             onFinishMigration = {},
             onSetEntry = {},
             onSetMultihopMode = {},
@@ -126,6 +127,7 @@ fun MultihopMigration(navKey: MultihopMigrationNavKey, navigator: Navigator) {
         onCloseClick = dropUnlessResumed { navigator.goBack() },
         onBackClick = viewModel::previousPage,
         onNextClick = viewModel::nextPage,
+        onSetPage = viewModel::setPage,
         onSetEntry = viewModel::setEntryLocation,
         onSetMultihopMode = viewModel::setMultihopMode,
         onFinishMigration = dropUnlessResumed { navigator.goBack() },
@@ -139,6 +141,7 @@ fun MultihopMigrationScreen(
     onCloseClick: () -> Unit,
     onBackClick: () -> Unit,
     onNextClick: () -> Unit,
+    onSetPage: (Int) -> Unit,
     onFinishMigration: () -> Unit,
     onSetEntry: (entry: Constraint<RelayItemId>) -> Unit,
     onSetMultihopMode: (MultihopMode) -> Unit,
@@ -175,10 +178,16 @@ fun MultihopMigrationScreen(
             pagerState.animateScrollToPage(state.currentPageIndex)
         }
 
+        LaunchedEffect(pagerState.currentPage) {
+            if (pagerState.currentPage != state.currentPageIndex) {
+                onSetPage(pagerState.currentPage)
+            }
+        }
+
         HorizontalPager(
             modifier = modifier,
             state = pagerState,
-            userScrollEnabled = false,
+            userScrollEnabled = true,
             key = { index -> state.multihopMigrationPages[index] },
         ) { page ->
             when (val currentPage = state.multihopMigrationPages[page]) {
@@ -189,7 +198,10 @@ fun MultihopMigrationScreen(
                 is MultihopMigrationPage.SuggestedMultihopEntry ->
                     SuggestedMultihopEntry(entry = state.entryLocation, onSetEntry = onSetEntry)
                 MultihopMigrationPage.SuggestedAction ->
-                    SuggestedAction(onSetMultihopMode = onSetMultihopMode)
+                    SuggestedAction(
+                        multihopMode = state.multihopMode,
+                        onSetMultihopMode = onSetMultihopMode,
+                    )
                 MultihopMigrationPage.EntrySetToAutomatic -> EntrySetToAutomatic()
             }
         }
@@ -363,7 +375,16 @@ private fun SuggestedMultihopEntry(
 }
 
 @Composable
-private fun SuggestedAction(onSetMultihopMode: (MultihopMode) -> Unit) {
+private fun SuggestedAction(
+    multihopMode: MultihopMode?,
+    onSetMultihopMode: (MultihopMode) -> Unit,
+) {
+    var buttonState by remember { mutableStateOf<ButtonState>(ButtonState.Idle) }
+    LaunchedEffect(multihopMode) {
+        buttonState =
+            if (multihopMode == MultihopMode.WHEN_NEEDED) ButtonState.Done else ButtonState.Idle
+    }
+
     MultihopMigrationPage(title = stringResource(R.string.suggested_action_title)) {
         Text(
             modifier = Modifier.fillMaxWidth(),
@@ -382,6 +403,21 @@ private fun SuggestedAction(onSetMultihopMode: (MultihopMode) -> Unit) {
         )
         Spacer(modifier = Modifier.weight(1f))
         PrimaryButton(
+            isEnabled =
+                (multihopMode != MultihopMode.WHEN_NEEDED) && buttonState != ButtonState.Loading,
+            isLoading = buttonState == ButtonState.Loading,
+            trailingIcon =
+                if (buttonState == ButtonState.Done) {
+                    {
+                        Icon(
+                            imageVector = Icons.Rounded.Check,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            contentDescription = null,
+                        )
+                    }
+                } else {
+                    null
+                },
             text = stringResource(R.string.suggested_action_button),
             onClick = { onSetMultihopMode(MultihopMode.WHEN_NEEDED) },
         )
@@ -479,19 +515,20 @@ private fun BottomBar(
                         modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp)
                     )
                 }
+                val nextMessage =
+                    stringResourceWithIcons(
+                        R.string.next_with_icon,
+                        DescribedIcon(
+                            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = stringResource(R.string.next),
+                        ),
+                    )
                 PrimaryButton(
                     text =
                         if (currentPage == pages - 1)
                             AnnotatedString(stringResource(R.string.got_it))
-                        else
-                            stringResourceWithIcons(
-                                    R.string.next_with_icon,
-                                    DescribedIcon(
-                                        icon = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = stringResource(R.string.next),
-                                    ),
-                                )
-                                .text,
+                        else nextMessage.text,
+                    inlineContent = nextMessage.inlineContent,
                     onClick = if (currentPage == pages - 1) onFinishMigration else onNextClick,
                     modifier =
                         Modifier.weight(1f).testTag(MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG),
