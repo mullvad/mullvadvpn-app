@@ -797,3 +797,101 @@ impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        ACCOUNTS_URL_PREFIX, DefaultDnsResolver,
+        access::ACCESS_TOKEN_PATH,
+        availability::State,
+        proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    };
+    use mockito::{Mock, Server, ServerGuard};
+
+    const ACCOUNT_NUMBER: &str = "1234123412341234";
+
+    /// An endpoint that requires an access token.
+    fn account_data_path() -> String {
+        format!("{ACCOUNTS_URL_PREFIX}/accounts/me")
+    }
+
+    /// Mock the access token endpoint, handing out `token` once.
+    async fn mock_access_token(server: &mut ServerGuard, token: &str) -> Mock {
+        server
+            .mock("POST", &*format!("/{ACCESS_TOKEN_PATH}"))
+            .with_body(format!(
+                r#"{{"access_token": "{token}", "expiry": "2100-01-01T00:00:00Z"}}"#
+            ))
+            .expect(1)
+            .create_async()
+            .await
+    }
+
+    /// Mock an endpoint that rejects `token`, once.
+    async fn mock_rejected_token(server: &mut ServerGuard, token: &str) -> Mock {
+        server
+            .mock("GET", &*format!("/{}", account_data_path()))
+            .match_header(header::AUTHORIZATION.as_str(), &*format!("Bearer {token}"))
+            .with_status(StatusCode::UNAUTHORIZED.as_u16().into())
+            .with_body(format!(r#"{{"code": "{}"}}"#, crate::INVALID_ACCESS_TOKEN))
+            .expect(1)
+            .create_async()
+            .await
+    }
+
+    /// A REST client that talks to `server`. TLS is disabled, so the hostname is only used to
+    /// construct the URI. Giving it the port of the mock server makes the connector dial it.
+    fn client(server: &ServerGuard) -> (RequestServiceHandle, RequestFactory) {
+        let service = RequestService::spawn(
+            ApiAvailability::new(State::default()),
+            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
+            Arc::new(DefaultDnsResolver),
+            #[cfg(target_os = "android")]
+            None,
+            true,
+        );
+        let host = server.host_with_port();
+        let store = AccessTokenStore::new(service.clone(), host.clone());
+        (service.clone(), RequestFactory::new(host, Some(store)))
+    }
+
+    /// Test that a request whose access token is rejected is sent again with a new token.
+    ///
+    /// The invalid access token error should only be forwarded to the caller if we fail to renew
+    /// it.
+    #[tokio::test]
+    async fn retry_request_with_new_access_token() {
+        let mut server = Server::new_async().await;
+
+        let expired_token = mock_access_token(&mut server, "expired-token").await;
+        let fresh_token = mock_access_token(&mut server, "fresh-token").await;
+        let rejected_request = mock_rejected_token(&mut server, "expired-token").await;
+        let accepted_request = server
+            .mock("GET", &*format!("/{}", account_data_path()))
+            .match_header(header::AUTHORIZATION.as_str(), "Bearer fresh-token")
+            .with_body("{}")
+            .expect(1)
+            .create_async()
+            .await;
+
+        let (service, factory) = client(&server);
+        let request = factory
+            .get(&account_data_path())
+            .unwrap()
+            .account(AccountNumber::from(ACCOUNT_NUMBER))
+            .unwrap()
+            .expected_status(&[StatusCode::OK]);
+        let response = service.request(request).await;
+
+        let status = response
+            .expect("the retried request should succeed")
+            .status();
+        assert_eq!(status, StatusCode::OK);
+
+        expired_token.assert_async().await;
+        fresh_token.assert_async().await;
+        rejected_request.assert_async().await;
+        accepted_request.assert_async().await;
+    }
+}
