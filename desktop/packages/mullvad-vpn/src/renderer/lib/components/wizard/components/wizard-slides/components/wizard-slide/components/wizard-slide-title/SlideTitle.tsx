@@ -6,6 +6,7 @@ export type WizardSlideTitleProps = TitleLargeProps;
 
 export const StyledSlideTitle = styled(TitleLarge)`
   align-self: center;
+  text-align: center;
 `;
 
 export function WizardSlideTitle(props: WizardSlideTitleProps) {

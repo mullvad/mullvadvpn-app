@@ -5,9 +5,10 @@ import { Carousel } from '../../../../../carousel';
 import type { CarouselSlideProps } from '../../../../../carousel/components/carousel-slides/components';
 import { Gallery } from '../../../../../gallery';
 import { StyledGalleryTextGroup } from '../../../../../gallery/components';
+import { ProgressButton } from '../../../../../progress-button';
 import {
-  StyledSlideIcon,
   StyledSlideTitle,
+  StyledWizardSlideIcon,
   WizardSlideIcon,
   WizardSlideText,
   WizardSlideTitle,
@@ -16,15 +17,15 @@ import {
 export type WizardSlideProps = CarouselSlideProps;
 
 export const StyledWizardSlide = styled(Carousel.Slides.Slide)`
-  &:has(${StyledSlideIcon} + ${StyledSlideTitle}) {
-    ${StyledSlideIcon} {
-      margin-bottom: ${spacings.medium};
-    }
+  ${StyledSlideTitle}:not(:last-child) {
+    margin-bottom: ${spacings.medium};
   }
-  &:has(${StyledSlideTitle} + ${StyledGalleryTextGroup}) {
-    ${StyledSlideTitle} {
-      margin-bottom: ${spacings.medium};
-    }
+  ${StyledWizardSlideIcon}:not(:last-child) {
+    margin-bottom: ${spacings.large};
+  }
+
+  ${StyledGalleryTextGroup}:not(:last-child) {
+    margin-bottom: ${spacings.large};
   }
 `;
 
@@ -38,6 +39,7 @@ const WizardSlideNamespace = Object.assign(WizardSlide, {
   Text: WizardSlideText,
   TextGroup: Gallery.TextGroup,
   Image: Gallery.Image,
+  ProgressButton: ProgressButton,
 });
 
 export { WizardSlideNamespace as WizardSlide };
