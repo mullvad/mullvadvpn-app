@@ -461,7 +461,7 @@ impl Request<BoxBody<Bytes, Error>> {
         let body = BodyExt::collect(body).await?.to_bytes();
         let auth = account.zip(access_token_store);
 
-        let send = async || {
+        let send_request = async || {
             let mut request =
                 hyper::Request::from_parts(parts.clone(), box_body(Full::new(body.clone())));
 
@@ -499,7 +499,7 @@ impl Request<BoxBody<Bytes, Error>> {
             Ok(Response::new(response))
         };
 
-        let result = send().await;
+        let result = send_request().await;
 
         // The access token may have expired since it was obtained. Notify the access token store,
         // and give the request another chance with a new token.
@@ -509,7 +509,7 @@ impl Request<BoxBody<Bytes, Error>> {
             log::debug!("Access token was rejected. Retrying with a new one");
             store.invalidate_token(account);
             // Retry with new token
-            send().await
+            send_request().await
         } else {
             result
         }
