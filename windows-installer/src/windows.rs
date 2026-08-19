@@ -11,7 +11,7 @@ use std::{
     io::{self, Write},
     num::NonZero,
     process::{Command, ExitStatus},
-    ptr::NonNull,
+    ptr::{NonNull, null_mut},
 };
 use tempfile::TempPath;
 use windows_sys::{
@@ -68,7 +68,7 @@ fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]>
         // which is not available in windows-sys, as it is a macro.
         // `resource_id` is guaranteed by the build script to refer to an actual resource.
         // See https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-findresourcew
-        NonZero::new(unsafe { FindResourceW(0, resource_id as *const u16, w!("BINARY")) })
+        NonNull::new(unsafe { FindResourceW(null_mut(), resource_id as *const u16, w!("BINARY")) })
     else {
         bail!("Failed to find resource: {}", io::Error::last_os_error());
     };
@@ -76,12 +76,14 @@ fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]>
     // SAFETY: We have a valid resource info handle
     // NOTE: Resources loaded with LoadResource should not be freed.
     // See https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadresource
-    let Some(resource) = NonNull::new(unsafe { LoadResource(0, resource_info.get()) }) else {
+    let Some(resource) = NonNull::new(unsafe { LoadResource(null_mut(), resource_info.as_ptr()) })
+    else {
         bail!("Failed to load resource: {}", io::Error::last_os_error());
     };
 
     // SAFETY: We have a valid resource info handle
-    let Some(resource_size) = NonZero::new(unsafe { SizeofResource(0, resource_info.get()) })
+    let Some(resource_size) =
+        NonZero::new(unsafe { SizeofResource(null_mut(), resource_info.as_ptr()) })
     else {
         bail!(
             "Failed to get resource size: {}",
