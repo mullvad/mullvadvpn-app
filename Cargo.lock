@@ -7410,7 +7410,7 @@ dependencies = [
  "mullvad-version",
  "talpid-platform-metadata",
  "tempfile",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
  "winresource",
 ]
 
