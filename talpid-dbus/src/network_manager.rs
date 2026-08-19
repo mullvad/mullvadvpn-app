@@ -8,10 +8,8 @@ use dbus::{
 };
 use std::{
     collections::HashMap,
-    fs::File,
-    io::{BufRead, BufReader},
+    fs,
     net::IpAddr,
-    path::Path,
     sync::{
         Arc,
         atomic::{AtomicU32, Ordering},
@@ -710,34 +708,20 @@ pub fn device_is_ready(device_state: u32) -> bool {
 
 // Verify that the contents of /etc/resolv.conf match what NM expects them to be.
 fn verify_etc_resolv_conf_contents() -> bool {
-    let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
-    let actual_resolv_conf = "/etc/resolv.conf";
-    eq_file_content(&expected_resolv_conf, &actual_resolv_conf)
-}
-
-fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
-    let file_a = match File::open(a).map(BufReader::new) {
-        Ok(file) => file,
-        Err(e) => {
-            log::debug!("Failed to open file {}: {}", a.as_ref().display(), e);
-            return false;
-        }
-    };
-    let file_b = match File::open(b).map(BufReader::new) {
-        Ok(file) => file,
-        Err(e) => {
-            log::debug!("Failed to open file {}: {}", b.as_ref().display(), e);
-            return false;
-        }
+    let parse_resolv_conf_file = |path| {
+        let buf = fs::read(path).ok()?;
+        resolv_conf::Config::parse(&buf).ok()
     };
 
-    !file_a
-        .lines()
-        .zip(file_b.lines())
-        .any(|(a, b)| match (a, b) {
-            (Ok(a), Ok(b)) => a != b,
-            _ => false,
-        })
+    let Some(actual_resolv_conf) = parse_resolv_conf_file("/etc/resolv.conf") else {
+        return false;
+    };
+    let Some(expected_resolv_conf) = parse_resolv_conf_file("/var/run/NetworkManager/resolv.conf")
+    else {
+        return false;
+    };
+
+    actual_resolv_conf == expected_resolv_conf
 }
 
 #[cfg(test)]
