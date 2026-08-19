@@ -158,19 +158,23 @@ impl ConnectedState {
         let dns_config: ResolvedDnsConfig = Self::resolve_dns(&self.metadata, shared_values);
 
         #[cfg(not(target_os = "macos"))]
-        shared_values
-            .dns_monitor
-            .set(&self.metadata.interface, dns_config)
-            .map_err(BoxedError::new)?;
+        {
+            let dns_interface = self.metadata.dns_interface();
+            shared_values
+                .dns_monitor
+                .set(dns_interface, dns_config)
+                .map_err(BoxedError::new)?;
+        }
 
         #[cfg(target_os = "macos")]
         // We do not want to forward DNS queries to *our* local resolver if we do not run a local
         // DNS resolver.
         if !*LOCAL_DNS_RESOLVER {
             log::debug!("Not enabling local DNS resolver");
+            let dns_interface = self.metadata.dns_interface();
             shared_values
                 .dns_monitor
-                .set(&self.metadata.interface, dns_config)
+                .set(dns_interface, dns_config)
                 .map_err(BoxedError::new)?;
         } else {
             log::debug!("Enabling local DNS resolver");
