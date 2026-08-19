@@ -128,7 +128,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
+            accessMethodWrapper: SwiftAccessMethodSettingsContext.unsafeFromRaw(
+                ptr: UInt64(Int(bitPattern: opaqueAccessMethodSettingsWrapper._0))),
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
 

@@ -199,6 +199,14 @@ impl SwiftAccessMethodSettingsWrapper {
 pub struct SwiftAccessMethodSettingsContext {
     pub settings: Settings,
 }
+#[uniffi::export]
+impl SwiftAccessMethodSettingsContext {
+    #[uniffi::constructor]
+    pub fn unsafe_from_raw(ptr: u64) -> Self {
+        // SAFETY: todo
+        unsafe { *Box::from_raw(ptr as *mut SwiftAccessMethodSettingsContext) }
+    }
+}
 
 impl SwiftAccessMethodSettingsContext {
     pub fn convert_access_method(&self) -> Option<Settings> {

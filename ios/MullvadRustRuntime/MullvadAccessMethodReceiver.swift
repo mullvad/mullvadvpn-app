@@ -35,11 +35,11 @@ public class MullvadAccessMethodReceiver {
     }
 
     private func saveLastReachable(_ lastReachable: PersistentAccessMethod) {
-        mullvad_api_use_access_method(apiContext.context, lastReachable.id.uuidString)
+        mullvad_api_use_access_method(apiContext.context.unsafeRaw().legacy(), lastReachable.id.uuidString)
     }
 
     private func updateAccessMethods(_ accessMethods: [PersistentAccessMethod]) {
         let settingsWrapper = initAccessMethodSettingsWrapper(methods: accessMethods)
-        mullvad_api_update_access_methods(apiContext.context, settingsWrapper)
+        mullvad_api_update_access_methods(apiContext.context.unsafeRaw().legacy(), settingsWrapper)
     }
 }

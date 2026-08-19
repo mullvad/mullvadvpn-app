@@ -264,6 +264,20 @@ typedef void (*UniffiCallbackInterfaceGotaTunCallbackMethod2)(uint64_t, RustBuff
     );
 
 #endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK_METHOD0
+typedef void (*UniffiCallbackInterfaceApiContextCallbackMethod0)(uint64_t, uint64_t, RustBuffer, void* _Nonnull, 
+        RustCallStatus *_Nonnull uniffiCallStatus
+    );
+
+#endif
+#ifndef UNIFFI_FFIDEF_CALLBACK_INTERFACE_BRIDGE_PROVIDER_METHOD0
+#define UNIFFI_FFIDEF_CALLBACK_INTERFACE_BRIDGE_PROVIDER_METHOD0
+typedef void (*UniffiCallbackInterfaceBridgeProviderMethod0)(uint64_t, RustBuffer* _Nonnull, 
+        RustCallStatus *_Nonnull uniffiCallStatus
+    );
+
+#endif
 #ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_GOTA_TUN_CALLBACK
 #define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_GOTA_TUN_CALLBACK
 typedef struct UniffiVTableCallbackInterfaceGotaTunCallback {
@@ -273,6 +287,32 @@ typedef struct UniffiVTableCallbackInterfaceGotaTunCallback {
     UniffiCallbackInterfaceGotaTunCallbackMethod1 _Nonnull onTimeout;
     UniffiCallbackInterfaceGotaTunCallbackMethod2 _Nonnull onError;
 } UniffiVTableCallbackInterfaceGotaTunCallback;
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK
+typedef struct UniffiVTableCallbackInterfaceApiContextCallback {
+    UniffiCallbackInterfaceFree _Nonnull uniffiFree;
+    UniffiCallbackInterfaceClone _Nonnull uniffiClone;
+    UniffiCallbackInterfaceApiContextCallbackMethod0 _Nonnull accessMethodChange;
+} UniffiVTableCallbackInterfaceApiContextCallback;
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK_CONTEXT
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_API_CONTEXT_CALLBACK_CONTEXT
+typedef struct UniffiVTableCallbackInterfaceApiContextCallbackContext {
+    UniffiCallbackInterfaceFree _Nonnull uniffiFree;
+    UniffiCallbackInterfaceClone _Nonnull uniffiClone;
+} UniffiVTableCallbackInterfaceApiContextCallbackContext;
+
+#endif
+#ifndef UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_BRIDGE_PROVIDER
+#define UNIFFI_FFIDEF_V_TABLE_CALLBACK_INTERFACE_BRIDGE_PROVIDER
+typedef struct UniffiVTableCallbackInterfaceBridgeProvider {
+    UniffiCallbackInterfaceFree _Nonnull uniffiFree;
+    UniffiCallbackInterfaceClone _Nonnull uniffiClone;
+    UniffiCallbackInterfaceBridgeProviderMethod0 _Nonnull getBridges;
+} UniffiVTableCallbackInterfaceBridgeProvider;
 
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXT
@@ -285,9 +325,89 @@ uint64_t uniffi_mullvad_ios_fn_clone_apicontext(uint64_t handle, RustCallStatus 
 void uniffi_mullvad_ios_fn_free_apicontext(uint64_t handle, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
+uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer domain, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_callback, uint64_t access_method_change_context, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW_TLS_DISABLED
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW_TLS_DISABLED
+uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new_tls_disabled(RustBuffer host, RustBuffer address, RustBuffer domain, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_callback, uint64_t access_method_change_context, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
-uint64_t uniffi_mullvad_ios_fn_method_apicontext_unsafe_raw(uint64_t ptr, RustCallStatus *_Nonnull out_status
+RustBuffer uniffi_mullvad_ios_fn_method_apicontext_unsafe_raw(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACK
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACK
+uint64_t uniffi_mullvad_ios_fn_clone_apicontextcallback(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXTCALLBACK
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXTCALLBACK
+void uniffi_mullvad_ios_fn_free_apicontextcallback(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_APICONTEXTCALLBACK
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_APICONTEXTCALLBACK
+void uniffi_mullvad_ios_fn_init_callback_vtable_apicontextcallback(const UniffiVTableCallbackInterfaceApiContextCallback* _Nonnull vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXTCALLBACK_ACCESS_METHOD_CHANGE
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXTCALLBACK_ACCESS_METHOD_CHANGE
+void uniffi_mullvad_ios_fn_method_apicontextcallback_access_method_change(uint64_t ptr, uint64_t context, RustBuffer uuid, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACKCONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACKCONTEXT
+uint64_t uniffi_mullvad_ios_fn_clone_apicontextcallbackcontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXTCALLBACKCONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXTCALLBACKCONTEXT
+void uniffi_mullvad_ios_fn_free_apicontextcallbackcontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_APICONTEXTCALLBACKCONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_APICONTEXTCALLBACKCONTEXT
+void uniffi_mullvad_ios_fn_init_callback_vtable_apicontextcallbackcontext(const UniffiVTableCallbackInterfaceApiContextCallbackContext* _Nonnull vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_BRIDGEPROVIDER
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_BRIDGEPROVIDER
+uint64_t uniffi_mullvad_ios_fn_clone_bridgeprovider(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_BRIDGEPROVIDER
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_BRIDGEPROVIDER
+void uniffi_mullvad_ios_fn_free_bridgeprovider(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_BRIDGEPROVIDER
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_BRIDGEPROVIDER
+void uniffi_mullvad_ios_fn_init_callback_vtable_bridgeprovider(const UniffiVTableCallbackInterfaceBridgeProvider* _Nonnull vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_BRIDGEPROVIDER_GET_BRIDGES
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_BRIDGEPROVIDER_GET_BRIDGES
+RustBuffer uniffi_mullvad_ios_fn_method_bridgeprovider_get_bridges(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_SWIFTACCESSMETHODSETTINGSCONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_SWIFTACCESSMETHODSETTINGSCONTEXT
+uint64_t uniffi_mullvad_ios_fn_clone_swiftaccessmethodsettingscontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_SWIFTACCESSMETHODSETTINGSCONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_SWIFTACCESSMETHODSETTINGSCONTEXT
+void uniffi_mullvad_ios_fn_free_swiftaccessmethodsettingscontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_SWIFTACCESSMETHODSETTINGSCONTEXT_UNSAFE_FROM_RAW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_SWIFTACCESSMETHODSETTINGSCONTEXT_UNSAFE_FROM_RAW
+uint64_t uniffi_mullvad_ios_fn_constructor_swiftaccessmethodsettingscontext_unsafe_from_raw(uint64_t ptr, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
@@ -596,6 +716,18 @@ uint16_t uniffi_mullvad_ios_checksum_method_apicontext_unsafe_raw(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXTCALLBACK_ACCESS_METHOD_CHANGE
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXTCALLBACK_ACCESS_METHOD_CHANGE
+uint16_t uniffi_mullvad_ios_checksum_method_apicontextcallback_access_method_change(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_BRIDGEPROVIDER_GET_BRIDGES
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_BRIDGEPROVIDER_GET_BRIDGES
+uint16_t uniffi_mullvad_ios_checksum_method_bridgeprovider_get_bridges(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_RECYCLE_UDP_SOCKETS
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_RECYCLE_UDP_SOCKETS
 uint16_t uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets(void
@@ -617,6 +749,24 @@ uint16_t uniffi_mullvad_ios_checksum_method_gotatuntunnel_suspend(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_WAKE
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_WAKE
 uint16_t uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW
+uint16_t uniffi_mullvad_ios_checksum_constructor_apicontext_new(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW_TLS_DISABLED
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_APICONTEXT_NEW_TLS_DISABLED
+uint16_t uniffi_mullvad_ios_checksum_constructor_apicontext_new_tls_disabled(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_SWIFTACCESSMETHODSETTINGSCONTEXT_UNSAFE_FROM_RAW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_SWIFTACCESSMETHODSETTINGSCONTEXT_UNSAFE_FROM_RAW
+uint16_t uniffi_mullvad_ios_checksum_constructor_swiftaccessmethodsettingscontext_unsafe_from_raw(void
     
 );
 #endif

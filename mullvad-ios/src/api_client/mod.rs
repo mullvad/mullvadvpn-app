@@ -1,6 +1,16 @@
-use std::{ffi::c_char, ffi::c_void, future::Future, sync::Arc};
+use std::{
+    ffi::{c_char, c_void},
+    future::Future,
+    net::SocketAddr,
+    sync::Arc,
+};
 
-use crate::{api_client::access_method_settings::SwiftAccessMethodSettingsContext, get_string};
+use crate::{
+    api_client::{
+        access_method_settings::SwiftAccessMethodSettingsContext, helpers::parse_ip_addr,
+    },
+    get_string,
+};
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use futures::{
@@ -16,9 +26,9 @@ use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{Id, Settings};
 use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
-use shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 use talpid_future::retry::retry_future;
-use talpid_types::net::proxy::Shadowsocks;
+use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher};
+use zerocopy::IntoBytes;
 
 mod access_method_resolver;
 mod access_method_settings;
@@ -66,22 +76,40 @@ pub struct UnsafePtr {
 }
 
 // MOVE
-#[derive(uniffi::Object)]
-pub struct WrappedShadowsocks {
-    pub socket: Shadowsocks,
+#[derive(uniffi::Record)]
+pub struct ShadowSocksExposed {
+    address: Vec<u8>,
+    port: u16,
+    password: String,
+    cipher: String,
+}
+impl ShadowSocksExposed {
+    pub fn socket(self) -> Shadowsocks {
+        // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
+        let endpoint = if let Some(ip_address) =
+            unsafe { parse_ip_addr(self.address.as_ptr(), self.address.len()) }
+        {
+            SocketAddr::new(ip_address, self.port)
+        } else {
+            todo!();
+        };
+        let cipher = ShadowsocksCipher::new(&self.cipher).unwrap();
+
+        Shadowsocks::new(endpoint, cipher, self.password)
+    }
 }
 
-#[uniffi::export]
+#[uniffi::export(with_foreign)]
 pub trait BridgeProvider: Sync + Send {
-    fn get_bridges(&self) -> Option<Arc<WrappedShadowsocks>>;
+    fn get_bridges(&self) -> Option<ShadowSocksExposed>;
 }
 
-#[uniffi::export]
+#[uniffi::export(with_foreign)]
 pub trait ApiContextCallback: Send + Sync {
-    fn access_method_change(&self, context: Arc<dyn ApiContextCallbackContext>, uuid: &[u8]);
+    fn access_method_change(&self, context: Arc<dyn ApiContextCallbackContext>, uuid: Vec<u8>);
 }
 
-#[uniffi::export]
+#[uniffi::export(with_foreign)]
 pub trait ApiContextCallbackContext: Send + Sync {}
 
 #[derive(uniffi::Object)]
@@ -90,7 +118,6 @@ pub struct ApiContext {
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
 }
-#[cfg(feature = "api-override")]
 #[uniffi::export]
 impl ApiContext {
     #[uniffi::constructor]
@@ -103,16 +130,17 @@ impl ApiContext {
         access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
         access_method_change_context: Arc<dyn ApiContextCallbackContext>,
     ) -> Self {
-        return Self::new_inner(
+        Self::new_inner(
             host,
             address,
             domain,
+            #[cfg(feature = "api-override")]
             true,
             bridge_provider,
             settings_provider,
             access_method_change_callback,
             access_method_change_context,
-        );
+        )
     }
 }
 
@@ -203,7 +231,8 @@ impl ApiContext {
                             continue;
                         };
                         let uuid = setting.get_id();
-                        let uuid_bytes = uuid.as_bytes();
+                        // TODO: see if we can remove allocation
+                        let uuid_bytes = uuid.as_bytes().to_vec();
                         // SAFETY: The callback is expected to be safe to call
                         callback
                             .access_method_change(access_method_change_context.clone(), uuid_bytes);

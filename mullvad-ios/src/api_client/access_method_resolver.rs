@@ -79,7 +79,7 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
             AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
             AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
                 let bridge = self.bridge_provider.get_bridges()?;
-                let proxy = CustomProxy::Shadowsocks(bridge.socket.clone());
+                let proxy = CustomProxy::Shadowsocks(bridge.socket().clone());
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {

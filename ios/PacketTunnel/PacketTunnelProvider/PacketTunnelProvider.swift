@@ -250,7 +250,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
+            // absolutely horrid
+            accessMethodWrapper:
+                SwiftAccessMethodSettingsContext.unsafeFromRaw(
+                    ptr: UInt64(Int(bitPattern: opaqueAccessMethodSettingsWrapper._0))),
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
         )
     }
