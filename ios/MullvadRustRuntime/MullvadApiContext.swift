@@ -26,12 +26,13 @@ class SwiftShadowsocksBridgeProviderWrapper: BridgeProvider, @unchecked Sendable
 
 public class MullvadApiContext: @unchecked Sendable, ApiContextCallbackContext, ApiContextCallback {
     public func accessMethodChange(context: any ApiContextCallbackContext, uuid: Data) {
-        // guard let selfPtr, let bytes else { return }
-        // let context = Unmanaged<MullvadApiContext>.fromOpaque(selfPtr).takeUnretainedValue()
+        guard let self = context as? MullvadApiContext else { return }
 
-        // let uuid = NSUUID(uuidBytes: bytes) as UUID
-        // context.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(uuid) }
-        fatalError()
+        // Is this good?
+        let parsedUUID = uuid.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
+            NSUUID(uuidBytes: ptr.baseAddress) as UUID
+        }
+        self.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(parsedUUID) }
     }
 
     enum Error: Swift.Error {
