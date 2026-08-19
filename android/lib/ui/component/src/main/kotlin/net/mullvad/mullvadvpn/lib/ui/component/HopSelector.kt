@@ -210,6 +210,7 @@ fun MultihopSelector(
     entryLocation: String,
     entryErrorText: String? = null,
     entryFilterState: FilterState = FilterState.Active,
+    entryFilterButtonEnabled: Boolean = true,
     onEntryClick: () -> Unit = {},
     exitLocation: String,
     exitErrorText: String? = null,
@@ -388,6 +389,7 @@ fun MultihopSelector(
             isError = entryErrorText != null,
             colors = colors,
             filterState = entryFilterState,
+            filterButtonEnabled = entryFilterButtonEnabled,
             onFilterClick = { onFilterClick(RelayHopType.ENTRY) },
             onIconGloballyPositioned = { entryIconLC = it },
         )
@@ -641,6 +643,8 @@ private fun PreviewHop() {
 @OptIn(ExperimentalMotionApi::class)
 @Composable
 private fun Hop(
+    modifier: Modifier = Modifier,
+    filterButtonEnabled: Boolean = true,
     leadingIcon: ImageVector,
     filterState: FilterState,
     onFilterClick: () -> Unit,
@@ -648,7 +652,6 @@ private fun Hop(
     selected: Boolean,
     onSelect: (() -> Unit)?,
     isError: Boolean,
-    modifier: Modifier = Modifier,
     onIconGloballyPositioned: (LayoutCoordinates) -> Unit = {},
     colors: HopSelectorColors = HopSelectorDefaults.colors(),
 ) {
@@ -699,15 +702,24 @@ private fun Hop(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = SemiBold,
             )
-            FilterButton(onFilterClick = onFilterClick, filterState = filterState)
+            FilterButton(
+                filterState = filterState,
+                enabled = filterButtonEnabled,
+                onFilterClick = onFilterClick,
+            )
         }
     }
 }
 
 @Composable
-private fun FilterButton(onFilterClick: () -> Unit, filterState: FilterState) {
+private fun FilterButton(
+    filterState: FilterState,
+    enabled: Boolean = true,
+    onFilterClick: () -> Unit,
+) {
     IconButton(
         modifier = Modifier.padding(end = Dimens.smallPadding),
+        enabled = enabled,
         onClick = onFilterClick,
     ) {
         Icon(
