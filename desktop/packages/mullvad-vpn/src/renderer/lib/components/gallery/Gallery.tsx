@@ -10,7 +10,7 @@ export type GalleryProps = FlexProps;
 export const StyledGallery = styled(Flex)`
   &:has(${StyledImage} + ${StyledGalleryTextGroup}) {
     ${StyledImage} {
-      margin-bottom: ${spacings.small};
+      margin-bottom: ${spacings.medium};
     }
   }
 `;
