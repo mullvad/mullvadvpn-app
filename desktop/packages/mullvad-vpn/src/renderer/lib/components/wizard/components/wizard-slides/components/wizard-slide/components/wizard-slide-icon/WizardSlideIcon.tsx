@@ -4,10 +4,10 @@ import { Icon, type IconProps } from '../../../../../../../icon';
 
 export type WizardSlideIconProps = IconProps;
 
-export const StyledSlideIcon = styled(Icon)`
+export const StyledWizardSlideIcon = styled(Icon)`
   align-self: center;
 `;
 
 export function WizardSlideIcon(props: WizardSlideIconProps) {
-  return <StyledSlideIcon size="big" {...props}></StyledSlideIcon>;
+  return <StyledWizardSlideIcon size="big" {...props}></StyledWizardSlideIcon>;
 }
