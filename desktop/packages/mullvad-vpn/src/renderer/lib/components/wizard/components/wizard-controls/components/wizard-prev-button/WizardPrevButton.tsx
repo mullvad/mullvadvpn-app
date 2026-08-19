@@ -15,7 +15,7 @@ function WizardPrevButton({ children, ...props }: WizardPrevButtonProps) {
   }
 
   return (
-    <Button onClick={goToPreviousSlide} {...props}>
+    <Button variant="secondary" onClick={goToPreviousSlide} {...props}>
       {children ? (
         children
       ) : (
