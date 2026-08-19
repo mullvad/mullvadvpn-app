@@ -42,23 +42,27 @@ public final class APITransport: APITransportProtocol {
                 }
 
                 rustTaskHandle.start { response in
-                    let error: APIError? =
-                        if !response.success {
-                            APIError(
-                                statusCode: Int(response.statusCode),
-                                errorDescription: response.errorDescription ?? "",
-                                serverResponseCode: response.serverResponseCode
+                    switch response {
+                    case .body(let body, _, let digest, let timestamp):
+                        continuation.resume(
+                            returning: ProxyAPIResponse(
+                                data: body,
+                                error: nil,
+                                digest: digest,
+                                timestamp: timestamp
+                            ))
+                    case .error(let statusCode, let errorDescription, let serverResponseCode):
+                        continuation.resume(
+                            returning: ProxyAPIResponse(
+                                data: nil,
+                                error: APIError(
+                                    statusCode: Int(statusCode),
+                                    errorDescription: errorDescription ?? "",
+                                    serverResponseCode: serverResponseCode
+                                )
                             )
-                        } else { nil }
-
-                    continuation.resume(
-                        returning: ProxyAPIResponse(
-                            data: response.body,
-                            error: error,
-                            digest: response.digest,
-                            timestamp: response.timestamp,
                         )
-                    )
+                    }
                 }
             }
         } onCancel: {
@@ -73,22 +77,25 @@ public final class APITransport: APITransportProtocol {
         let apiRequest = try requestFactory.makeRequest(request)
 
         apiRequest.start { response in
-            let error: APIError? =
-                if !response.success {
-                    APIError(
-                        statusCode: Int(response.statusCode),
-                        errorDescription: response.errorDescription ?? "",
-                        serverResponseCode: response.serverResponseCode
-                    )
-                } else { nil }
-
-            completion(
-                ProxyAPIResponse(
-                    data: response.body,
-                    error: error,
-                    digest: response.digest,
-                    timestamp: response.timestamp,
-                ))
+            switch response {
+            case .body(let body, _, let digest, let timestamp):
+                completion(
+                    ProxyAPIResponse(
+                        data: body,
+                        error: nil,
+                        digest: digest,
+                        timestamp: timestamp
+                    ))
+            case .error(let statusCode, let errorDescription, let serverResponseCode):
+                completion(
+                    ProxyAPIResponse(
+                        data: nil,
+                        error: APIError(
+                            statusCode: Int(statusCode),
+                            errorDescription: errorDescription ?? "",
+                            serverResponseCode: serverResponseCode)
+                    ))
+            }
         }
         return apiRequest
     }

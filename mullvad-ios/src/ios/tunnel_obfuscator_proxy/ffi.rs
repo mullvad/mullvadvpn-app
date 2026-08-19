@@ -116,7 +116,7 @@ unsafe fn get_socket_address(
 ) -> Result<SocketAddr, i32> {
     let peer_sock_addr =
         // SAFETY: See notes for `parse_ip_addr`.
-        if let Some(ip_address) = unsafe { parse_ip_addr(peer_address, peer_address_len) } {
+        if let Some(ip_address) = unsafe { parse_ip_addr(std::slice::from_raw_parts(peer_address, peer_address_len)) } {
             SocketAddr::new(ip_address, peer_port)
         } else {
             return Err(-1);
