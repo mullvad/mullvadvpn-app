@@ -62,10 +62,15 @@ the current state of the latest code in git, not necessarily any existing releas
 
 This app is a privacy preserving VPN client. As such it goes to great lengths to stop traffic
 leaks. And basically all settings default to the more secure/private option. The user has to
-explicitly allow more loose rules if desired. See the [dedicated security document] for details
-on what the app blocks and allows, as well as how it does it.
+explicitly allow more loose rules if desired.
 
-[dedicated security document]: docs/security.md
+The [threat model] defines what the app protects, whom it protects against, and what it does not
+attempt to protect against. The [security document] then specifies the rules that follow from the
+threat model: what the app blocks and allows, and how the app protects itself and the data it
+stores.
+
+[threat model]: docs/threat-model.md
+[security document]: docs/security.md
 
 ## Secure development
 

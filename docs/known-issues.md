@@ -14,11 +14,12 @@ decided to not address for some reason. Some example reasons why issues might en
 * We are not able to reliably reproduce the issue. Enough anecdotal evidence exists to indicate
   the issue is real, but Mullvad is unable to reproduce it. As a result, it is really hard to fix.
 
-This document should only contain issues related to security and privacy. This document is a
-compliment to the [security documentation](./security.md). Where the security documentation
-is a more or less static description of the apps threat model and how the app implements its
-security mechanisms, this known issues document is a more dynamic document, describing the current
-deviations from said security document.
+This document should only contain issues related to security and privacy. It complements the
+[threat model](./threat-model.md), which states the security properties the app must uphold, and
+the [security document](./security.md), which specifies the rules that uphold those properties.
+Those two documents describe how the app is meant to behave. They change when the intended design
+changes. This document records where the app currently falls short of that behaviour, and changes
+as issues are found and fixed.
 
 The goal and motivation for this document is to provide:
 

@@ -1,18 +1,26 @@
 # Mullvad VPN app security
 
-This document describes the security properties of the Mullvad VPN app.
+This document specifies the security design of the Mullvad VPN app: the concrete rules the app
+follows to uphold its security properties. That covers what network traffic is allowed and blocked
+in each app state on each platform, and how the app's components, privileges, interfaces and
+stored data are protected.
 For the security policy on this code repository, see [SECURITY.md](../SECURITY.md).
 
-This document describes the security for all platforms, and their differences.
-Individual platforms might have slightly different properties and
-allow or block network traffic a bit differently, but all such deviations are described here.
+The [threat model](threat-model.md) defines the security properties these rules exist to uphold:
+what the app protects, whom it protects against, and what it does not attempt to protect against.
+Where this document and the threat model disagree about intent, the threat model is the source of
+truth.
 
-This document does not describe in detail *how* we reach and uphold these properties, just what
-they are. See the [architecture](architecture.md) document for details on how the firewall
-integration is implemented.
+This document covers all platforms and their differences. Platforms differ in what they allow and
+block, and in what protection mechanisms they offer at all, and all such differences are described
+here.
+
+This document does not describe in detail *how* these rules are implemented. See the
+[architecture](architecture.md) document for details on how the firewall integration is
+implemented.
 
 For known security and privacy issues, that might cause the app to not uphold the
-properties described in this document under certain conditions, please see the
+rules described in this document under certain conditions, please see the
 [known issues] document.
 
 The main purpose of the app is to allow the user to make all network/internet traffic to and

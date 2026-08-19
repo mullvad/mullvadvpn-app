@@ -5,7 +5,8 @@
 
 This document describes the code architecture and how everything fits together.
 
-For security and anonymity properties, please see [security](security.md).
+For the security and anonymity properties the app must uphold, please see the
+[threat model](threat-model.md). For the rules that uphold them, see [security](security.md).
 
 Some components have specific documentation that go into greater detail:
 
