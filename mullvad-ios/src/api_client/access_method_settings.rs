@@ -195,7 +195,7 @@ impl SwiftAccessMethodSettingsWrapper {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, uniffi::Object)]
 pub struct SwiftAccessMethodSettingsContext {
     pub settings: Settings,
 }

@@ -1,6 +1,6 @@
 use std::{ffi::c_char, ffi::c_void, future::Future, sync::Arc};
 
-use crate::get_string;
+use crate::{api_client::access_method_settings::SwiftAccessMethodSettingsContext, get_string};
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use futures::{
@@ -18,6 +18,7 @@ use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
 use shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
 use talpid_future::retry::retry_future;
+use talpid_types::net::proxy::Shadowsocks;
 
 mod access_method_resolver;
 mod access_method_settings;
@@ -59,6 +60,30 @@ impl SwiftApiContext {
     }
 }
 
+#[derive(uniffi::Record)]
+pub struct UnsafePtr {
+    ptr: u64,
+}
+
+// MOVE
+#[derive(uniffi::Object)]
+pub struct WrappedShadowsocks {
+    pub socket: Shadowsocks,
+}
+
+#[uniffi::export]
+pub trait BridgeProvider: Sync + Send {
+    fn swift_get_shadowsocks_bridges(&self) -> WrappedShadowsocks;
+}
+
+#[uniffi::export]
+pub trait ApiContextCallback: Send + Sync {
+    fn access_method_change(&self, context: UnsafePtr, uuid: &[u8]);
+}
+
+#[uniffi::export]
+pub trait ApiContextCallbackContext: Send + Sync {}
+
 #[derive(uniffi::Object)]
 pub struct ApiContext {
     api_client: Runtime<IOSAddressCacheBacking>,
@@ -73,6 +98,19 @@ impl ApiContext {
         SwiftApiContext {
             ptr: Arc::into_raw(clone) as u64,
         }
+    }
+
+    #[uniffi::constructor]
+    pub fn new_raw(
+        host: &str,
+        address: &str,
+        domain: &str,
+        bridge_provider: Arc<dyn BridgeProvider>,
+        settings_provider: Arc<SwiftAccessMethodSettingsContext>,
+        access_method_change_callback: Arc<dyn ApiContextCallback>,
+        access_method_change_context: Arc<dyn ApiContextCallbackContext>,
+    ) -> SwiftApiContext {
+        todo!()
     }
 }
 impl ApiContext {
