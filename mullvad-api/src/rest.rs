@@ -8,6 +8,7 @@ use crate::{
     proxy::ConnectionModeProvider,
 };
 use futures::{
+    TryFutureExt as _,
     channel::{mpsc, oneshot},
     stream::StreamExt,
 };
@@ -15,18 +16,15 @@ use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
 use hyper::{
     Method, Uri,
     body::{Body, Buf, Bytes, Incoming},
+    client::conn::http1,
     header::{self, HeaderValue},
 };
-use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
 use std::{
-    borrow::Cow,
-    convert::Infallible,
-    error::Error as StdError,
-    str::FromStr,
-    sync::{Arc, Weak},
-    time::Duration,
+    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, str::FromStr,
+    sync::Arc, time::Duration,
 };
+use tokio::time::sleep;
 
 pub use hyper::StatusCode;
 
@@ -137,26 +135,28 @@ impl Error {
     }
 }
 
-// TODO: Look into an alternative to using the legacy hyper client `DES-1288`
-type RequestClient = hyper_util::client::legacy::Client<HttpsConnector, BoxBody<Bytes, Error>>;
-
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<T: ConnectionModeProvider> {
-    command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
+pub(crate) struct RequestService<C: ConnectionModeProvider> {
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
+    connection: Option<Connection>,
+    dns_resolver: Arc<dyn DnsResolver>,
     connector_handle: HttpsConnectorHandle,
-    client: RequestClient,
-    connection_mode_provider: T,
-    connection_mode_generation: usize,
+    connector: HttpsConnector,
+    connection_mode_provider: C,
     api_availability: ApiAvailability,
 }
 
-impl<T: ConnectionModeProvider + 'static> RequestService<T> {
+struct Connection {
+    send_request: http1::SendRequest<BoxBody<Bytes, Error>>,
+    idle_timeout: Duration,
+}
+
+impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     /// Constructs a new request service.
     pub fn spawn(
         api_availability: ApiAvailability,
-        connection_mode_provider: T,
+        connection_mode_provider: C,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
@@ -166,32 +166,26 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
             InnerConnectionMode::from(api_connection_mode)
         };
 
-        let idle_timeout = proxy_config.idle_timeout();
-
         let connector = HttpsConnector::new(
-            dns_resolver,
+            dns_resolver.clone(),
             proxy_config,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
         );
-        let client =
-            hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
-                .pool_idle_timeout(Some(idle_timeout))
-                .pool_timer(hyper_util::rt::TokioTimer::new())
-                .build(connector.clone());
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let command_tx = Arc::new(command_tx);
         let service = Self {
-            command_tx: Arc::downgrade(&command_tx),
+            dns_resolver,
             command_rx,
+            // TODO: this is wack
+            connector: connector.clone(),
             connector_handle: connector.spawn(),
-            client,
             connection_mode_provider,
-            connection_mode_generation: 0,
             api_availability,
+            connection: None,
         };
         let handle = RequestServiceHandle { tx: command_tx };
         tokio::spawn(service.into_future());
@@ -200,19 +194,26 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
 
     async fn into_future(mut self) {
         loop {
+            let evict_connection = async {
+                match &self.connection {
+                    Some(c) => sleep(c.idle_timeout).await,
+                    None => pending().await,
+                }
+            };
+
             tokio::select! {
                 new_mode = self.connection_mode_provider.receive() => {
-                    let Some(new_mode) = new_mode else {
-                        break;
-                    };
+                    let Some(new_mode) = new_mode else { break };
+                    self.connection = None;
                     self.connector_handle.set_connection_mode(new_mode);
                 }
                 command = self.command_rx.next() => {
-                    let Some(command) = command else {
-                        break;
-                    };
-
+                    let Some(command) = command else { break };
                     self.process_command(command).await;
+                }
+                _ = evict_connection => {
+                    tracing::trace!("Evicting active connection");
+                    self.connection = None;
                 }
             }
         }
@@ -222,53 +223,52 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                self.handle_new_request(request, completion_tx);
+                let result = self.send_request(request).await;
+                let _ = completion_tx.send(result);
             }
             RequestCommand::Reset => {
+                self.connection = None;
                 self.connector_handle.reset();
-            }
-            RequestCommand::NextApiConfig(generation) => {
-                if generation == self.connection_mode_generation {
-                    self.connection_mode_generation =
-                        self.connection_mode_generation.wrapping_add(1);
-                    self.connection_mode_provider.rotate().await;
-                }
             }
         }
     }
 
-    fn handle_new_request(
+    async fn send_request(
         &mut self,
         request: Request<BoxBody<Bytes, Error>>,
-        completion_tx: oneshot::Sender<Result<Response<Incoming>>>,
-    ) {
+    ) -> Result<Response<Incoming>> {
         let uri = request.uri().clone();
-        let tx = self.command_tx.upgrade();
+
+        let connection = match &mut self.connection {
+            Some(sr) => sr,
+            None => {
+                let host = request.uri().host().unwrap(); // TODO:
+                tracing::trace!("resolving {host:?}");
+                let &addr = self.dns_resolver.resolve(host.to_string()).await.unwrap(/* TODO */).first().unwrap();
+                tracing::trace!("connecting to {addr} ({host:?})");
+                let (connection, idle_timeout) = self.connector.connect(addr, host).await.unwrap();
+                let (send_request, connection) = http1::handshake(connection).await?;
+                tokio::spawn(connection);
+                self.connection.insert(Connection {
+                    send_request,
+                    idle_timeout,
+                })
+            }
+        };
 
         let api_availability = self.api_availability.clone();
-        let request_future = request
+        request
             .map(|r| http::Request::map(r, BodyExt::boxed))
-            .into_future(self.client.clone(), api_availability.clone());
-
-        let connection_mode_generation = self.connection_mode_generation;
-
-        tokio::spawn(async move {
-            let response = request_future.await.map_err(|error| error.map_aborted());
-
-            // Switch API endpoint if the request failed due to a network error
-            if let Err(err) = &response
-                && err.is_network_error()
-                && !api_availability.is_offline()
-            {
-                tracing::warn!("{uri:?} request failed: {err:?}");
-                if let Some(tx) = tx {
-                    let _ = tx
-                        .unbounded_send(RequestCommand::NextApiConfig(connection_mode_generation));
+            .into_future(&mut connection.send_request, api_availability.clone())
+            .map_err(|error| error.map_aborted())
+            .or_else(async |err| {
+                if err.is_network_error() && !self.api_availability.is_offline() {
+                    tracing::warn!("{uri:?} request failed: {err:?}");
+                    self.connection_mode_provider.rotate().await;
                 }
-            }
-
-            let _ = completion_tx.send(response);
-        });
+                Err(err)
+            })
+            .await
     }
 }
 
@@ -307,7 +307,6 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
     ),
     Reset,
-    NextApiConfig(usize),
 }
 
 /// A REST request that is sent to the RequestService to be executed.
@@ -432,26 +431,23 @@ where
     B::Data: Send,
     B::Error: Into<Box<dyn StdError + Send + Sync>>,
 {
-    async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
+    async fn into_future(
         self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        send_request: &mut http1::SendRequest<B>,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>> {
         let timeout = self.timeout;
-        let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
+        let inner_fut = self.into_future_without_timeout(send_request, api_availability);
         tokio::time::timeout(timeout, inner_fut)
             .await
             .map_err(|_| Error::TimeoutError)?
     }
 
-    async fn into_future_without_timeout<C>(
+    async fn into_future_without_timeout(
         mut self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        send_request: &mut http1::SendRequest<B>,
         api_availability: ApiAvailability,
-    ) -> Result<Response<Incoming>>
-    where
-        C: Connect + Clone + Send + Sync + 'static,
-    {
+    ) -> Result<Response<Incoming>> {
         let _ = api_availability.wait_for_unsuspend().await;
 
         // Obtain access token first
@@ -465,8 +461,8 @@ where
         }
 
         // Make request to hyper client
-        let response = hyper_client
-            .request(self.request)
+        let response = send_request
+            .send_request(self.request)
             .await
             .map_err(Error::from);
 
@@ -772,7 +768,7 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
-impl_into_arc_err!(hyper_util::client::legacy::Error);
+// impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
