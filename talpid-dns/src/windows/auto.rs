@@ -1,5 +1,5 @@
 use super::{DnsMonitorT, ResolvedDnsConfig};
-use super::{iphlpapi, netsh, tcpip};
+use super::{iphlpapi, tcpip};
 use windows_sys::Win32::System::Rpc::RPC_S_SERVER_UNAVAILABLE;
 
 pub struct DnsMonitor {
@@ -7,7 +7,6 @@ pub struct DnsMonitor {
 }
 enum InnerMonitor {
     Iphlpapi(iphlpapi::DnsMonitor),
-    Netsh(netsh::DnsMonitor),
     Tcpip(tcpip::DnsMonitor),
 }
 
@@ -15,7 +14,6 @@ impl InnerMonitor {
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<(), super::Error> {
         match self {
             InnerMonitor::Iphlpapi(monitor) => monitor.set(interface, config)?,
-            InnerMonitor::Netsh(monitor) => monitor.set(interface, config)?,
             InnerMonitor::Tcpip(monitor) => monitor.set(interface, config)?,
         }
         Ok(())
@@ -24,7 +22,6 @@ impl InnerMonitor {
     fn reset(&mut self) -> Result<(), super::Error> {
         match self {
             InnerMonitor::Iphlpapi(monitor) => monitor.reset()?,
-            InnerMonitor::Netsh(monitor) => monitor.reset()?,
             InnerMonitor::Tcpip(monitor) => monitor.reset()?,
         }
         Ok(())
@@ -33,7 +30,6 @@ impl InnerMonitor {
     fn reset_before_interface_removal(&mut self) -> Result<(), super::Error> {
         match self {
             InnerMonitor::Iphlpapi(monitor) => monitor.reset_before_interface_removal()?,
-            InnerMonitor::Netsh(monitor) => monitor.reset_before_interface_removal()?,
             InnerMonitor::Tcpip(monitor) => monitor.reset_before_interface_removal()?,
         }
         Ok(())
@@ -44,11 +40,7 @@ impl DnsMonitorT for DnsMonitor {
     type Error = super::Error;
 
     fn new() -> Result<Self, Self::Error> {
-        let current_monitor = if iphlpapi::DnsMonitor::is_supported() {
-            InnerMonitor::Iphlpapi(iphlpapi::DnsMonitor::new()?)
-        } else {
-            InnerMonitor::Netsh(netsh::DnsMonitor::new()?)
-        };
+        let current_monitor = InnerMonitor::Iphlpapi(iphlpapi::DnsMonitor::new()?);
 
         Ok(Self { current_monitor })
     }
@@ -84,7 +76,6 @@ impl DnsMonitor {
             Err(super::Error::Iphlpapi(iphlpapi::Error::SetInterfaceDnsSettings(error))) => {
                 error.raw_os_error() == Some(RPC_S_SERVER_UNAVAILABLE)
             }
-            Err(super::Error::Netsh(netsh::Error::Netsh(Some(1)))) => true,
             _ => false,
         };
         if is_dnscache_error {

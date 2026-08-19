@@ -1,4 +1,6 @@
 //! DNS monitor that uses `SetInterfaceDnsSettings`.
+//!
+//! `SetInterfaceDnsSettings` is available on all Windows versions that Mullvad supports. See `supported-platforms.md`.
 
 use super::{DnsMonitorT, ResolvedDnsConfig};
 use std::{
@@ -40,14 +42,6 @@ pub enum Error {
 
 pub struct DnsMonitor {
     current_guid: Option<GUID>,
-}
-
-impl DnsMonitor {
-    pub fn is_supported() -> bool {
-        // `SetInterfaceDnsSettings` is available on all Windows versions that Mullvad supports. See
-        // `supported-platforms.md`.
-        true
-    }
 }
 
 impl DnsMonitorT for DnsMonitor {

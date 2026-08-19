@@ -49,6 +49,11 @@ Line wrap the file at 100 chars.                                              Th
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
 
+### Removed
+#### Windows
+- Remove `netsh`-based DNS configuration. All Windows build older than 22H2 support configuring DNS
+  via the `iphlpapi` IP helper API.
+
 ### Fixed
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
