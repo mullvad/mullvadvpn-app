@@ -70,6 +70,8 @@ interface IProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  trackOffset?: number;
+  style?: React.CSSProperties | undefined;
 }
 
 interface IState {
@@ -160,8 +162,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
         );
       }
 
+      const trackOffset = this.props.trackOffset ?? 0;
       const scrollTop = this.computeScrollTop(scrollable, child, scrollPosition);
-      this.scrollTo(0, scrollTop);
+
+      this.scrollTo(0, scrollTop + trackOffset);
     }
   }
 
@@ -225,6 +229,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       prevProps.autoHide !== nextProps.autoHide ||
       prevProps.trackPadding?.x !== nextProps.trackPadding?.x ||
       prevProps.trackPadding?.y !== nextProps.trackPadding?.y ||
+      prevProps.trackOffset !== nextProps.trackOffset ||
       prevState.canScroll !== nextState.canScroll ||
       prevState.showScrollIndicators !== nextState.showScrollIndicators ||
       prevState.isDragging !== nextState.isDragging ||
@@ -257,6 +262,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      trackOffset,
       ...otherProps
     } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
@@ -268,7 +274,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
           $show={showScrollbars && this.state.active}
           $canScroll={this.state.canScroll}
           onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}>
+          onMouseLeave={this.handleMouseLeave}
+          style={{
+            top: `${trackOffset ?? 0}px`,
+          }}>
           <StyledThumb
             ref={this.thumbRef}
             $show={showScrollbars}
@@ -346,7 +355,6 @@ class CustomScrollbars extends React.Component<IProps, IState> {
         x: event.clientX,
         y: event.clientY,
       };
-
       this.setState({
         isDragging: true,
         dragStart: this.getPointRelativeToElement(thumb, cursorPosition),
@@ -380,13 +388,14 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private handleMouseMove = (event: MouseEvent) => {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
+    const track = this.trackRef.current;
 
     const cursorPosition = {
       x: event.clientX,
       y: event.clientY,
     };
 
-    if (this.state.isDragging && scrollable && thumb) {
+    if (this.state.isDragging && scrollable && thumb && track) {
       // the content height of the scroll view
       const scrollHeight = scrollable.scrollHeight;
 
@@ -399,11 +408,12 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       // Map absolute cursor coordinate to point in scroll container
       const pointInScrollContainer = this.getPointRelativeToElement(scrollable, cursorPosition);
 
+      const trackPadding = this.props.trackPadding?.y ?? 0;
+
       // calculate the thumb boundary to make sure that the visual appearance of
       // a thumb at the lowest point matches the bottom of scrollable view
       const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
-      const thumbTop =
-        pointInScrollContainer.y - this.state.dragStart.y - (this.props.trackPadding?.y ?? 0);
+      const thumbTop = pointInScrollContainer.y - this.state.dragStart.y - trackPadding;
       const newScrollTop = (thumbTop / thumbBoundary) * maxScrollTop;
 
       scrollable.scrollTop = newScrollTop;
@@ -451,7 +461,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   }
 
   private computeTrackLength(scrollable: HTMLElement) {
-    return scrollable.offsetHeight - (this.props.trackPadding?.y ?? 0) * 2;
+    const trackPadding = this.props.trackPadding?.y ?? 0;
+
+    return scrollable.offsetHeight - trackPadding;
   }
 
   // Computes the position of child element within scrollable container
@@ -510,14 +522,26 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     // a thumb at the lowest point matches the bottom of scrollable view
     const thumbBoundary = this.computeTrackLength(scrollable) - thumb.clientHeight;
 
+    const trackPadding = this.props.trackPadding?.y ?? 0;
+
     // calculate thumb position based on scroll progress and thumb boundary
     // adding vertical inset to adjust the thumb's appearance
-    const thumbPosition = thumbBoundary * scrollPosition + (this.props.trackPadding?.y ?? 0);
+    const thumbPosition = thumbBoundary * scrollPosition + trackPadding;
 
     return {
       x: -(this.props.trackPadding?.x ?? 0),
       y: thumbPosition,
     };
+  }
+
+  private computeTrackOffset(scrollable: HTMLElement) {
+    // scroll offset
+    const scrollTop = scrollable.scrollTop;
+
+    const trackOffset = this.props.trackOffset ?? 0;
+    const trackPosition = scrollTop < trackOffset ? trackOffset - scrollTop : 0;
+
+    return trackPosition;
   }
 
   private computeThumbHeight(scrollable: HTMLElement) {
@@ -533,14 +557,16 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private updateScrollbarsHelper(updateFlags: Partial<IScrollbarUpdateContext>) {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
-    if (scrollable && thumb) {
-      this.updateScrollbars(scrollable, thumb, updateFlags);
+    const track = this.trackRef.current;
+    if (scrollable && thumb && track) {
+      this.updateScrollbars(scrollable, thumb, track, updateFlags);
     }
   }
 
   private updateScrollbars(
     scrollable: HTMLElement,
     thumb: HTMLElement,
+    track: HTMLElement,
     context: Partial<IScrollbarUpdateContext>,
   ) {
     if (context.size) {
@@ -562,6 +588,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     }
 
     if (context.position) {
+      const trackOffset = this.computeTrackOffset(scrollable);
+      track.style.setProperty('top', `${trackOffset}px`);
+
       const { x, y } = this.computeThumbPosition(scrollable, thumb);
       thumb.style.setProperty('transform', `translate(${x}px, ${y}px)`);
     }

@@ -4,6 +4,7 @@ import { useRecents } from '../../../../../features/locations/hooks';
 import { useDebounce } from '../../../../../lib/hooks/use-debounce';
 import { useStyledRef } from '../../../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../../../CustomScrollbars';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { SpacePreAllocationView } from '..';
 
 // Context containing the scroll position for each location type and methods to interact with it.
@@ -33,6 +34,7 @@ type LocationSlideContextProviderProps = React.PropsWithChildren;
 
 export function LocationSlideContextProvider(props: LocationSlideContextProviderProps) {
   const { hasRecents } = useRecents();
+  const { setScrollTop: setScrollTopSelectLocationView } = useSelectLocationViewContext();
 
   const scrollViewRef = React.useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
@@ -53,16 +55,20 @@ export function LocationSlideContextProvider(props: LocationSlideContextProvider
     if (hasRecents) {
       // Scroll to top if there are recents.
       scrollViewRef.current?.scrollToTop();
-      return;
+      setScrollTopSelectLocationView(0);
     } else {
       // Scroll to the selected location if there are no recents.
       if (selectedLocationRef.current) {
         scrollViewRef.current?.scrollToElement(selectedLocationRef.current, 'middle');
+        const scrollPosition = scrollViewRef.current?.getScrollPosition();
+        const scrollPositionY = scrollPosition ? scrollPosition[1] : 0;
+        setScrollTopSelectLocationView(scrollPositionY);
       } else {
         scrollViewRef.current?.scrollToTop();
+        setScrollTopSelectLocationView(0);
       }
     }
-  }, [hasRecents]);
+  }, [hasRecents, setScrollTopSelectLocationView]);
 
   const value = React.useMemo(
     () => ({

@@ -45,7 +45,7 @@ function LocationSelectorRow({ position, children }: LocationSelectorRowProps) {
 
   return (
     <LocationSelectorRowProvider position={position}>
-      <StyledLocationSelectorRow expanded={expanded} initial={false}>
+      <StyledLocationSelectorRow expanded={expanded} initial={expanded}>
         <Expandable.Content>{children}</Expandable.Content>
       </StyledLocationSelectorRow>
     </LocationSelectorRowProvider>
