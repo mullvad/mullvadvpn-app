@@ -8,6 +8,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Settings
@@ -52,6 +54,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
+import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
 
 @Preview
 @Composable
@@ -62,6 +65,20 @@ private fun PreviewTopBar() {
             iconTintColor = MaterialTheme.colorScheme.onSurface,
             onSettingsClicked = null,
             onAccountClicked = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewSettingsDotTopBar() {
+    AppTheme {
+        MullvadTopBar(
+            containerColor = MaterialTheme.colorScheme.positive,
+            iconTintColor = MaterialTheme.colorScheme.onSurface,
+            onSettingsClicked = {},
+            showSettingsNotificationDot = true,
+            onAccountClicked = null,
         )
     }
 }
@@ -116,6 +133,7 @@ fun MullvadTopBar(
     enabled: Boolean = true,
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true,
+    showSettingsNotificationDot: Boolean = false,
 ) {
     TopAppBar(
         modifier = modifier.testTag(TOP_BAR_TEST_TAG),
@@ -178,11 +196,23 @@ fun MullvadTopBar(
                     enabled = enabled,
                     onClick = onSettingsClicked,
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Settings,
-                        tint = iconTintColor,
-                        contentDescription = stringResource(id = R.string.settings),
-                    )
+                    Box {
+                        Icon(
+                            imageVector = Icons.Rounded.Settings,
+                            tint = iconTintColor,
+                            contentDescription = stringResource(id = R.string.settings),
+                        )
+                        if (showSettingsNotificationDot) {
+                            Box(
+                                modifier =
+                                    Modifier.align(Alignment.TopEnd)
+                                        .size(Dimens.notificationDotSize)
+                                        .background(containerColor, CircleShape)
+                                        .padding(Dimens.notificationDotInset)
+                                        .background(MaterialTheme.colorScheme.warning, CircleShape)
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -254,18 +284,20 @@ fun MullvadTopBarWithDeviceName(
     onAccountClicked: (() -> Unit)?,
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true,
+    showSettingsNotificationDot: Boolean = false,
     deviceName: String?,
     daysLeftUntilExpiry: Long?,
 ) {
     Column {
         MullvadTopBar(
-            containerColor,
-            onSettingsClicked,
-            onAccountClicked,
-            Modifier,
+            containerColor = containerColor,
+            onSettingsClicked = onSettingsClicked,
+            onAccountClicked = onAccountClicked,
+            modifier = Modifier,
             enabled = true,
-            iconTintColor,
-            isIconAndLogoVisible,
+            iconTintColor = iconTintColor,
+            isIconAndLogoVisible = isIconAndLogoVisible,
+            showSettingsNotificationDot = showSettingsNotificationDot,
         )
 
         // Align animation of extra row with the rest of the Topbar

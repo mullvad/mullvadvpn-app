@@ -65,6 +65,7 @@ class SettingsScreenTest {
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = true,
                         multihopMode = MultihopMode.NEVER,
+                        hasSeenMultihopMigrationGuide = true,
                     )
                     .toLc()
         )
@@ -89,6 +90,7 @@ class SettingsScreenTest {
                         multihopMode = MultihopMode.NEVER,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = false,
+                        hasSeenMultihopMigrationGuide = true,
                     )
                     .toLc()
         )
@@ -113,6 +115,7 @@ class SettingsScreenTest {
                         multihopMode = MultihopMode.NEVER,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = true,
+                        hasSeenMultihopMigrationGuide = true,
                     )
                     .toLc()
         )

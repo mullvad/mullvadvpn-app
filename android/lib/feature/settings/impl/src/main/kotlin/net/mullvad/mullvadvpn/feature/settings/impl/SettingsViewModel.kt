@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
@@ -25,6 +26,7 @@ class SettingsViewModel(
     settingsRepository: SettingsRepository,
     connectionProxy: ConnectionProxy,
     isPlayBuild: Boolean,
+    multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
 ) : ViewModel() {
 
     val uiState: StateFlow<Lc<Unit, SettingsUiState>> =
@@ -34,7 +36,14 @@ class SettingsViewModel(
                 wireguardConstraintsRepository.wireguardConstraints,
                 settingsRepository.settingsUpdates,
                 connectionProxy.tunnelState,
-            ) { deviceState, versionInfo, wireguardConstraints, settings, tunnelState ->
+                multihopGuideMigrationHintUseCase(),
+            ) {
+                deviceState,
+                versionInfo,
+                wireguardConstraints,
+                settings,
+                tunnelState,
+                showMigrationGuideNotificationDot ->
                 SettingsUiState(
                         isLoggedIn = deviceState is DeviceState.LoggedIn,
                         appVersion = versionInfo.currentVersion,
@@ -44,6 +53,7 @@ class SettingsViewModel(
                         splitTunnelingIsActive =
                             settings?.splitTunnelSettings?.enabled == true &&
                                 tunnelState.isSecured(),
+                        showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                         isPlayBuild = isPlayBuild,
                     )
                     .toLc<Unit, SettingsUiState>()

@@ -15,12 +15,21 @@ class AppInfoUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Unit,
                     version = VersionInfo(currentVersion = "2024.9", isSupported = true),
                     isPlayBuild = true,
                     splitFilterMigration = null,
+                    showMigrationGuideNotificationDot = false,
                 )
                 .toLc(),
             AppInfoUiState(
                     version = VersionInfo(currentVersion = "2024.9", isSupported = false),
                     isPlayBuild = true,
                     splitFilterMigration = SplitFilterMigration(scenario = Scenario.SIX_B),
+                    showMigrationGuideNotificationDot = false,
+                )
+                .toLc(),
+            AppInfoUiState(
+                    version = VersionInfo(currentVersion = "2024.9", isSupported = false),
+                    isPlayBuild = true,
+                    splitFilterMigration = null,
+                    showMigrationGuideNotificationDot = true,
                 )
                 .toLc(),
         )

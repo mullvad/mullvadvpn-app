@@ -51,6 +51,8 @@ data class Dimensions(
     val multihopSelectorPanelRadius: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 8.dp,
     val notificationBannerStartPadding: Dp = 16.dp,
+    val notificationDotSize: Dp = 10.dp,
+    val notificationDotInset: Dp = 2.dp,
     val notificationEndIconPadding: Dp = 4.dp,
     // This is according to the design, should be updated in the design to standard size
     val notificationStatusIconSize: Dp = 10.dp,

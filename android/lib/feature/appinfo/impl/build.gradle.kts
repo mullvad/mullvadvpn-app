@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.feature.multihopmigration.api)
     implementation(projects.lib.repository)
+    implementation(projects.lib.usecase)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

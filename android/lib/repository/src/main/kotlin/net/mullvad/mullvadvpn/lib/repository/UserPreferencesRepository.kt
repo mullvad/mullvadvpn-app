@@ -74,6 +74,15 @@ class UserPreferencesRepository(
         }
     }
 
+    fun hasDismissedMultihopMigrationGuideBanner(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.hasDismissedMultihopMigrationGuideBanner }
+
+    suspend fun setHasDismissedMultihopMigrationGuideBanner() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setHasDismissedMultihopMigrationGuideBanner(true).build()
+        }
+    }
+
     fun hasSeenMultihopMigrationGuide(): Flow<Boolean> =
         userPreferencesStore.data.map { it.hasSeenMultihopMigrationGuide }
 

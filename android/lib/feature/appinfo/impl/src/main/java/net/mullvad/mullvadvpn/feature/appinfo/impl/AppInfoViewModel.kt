@@ -17,12 +17,14 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 
 class AppInfoViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
     private val isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopMigrationRepository: MultihopMigrationRepository,
+    multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<AppInfoSideEffect>()
@@ -32,13 +34,15 @@ class AppInfoViewModel(
         combine(
                 appVersionInfoRepository.versionInfo,
                 multihopMigrationRepository.multihopMigrationState,
-            ) { versionInfo, splitFilterMigration ->
+                multihopGuideMigrationHintUseCase(),
+            ) { versionInfo, splitFilterMigration, showMigrationGuideNotificationDot ->
                 Lc.Content(
                     AppInfoUiState(
                         version = versionInfo,
                         splitFilterMigration =
                             splitFilterMigration?.takeUnless { it.scenario == Scenario.ONE_A },
                         isPlayBuild = isPlayBuild,
+                        showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                     )
                 )
             }
