@@ -46,9 +46,9 @@ impl ObfuscationSettings {
     pub fn packet_overhead(&self) -> u16 {
         match self {
             ObfuscationSettings::Single(settings) => settings.packet_overhead(),
-            // FIXME: This should ideally be the max overhead of all transports,
-            // and be lowered when a transport is selected.
-            ObfuscationSettings::Multiplexer(_) => 60,
+            ObfuscationSettings::Multiplexer(transports) => {
+                multiplexer::packet_overhead(transports)
+            }
         }
     }
 }

@@ -350,6 +350,28 @@ pub enum Transport {
     Obfuscated(crate::Settings),
 }
 
+impl Transport {
+    /// The overhead (in bytes) that this transport adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        match self {
+            Transport::Direct(_) => 0,
+            Transport::Obfuscated(settings) => settings.packet_overhead(),
+        }
+    }
+}
+
+/// The largest overhead among `transports`.
+///
+/// Which of them is selected is not known until one of them answers, and the MTU has to be
+/// decided before that, so every transport has to fit within it.
+pub fn packet_overhead(transports: &[Transport]) -> u16 {
+    transports
+        .iter()
+        .map(Transport::packet_overhead)
+        .max()
+        .unwrap_or(0)
+}
+
 #[async_trait]
 impl crate::LocalSocketObfuscator for Multiplexer {
     fn endpoint(&self) -> SocketAddr {
