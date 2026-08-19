@@ -57,9 +57,9 @@ final class AccountInteractor: Sendable {
         tunnelManager.deviceState
     }
 
-    func updateAccountData() async -> Error? {
+    func updateAccountData() async -> Result<Void, Error> {
         guard case let .loggedIn(accountData, _) = deviceState else {
-            return InvalidDeviceStateError()
+            return .failure(InvalidDeviceStateError())
         }
 
         let result = await accountsProxy.getAccountData(
@@ -75,14 +75,14 @@ final class AccountInteractor: Sendable {
 
                 // Make sure we don't update any data if cancellation happened in-flight.
                 if Task.isCancelled {
-                    throw TaskError.cancelled
+                    throw CancellationError()
                 } else {
                     tunnelManager.setDeviceState(newDeviceState, persist: true)
                 }
             default:
                 throw InvalidDeviceStateError()
             }
-        }.error
+        }
     }
 
     func logout() async {
