@@ -22,8 +22,6 @@ enum SwiftAccessMethodKind {
 };
 typedef uint8_t SwiftAccessMethodKind;
 
-typedef struct ApiContext ApiContext;
-
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
@@ -37,7 +35,7 @@ typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext
 typedef struct SwiftCancelHandleInner SwiftCancelHandleInner;
 
 typedef struct SwiftApiContext {
-  const struct ApiContext *_0;
+  uint64_t ptr;
 } SwiftApiContext;
 
 typedef struct SwiftAccessMethodSettingsWrapper {

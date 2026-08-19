@@ -275,6 +275,21 @@ typedef struct UniffiVTableCallbackInterfaceGotaTunCallback {
 } UniffiVTableCallbackInterfaceGotaTunCallback;
 
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXT
+uint64_t uniffi_mullvad_ios_fn_clone_apicontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXT
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_APICONTEXT
+void uniffi_mullvad_ios_fn_free_apicontext(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_unsafe_raw(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
 uint64_t uniffi_mullvad_ios_fn_clone_gotatuntunnel(uint64_t handle, RustCallStatus *_Nonnull out_status
@@ -573,6 +588,12 @@ void ffi_mullvad_ios_rust_future_free_void(uint64_t handle
 #ifndef UNIFFI_FFIDEF_FFI_MULLVAD_IOS_RUST_FUTURE_COMPLETE_VOID
 #define UNIFFI_FFIDEF_FFI_MULLVAD_IOS_RUST_FUTURE_COMPLETE_VOID
 void ffi_mullvad_ios_rust_future_complete_void(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_UNSAFE_RAW
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_UNSAFE_RAW
+uint16_t uniffi_mullvad_ios_checksum_method_apicontext_unsafe_raw(void
+    
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_GOTATUNTUNNEL_RECYCLE_UDP_SOCKETS

@@ -36,10 +36,15 @@ mod storekit;
 mod swift_data;
 
 #[repr(C)]
-pub struct SwiftApiContext(*const ApiContext);
+#[derive(uniffi::Record)]
+pub struct SwiftApiContext {
+    ptr: u64,
+}
 impl SwiftApiContext {
     pub fn new(context: ApiContext) -> SwiftApiContext {
-        SwiftApiContext(Arc::into_raw(Arc::new(context)))
+        SwiftApiContext {
+            ptr: Arc::into_raw(Arc::new(context)) as u64,
+        }
     }
 
     /// Extracts an `ApiContext` from `self`
@@ -48,16 +53,27 @@ impl SwiftApiContext {
     pub fn rust_context(self) -> Arc<ApiContext> {
         // SAFETY: This will never be deallocated
         unsafe {
-            Arc::increment_strong_count(self.0);
-            Arc::from_raw(self.0)
+            Arc::increment_strong_count(self.ptr as *const ApiContext);
+            Arc::from_raw(self.ptr as *const ApiContext)
         }
     }
 }
 
+#[derive(uniffi::Object)]
 pub struct ApiContext {
     api_client: Runtime<IOSAddressCacheBacking>,
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
+}
+#[uniffi::export]
+impl ApiContext {
+    // TODO: this needs to be removed
+    pub fn unsafe_raw(self: Arc<ApiContext>) -> SwiftApiContext {
+        let clone = self.clone();
+        SwiftApiContext {
+            ptr: Arc::into_raw(clone) as u64,
+        }
+    }
 }
 impl ApiContext {
     pub fn rest_handle(&self) -> MullvadRestHandle {
