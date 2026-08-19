@@ -75,6 +75,7 @@ class MultihopMigrationViewModel(
     ): List<MultihopMigrationPage> = buildList {
         // Scenarios to page conversion is based on the scenario flow chart.
         when (multihopMigrationData.splitFilterMigration.scenario) {
+            null -> error("Scenario should not be null")
             Scenario.ONE_A -> error("Scenario A should not show the guide")
             Scenario.ONE_B -> {
                 add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))

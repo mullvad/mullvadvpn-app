@@ -32,6 +32,20 @@ class MultihopMigrationNotificationUseCase(
                 return@combine null
             }
 
+            // If we do not have a scenario or the scenario is 1A, we do not want to show the
+            // migration in app banner.
+            // Null is either because not migration has occurred or the migration data has been
+            // cleared.
+            // Scenario 1A is when the user before updating to a version with the new multihop state
+            // did not enable Multihop, did not enable DAITA and did not
+            // set any filters.
+            if (
+                splitFilterMigration.scenario == null ||
+                    splitFilterMigration.scenario == Scenario.ONE_A
+            ) {
+                return@combine null
+            }
+
             // If user is blocked due to some kind parameter error, and we have a migration state we
             // want to show the error banner
             if (
@@ -41,13 +55,6 @@ class MultihopMigrationNotificationUseCase(
                 return@combine InAppNotification.MultihopMigrationBlocked(splitFilterMigration)
             }
 
-            // In the scenario 1A where the user has not enabled Multihop, not enabled DAITA and not
-            // set any filters we want to not show the migration in app banner. In all other cases
-            // we want to show some kind of in-app banner.
-            if (splitFilterMigration.scenario == Scenario.ONE_A) {
-                null
-            } else {
-                InAppNotification.MultihopMigration(splitFilterMigration)
-            }
+            InAppNotification.MultihopMigration(splitFilterMigration)
         }
 }
