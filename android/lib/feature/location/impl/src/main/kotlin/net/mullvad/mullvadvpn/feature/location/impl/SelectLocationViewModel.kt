@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
+import net.mullvad.mullvadvpn.lib.common.util.multihopMode
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
@@ -94,7 +95,8 @@ class SelectLocationViewModel(
                                 relayListSelection = relayListSelection,
                                 settings = settings,
                             ),
-                        isFilterButtonEnabled = relayList.isNotEmpty(),
+                        isEntryFilterButtonEnabled =
+                            settings.multihopMode() != MultihopMode.WHEN_NEEDED,
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
                         hasAnyEntryFilter = filterState.hasAnyEntryFilter,
