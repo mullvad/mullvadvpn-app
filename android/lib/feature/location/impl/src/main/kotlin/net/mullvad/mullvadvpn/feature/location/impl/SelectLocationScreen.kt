@@ -862,6 +862,11 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
         ParameterGenerationError.NoMatchingRelay if relayListType is RelayListType.Single ->
             stringResource(R.string.no_matching_relay)
 
+        // This case happens if we are doing an auto multihop and the exit relay becomes invalid
+        // e.g. because an incompatible owner or provider filter is set on the exit.
+        ParameterGenerationError.NoMatchingRelayExit if relayListType is RelayListType.Single ->
+            stringResource(R.string.no_matching_relay)
+
         ParameterGenerationError.NoMatchingRelayEntry if
             relayListType is RelayListType.Multihop && relayListType.hopType == RelayHopType.ENTRY
          -> stringResource(R.string.no_matching_relay)

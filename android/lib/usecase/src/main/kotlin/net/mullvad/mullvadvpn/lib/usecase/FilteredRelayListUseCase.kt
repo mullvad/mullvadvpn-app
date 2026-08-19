@@ -50,10 +50,15 @@ class FilteredRelayListUseCase(
                                         multihopConstraints =
                                             MultihopConstraints(
                                                 entryConstraints =
-                                                    it.toEntryConstraint(Constraint.Any),
+                                                    it.toEntryConstraint(
+                                                        overrideExitLocation = Constraint.Any,
+                                                        ownershipProviderSource =
+                                                            RelayHopType.ENTRY,
+                                                    ),
                                                 exitConstraints = it.toExitConstraint(),
                                             )
                                     )
+
                                 RelayHopType.EXIT ->
                                     if (it.isWhenNeededMultihop()) {
                                         RelaySelectorPredicate.Autohop(
@@ -70,6 +75,7 @@ class FilteredRelayListUseCase(
                                         )
                                     }
                             }
+
                         RelayListType.Single ->
                             if (it.isWhenNeededMultihop()) {
                                 RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
@@ -117,14 +123,25 @@ class FilteredRelayListUseCase(
 }
 
 private fun Settings.toEntryConstraint(
-    overrideExitLocation: Constraint<RelayItemId>? = null
+    overrideExitLocation: Constraint<RelayItemId>? = null,
+    ownershipProviderSource: RelayHopType = RelayHopType.EXIT,
 ): EntryConstraints =
     EntryConstraints(
         generalConstraints =
             ExitConstraints(
                 location = overrideExitLocation ?: relaySettings.relayConstraints.location,
-                providers = relaySettings.relayConstraints.wireguardConstraints.entryProviders,
-                ownership = relaySettings.relayConstraints.wireguardConstraints.entryOwnership,
+                providers =
+                    when (ownershipProviderSource) {
+                        RelayHopType.ENTRY ->
+                            relaySettings.relayConstraints.wireguardConstraints.entryProviders
+                        RelayHopType.EXIT -> relaySettings.relayConstraints.providers
+                    },
+                ownership =
+                    when (ownershipProviderSource) {
+                        RelayHopType.ENTRY ->
+                            relaySettings.relayConstraints.wireguardConstraints.entryOwnership
+                        RelayHopType.EXIT -> relaySettings.relayConstraints.ownership
+                    },
             ),
         obfuscation = Constraint.Only(obfuscationSettings),
         daitaSettings = Constraint.Only(tunnelOptions.daitaSettings),
