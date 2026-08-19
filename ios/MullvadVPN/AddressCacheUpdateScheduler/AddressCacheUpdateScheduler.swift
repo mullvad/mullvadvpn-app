@@ -88,7 +88,7 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) {
-        mullvad_api_update_address_cache(apiContext.context)
+        mullvadApiUpdateAddressCache(apiContext: apiContext.context)
         recordUpdateRequestTime()
     }
 
