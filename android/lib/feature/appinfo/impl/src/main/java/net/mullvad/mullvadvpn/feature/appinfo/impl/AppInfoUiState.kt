@@ -7,4 +7,5 @@ data class AppInfoUiState(
     val version: VersionInfo,
     val splitFilterMigration: SplitFilterMigration?,
     val isPlayBuild: Boolean,
+    val showMigrationGuideNotificationDot: Boolean,
 )

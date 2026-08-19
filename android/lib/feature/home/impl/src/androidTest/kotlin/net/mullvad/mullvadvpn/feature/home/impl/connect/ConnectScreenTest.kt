@@ -132,6 +132,7 @@ class ConnectScreenTest {
                         locations = emptyList(),
                         hops = ConnectionPath(),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -161,6 +162,7 @@ class ConnectScreenTest {
                         locations = emptyList(),
                         hops = ConnectionPath(),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -187,6 +189,7 @@ class ConnectScreenTest {
                         locations = emptyList(),
                         hops = ConnectionPath(),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -214,6 +217,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -244,6 +248,7 @@ class ConnectScreenTest {
                                 ErrorState(ErrorStateCause.StartTunnelError, true)
                             ),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -275,6 +280,7 @@ class ConnectScreenTest {
                                 ErrorState(ErrorStateCause.StartTunnelError, false)
                             ),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -303,6 +309,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -331,6 +338,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -360,6 +368,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onSwitchLocationClick = mockedClickHandler,
             )
@@ -390,6 +399,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onDisconnectClick = mockedClickHandler,
             )
@@ -420,6 +430,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onReconnectClick = mockedClickHandler,
             )
@@ -449,6 +460,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onConnectClick = mockedClickHandler,
             )
@@ -478,6 +490,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onCancelClick = mockedClickHandler,
             )
@@ -531,6 +544,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -567,6 +581,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -599,6 +614,7 @@ class ConnectScreenTest {
                                 Duration.between(Instant.now(), expiryDate)
                             ),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -628,6 +644,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
             )
 
@@ -661,6 +678,7 @@ class ConnectScreenTest {
                                 Duration.between(Instant.now(), expiryDate)
                             ),
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
             )
 
@@ -690,6 +708,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.NewVersionChangelog,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
             )
 
@@ -756,6 +775,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -815,6 +835,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     )
             )
 
@@ -866,6 +887,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null,
                         isPlayBuild = false,
+                        showMigrationGuideNotificationDot = false,
                     ),
                 onNavigateToFeature = mockClickHandler,
             )

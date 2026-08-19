@@ -18,6 +18,7 @@ class SettingsUiStatePreviewParameterProvider :
                     isPlayBuild = true,
                     splitTunnelingIsActive = true,
                     multihopMode = MultihopMode.NEVER,
+                    showMigrationGuideNotificationDot = false,
                 )
                 .toLc(),
             SettingsUiState(
@@ -28,6 +29,7 @@ class SettingsUiStatePreviewParameterProvider :
                     isPlayBuild = false,
                     multihopMode = MultihopMode.NEVER,
                     splitTunnelingIsActive = false,
+                    showMigrationGuideNotificationDot = false,
                 )
                 .toLc(),
             SettingsUiState(
@@ -38,6 +40,7 @@ class SettingsUiStatePreviewParameterProvider :
                     isPlayBuild = false,
                     splitTunnelingIsActive = true,
                     multihopMode = MultihopMode.NEVER,
+                    showMigrationGuideNotificationDot = false,
                 )
                 .toLc(),
         )

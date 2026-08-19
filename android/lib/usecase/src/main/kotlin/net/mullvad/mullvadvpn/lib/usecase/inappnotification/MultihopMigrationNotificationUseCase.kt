@@ -22,13 +22,20 @@ class MultihopMigrationNotificationUseCase(
             connectionProxy.tunnelState.distinctUntilChanged(),
             multihopMigrationRepository.multihopMigrationState.distinctUntilChanged(),
             userPreferencesRepository.hasSeenMultihopMigrationGuide().distinctUntilChanged(),
-        ) { tunnelState, splitFilterMigration, hasSeenMultihopMigrationGuide ->
+            userPreferencesRepository
+                .hasDismissedMultihopMigrationGuideBanner()
+                .distinctUntilChanged(),
+        ) {
+            tunnelState,
+            splitFilterMigration,
+            hasSeenMultihopMigrationGuide,
+            hasDismissedMultihopMigrationGuideBanner ->
             if (splitFilterMigration == null) {
                 return@combine null
             }
 
             // User has already seen the migration guide or have dismissed the in-app notification.
-            if (hasSeenMultihopMigrationGuide) {
+            if (hasSeenMultihopMigrationGuide || hasDismissedMultihopMigrationGuideBanner) {
                 return@combine null
             }
 

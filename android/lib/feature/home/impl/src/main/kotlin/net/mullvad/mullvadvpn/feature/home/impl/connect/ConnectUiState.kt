@@ -16,6 +16,7 @@ data class ConnectUiState(
     val deviceName: String?,
     val daysLeftUntilExpiry: Long?,
     val isPlayBuild: Boolean,
+    val showMigrationGuideNotificationDot: Boolean,
 ) {
 
     val showLoading =
@@ -33,6 +34,7 @@ data class ConnectUiState(
                 deviceName = null,
                 daysLeftUntilExpiry = null,
                 isPlayBuild = false,
+                showMigrationGuideNotificationDot = false,
             )
     }
 }

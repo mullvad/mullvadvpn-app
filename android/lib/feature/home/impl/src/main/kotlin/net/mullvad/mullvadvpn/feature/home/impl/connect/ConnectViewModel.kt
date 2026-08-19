@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
@@ -63,6 +64,7 @@ class ConnectViewModel(
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
+    multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -80,6 +82,7 @@ class ConnectViewModel(
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
+                multihopGuideMigrationHintUseCase(),
             ) {
                 connectionPath,
                 relayList,
@@ -88,7 +91,8 @@ class ConnectViewModel(
                 (tunnelState, prevTunnelState),
                 lastKnownDisconnectedLocation,
                 accountData,
-                deviceName ->
+                deviceName,
+                showMigrationGuideNotificationDot ->
                 ConnectUiState(
                     internetLocation =
                         when (tunnelState) {
@@ -122,6 +126,7 @@ class ConnectViewModel(
                     deviceName = deviceName,
                     daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
                     isPlayBuild = isPlayBuild,
+                    showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                 )
             }
             .onStart {
@@ -226,7 +231,7 @@ class ConnectViewModel(
     }
 
     fun dismissMultihopMigrationWarning() = viewModelScope.launch {
-        userPreferencesRepository.setHasSeenMultihopMigrationGuide()
+        userPreferencesRepository.setHasDismissedMultihopMigrationGuideBanner()
     }
 
     private fun outOfTimeEffect() =

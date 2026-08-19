@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,6 +40,7 @@ class SettingsViewModelTest {
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
+    private val mockMultihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase = mockk()
 
     private val versionInfo =
         MutableStateFlow(VersionInfo(currentVersion = "", isSupported = false))
@@ -58,6 +60,7 @@ class SettingsViewModelTest {
             wireguardConstraints
         every { mockSettingsRepository.settingsUpdates } returns settings
         every { mockConnectionProxy.tunnelState } returns tunnelState
+        every { mockMultihopGuideMigrationHintUseCase() } returns MutableStateFlow(false)
 
         viewModel =
             SettingsViewModel(
@@ -66,6 +69,7 @@ class SettingsViewModelTest {
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 settingsRepository = mockSettingsRepository,
                 connectionProxy = mockConnectionProxy,
+                multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
                 isPlayBuild = false,
             )
     }
