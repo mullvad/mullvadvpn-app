@@ -106,19 +106,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                 providerLogger.info("Using GotaTun implementation (debug)")
                 implementation = GotaTunTunnelImplementation()
             } else {
-                implementation = makeWireGuardGoImplementation()
+                implementation = makeWireGuardGoImplementation(
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader,
+                    apiTransportProvider: apiTransportProvider
+                )
             }
         #else
-            implementation = makeWireGuardGoImplementation()
+            implementation = makeWireGuardGoImplementation(
+                ipOverrideWrapper: ipOverrideWrapper,
+                settingsReader: settingsReader,
+                apiTransportProvider: apiTransportProvider
+            )
         #endif
-
-        implementation.setUp(
-            provider: self,
-            internalQueue: internalQueue,
-            ipOverrideWrapper: ipOverrideWrapper,
-            settingsReader: settingsReader,
-            apiTransportProvider: apiTransportProvider
-        )
 
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
@@ -266,9 +266,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
-    private func makeWireGuardGoImplementation() -> WireGuardGoTunnelImplementation {
+    /// WireGuardGo wires its dependencies in a second phase; GotaTun takes them at init instead.
+    private func makeWireGuardGoImplementation(
+        ipOverrideWrapper: IPOverrideWrapper,
+        settingsReader: sending TunnelSettingsManager,
+        apiTransportProvider: APITransportProvider
+    ) -> WireGuardGoTunnelImplementation {
         let wgImpl = WireGuardGoTunnelImplementation()
         wgImpl.onDeviceCheck = { [weak self] in self?.startDeviceCheck() }
+        wgImpl.setUp(
+            provider: self,
+            internalQueue: internalQueue,
+            ipOverrideWrapper: ipOverrideWrapper,
+            settingsReader: settingsReader,
+            apiTransportProvider: apiTransportProvider
+        )
         return wgImpl
     }
 
@@ -354,7 +366,7 @@ extension PacketTunnelProvider {
             switch error {
             case is DeviceCheckError:
                 providerLogger.error("\(error.description) Forcing a log out")
-                implementation.actor.setErrorState(reason: .deviceLoggedOut)
+                await implementation.actor.setErrorState(reason: .deviceLoggedOut)
             default:
                 providerLogger
                     .error(
@@ -365,13 +377,13 @@ extension PacketTunnelProvider {
         case let .success(keyRotationResult):
             if let blockedStateReason = keyRotationResult.blockedStateReason {
                 providerLogger.error("Entering blocked state after unsuccessful device check: \(blockedStateReason)")
-                implementation.actor.setErrorState(reason: blockedStateReason)
+                await implementation.actor.setErrorState(reason: blockedStateReason)
                 return
             }
 
             switch keyRotationResult.keyRotationStatus {
             case let .attempted(date), let .succeeded(date):
-                implementation.actor.notifyKeyRotation(date: date)
+                await implementation.actor.notifyKeyRotation(date: date)
             case .noAction:
                 break
             }

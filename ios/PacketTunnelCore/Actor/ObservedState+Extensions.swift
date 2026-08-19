@@ -9,6 +9,17 @@
 import Foundation
 import MullvadTypes
 
+extension AsyncStream where Element == ObservedState {
+    /// Consume the stream until `.disconnected` is observed or the stream ends.
+    public func waitUntilDisconnected() async {
+        for await newState in self {
+            if case .disconnected = newState {
+                return
+            }
+        }
+    }
+}
+
 extension ObservedState {
     public var name: String {
         switch self {

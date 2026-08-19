@@ -16,28 +16,28 @@ public protocol PacketTunnelActorProtocol {
     var observedStates: AsyncStream<ObservedState> { get async }
 
     // Lifecycle
-    func start(options: StartOptions)
-    func stop()
+    func start(options: StartOptions) async
+    func stop() async
     func waitUntilDisconnected() async
 
     // Sleep cycle
-    func onSleep()
+    func onSleep() async
     func onWake()
 
     // Network
-    func updateNetworkReachability(networkPathStatus: NWPath.Status)
+    func updateNetworkReachability(networkPathStatus: NWPath.Status) async
 
     // Reconnection & key rotation
-    func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason)
-    func notifyKeyRotation(date: Date?)
+    func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason) async
+    func notifyKeyRotation(date: Date?) async
 
     // Error state
-    func setErrorState(reason: BlockedStateReason)
+    func setErrorState(reason: BlockedStateReason) async
 
     // Ephemeral peer negotiation
-    func notifyEphemeralPeerNegotiated()
+    func notifyEphemeralPeerNegotiated() async
     func changeEphemeralPeerNegotiationState(
         configuration: EphemeralPeerNegotiationState,
         reconfigurationSemaphore: OneshotChannel
-    )
+    ) async
 }
