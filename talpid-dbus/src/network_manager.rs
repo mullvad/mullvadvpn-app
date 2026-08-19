@@ -52,7 +52,6 @@ const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
 const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
 
 const MAXIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
-const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
 
 const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
 
@@ -220,10 +219,7 @@ impl NetworkManager {
     }
 
     fn ensure_nm_is_old_enough_for_dns(major_version: u32, minor_version: u32) -> Result<()> {
-        if major_version > MAXIMUM_SUPPORTED_MAJOR_VERSION
-            || (minor_version > MAXIMUM_SUPPORTED_MINOR_VERSION
-                && major_version >= MAXIMUM_SUPPORTED_MAJOR_VERSION)
-        {
+        if major_version > MAXIMUM_SUPPORTED_MAJOR_VERSION {
             Err(Error::NMTooNewFroDns(major_version, minor_version))
         } else {
             Ok(())
@@ -733,6 +729,5 @@ mod test {
         NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 16).unwrap();
         NetworkManager::ensure_nm_is_old_enough_for_dns(1, 26).unwrap();
         assert!(NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 14).is_err());
-        assert!(NetworkManager::ensure_nm_is_old_enough_for_dns(1, 28).is_err());
     }
 }

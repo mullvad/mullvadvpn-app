@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
   `debug` and `trace`.
 
+#### Linux
+- Add back support for managing DNS via NetworkManager.
+
 ### Changed
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
