@@ -1,3 +1,5 @@
+#[cfg(target_os = "linux")]
+use std::convert::Infallible;
 use std::{fmt::Display, fs, io, net::SocketAddr, path::Path, time::Duration};
 
 mod firewall;
@@ -21,7 +23,9 @@ async fn main() {
     let interface = {
         #[cfg(target_os = "linux")]
         {
-            args.interface.clone()
+            args.interface
+                .clone()
+                .expect("No interface argument supplied")
         }
         #[cfg(target_os = "macos")]
         {

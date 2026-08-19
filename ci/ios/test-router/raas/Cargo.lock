@@ -1022,14 +1022,13 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.9.4"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f6d338cb46ff5b5614179474ce3775cf309f241ab512056a24428a13a89c671"
+checksum = "e65c1365321c197bc2c7b3c858d87ad9db235632622278f19a2eff0de704b968"
 dependencies = [
  "bitflags 2.13.1",
  "log",
  "nftnl-sys",
- "nix 0.31.3",
 ]
 
 [[package]]
@@ -1337,6 +1336,7 @@ dependencies = [
  "env_logger",
  "futures",
  "ipnetwork",
+ "libc",
  "log",
  "mnl",
  "netdev",
