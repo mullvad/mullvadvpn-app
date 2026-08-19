@@ -10,22 +10,22 @@
 
 import MullvadTypes
 
-func onAccessChangeCallback(selfPtr: UnsafeRawPointer?, bytes: UnsafePointer<UInt8>?) {
-    guard let selfPtr, let bytes else { return }
-    let context = Unmanaged<MullvadApiContext>.fromOpaque(selfPtr).takeUnretainedValue()
+public class MullvadApiContext: @unchecked Sendable, ApiContextCallbackContext, ApiContextCallback {
+    public func accessMethodChange(context: any ApiContextCallbackContext, uuid: Data) {
+        guard let self = context as? MullvadApiContext else { return }
 
-    let uuid = NSUUID(uuidBytes: bytes) as UUID
-    context.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(uuid) }
-}
+        let parsedUUID = uuid.withUnsafeBytes { (ptr: UnsafeRawBufferPointer) in
+            NSUUID(uuidBytes: ptr.baseAddress) as UUID
+        }
+        self.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(parsedUUID) }
+    }
 
-public class MullvadApiContext: @unchecked Sendable {
     enum Error: Swift.Error {
         case failedToConstructApiClient
     }
 
-    public private(set) var context: SwiftApiContext!
-    private let shadowsocksBridgeProvider: SwiftShadowsocksBridgeProviding!
-    private let shadowsocksBridgeProviderWrapper: SwiftShadowsocksLoaderWrapper!
+    public private(set) var context: ApiContext!
+    private let shadowsocksBridgeProvider: ShadowsocksBridgeProvider!
     public let accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
 
     public init(
@@ -33,45 +33,34 @@ public class MullvadApiContext: @unchecked Sendable {
         address: String,
         domain: String,
         disableTls: Bool = false,
-        shadowsocksProvider: SwiftShadowsocksBridgeProviding,
-        accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
+        shadowsocksProvider: ShadowsocksBridgeProvider,
+        accessMethodWrapper: SwiftAccessMethodSettingsContext,
         accessMethodChangeListeners: [MullvadAccessMethodChangeListening]
     ) throws {
-        let bridgeProvider = SwiftShadowsocksBridgeProvider(provider: shadowsocksProvider)
-        self.shadowsocksBridgeProvider = bridgeProvider
-        self.shadowsocksBridgeProviderWrapper = initMullvadShadowsocksBridgeProvider(provider: bridgeProvider)
+        self.shadowsocksBridgeProvider = shadowsocksProvider
 
         self.accessMethodChangeListeners = accessMethodChangeListeners
 
-        let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         context =
             switch disableTls {
             case true:
-                mullvad_api_init_new_tls_disabled(
-                    host,
-                    address,
-                    domain,
-                    shadowsocksBridgeProviderWrapper,
-                    accessMethodWrapper,
-                    onAccessChangeCallback,
-                    selfPtr
-                )
+                ApiContext.newTlsDisabled(
+                    host: host,
+                    address: address,
+                    domain: domain,
+                    bridgeProvider: shadowsocksProvider,
+                    settingsProvider: accessMethodWrapper,
+                    accessMethodChangeCallback: self,
+                    accessMethodChangeContext: self)
             case false:
-                mullvad_api_init_new(
-                    host,
-                    address,
-                    domain,
-                    shadowsocksBridgeProviderWrapper,
-                    accessMethodWrapper,
-                    onAccessChangeCallback,
-                    selfPtr
-                )
+                ApiContext(
+                    host: host,
+                    address: address,
+                    domain: domain,
+                    bridgeProvider: shadowsocksProvider,
+                    settingsProvider: accessMethodWrapper,
+                    accessMethodChangeCallback: self,
+                    accessMethodChangeContext: self)
             }
-
-        if context._0 == nil {
-            throw Error.failedToConstructApiClient
-        }
     }
 }
-
-extension SwiftApiContext: @unchecked @retroactive Sendable {}
