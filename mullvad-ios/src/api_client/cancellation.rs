@@ -123,6 +123,9 @@ impl RequestCancelHandle {
 /// # Safety
 ///
 /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+/// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+/// intended to be used.
 #[unsafe(no_mangle)]
 extern "C" fn mullvad_api_start_task(
     handle_ptr: SwiftCancelHandle,

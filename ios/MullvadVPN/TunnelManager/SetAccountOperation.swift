@@ -281,7 +281,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             )
 
             let result = accountResult.inspectError { error in
-                guard !error.isTaskCancellationError else { return }
+                guard !(error is CancellationError) else { return }
 
                 logger.error(error: error, message: "Failed to receive account data.")
             }.map { accountData -> StoredAccountData in

@@ -30,7 +30,7 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 guard !Task.isCancelled else {
-                    continuation.resume(throwing: TaskError.cancelled)
+                    continuation.resume(throwing: CancellationError())
                     return
                 }
 
@@ -45,18 +45,7 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
                         continuation.resume(returning: reply)
 
                     case let .failure(error):
-                        let error = error.isOperationCancellationError ? TaskError.cancelled : error
-
-                        continuation.resume(
-                            returning: (ProxyAPIResponse(
-                                data: nil,
-                                error: APIError(
-                                    statusCode: 0,
-                                    errorDescription: error.localizedDescription,
-                                    serverResponseCode: nil
-                                )
-                            ))
-                        )
+                        continuation.resume(throwing: error)
                     }
                 }
             }

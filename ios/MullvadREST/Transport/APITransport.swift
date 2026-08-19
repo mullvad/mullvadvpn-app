@@ -35,7 +35,7 @@ public final class APITransport: APITransportProtocol {
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
                 guard !Task.isCancelled else {
-                    continuation.resume(throwing: TaskError.cancelled)
+                    continuation.resume(throwing: CancellationError())
                     return
                 }
 

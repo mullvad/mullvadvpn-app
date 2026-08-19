@@ -9,7 +9,6 @@ unsafe extern "C" {
     /// # Safety
     ///
     /// `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`.
-    ///
     /// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
     /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
     /// intended to be used.

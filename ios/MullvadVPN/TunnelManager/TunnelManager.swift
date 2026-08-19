@@ -450,7 +450,7 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
         let interactor = AccountInteractor(
             tunnelManager: self,
             accountsProxy: accountsProxy,

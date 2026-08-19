@@ -39,7 +39,7 @@ extension REST {
 
         func startRequest() async -> Result<Success, Swift.Error> {
             guard !Task.isCancelled else {
-                return .failure(TaskError.cancelled)
+                return .failure(CancellationError())
             }
 
             guard let transport = transportProvider.makeTransport() else {

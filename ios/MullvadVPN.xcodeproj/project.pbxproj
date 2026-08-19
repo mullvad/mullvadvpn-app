@@ -715,7 +715,6 @@
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
 		7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */; };
-		7AC758BF3021DC65004CDD99 /* TaskError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC758BD3021DBC6004CDD99 /* TaskError.swift */; };
 		7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */; };
 		7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */; };
 		7ACC21612FEE855300DB25F5 /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACC21602FEE855300DB25F5 /* RelayFilterView.swift */; };
@@ -2416,7 +2415,6 @@
 		7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheck.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
-		7AC758BD3021DBC6004CDD99 /* TaskError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskError.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7ACC215F2FEE855300DB25F5 /* RelayFilterItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterItem.swift; sourceTree = "<group>"; };
 		7ACC21602FEE855300DB25F5 /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
@@ -3379,7 +3377,6 @@
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
 				7AB288EE2F55B66000A1850F /* SwiftConnectionModeProvider.swift */,
 				7AEC2F69302C952000B988B6 /* Task+AnyCancellable.swift */,
-				7AC758BD3021DBC6004CDD99 /* TaskError.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				016EE03B2F8524EB0035B25C /* WireGuardKey.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
@@ -7289,7 +7286,6 @@
 				58D2240C294C90210029F5F8 /* WrappingError.swift in Sources */,
 				F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */,
 				A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */,
-				7AC758BF3021DC65004CDD99 /* TaskError.swift in Sources */,
 				A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */,
 				016EE0442F8640B00035B25C /* DaitaConfiguration.swift in Sources */,
 				016EE0422F8540B00035B25C /* IPAddressRange.swift in Sources */,
