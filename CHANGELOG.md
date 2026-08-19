@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment variable. Set it to false
   to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 
+#### Linux
+- Add back support for managing DNS via NetworkManager.
+
 ### Changed
 - Update LWO to improved v2 protocol.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
