@@ -17,7 +17,7 @@ class SwiftShadowsocksBridgeProviderWrapper: BridgeProvider, @unchecked Sendable
             password: bridge.password,
             cipher: bridge.cipher)
     }
-    
+
     let inner: SwiftShadowsocksBridgeProviding
     init(inner: SwiftShadowsocksBridgeProviding) {
         self.inner = inner
@@ -28,12 +28,12 @@ public class MullvadApiContext: @unchecked Sendable, ApiContextCallbackContext, 
     public func accessMethodChange(context: any ApiContextCallbackContext, uuid: Data) {
         // guard let selfPtr, let bytes else { return }
         // let context = Unmanaged<MullvadApiContext>.fromOpaque(selfPtr).takeUnretainedValue()
-        
+
         // let uuid = NSUUID(uuidBytes: bytes) as UUID
         // context.accessMethodChangeListeners.forEach { $0.accessMethodChangedTo(uuid) }
         fatalError()
     }
-    
+
     enum Error: Swift.Error {
         case failedToConstructApiClient
     }
