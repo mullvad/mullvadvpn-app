@@ -501,6 +501,7 @@ fun SelectLocationScreen(
                         progress = expandProgress.value,
                         relayListType = state.value.relayListType,
                         entryFilteringEnabled = state.value.isEntryFilteringEnabled,
+                        entryFilterButtonEnabled = state.value.isEntryFilterButtonEnabled,
                         filterChips = state.value.filterChips,
                         hopSelection = state.value.hopSelection,
                         error = state.value.tunnelErrorStateCause,
@@ -709,6 +710,7 @@ private fun SelectionContainer(
     userLocation: String?,
     entryCountry: String?,
     entryFilteringEnabled: Boolean,
+    entryFilterButtonEnabled: Boolean,
     onFilterClick: (filterTarget: RelayHopType) -> Unit,
     hasAnyEntryFilter: Boolean,
     hasAnyExitFilter: Boolean,
@@ -791,6 +793,7 @@ private fun SelectionContainer(
                                 false to true -> FilterState.InactiveAndFiltersSelected
                                 else -> FilterState.Inactive
                             },
+                        entryFilterButtonEnabled = entryFilterButtonEnabled,
                         exitFilterState =
                             if (hasAnyExitFilter) FilterState.ActiveAndFiltersSelected
                             else FilterState.Active,
