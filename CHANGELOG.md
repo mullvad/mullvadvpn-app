@@ -54,6 +54,8 @@ Line wrap the file at 100 chars.                                              Th
 - Ignore DAITA tunnel config responses unless DAITA was requested.
 - Fix infinite loop of account checks when account ran out of time.
 - Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
+- Fix the device sometimes being incorrectly marked as revoked when the API rejects an expired
+  access token.
 
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
