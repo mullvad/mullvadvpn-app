@@ -74,6 +74,13 @@ impl EventHook {
 pub struct TunnelMetadata {
     /// The name of the device which the tunnel is running on.
     pub interface: String,
+    /// A dedicated network interface for setting DNS. Implementation detail of specific tunnel
+    /// setup. Most of the time you want to access `interface` instead.
+    ///
+    /// This is an implementation detail when NetworkManager is used to configure DNS, as NM can not
+    /// edit the tunnel interface.
+    #[cfg(target_os = "linux")]
+    pub dummy_dns: Option<String>,
     /// The local IPs on the tunnel interface.
     pub ips: Vec<IpAddr>,
     /// The IP to the default gateway on the tunnel interface.
@@ -90,6 +97,14 @@ impl TunnelMetadata {
             addrs.push(gateway.into());
         }
         addrs
+    }
+
+    /// Return the interface for which DNS should be configured.
+    pub fn dns_interface(&self) -> &str {
+        cfg_select! {
+            target_os= "linux" => { self.dummy_dns.as_ref().unwrap_or(&self.interface) }
+            _ => { &self.interface }
+        }
     }
 }
 
