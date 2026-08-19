@@ -279,10 +279,6 @@ struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `account_number` must be a pointer to a null terminated string.
  *
  * `retry_strategy` must have been created by a call to either of the following functions
@@ -300,10 +296,6 @@ struct SwiftCancelHandle mullvad_ios_get_account(struct SwiftApiContext api_cont
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
@@ -317,10 +309,6 @@ struct SwiftCancelHandle mullvad_ios_create_account(struct SwiftApiContext api_c
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `account_number` must be a pointer to a null terminated string.
  *
@@ -339,10 +327,6 @@ struct SwiftCancelHandle mullvad_ios_delete_account(struct SwiftApiContext api_c
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
@@ -356,10 +340,6 @@ struct SwiftCancelHandle mullvad_ios_get_addresses(struct SwiftApiContext api_co
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
@@ -375,10 +355,6 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `etag` must be a pointer to a null terminated string.
  *
@@ -399,8 +375,13 @@ struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_conte
  * # Safety
  *
  * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+ * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+ * intended to be used.
  */
-void mullvad_api_start_task(struct SwiftCancelHandle handle_ptr, void *completion_cookie);
+void mullvad_api_start_task(struct SwiftCancelHandle handle_ptr,
+                            void *completion_cookie);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
@@ -447,10 +428,6 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_ios_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_ios_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * the `account_number` must be a pointer to a null terminated string.
  * the `identifier` must be a pointer to a null terminated string.
  *
@@ -472,10 +449,6 @@ struct SwiftCancelHandle mullvad_ios_get_device(struct SwiftApiContext api_conte
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * the `account_number` must be a pointer to a null terminated string.
  *
  * `retry_strategy` must have been created by a call to either of the following functions
@@ -494,10 +467,6 @@ struct SwiftCancelHandle mullvad_ios_get_devices(struct SwiftApiContext api_cont
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
@@ -520,10 +489,6 @@ struct SwiftCancelHandle mullvad_ios_create_device(struct SwiftApiContext api_co
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
@@ -543,10 +508,6 @@ struct SwiftCancelHandle mullvad_ios_delete_device(struct SwiftApiContext api_co
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
@@ -653,10 +614,6 @@ void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
@@ -745,10 +702,6 @@ struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
- *
  * `account_number` must be a pointer to a null terminated string.
  *
  * `retry_strategy` must have been created by a call to either of the following functions
@@ -765,10 +718,6 @@ struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct SwiftApiContex
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
- *
- * This function takes ownership of `completion_cookie`, which must be pointing to a valid instance of Swift
- * object `MullvadApiCompletion`. The pointer will be freed by calling `mullvad_api_completion_finish`
- * when completion finishes (in completion.finish).
  *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
