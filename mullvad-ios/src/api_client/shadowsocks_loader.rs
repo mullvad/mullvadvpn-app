@@ -1,14 +1,4 @@
 use std::ffi::c_void;
-use talpid_types::net::proxy::Shadowsocks;
-
-unsafe extern "C" {
-    /// Creates a `Shadowsocks` configuration.
-    ///
-    /// # SAFETY
-    /// `rawBridgeProvider` **must** be provided by a call to `init_swift_shadowsocks_loader_wrapper`
-    /// It is okay to persist it, and use it across multiple threads.
-    pub fn swift_get_shadowsocks_bridges(rawBridgeProvider: *const c_void) -> *const c_void;
-}
 
 #[derive(Debug)]
 #[repr(C)]
@@ -16,14 +6,6 @@ pub struct SwiftShadowsocksLoaderWrapper(SwiftShadowsocksLoaderWrapperContext);
 impl SwiftShadowsocksLoaderWrapper {
     pub fn new(context: SwiftShadowsocksLoaderWrapperContext) -> SwiftShadowsocksLoaderWrapper {
         SwiftShadowsocksLoaderWrapper(context)
-    }
-
-    pub fn get_bridges(&self) -> Option<Shadowsocks> {
-        self.context_ref().get_bridges()
-    }
-
-    fn context_ref(&self) -> &SwiftShadowsocksLoaderWrapperContext {
-        &self.0
     }
 }
 
@@ -45,22 +27,7 @@ unsafe impl Sync for SwiftShadowsocksLoaderWrapperContext {}
 // SAFETY: `shadowsocks_loader` inside the `SwiftShadowsocksLoaderWrapperContext ` points to an object that is guaranteed to be Sendable
 unsafe impl Send for SwiftShadowsocksLoaderWrapperContext {}
 
-impl SwiftShadowsocksLoaderWrapperContext {
-    pub fn get_bridges(&self) -> Option<Shadowsocks> {
-        if self.shadowsocks_loader.is_null() {
-            return None;
-        }
-        // SAFETY: See notice for `swift_get_shadowsocks_bridges`
-        let raw_configuration = unsafe { swift_get_shadowsocks_bridges(self.shadowsocks_loader) };
-        if raw_configuration.is_null() {
-            return None;
-        }
-        // SAFETY: The pointer returned by `swift_get_shadowsocks_bridges` is guaranteed
-        // to point to a valid `Shadowsocks` configuration, and has been null-checked
-        let bridges: Shadowsocks = unsafe { *Box::from_raw(raw_configuration as *mut _) };
-        Some(bridges)
-    }
-}
+impl SwiftShadowsocksLoaderWrapperContext {}
 
 /// Called by the Swift side in order to provide an object to rust that can create
 /// Shadowsocks configurations

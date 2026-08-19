@@ -595,15 +595,6 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t max_delay_sec);
 
 /**
- * Creates a `Shadowsocks` configuration.
- *
- * # SAFETY
- * `rawBridgeProvider` **must** be provided by a call to `init_swift_shadowsocks_loader_wrapper`
- * It is okay to persist it, and use it across multiple threads.
- */
-extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
-
-/**
  * Called by the Swift side in order to provide an object to rust that can create
  * Shadowsocks configurations
  *

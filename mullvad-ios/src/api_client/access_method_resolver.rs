@@ -14,8 +14,6 @@ use tonic::async_trait;
 
 use crate::api_client::{BridgeProvider, swift_data::SwiftData};
 
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
-
 unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
 

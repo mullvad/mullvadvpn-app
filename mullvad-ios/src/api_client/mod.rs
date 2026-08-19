@@ -1,9 +1,4 @@
-use std::{
-    ffi::{c_char, c_void},
-    future::Future,
-    net::SocketAddr,
-    sync::Arc,
-};
+use std::{ffi::c_char, future::Future, net::SocketAddr, sync::Arc};
 
 use crate::{
     api_client::{
@@ -28,7 +23,6 @@ use response::SwiftMullvadApiResponse;
 use retry_strategy::RetryStrategy;
 use talpid_future::retry::retry_future;
 use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher};
-use zerocopy::IntoBytes;
 
 mod access_method_resolver;
 mod access_method_settings;
@@ -52,12 +46,6 @@ pub struct SwiftApiContext {
     ptr: u64,
 }
 impl SwiftApiContext {
-    pub fn new(context: ApiContext) -> SwiftApiContext {
-        SwiftApiContext {
-            ptr: Arc::into_raw(Arc::new(context)) as u64,
-        }
-    }
-
     /// Extracts an `ApiContext` from `self`
     ///
     /// The `ApiContext` extracted is meant to live as long as the process it's used in.
@@ -308,15 +296,6 @@ impl ApiContext {
         self.api_client.address_cache()
     }
 }
-
-/// An opaque pointer that exists only to be passed from the caller to a callback through the ABI
-struct ForeignPtr {
-    ptr: *const c_void,
-}
-/// allow this to be passed across thread boundaries
-/// SAFETY: the user of `ForeignPtr` must ensure that it is safe to use the pointer from different
-/// threads.
-unsafe impl Send for ForeignPtr {}
 
 /// Called by Swift to set the available access methods
 #[unsafe(no_mangle)]
