@@ -8,9 +8,9 @@ struct MullvadListSectionHeader: View {
         }
         typealias ID = Face
         let face: Face
-        let accessibilityId: AccessibilityIdentifier? = nil
-        let accessibilityLabel: LocalizedStringKey? = nil
-        let accessibilityHint: LocalizedStringKey? = nil
+        let accessibilityId: AccessibilityIdentifier?
+        let accessibilityLabel: LocalizedStringKey?
+        let accessibilityHint: LocalizedStringKey?
         let action: () -> Void
         var id: ID { face }
     }
@@ -77,6 +77,41 @@ struct MullvadListSectionHeader: View {
     }
 }
 
+// MARK: convenience initialisers for accessories
+extension MullvadListSectionHeader.Accessory {
+    init(
+        _ text: String,
+        accessibilityId: AccessibilityIdentifier? = nil,
+        accessibilityLabel: LocalizedStringKey? = nil,
+        accessibilityHint: LocalizedStringKey? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            face: Face.text(text),
+            accessibilityId: accessibilityId,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityHint: accessibilityHint,
+            action: action
+        )
+    }
+
+    init(
+        _ icon: ImageResource,
+        accessibilityId: AccessibilityIdentifier? = nil,
+        accessibilityLabel: LocalizedStringKey? = nil,
+        accessibilityHint: LocalizedStringKey? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            face: Face.icon(icon),
+            accessibilityId: accessibilityId,
+            accessibilityLabel: accessibilityLabel,
+            accessibilityHint: accessibilityHint,
+            action: action
+        )
+    }
+}
+
 #Preview {
     VStack {
         MullvadListSectionHeader(title: "Custom lists").background(Color.mullvadBackground)
@@ -84,12 +119,12 @@ struct MullvadListSectionHeader: View {
             title: "Custom lists", subtitle: "Showing 32 of 194",
             accessories: [
                 .init(
-                    face: .icon(.iconReload),
+                    .iconReload,
                     action: {
                         print("Reload")
                     }),
                 .init(
-                    face: .icon(.iconAdd),
+                    .iconAdd,
                     action: {
                         print("Add")
                     }),
@@ -99,7 +134,7 @@ struct MullvadListSectionHeader: View {
             title: "Custom lists",
             accessories: [
                 .init(
-                    face: .text("Text button"),
+                    "Text button",
                     action: {
                         print("Text button")
                     })
