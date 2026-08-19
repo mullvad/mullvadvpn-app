@@ -11,7 +11,8 @@ use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
 use std::{borrow::Cow, collections::HashMap};
 use tokio::select;
 
-pub const AUTH_URL_PREFIX: &str = "auth/v1";
+/// Path of the API endpoint that hands out access tokens.
+pub const ACCESS_TOKEN_PATH: &str = "auth/v1/token";
 
 #[derive(Debug, Clone)]
 pub struct AccessTokenStore {
@@ -173,7 +174,7 @@ async fn fetch_access_token(
     let request = AccessTokenRequest { account_number };
 
     let rest_request = factory
-        .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?
+        .post_json(ACCESS_TOKEN_PATH, &request)?
         .expected_status(&[StatusCode::OK]);
     service.request(rest_request).await?.deserialize().await
 }
