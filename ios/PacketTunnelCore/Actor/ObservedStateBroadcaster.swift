@@ -16,7 +16,7 @@ import Foundation
 ///
 /// A consumer that stops iterating early leaves a terminated continuation behind; yielding to
 /// it is a no-op and it is pruned on the next `send`.
-public final class ObservedStateBroadcaster {
+public struct ObservedStateBroadcaster: ~Copyable {
     private var continuations: [UUID: AsyncStream<ObservedState>.Continuation] = [:]
     private var isFinished = false
 
@@ -28,7 +28,7 @@ public final class ObservedStateBroadcaster {
     ///
     /// Reaching `.disconnected` ends observation: all streams finish and later ones finish
     /// immediately.
-    public func send(_ state: ObservedState) {
+    public mutating func send(_ state: ObservedState) {
         for (id, continuation) in continuations {
             if case .terminated = continuation.yield(state) {
                 continuations.removeValue(forKey: id)
@@ -36,14 +36,15 @@ public final class ObservedStateBroadcaster {
         }
 
         if case .disconnected = state {
+            isFinished = true
             finish()
         }
     }
 
     /// A stream that replays `currentState` and then receives every subsequent state.
     /// Finishes immediately if observation has already ended.
-    public func makeStream(replaying currentState: ObservedState) -> AsyncStream<ObservedState> {
-        AsyncStream { continuation in
+    public mutating func makeStream(replaying currentState: ObservedState) -> AsyncStream<ObservedState> {
+        AsyncStream(bufferingPolicy: .unbounded) { continuation in
             continuation.yield(currentState)
 
             guard !isFinished else {
@@ -56,12 +57,8 @@ public final class ObservedStateBroadcaster {
     }
 
     /// End observation for all current and future observers.
-    public func finish() {
-        isFinished = true
-        let continuations = self.continuations
-        self.continuations.removeAll()
-
-        for continuation in continuations.values {
+    func finish() {
+        for continuation in self.continuations.values {
             continuation.finish()
         }
     }
