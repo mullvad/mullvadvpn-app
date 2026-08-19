@@ -248,9 +248,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         let tx = self.command_tx.upgrade();
 
         let api_availability = self.api_availability.clone();
-        let request_future = request
-            .map(|r| http::Request::map(r, BodyExt::boxed))
-            .into_future(self.client.clone(), api_availability.clone());
+        let request_future = request.into_future(self.client.clone(), api_availability.clone());
 
         let connection_mode_generation = self.connection_mode_generation;
 
@@ -428,15 +426,10 @@ where
     }
 }
 
-impl<B> Request<B>
-where
-    B: Body + Send + 'static + Unpin,
-    B::Data: Send,
-    B::Error: Into<Box<dyn StdError + Send + Sync>>,
-{
+impl Request<BoxBody<Bytes, Error>> {
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        hyper_client: hyper_util::client::legacy::Client<C, BoxBody<Bytes, Error>>,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>> {
         let timeout = self.timeout;
@@ -447,8 +440,8 @@ where
     }
 
     async fn into_future_without_timeout<C>(
-        mut self,
-        hyper_client: hyper_util::client::legacy::Client<C, B>,
+        self,
+        hyper_client: hyper_util::client::legacy::Client<C, BoxBody<Bytes, Error>>,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>>
     where
@@ -456,48 +449,67 @@ where
     {
         let _ = api_availability.wait_for_unsuspend().await;
 
-        // Obtain access token first
-        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
-            let access_token = store.get_token(account).await?;
-            let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
-                .map_err(|_| Error::InvalidHeaderError)?;
-            self.request
-                .headers_mut()
-                .insert(header::AUTHORIZATION, auth);
-        }
+        let Self {
+            request,
+            access_token_store,
+            account,
+            expected_status,
+            ..
+        } = self;
+        let (parts, body) = request.into_parts();
+        let body = BodyExt::collect(body).await?.to_bytes();
 
-        // Make request to hyper client
-        let response = hyper_client
-            .request(self.request)
-            .await
-            .map_err(Error::from);
+        let mut token_invalidated = false;
 
-        // Notify access token store of expired tokens
-        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
-            store.check_response(account, &response);
-        }
+        loop {
+            let mut request =
+                hyper::Request::from_parts(parts.clone(), box_body(Full::new(body.clone())));
 
-        // Parse unexpected responses and errors
-        let response = response?;
-
-        if !self.expected_status.contains(&response.status()) {
-            if !self.expected_status.is_empty() {
-                log::error!(
-                    "Unexpected HTTP status code {}, expected codes [{}]",
-                    response.status(),
-                    self.expected_status
-                        .iter()
-                        .map(ToString::to_string)
-                        .collect::<Vec<_>>()
-                        .join(",")
-                );
+            // Obtain access token first
+            if let (Some(account), Some(store)) = (&account, &access_token_store) {
+                let access_token = store.get_token(account).await?;
+                let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
+                    .map_err(|_| Error::InvalidHeaderError)?;
+                request.headers_mut().insert(header::AUTHORIZATION, auth);
             }
-            if !response.status().is_success() {
-                return handle_error_response(response).await;
-            }
-        }
 
-        Ok(Response::new(response))
+            // Make request to hyper client
+            let response = hyper_client.request(request).await.map_err(Error::from)?;
+
+            // Parse unexpected responses and errors
+            if !expected_status.contains(&response.status()) {
+                if !expected_status.is_empty() {
+                    log::error!(
+                        "Unexpected HTTP status code {}, expected codes [{}]",
+                        response.status(),
+                        expected_status
+                            .iter()
+                            .map(ToString::to_string)
+                            .collect::<Vec<_>>()
+                            .join(",")
+                    );
+                }
+                if !response.status().is_success() {
+                    let error = handle_error_response(response).await;
+
+                    // The access token may have expired since it was obtained. Notify the access
+                    // token store, and give the request another chance with a new token.
+                    if let (Some(account), Some(store)) = (&account, &access_token_store)
+                        && !token_invalidated
+                        && matches!(&error, Error::ApiError(_, code) if code == crate::INVALID_ACCESS_TOKEN)
+                    {
+                        log::debug!("Access token was rejected. Retrying with a new one");
+                        store.invalidate_token(account);
+                        token_invalidated = true;
+                        continue;
+                    }
+
+                    return Err(error);
+                }
+            }
+
+            return Ok(Response::new(response));
+        }
     }
 }
 
@@ -690,7 +702,8 @@ fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
         .unwrap_or(0)
 }
 
-async fn handle_error_response<T, B: Body>(response: hyper::Response<B>) -> Result<T>
+/// Return the [`Error`] described by an unsuccessful response.
+async fn handle_error_response<B: Body>(response: hyper::Response<B>) -> Error
 where
     Error: From<B::Error>,
 {
@@ -705,24 +718,26 @@ where
                         // TODO: We should make sure we unify the new error format and the old
                         // error format so that they both produce the same Errors for the same
                         // problems after being processed.
-                        let err: NewErrorResponse = deserialize_body_inner(response).await?;
-                        // The new error type replaces the `code` field with the `type` field.
-                        // This is what is used to programmatically check the error.
-                        Err(Error::ApiError(
-                            status,
-                            err.r#type
-                                .unwrap_or_else(|| String::from(DEFAULT_ERROR_TYPE)),
-                        ))
+                        match deserialize_body_inner::<NewErrorResponse, _>(response).await {
+                            // The new error type replaces the `code` field with the `type` field.
+                            // This is what is used to programmatically check the error.
+                            Ok(err) => Error::ApiError(
+                                status,
+                                err.r#type
+                                    .unwrap_or_else(|| String::from(DEFAULT_ERROR_TYPE)),
+                            ),
+                            Err(error) => error,
+                        }
                     }
-                    _ => {
-                        let err: OldErrorResponse = deserialize_body_inner(response).await?;
-                        Err(Error::ApiError(status, err.code))
-                    }
+                    _ => match deserialize_body_inner::<OldErrorResponse, _>(response).await {
+                        Ok(err) => Error::ApiError(status, err.code),
+                        Err(error) => error,
+                    },
                 };
             }
         },
     };
-    Err(Error::ApiError(status, error_message.to_owned()))
+    Error::ApiError(status, error_message.to_owned())
 }
 
 async fn deserialize_body_inner<T, B>(response: hyper::Response<B>) -> Result<T>

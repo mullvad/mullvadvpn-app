@@ -153,15 +153,11 @@ impl AccessTokenStore {
         rx.await.map_err(|_| rest::Error::Aborted)?
     }
 
-    /// Remove an access token if the API response calls for it.
-    pub fn check_response<T>(&self, account: &AccountNumber, response: &Result<T, rest::Error>) {
-        if let Err(rest::Error::ApiError(_status, code)) = response
-            && code == crate::INVALID_ACCESS_TOKEN
-        {
-            let _ = self
-                .tx
-                .unbounded_send(StoreAction::InvalidateToken(account.to_owned()));
-        }
+    /// Forget the cached access token for an account, so that the next request obtains a new one.
+    pub fn invalidate_token(&self, account: &AccountNumber) {
+        let _ = self
+            .tx
+            .unbounded_send(StoreAction::InvalidateToken(account.to_owned()));
     }
 }
 
