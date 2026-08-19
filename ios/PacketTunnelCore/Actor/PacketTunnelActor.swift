@@ -41,7 +41,7 @@ public actor PacketTunnelActor {
         }
     }
 
-    let stateBroadcaster = ObservedStateBroadcaster()
+    var stateBroadcaster = ObservedStateBroadcaster()
 
     nonisolated let logger = Logger(label: "PacketTunnelActor")
 
