@@ -32,6 +32,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  type SettingsMigration,
   type ShadowsocksCipher,
   TunnelState,
 } from '../shared/daemon-rpc-types';
@@ -134,6 +135,10 @@ export default class AppRenderer {
       if (typeof windowShapeParams.arrowPosition === 'number') {
         this.reduxActions.userInterface.updateWindowArrowPosition(windowShapeParams.arrowPosition);
       }
+    });
+
+    IpcRendererEventChannel.settings.listenMigrationsChange((migrations) => {
+      this.reduxActions.settings.updateMigrations(migrations);
     });
 
     IpcRendererEventChannel.daemon.listenConnected(() => {
@@ -332,6 +337,7 @@ export default class AppRenderer {
     this.setRelayListPair(initialState.relayList);
     this.setCurrentVersion(initialState.currentVersion);
     this.setUpgradeVersion(initialState.upgradeVersion);
+    this.setMigrations(initialState.migrations);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
     this.setChangelog(initialState.changelog);
@@ -475,6 +481,9 @@ export default class AppRenderer {
   public clearAllRelayOverrides = () => IpcRendererEventChannel.settings.clearAllRelayOverrides();
   public setEnabledRecents = (enabled: boolean) =>
     IpcRendererEventChannel.settings.setEnableRecents(enabled);
+  public clearSettingsMigrations = () => {
+    return IpcRendererEventChannel.settings.clearMigrations();
+  };
   public getMapData = () => IpcRendererEventChannel.map.getData();
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
@@ -1018,6 +1027,10 @@ export default class AppRenderer {
 
   private setUpgradeVersion(upgradeVersion: IAppVersionInfo) {
     this.reduxActions.version.updateLatest(upgradeVersion);
+  }
+
+  private setMigrations(migrations: SettingsMigration[]) {
+    this.reduxActions.settings.updateMigrations(migrations);
   }
 
   private setGuiSettings(guiSettings: IGuiSettingsState) {

@@ -446,6 +446,29 @@ export interface IDeviceRemoval {
 
 export type CustomLists = Array<ICustomList>;
 
+// Extend with new event types as needed.
+export type SettingsMigration = SplitFilterMigrationEvent;
+
+export type SplitFilterMigrationScenario =
+  | 'one-a'
+  | 'one-b'
+  | 'two'
+  | 'three-a'
+  | 'three-b'
+  | 'four-a'
+  | 'four-b'
+  | 'five-a'
+  | 'five-b'
+  | 'six-a'
+  | 'six-b'
+  | 'seven-a'
+  | 'seven-b';
+
+export type SplitFilterMigrationEvent = {
+  type: 'split-filter';
+  scenario: SplitFilterMigrationScenario;
+};
+
 export type Recents = {
   entries: RelayLocation[];
   exits: RelayLocation[];
