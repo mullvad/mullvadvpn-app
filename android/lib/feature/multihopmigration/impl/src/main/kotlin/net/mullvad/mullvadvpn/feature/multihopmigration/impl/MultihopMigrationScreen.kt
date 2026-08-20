@@ -77,6 +77,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryOutlinedButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -519,7 +520,10 @@ private fun BottomBar(
                         text = backMessage.text,
                         inlineContent = backMessage.inlineContent,
                         onClick = onBackClick,
-                        modifier = Modifier.width(backButtonWidth).alpha(backButtonAlpha),
+                        modifier =
+                            Modifier.width(backButtonWidth)
+                                .alpha(backButtonAlpha)
+                                .testTag(MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG),
                     )
                     Spacer(
                         modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp)

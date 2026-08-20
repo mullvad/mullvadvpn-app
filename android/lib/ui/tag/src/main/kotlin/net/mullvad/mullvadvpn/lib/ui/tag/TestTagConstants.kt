@@ -183,3 +183,6 @@ const val LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG =
 // MultihopMigrationScreen
 const val MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG =
     "multihop_migration_screen_next_button_test_tag"
+
+const val MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG =
+    "multihop_migration_screen_back_button_test_tag"
