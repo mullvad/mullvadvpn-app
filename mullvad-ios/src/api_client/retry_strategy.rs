@@ -66,8 +66,8 @@ pub enum RetryDelay {
 
 /// Creates a retry strategy that never retries after failure.
 /// The result needs to be consumed.
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_retry_strategy_never() -> RetryStrategy {
+#[uniffi::export]
+pub fn mullvad_api_retry_strategy_never() -> RetryStrategy {
     RetryStrategy {
         delays: RetryDelay::Never,
     }
@@ -75,15 +75,12 @@ pub extern "C" fn mullvad_api_retry_strategy_never() -> RetryStrategy {
 
 /// Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
 /// The result needs to be consumed.
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_retry_strategy_constant(
-    max_retries: usize,
-    delay_sec: u64,
-) -> RetryStrategy {
+#[uniffi::export]
+pub fn mullvad_api_retry_strategy_constant(max_retries: u64, delay_sec: u64) -> RetryStrategy {
     RetryStrategy {
         delays: RetryDelay::Constant {
             interval: delay_sec,
-            max_retries,
+            max_retries: max_retries as usize,
         },
     }
 }
@@ -91,9 +88,9 @@ pub extern "C" fn mullvad_api_retry_strategy_constant(
 /// Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
 /// The delay will never exceed `max_delay_sec`
 /// The result needs to be consumed.
-#[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_retry_strategy_exponential(
-    max_retries: usize,
+#[uniffi::export]
+pub fn mullvad_api_retry_strategy_exponential(
+    max_retries: u64,
     initial_sec: u64,
     factor: u32,
     max_delay_sec: u64,
@@ -103,7 +100,7 @@ pub extern "C" fn mullvad_api_retry_strategy_exponential(
             initial_delay: initial_sec,
             factor,
             max_delay: max_delay_sec,
-            max_retries,
+            max_retries: max_retries as usize,
         },
     }
 }

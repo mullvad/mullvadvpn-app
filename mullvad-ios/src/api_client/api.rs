@@ -1,5 +1,3 @@
-use std::ffi::{CStr, c_void};
-use std::os::raw::c_char;
 use std::sync::Arc;
 
 use mullvad_api::{
@@ -11,7 +9,6 @@ use mullvad_types::access_method::AccessMethodSetting;
 use crate::api_client::ApiContext;
 
 use super::{
-    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     do_request,
     response::SwiftMullvadApiResponse,

@@ -1,4 +1,3 @@
-use libc::c_char;
 use mullvad_api::{
     DevicesProxy,
     rest::{self, MullvadRestHandle},
@@ -7,9 +6,8 @@ use mullvad_api::{
 use crate::api_client::ApiContext;
 
 use super::{
-    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request, do_request_with_empty_body, get_string,
+    do_request, do_request_with_empty_body,
     response::SwiftMullvadApiResponse,
     retry_strategy::RetryStrategy,
 };
@@ -31,8 +29,8 @@ use talpid_types::net::wireguard::PublicKey;
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_device(
+#[uniffi::export]
+pub fn mullvad_ios_get_device(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
@@ -116,8 +114,8 @@ pub fn mullvad_ios_get_devices(
 /// the `identifier` must be a pointer to a null terminated string.
 /// the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_create_device(
+#[uniffi::export]
+pub fn mullvad_ios_create_device(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
@@ -162,8 +160,8 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
 /// the `account_number` must be a pointer to a null terminated string.
 /// the `identifier` must be a pointer to a null terminated string.
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_delete_device(
+#[uniffi::export]
+pub fn mullvad_ios_delete_device(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,

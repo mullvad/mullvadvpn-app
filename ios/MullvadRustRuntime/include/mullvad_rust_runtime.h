@@ -22,10 +22,6 @@ enum SwiftAccessMethodKind {
 };
 typedef uint8_t SwiftAccessMethodKind;
 
-typedef struct Arc_ApiContext Arc_ApiContext;
-
-typedef struct Arc_RetryStrategy Arc_RetryStrategy;
-
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
@@ -33,8 +29,6 @@ typedef struct LogRedactor LogRedactor;
 typedef struct Map Map;
 
 typedef struct RetryStrategy RetryStrategy;
-
-typedef struct String String;
 
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
@@ -210,47 +204,6 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
                                           struct CompletionCookie completion_cookie);
 
 /**
- * Get device info via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_ios_init_new`.
- *
- * the `account_number` must be a pointer to a null terminated string.
- * the `identifier` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_get_device(struct Arc_ApiContext api_context,
-                                                struct Arc_RetryStrategy retry_strategy,
-                                                struct String account_number,
-                                                struct String identifier);
-
-/**
- * delete device via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * the `account_number` must be a pointer to a null terminated string.
- * the `identifier` must be a pointer to a null terminated string.
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_delete_device(struct Arc_ApiContext api_context,
-                                                   struct Arc_RetryStrategy retry_strategy,
-                                                   struct String account_number,
-                                                   struct String identifier);
-
-/**
  * Converts parameters into a boxed `Shadowsocks` configuration that is safe
  * to send across the FFI boundary
  *
@@ -379,28 +332,6 @@ void swift_problem_report_metadata_free(struct ProblemReportMetadata map);
  * is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
  */
 void mullvad_response_drop(struct SwiftMullvadApiResponse response);
-
-/**
- * Creates a retry strategy that never retries after failure.
- * The result needs to be consumed.
- */
-struct RetryStrategy mullvad_api_retry_strategy_never(void);
-
-/**
- * Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
- * The result needs to be consumed.
- */
-struct RetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retries, uint64_t delay_sec);
-
-/**
- * Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
- * The delay will never exceed `max_delay_sec`
- * The result needs to be consumed.
- */
-struct RetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_retries,
-                                                            uint64_t initial_sec,
-                                                            uint32_t factor,
-                                                            uint64_t max_delay_sec);
 
 /**
  * Called by the Swift side in order to provide an object to rust that can create

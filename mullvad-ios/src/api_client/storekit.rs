@@ -1,4 +1,4 @@
-use std::{os::raw::c_char, sync::Arc};
+use std::sync::Arc;
 
 use mullvad_api::{
     AccountsProxy,
@@ -9,9 +9,8 @@ use mullvad_types::account::AccountNumber;
 use crate::api_client::ApiContext;
 
 use super::{
-    SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request, get_string,
+    do_request,
     response::SwiftMullvadApiResponse,
     retry_strategy::RetryStrategy,
 };
