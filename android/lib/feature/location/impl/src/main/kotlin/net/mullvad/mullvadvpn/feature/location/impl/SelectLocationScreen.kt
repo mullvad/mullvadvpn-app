@@ -13,12 +13,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.WrongLocation
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.MoreVert
@@ -27,6 +30,7 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +50,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -54,6 +60,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
@@ -95,6 +102,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -107,12 +115,14 @@ import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import org.koin.androidx.compose.koinViewModel
 
@@ -139,12 +149,11 @@ private fun PreviewSelectLocationScreen(
             removeOwnershipFilter = {},
             removeProviderFilter = {},
             onSelectRelayList = {},
-            setMultihopToAlways = {},
             onSelectAutomaticEntry = {},
             onAutomaticInfoClick = {},
             onRefreshRelayList = {},
             scrollToItem = {},
-            toggleMultihop = {},
+            onSetMultihopMode = {},
             onCreateCustomList = {},
             navigateToBottomSheet = {},
         )
@@ -346,11 +355,10 @@ fun SelectLocation(navigator: Navigator) {
         removeProviderFilter = vm::removeProviderFilter,
         onSelectRelayList = vm::selectRelayList,
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
-        setMultihopToAlways = { vm.toggleMultihop(true) },
         onSelectAutomaticEntry = vm::selectAutomaticMultihopEntry,
         onAutomaticInfoClick = dropUnlessResumed { navigator.navigate(AutomaticEntryInfoNavKey) },
         onRefreshRelayList = vm::refreshRelayList,
-        toggleMultihop = vm::toggleMultihop,
+        onSetMultihopMode = vm::setMultihopMode,
         scrollToItem = vm::scrollToItem,
         navigateToBottomSheet =
             dropUnlessResumed { sheetState ->
@@ -375,12 +383,11 @@ fun SelectLocationScreen(
     removeOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
     removeProviderFilter: (filterTarget: RelayHopType) -> Unit,
     onSelectRelayList: (RelayHopType) -> Unit,
-    setMultihopToAlways: () -> Unit,
     onSelectAutomaticEntry: () -> Unit,
     onAutomaticInfoClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
-    toggleMultihop: (Boolean) -> Unit,
+    onSetMultihopMode: (MultihopMode) -> Unit,
     navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
@@ -432,13 +439,14 @@ fun SelectLocationScreen(
                 )
             }
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
-            val multihopEnabled = state.contentOrNull()?.multihopEnabled == true
+            val activeMultihopMode =
+                state.contentOrNull()?.activeMultihopMode ?: MultihopMode.WHEN_NEEDED
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
                 recentsEnabled = recentsCurrentlyEnabled,
-                multihopEnabled = multihopEnabled,
+                activeMultihopMode = activeMultihopMode,
                 onRecentsToggleEnableClick = {
                     if (recentsCurrentlyEnabled) {
                         scope.launch { snackbarHostState.showSnackbarImmediately(disabledText) }
@@ -446,7 +454,7 @@ fun SelectLocationScreen(
                     onRecentsToggleEnableClick()
                 },
                 onRefreshRelayList = onRefreshRelayList,
-                onMultihopToggleEnableClick = { toggleMultihop(!multihopEnabled) },
+                onSetMultihopMode = onSetMultihopMode,
             )
         },
     ) { modifier ->
@@ -527,12 +535,12 @@ fun SelectLocationScreen(
                         bottomMargin = bottomMarginList,
                         onSelect = onSelectSinglehop,
                         onModifyMultihop = onModifyMultihop,
-                        onSetMultihopToAlways = setMultihopToAlways,
                         onSelectAutomaticEntry = onSelectAutomaticEntry,
                         onAutomaticInfoClick = onAutomaticInfoClick,
                         onAddCustomList = onCreateCustomList,
                         onEditCustomLists = onEditCustomLists,
                         onUpdateBottomSheetState = navigateToBottomSheet,
+                        onSetMultihopToAlways = { onSetMultihopMode(MultihopMode.ALWAYS) },
                     )
                 }
             }
@@ -541,12 +549,13 @@ fun SelectLocationScreen(
 }
 
 @Composable
+@Suppress("LongMethod")
 private fun SelectLocationDropdownMenu(
     recentsEnabled: Boolean,
-    multihopEnabled: Boolean,
+    activeMultihopMode: MultihopMode,
     onRecentsToggleEnableClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
-    onMultihopToggleEnableClick: () -> Unit,
+    onSetMultihopMode: (MultihopMode) -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -590,29 +599,6 @@ private fun SelectLocationDropdownMenu(
             colors = colors,
             leadingIcon = { Icon(imageVector = recentsIcon, contentDescription = null) },
         )
-
-        // Keep these assets in remember so we don't change them as we animate away the dropdown
-        // menu
-        var multihopItemTextId by remember {
-            mutableIntStateOf(
-                if (multihopEnabled) R.string.disable_multihop else R.string.enable_multihop
-            )
-        }
-        var multihopIcon by remember {
-            mutableStateOf(
-                if (multihopEnabled) Icons.Outlined.WrongLocation else Icons.Outlined.AddLocationAlt
-            )
-        }
-        DropdownMenuItem(
-            text = { Text(text = stringResource(multihopItemTextId)) },
-            onClick = {
-                showMenu = false
-                onMultihopToggleEnableClick()
-            },
-            colors = colors,
-            leadingIcon = { Icon(multihopIcon, contentDescription = null) },
-        )
-
         DropdownMenuItem(
             text = { Text(text = stringResource(R.string.refresh_server_list)) },
             onClick = {
@@ -622,6 +608,112 @@ private fun SelectLocationDropdownMenu(
             colors = colors,
             leadingIcon = { Icon(Icons.Rounded.Refresh, contentDescription = null) },
         )
+        HorizontalDivider(
+            modifier = Modifier.padding(top = Dimens.smallPadding, bottom = Dimens.mediumPadding),
+            thickness = MenuDividerThickness,
+        )
+        Text(
+            modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
+            text = stringResource(R.string.multihop_mode),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(Dimens.tinyPadding))
+
+        MultihopMode.WHEN_NEEDED.menuItem(activeMultihopMode).let { (icon, color) ->
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(R.string.when_needed),
+                        color = color,
+                    )
+                },
+                onClick = {
+                    showMenu = false
+                    onSetMultihopMode(MultihopMode.WHEN_NEEDED)
+                },
+                colors = colors.copy(leadingIconColor = color),
+                leadingIcon = {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                    )
+                },
+            )
+        }
+
+        MultihopMode.ALWAYS.menuItem(activeMultihopMode).let { (icon, color) ->
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(R.string.always),
+                        color = color,
+                    )
+                },
+                onClick = {
+                    showMenu = false
+                    onSetMultihopMode(MultihopMode.ALWAYS)
+                },
+                colors = colors.copy(leadingIconColor = color),
+                leadingIcon = {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                    )
+                },
+            )
+        }
+
+        MultihopMode.NEVER.menuItem(activeMultihopMode).let { (icon, color) ->
+            DropdownMenuItem(
+                text = {
+                    Text(
+                        text = stringResource(R.string.never),
+                        color = color,
+                    )
+                },
+                onClick = {
+                    showMenu = false
+                    onSetMultihopMode(MultihopMode.NEVER)
+                },
+                colors = colors.copy(leadingIconColor = color),
+                leadingIcon = {
+                    Icon(
+                        icon,
+                        contentDescription = null,
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun MultihopMode.menuItem(activeMultihopMode: MultihopMode): Pair<ImageVector, Color> {
+    val positiveColor = MaterialTheme.colorScheme.positive
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
+
+    // This remember is used to "lock" the values of the icon and color to what they were when
+    // we first show the menu, so that they won't change during the menu close animation.
+    return remember(this) {
+        val isSelected = this == activeMultihopMode
+
+        val icon =
+            if (isSelected) {
+                Icons.Rounded.Check
+            } else {
+                when (this) {
+                    MultihopMode.NEVER -> Icons.Outlined.WrongLocation
+                    MultihopMode.ALWAYS -> Icons.Outlined.AddLocationAlt
+                    MultihopMode.WHEN_NEEDED -> MultihopWhenNeeded
+                }
+            }
+
+        val color = if (isSelected) positiveColor else onPrimaryColor
+
+        icon to color
     }
 }
 
@@ -850,6 +942,7 @@ fun Constraint<RelayItem>?.toDisplayName(entryCountry: String? = null) =
         Constraint.Any ->
             if (entryCountry != null) stringResource(R.string.automatic_with_country, entryCountry)
             else stringResource(R.string.automatic)
+
         is Constraint.Only<RelayItem> -> value.name
         null -> stringResource(R.string.unavailable)
     }
@@ -880,3 +973,5 @@ private fun ErrorStateCause?.errorText(relayListType: RelayListType) =
 
         else -> null
     }
+
+private val MenuDividerThickness = 2.dp

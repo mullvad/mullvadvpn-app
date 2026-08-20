@@ -363,6 +363,7 @@
     <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</string>
     <string name="connection_details_out">Out</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_mode">Multihop mode</string>
     <string name="multihop_when_needed">Multihop when needed</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
     <string name="multihop_when_needed_info_first_paragraph">If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol.</string>
@@ -457,7 +458,6 @@
     <string name="include_account_token_warning_message_second">For details, please see our %s.</string>
     <string name="privacy_policy_lower_case">privacy policy</string>
     <string name="disable_multihop">Disable multihop</string>
-    <string name="enable_multihop">Enable multihop</string>
     <string name="unavailable">Unavailable</string>
     <string name="warning">Warning</string>
     <string name="info">Info</string>

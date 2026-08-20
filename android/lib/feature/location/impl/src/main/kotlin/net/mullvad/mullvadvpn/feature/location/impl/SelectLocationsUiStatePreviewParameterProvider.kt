@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
@@ -16,6 +17,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
             SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopListSelection = RelayHopType.EXIT,
+                    activeMultihopMode = MultihopMode.ALWAYS,
                     isSearchButtonEnabled = true,
                     isEntryFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -35,6 +37,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
                     multihopListSelection = RelayHopType.EXIT,
+                    activeMultihopMode = MultihopMode.ALWAYS,
                     isSearchButtonEnabled = true,
                     isEntryFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -50,6 +53,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
             SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopListSelection = RelayHopType.ENTRY,
+                    activeMultihopMode = MultihopMode.ALWAYS,
                     isSearchButtonEnabled = true,
                     isEntryFilterButtonEnabled = true,
                     isRecentsEnabled = true,
@@ -69,6 +73,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                             FilterChip.Provider(PROVIDER_COUNT),
                         ),
                     multihopListSelection = RelayHopType.ENTRY,
+                    activeMultihopMode = MultihopMode.ALWAYS,
                     isSearchButtonEnabled = true,
                     isEntryFilterButtonEnabled = true,
                     isRecentsEnabled = true,
