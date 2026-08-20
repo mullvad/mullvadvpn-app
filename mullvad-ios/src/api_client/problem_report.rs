@@ -2,15 +2,17 @@ use mullvad_api::{
     ProblemReportProxy,
     rest::{self, MullvadRestHandle},
 };
-use std::ffi::CStr;
 use std::os::raw::c_char;
+use std::{ffi::CStr, sync::Arc};
+
+use crate::api_client::retry_strategy::LegacySwiftRetryStrategy;
 
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     do_request_with_empty_body, get_string,
     response::SwiftMullvadApiResponse,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+    retry_strategy::RetryStrategy,
 };
 
 use mullvad_api::rest::Error;
@@ -32,15 +34,15 @@ use std::collections::BTreeMap;
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_send_problem_report(
     api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
+    retry_strategy: LegacySwiftRetryStrategy,
     request: SwiftProblemReportRequest,
 ) -> SwiftCancelHandle {
     // SAFETY: See safety notes for `from_swift_parameters`
     let result = unsafe { ProblemReportRequest::from_swift_parameters(request) };
 
     RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
+        api_context.rust_context(),
+        Arc::new(retry_strategy.into_rust()),
         async move |api_context, retry_strategy, completion_handler| {
             let Some(problem_report_request) = result else {
                 let err = Error::ApiError(

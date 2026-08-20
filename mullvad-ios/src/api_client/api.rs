@@ -1,5 +1,6 @@
 use std::ffi::{CStr, c_void};
 use std::os::raw::c_char;
+use std::sync::Arc;
 
 use mullvad_api::{
     ApiProxy, ETag, RelayListProxy,
@@ -7,13 +8,15 @@ use mullvad_api::{
 };
 use mullvad_types::access_method::AccessMethodSetting;
 
+use crate::api_client::ApiContext;
+
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     do_request,
     response::SwiftMullvadApiResponse,
     retry_request,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+    retry_strategy::RetryStrategy,
 };
 
 /// # Safety
@@ -25,10 +28,10 @@ use super::{
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_addresses(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
+#[uniffi::export]
+pub fn mullvad_ios_get_addresses(
+    api_context: Arc<ApiContext>,
+    retry_strategy: Arc<RetryStrategy>,
 ) -> SwiftCancelHandle {
     RequestCancelHandle::new(
         api_context,
@@ -55,11 +58,11 @@ pub unsafe extern "C" fn mullvad_ios_get_addresses(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    access_method_setting: *const c_void,
+#[uniffi::export]
+pub fn mullvad_ios_api_addrs_available(
+    api_context: Arc<ApiContext>,
+    retry_strategy: Arc<RetryStrategy>,
+    access_method_setting: u64, // TODO: traitify
 ) -> SwiftCancelHandle {
     // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
     let access_method_setting: AccessMethodSetting =
@@ -114,18 +117,13 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_relays(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    etag: *const c_char,
+#[uniffi::export]
+pub fn mullvad_ios_get_relays(
+    api_context: Arc<ApiContext>,
+    retry_strategy: Arc<RetryStrategy>,
+    etag: Option<String>,
 ) -> SwiftCancelHandle {
-    let mut maybe_etag: Option<ETag> = None;
-    if !etag.is_null() {
-        // SAFETY: See param documentation for `etag`.
-        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-        maybe_etag = Some(ETag(String::from(unwrapped_tag)));
-    }
+    let maybe_etag: Option<ETag> = etag.map(ETag);
 
     RequestCancelHandle::new(
         api_context,

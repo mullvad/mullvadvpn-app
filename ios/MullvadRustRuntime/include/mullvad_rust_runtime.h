@@ -22,6 +22,10 @@ enum SwiftAccessMethodKind {
 };
 typedef uint8_t SwiftAccessMethodKind;
 
+typedef struct Arc_ApiContext Arc_ApiContext;
+
+typedef struct Arc_RetryStrategy Arc_RetryStrategy;
+
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
@@ -30,9 +34,11 @@ typedef struct Map Map;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct String String;
+
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
-typedef struct SwiftCancelHandleInner SwiftCancelHandleInner;
+typedef struct SwiftCancelHandle SwiftCancelHandle;
 
 typedef struct LegacySwiftApiContext {
   uint64_t ptr;
@@ -45,14 +51,6 @@ typedef struct SwiftAccessMethodSettingsWrapper {
 typedef struct SwiftData {
   void *ptr;
 } SwiftData;
-
-typedef struct SwiftCancelHandle {
-  struct SwiftCancelHandleInner *ptr;
-} SwiftCancelHandle;
-
-typedef struct SwiftRetryStrategy {
-  struct RetryStrategy *_0;
-} SwiftRetryStrategy;
 
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
@@ -73,6 +71,10 @@ typedef struct SwiftServerMock {
   const void *mock_ptr;
   uint16_t port;
 } SwiftServerMock;
+
+typedef struct LegacySwiftRetryStrategy {
+  struct RetryStrategy *_0;
+} LegacySwiftRetryStrategy;
 
 typedef struct ProblemReportMetadata {
   struct Map *inner;
@@ -194,100 +196,6 @@ struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void
                                                                             uintptr_t custom_method_count);
 
 /**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `account_number` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_get_account(struct LegacySwiftApiContext api_context,
-                                                 struct SwiftRetryStrategy retry_strategy,
-                                                 const char *account_number);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_create_account(struct LegacySwiftApiContext api_context,
-                                                    struct SwiftRetryStrategy retry_strategy);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `account_number` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_delete_account(struct LegacySwiftApiContext api_context,
-                                                    struct SwiftRetryStrategy retry_strategy,
-                                                    const char *account_number);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_get_addresses(struct LegacySwiftApiContext api_context,
-                                                   struct SwiftRetryStrategy retry_strategy);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct LegacySwiftApiContext api_context,
-                                                         struct SwiftRetryStrategy retry_strategy,
-                                                         const void *access_method_setting);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `etag` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_get_relays(struct LegacySwiftApiContext api_context,
-                                                struct SwiftRetryStrategy retry_strategy,
-                                                const char *etag);
-
-/**
  * Called by the Swift side to signal that a Mullvad API call should be started.
  * Does nothing on repeated calls.
  * Must not be called after `mullvad_api_cancel_task_drop.`
@@ -354,50 +262,10 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_ios_get_device(struct LegacySwiftApiContext api_context,
-                                                struct SwiftRetryStrategy retry_strategy,
-                                                const char *account_number,
-                                                const char *identifier);
-
-/**
- * Get devices info via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * the `account_number` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_get_devices(struct LegacySwiftApiContext api_context,
-                                                 struct SwiftRetryStrategy retry_strategy,
-                                                 const char *account_number);
-
-/**
- * create device via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * the `account_number` must be a pointer to a null terminated string.
- * the `identifier` must be a pointer to a null terminated string.
- * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_create_device(struct LegacySwiftApiContext api_context,
-                                                   struct SwiftRetryStrategy retry_strategy,
-                                                   const char *account_number,
-                                                   const uint8_t *public_key);
+struct SwiftCancelHandle mullvad_ios_get_device(struct Arc_ApiContext api_context,
+                                                struct Arc_RetryStrategy retry_strategy,
+                                                struct String account_number,
+                                                struct String identifier);
 
 /**
  * delete device via the Mullvad API client.
@@ -414,32 +282,10 @@ struct SwiftCancelHandle mullvad_ios_create_device(struct LegacySwiftApiContext 
  * the `identifier` must be a pointer to a null terminated string.
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-struct SwiftCancelHandle mullvad_ios_delete_device(struct LegacySwiftApiContext api_context,
-                                                   struct SwiftRetryStrategy retry_strategy,
-                                                   const char *account_number,
-                                                   const char *identifier);
-
-/**
- * rotate device key via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * the `account_number` must be a pointer to a null terminated string.
- * the `identifier` must be a pointer to a null terminated string.
- * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_rotate_device_key(struct LegacySwiftApiContext api_context,
-                                                       struct SwiftRetryStrategy retry_strategy,
-                                                       const char *account_number,
-                                                       const char *identifier,
-                                                       const uint8_t *public_key);
+struct SwiftCancelHandle mullvad_ios_delete_device(struct Arc_ApiContext api_context,
+                                                   struct Arc_RetryStrategy retry_strategy,
+                                                   struct String account_number,
+                                                   struct String identifier);
 
 /**
  * Converts parameters into a boxed `Shadowsocks` configuration that is safe
@@ -540,7 +386,7 @@ void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_ios_send_problem_report(struct LegacySwiftApiContext api_context,
-                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         struct LegacySwiftRetryStrategy retry_strategy,
                                                          struct SwiftProblemReportRequest request);
 
 struct ProblemReportMetadata swift_problem_report_metadata_new(void);
@@ -575,24 +421,23 @@ void mullvad_response_drop(struct SwiftMullvadApiResponse response);
  * Creates a retry strategy that never retries after failure.
  * The result needs to be consumed.
  */
-struct SwiftRetryStrategy mullvad_api_retry_strategy_never(void);
+struct RetryStrategy mullvad_api_retry_strategy_never(void);
 
 /**
  * Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
  * The result needs to be consumed.
  */
-struct SwiftRetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retries,
-                                                              uint64_t delay_sec);
+struct RetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retries, uint64_t delay_sec);
 
 /**
  * Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
  * The delay will never exceed `max_delay_sec`
  * The result needs to be consumed.
  */
-struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_retries,
-                                                                 uint64_t initial_sec,
-                                                                 uint32_t factor,
-                                                                 uint64_t max_delay_sec);
+struct RetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_retries,
+                                                            uint64_t initial_sec,
+                                                            uint32_t factor,
+                                                            uint64_t max_delay_sec);
 
 /**
  * Called by the Swift side in order to provide an object to rust that can create
@@ -604,43 +449,6 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
  * This function does not take ownership of `shadowsocks_loader`
  */
 struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `account_number` must be a pointer to a null terminated string.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_init_storekit_payment(struct LegacySwiftApiContext api_context,
-                                                           struct SwiftRetryStrategy retry_strategy,
-                                                           const char *account_number);
-
-/**
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * `body` must be a pointer to a contiguous memory segment
- *
- * `body_size` must be the size of the body
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_check_storekit_payment(struct LegacySwiftApiContext api_context,
-                                                            struct SwiftRetryStrategy retry_strategy,
-                                                            const uint8_t *body,
-                                                            uintptr_t body_size);
 
 extern uint8_t *swift_data_get_ptr(const struct SwiftData *data);
 

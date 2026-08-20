@@ -7,9 +7,7 @@ use std::{
 use tokio::task::JoinHandle;
 
 use crate::api_client::{
-    ApiContext, SwiftApiContext,
-    completion::CompletionCookie,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+    ApiContext, SwiftApiContext, completion::CompletionCookie, retry_strategy::RetryStrategy,
 };
 
 use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiResponse};
@@ -17,9 +15,10 @@ use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiRespons
 // `cbindgen` does not handle structs with generic fields, so this is used to hide that
 struct SwiftCancelHandleInner(Mutex<Option<RequestCancelHandle>>);
 
-#[repr(C)]
+// TODO FIX THIS
+#[derive(uniffi::Record)]
 pub struct SwiftCancelHandle {
-    ptr: *mut SwiftCancelHandleInner,
+    ptr: u64,
 }
 
 pub struct RequestCancelHandle {
@@ -51,8 +50,8 @@ enum HandleState {
 
 impl RequestCancelHandle {
     pub fn new<I, F>(
-        api_context: SwiftApiContext,
-        retry_strategy: SwiftRetryStrategy,
+        api_context: Arc<ApiContext>,
+        retry_strategy: Arc<RetryStrategy>,
         task: I,
     ) -> Self
     where
@@ -62,8 +61,8 @@ impl RequestCancelHandle {
         Self {
             inner: HandleState::ToStart {
                 // SAFETY: See notes for `into_rust`
-                retry_strategy: unsafe { retry_strategy.into_rust() },
-                api_context: api_context.rust_context(),
+                retry_strategy: *retry_strategy,
+                api_context,
                 task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
             },
         }
@@ -100,7 +99,7 @@ impl RequestCancelHandle {
 
     pub fn into_swift(self) -> SwiftCancelHandle {
         SwiftCancelHandle {
-            ptr: Box::into_raw(Box::new(SwiftCancelHandleInner(Mutex::new(Some(self))))),
+            ptr: Box::into_raw(Box::new(SwiftCancelHandleInner(Mutex::new(Some(self))))) as u64,
         }
     }
 
@@ -132,7 +131,7 @@ extern "C" fn mullvad_api_start_task(
     completion_cookie: *mut libc::c_void,
 ) {
     // SAFETY: See safety notes above
-    let handle = unsafe { &*handle_ptr.ptr };
+    let handle = unsafe { &*(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
     // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
@@ -154,7 +153,7 @@ extern "C" fn mullvad_api_start_task(
 #[unsafe(no_mangle)]
 extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
     // SAFETY: See notes for `as_handle`
-    let handle = unsafe { &*handle_ptr.ptr };
+    let handle = unsafe { &*(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
     let Ok(mut handle) = handle.0.lock() else {
         return;
     };
@@ -173,5 +172,5 @@ extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
 #[unsafe(no_mangle)]
 extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
     // SAFETY: See safety notes above
-    let _ptr = unsafe { Box::from_raw(handle_ptr.ptr) };
+    let _ptr = unsafe { Box::from_raw(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
 }

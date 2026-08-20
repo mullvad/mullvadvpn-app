@@ -1,4 +1,4 @@
-use std::os::raw::c_char;
+use std::{os::raw::c_char, sync::Arc};
 
 use mullvad_api::{
     AccountsProxy,
@@ -6,12 +6,14 @@ use mullvad_api::{
 };
 use mullvad_types::account::AccountNumber;
 
+use crate::api_client::ApiContext;
+
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     do_request, get_string,
     response::SwiftMullvadApiResponse,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+    retry_strategy::RetryStrategy,
 };
 
 /// # Safety
@@ -25,15 +27,12 @@ use super::{
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_init_storekit_payment(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
+#[uniffi::export]
+pub fn mullvad_ios_init_storekit_payment(
+    api_context: Arc<ApiContext>,
+    retry_strategy: Arc<RetryStrategy>,
+    account_number: String,
 ) -> SwiftCancelHandle {
-    // SAFETY: See param documentation for `account_number`.
-    let account_number = AccountNumber::from(unsafe { get_string(account_number) });
-
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -81,15 +80,12 @@ async fn mullvad_ios_init_storekit_payment_inner(
 /// `body_size` must be the size of the body
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_check_storekit_payment(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    body: *const u8,
-    body_size: usize,
+#[uniffi::export]
+pub fn mullvad_ios_check_storekit_payment(
+    api_context: Arc<ApiContext>,
+    retry_strategy: Arc<RetryStrategy>,
+    body: Vec<u8>,
 ) -> SwiftCancelHandle {
-    // SAFETY: See param documentation for `body`.
-    let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
