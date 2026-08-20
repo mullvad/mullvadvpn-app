@@ -89,8 +89,8 @@ pub enum Error {
 }
 
 impl From<Infallible> for Error {
-    fn from(_: Infallible) -> Self {
-        unreachable!()
+    fn from(never: Infallible) -> Self {
+        match never {}
     }
 }
 
@@ -673,6 +673,7 @@ impl RequestFactory {
         self.default_timeout = timeout;
         self
     }
+
     fn json_request_with_bytes(
         &self,
         method: Method,
