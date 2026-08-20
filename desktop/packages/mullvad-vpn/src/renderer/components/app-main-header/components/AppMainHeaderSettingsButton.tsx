@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
+import { useSettingsMigrations } from '../../../features/migration/hooks';
 import { IconButton, IconButtonProps, MainHeader } from '../../../lib/components';
 import { Dot } from '../../../lib/components/dot';
 import { TransitionType, useHistory } from '../../../lib/history';
@@ -23,6 +24,9 @@ const StyledDiv = styled.div`
 export function AppMainHeaderSettingsButton(props: MainHeaderSettingsButtonProps) {
   const history = useHistory();
   const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
+  const { hasSettingsMigrations } = useSettingsMigrations();
+
+  const showIndicator = hasSettingsMigrations || suggestedUpgrade;
 
   const openSettings = useCallback(() => {
     if (!props.disabled) {
@@ -32,7 +36,7 @@ export function AppMainHeaderSettingsButton(props: MainHeaderSettingsButtonProps
 
   return (
     <MainHeader.IconButton onClick={openSettings} aria-label={messages.gettext('Settings')}>
-      {suggestedUpgrade ? (
+      {showIndicator ? (
         <StyledDiv>
           <IconButton.Icon icon="settings-partial" />
           <StyledDot variant="warning" size="tiny" />

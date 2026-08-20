@@ -1,5 +1,6 @@
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
+import { useSettingsMigrations } from '../../../../../features/migration/hooks';
 import { Dot } from '../../../../../lib/components/dot';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { ListItemProps } from '../../../../../lib/components/list-item';
@@ -11,6 +12,9 @@ export type AppInfoListItemProps = Omit<ListItemProps, 'children'>;
 export function AppInfoListItem(props: AppInfoListItemProps) {
   const { current } = useVersionCurrent();
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
+  const { hasSettingsMigrations } = useSettingsMigrations();
+
+  const showIndicator = hasSettingsMigrations || suggestedUpgrade;
 
   return (
     <SettingsNavigationListItem to={RoutePath.appInfo} {...props}>
@@ -34,7 +38,7 @@ export function AppInfoListItem(props: AppInfoListItemProps) {
         <SettingsNavigationListItem.Item.ActionGroup>
           <SettingsNavigationListItem.Item.Group gap="small">
             <SettingsNavigationListItem.Item.Text>{current}</SettingsNavigationListItem.Item.Text>
-            {suggestedUpgrade && <Dot variant="warning" size="small" />}
+            {showIndicator && <Dot variant="warning" size="small" />}
           </SettingsNavigationListItem.Item.Group>
           <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
         </SettingsNavigationListItem.Item.ActionGroup>
