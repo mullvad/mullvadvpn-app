@@ -30,7 +30,11 @@ use tunnel_obfuscation::{
 #[derive(Debug, Clone)]
 pub enum ObfuscationSettings {
     Single(tunnel_obfuscation::Settings),
-    Multiplexer(Vec<tunnel_obfuscation::multiplexer::Transport>),
+    Multiplexer {
+        transports: Vec<tunnel_obfuscation::multiplexer::Transport>,
+        /// Public key of the local WireGuard instance
+        client_public_key: PublicKey,
+    },
 }
 
 impl ObfuscationSettings {
@@ -38,7 +42,7 @@ impl ObfuscationSettings {
     pub fn single(&self) -> Option<&tunnel_obfuscation::Settings> {
         match self {
             ObfuscationSettings::Single(settings) => Some(settings),
-            ObfuscationSettings::Multiplexer(_) => None,
+            ObfuscationSettings::Multiplexer { .. } => None,
         }
     }
 
@@ -46,7 +50,7 @@ impl ObfuscationSettings {
     pub fn packet_overhead(&self) -> u16 {
         match self {
             ObfuscationSettings::Single(settings) => settings.packet_overhead(),
-            ObfuscationSettings::Multiplexer(transports) => {
+            ObfuscationSettings::Multiplexer { transports, .. } => {
                 multiplexer::packet_overhead(transports)
             }
         }
@@ -76,10 +80,14 @@ pub async fn spawn_local_socket_obfuscator(
                 .await
                 .map_err(Error::ObfuscationError)?
         }
-        ObfuscationSettings::Multiplexer(transports) => {
+        ObfuscationSettings::Multiplexer {
+            transports,
+            client_public_key,
+        } => {
             let (selected_transport_tx, selected_transport) = oneshot::channel();
             let settings = multiplexer::Settings {
                 transports,
+                client_public_key,
                 selected_transport: selected_transport_tx,
             };
             // The multiplexer connects to one out of several endpoints, and only commits to one
@@ -168,7 +176,10 @@ pub fn settings_from_config(
                 );
                 transports.push(multiplexer::Transport::Obfuscated(settings));
             }
-            ObfuscationSettings::Multiplexer(transports)
+            ObfuscationSettings::Multiplexer {
+                transports,
+                client_public_key,
+            }
         }
     }
 }

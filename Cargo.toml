@@ -62,6 +62,7 @@ license = "GPL-3.0-or-later"
 [workspace.dependencies]
 anyhow = "1.0"
 async-trait = "0.1"
+blake2 = "0.10.6"
 bytes = "1.11.1"
 chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.4.18", features = ["cargo", "derive"] }
