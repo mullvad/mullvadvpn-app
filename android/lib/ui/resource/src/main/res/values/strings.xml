@@ -458,7 +458,6 @@
     <string name="include_account_token_warning_message_second">For details, please see our %s.</string>
     <string name="privacy_policy_lower_case">privacy policy</string>
     <string name="disable_multihop">Disable multihop</string>
-    <string name="enable_multihop">Enable multihop</string>
     <string name="unavailable">Unavailable</string>
     <string name="warning">Warning</string>
     <string name="info">Info</string>

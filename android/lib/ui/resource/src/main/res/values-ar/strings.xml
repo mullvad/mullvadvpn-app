@@ -213,7 +213,6 @@
     <string name="enable_ipv6">IPv6 في النفق</string>
     <string name="enable_location_in_notification">إظهار الموقع في الإشعار</string>
     <string name="enable_method">تفعيل الطريقة</string>
-    <string name="enable_multihop">تفعيل القفز المتعدد</string>
     <string name="enable_recents">تفعيل المواقع الحديثة</string>
     <string name="encrypted_dns_proxy_info_message_part1">باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيتواصل التطبيق مع Mullvad API الخاصة بنا عبر عنوان خادم وكيل. وسيفعل ذلك من خلال جلب عنوان من خادم DNS عبر HTTPS (DoH)، ثم استخدام هذا العنوان للوصول إلى خوادم واجهة API الخاصة بنا.</string>
     <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلاً بشبكة VPN لدينا، فسيستخدم خادم وكيل DNS المُشفَّر عنوان IP غير مرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو Cloudflare.</string>

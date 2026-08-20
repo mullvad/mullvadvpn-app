@@ -3333,9 +3333,6 @@ msgstr ""
 msgid "Enable method"
 msgstr ""
 
-msgid "Enable multihop"
-msgstr ""
-
 msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
 msgstr ""
 
