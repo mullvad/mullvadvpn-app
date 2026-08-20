@@ -26,16 +26,15 @@ extension REST {
         public func toRustStrategy() -> MullvadRustRuntime.RetryStrategy {
             switch delay {
             case .never:
-                return mullvad_api_retry_strategy_never()
+                return mullvadApiRetryStrategyNever()
             case let .constant(duration):
-                return mullvad_api_retry_strategy_constant(UInt(maxRetryCount), UInt64(duration.seconds))
+                return mullvadApiRetryStrategyConstant(maxRetries: UInt64(maxRetryCount), delaySec: UInt64(duration.seconds))
             case let .exponentialBackoff(initial, multiplier, maxDelay):
-                return mullvad_api_retry_strategy_exponential(
-                    UInt(maxRetryCount),
-                    UInt64(initial.seconds),
-                    UInt32(multiplier),
-                    UInt64(maxDelay.seconds)
-                )
+                return mullvadApiRetryStrategyExponential(
+                    maxRetries: UInt64(maxRetryCount),
+                    initialSec: UInt64(initial.seconds),
+                    factor: UInt32(multiplier),
+                    maxDelaySec: UInt64(maxDelay.seconds))
             }
         }
 
