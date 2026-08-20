@@ -196,43 +196,6 @@ struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void
                                                                             uintptr_t custom_method_count);
 
 /**
- * Called by the Swift side to signal that a Mullvad API call should be started.
- * Does nothing on repeated calls.
- * Must not be called after `mullvad_api_cancel_task_drop.`
- *
- * # Safety
- *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
- * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
- * intended to be used.
- */
-void mullvad_api_start_task(struct SwiftCancelHandle handle_ptr,
-                            void *completion_cookie);
-
-/**
- * Called by the Swift side to signal that a Mullvad API call should be cancelled.
- * Does nothing on repeated calls.
- * Must not be called after `mullvad_api_cancel_task_drop.
- *
- * # Safety
- *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
- */
-void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
-
-/**
- * Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
- * dropped from memory.
- * Must be called once, and at most once.
- *
- * # Safety
- *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
- */
-void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
-
-/**
  * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
  * network calls through Mullvad API on Rust side.
  *

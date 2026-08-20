@@ -6,19 +6,14 @@ use std::{
 
 use tokio::task::JoinHandle;
 
-use crate::api_client::{
-    ApiContext, SwiftApiContext, completion::CompletionCookie, retry_strategy::RetryStrategy,
-};
+use crate::api_client::{ApiContext, completion::CompletionCookie, retry_strategy::RetryStrategy};
 
 use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiResponse};
 
-// `cbindgen` does not handle structs with generic fields, so this is used to hide that
-struct SwiftCancelHandleInner(Mutex<Option<RequestCancelHandle>>);
-
 // TODO FIX THIS
-#[derive(uniffi::Record)]
+#[derive(uniffi::Object)]
 pub struct SwiftCancelHandle {
-    ptr: u64,
+    inner: Mutex<Option<RequestCancelHandle>>,
 }
 
 pub struct RequestCancelHandle {
@@ -99,7 +94,7 @@ impl RequestCancelHandle {
 
     pub fn into_swift(self) -> SwiftCancelHandle {
         SwiftCancelHandle {
-            ptr: Box::into_raw(Box::new(SwiftCancelHandleInner(Mutex::new(Some(self))))) as u64,
+            inner: Mutex::new(Some(self)),
         }
     }
 
@@ -125,17 +120,13 @@ impl RequestCancelHandle {
 /// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
 /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
 /// intended to be used.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_start_task(
-    handle_ptr: SwiftCancelHandle,
-    completion_cookie: *mut libc::c_void,
-) {
-    // SAFETY: See safety notes above
-    let handle = unsafe { &*(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
+#[uniffi::export]
+pub fn mullvad_api_start_task(handle: &SwiftCancelHandle, completion_cookie: u64) {
+    let completion_cookie = completion_cookie as *mut libc::c_void;
     // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
     let completion =
         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-    let Ok(mut handle) = handle.0.lock() else {
+    let Ok(mut handle) = handle.inner.lock() else {
         return;
     };
     if let Some(handle) = &mut *handle {
@@ -150,27 +141,13 @@ extern "C" fn mullvad_api_start_task(
 /// # Safety
 ///
 /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
+#[uniffi::export]
+pub fn mullvad_api_cancel_task(handle: &SwiftCancelHandle) {
     // SAFETY: See notes for `as_handle`
-    let handle = unsafe { &*(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
-    let Ok(mut handle) = handle.0.lock() else {
+    let Ok(mut handle) = handle.inner.lock() else {
         return;
     };
     if let Some(handle) = handle.take() {
         handle.cancel();
     }
-}
-
-/// Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
-/// dropped from memory.
-/// Must be called once, and at most once.
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
-    // SAFETY: See safety notes above
-    let _ptr = unsafe { Box::from_raw(handle_ptr.ptr as *mut SwiftCancelHandleInner) };
 }

@@ -1688,6 +1688,112 @@ public func FfiConverterTypeSwiftAccessMethodSettingsContext_lower(_ value: Swif
 
 
 
+
+
+public protocol SwiftCancelHandleProtocol: AnyObject, Sendable {
+    
+}
+open class SwiftCancelHandle: SwiftCancelHandleProtocol, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_swiftcancelhandle(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_swiftcancelhandle(handle, $0) }
+    }
+
+    
+
+    
+
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeSwiftCancelHandle: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = SwiftCancelHandle
+
+    public static func lift(_ handle: UInt64) throws -> SwiftCancelHandle {
+        return SwiftCancelHandle(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: SwiftCancelHandle) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftCancelHandle {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: SwiftCancelHandle, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftCancelHandle_lift(_ handle: UInt64) throws -> SwiftCancelHandle {
+    return try FfiConverterTypeSwiftCancelHandle.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftCancelHandle_lower(_ value: SwiftCancelHandle) -> UInt64 {
+    return FfiConverterTypeSwiftCancelHandle.lower(value)
+}
+
+
+
+
 /**
  * Full tunnel configuration.
  */
@@ -2025,56 +2131,6 @@ public func FfiConverterTypeSwiftApiContext_lift(_ buf: RustBuffer) throws -> Sw
 #endif
 public func FfiConverterTypeSwiftApiContext_lower(_ value: SwiftApiContext) -> RustBuffer {
     return FfiConverterTypeSwiftApiContext.lower(value)
-}
-
-
-public struct SwiftCancelHandle: Equatable, Hashable {
-    public let ptr: UInt64
-
-    // Default memberwise initializers are never public by default, so we
-    // declare one manually.
-    public init(ptr: UInt64) {
-        self.ptr = ptr
-    }
-
-    
-
-    
-}
-
-#if compiler(>=6)
-extension SwiftCancelHandle: Sendable {}
-#endif
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeSwiftCancelHandle: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftCancelHandle {
-        return
-            try SwiftCancelHandle(
-                ptr: FfiConverterUInt64.read(from: &buf)
-        )
-    }
-
-    public static func write(_ value: SwiftCancelHandle, into buf: inout [UInt8]) {
-        FfiConverterUInt64.write(value.ptr, into: &buf)
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftCancelHandle_lift(_ buf: RustBuffer) throws -> SwiftCancelHandle {
-    return try FfiConverterTypeSwiftCancelHandle.lift(buf)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftCancelHandle_lower(_ value: SwiftCancelHandle) -> RustBuffer {
-    return FfiConverterTypeSwiftCancelHandle.lower(value)
 }
 
 
@@ -2736,6 +2792,40 @@ public func mullvadIosGetRelays(apiContext: ApiContext, retryStrategy: RetryStra
 })
 }
 /**
+ * Called by the Swift side to signal that a Mullvad API call should be cancelled.
+ * Does nothing on repeated calls.
+ * Must not be called after `mullvad_api_cancel_task_drop.
+ *
+ * # Safety
+ *
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+ */
+public func mullvadApiCancelTask(handle: SwiftCancelHandle)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_cancel_task(
+        FfiConverterTypeSwiftCancelHandle_lower(handle),$0
+    )
+}
+}
+/**
+ * Called by the Swift side to signal that a Mullvad API call should be started.
+ * Does nothing on repeated calls.
+ * Must not be called after `mullvad_api_cancel_task_drop.`
+ *
+ * # Safety
+ *
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+ * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+ * intended to be used.
+ */
+public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: UInt64)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_start_task(
+        FfiConverterTypeSwiftCancelHandle_lower(handle),
+        FfiConverterUInt64.lower(completionCookie),$0
+    )
+}
+}
+/**
  * Get devices info via the Mullvad API client.
  *
  * # Safety
@@ -2848,34 +2938,40 @@ private let initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 52940) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 39115) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_account() != 15376) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_account() != 34711) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_account() != 18321) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_account() != 59662) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 39303) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 14997) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_addresses() != 36486) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_addresses() != 44750) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_relays() != 15099) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_relays() != 15075) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_devices() != 46039) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_cancel_task() != 10019) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 21947) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 9336) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment() != 61164) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_devices() != 49298) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment() != 9472) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 33379) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment() != 48962) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment() != 8756) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontext_unsafe_raw() != 37019) {

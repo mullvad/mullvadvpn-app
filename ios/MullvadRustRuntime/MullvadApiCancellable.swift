@@ -8,8 +8,6 @@
 
 import MullvadTypes
 
-extension SwiftCancelHandle: @retroactive @unchecked Sendable {}
-
 public final class MullvadApiCancellable: Cancellable, Sendable {
     private let handle: SwiftCancelHandle
 
@@ -22,14 +20,10 @@ public final class MullvadApiCancellable: Cancellable, Sendable {
             try? completion?(apiResponse)
         }
         let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
-        mullvad_api_start_task(handle, rawCompletionPointer)
-    }
-
-    deinit {
-        mullvad_api_cancel_task_drop(handle)
+        mullvadApiStartTask(handle: handle, completionCookie: UInt64(Int(bitPattern: rawCompletionPointer)))
     }
 
     public func cancel() {
-        mullvad_api_cancel_task(handle)
+        mullvadApiCancelTask(handle: handle)
     }
 }
