@@ -42,7 +42,7 @@ public actor StateCollector {
     private var states: [ObservedState] = []
 
     func append(_ state: ObservedState) {
-        stateLock.withLock { states.append(state) }
+        states.append(state)
     }
 
     var collected: [ObservedState] {
