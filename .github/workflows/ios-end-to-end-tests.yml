@@ -129,7 +129,8 @@ jobs:
         run: |
           mkdir -p "$JOB_OUTPUTS_DIRECTORY/derived-data"
           cp -R ios/derived-data "$JOB_OUTPUTS_DIRECTORY"
-          cp -R . $JOB_OUTPUTS_DIRECTORY/mullvadvpn-app
+          rsync -a --exclude='.git' . "$JOB_OUTPUTS_DIRECTORY/mullvadvpn-app" \
+            --stats --human-readable
         shell: bash
         env:
           JOB_OUTPUTS_DIRECTORY: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
