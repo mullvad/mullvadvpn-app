@@ -1,15 +1,13 @@
 use crate::{
     DnsResolver,
-    abortable_stream::{AbortableStream, AbortableStreamHandle},
     domain_fronting::DomainFrontingAddr,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
 use domain_fronting::client::ProxyConnection;
-use futures::{FutureExt, future, select};
+use futures::future;
 #[cfg(target_os = "android")]
 use futures::{channel::oneshot, sink::SinkExt};
-use http::uri::Scheme;
 use hyper::Uri;
 use hyper_util::rt::TokioIo;
 use mullvad_encrypted_dns_proxy::{
@@ -27,50 +25,23 @@ use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     fmt,
     future::Future,
-    io, mem,
+    io,
     net::{IpAddr, SocketAddr},
-    pin::Pin,
     str,
-    sync::{Arc, Mutex},
-    task::{Context, Poll},
     time::Duration,
 };
 use talpid_types::net::proxy;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
-    sync::Notify,
     time::timeout,
 };
-use tower::Service;
-use tracing::{Instrument, Level, instrument, trace_span};
+use tracing::{Level, instrument};
 
 #[cfg(any(feature = "api-override", test))]
 use crate::proxy::ConnectionDecorator;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
-
-/// Communicate asynchronously with an [HttpsConnector] actor.
-/// Created via [HttpsConnector::spawn].
-#[derive(Clone)]
-pub struct HttpsConnectorHandle {
-    state: Arc<Mutex<HttpsConnectorInner>>,
-}
-
-impl HttpsConnectorHandle {
-    /// Stop all streams produced by the connector
-    pub fn reset(&self) {
-        let mut state = self.state.lock().unwrap();
-        state.reset();
-    }
-
-    /// Change the proxy settings for the connector
-    pub fn set_connection_mode(&self, proxy: ApiConnectionMode) {
-        let mut state = self.state.lock().unwrap();
-        state.proxy_config = InnerConnectionMode::from(proxy);
-        state.reset();
-    }
-}
 
 #[derive(Clone, Debug)]
 pub(crate) enum InnerConnectionMode {
@@ -343,29 +314,11 @@ impl From<ApiConnectionMode> for InnerConnectionMode {
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnector {
-    state: Arc<Mutex<HttpsConnectorInner>>,
-    abort_notify: Arc<Notify>,
-    dns_resolver: Arc<dyn DnsResolver>,
+    proxy_config: InnerConnectionMode,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     #[cfg(any(feature = "api-override", test))]
     disable_tls: bool,
-}
-
-struct HttpsConnectorInner {
-    stream_handles: Vec<AbortableStreamHandle>,
-    proxy_config: InnerConnectionMode,
-    abort_notify: Arc<Notify>,
-}
-
-impl HttpsConnectorInner {
-    /// Stop all streams produced by this connector
-    fn reset(&mut self) {
-        for handle in mem::take(&mut self.stream_handles) {
-            handle.close();
-        }
-        self.abort_notify.notify_waiters();
-    }
 }
 
 #[cfg(target_os = "android")]
@@ -376,33 +329,17 @@ impl HttpsConnector {
     ///
     /// Call [HttpsConnector::spawn] to start listening for [events](HttpsConnectorRequest).
     pub fn new(
-        dns_resolver: Arc<dyn DnsResolver>,
         proxy_config: InnerConnectionMode,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Self {
-        let abort_notify = Arc::new(tokio::sync::Notify::new());
-        let connector = Arc::new(Mutex::new(HttpsConnectorInner {
-            proxy_config,
-            stream_handles: Default::default(),
-            abort_notify: abort_notify.clone(),
-        }));
-
         HttpsConnector {
-            state: connector,
-            abort_notify,
-            dns_resolver,
+            proxy_config,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
         }
-    }
-
-    /// Start listening for incoming [HttpsConnectorRequest]s from the created [HttpsConnectorHandle].
-    pub fn spawn(&self) -> HttpsConnectorHandle {
-        let state = self.state.clone();
-        HttpsConnectorHandle { state }
     }
 
     /// Establishes a TCP connection with a peer at the specified socket address.
@@ -436,6 +373,7 @@ impl HttpsConnector {
     /// used. Otherwise `dns_resolver` will be used as a fallback.
     /// If the URI contains a port, then that port will be used.
     #[instrument(level = Level::TRACE, skip(dns_resolver), ret)]
+    // TODO: check  if we should move/reuse this in rest.rs
     async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
 
@@ -465,126 +403,37 @@ impl HttpsConnector {
         addr: SocketAddr,
         hostname: &str,
         // TODO: this is ass
-    ) -> io::Result<(TokioIo<AbortableStream<ApiConnection>>, Duration)> {
-        let inner = self.state.clone();
-        let abort_notify = self.abort_notify.clone();
-
+    ) -> io::Result<(TokioIo<ApiConnection>, Duration)> {
+        // TODO: preserve this behaviour
         // Loop until we have established a connection. This starts over if a new endpoint
         // is selected while connecting.
-        loop {
-            let should_abort = abort_notify.notified();
-            // TODO: should_abort + Mutex<ProxyConfig> smells like it could be a tokio::Watch instead
-            let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
-            let idle_timeout = proxy_config.idle_timeout();
-            let stream_fut = proxy_config.connect(
-                &hostname,
-                &addr,
-                #[cfg(target_os = "android")]
-                self.socket_bypass_tx.clone(),
-                #[cfg(any(feature = "api-override", test))]
-                self.disable_tls,
-            );
+        //loop {
+        let idle_timeout = self.proxy_config.idle_timeout();
+        let stream = self
+                .proxy_config
+                .clone() // TODO: remove clone if possible
+                .connect(
+                    &hostname,
+                    &addr,
+                    #[cfg(target_os = "android")]
+                    self.socket_bypass_tx.clone(),
+                    #[cfg(any(feature = "api-override", test))]
+                    self.disable_tls,
+                )
+                .await?;
 
-            // Wait for connection. Abort and retry if we switched to a different server.
-            let stream = select! {
-                _ = should_abort.fuse() => continue,
-                stream = stream_fut.fuse() => stream?,
-            };
+        Ok((TokioIo::new(stream), idle_timeout))
+        //}
+    }
 
-            let (stream, socket_handle) = AbortableStream::new(stream);
-
-            {
-                let mut inner = inner.lock().unwrap();
-                inner.stream_handles.push(socket_handle);
-            }
-
-            return Ok((TokioIo::new(stream), idle_timeout));
-        }
+    /// Change the proxy settings for the connector
+    pub fn set_connection_mode(&mut self, proxy: ApiConnectionMode) {
+        self.proxy_config = InnerConnectionMode::from(proxy);
     }
 }
 
 impl fmt::Debug for HttpsConnector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HttpsConnector").finish() // TODO
-    }
-}
-
-impl Service<Uri> for HttpsConnector {
-    type Response = TokioIo<AbortableStream<ApiConnection>>;
-    type Error = io::Error;
-    type Future =
-        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
-
-    fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        let mut inner = self.state.lock().unwrap();
-        inner.stream_handles.retain(|handle| !handle.is_closed());
-        Poll::Ready(Ok(()))
-    }
-
-    fn call(&mut self, uri: Uri) -> Self::Future {
-        let inner = self.state.clone();
-        let abort_notify = self.abort_notify.clone();
-        #[cfg(target_os = "android")]
-        let socket_bypass_tx = self.socket_bypass_tx.clone();
-        let dns_resolver = self.dns_resolver.clone();
-
-        #[cfg(any(feature = "api-override", test))]
-        let disable_tls = self.disable_tls;
-
-        let span = trace_span!("HttpsConnector::call");
-        span.record("uri", format_args!("{uri}"));
-
-        let return_span = span.clone();
-        let fut = async move {
-            if uri.scheme() != Some(&Scheme::HTTPS) {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, not https",
-                ));
-            }
-            let Some(hostname) = uri.host().map(str::to_owned) else {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, missing host",
-                ));
-            };
-            let addr = Self::resolve_address(&*dns_resolver, uri).await?;
-
-            // Loop until we have established a connection. This starts over if a new endpoint
-            // is selected while connecting.
-            let stream = loop {
-                let should_abort = abort_notify.notified();
-                let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = proxy_config.connect(
-                    &hostname,
-                    &addr,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx.clone(),
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                );
-
-                // Wait for connection. Abort and retry if we switched to a different server.
-                select! {
-                    _ = should_abort.fuse() => continue,
-                    stream = stream_fut.fuse() => break stream?,
-                }
-            };
-
-            let (stream, socket_handle) = AbortableStream::new(stream);
-
-            {
-                let mut inner = inner.lock().unwrap();
-                inner.stream_handles.push(socket_handle);
-            }
-
-            Ok(TokioIo::new(stream))
-        }
-        .inspect(move |result| {
-            return_span.record("return", format_args!("{result:?}"));
-        })
-        .instrument(span);
-
-        Box::pin(fut)
     }
 }

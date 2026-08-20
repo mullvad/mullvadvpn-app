@@ -1661,8 +1661,9 @@ fn map_rest_error(error: &RestError) -> Status {
             StatusCode::TOO_MANY_REQUESTS.to_string(),
         ),
         RestError::TimeoutError => Status::deadline_exceeded("API request timed out"),
-        RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
-        RestError::LegacyHyperError(_) => Status::unavailable("Cannot reach the API"),
+        RestError::HyperError(_) | RestError::Connect(_) | RestError::Dns(_) => {
+            Status::unavailable("Cannot reach the API")
+        }
         error => Status::unknown(format!("REST error: {error}")),
     }
 }

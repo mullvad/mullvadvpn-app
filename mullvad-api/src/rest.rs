@@ -4,7 +4,7 @@ use crate::{
     DnsResolver,
     access::AccessTokenStore,
     availability::ApiAvailability,
-    https_client::{HttpsConnector, HttpsConnectorHandle, InnerConnectionMode},
+    https_client::{HttpsConnector, InnerConnectionMode},
     proxy::ConnectionModeProvider,
 };
 use futures::{
@@ -21,17 +21,22 @@ use hyper::{
 };
 use mullvad_types::account::AccountNumber;
 use std::{
-    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, io, str::FromStr,
-    sync::Arc, time::Duration,
+    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, io,
+    net::SocketAddr, str::FromStr, sync::Arc, time::Duration,
 };
-use tokio::time::sleep;
+use tokio::time::{sleep, timeout};
 
 pub use hyper::StatusCode;
 
 const USER_AGENT: &str = "mullvad-app";
 
 pub type Result<T> = std::result::Result<T, Error>;
+
+/// Default timeout for a [`Request`].
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+
+/// Deadline to establish a TLS connection to the remote.
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Describes all the ways a REST request can fail
 #[derive(thiserror::Error, Debug, Clone)]
@@ -116,31 +121,25 @@ impl Error {
 
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
-        if let Error::HyperError(error) = &self {
-            let mut source = error.source();
-            while let Some(error) = source {
-                let io_error: Option<&std::io::Error> = error.downcast_ref();
-                if let Some(io_error) = io_error {
-                    let abort_error: Option<&crate::abortable_stream::Aborted> =
-                        io_error.get_ref().and_then(|inner| inner.downcast_ref());
-                    if abort_error.is_some() {
-                        return Self::Aborted;
-                    }
-                }
-                source = error.source();
-            }
+        // Hyper returs `cancelled` if the request or underlying connection was dropped before it
+        // was started. `is_user` is returned when the underlying connection is dropped while
+        // the request is in-flight, but it may also be true for other errors triggered by us.
+        if let Error::HyperError(error) = &self
+            && (error.is_canceled() || error.is_user())
+        {
+            return Self::Aborted;
         }
         self
     }
 }
 
+// TODO: fix comment
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<C: ConnectionModeProvider> {
+pub(crate) struct RequestService<C> {
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connection: Option<Connection>,
     dns_resolver: Arc<dyn DnsResolver>,
-    connector_handle: HttpsConnectorHandle,
     connector: HttpsConnector,
     connection_mode_provider: C,
     api_availability: ApiAvailability,
@@ -149,6 +148,7 @@ pub(crate) struct RequestService<C: ConnectionModeProvider> {
 struct Connection {
     send_request: http1::SendRequest<BoxBody<Bytes, Error>>,
     idle_timeout: Duration,
+    connection_task: tokio::task::AbortHandle,
 }
 
 impl<C: ConnectionModeProvider + 'static> RequestService<C> {
@@ -166,7 +166,6 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         };
 
         let connector = HttpsConnector::new(
-            dns_resolver.clone(),
             proxy_config,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
@@ -179,57 +178,87 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let service = Self {
             dns_resolver,
             command_rx,
-            // TODO: this is wack
-            connector: connector.clone(),
-            connector_handle: connector.spawn(),
+            connector,
             connection_mode_provider,
             api_availability,
             connection: None,
         };
         let handle = RequestServiceHandle { tx: command_tx };
-        tokio::spawn(service.into_future());
+        tokio::spawn(service.run());
         handle
     }
 
-    async fn into_future(mut self) {
+    async fn run(mut self) {
         loop {
             let evict_connection = async {
                 match &self.connection {
-                    Some(c) => sleep(c.idle_timeout).await,
                     None => pending().await,
+                    Some(c) => {
+                        sleep(c.idle_timeout).await;
+                        c.idle_timeout
+                    }
                 }
             };
 
             tokio::select! {
                 new_mode = self.connection_mode_provider.receive() => {
                     let Some(new_mode) = new_mode else { break };
-                    self.connection = None;
-                    self.connector_handle.set_connection_mode(new_mode);
+                    self.soft_close_connection();
+                    self.connector.set_connection_mode(new_mode);
                 }
                 command = self.command_rx.next() => {
                     let Some(command) = command else { break };
                     self.process_command(command).await;
                 }
-                _ = evict_connection => {
-                    tracing::trace!("Evicting active connection");
-                    self.connection = None;
+                idle_for = evict_connection => {
+                    tracing::trace!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
+                    // TODO: this does not take into account in-flight `Body`s
+                    self.soft_close_connection();
                 }
             }
         }
-        self.connector_handle.reset();
     }
 
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
+            // TODO: should Reset command be serialized with NewRequest commands,
+            // or should they preempt them?
+            RequestCommand::Reset => self.close_connection(),
             RequestCommand::NewRequest(request, completion_tx) => {
                 let result = self.send_request(request).await;
                 let _ = completion_tx.send(result);
             }
-            RequestCommand::Reset => {
-                self.connection = None;
-                self.connector_handle.reset();
-            }
         }
+    }
+
+    async fn resolve(&self, host: &str) -> Result<SocketAddr> {
+        tracing::trace!("resolving {host:?}");
+        self.dns_resolver
+            .resolve(host.to_string())
+            .await
+            // TODO  should no dns response map to another error?
+            // TODO  it used to map to io::Error::other
+            .and_then(|addrs| addrs.first().copied().ok_or(io::ErrorKind::NotFound.into()))
+            .map_err(Arc::new)
+            .map_err(Error::Dns)
+    }
+
+    async fn connect(&mut self, host: &str) -> Result<Connection> {
+        let addr = self.resolve(host).await?;
+        tracing::trace!("connecting to {addr} ({host:?})");
+        let (connection, idle_timeout) = self
+            .connector
+            .connect(addr, host)
+            .await
+            .map_err(Arc::new)
+            .map_err(Error::Connect)?;
+        let (send_request, connection) = http1::handshake(connection).await?;
+
+        Ok(Connection {
+            send_request,
+            idle_timeout,
+            connection_task: tokio::spawn(connection).abort_handle(),
+        })
     }
 
     async fn send_request(
@@ -241,28 +270,12 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let connection = match &mut self.connection {
             Some(sr) => sr,
             None => {
+                // TODO: retry if connection mode changes
                 let host = request.uri().host().unwrap(); // TODO:
-                tracing::trace!("resolving {host:?}");
-                let addr = self
-                    .dns_resolver
-                    .resolve(host.to_string())
-                    .await
-                    .and_then(|addrs| addrs.first().copied().ok_or(io::ErrorKind::NotFound.into()))
-                    .map_err(Arc::new)
-                    .map_err(Error::Dns)?;
-                tracing::trace!("connecting to {addr} ({host:?})");
-                let (connection, idle_timeout) = self
-                    .connector
-                    .connect(addr, host)
-                    .await
-                    .map_err(Arc::new)
-                    .map_err(Error::Connect)?;
-                let (send_request, connection) = http1::handshake(connection).await?;
-                tokio::spawn(connection);
-                self.connection.insert(Connection {
-                    send_request,
-                    idle_timeout,
-                })
+                let connection = timeout(CONNECT_TIMEOUT, self.connect(host))
+                    .map_err(|_elapsed| Error::TimeoutError)
+                    .await??;
+                self.connection.insert(connection)
             }
         };
 
@@ -278,11 +291,35 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             && !self.api_availability.is_offline()
         {
             tracing::warn!("{uri:?} request failed: {err:?}");
-            self.connection = None;
+            self.close_connection();
             self.connection_mode_provider.rotate().await;
         }
 
         result
+    }
+}
+
+impl<C> RequestService<C> {
+    /// This drop [`RequestService::connection`], and aborts [`Connection::connection_task`].
+    ///
+    /// Any in-flight [`Body`] returned [`Self::send_request`] will be aborted.
+    fn close_connection(&mut self) {
+        if let Some(connection) = self.connection.take() {
+            connection.connection_task.abort();
+        }
+    }
+
+    /// This drop [`RequestService::connection`], preventing it to be used for new requests,
+    /// but does not directly abort [`Connection::connection_task`], which keeps in-flight
+    /// [`Body`]s active.
+    fn soft_close_connection(&mut self) {
+        self.connection = None;
+    }
+}
+
+impl<C> Drop for RequestService<C> {
+    fn drop(&mut self) {
+        self.close_connection();
     }
 }
 
