@@ -27,32 +27,38 @@ final class PacketTunnelAPITransport: Sendable, APITransportProtocol {
     }
 
     public func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse {
-        try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                guard !Task.isCancelled else {
-                    continuation.resume(throwing: CancellationError())
-                    return
-                }
+        let proxyRequest = ProxyAPIRequest(
+            id: UUID(),
+            request: request
+        )
+        return try await tunnel.sendAPIRequest(proxyRequest)
 
-                let proxyRequest = ProxyAPIRequest(
-                    id: UUID(),
-                    request: request
-                )
-
-                cancellable = tunnel.sendAPIRequest(proxyRequest) { result in
-                    switch result {
-                    case let .success(reply):
-                        continuation.resume(returning: reply)
-
-                    case let .failure(error):
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-        } onCancel: {
-            cancellable?.cancel()
-            cancellable = nil
-        }
+        //        try await withTaskCancellationHandler {
+        //            try await withCheckedThrowingContinuation { continuation in
+        //                guard !Task.isCancelled else {
+        //                    continuation.resume(throwing: CancellationError())
+        //                    return
+        //                }
+        //
+        //                let proxyRequest = ProxyAPIRequest(
+        //                    id: UUID(),
+        //                    request: request
+        //                )
+        //
+        //                cancellable = tunnel.sendAPIRequest(proxyRequest) { result in
+        //                    switch result {
+        //                    case let .success(reply):
+        //                        continuation.resume(returning: reply)
+        //
+        //                    case let .failure(error):
+        //                        continuation.resume(throwing: error)
+        //                    }
+        //                }
+        //            }
+        //        } onCancel: {
+        //            cancellable?.cancel()
+        //            cancellable = nil
+        //        }
     }
 
     func sendRequest(

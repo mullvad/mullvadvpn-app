@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 import MullvadTypes
+import MullvadREST
 
 protocol TunnelJobQueueInteractor: Sendable {
     var tunnel: (any TunnelProtocol)? { get }
@@ -33,12 +34,9 @@ actor TunnelJobQueue {
     }
 
     func reconnect(selectNewRelay: Bool) async throws {
-        await exclusivityAndCancellation()
-//        try await exclusivityCoordinator.withExclusiveAccess {
-//            try await performReconnect(
-//                selectNewRelay: selectNewRelay
-//            )
-//        }
+        try await exclusivityCoordinator.withExclusiveAccess {
+            try await performReconnect(selectNewRelay: selectNewRelay)
+        }
     }
 
     private func performReconnect(selectNewRelay: Bool) async throws {
@@ -53,9 +51,7 @@ actor TunnelJobQueue {
                 throw UnsetTunnelError()
             }
 
-            let observedState = try await tunnel.reconnectTunnel(
-                to: selectNewRelay ? .random : .current
-            )
+            let observedState = try await tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current)
 
             if let connectionState = observedState.connectionState {
                 // This makes the app feel very responsive when the user wants to reconnect.
@@ -77,44 +73,6 @@ actor TunnelJobQueue {
             await interactor.didReconnectTunnel(error: error)
             throw error
         }
-    }
-    
-    
-    
-    func exclusivityAndCancellation() async {
-        let coordinator = AsyncExclusivityCoordinator()
-
-        let tasks = (0..<20).map { index in
-            Task {
-                do {
-                    try await exclusivityCoordinator.withExclusiveAccess {
-                        print("\(index) START")
-                        try await performReconnect(
-                            selectNewRelay: true
-                        )
-                        try await Task.sleep(for: .seconds(1))
-                        print("\(index) END")
-                    }
-                    print("\(index) completed")
-                } catch is CancellationError {
-                    print("\(index) CANCELLED")
-                } catch {
-                    print("\(index) ERROR: \(error)")
-                }
-            }
-        }
-        try? await Task.sleep(for: .milliseconds(100))
-
-        print("Cancelling tasks from 10 to 15")
-        for i in 10..<15 {
-            tasks[i].cancel()
-        }
-
-        for task in tasks {
-            await task.value
-        }
-
-        print("ALL DONE")
     }
 }
 

@@ -34,6 +34,32 @@ extension TunnelProtocol {
         return try mapObservedState(data: result)
     }
 
+    /// Send API request via packet tunnel process bypassing VPN.
+    func sendAPIRequest(_ proxyRequest: ProxyAPIRequest) async throws -> ProxyAPIResponse {
+        let decoderHandler: (Data?) throws -> ProxyAPIResponse = { data in
+            if let data {
+                return try TunnelProviderReply<ProxyAPIResponse>(messageData: data).value
+            } else {
+                throw EmptyTunnelProviderResponseError()
+            }
+        }
+
+        return try await withTaskCancellationHandler {
+            let result = try await sendProviderMessage(
+                .sendAPIRequest(proxyRequest)
+            )
+
+            return try decoderHandler(result)
+        } onCancel: {
+            cancelRemoteAPIRequest(proxyRequest.id)
+        }
+    }
+
+    /// Notify tunnel about private key rotation.
+    func notifyKeyRotation() async throws {
+        _ = try await sendProviderMessage(.getTunnelStatus)
+    }
+
     func mapObservedState(data: Data?) throws -> ObservedState {
         if let data {
             return try TunnelProviderReply<ObservedState>(messageData: data).value
@@ -41,8 +67,15 @@ extension TunnelProtocol {
             throw EmptyTunnelProviderResponseError()
         }
     }
-    
-    private func sendProviderMessage(
+
+    fileprivate func cancelRemoteAPIRequest(_ id: UUID) {
+        Task.detached { [weak self] in
+            guard let self else { return }
+            let result = try? await sendProviderMessage(.cancelAPIRequest(id))
+        }
+    }
+
+    fileprivate func sendProviderMessage(
         _ message: TunnelProviderMessage,
         timeout: Duration = defaultTimeout
     ) async throws
@@ -70,7 +103,7 @@ extension TunnelProtocol {
         }
     }
 
-    private func handleVPNStatus(_ message: Data, timeout: Duration) async throws -> Data? {
+    fileprivate func handleVPNStatus(_ message: Data, timeout: Duration) async throws -> Data? {
         try Task.checkCancellation()
         switch status {
         case .connected, .reasserting:
@@ -94,7 +127,7 @@ extension TunnelProtocol {
         throw CancellationError()
     }
 
-    private func send(_ messageData: Data, timeout: Duration) async throws -> Data? {
+    fileprivate func send(_ messageData: Data, timeout: Duration) async throws -> Data? {
         try Task.checkCancellation()
         guard backgroundTaskProvider.backgroundTimeRemaining > timeout else {
             throw SendTunnelProviderMessageError.notEnoughBackgroundTime
@@ -111,7 +144,7 @@ extension TunnelProtocol {
         }
     }
 
-    private func waitingForTunnelStatus(_ message: Data, timeout: Duration) async throws -> Data? {
+    fileprivate func waitingForTunnelStatus(_ message: Data, timeout: Duration) async throws -> Data? {
         var asyncStream: AsyncStream<NEVPNStatus>.Continuation!
         let events = AsyncStream<NEVPNStatus> { asyncStream = $0 }
 
@@ -126,14 +159,16 @@ extension TunnelProtocol {
             removeObserver(observer)
         }
 
-        for await event in events {
+        asyncStream.yield(status)
+
+        for await _ in events {
             return try await handleVPNStatus(message, timeout: timeout)
         }
         return nil
     }
 
     /// Remaining portion of `connectingStateWaitDelay` measured from the tunnel start date.
-    private func remainingConnectingStateDelay() async -> Duration {
+    fileprivate func remainingConnectingStateDelay() async -> Duration {
         let timeElapsed: Duration
 
         if let startDate = await startDate {
