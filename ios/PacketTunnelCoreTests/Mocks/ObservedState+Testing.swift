@@ -46,6 +46,6 @@ public actor StateCollector {
     }
 
     var collected: [ObservedState] {
-        stateLock.withLock { states }
+         states
     }
 }
