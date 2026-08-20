@@ -24,118 +24,115 @@ public struct MullvadApiRequestFactory: Sendable {
         switch request {
         case let .getAddressList(retryStrategy):
             return MullvadApiCancellable(
-                handle: mullvad_ios_get_addresses(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy()
+                handle: mullvadIosGetAddresses(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy()
                 ))
 
         case let .getRelayList(retryStrategy, etag: etag):
             return MullvadApiCancellable(
-                handle: mullvad_ios_get_relays(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    etag
+                handle: mullvadIosGetRelays(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    etag: etag
                 ))
         case let .sendProblemReport(retryStrategy, problemReportRequest):
-            let rustRequest = RustProblemReportRequest(from: problemReportRequest)
             return MullvadApiCancellable(
-                handle: mullvad_ios_send_problem_report(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    rustRequest.toRust()
+                handle: mullvadIosSendProblemReport(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    request: problemReportRequest
                 ))
         case let .getAccount(retryStrategy, accountNumber: accountNumber):
             return MullvadApiCancellable(
-                handle: mullvad_ios_get_account(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber
+                handle: mullvadIosGetAccount(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber
                 ))
         case let .createAccount(retryStrategy):
             return MullvadApiCancellable(
-                handle: mullvad_ios_create_account(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy()
+                handle: mullvadIosCreateAccount(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy()
                 ))
         case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
             return MullvadApiCancellable(
-                handle: mullvad_ios_delete_account(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber
+                handle: mullvadIosDeleteAccount(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber
                 ))
 
         // Device Proxy
         case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
             return MullvadApiCancellable(
-                handle: mullvad_ios_get_device(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber,
-                    identifier
+                handle: mullvadIosGetDevice(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber,
+                    identifier: identifier
                 ))
 
         case let .getDevices(retryStrategy, accountNumber):
             return MullvadApiCancellable(
-                handle: mullvad_ios_get_devices(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber
+                handle: mullvadIosGetDevices(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber
                 ))
 
         case let .deleteDevice(retryStrategy, accountNumber, identifier):
             return MullvadApiCancellable(
-                handle: mullvad_ios_delete_device(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber,
-                    identifier
+                handle: mullvadIosDeleteDevice(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber,
+                    identifier: identifier
                 ))
         case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
             return MullvadApiCancellable(
-                handle: mullvad_ios_rotate_device_key(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber,
-                    identifier,
-                    publicKey.rawValue.map { $0 }
+                handle: mullvadIosRotateDeviceKey(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber,
+                    identifier: identifier,
+                    publicKey: publicKey.rawValue
                 ))
         case let .createDevice(retryStrategy, accountNumber, request):
             return MullvadApiCancellable(
-                handle: mullvad_ios_create_device(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber,
-                    request.publicKey.rawValue.map { $0 }
+                handle: mullvadIosCreateDevice(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber,
+                    publicKey: request.publicKey.rawValue
                 ))
         case let .checkApiAvailability(retryStrategy, accessMethod):
             return MullvadApiCancellable(
-                handle: mullvad_ios_api_addrs_available(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    convertAccessMethod(accessMethod: accessMethod)
+                handle: mullvadIosApiAddrsAvailable(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!
                 ))
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,
             accountNumber: accountNumber
         ):
             return MullvadApiCancellable(
-                handle: mullvad_ios_init_storekit_payment(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    accountNumber
+                handle: mullvadIosInitStorekitPayment(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    accountNumber: accountNumber
                 ))
         case let .checkStorekitPayment(
             retryStrategy: retryStrategy,
             transaction: transaction
         ):
-            let body = try encoder.encode(transaction)
             return MullvadApiCancellable(
-                handle: mullvad_ios_check_storekit_payment(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    body.map { $0 },
-                    UInt(body.count)
+                handle: mullvadIosCheckStorekitPayment(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    body: try encoder.encode(transaction)
                 ))
         }
     }
