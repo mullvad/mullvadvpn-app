@@ -35,14 +35,14 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject, Sendable {
 
     /**
      Delegate may reconsider if route presentation is still needed.
-
+    
      Return `true` to proceed with presenation, otherwise `false` to prevent it.
      */
     func applicationRouter(_ router: ApplicationRouter<RouteType>, shouldPresent route: RouteType) -> Bool
 
     /**
      Delegate may reconsider if route dismissal should be done.
-
+    
      Return `true` to proceed with dismissal, otherwise `false` to prevent it.
      */
     func applicationRouter(

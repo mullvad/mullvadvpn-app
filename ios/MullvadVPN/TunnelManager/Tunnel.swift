@@ -25,7 +25,7 @@ protocol TunnelProtocol: AnyObject, Sendable {
     associatedtype TunnelManagerProtocol: VPNTunnelProviderManagerProtocol
     var status: NEVPNStatus { get }
     var isOnDemandEnabled: Bool { get set }
-    var startDate: Date? { get }
+    var startDate: Date? { get async }
     var backgroundTaskProvider: BackgroundTaskProviding { get }
 
     init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding)
@@ -39,8 +39,8 @@ protocol TunnelProtocol: AnyObject, Sendable {
 
     func logFormat() -> String
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void)
-    func removeFromPreferences(completion: @escaping (Error?) -> Void)
+    func saveToPreferences(_ completion: @escaping @Sendable (Error?) -> Void)
+    func removeFromPreferences(completion: @escaping @Sendable (Error?) -> Void)
 
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
@@ -50,10 +50,13 @@ protocol TunnelProtocol: AnyObject, Sendable {
 
 /// Tunnel wrapper class.
 final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
+
     /// Unique identifier assigned to instance at the time of creation.
     let identifier = UUID()
 
     var backgroundTaskProvider: BackgroundTaskProviding
+
+    private let tunnelLifeCycle = TunnelLifeCycle()
 
     #if DEBUG
         /// System VPN configuration identifier.
@@ -80,10 +83,9 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     /// It's set to `distantPast` when the VPN connection was established prior to being observed
     /// by the class.
     var startDate: Date? {
-        lock.lock()
-        defer { lock.unlock() }
-
-        return _startDate
+        get async {
+            await tunnelLifeCycle.startedAt
+        }
     }
 
     /// Tunnel connection status.
@@ -111,10 +113,7 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         return s
     }
 
-    private let lock = NSLock()
     private var observerList = ObserverList<any TunnelStatusObserver>()
-
-    private var _startDate: Date?
     internal let tunnelProvider: TunnelProviderManagerType
 
     init(tunnelProvider: TunnelProviderManagerType, backgroundTaskProvider: BackgroundTaskProviding) {
@@ -153,7 +152,7 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         configuration.apply(to: tunnelProvider)
     }
 
-    func saveToPreferences(_ completion: @escaping (Error?) -> Void) {
+    func saveToPreferences(_ completion: @escaping @Sendable (Error?) -> Void) {
         tunnelProvider.saveToPreferences { error in
             if let error {
                 completion(error)
@@ -167,7 +166,7 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
         }
     }
 
-    func removeFromPreferences(completion: @escaping (Error?) -> Void) {
+    func removeFromPreferences(completion: @escaping @Sendable (Error?) -> Void) {
         tunnelProvider.removeFromPreferences(completionHandler: completion)
     }
 
@@ -208,33 +207,36 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
-        switch status {
-        case .connecting:
-            lock.lock()
-            _startDate = Date()
-            lock.unlock()
-
-        case .connected, .reasserting:
-            lock.lock()
-            if _startDate == nil {
-                _startDate = .distantPast
-            }
-            lock.unlock()
-
-        case .disconnecting:
-            break
-
-        case .disconnected, .invalid:
-            lock.lock()
-            _startDate = nil
-            lock.unlock()
-
-        @unknown default:
-            break
+        Task {
+            await tunnelLifeCycle.handleVPNStatus(status)
         }
     }
 
     static func == (lhs: Tunnel, rhs: Tunnel) -> Bool {
         lhs.tunnelProvider == rhs.tunnelProvider
+    }
+}
+
+private actor TunnelLifeCycle {
+    private(set) var startedAt: Date?
+
+    func handleVPNStatus(_ status: NEVPNStatus) {
+        switch status {
+        case .connecting:
+            startedAt = Date()
+
+        case .connected, .reasserting:
+            if startedAt == nil {
+                startedAt = .distantPast
+            }
+
+        case .disconnecting:
+            break
+
+        case .disconnected, .invalid:
+            startedAt = nil
+        @unknown default:
+            break
+        }
     }
 }

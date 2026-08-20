@@ -94,7 +94,7 @@ public actor PacketTunnelActor {
     /**
      Spawn a detached task that consumes events from the channel indefinitely until the channel is closed.
      Events are processed one at a time, so no suspensions should affect the order of execution and thus guarantee transactional execution.
-
+    
      - Parameter channel: event channel.
      */
     private nonisolated func consumeEvents(channel: EventChannel) {
@@ -219,8 +219,56 @@ public actor PacketTunnelActor {
 
 extension PacketTunnelActor {
     /**
-     Entry point for attempting to start the tunnel by performing the following steps:
+     Start the tunnel.
+    
+     Can only be called once, all subsequent attempts are ignored. Use `reconnect()` if you wish to change relay.
+    
+     - Parameter options: start options produced by packet tunnel
+     */
+    public func start(options: StartOptions) async {
+        guard case .initial = state else { return }
 
+        logger.debug("\(options.logFormat())")
+
+        do {
+            try await tryStart(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
+        } catch {
+            logger.error(error: error, message: "Failed to start the tunnel.")
+
+            await setErrorStateInternal(with: error)
+        }
+    }
+
+    /// Stop the tunnel.
+    public func stop() async {
+        switch state {
+        case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
+            let .negotiatingEphemeralPeer(connState, _):
+            state = .disconnecting(connState)
+            tunnelMonitor.stop()
+
+            // Fallthrough to stop adapter and shift to `.disconnected` state.
+            fallthrough
+
+        case .error:
+            do {
+                try await tunnelAdapter.stop()
+            } catch {
+                logger.error(error: error, message: "Failed to stop adapter.")
+            }
+            state = .disconnected
+
+        case .initial, .disconnected:
+            break
+
+        case .disconnecting:
+            assertionFailure("stop(): out of order execution.")
+        }
+    }
+
+    /**
+     Entry point for attempting to start the tunnel by performing the following steps:
+    
      - Read settings
      - Start either a direct connection or the post-quantum key negotiation process, depending on settings.
      */
@@ -258,14 +306,14 @@ extension PacketTunnelActor {
 
     /**
      Attempt to start a direct (non-quantum) connection to the tunnel by performing the following steps:
-
+    
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
      `.disconnecting` state.
      - Configure tunnel adapter.
      - Start tunnel monitor.
      - Reactivate default path observation (disabled when configuring tunnel adapter)
-
+    
      - Parameters:
      - nextRelays: which relays should be selected next.
      - reason: reason for reconnect
@@ -313,12 +361,12 @@ extension PacketTunnelActor {
 
     /**
      Derive `ConnectionState` from current `state` updating it with new relays and settings.
-
+    
      - Parameters:
      - nextRelays: relay preference that should be used when selecting next relays.
      - settings: current settings
      - reason: reason for reconnect
-
+    
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
     internal func makeConnectionState(
@@ -443,13 +491,13 @@ extension PacketTunnelActor {
 
     /**
      Select next relay to connect to based on `NextRelays` and other input parameters.
-
+    
      - Parameters:
      - nextRelays: next relays to connect to.
      - relayConstraints: relay constraints.
      - currentRelays: currently selected relays.
      - connectionAttemptCount: number of failed connection attempts so far.
-
+    
      - Returns: selector result that contains the credentials of the next relays that the tunnel should connect to.
      */
     private func selectRelays(

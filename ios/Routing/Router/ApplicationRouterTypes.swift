@@ -40,7 +40,7 @@ enum PendingPresentationResult: Sendable {
     /**
      The request to present this route cannot be fulfilled because the modal context does not allow
      for that.
-
+    
      For example, on iPad, primary context cannot be presented above settings, because it enables
      access to settings by making the settings cog accessible via custom presentation controller.
      In such case the router will attempt to fulfill other requests in hope that perhaps settings
@@ -66,7 +66,7 @@ enum PendingDismissalResult: Sendable {
     /**
      The route cannot be dismissed immediately because it's blocked by another modal presented
      above.
-
+    
      The router will attempt to fulfill other requests first in hope to unblock the route by
      dismissing the modal above before getting back to that request.
      */

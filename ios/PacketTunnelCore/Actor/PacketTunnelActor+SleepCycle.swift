@@ -11,7 +11,7 @@ import Foundation
 extension PacketTunnelActor {
     /**
      Clients should call this method to notify actor when device wakes up.
-
+    
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
      */
     public nonisolated func onWake() {
@@ -20,7 +20,7 @@ extension PacketTunnelActor {
 
     /**
      Clients should call this method to notify actor when device is about to go to sleep.
-
+    
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
      */
     public nonisolated func onSleep() {

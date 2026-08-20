@@ -1140,6 +1140,12 @@
 		F0B06BC32EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B06BC42EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
+		F0B455B530363C98001E2BC3 /* SendTunnelProviderMessageTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455B430363C96001E2BC3 /* SendTunnelProviderMessageTask.swift */; };
+		F0B455B630363C98001E2BC3 /* SendTunnelProviderMessageTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455B430363C96001E2BC3 /* SendTunnelProviderMessageTask.swift */; };
+		F0B455B93036410E001E2BC3 /* TunnelJobQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455B830364103001E2BC3 /* TunnelJobQueue.swift */; };
+		F0B455BA3036410E001E2BC3 /* TunnelJobQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455B830364103001E2BC3 /* TunnelJobQueue.swift */; };
+		F0B455BC3036414C001E2BC3 /* Tunnel+AsyncMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455BB3036413E001E2BC3 /* Tunnel+AsyncMessaging.swift */; };
+		F0B455BD3036414C001E2BC3 /* Tunnel+AsyncMessaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B455BB3036413E001E2BC3 /* Tunnel+AsyncMessaging.swift */; };
 		F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495752D02025200CFEC2A /* ChipContainerView.swift */; };
 		F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */; };
 		F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeature.swift */; };
@@ -2731,6 +2737,9 @@
 		F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
+		F0B455B430363C96001E2BC3 /* SendTunnelProviderMessageTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageTask.swift; sourceTree = "<group>"; };
+		F0B455B830364103001E2BC3 /* TunnelJobQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelJobQueue.swift; sourceTree = "<group>"; };
+		F0B455BB3036413E001E2BC3 /* Tunnel+AsyncMessaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tunnel+AsyncMessaging.swift"; sourceTree = "<group>"; };
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
 		F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewModelProtocol.swift; sourceTree = "<group>"; };
 		F0B495792D02F41F00CFEC2A /* ChipFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFeature.swift; sourceTree = "<group>"; };
@@ -3383,6 +3392,7 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
+				F0B455B7303640F8001E2BC3 /* NewConcurrency */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
 				F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */,
 				58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */,
@@ -5153,6 +5163,16 @@
 			path = ChipView;
 			sourceTree = "<group>";
 		};
+		F0B455B7303640F8001E2BC3 /* NewConcurrency */ = {
+			isa = PBXGroup;
+			children = (
+				F0B455BB3036413E001E2BC3 /* Tunnel+AsyncMessaging.swift */,
+				F0B455B430363C96001E2BC3 /* SendTunnelProviderMessageTask.swift */,
+				F0B455B830364103001E2BC3 /* TunnelJobQueue.swift */,
+			);
+			path = NewConcurrency;
+			sourceTree = "<group>";
+		};
 		F0DC779F2B2222D20087F09D /* Relay */ = {
 			isa = PBXGroup;
 			children = (
@@ -6475,7 +6495,9 @@
 				7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */,
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
 				A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */,
+				F0B455BA3036410E001E2BC3 /* TunnelJobQueue.swift in Sources */,
 				7ACE19152C1C429A00260BB6 /* MultihopDecisionFlowTests.swift in Sources */,
+				F0B455B530363C98001E2BC3 /* SendTunnelProviderMessageTask.swift in Sources */,
 				7A2F410A2EC38FD20013D3C5 /* StoreSubscription.swift in Sources */,
 				F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */,
@@ -6535,6 +6557,7 @@
 				7A76360A2FBF27100075DC0E /* MultihopValidator.swift in Sources */,
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
+				F0B455BC3036414C001E2BC3 /* Tunnel+AsyncMessaging.swift in Sources */,
 				F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */,
 				4449B4A82FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */,
 				7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */,
@@ -6975,6 +6998,7 @@
 				587EB6742714520600123C75 /* VPNSettingsDataSourceDelegate.swift in Sources */,
 				7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
+				F0B455B630363C98001E2BC3 /* SendTunnelProviderMessageTask.swift in Sources */,
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
 				7AF822C72DF0664700BA4255 /* DAITAMultihopNotice.swift in Sources */,
 				7A8A191E2CEF5CF2000BCB5B /* TunnelSettingsObservable.swift in Sources */,
@@ -7073,6 +7097,7 @@
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
 				4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
+				F0B455B93036410E001E2BC3 /* TunnelJobQueue.swift in Sources */,
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
 				F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */,
 				58CEB2E92AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift in Sources */,
@@ -7175,6 +7200,7 @@
 				7A6389DB2B7E3BD6008E77E1 /* CustomListCellConfiguration.swift in Sources */,
 				A957F0B630235D470093B79F /* AntiCensorshipView.swift in Sources */,
 				F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */,
+				F0B455BD3036414C001E2BC3 /* Tunnel+AsyncMessaging.swift in Sources */,
 				7A5869B72B56B41500640D27 /* IPOverrideTextViewController.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				F96D04E92EC317B9004A4D48 /* ExitLocationView.swift in Sources */,
