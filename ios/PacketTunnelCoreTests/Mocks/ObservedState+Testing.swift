@@ -38,8 +38,7 @@ extension ObservedState {
 }
 
 /// Thread-safe sink for states observed from a `Task`, so a test can read them back afterwards.
-final class StateCollector: @unchecked Sendable {
-    private let stateLock = NSLock()
+public actor StateCollector {
     private var states: [ObservedState] = []
 
     func append(_ state: ObservedState) {
