@@ -13,8 +13,8 @@ import MullvadTypes
 import PacketTunnelCore
 
 /// Blocked state error mapper stub that can be configured with a block to simulate a desired behavior.
-class BlockedStateErrorMapperStub: BlockedStateErrorMapperProtocol {
-    let block: (Error) -> BlockedStateReason
+final class BlockedStateErrorMapperStub: BlockedStateErrorMapperProtocol, Sendable {
+    let block: @Sendable (Error) -> BlockedStateReason
 
     /// Initialize a stub that always returns .unknown block reason.
     init() {
@@ -22,7 +22,7 @@ class BlockedStateErrorMapperStub: BlockedStateErrorMapperProtocol {
     }
 
     /// Initialize a stub with custom error mapper block.
-    init(block: @escaping (Error) -> BlockedStateReason) {
+    init(block: @Sendable @escaping (Error) -> BlockedStateReason) {
         self.block = block
     }
 
