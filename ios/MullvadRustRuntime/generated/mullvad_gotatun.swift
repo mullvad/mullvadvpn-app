@@ -2826,6 +2826,83 @@ public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: UIn
 }
 }
 /**
+ * create device via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `retry_strategy` must have been created by a call to either of the following functions
+ * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * the `account_number` must be a pointer to a null terminated string.
+ * the `identifier` must be a pointer to a null terminated string.
+ * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+public func mullvadIosCreateDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) -> SwiftCancelHandle  {
+    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_ios_create_device(
+        FfiConverterTypeApiContext_lower(apiContext),
+        FfiConverterTypeRetryStrategy_lower(retryStrategy),
+        FfiConverterString.lower(accountNumber),
+        FfiConverterData.lower(publicKey),$0
+    )
+})
+}
+/**
+ * delete device via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `retry_strategy` must have been created by a call to either of the following functions
+ * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * the `account_number` must be a pointer to a null terminated string.
+ * the `identifier` must be a pointer to a null terminated string.
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+public func mullvadIosDeleteDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> SwiftCancelHandle  {
+    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_ios_delete_device(
+        FfiConverterTypeApiContext_lower(apiContext),
+        FfiConverterTypeRetryStrategy_lower(retryStrategy),
+        FfiConverterString.lower(accountNumber),
+        FfiConverterString.lower(identifier),$0
+    )
+})
+}
+/**
+ * Get device info via the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_ios_init_new`.
+ *
+ * the `account_number` must be a pointer to a null terminated string.
+ * the `identifier` must be a pointer to a null terminated string.
+ *
+ * `retry_strategy` must have been created by a call to either of the following functions
+ * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+public func mullvadIosGetDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> SwiftCancelHandle  {
+    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_ios_get_device(
+        FfiConverterTypeApiContext_lower(apiContext),
+        FfiConverterTypeRetryStrategy_lower(retryStrategy),
+        FfiConverterString.lower(accountNumber),
+        FfiConverterString.lower(identifier),$0
+    )
+})
+}
+/**
  * Get devices info via the Mullvad API client.
  *
  * # Safety
@@ -2873,6 +2950,43 @@ public func mullvadIosRotateDeviceKey(apiContext: ApiContext, retryStrategy: Ret
         FfiConverterString.lower(accountNumber),
         FfiConverterString.lower(identifier),
         FfiConverterData.lower(publicKey),$0
+    )
+})
+}
+/**
+ * Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
+ * The result needs to be consumed.
+ */
+public func mullvadApiRetryStrategyConstant(maxRetries: UInt64, delaySec: UInt64) -> RetryStrategy  {
+    return try!  FfiConverterTypeRetryStrategy_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_retry_strategy_constant(
+        FfiConverterUInt64.lower(maxRetries),
+        FfiConverterUInt64.lower(delaySec),$0
+    )
+})
+}
+/**
+ * Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
+ * The delay will never exceed `max_delay_sec`
+ * The result needs to be consumed.
+ */
+public func mullvadApiRetryStrategyExponential(maxRetries: UInt64, initialSec: UInt64, factor: UInt32, maxDelaySec: UInt64) -> RetryStrategy  {
+    return try!  FfiConverterTypeRetryStrategy_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_retry_strategy_exponential(
+        FfiConverterUInt64.lower(maxRetries),
+        FfiConverterUInt64.lower(initialSec),
+        FfiConverterUInt32.lower(factor),
+        FfiConverterUInt64.lower(maxDelaySec),$0
+    )
+})
+}
+/**
+ * Creates a retry strategy that never retries after failure.
+ * The result needs to be consumed.
+ */
+public func mullvadApiRetryStrategyNever() -> RetryStrategy  {
+    return try!  FfiConverterTypeRetryStrategy_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_retry_strategy_never($0
     )
 })
 }
@@ -2962,10 +3076,28 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 9336) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_device() != 50725) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_device() != 19709) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_device() != 32477) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_devices() != 49298) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 33379) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_retry_strategy_constant() != 18560) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_retry_strategy_exponential() != 1244) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_retry_strategy_never() != 41494) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment() != 48962) {

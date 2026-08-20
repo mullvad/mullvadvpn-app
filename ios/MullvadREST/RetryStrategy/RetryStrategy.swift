@@ -23,7 +23,7 @@ extension REST {
         }
 
         /// The return value of this function *must* be passed to a Rust FFI function that will consume it, otherwise it will leak.
-        public func toRustStrategy() -> SwiftRetryStrategy {
+        public func toRustStrategy() -> MullvadRustRuntime.RetryStrategy {
             switch delay {
             case .never:
                 return mullvad_api_retry_strategy_never()
