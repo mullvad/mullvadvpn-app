@@ -1,4 +1,5 @@
 import { messages } from '../../../../shared/gettext';
+import { useSettingsMigrations } from '../../../features/migration/hooks';
 import { BetaSetting } from '../../../features/version/components';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
@@ -8,12 +9,19 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { HeaderTitle } from '../../SettingsHeader';
-import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
+import {
+  ChangelogListItem,
+  MigratedSettingsListItem,
+  UpdateAvailableListItem,
+  VersionListItem,
+} from './components';
 import { useShowUpdateAvailable } from './hooks';
 
 export function AppInfoView() {
   const { pop } = useHistory();
   const showUpdateAvailable = useShowUpdateAvailable();
+  const { hasSettingsMigrations } = useSettingsMigrations();
+
   return (
     <View backgroundColor="darkBlue">
       <BackAction action={pop}>
@@ -34,6 +42,7 @@ export function AppInfoView() {
                   {showUpdateAvailable && <UpdateAvailableListItem />}
                   <FlexColumn>
                     <ChangelogListItem />
+                    {hasSettingsMigrations && <MigratedSettingsListItem />}
                     <VersionListItem />
                   </FlexColumn>
                   <BetaSetting />
