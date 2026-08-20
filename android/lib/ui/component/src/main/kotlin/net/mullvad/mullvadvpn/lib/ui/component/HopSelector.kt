@@ -43,6 +43,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -659,6 +662,8 @@ private fun Hop(
         LocalContentColor provides
             if (selected) MaterialTheme.colorScheme.onPrimary else deselectedColor
     ) {
+        val filterButtonRequester = remember { FocusRequester() }
+        val rowRequester = remember { FocusRequester() }
         Row(
             modifier =
                 modifier
@@ -666,6 +671,8 @@ private fun Hop(
                         role = Role.Switch
                         this.selected = selected
                     }
+                    .focusProperties { end = filterButtonRequester }
+                    .focusRequester(rowRequester)
                     .clip(RoundedCornerShape(Dimens.hopRadius))
                     .background(colors.containerColor(selected))
                     .let {
@@ -704,6 +711,9 @@ private fun Hop(
             )
             FilterButton(
                 filterState = filterState,
+                modifier =
+                    Modifier.focusProperties { start = rowRequester }
+                        .focusRequester(filterButtonRequester),
                 enabled = filterButtonEnabled,
                 onFilterClick = onFilterClick,
             )
@@ -714,11 +724,12 @@ private fun Hop(
 @Composable
 private fun FilterButton(
     filterState: FilterState,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onFilterClick: () -> Unit,
 ) {
     IconButton(
-        modifier = Modifier.padding(end = Dimens.smallPadding),
+        modifier = modifier.padding(end = Dimens.smallPadding),
         enabled = enabled,
         onClick = onFilterClick,
     ) {
