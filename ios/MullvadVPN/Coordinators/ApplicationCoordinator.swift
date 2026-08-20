@@ -586,8 +586,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             settingsManager: settingsManager
         )
 
-        coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
-
         coordinator.navigateToAccessMethods = { [weak self] in
             self?.router.present(.apiAccess, animated: true)
         }
