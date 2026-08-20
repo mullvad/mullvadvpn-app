@@ -1,4 +1,4 @@
-use chrono::{DateTime, offset::Utc};
+use chrono::{DateTime, TimeDelta, offset::Utc};
 use serde::{Deserialize, Serialize};
 
 /// Account identifier used for authentication.
@@ -59,8 +59,12 @@ pub struct AccessTokenData {
 }
 
 impl AccessTokenData {
-    /// Return true if the token is no longer valid.
+    /// How long before its actual expiry an access token is considered expired. Tolerates a small
+    /// amount of clock skew relative to the API.
+    const EXPIRY_MARGIN: TimeDelta = TimeDelta::minutes(1);
+
+    /// Return true if the token is no longer valid, or expires within [`Self::EXPIRY_MARGIN`].
     pub fn is_expired(&self) -> bool {
-        Utc::now() >= self.expiry
+        self.expiry - Utc::now() <= Self::EXPIRY_MARGIN
     }
 }
