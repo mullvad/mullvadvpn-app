@@ -86,6 +86,7 @@
     <string name="confirm_no_email">You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.</string>
     <string name="send_anyway">Send anyway</string>
     <string name="back">Back</string>
+    <string name="back_with_icon"> %1$s Back</string>
     <string name="sent_thanks">Thanks!</string>
     <string name="we_will_look_into_this">We will look into this.</string>
     <string name="sent_contact">If needed we will contact you at %1$s</string>
