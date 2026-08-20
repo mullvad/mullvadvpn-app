@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 
 private val PROVIDER_TO_OWNERSHIPS = mapOf(ProviderId("provider1") to setOf(Ownership.MullvadOwned))
 
@@ -11,6 +12,7 @@ class FilterUiStatePreviewParameterProvider : PreviewParameterProvider<FilterUiS
     override val values =
         sequenceOf(
             FilterUiState(
+                filterTarget = RelayHopType.ENTRY,
                 providerToOwnerships = PROVIDER_TO_OWNERSHIPS,
                 selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
                 selectedProviders = Constraint.Only(PROVIDER_TO_OWNERSHIPS.keys),
