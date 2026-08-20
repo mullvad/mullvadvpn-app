@@ -26,15 +26,9 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
 
-typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
-
 typedef struct LegacySwiftApiContext {
   uint64_t ptr;
 } LegacySwiftApiContext;
-
-typedef struct SwiftAccessMethodSettingsWrapper {
-  struct SwiftAccessMethodSettingsContext *_0;
-} SwiftAccessMethodSettingsWrapper;
 
 typedef struct SwiftData {
   void *ptr;
@@ -108,12 +102,6 @@ typedef struct ProxyHandle {
 extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
- * Called by Swift to set the available access methods
- */
-void mullvad_api_update_access_methods(struct LegacySwiftApiContext api_context,
-                                       struct SwiftAccessMethodSettingsWrapper settings_wrapper);
-
-/**
  * Called by Swift to update the currently used access methods
  *
  * # SAFETY
@@ -153,20 +141,6 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
                                             bool is_enabled,
                                             SwiftAccessMethodKind method_kind,
                                             void *proxy_configuration);
-
-/**
- * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
- *
- * # SAFETY
- * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
- * resulting from a call to `convert_builtin_access_method_setting`.
- * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
- */
-struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void *direct_method_raw,
-                                                                            void *bridges_method_raw,
-                                                                            void *encrypted_dns_method_raw,
-                                                                            void *custom_methods_raw,
-                                                                            uintptr_t custom_method_count);
 
 /**
  * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing

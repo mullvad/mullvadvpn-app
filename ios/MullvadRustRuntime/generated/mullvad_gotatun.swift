@@ -2862,6 +2862,35 @@ fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     }
 }
 /**
+ * Called by Swift to set the available access methods
+ */
+public func mullvadApiUpdateAccessMethods(apiContext: ApiContext, settingsWrapper: SwiftAccessMethodSettingsContext)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_update_access_methods(
+        FfiConverterTypeApiContext_lower(apiContext),
+        FfiConverterTypeSwiftAccessMethodSettingsContext_lower(settingsWrapper),$0
+    )
+}
+}
+/**
+ * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
+ *
+ * # SAFETY
+ * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
+ * resulting from a call to `convert_builtin_access_method_setting`.
+ * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
+ */
+public func initAccessMethodSettingsWrapper(directMethodRaw: UInt64, bridgesMethodRaw: UInt64, encryptedDnsMethodRaw: UInt64, customMethodsRaw: UInt64, customMethodCount: UInt64) -> SwiftAccessMethodSettingsContext  {
+    return try!  FfiConverterTypeSwiftAccessMethodSettingsContext_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_init_access_method_settings_wrapper(
+        FfiConverterUInt64.lower(directMethodRaw),
+        FfiConverterUInt64.lower(bridgesMethodRaw),
+        FfiConverterUInt64.lower(encryptedDnsMethodRaw),
+        FfiConverterUInt64.lower(customMethodsRaw),
+        FfiConverterUInt64.lower(customMethodCount),$0
+    )
+})
+}
+/**
  * # Safety
  *
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
@@ -3279,6 +3308,12 @@ private let initializationResult: InitializationResult = {
     let scaffolding_contract_version = ffi_mullvad_ios_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_update_access_methods() != 11043) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 11200) {
+        return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 39115) {
         return InitializationResult.apiChecksumMismatch

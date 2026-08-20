@@ -7,7 +7,6 @@ use crate::{
     get_string,
 };
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
-use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use futures::{
     StreamExt,
     channel::{mpsc, oneshot},
@@ -284,10 +283,10 @@ impl ApiContext {
     ///
     /// This function will block the current thread until it is complete,
     /// make sure to not call this from a UI Thread if possible.
-    pub fn update_access_methods(&self, access_methods: Settings) {
+    pub fn update_access_methods(&self, access_methods: &Settings) {
         _ = self.api_client.handle().block_on(async {
             self.access_mode_handler
-                .update_access_methods(access_methods)
+                .update_access_methods(access_methods.clone())
                 .await
         });
     }
@@ -298,16 +297,12 @@ impl ApiContext {
 }
 
 /// Called by Swift to set the available access methods
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_update_access_methods(
-    api_context: SwiftApiContext,
-    settings_wrapper: SwiftAccessMethodSettingsWrapper,
+#[uniffi::export]
+pub fn mullvad_api_update_access_methods(
+    api_context: Arc<ApiContext>,
+    settings_wrapper: Arc<SwiftAccessMethodSettingsContext>,
 ) {
-    // SAFETY: `settings_wrapper` must be a valid instance of SwiftAccessMethodSettingsWrapper
-    let access_methods = unsafe { settings_wrapper.into_rust_context().settings };
-    api_context
-        .rust_context()
-        .update_access_methods(access_methods);
+    api_context.update_access_methods(&settings_wrapper.settings);
 }
 
 /// Called by Swift to update the currently used access methods

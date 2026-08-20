@@ -8,7 +8,7 @@
 
 import MullvadTypes
 
-public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -> SwiftAccessMethodSettingsWrapper {
+public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -> SwiftAccessMethodSettingsContext {
     let validShadowsocksCiphers = ShadowsocksCipherService().getCiphers()
 
     // 1. Get all the built in access methods, it is expected that they are always available
@@ -41,12 +41,12 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
     let customMethodCount = rawCustomMethods.count
     return rawCustomMethods.withUnsafeMutableBufferPointer(
         {
-            init_access_method_settings_wrapper(
-                directMethodRaw,
-                bridgesMethodRaw,
-                encryptedDNSMethodRaw,
-                $0.baseAddress!,
-                UInt(customMethodCount)
+            initAccessMethodSettingsWrapper(
+                directMethodRaw: UInt64(Int(bitPattern: directMethodRaw)),
+                bridgesMethodRaw: UInt64(Int(bitPattern: bridgesMethodRaw)),
+                encryptedDnsMethodRaw: UInt64(Int(bitPattern: encryptedDNSMethodRaw)),
+                customMethodsRaw: UInt64(Int(bitPattern: $0.baseAddress!)),
+                customMethodCount: UInt64(Int(bitPattern: UInt(customMethodCount)))
             )
         }
     )

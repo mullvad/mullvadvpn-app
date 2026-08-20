@@ -40,6 +40,8 @@ public class MullvadAccessMethodReceiver {
 
     private func updateAccessMethods(_ accessMethods: [PersistentAccessMethod]) {
         let settingsWrapper = initAccessMethodSettingsWrapper(methods: accessMethods)
-        mullvad_api_update_access_methods(apiContext.context.unsafeRaw().legacy(), settingsWrapper)
+        mullvadApiUpdateAccessMethods(
+            apiContext: apiContext.context,
+            settingsWrapper: settingsWrapper)
     }
 }
