@@ -7,13 +7,19 @@
 //!
 //! The difference is what the multiplexer costs on top of the obfuscator itself.
 
+use blake2::{
+    Blake2s256, Blake2sMac, Digest,
+    digest::{Mac, consts::U16},
+};
 use core::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, ops::Range, sync::Arc, time::Duration};
 use talpid_net::bypass::NoopBypass;
 use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
 use tokio::{net::UdpSocket, sync::oneshot};
 use tunnel_obfuscation::{LocalSocketObfuscator, lwo, multiplexer};
+
+const SESSION: u32 = 1;
 
 /// Control: plain UDP send and receive, with nothing in between.
 fn bench_plain_udp(c: &mut Criterion) {
@@ -60,6 +66,7 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
             transports: vec![multiplexer::Transport::Obfuscated(lwo_settings(
                 relay.local_addr().unwrap(),
             ))],
+            client_public_key: keys().0,
             selected_transport: selected_tx,
         };
         let multiplexer = multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings)
@@ -72,7 +79,7 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
 
         // Reply, so that the multiplexer commits to this transport and enters connected mode.
         let (client_key, _) = keys();
-        let mut response = wg_data_packet();
+        let mut response = handshake_response(SESSION, &client_key).to_vec();
         lwo::obfuscate_thread_local(&mut response, client_key.as_bytes());
         let mut buf = vec![0u8; 65535];
         loop {
@@ -119,7 +126,8 @@ async fn warm_up(endpoint: SocketAddr, relay: &UdpSocket) -> (UdpSocket, SocketA
     let wg = UdpSocket::bind("127.0.0.1:0").await.unwrap();
     wg.connect(endpoint).await.unwrap();
 
-    let packet = wg_data_packet();
+    // A handshake initiation, so that the multiplexer will recognize the response to it.
+    let packet = handshake_initiation(SESSION);
     let mut buf = vec![0u8; 65535];
     loop {
         wg.send(&packet).await.unwrap();
@@ -161,6 +169,58 @@ fn keys() -> (PublicKey, PublicKey) {
     let client = PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
     let server = PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap();
     (client, server)
+}
+
+// First byte of each type of message.
+const HANDSHAKE_INITIATION: u8 = 1;
+const HANDSHAKE_RESPONSE: u8 = 2;
+
+// Handshake messages are a fixed size, so anything else is not one.
+const HANDSHAKE_INITIATION_SIZE: usize = 148;
+const HANDSHAKE_RESPONSE_SIZE: usize = 92;
+
+// Field offsets. `mac1` sits at the end of a response and covers every byte before it.
+const SENDER_INDEX: Range<usize> = 4..8;
+const RESPONSE_RECEIVER_INDEX: Range<usize> = 8..12;
+const RESPONSE_MAC1: Range<usize> = 60..76;
+
+/// Build a handshake initiation carrying `sender_index`. Only the fields that identify the
+/// handshake are filled in.
+fn handshake_initiation(sender_index: u32) -> [u8; HANDSHAKE_INITIATION_SIZE] {
+    let mut packet = [0u8; HANDSHAKE_INITIATION_SIZE];
+    packet[0] = HANDSHAKE_INITIATION;
+    packet[SENDER_INDEX].copy_from_slice(&sender_index.to_le_bytes());
+    packet
+}
+
+/// Build a handshake response to the initiation that carried `receiver_index`, with a `mac1` that
+/// accepts for `client_public_key`.
+fn handshake_response(
+    receiver_index: u32,
+    client_public_key: &PublicKey,
+) -> [u8; HANDSHAKE_RESPONSE_SIZE] {
+    let mut packet = [0u8; HANDSHAKE_RESPONSE_SIZE];
+    packet[0] = HANDSHAKE_RESPONSE;
+    packet[RESPONSE_RECEIVER_INDEX].copy_from_slice(&receiver_index.to_le_bytes());
+    let mac = mac1(&mac1_key(client_public_key)).chain_update(&packet[..RESPONSE_MAC1.start]);
+    packet[RESPONSE_MAC1].copy_from_slice(&mac.finalize().into_bytes());
+    packet
+}
+
+/// Keyed BLAKE2s with a 16 byte output.
+type Mac1 = Blake2sMac<U16>;
+
+/// The key that `mac1` of a message addressed to `public_key` is computed with.
+fn mac1_key(public_key: &PublicKey) -> [u8; 32] {
+    Blake2s256::new()
+        .chain_update(b"mac1----")
+        .chain_update(public_key.as_bytes())
+        .finalize()
+        .into()
+}
+
+fn mac1(key: &[u8; 32]) -> Mac1 {
+    <Mac1 as Mac>::new_from_slice(key).expect("the mac1 key is 32 bytes")
 }
 
 criterion_group!(
