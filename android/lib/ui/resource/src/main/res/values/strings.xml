@@ -586,4 +586,6 @@
     <string name="entry_set_to_automatic_title">Multihop entry set to “Automatic”</string>
     <string name="entry_set_to_automatic_first_paragraph">The multihop mode “Always” now features an “Automatic” location for the entry server selection.</string>
     <string name="automatic_entry_description">When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</string>
+    <string name="exit_filter">Exit filter</string>
+    <string name="entry_filter">Entry filter</string>
 </resources>

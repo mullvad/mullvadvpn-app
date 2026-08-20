@@ -4,9 +4,11 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 
 data class FilterUiState(
     private val providerToOwnerships: Map<ProviderId, Set<Ownership>> = emptyMap(),
+    val filterTarget: RelayHopType,
     val selectedOwnership: Constraint<Ownership> = Constraint.Any,
     val selectedProviders: Constraint<Providers> = Constraint.Any,
 ) {

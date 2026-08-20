@@ -9,6 +9,7 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
@@ -19,7 +20,7 @@ class FilterScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     private fun ComposeContext.initScreen(
-        state: FilterUiState = FilterUiState(),
+        state: FilterUiState = FilterUiState(filterTarget = RelayHopType.EXIT),
         onBackClick: () -> Unit = {},
         onApplyClick: () -> Unit = {},
         onSelectedOwnership: (ownership: Constraint<Ownership>) -> Unit = {},
@@ -46,6 +47,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
         onNodeWithText("Ownership").assertExists()
@@ -60,6 +62,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
         onNodeWithText("Ownership").performClick()
@@ -74,6 +77,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
         onNodeWithText("Ownership").performClick()
@@ -88,6 +92,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Only(Ownership.Rented),
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
         onNodeWithText("Ownership").performClick()
@@ -102,6 +107,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
 
@@ -119,6 +125,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(setOf(ProviderId("31173"))),
+                    filterTarget = RelayHopType.EXIT,
                 ),
             onApplyClick = mockClickListener,
         )
@@ -135,6 +142,7 @@ class FilterScreenTest {
                     providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                     selectedOwnership = Constraint.Any,
                     selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),
+                    filterTarget = RelayHopType.EXIT,
                 )
         )
 
