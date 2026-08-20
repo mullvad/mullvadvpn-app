@@ -51,8 +51,8 @@ final class GotaTunActorTests: XCTestCase {
 
         let task = Task {
             for await state in states {
-                collector.append(state)
-                if stop(collector.collected) {
+                await collector.append(state)
+                if stop(await collector.collected) {
                     reached.fulfill()
                     return
                 }
