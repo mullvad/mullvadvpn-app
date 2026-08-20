@@ -145,6 +145,9 @@ impl NetworkManager {
             .map_err(Error::Dbus)
     }
 
+    /// The current state of the device.
+    ///
+    /// <https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-property-org-freedesktop-NetworkManager-Device.State>
     pub fn get_device_state(&self, device: &dbus::Path<'_>) -> Result<u32> {
         self.as_path(device)
             .get(NM_DEVICE, "State")
@@ -564,6 +567,9 @@ impl NetworkManager {
         Ok(settings_backup)
     }
 
+    /// Attempts to update the configuration of a device without deactivating it.
+    ///
+    /// <https://networkmanager.pages.freedesktop.org/NetworkManager/NetworkManager/gdbus-org.freedesktop.NetworkManager.Device.html#gdbus-method-org-freedesktop-NetworkManager-Device.Reapply>
     pub fn reapply_settings<Settings: arg::Append>(
         &self,
         device: &dbus::Path<'_>,
@@ -691,9 +697,9 @@ impl WireguardTunnel {
     }
 }
 
+/// Any state above `NM_DEVICE_STATE_IP_CONFIG` is considered to be an OK state to change the
+/// DNS config. For the enums, see <https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html#NMDeviceState>
 pub fn device_is_ready(device_state: u32) -> bool {
-    /// Any state above `NM_DEVICE_STATE_IP_CONFIG` is considered to be an OK state to change the
-    /// DNS config. For the enums, see https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html#NMDeviceState
     const READY_STATES: [u32; 3] = [
         NM_DEVICE_STATE_IP_CHECK,
         NM_DEVICE_STATE_SECONDARY,

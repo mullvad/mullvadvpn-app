@@ -5,7 +5,7 @@ mod static_resolv_conf;
 mod systemd_resolved;
 
 use std::env;
-use std::fmt::{self, Display};
+use std::fmt;
 use std::net::IpAddr;
 use talpid_routing::RouteManagerHandle;
 
@@ -114,9 +114,13 @@ impl DnsMonitorHolder {
     }
 
     fn with_detected_dns_manager() -> Result<Self> {
-        fn log_err<E: Display>(method: &'static str) -> impl Fn(&E) {
+        fn log_err<E: std::error::Error>(method: &'static str) -> impl Fn(&E) {
+            use talpid_types::ErrorExt;
             move |err: &E| {
-                log::debug!("Can't manage DNS using {method}: {err}");
+                log::debug!(
+                    "{}",
+                    err.display_chain_with_msg(&format!("Can't manage DNS using {method}"))
+                );
             }
         }
 
