@@ -3182,24 +3182,6 @@ public func problemReportRequestInit(address: String, message: String, log: Data
 })
 }
 /**
- * Add key and value pair to the `ProblemReportMetadata`
- *
- * # Safety
- *
- * `map.inner` must be non-null and point to a valid
- * - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
- * - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
- */
-public func swiftProblemReportMetadataAdd(map: ProblemReportMetadata, key: String, value: String) -> Bool  {
-    return try!  FfiConverterBool.lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_func_swift_problem_report_metadata_add(
-        FfiConverterTypeProblemReportMetadata_lower(map),
-        FfiConverterString.lower(key),
-        FfiConverterString.lower(value),$0
-    )
-})
-}
-/**
  * Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
  * The result needs to be consumed.
  */
@@ -3341,9 +3323,6 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_problem_report_request_init() != 61570) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_func_swift_problem_report_metadata_add() != 27086) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_retry_strategy_constant() != 18560) {

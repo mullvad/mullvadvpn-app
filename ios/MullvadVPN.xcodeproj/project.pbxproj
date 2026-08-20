@@ -1179,7 +1179,6 @@
 		F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */; };
 		F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
-		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
 		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
 		F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
@@ -2779,7 +2778,6 @@
 		F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppResetManager.swift; sourceTree = "<group>"; };
 		F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
-		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayLocationList.swift; sourceTree = "<group>"; };
 		F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryTests.swift; sourceTree = "<group>"; };
@@ -5281,7 +5279,6 @@
 		F0F146932D9462BA00BF78E7 /* MullvadApi */ = {
 			isa = PBXGroup;
 			children = (
-				F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */,
 			);
 			path = MullvadApi;
 			sourceTree = "<group>";
@@ -6559,7 +6556,6 @@
 				F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
 				7AFF5B9F2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
-				F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */,
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
 				F0F939802FD8121000AF42D7 /* MigratedSettingsObserver.swift in Sources */,

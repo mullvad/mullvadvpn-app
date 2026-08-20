@@ -26,8 +26,6 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
 
-typedef struct ProblemReportMetadata ProblemReportMetadata;
-
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
 
 typedef struct LegacySwiftApiContext {
@@ -266,8 +264,6 @@ struct SwiftServerMock mullvad_api_mock_post(const char *path,
  * is not safe to call multiple times with the same `SwiftServerMock`.
  */
 void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
-
-struct ProblemReportMetadata swift_problem_report_metadata_new(void);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely

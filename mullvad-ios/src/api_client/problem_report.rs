@@ -104,27 +104,3 @@ pub fn problem_report_request_init(
 pub struct ProblemReportMetadata {
     inner: Mutex<BTreeMap<String, String>>,
 }
-
-#[unsafe(no_mangle)]
-pub extern "C" fn swift_problem_report_metadata_new() -> ProblemReportMetadata {
-    ProblemReportMetadata {
-        inner: Mutex::new(BTreeMap::new()),
-    }
-}
-
-/// Add key and value pair to the `ProblemReportMetadata`
-///
-/// # Safety
-///
-/// `map.inner` must be non-null and point to a valid
-/// - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
-/// - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
-#[uniffi::export]
-pub fn swift_problem_report_metadata_add(
-    map: &ProblemReportMetadata,
-    key: String,
-    value: String,
-) -> bool {
-    map.inner.lock().unwrap().insert(key, value);
-    true
-}
