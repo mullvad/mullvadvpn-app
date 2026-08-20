@@ -191,29 +191,13 @@ fun MullvadTopBar(
             }
 
             if (onSettingsClicked != null) {
-                IconButton(
-                    modifier = Modifier.testTag(TOP_BAR_SETTINGS_BUTTON_TEST_TAG),
+                SettingsIconButtonWithDot(
+                    containerColor = containerColor,
+                    iconTintColor = iconTintColor,
                     enabled = enabled,
-                    onClick = onSettingsClicked,
-                ) {
-                    Box {
-                        Icon(
-                            imageVector = Icons.Rounded.Settings,
-                            tint = iconTintColor,
-                            contentDescription = stringResource(id = R.string.settings),
-                        )
-                        if (showSettingsNotificationDot) {
-                            Box(
-                                modifier =
-                                    Modifier.align(Alignment.TopEnd)
-                                        .size(Dimens.notificationDotSize)
-                                        .background(containerColor, CircleShape)
-                                        .padding(Dimens.notificationDotInset)
-                                        .background(MaterialTheme.colorScheme.warning, CircleShape)
-                            )
-                        }
-                    }
-                }
+                    showSettingsNotificationDot = showSettingsNotificationDot,
+                    onSettingsClicked = onSettingsClicked,
+                )
             }
         },
         colors =
@@ -353,6 +337,39 @@ fun MullvadTopBarWithDeviceName(
                 )
             } else {
                 Spacer(Modifier)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsIconButtonWithDot(
+    containerColor: Color,
+    iconTintColor: Color,
+    enabled: Boolean,
+    showSettingsNotificationDot: Boolean,
+    onSettingsClicked: () -> Unit,
+) {
+    IconButton(
+        modifier = Modifier.testTag(TOP_BAR_SETTINGS_BUTTON_TEST_TAG),
+        enabled = enabled,
+        onClick = onSettingsClicked,
+    ) {
+        Box {
+            Icon(
+                imageVector = Icons.Rounded.Settings,
+                tint = iconTintColor,
+                contentDescription = stringResource(id = R.string.settings),
+            )
+            if (showSettingsNotificationDot) {
+                Box(
+                    modifier =
+                        Modifier.align(Alignment.TopEnd)
+                            .size(Dimens.notificationDotSize)
+                            .background(containerColor, CircleShape)
+                            .padding(Dimens.notificationDotInset)
+                            .background(MaterialTheme.colorScheme.warning, CircleShape)
+                )
             }
         }
     }
