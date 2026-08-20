@@ -45,33 +45,29 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     }
 
     func getPersistentTunnels() -> [TunnelType] {
-        lock.lock()
-        defer { lock.unlock() }
-
-        return persistentTunnels
+        lock.withLock {
+            persistentTunnels
+        }
     }
 
     private func setPersistentTunnelsFromManagers(_ managers: [TunnelProviderManagerType]) {
-        self.lock.lock()
-        defer {
-            self.lock.unlock()
-        }
-
-        self.persistentTunnels.forEach { tunnel in
-            tunnel.removeObserver(self)
-        }
-
-        self.persistentTunnels =
-            managers.map { manager in
-                let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
-                tunnel.addObserver(self)
-
-                self.logger.debug(
-                    "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
-                )
-
-                return tunnel
+        lock.withLock {
+            self.persistentTunnels.forEach { tunnel in
+                tunnel.removeObserver(self)
             }
+
+            self.persistentTunnels =
+                managers.map { manager in
+                    let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
+                    tunnel.addObserver(self)
+
+                    self.logger.debug(
+                        "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+                    )
+
+                    return tunnel
+                }
+        }
     }
 
     func loadPersistentTunnels() async throws {
@@ -80,26 +76,24 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     }
 
     func createNewTunnel() -> TunnelType {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.withLock {
+            let tunnelProviderManager = TunnelProviderManagerType()
+            let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
+            tunnel.addObserver(self)
 
-        let tunnelProviderManager = TunnelProviderManagerType()
-        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
-        tunnel.addObserver(self)
+            newTunnels = newTunnels.filter { $0.value != nil }
+            newTunnels.append(WeakBox(tunnel))
 
-        newTunnels = newTunnels.filter { $0.value != nil }
-        newTunnels.append(WeakBox(tunnel))
+            logger.debug("Create new tunnel: \(tunnel.logFormat()).")
 
-        logger.debug("Create new tunnel: \(tunnel.logFormat()).")
-
-        return tunnel
+            return tunnel
+        }
     }
 
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
-        lock.lock()
-        defer { lock.unlock() }
-
-        handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
+        lock.withLock {
+            handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
+        }
     }
 
     private func handleTunnelStatus(tunnel: TunnelType, status: NEVPNStatus) {
@@ -120,13 +114,12 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     }
 
     private func refreshStatus() {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.withLock {
+            let allTunnels = persistentTunnels + newTunnels.compactMap { $0.value }
 
-        let allTunnels = persistentTunnels + newTunnels.compactMap { $0.value }
-
-        for tunnel in allTunnels {
-            handleTunnelStatus(tunnel: tunnel, status: tunnel.status)
+            for tunnel in allTunnels {
+                handleTunnelStatus(tunnel: tunnel, status: tunnel.status)
+            }
         }
     }
 }

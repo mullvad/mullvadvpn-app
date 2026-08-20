@@ -141,32 +141,30 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     func startPeriodicUpdates() {
-        relayCacheLock.lock()
-        defer { relayCacheLock.unlock() }
+        relayCacheLock.withLock {
+            guard !isPeriodicUpdatesEnabled else { return }
 
-        guard !isPeriodicUpdatesEnabled else { return }
+            logger.debug("Start periodic relay updates.")
 
-        logger.debug("Start periodic relay updates.")
+            isPeriodicUpdatesEnabled = true
 
-        isPeriodicUpdatesEnabled = true
+            let nextUpdate = _getNextUpdateDate()
 
-        let nextUpdate = _getNextUpdateDate()
-
-        scheduleRepeatingTimer(startTime: .now() + nextUpdate.timeIntervalSinceNow)
+            scheduleRepeatingTimer(startTime: .now() + nextUpdate.timeIntervalSinceNow)
+        }
     }
 
     func stopPeriodicUpdates() {
-        relayCacheLock.lock()
-        defer { relayCacheLock.unlock() }
+        relayCacheLock.withLock {
+            guard isPeriodicUpdatesEnabled else { return }
 
-        guard isPeriodicUpdatesEnabled else { return }
+            logger.debug("Stop periodic relay updates.")
 
-        logger.debug("Stop periodic relay updates.")
+            isPeriodicUpdatesEnabled = false
 
-        isPeriodicUpdatesEnabled = false
-
-        timerSource?.cancel()
-        timerSource = nil
+            timerSource?.cancel()
+            timerSource = nil
+        }
     }
 
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
@@ -198,29 +196,27 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     func getCachedRelays() throws -> CachedRelays {
-        relayCacheLock.lock()
-        defer { relayCacheLock.unlock() }
-
-        if let cachedRelays {
-            return cachedRelays
-        } else {
-            throw NoCachedRelaysError()
+        try relayCacheLock.withLock {
+            if let cachedRelays {
+                return cachedRelays
+            } else {
+                throw NoCachedRelaysError()
+            }
         }
     }
 
     func refreshCachedRelays() throws {
         let newCachedRelays = try cache.read()
 
-        relayCacheLock.lock()
-        cachedRelays = newCachedRelays
-        relayCacheLock.unlock()
+        relayCacheLock.withLock {
+            cachedRelays = newCachedRelays
+        }
     }
 
     func getNextUpdateDate() -> Date {
-        relayCacheLock.lock()
-        defer { relayCacheLock.unlock() }
-
-        return _getNextUpdateDate()
+        relayCacheLock.withLock {
+            _getNextUpdateDate()
+        }
     }
 
     // MARK: - Private

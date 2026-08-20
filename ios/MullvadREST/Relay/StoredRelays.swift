@@ -95,21 +95,20 @@ private final class DeserializationCache: @unchecked Sendable {
     private var result: Result<CachedRelays, Error>?
 
     func get(_ compute: () throws -> CachedRelays) throws -> CachedRelays {
-        lock.lock()
-        defer { lock.unlock() }
+        try lock.withLock {
+            if let result {
+                return try result.get()
+            }
 
-        if let result {
-            return try result.get()
+            let newResult = Result { try compute() }
+            result = newResult
+            return try newResult.get()
         }
-
-        let newResult = Result { try compute() }
-        result = newResult
-        return try newResult.get()
     }
 
     func set(_ value: Result<CachedRelays, Error>) {
-        lock.lock()
-        defer { lock.unlock() }
-        result = value
+        lock.withLock {
+            result = value
+        }
     }
 }

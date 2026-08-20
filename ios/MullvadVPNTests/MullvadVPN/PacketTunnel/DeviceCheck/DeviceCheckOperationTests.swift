@@ -419,15 +419,15 @@ private class MockDeviceStateAccessor: DeviceStateAccessorProtocol {
     }
 
     func read() throws -> DeviceState {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        return state
+        stateLock.withLock {
+            state
+        }
     }
 
     func write(_ deviceState: DeviceState) throws {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        state = deviceState
+        stateLock.withLock {
+            state = deviceState
+        }
     }
 }
 

@@ -23,62 +23,55 @@
 
         private(set) var status: NEVPNStatus {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return _status
+                lock.withLock {
+                    _status
+                }
             }
             set {
-                lock.lock()
+                lock.withLock {
+                    if _status != newValue {
+                        _status = newValue
 
-                if _status != newValue {
-                    _status = newValue
-
-                    // Send notification while holding the lock. This should enable the receiver
-                    // to fetch the `SimulatorVPNConnection.status` before the concurrent code gets
-                    // opportunity to change it again.
-                    postStatusDidChangeNotification()
+                        // Send notification while holding the lock. This should enable the receiver
+                        // to fetch the `SimulatorVPNConnection.status` before the concurrent code gets
+                        // opportunity to change it again.
+                        postStatusDidChangeNotification()
+                    }
                 }
-
-                lock.unlock()
             }
         }
 
         var reasserting: Bool {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return _reasserting
+                lock.withLock {
+                    _reasserting
+                }
             }
             set {
-                lock.lock()
+                lock.withLock {
+                    if _reasserting != newValue {
+                        _reasserting = newValue
 
-                if _reasserting != newValue {
-                    _reasserting = newValue
-
-                    if newValue {
-                        status = .reasserting
-                    } else {
-                        status = .connected
+                        if newValue {
+                            status = .reasserting
+                        } else {
+                            status = .connected
+                        }
                     }
                 }
-
-                lock.unlock()
             }
         }
 
         private(set) var connectedDate: Date? {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return _connectedDate
+                lock.withLock {
+                    _connectedDate
+                }
             }
             set {
-                lock.lock()
-                _connectedDate = newValue
-                lock.unlock()
+                lock.withLock {
+                    _connectedDate = newValue
+                }
             }
         }
 

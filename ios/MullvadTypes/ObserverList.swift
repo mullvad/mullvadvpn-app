@@ -35,52 +35,46 @@ final public class ObserverList<T>: Sendable {
     public init() {}
 
     public func append(_ observer: T) {
-        lock.lock()
+        lock.withLock {
+            let hasObserver = observers.contains { box in
+                box == WeakBox(observer)
+            }
 
-        let hasObserver = observers.contains { box in
-            box == WeakBox(observer)
+            if !hasObserver {
+                observers.append(WeakBox(observer))
+            }
         }
-
-        if !hasObserver {
-            observers.append(WeakBox(observer))
-        }
-
-        lock.unlock()
     }
 
     public func remove(_ observer: T) {
-        lock.lock()
+        lock.withLock {
+            let index = observers.firstIndex { box in
+                box == WeakBox(observer)
+            }
 
-        let index = observers.firstIndex { box in
-            box == WeakBox(observer)
+            if let index {
+                observers.remove(at: index)
+            }
         }
-
-        if let index {
-            observers.remove(at: index)
-        }
-
-        lock.unlock()
     }
 
     public func notify(_ body: (T) -> Void) {
-        lock.lock()
-
         var indicesToRemove = [Int]()
         var observersToNotify = [T]()
 
-        for (index, box) in observers.enumerated() {
-            if let observer = box.value {
-                observersToNotify.append(observer)
-            } else {
-                indicesToRemove.append(index)
+        lock.withLock {
+            for (index, box) in observers.enumerated() {
+                if let observer = box.value {
+                    observersToNotify.append(observer)
+                } else {
+                    indicesToRemove.append(index)
+                }
+            }
+
+            for index in indicesToRemove.reversed() {
+                observers.remove(at: index)
             }
         }
-
-        for index in indicesToRemove.reversed() {
-            observers.remove(at: index)
-        }
-
-        lock.unlock()
 
         for observer in observersToNotify {
             body(observer)

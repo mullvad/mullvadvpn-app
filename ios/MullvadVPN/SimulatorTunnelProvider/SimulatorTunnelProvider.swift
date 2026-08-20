@@ -48,15 +48,14 @@ import NetworkExtension
 
         var delegate: SimulatorTunnelProviderDelegate! {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return _delegate
+                lock.withLock {
+                    _delegate
+                }
             }
             set {
-                lock.lock()
-                _delegate = newValue
-                lock.unlock()
+                lock.withLock {
+                    _delegate = newValue
+                }
             }
         }
 

@@ -41,61 +41,58 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
     }
 
     public func read() throws -> Content {
-        cacheLock.lock()
-        defer { cacheLock.unlock() }
+        try cacheLock.withLock {
+            // Stat before reading, so that a concurrent replacement between the stat and the read can
+            // only mark the cache as stale and cause an extra re-read, never serve stale content.
+            let modificationTime = fileModificationTime(at: fileURL)
+            if let cachedContent, let contentModified, modificationTime != nil,
+                contentModified == modificationTime
+            {
+                return cachedContent
+            }
 
-        // Stat before reading, so that a concurrent replacement between the stat and the read can
-        // only mark the cache as stale and cause an extra re-read, never serve stale content.
-        let modificationTime = fileModificationTime(at: fileURL)
-        if let cachedContent, let contentModified, modificationTime != nil,
-            contentModified == modificationTime
-        {
-            return cachedContent
+            let data = try Data(contentsOf: fileURL)
+            let content = try JSONDecoder().decode(Content.self, from: data)
+
+            cachedContent = content
+            contentModified = modificationTime
+
+            return content
         }
-
-        let data = try Data(contentsOf: fileURL)
-        let content = try JSONDecoder().decode(Content.self, from: data)
-
-        cachedContent = content
-        contentModified = modificationTime
-
-        return content
     }
 
     public func write(_ content: Content) throws {
-        cacheLock.lock()
-        defer { cacheLock.unlock() }
+        try cacheLock.withLock {
+            let data = try JSONEncoder().encode(content)
 
-        let data = try JSONEncoder().encode(content)
+            // Write to a uniquely named temporary file, then atomically rename into place. The unique
+            // name prevents concurrent writers in this or another process from clobbering each other's
+            // in-progress writes.
+            let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
+            try data.write(to: tempURL)
 
-        // Write to a uniquely named temporary file, then atomically rename into place. The unique
-        // name prevents concurrent writers in this or another process from clobbering each other's
-        // in-progress writes.
-        let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
-        try data.write(to: tempURL)
+            // Capture the modification time before the rename, which preserves it. If another process
+            // replaces the file afterwards, the stored time no longer matches and the next read
+            // re-reads from disk.
+            let writtenModificationTime = fileModificationTime(at: tempURL)
 
-        // Capture the modification time before the rename, which preserves it. If another process
-        // replaces the file afterwards, the stored time no longer matches and the next read
-        // re-reads from disk.
-        let writtenModificationTime = fileModificationTime(at: tempURL)
+            if rename(tempURL.path, fileURL.path) != 0 {
+                try? FileManager.default.removeItem(at: tempURL)
+                throw FileCacheError.renameFailed(errno)
+            }
 
-        if rename(tempURL.path, fileURL.path) != 0 {
-            try? FileManager.default.removeItem(at: tempURL)
-            throw FileCacheError.renameFailed(errno)
+            cachedContent = content
+            contentModified = writtenModificationTime
         }
-
-        cachedContent = content
-        contentModified = writtenModificationTime
     }
 
     public func clear() throws {
-        cacheLock.lock()
-        defer { cacheLock.unlock() }
+        try cacheLock.withLock {
+            try FileManager.default.removeItem(at: fileURL)
 
-        try FileManager.default.removeItem(at: fileURL)
-
-        cachedContent = nil
-        contentModified = nil
+            cachedContent = nil
+            contentModified = nil
+        }
     }
 
     // MARK: - Private

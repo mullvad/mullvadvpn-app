@@ -8,46 +8,6 @@
 
 import Foundation
 
-public final class Promise<Success, Failure: Error>: @unchecked Sendable {
-    public typealias Result = Swift.Result<Success, Failure>
-
-    private let nslock = NSLock()
-    private var observers: [(Result) -> Void] = []
-    private var result: Result?
-
-    public init(_ executor: (@escaping (Result) -> Void) -> Void) {
-        executor(resolve)
-    }
-
-    public func observe(_ completion: @escaping (Result) -> Void) {
-        nslock.lock()
-        if let result {
-            nslock.unlock()
-            completion(result)
-        } else {
-            observers.append(completion)
-            nslock.unlock()
-        }
-    }
-
-    private func resolve(result: Result) {
-        nslock.lock()
-        if self.result == nil {
-            self.result = result
-
-            let observers = observers
-            self.observers.removeAll()
-            nslock.unlock()
-
-            for observer in observers {
-                observer(result)
-            }
-        } else {
-            nslock.unlock()
-        }
-    }
-}
-
 // This object can be used like an async semaphore with exactly 1 writer. It
 // allows the waiter to wait to `receive()` from another operation
 // asynchronously. It is important not to forget to call `send`, otherwise this

@@ -68,21 +68,20 @@ public final class TunnelPinger: PingerProtocol, @unchecked Sendable {
     public func send() throws -> PingerSendResult {
         let sequenceNumber = nextSequenceNumber()
 
-        stateLock.lock()
-        defer { stateLock.unlock() }
-        guard destAddress != nil else { throw WireGuardAdapterError.invalidState }
-        // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
-        try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
+        return try stateLock.withLock {
+            guard destAddress != nil else { throw WireGuardAdapterError.invalidState }
+            // NOTE: we cheat here by returning the destination address we were passed, rather than parsing it from the packet on the other side of the FFI boundary.
+            try pingProvider.sendICMPPing(seqNumber: sequenceNumber)
 
-        return PingerSendResult(sequenceNumber: UInt16(sequenceNumber))
+            return PingerSendResult(sequenceNumber: UInt16(sequenceNumber))
+        }
     }
 
     private func nextSequenceNumber() -> UInt16 {
-        stateLock.lock()
-        let (nextValue, _) = sequenceNumber.addingReportingOverflow(1)
-        sequenceNumber = nextValue
-        stateLock.unlock()
-
-        return nextValue
+        stateLock.withLock {
+            let (nextValue, _) = sequenceNumber.addingReportingOverflow(1)
+            sequenceNumber = nextValue
+            return nextValue
+        }
     }
 }

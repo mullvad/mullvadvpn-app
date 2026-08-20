@@ -118,27 +118,25 @@ final class TunnelManager: @unchecked Sendable {
     // MARK: - Periodic private key rotation
 
     func startPeriodicPrivateKeyRotation() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard !isRunningPeriodicPrivateKeyRotation, deviceState.isLoggedIn else { return }
 
-        guard !isRunningPeriodicPrivateKeyRotation, deviceState.isLoggedIn else { return }
+            logger.debug("Start periodic private key rotation.")
 
-        logger.debug("Start periodic private key rotation.")
-
-        isRunningPeriodicPrivateKeyRotation = true
-        updatePrivateKeyRotationTimer()
+            isRunningPeriodicPrivateKeyRotation = true
+            updatePrivateKeyRotationTimer()
+        }
     }
 
     func stopPeriodicPrivateKeyRotation() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard isRunningPeriodicPrivateKeyRotation else { return }
 
-        guard isRunningPeriodicPrivateKeyRotation else { return }
+            logger.debug("Stop periodic private key rotation.")
 
-        logger.debug("Stop periodic private key rotation.")
-
-        isRunningPeriodicPrivateKeyRotation = false
-        updatePrivateKeyRotationTimer()
+            isRunningPeriodicPrivateKeyRotation = false
+            updatePrivateKeyRotationTimer()
+        }
     }
 
     func startOrStopPeriodicPrivateKeyRotation() {
@@ -150,39 +148,37 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func getNextKeyRotationDate() -> Date? {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return deviceState.deviceData.flatMap { WgKeyRotation(data: $0).nextRotationDate }
+        nslock.withLock {
+            deviceState.deviceData.flatMap { WgKeyRotation(data: $0).nextRotationDate }
+        }
     }
 
     private func updatePrivateKeyRotationTimer() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            privateKeyRotationTimer?.cancel()
+            privateKeyRotationTimer = nil
+            nextKeyRotationDate = nil
 
-        privateKeyRotationTimer?.cancel()
-        privateKeyRotationTimer = nil
-        nextKeyRotationDate = nil
+            guard isRunningPeriodicPrivateKeyRotation,
+                let scheduleDate = getNextKeyRotationDate()
+            else { return }
+            nextKeyRotationDate = scheduleDate
 
-        guard isRunningPeriodicPrivateKeyRotation,
-            let scheduleDate = getNextKeyRotationDate()
-        else { return }
-        nextKeyRotationDate = scheduleDate
+            let timer = DispatchSource.makeTimerSource(queue: .main)
 
-        let timer = DispatchSource.makeTimerSource(queue: .main)
-
-        timer.setEventHandler { [weak self] in
-            _ = self?.rotatePrivateKey { _ in
-                // no-op
+            timer.setEventHandler { [weak self] in
+                _ = self?.rotatePrivateKey { _ in
+                    // no-op
+                }
             }
+
+            timer.schedule(wallDeadline: .now() + scheduleDate.timeIntervalSinceNow)
+            timer.activate()
+
+            privateKeyRotationTimer = timer
+
+            logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatted).")
         }
-
-        timer.schedule(wallDeadline: .now() + scheduleDate.timeIntervalSinceNow)
-        timer.activate()
-
-        privateKeyRotationTimer = timer
-
-        logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatted).")
     }
 
     // MARK: - Public methods
@@ -604,171 +600,161 @@ final class TunnelManager: @unchecked Sendable {
     // MARK: - TunnelInteractor
 
     var isConfigurationLoaded: Bool {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _isConfigurationLoaded
+        nslock.withLock {
+            _isConfigurationLoaded
+        }
     }
 
     fileprivate var tunnel: (any TunnelProtocol)? {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _tunnel
+        nslock.withLock {
+            _tunnel
+        }
     }
 
     var tunnelStatus: TunnelStatus {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _tunnelStatus
+        nslock.withLock {
+            _tunnelStatus
+        }
     }
 
     var settings: LatestTunnelSettings {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _tunnelSettings
+        nslock.withLock {
+            _tunnelSettings
+        }
     }
 
     var deviceState: DeviceState {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _deviceState
+        nslock.withLock {
+            _deviceState
+        }
     }
 
     fileprivate func setConfigurationLoaded() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard !_isConfigurationLoaded else {
+                return
+            }
 
-        guard !_isConfigurationLoaded else {
-            return
-        }
+            _isConfigurationLoaded = true
 
-        _isConfigurationLoaded = true
-
-        DispatchQueue.main.async {
-            self.observerList.notify { observer in
-                observer.tunnelManagerDidLoadConfiguration(self)
+            DispatchQueue.main.async {
+                self.observerList.notify { observer in
+                    observer.tunnelManagerDidLoadConfiguration(self)
+                }
             }
         }
     }
 
     fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            if let tunnel {
+                subscribeVPNStatusObserver(tunnel: tunnel)
+            } else {
+                unsubscribeVPNStatusObserver()
+            }
 
-        if let tunnel {
-            subscribeVPNStatusObserver(tunnel: tunnel)
-        } else {
-            unsubscribeVPNStatusObserver()
-        }
+            _tunnel = tunnel
 
-        _tunnel = tunnel
-
-        // Update the existing state
-        if shouldRefreshTunnelState {
-            logger.debug("Refresh tunnel status for new tunnel.")
-            refreshTunnelStatus()
+            // Update the existing state
+            if shouldRefreshTunnelState {
+                logger.debug("Refresh tunnel status for new tunnel.")
+                refreshTunnelStatus()
+            }
         }
     }
 
     fileprivate func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            var newTunnelStatus = _tunnelStatus
+            block(&newTunnelStatus)
 
-        var newTunnelStatus = _tunnelStatus
-        block(&newTunnelStatus)
+            guard _tunnelStatus != newTunnelStatus else {
+                return newTunnelStatus
+            }
 
-        guard _tunnelStatus != newTunnelStatus else {
+            logger.info("Status: \(newTunnelStatus).")
+
+            _tunnelStatus = newTunnelStatus
+
+            // Packet tunnel may have attempted or rotated the key.
+            // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
+            let newPacketTunnelKeyRotation = _tunnelStatus.observedState.connectionState?.lastKeyRotation
+            if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
+                lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
+                refreshDeviceState()
+            }
+            // Handle unrecoverable blocked states
+            if case let .error(blockedStateReason) = _tunnelStatus.state,
+                !blockedStateReason.recoverableError()
+            {
+                handleBlockedState(reason: blockedStateReason)
+            }
+
+            DispatchQueue.main.async {
+                self.observerList.notify { [tunnelStatus = self.tunnelStatus] observer in
+                    observer
+                        .tunnelManager(self, didUpdateTunnelStatus: tunnelStatus)
+                }
+            }
+
             return newTunnelStatus
         }
-
-        logger.info("Status: \(newTunnelStatus).")
-
-        _tunnelStatus = newTunnelStatus
-
-        // Packet tunnel may have attempted or rotated the key.
-        // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
-        let newPacketTunnelKeyRotation = _tunnelStatus.observedState.connectionState?.lastKeyRotation
-        if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
-            lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
-            refreshDeviceState()
-        }
-        // Handle unrecoverable blocked states
-        if case let .error(blockedStateReason) = _tunnelStatus.state,
-            !blockedStateReason.recoverableError()
-        {
-            handleBlockedState(reason: blockedStateReason)
-        }
-
-        DispatchQueue.main.async {
-            self.observerList.notify { [tunnelStatus = self.tunnelStatus] observer in
-                observer
-                    .tunnelManager(self, didUpdateTunnelStatus: tunnelStatus)
-            }
-        }
-
-        return newTunnelStatus
     }
 
     fileprivate func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            let shouldCallDelegate = _tunnelSettings != settings && _isConfigurationLoaded
 
-        let shouldCallDelegate = _tunnelSettings != settings && _isConfigurationLoaded
+            _tunnelSettings = settings
 
-        _tunnelSettings = settings
-
-        if persist {
-            do {
-                try settingsManager.writeSettings(settings)
-            } catch {
-                logger.error(
-                    error: error,
-                    message: "Failed to write settings."
-                )
+            if persist {
+                do {
+                    try settingsManager.writeSettings(settings)
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to write settings."
+                    )
+                }
             }
-        }
 
-        if shouldCallDelegate {
-            DispatchQueue.main.async {
-                self.observerList.notify { observer in
-                    observer.tunnelManager(self, didUpdateTunnelSettings: settings)
+            if shouldCallDelegate {
+                DispatchQueue.main.async {
+                    self.observerList.notify { observer in
+                        observer.tunnelManager(self, didUpdateTunnelSettings: settings)
+                    }
                 }
             }
         }
     }
 
     func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
+            let previousDeviceState = _deviceState
 
-        let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
-        let previousDeviceState = _deviceState
+            _deviceState = deviceState
 
-        _deviceState = deviceState
-
-        if persist {
-            do {
-                try settingsManager.writeDeviceState(deviceState)
-            } catch {
-                logger.error(
-                    error: error,
-                    message: "Failed to write device state."
-                )
-            }
-        }
-
-        if shouldCallDelegate {
-            DispatchQueue.main.async {
-                self.observerList.notify { observer in
-                    observer.tunnelManager(
-                        self,
-                        didUpdateDeviceState: deviceState,
-                        previousDeviceState: previousDeviceState
+            if persist {
+                do {
+                    try settingsManager.writeDeviceState(deviceState)
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to write device state."
                     )
+                }
+            }
+
+            if shouldCallDelegate {
+                DispatchQueue.main.async {
+                    self.observerList.notify { observer in
+                        observer.tunnelManager(
+                            self,
+                            didUpdateDeviceState: deviceState,
+                            previousDeviceState: previousDeviceState
+                        )
+                    }
                 }
             }
         }
@@ -794,62 +780,59 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        // Unregister from receiving VPN connection status changes
-        unsubscribeVPNStatusObserver()
+        nslock.withLock {
+            // Unregister from receiving VPN connection status changes
+            unsubscribeVPNStatusObserver()
+        }
     }
 
     private func didReconnectTunnel(error: Error?) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            if let error, !error.isOperationCancellationError {
+                logger.error(error: error, message: "Failed to reconnect the tunnel.")
+            }
 
-        if let error, !error.isOperationCancellationError {
-            logger.error(error: error, message: "Failed to reconnect the tunnel.")
-        }
+            // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
+            // since both states may persist for a long period of time until the tunnel is fully
+            // connected.
+            switch tunnelStatus.state {
+            case .connecting, .reconnecting, .error:
+                logger.debug("Refresh tunnel status due to reconnect.")
+                refreshTunnelStatus()
 
-        // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
-        // since both states may persist for a long period of time until the tunnel is fully
-        // connected.
-        switch tunnelStatus.state {
-        case .connecting, .reconnecting, .error:
-            logger.debug("Refresh tunnel status due to reconnect.")
-            refreshTunnelStatus()
-
-        default:
-            break
+            default:
+                break
+            }
         }
     }
 
     private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            unsubscribeVPNStatusObserver()
 
-        unsubscribeVPNStatusObserver()
+            statusObserver =
+                tunnel
+                .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
+                    guard let self else { return }
 
-        statusObserver =
-            tunnel
-            .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
-                guard let self else { return }
+                    // Save the NEVPNStatus so we can reject stale IPC updates
+                    self._lastNEVPNStatus = status
+                    self.logger.debug("VPN connection status changed to \(status).")
 
-                // Save the NEVPNStatus so we can reject stale IPC updates
-                self._lastNEVPNStatus = status
-                self.logger.debug("VPN connection status changed to \(status).")
+                    // Control polling based on NEVPNStatus directly (the source of truth),
+                    // not the derived tunnelStatus.state which can be stale.
+                    self.updatePollingFromVPNStatus(status)
 
-                // Control polling based on NEVPNStatus directly (the source of truth),
-                // not the derived tunnelStatus.state which can be stale.
-                self.updatePollingFromVPNStatus(status)
+                    // Update tunnel status for all state changes to ensure UI reflects
+                    // disconnecting and disconnected states immediately.
+                    self.updateTunnelStatus(status)
+                }
 
-                // Update tunnel status for all state changes to ensure UI reflects
-                // disconnecting and disconnected states immediately.
-                self.updateTunnelStatus(status)
-            }
-
-        // Save and start polling for the current status since the observer
-        // only fires on status changes, not for the initial state.
-        _lastNEVPNStatus = tunnel.status
-        updatePollingFromVPNStatus(tunnel.status)
+            // Save and start polling for the current status since the observer
+            // only fires on status changes, not for the initial state.
+            _lastNEVPNStatus = tunnel.status
+            updatePollingFromVPNStatus(tunnel.status)
+        }
     }
 
     private func startNetworkMonitor() {
@@ -880,28 +863,26 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     private func unsubscribeVPNStatusObserver() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        statusObserver?.invalidate()
-        statusObserver = nil
+        nslock.withLock {
+            statusObserver?.invalidate()
+            statusObserver = nil
+        }
     }
 
     private func refreshTunnelStatus() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard let connectionStatus = _tunnel?.status else { return }
 
-        guard let connectionStatus = _tunnel?.status else { return }
-
-        switch connectionStatus {
-        case .connecting, .reasserting, .connected:
-            // Active states: fetch via IPC
-            fetchAndUpdateTunnelStatus()
-        case .disconnected, .disconnecting, .invalid:
-            // Down states: update directly
-            updateTunnelStatus(connectionStatus)
-        @unknown default:
-            break
+            switch connectionStatus {
+            case .connecting, .reasserting, .connected:
+                // Active states: fetch via IPC
+                fetchAndUpdateTunnelStatus()
+            case .disconnected, .disconnecting, .invalid:
+                // Down states: update directly
+                updateTunnelStatus(connectionStatus)
+            @unknown default:
+                break
+            }
         }
     }
 
@@ -937,25 +918,24 @@ final class TunnelManager: @unchecked Sendable {
     /// For active states, fetches detailed status via IPC.
     /// For down states, updates state directly without IPC.
     private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            switch connectionStatus {
+            case .connecting, .reasserting, .connected:
+                // Active states: fetch details via IPC
+                fetchAndUpdateTunnelStatus()
 
-        switch connectionStatus {
-        case .connecting, .reasserting, .connected:
-            // Active states: fetch details via IPC
-            fetchAndUpdateTunnelStatus()
+            case .disconnecting:
+                handleDisconnectingStateDirectly()
 
-        case .disconnecting:
-            handleDisconnectingStateDirectly()
+            case .disconnected:
+                handleDisconnectedStateDirectly()
 
-        case .disconnected:
-            handleDisconnectedStateDirectly()
+            case .invalid:
+                setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
 
-        case .invalid:
-            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
-
-        @unknown default:
-            logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
+            @unknown default:
+                logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
+            }
         }
     }
 
@@ -1472,9 +1452,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
             // Only reconnect if relays are now available
             guard !cachedRelays.isEmpty else { return }
 
-            nslock.lock()
-            let currentStatus = _tunnelStatus
-            nslock.unlock()
+            let currentStatus = nslock.withLock { _tunnelStatus }
 
             // If tunnel is active, trigger reconnect to re-evaluate with new relays
             if currentStatus.state.isSecured {

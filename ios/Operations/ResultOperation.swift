@@ -19,46 +19,39 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
     private var pendingFinish = false
 
     public var result: Result<Success, Error>? {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _output.map { .success($0) } ?? error.map { .failure($0) }
+        nslock.withLock {
+            _output.map { .success($0) } ?? error.map { .failure($0) }
+        }
     }
 
     public var output: Success? {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _output
+        nslock.withLock {
+            _output
+        }
     }
 
     public var completionQueue: DispatchQueue? {
         get {
-            nslock.lock()
-            defer { nslock.unlock() }
-
-            return _completionQueue
+            nslock.withLock { _completionQueue }
         }
         set {
-            nslock.lock()
-            defer { nslock.unlock() }
-
-            _completionQueue = newValue
+            nslock.withLock {
+                _completionQueue = newValue
+            }
         }
     }
 
     public var completionHandler: CompletionHandler? {
         get {
-            nslock.lock()
-            defer { nslock.unlock() }
-
-            return _completionHandler
+            nslock.withLock {
+                return _completionHandler
+            }
         }
         set {
-            nslock.lock()
-            defer { nslock.unlock() }
-            if !pendingFinish {
-                _completionHandler = newValue
+            nslock.withLock {
+                if !pendingFinish {
+                    _completionHandler = newValue
+                }
             }
         }
     }
