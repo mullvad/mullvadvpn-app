@@ -63,7 +63,7 @@ final class GotaTunActorTests: XCTestCase {
         await fulfillment(of: [reached], timeout: timeout)
         task.cancel()
 
-        return collector.collected
+        return await collector.collected
     }
 
     /// Observe until a state matches `predicate`.
