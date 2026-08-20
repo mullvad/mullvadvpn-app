@@ -745,7 +745,7 @@ private fun SelectionContainer(
                         filterState =
                             if (hasAnyExitFilter) FilterState.ActiveAndFiltersSelected
                             else FilterState.Active,
-                        onFilterClick = { onFilterClick(multihopListSelector) },
+                        onFilterClick = { onFilterClick(RelayHopType.EXIT) },
                         onSelect = {
                             hopSelection.relay?.getOrNull()?.let {
                                 scrollToRelayItem(RelayListType.Single, it)
