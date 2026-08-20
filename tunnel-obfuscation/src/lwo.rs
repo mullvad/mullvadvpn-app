@@ -8,7 +8,14 @@ use talpid_net::bypass::{BypassSocket, SocketBypass};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::net::UdpSocket;
 
-use crate::{socket::create_remote_socket, transport::ObfuscatedTransport};
+use crate::{
+    socket::create_remote_socket,
+    transport::ObfuscatedTransport,
+    wireguard::{
+        COOKIE_REPLY, COOKIE_REPLY_SIZE, DATA, DATA_OVERHEAD_SIZE, HANDSHAKE_INITIATION,
+        HANDSHAKE_INITIATION_SIZE, HANDSHAKE_RESPONSE, HANDSHAKE_RESPONSE_SIZE,
+    },
+};
 
 #[derive(Debug, Clone)]
 pub struct Settings {
@@ -81,18 +88,6 @@ impl ObfuscatedTransport for Lwo {
     }
 }
 
-// WG message types, copied from gotatun
-type MessageType = u8;
-const HANDSHAKE_INIT: MessageType = 1;
-const HANDSHAKE_RESP: MessageType = 2;
-const COOKIE_REPLY: MessageType = 3;
-const DATA: MessageType = 4;
-
-const HANDSHAKE_INIT_SZ: usize = 148;
-const HANDSHAKE_RESP_SZ: usize = 92;
-const COOKIE_REPLY_SZ: usize = 64;
-const DATA_OVERHEAD_SZ: usize = 32;
-
 /// Bit to set in the second byte of the WG header to enable LWO
 const OBFUSCATION_BIT: u8 = 0b10000000;
 
@@ -131,10 +126,10 @@ const fn is_obfuscated(reserved_byte: u8) -> bool {
 fn header_mut(packet: &mut [u8], key_byte: u8) -> Option<&mut [u8]> {
     let &header_type = packet.first()?;
     match header_type ^ key_byte {
-        HANDSHAKE_INIT => packet.get_mut(..HANDSHAKE_INIT_SZ),
-        HANDSHAKE_RESP => packet.get_mut(..HANDSHAKE_RESP_SZ),
-        COOKIE_REPLY => packet.get_mut(..COOKIE_REPLY_SZ),
-        DATA => packet.get_mut(..DATA_OVERHEAD_SZ),
+        HANDSHAKE_INITIATION => packet.get_mut(..HANDSHAKE_INITIATION_SIZE),
+        HANDSHAKE_RESPONSE => packet.get_mut(..HANDSHAKE_RESPONSE_SIZE),
+        COOKIE_REPLY => packet.get_mut(..COOKIE_REPLY_SIZE),
+        DATA => packet.get_mut(..DATA_OVERHEAD_SIZE),
         _ => None,
     }
 }
@@ -174,9 +169,9 @@ mod test {
     }
 
     fn fake_packet() -> Vec<u8> {
-        let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 100];
+        let mut packet = vec![0u8; DATA_OVERHEAD_SIZE + 100];
         packet[0] = DATA;
-        rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
+        rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SIZE..]);
         packet
     }
 
@@ -191,8 +186,8 @@ mod test {
         obfuscate(&mut rng, &mut packet, &key);
         assert_ne!(packet, original_packet);
         assert_eq!(
-            packet[DATA_OVERHEAD_SZ..],
-            original_packet[DATA_OVERHEAD_SZ..],
+            packet[DATA_OVERHEAD_SIZE..],
+            original_packet[DATA_OVERHEAD_SIZE..],
             "payload should be unchanged"
         );
 
