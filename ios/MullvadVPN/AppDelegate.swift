@@ -296,12 +296,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     @objc private func didBecomeActive(_ notification: Notification) {
         tunnelManager.startPeriodicPrivateKeyRotation()
         relayCacheTracker.startPeriodicUpdates()
-        addressCacheUpdateScheduler.startPeriodicUpdates()
+        Task {
+            await addressCacheUpdateScheduler.startPeriodicUpdates()
+        }
     }
 
     @objc private func willResignActive(_ notification: Notification) {
         tunnelManager.stopPeriodicPrivateKeyRotation()
-        relayCacheTracker.stopPeriodicUpdates()
+        Task {
+            await relayCacheTracker.stopPeriodicUpdates()
+        }
         addressCacheUpdateScheduler.stopPeriodicUpdates()
     }
 
@@ -367,9 +371,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: .main
         ) { [self] task in
-            addressCacheUpdateScheduler.updateEndpoints { [self] result in
+            Task { [self]
+                do {
+                    try await addressCacheUpdateScheduler.updateEndpoints() // { [self] result in
+                    task.setTaskCompleted(success: true)
+                } catch {
+                    task.setTaskCompleted(success: false)
+
+                }
                 scheduleAddressCacheUpdateTask()
-                task.setTaskCompleted(success: result.isSuccess)
             }
         }
 
@@ -420,18 +430,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func scheduleAddressCacheUpdateTask() {
-        do {
-            let date = addressCacheUpdateScheduler.nextScheduleDate()
-
-            let request = BGProcessingTaskRequest(identifier: BackgroundTask.addressCacheUpdate.identifier)
-            request.requiresNetworkConnectivity = true
-            request.earliestBeginDate = date
-
-            logger.debug("Schedule address cache update task at \(date.logFormatted).")
-
-            try BGTaskScheduler.shared.submit(request)
-        } catch {
-            logger.error(error: error, message: "Could not schedule address cache update task.")
+        Task {
+            do {
+                let date = await addressCacheUpdateScheduler.nextScheduleDate()
+                
+                let request = BGProcessingTaskRequest(identifier: BackgroundTask.addressCacheUpdate.identifier)
+                request.requiresNetworkConnectivity = true
+                request.earliestBeginDate = date
+                
+                logger.debug("Schedule address cache update task at \(date.logFormatted).")
+                
+                try BGTaskScheduler.shared.submit(request)
+            } catch {
+                logger.error(error: error, message: "Could not schedule address cache update task.")
+            }
         }
     }
 
