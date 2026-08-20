@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.util.performLongClick
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -83,13 +84,12 @@ class SelectLocationScreenTest {
         removeOwnershipFilter: (RelayHopType) -> Unit = {},
         removeProviderFilter: (RelayHopType) -> Unit = {},
         onSelectRelayList: (RelayHopType) -> Unit = {},
-        setMultihopToAlways: () -> Unit = {},
         onSelectAutomaticEntry: () -> Unit = {},
         onAutomaticInfoClick: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
         onScrollToItem: (ScrollEvent) -> Unit = {},
-        toggleMultihop: (Boolean) -> Unit = {},
+        setMultihopMode: (MultihopMode) -> Unit = {},
     ) {
 
         setContentWithTheme {
@@ -106,13 +106,12 @@ class SelectLocationScreenTest {
                 removeOwnershipFilter = removeOwnershipFilter,
                 removeProviderFilter = removeProviderFilter,
                 onSelectRelayList = onSelectRelayList,
-                setMultihopToAlways = setMultihopToAlways,
                 onSelectAutomaticEntry = onSelectAutomaticEntry,
                 onAutomaticInfoClick = onAutomaticInfoClick,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 scrollToItem = onScrollToItem,
-                toggleMultihop = toggleMultihop,
+                onSetMultihopMode = setMultihopMode,
             )
         }
     }
@@ -137,25 +136,7 @@ class SelectLocationScreenTest {
                     )
                 )
             )
-        initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                )
-        )
+        initScreen(state = Lc.Content(defaultUiState()))
 
         // Assert
         onNodeWithText("Relay Country 1").assertExists()
@@ -179,25 +160,7 @@ class SelectLocationScreenTest {
                     )
                 )
             )
-        initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                )
-        )
+        initScreen(state = Lc.Content(defaultUiState()))
 
         // Assert
         onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertExists()
@@ -219,23 +182,7 @@ class SelectLocationScreenTest {
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                ),
+            state = Lc.Content(defaultUiState()),
             onSelectHop = mockedOnSelectHop,
         )
 
@@ -262,23 +209,7 @@ class SelectLocationScreenTest {
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                ),
+            state = Lc.Content(defaultUiState()),
             onSelectHop = mockedOnSelectHop,
         )
 
@@ -316,23 +247,7 @@ class SelectLocationScreenTest {
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                ),
+            state = Lc.Content(defaultUiState()),
             onSelectHop = mockedOnSelectHop,
         )
 
@@ -376,23 +291,7 @@ class SelectLocationScreenTest {
             )
         val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
         initScreen(
-            state =
-                Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = true,
-                        isEntryFilterButtonEnabled = true,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
-                ),
+            state = Lc.Content(defaultUiState()),
             onSelectHop = mockedOnSelectHop,
         )
 
@@ -421,25 +320,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = RelayHopType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isEntryFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                            isEntryFilteringEnabled = true,
-                            lastKnownLocation = null,
-                            entryCountry = "Sweden",
-                            hasAnyEntryFilter = false,
-                            hasAnyExitFilter = false,
-                        )
-                    )
-            )
+            initScreen(state = Lc.Content(defaultUiState()))
 
             // Assert
             onNode(
@@ -471,25 +352,7 @@ class SelectLocationScreenTest {
                         )
                     )
                 )
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = RelayHopType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isEntryFilterButtonEnabled = true,
-                            isRecentsEnabled = false,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                            isEntryFilteringEnabled = true,
-                            lastKnownLocation = null,
-                            entryCountry = "Sweden",
-                            hasAnyEntryFilter = false,
-                            hasAnyExitFilter = false,
-                        )
-                    )
-            )
+            initScreen(state = Lc.Content(defaultUiState().copy(isRecentsEnabled = false)))
 
             // Assert
             onNodeTextAndAncestorTag(
@@ -523,20 +386,8 @@ class SelectLocationScreenTest {
         initScreen(
             state =
                 Lc.Content(
-                    SelectLocationUiState(
-                        filterChips = emptyList(),
-                        multihopListSelection = RelayHopType.EXIT,
-                        isSearchButtonEnabled = false,
-                        isEntryFilterButtonEnabled = false,
-                        isRecentsEnabled = true,
-                        hopSelection = HopSelection.Single(null),
-                        tunnelErrorStateCause = null,
-                        isEntryFilteringEnabled = true,
-                        lastKnownLocation = null,
-                        entryCountry = "Sweden",
-                        hasAnyEntryFilter = false,
-                        hasAnyExitFilter = false,
-                    )
+                    defaultUiState()
+                        .copy(isSearchButtonEnabled = false, isEntryFilterButtonEnabled = false)
                 )
         )
 
@@ -552,3 +403,20 @@ class SelectLocationScreenTest {
             "Please try changing your filters."
     }
 }
+
+private fun defaultUiState(): SelectLocationUiState =
+    SelectLocationUiState(
+        filterChips = emptyList(),
+        multihopListSelection = RelayHopType.EXIT,
+        isSearchButtonEnabled = true,
+        isEntryFilterButtonEnabled = true,
+        isRecentsEnabled = true,
+        hopSelection = HopSelection.Single(null),
+        tunnelErrorStateCause = null,
+        isEntryFilteringEnabled = true,
+        lastKnownLocation = null,
+        entryCountry = "Sweden",
+        hasAnyEntryFilter = false,
+        hasAnyExitFilter = false,
+        activeMultihopMode = MultihopMode.WHEN_NEEDED,
+    )
