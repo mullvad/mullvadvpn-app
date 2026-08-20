@@ -51,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -73,6 +74,7 @@ private fun PreviewMultihopScreen(
 @Composable
 fun SharedTransitionScope.Multihop(
     isModal: Boolean,
+    selectedFeature: FeatureIndicator? = null,
     navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
@@ -82,11 +84,13 @@ fun SharedTransitionScope.Multihop(
     MultihopScreen(
         state = state,
         modifier =
-            Modifier.testTag(MULTIHOP_SCREEN_TEST_TAG)
-                .sharedBounds(
-                    rememberSharedContentState(key = FeatureIndicator.MULTIHOP),
+            Modifier.testTag(MULTIHOP_SCREEN_TEST_TAG).applyIfNotNull(selectedFeature) {
+                selectedFeature ->
+                Modifier.sharedBounds(
+                    rememberSharedContentState(key = selectedFeature),
                     animatedVisibilityScope = animatedVisibilityScope,
-                ),
+                )
+            },
         onMultihopModeSelected = viewModel::setMultihopMode,
         onWhenNeededInfoClick = dropUnlessResumed { navigator.navigate(WhenNeededInfoNavKey) },
         onBackClick = dropUnlessResumed { navigator.goBack() },

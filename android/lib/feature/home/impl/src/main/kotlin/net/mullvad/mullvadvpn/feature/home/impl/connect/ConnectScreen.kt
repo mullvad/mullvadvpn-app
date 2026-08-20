@@ -887,7 +887,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.DAITA -> DaitaNavKey(isModal = true)
         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingNavKey(isModal = true)
         FeatureIndicator.MULTIHOP_AUTO,
-        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
+        FeatureIndicator.MULTIHOP -> MultihopNavKey(selectedFeature = this, isModal = true)
 
         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverrideNavKey(isModal = true)
 
