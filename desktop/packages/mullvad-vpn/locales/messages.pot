@@ -2991,6 +2991,9 @@ msgstr ""
 msgid "%1$d out of %2$d"
 msgstr ""
 
+msgid "%1$s Back"
+msgstr ""
+
 msgid "%1$s more..."
 msgstr ""
 
