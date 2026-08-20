@@ -528,7 +528,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
-    func testWireGuardPortSettings() throws {
+    // Verifies that WireGuardPort settings are accessible, but does not try to connect
+    func testWireGuardPortsSettings() throws {
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -536,12 +537,27 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapWireGuardPortsExpandButton()
-            .tapCustomWireGuardPortTextField()
-            .enterText("4001")
-            .dismissKeyboard()
-            .swipeDownToDismissModal()
+            .tapWireGuardPorts()
 
+        WireGuardPortsSettingsPage(app)
+            .tapPort53Cell()
+            .tapPort51820Cell()
+            .tapAutomaticPortCell()
+    }
+
+    func testWireGuardCustomPortSettings() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardPorts()
+
+        WireGuardPortsSettingsPage(app)
+            .typeTextIntoCustomField("4001")
+            .swipeDownToDismissModal()
             // After editing text field the table is first responder for the first swipe so we need to swipe twice to swipe the modal
             .swipeDownToDismissModal()
 
@@ -830,8 +846,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapVPNSettingsCell()
 
         VPNSettingsPage(app)
-            .tapQuantumResistantTunnelExpandButton()
-            .tapQuantumResistantTunnelOffCell()
+            .turnQuantumResistanceOff()
             .tapBackButton()
 
         SettingsPage(app)
@@ -884,6 +899,40 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapRelayStatusExpandCollapseButton()
             .verifyConnectingUsingIncludeAllNetworks()
             .verifyConnectingUsingLocalNetworkSharing()
+            .tapDisconnectButton()
+    }
+
+    func testIPv6Connection() throws {
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapIPVersionIPv6Cell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        // Verify connection works
+        try Networking.verifyCanAccessInternet()
+        try Networking.verifyConnectedThroughMullvad()
+
+        // Verify IPv6 feature indicator is shown
+        TunnelControlPage(app)
+            .verifyFeatureIndicatorVisible(feature: "IPv6")
+
+        TunnelControlPage(app)
             .tapDisconnectButton()
     }
 }
@@ -994,41 +1043,6 @@ extension RelayTests {
             in: capturedData)
 
         return (connectedTo.IP, connectedTo.port, capturedData)
-    }
-
-    func testIPv6Connection() throws {
-        HeaderBar(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-
-        VPNSettingsPage(app)
-            .tapIPVersionExpandButton()
-            .tapIPVersionIPv6Cell()
-            .tapBackButton()
-
-        SettingsPage(app)
-            .tapDoneButton()
-
-        TunnelControlPage(app)
-            .tapConnectButton()
-
-        allowAddVPNConfigurationsIfAsked()
-
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
-
-        // Verify connection works
-        try Networking.verifyCanAccessInternet()
-        try Networking.verifyConnectedThroughMullvad()
-
-        // Verify IPv6 feature indicator is shown
-        TunnelControlPage(app)
-            .verifyFeatureIndicatorVisible(feature: "IPv6")
-
-        TunnelControlPage(app)
-            .tapDisconnectButton()
     }
 
     func assertCapturedProtocol(

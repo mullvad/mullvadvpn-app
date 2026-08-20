@@ -71,7 +71,7 @@ public enum WireGuardObfuscationState: Codable, Sendable, CustomStringConvertibl
         case .lwo:
             NSLocalizedString("LWO", comment: "")
         case .off:
-            NSLocalizedString("Off", comment: "")
+            NSLocalizedString("None", comment: "")
         }
     }
 }
@@ -129,6 +129,70 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
         case let .custom(port):
             String(port)
         }
+    }
+}
+
+public enum WireGuardPort: Codable, Equatable, CustomStringConvertible, Sendable {
+    case automatic
+    case port51820
+    case port53
+    case custom(UInt16)
+
+    public var portValue: UInt16? {
+        switch self {
+        case .automatic:
+            nil
+        case .port51820:
+            51820
+        case .port53:
+            53
+        case let .custom(port):
+            port
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .automatic:
+            NSLocalizedString("Automatic", comment: "")
+        case .port51820:
+            String("51820")
+        case .port53:
+            String("53")
+        case let .custom(port):
+            String(port)
+        }
+    }
+
+    public init(constraint: RelayConstraint<UInt16>) {
+        self =
+            switch constraint {
+            case .any:
+                .automatic
+            case let .only(port):
+                if port == 53 {
+                    .port53
+                } else if port == 51820 {
+                    .port51820
+                } else {
+                    .custom(port)
+                }
+            }
+    }
+}
+
+public extension RelayConstraint<UInt16> {
+    init(_ port: WireGuardPort) {
+        self =
+            switch port {
+            case .automatic: .any
+            case let .custom(port):
+                .only(port)
+            case .port51820:
+                .only(51820)
+            case .port53:
+                .only(53)
+            }
     }
 }
 
