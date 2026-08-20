@@ -89,6 +89,7 @@ class SelectLocationViewModel(
                     SelectLocationUiState(
                         filterChips = filterChips,
                         multihopListSelection = relayListSelection,
+                        activeMultihopMode = settings.multihopMode(),
                         isSearchButtonEnabled =
                             searchButtonEnabled(
                                 relayList = relayList,
@@ -244,14 +245,16 @@ class SelectLocationViewModel(
         }
     }
 
-    fun toggleMultihop(enable: Boolean) {
+    fun setMultihopMode(mode: MultihopMode) {
         viewModelScope.launch {
             wireguardConstraintsRepository
-                .setMultihop(if (enable) MultihopMode.ALWAYS else MultihopMode.NEVER)
+                .setMultihop(mode)
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
-                        if (enable) {
+                        if (mode == MultihopMode.ALWAYS) {
+                            _multihopRelayListTypeSelection.emit(RelayHopType.ENTRY)
+                        } else if (mode == MultihopMode.WHEN_NEEDED) {
                             _multihopRelayListTypeSelection.emit(RelayHopType.EXIT)
                         }
                     },
