@@ -250,7 +250,7 @@ fun NegativeOutlinedButton(
 ) {
     ColoredOutlinedButton(
         onClick = onClick,
-        text = text,
+        text = AnnotatedString(text),
         outlineColor = MaterialTheme.colorScheme.error,
         textColor = MaterialTheme.colorScheme.error,
         modifier = modifier,
@@ -264,8 +264,9 @@ fun NegativeOutlinedButton(
 @Composable
 fun PrimaryOutlinedButton(
     onClick: () -> Unit,
-    text: String,
+    text: AnnotatedString,
     modifier: Modifier = Modifier,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -274,6 +275,7 @@ fun PrimaryOutlinedButton(
     ColoredOutlinedButton(
         onClick = onClick,
         text = text,
+        inlineContent = inlineContent,
         outlineColor = MaterialTheme.colorScheme.primary,
         textColor = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier,
@@ -287,10 +289,11 @@ fun PrimaryOutlinedButton(
 @Composable
 fun ColoredOutlinedButton(
     onClick: () -> Unit,
-    text: String,
+    text: AnnotatedString,
     outlineColor: Color,
     textColor: Color,
     modifier: Modifier = Modifier,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -315,7 +318,8 @@ fun ColoredOutlinedButton(
             },
     ) {
         BaseButtonContent(
-            text = AnnotatedString(text),
+            text = text,
+            inlineContent = inlineContent,
             isLoading = isLoading,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
