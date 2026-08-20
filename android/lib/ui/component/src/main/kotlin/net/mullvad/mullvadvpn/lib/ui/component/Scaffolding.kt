@@ -61,6 +61,7 @@ fun ScaffoldWithTopBarAndDeviceName(
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
+    showSettingsNotificationDot: Boolean = false,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     deviceName: String?,
     timeLeft: Long?,
@@ -76,6 +77,7 @@ fun ScaffoldWithTopBarAndDeviceName(
                     onSettingsClicked = onSettingsClicked,
                     onAccountClicked = onAccountClicked,
                     isIconAndLogoVisible = isIconAndLogoVisible,
+                    showSettingsNotificationDot = showSettingsNotificationDot,
                     deviceName = deviceName,
                     daysLeftUntilExpiry = timeLeft,
                 )

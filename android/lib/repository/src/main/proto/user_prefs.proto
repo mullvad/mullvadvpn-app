@@ -11,4 +11,5 @@ message UserPreferences {
   bool show_location_in_system_notification = 5;
   bool show_system_apps_split_tunneling = 6;
   bool has_seen_multihop_migration_guide = 7;
+  bool has_dismissed_multihop_migration_guide_banner = 8;
 }

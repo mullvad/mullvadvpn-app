@@ -270,6 +270,7 @@ private fun AppInfo(navigateToAppInfo: () -> Unit, state: SettingsUiState) {
         showWarning = !state.isSupportedVersion,
         position = Position.Bottom,
         onClick = navigateToAppInfo,
+        showNotificationDot = state.showMigrationGuideNotificationDot,
     )
 }
 

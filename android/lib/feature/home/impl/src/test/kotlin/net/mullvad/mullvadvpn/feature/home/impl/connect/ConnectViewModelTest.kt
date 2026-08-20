@@ -38,8 +38,10 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
@@ -96,6 +98,10 @@ class ConnectViewModelTest {
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockConnectionPathUseCase: ConnectionPathUseCase = mockk()
 
+    private val mockUserPreferencesRepository: UserPreferencesRepository = mockk()
+
+    private val mockMultihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase = mockk()
+
     @BeforeEach
     fun setup() {
         every { mockAccountRepository.accountData } returns accountExpiryState
@@ -116,10 +122,11 @@ class ConnectViewModelTest {
 
         every { mockLocation.country } returns "dummy country"
 
-        // Flows
         every { mockSelectedLocationTitleUseCase() } returns selectedRelayItemFlow
 
         every { outOfTimeUseCase.isOutOfTime } returns outOfTimeViewFlow
+
+        every { mockMultihopGuideMigrationHintUseCase() } returns flowOf(false)
         viewModel =
             ConnectViewModel(
                 accountRepository = mockAccountRepository,
@@ -127,7 +134,7 @@ class ConnectViewModelTest {
                 changelogRepository = mockChangelogRepository,
                 inAppNotificationController = mockInAppNotificationController,
                 newDeviceRepository = mockk(),
-                userPreferencesRepository = mockk(),
+                userPreferencesRepository = mockUserPreferencesRepository,
                 outOfTimeUseCase = outOfTimeUseCase,
                 paymentUseCase = mockPaymentUseCase,
                 selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
@@ -138,6 +145,7 @@ class ConnectViewModelTest {
                 resolveAppListing = mockk(),
                 relayListRepository = mockRelayListRepository,
                 connectionPath = mockConnectionPathUseCase,
+                multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
             )
     }
 

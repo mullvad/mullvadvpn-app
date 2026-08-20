@@ -221,7 +221,6 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                                 message = sideEffect.prepareError.toMessage(resources)
                             )
                         }
-
                     is PrepareError.OtherAlwaysOnApp ->
                         launch {
                             snackbarHostState.showSnackbarImmediately(
@@ -417,6 +416,7 @@ fun ConnectScreen(
             onAccountClicked = onAccountClick,
             deviceName = state.deviceName,
             timeLeft = state.daysLeftUntilExpiry,
+            showSettingsNotificationDot = state.showMigrationGuideNotificationDot,
             snackbarHostState = snackbarHostState,
         ) {
             content(it)

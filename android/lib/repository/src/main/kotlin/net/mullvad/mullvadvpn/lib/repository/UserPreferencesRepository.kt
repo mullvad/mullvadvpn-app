@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.UserPreferences
 
+@Suppress("TooManyFunctions")
 class UserPreferencesRepository(
     private val userPreferencesStore: DataStore<UserPreferences>,
     private val buildVersion: BuildVersion,
@@ -71,6 +72,15 @@ class UserPreferencesRepository(
     suspend fun setShowSystemAppsSplitTunneling(show: Boolean) {
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setShowSystemAppsSplitTunneling(show).build()
+        }
+    }
+
+    fun hasDismissedMultihopMigrationGuideBanner(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.hasDismissedMultihopMigrationGuideBanner }
+
+    suspend fun setHasDismissedMultihopMigrationGuideBanner() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setHasDismissedMultihopMigrationGuideBanner(true).build()
         }
     }
 

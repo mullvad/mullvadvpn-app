@@ -10,4 +10,5 @@ data class SettingsUiState(
     val isDaitaEnabled: Boolean,
     val isPlayBuild: Boolean,
     val multihopMode: MultihopMode,
+    val showMigrationGuideNotificationDot: Boolean,
 )

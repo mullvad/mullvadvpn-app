@@ -101,6 +101,7 @@ import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
@@ -280,6 +281,12 @@ val uiModule = module {
             wireguardConstraintsRepository = get(),
         )
     }
+    single {
+        MultihopGuideMigrationHintUseCase(
+            migrationRepository = get(),
+            userPreferencesRepository = get(),
+        )
+    }
 
     single { ConnectionPathUseCase(get(), get(), get()) }
     single { InAppNotificationController(getAll(), MainScope()) }
@@ -312,6 +319,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
             multihopMigrationRepository = get(),
+            multihopGuideMigrationHintUseCase = get(),
         )
     }
     viewModel {
@@ -332,6 +340,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
             connectionPath = get(),
+            multihopGuideMigrationHintUseCase = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
@@ -367,6 +376,7 @@ val uiModule = module {
             appVersionInfoRepository = get(),
             wireguardConstraintsRepository = get(),
             settingsRepository = get(),
+            multihopGuideMigrationHintUseCase = get(),
             connectionProxy = get(),
             isPlayBuild = IS_PLAY_BUILD,
         )

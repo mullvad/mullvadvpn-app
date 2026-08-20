@@ -161,7 +161,8 @@ private fun AppInfoContent(
         if (state.splitFilterMigration != null) {
             HorizontalDivider()
             MultihopMigrationRow(
-                onClick = { navigateToMultihopMigrationGuide(state.splitFilterMigration) }
+                showMigrationGuideNotificationDot = state.showMigrationGuideNotificationDot,
+                onClick = { navigateToMultihopMigrationGuide(state.splitFilterMigration) },
             )
         }
         HorizontalDivider()
@@ -209,11 +210,12 @@ private fun ChangelogRow(navigateToChangelog: () -> Unit) {
 }
 
 @Composable
-private fun MultihopMigrationRow(onClick: () -> Unit) {
+private fun MultihopMigrationRow(showMigrationGuideNotificationDot: Boolean, onClick: () -> Unit) {
     NavigationListItem(
         title = stringResource(R.string.migrated_settings),
         onClick = onClick,
         position = Position.Middle,
+        showNotificationDot = showMigrationGuideNotificationDot,
     )
 }
 
