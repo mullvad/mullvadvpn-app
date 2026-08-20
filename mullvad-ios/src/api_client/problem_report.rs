@@ -33,7 +33,7 @@ use std::collections::BTreeMap;
 pub fn mullvad_ios_send_problem_report(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
-    request: Arc<ProblemReportRequest>,
+    request: ProblemReportRequest,
 ) -> SwiftCancelHandle {
     RequestCancelHandle::new(
         api_context,
@@ -60,7 +60,7 @@ pub fn mullvad_ios_send_problem_report(
 async fn mullvad_ios_send_problem_report_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    problem_report_request: Arc<ProblemReportRequest>,
+    problem_report_request: ProblemReportRequest,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = ProblemReportProxy::new(rest_client);
 
@@ -76,28 +76,27 @@ async fn mullvad_ios_send_problem_report_inner(
     do_request_with_empty_body(retry_strategy, future_factory).await
 }
 
-#[derive(uniffi::Object)]
+// TODO THIS SHOULD NOT BE A RECORD!!!! COSTLY
+#[derive(uniffi::Record)]
 pub struct ProblemReportRequest {
     address: String,
     message: String,
     log: Vec<u8>,
-    metadata: BTreeMap<String, String>,
+    // TODO can we switch this to a hashmap without breakage?
+    metadata: HashMap<String, String>,
 }
 #[uniffi::export]
-impl ProblemReportRequest {
-    #[uniffi::constructor]
-    pub fn new(
-        address: String,
-        message: String,
-        log: Vec<u8>,
-        metadata: HashMap<String, String>,
-    ) -> Self {
-        Self {
-            address,
-            message,
-            log,
-            metadata: metadata.into_iter().collect(),
-        }
+pub fn problem_report_request_init(
+    address: String,
+    message: String,
+    log: Vec<u8>,
+    metadata: HashMap<String, String>,
+) -> ProblemReportRequest {
+    ProblemReportRequest {
+        address,
+        message,
+        log,
+        metadata,
     }
 }
 

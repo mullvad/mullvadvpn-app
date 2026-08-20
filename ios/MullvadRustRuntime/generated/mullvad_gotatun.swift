@@ -1576,123 +1576,6 @@ public func FfiConverterTypeProblemReportMetadata_lower(_ value: ProblemReportMe
 
 
 
-public protocol ProblemReportRequestProtocol: AnyObject, Sendable {
-    
-}
-open class ProblemReportRequest: ProblemReportRequestProtocol, @unchecked Sendable {
-    fileprivate let handle: UInt64
-
-    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public struct NoHandle {
-        public init() {}
-    }
-
-    // TODO: We'd like this to be `private` but for Swifty reasons,
-    // we can't implement `FfiConverter` without making this `required` and we can't
-    // make it `required` without making it `public`.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    required public init(unsafeFromHandle handle: UInt64) {
-        self.handle = handle
-    }
-
-    // This constructor can be used to instantiate a fake object.
-    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
-    //
-    // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public init(noHandle: NoHandle) {
-        self.handle = 0
-    }
-
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public func uniffiCloneHandle() -> UInt64 {
-        return try! rustCall { uniffi_mullvad_ios_fn_clone_problemreportrequest(self.handle, $0) }
-    }
-public convenience init(address: String, message: String, log: Data, metadata: [String: String]) {
-    let handle =
-        try! rustCall() {
-    uniffi_mullvad_ios_fn_constructor_problemreportrequest_new(
-        FfiConverterString.lower(address),
-        FfiConverterString.lower(message),
-        FfiConverterData.lower(log),
-        FfiConverterDictionaryStringString.lower(metadata),$0
-    )
-}
-    self.init(unsafeFromHandle: handle)
-}
-
-    deinit {
-        if handle == 0 {
-            // Mock objects have handle=0 don't try to free them
-            return
-        }
-
-        try! rustCall { uniffi_mullvad_ios_fn_free_problemreportrequest(handle, $0) }
-    }
-
-    
-
-    
-
-    
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeProblemReportRequest: FfiConverter {
-    typealias FfiType = UInt64
-    typealias SwiftType = ProblemReportRequest
-
-    public static func lift(_ handle: UInt64) throws -> ProblemReportRequest {
-        return ProblemReportRequest(unsafeFromHandle: handle)
-    }
-
-    public static func lower(_ value: ProblemReportRequest) -> UInt64 {
-        return value.uniffiCloneHandle()
-    }
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProblemReportRequest {
-        let handle: UInt64 = try readInt(&buf)
-        return try lift(handle)
-    }
-
-    public static func write(_ value: ProblemReportRequest, into buf: inout [UInt8]) {
-        writeInt(&buf, lower(value))
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeProblemReportRequest_lift(_ handle: UInt64) throws -> ProblemReportRequest {
-    return try FfiConverterTypeProblemReportRequest.lift(handle)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeProblemReportRequest_lower(_ value: ProblemReportRequest) -> UInt64 {
-    return FfiConverterTypeProblemReportRequest.lower(value)
-}
-
-
-
-
-
-
 public protocol RetryStrategyProtocol: AnyObject, Sendable {
     
 }
@@ -2020,7 +1903,7 @@ public func FfiConverterTypeSwiftCancelHandle_lower(_ value: SwiftCancelHandle) 
 /**
  * Full tunnel configuration.
  */
-public struct GotaTunConfig: Equatable, Hashable {
+public struct GotaTunConfig: Equatable, Hashable, Codable {
     /**
      * WireGuard private key (32 bytes).
      */
@@ -2179,7 +2062,7 @@ public func FfiConverterTypeGotaTunConfig_lower(_ value: GotaTunConfig) -> RustB
 /**
  * A WireGuard peer (entry or exit).
  */
-public struct GotaTunPeer: Equatable, Hashable {
+public struct GotaTunPeer: Equatable, Hashable, Codable {
     /**
      * Peer's WireGuard public key (32 bytes).
      */
@@ -2245,7 +2128,69 @@ public func FfiConverterTypeGotaTunPeer_lower(_ value: GotaTunPeer) -> RustBuffe
 }
 
 
-public struct ShadowSocksExposed: Equatable, Hashable {
+public struct ProblemReportRequest: Equatable, Hashable, Codable {
+    public let address: String
+    public let message: String
+    public let log: Data
+    public let metadata: [String: String]
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(address: String, message: String, log: Data, metadata: [String: String]) {
+        self.address = address
+        self.message = message
+        self.log = log
+        self.metadata = metadata
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension ProblemReportRequest: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeProblemReportRequest: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProblemReportRequest {
+        return
+            try ProblemReportRequest(
+                address: FfiConverterString.read(from: &buf), 
+                message: FfiConverterString.read(from: &buf), 
+                log: FfiConverterData.read(from: &buf), 
+                metadata: FfiConverterDictionaryStringString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: ProblemReportRequest, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.address, into: &buf)
+        FfiConverterString.write(value.message, into: &buf)
+        FfiConverterData.write(value.log, into: &buf)
+        FfiConverterDictionaryStringString.write(value.metadata, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProblemReportRequest_lift(_ buf: RustBuffer) throws -> ProblemReportRequest {
+    return try FfiConverterTypeProblemReportRequest.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeProblemReportRequest_lower(_ value: ProblemReportRequest) -> RustBuffer {
+    return FfiConverterTypeProblemReportRequest.lower(value)
+}
+
+
+public struct ShadowSocksExposed: Equatable, Hashable, Codable {
     public let address: Data
     public let port: UInt16
     public let password: String
@@ -2307,7 +2252,7 @@ public func FfiConverterTypeShadowSocksExposed_lower(_ value: ShadowSocksExposed
 }
 
 
-public struct SwiftApiContext: Equatable, Hashable {
+public struct SwiftApiContext: Equatable, Hashable, Codable {
     public let ptr: UInt64
 
     // Default memberwise initializers are never public by default, so we
@@ -2357,7 +2302,7 @@ public func FfiConverterTypeSwiftApiContext_lower(_ value: SwiftApiContext) -> R
 }
 
 
-public struct UnsafePtr: Equatable, Hashable {
+public struct UnsafePtr: Equatable, Hashable, Codable {
     public let ptr: UInt64
 
     // Default memberwise initializers are never public by default, so we
@@ -2410,7 +2355,7 @@ public func FfiConverterTypeUnsafePtr_lower(_ value: UnsafePtr) -> RustBuffer {
 /**
  * Error returned when starting a tunnel.
  */
-public enum GotaTunFfiError: Swift.Error, Equatable, Hashable, Foundation.LocalizedError {
+public enum GotaTunFfiError: Swift.Error, Equatable, Hashable, Codable, Foundation.LocalizedError {
 
     
     
@@ -2505,7 +2450,7 @@ public func FfiConverterTypeGotaTunFfiError_lower(_ value: GotaTunFfiError) -> R
  * Obfuscation method applied to the ingress relay connection.
  */
 
-public enum GotaTunObfuscation: Equatable, Hashable {
+public enum GotaTunObfuscation: Equatable, Hashable, Codable {
     
     case off
     case udpOverTcp
@@ -3226,6 +3171,16 @@ public func mullvadIosSendProblemReport(apiContext: ApiContext, retryStrategy: R
     )
 })
 }
+public func problemReportRequestInit(address: String, message: String, log: Data, metadata: [String: String]) -> ProblemReportRequest  {
+    return try!  FfiConverterTypeProblemReportRequest_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_problem_report_request_init(
+        FfiConverterString.lower(address),
+        FfiConverterString.lower(message),
+        FfiConverterData.lower(log),
+        FfiConverterDictionaryStringString.lower(metadata),$0
+    )
+})
+}
 /**
  * Add key and value pair to the `ProblemReportMetadata`
  *
@@ -3382,7 +3337,10 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 33379) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_send_problem_report() != 2882) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_send_problem_report() != 19333) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_problem_report_request_init() != 61570) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_swift_problem_report_metadata_add() != 27086) {
@@ -3431,9 +3389,6 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_swiftaccessmethodsettingscontext_unsafe_from_raw() != 40193) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_constructor_problemreportrequest_new() != 17538) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_gotatuntunnel_start() != 62227) {

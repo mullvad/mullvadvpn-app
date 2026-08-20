@@ -7,6 +7,7 @@ use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
+use std::collections::HashMap;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
@@ -731,7 +732,7 @@ impl ProblemReportProxy {
         email: &str,
         message: &str,
         log: &str,
-        metadata: &BTreeMap<String, String>,
+        metadata: &HashMap<String, String>,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
@@ -745,7 +746,7 @@ impl ProblemReportProxy {
             address: email.to_owned(),
             message: message.to_owned(),
             log: log.to_owned(),
-            metadata: metadata.clone(),
+            metadata: metadata.clone().into_iter().collect(),
         };
 
         let service = self.handle.service.clone();

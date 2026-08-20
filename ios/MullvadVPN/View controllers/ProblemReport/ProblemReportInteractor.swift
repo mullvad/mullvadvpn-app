@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
+import MullvadRustRuntime
 
 final class ProblemReportInteractor: @unchecked Sendable {
     private let apiProxy: APIQuerying
@@ -90,10 +91,10 @@ final class ProblemReportInteractor: @unchecked Sendable {
             output[entry.key.rawValue] = entry.value
         }
 
-        let request = ProblemReportRequest(
+        let request = problemReportRequestInit(
             address: email,
             message: message,
-            log: logString,
+            log: logString.data(using: .utf8)!,
             metadata: metadataDict
         )
 
