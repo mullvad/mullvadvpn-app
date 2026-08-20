@@ -40,7 +40,9 @@ class AppInfoViewModel(
                     AppInfoUiState(
                         version = versionInfo,
                         splitFilterMigration =
-                            splitFilterMigration?.takeUnless { it.scenario == Scenario.ONE_A },
+                            splitFilterMigration?.takeUnless {
+                                it.scenario == null || it.scenario == Scenario.ONE_A
+                            },
                         isPlayBuild = isPlayBuild,
                         showMigrationGuideNotificationDot = showMigrationGuideNotificationDot,
                     )

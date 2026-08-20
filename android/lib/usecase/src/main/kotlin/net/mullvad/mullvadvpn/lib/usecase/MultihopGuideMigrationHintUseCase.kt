@@ -15,6 +15,9 @@ class MultihopGuideMigrationHintUseCase(
             userPreferencesRepository.hasSeenMultihopMigrationGuide(),
             migrationRepository.multihopMigrationState,
         ) { hasSeenGuide, migrationState ->
-            migrationState != null && migrationState.scenario != Scenario.ONE_A && !hasSeenGuide
+            migrationState != null &&
+                migrationState.scenario != null &&
+                migrationState.scenario != Scenario.ONE_A &&
+                !hasSeenGuide
         }
 }
