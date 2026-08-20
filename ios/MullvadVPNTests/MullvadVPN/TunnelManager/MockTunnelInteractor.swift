@@ -69,7 +69,9 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
 
     func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {}
 
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {}
+    func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+        self.deviceState = deviceState
+    }
 
     func removeLastUsedAccount() {}
 

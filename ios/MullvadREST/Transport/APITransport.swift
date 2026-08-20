@@ -14,6 +14,8 @@ public protocol APITransportProtocol {
 
     func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void) throws
         -> Cancellable
+
+    func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse
 }
 
 public final class APITransport: APITransportProtocol {
@@ -27,13 +29,47 @@ public final class APITransport: APITransportProtocol {
         self.requestFactory = requestFactory
     }
 
+    public func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse {
+        let rustTaskHandle = try requestFactory.makeRequest(request)
+
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                guard !Task.isCancelled else {
+                    continuation.resume(throwing: CancellationError())
+                    return
+                }
+
+                rustTaskHandle.start { response in
+                    let error: APIError? =
+                        if !response.success {
+                            APIError(
+                                statusCode: Int(response.statusCode),
+                                errorDescription: response.errorDescription ?? "",
+                                serverResponseCode: response.serverResponseCode
+                            )
+                        } else { nil }
+
+                    continuation.resume(
+                        returning: ProxyAPIResponse(
+                            data: response.body,
+                            error: error,
+                            etag: response.etag
+                        )
+                    )
+                }
+            }
+        } onCancel: {
+            rustTaskHandle.cancel()
+        }
+    }
+
     public func sendRequest(
         _ request: APIRequest,
         completion: @escaping @Sendable (ProxyAPIResponse) -> Void
     ) throws -> Cancellable {
-        let apiRequest = requestFactory.makeRequest(request)
+        let apiRequest = try requestFactory.makeRequest(request)
 
-        return try apiRequest { response in
+        apiRequest.start { response in
             let error: APIError? =
                 if !response.success {
                     APIError(
@@ -50,5 +86,6 @@ public final class APITransport: APITransportProtocol {
                     etag: response.etag
                 ))
         }
+        return apiRequest
     }
 }

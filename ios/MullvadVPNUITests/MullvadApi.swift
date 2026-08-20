@@ -71,25 +71,24 @@ class MullvadApi {
     }
 
     func createAccount() throws -> String {
-        let response = try makeRequest { cookie, strategy in
-            mullvad_ios_create_account(context, cookie, strategy)
+        let response = try makeRequest { strategy in
+            mullvad_ios_create_account(context, strategy)
         }
         let data = try requireBody(response)
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
     }
 
     func delete(account: String) throws {
-        _ = try makeRequest { cookie, strategy in
-            mullvad_ios_delete_account(context, cookie, strategy, account)
+        _ = try makeRequest { strategy in
+            mullvad_ios_delete_account(context, strategy, account)
         }
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {
         _ = try publicKey.withUnsafeBytes { ptr -> MullvadApiResponse in
-            try makeRequest { cookie, strategy in
+            try makeRequest { strategy in
                 mullvad_ios_create_device(
                     context,
-                    cookie,
                     strategy,
                     forAccount,
                     ptr.baseAddress!.assumingMemoryBound(to: UInt8.self)
@@ -99,8 +98,9 @@ class MullvadApi {
     }
 
     func getExpiry(forAccount: String) throws -> UInt64 {
-        let response = try makeRequest { cookie, strategy in
-            mullvad_ios_get_account(context, cookie, strategy, forAccount)
+        let response = try makeRequest { strategy in
+            let handle = mullvad_ios_get_account(context, strategy, forAccount)
+            return handle
         }
         let data = try requireBody(response)
         let decoder = JSONDecoder()
@@ -110,8 +110,8 @@ class MullvadApi {
     }
 
     func listDevices(forAccount: String) throws -> [Device] {
-        let response = try makeRequest { cookie, strategy in
-            mullvad_ios_get_devices(context, cookie, strategy, forAccount)
+        let response = try makeRequest { strategy in
+            mullvad_ios_get_devices(context, strategy, forAccount)
         }
         let data = try requireBody(response)
         let deviceResponses = try JSONDecoder().decode([DeviceResponse].self, from: data)
@@ -130,7 +130,7 @@ class MullvadApi {
 
     @discardableResult
     private func makeRequest(
-        _ call: (UnsafeMutableRawPointer, SwiftRetryStrategy) -> SwiftCancelHandle
+        _ call: (SwiftRetryStrategy) -> SwiftCancelHandle
     ) throws -> MullvadApiResponse {
         let semaphore = DispatchSemaphore(value: 0)
         nonisolated(unsafe) var apiResponse: MullvadApiResponse?
@@ -141,9 +141,10 @@ class MullvadApi {
         }
         let cookie = Unmanaged.passRetained(completion).toOpaque()
         let strategy = mullvad_api_retry_strategy_constant(3, 1)
-        var handle = call(cookie, strategy)
+        var handle = call(strategy)
+        mullvad_api_start_task(handle, cookie)
         semaphore.wait()
-        mullvad_api_cancel_task_drop(&handle)
+        mullvad_api_cancel_task_drop(handle)
 
         guard let response = apiResponse else {
             throw MullvadApiError(description: "No response received")

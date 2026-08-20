@@ -450,31 +450,17 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let operation = UpdateAccountDataOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            accountsProxy: accountsProxy
+    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+        let interactor = AccountInteractor(
+            tunnelManager: self,
+            accountsProxy: accountsProxy,
+            apiProxy: apiProxy,
+            deviceProxy: devicesProxy
         )
 
-        operation.completionQueue = .main
-        operation.completionHandler = { completion in
-            completionHandler?(completion.error)
+        Task {
+            completionHandler?(await interactor.updateAccountData())
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update account data",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
     }
 
     func redeemVoucher(

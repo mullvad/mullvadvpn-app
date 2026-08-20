@@ -57,6 +57,34 @@ final class AccountInteractor: Sendable {
         tunnelManager.deviceState
     }
 
+    func updateAccountData() async -> Result<Void, Error> {
+        guard case let .loggedIn(accountData, _) = deviceState else {
+            return .failure(InvalidDeviceStateError())
+        }
+
+        let result = await accountsProxy.getAccountData(
+            accountNumber: accountData.number,
+            retryStrategy: .default
+        )
+
+        return result.tryMap { accountData in
+            switch deviceState {
+            case .loggedIn(var storedAccountData, let storedDeviceData):
+                storedAccountData.expiry = accountData.expiry
+                let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
+
+                // Make sure we don't update any data if cancellation happened in-flight.
+                if Task.isCancelled {
+                    throw CancellationError()
+                } else {
+                    tunnelManager.setDeviceState(newDeviceState, persist: true)
+                }
+            default:
+                throw InvalidDeviceStateError()
+            }
+        }
+    }
+
     func logout() async {
         await tunnelManager.unsetAccount()
     }
