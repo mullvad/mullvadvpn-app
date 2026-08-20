@@ -35,12 +35,11 @@ public struct MullvadApiRequestFactory: Sendable {
                     etag: etag
                 ))
         case let .sendProblemReport(retryStrategy, problemReportRequest):
-            let rustRequest = RustProblemReportRequest(from: problemReportRequest)
             return MullvadApiCancellable(
-                handle: mullvad_ios_send_problem_report(
-                    apiContext.context.unsafeRaw().legacy(),
-                    retryStrategy.toRustStrategy(),
-                    rustRequest.toRust()
+                handle: mullvadIosSendProblemReport(
+                    apiContext: apiContext.context,
+                    retryStrategy: retryStrategy.toRustStrategy(),
+                    request: problemReportRequest
                 ))
         case let .getAccount(retryStrategy, accountNumber: accountNumber):
             return MullvadApiCancellable(

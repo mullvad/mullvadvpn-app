@@ -26,13 +26,9 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
 
-typedef struct Map Map;
-
-typedef struct RetryStrategy RetryStrategy;
+typedef struct ProblemReportMetadata ProblemReportMetadata;
 
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
-
-typedef struct SwiftCancelHandle SwiftCancelHandle;
 
 typedef struct LegacySwiftApiContext {
   uint64_t ptr;
@@ -65,21 +61,6 @@ typedef struct SwiftServerMock {
   const void *mock_ptr;
   uint16_t port;
 } SwiftServerMock;
-
-typedef struct LegacySwiftRetryStrategy {
-  struct RetryStrategy *_0;
-} LegacySwiftRetryStrategy;
-
-typedef struct ProblemReportMetadata {
-  struct Map *inner;
-} ProblemReportMetadata;
-
-typedef struct SwiftProblemReportRequest {
-  const char *address;
-  const char *message;
-  const char *log;
-  struct ProblemReportMetadata metadata;
-} SwiftProblemReportRequest;
 
 typedef struct SwiftShadowsocksLoaderWrapperContext {
   const void *shadowsocks_loader;
@@ -286,41 +267,7 @@ struct SwiftServerMock mullvad_api_mock_post(const char *path,
  */
 void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
 
-/**
- * Send a problem report via the Mullvad API client.
- *
- * # Safety
- *
- * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
- * by calling `mullvad_api_init_new`.
- *
- * `retry_strategy` must have been created by a call to either of the following functions
- * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
- *
- * the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
- *
- * This function is not safe to call multiple times with the same `CompletionCookie`.
- */
-struct SwiftCancelHandle mullvad_ios_send_problem_report(struct LegacySwiftApiContext api_context,
-                                                         struct LegacySwiftRetryStrategy retry_strategy,
-                                                         struct SwiftProblemReportRequest request);
-
 struct ProblemReportMetadata swift_problem_report_metadata_new(void);
-
-/**
- * Add key and value pair to the `ProblemReportMetadata`
- *
- * # Safety
- *
- * `map.inner` must be non-null and point to a valid
- * - `key` must be a null-terminated UTF-8 string, containing LF-separated machines.
- * - `value` must be a valid pointer to some valid and aligned pointer-sized memory.
- */
-bool swift_problem_report_metadata_add(struct ProblemReportMetadata map,
-                                       const char *key,
-                                       const char *value);
-
-void swift_problem_report_metadata_free(struct ProblemReportMetadata map);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely

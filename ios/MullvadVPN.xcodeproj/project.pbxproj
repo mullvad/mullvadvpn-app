@@ -1107,7 +1107,6 @@
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
 		F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		F0A89CB32D9D6C2100580C27 /* MullvadDeviceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A89CB22D9D6C1400580C27 /* MullvadDeviceProxy.swift */; };
-		F0A89CB52D9D864B00580C27 /* RustProblemReportRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */; };
 		F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */; };
 		F0AC643A2F3B4FD40024427C /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AC64392F3B4FD40024427C /* NotificationSettings.swift */; };
 		F0AC643C2F3B50860024427C /* NotificationSettingsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AC643B2F3B50860024427C /* NotificationSettingsObserver.swift */; };
@@ -2777,7 +2776,6 @@
 		F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeInteractor.swift; sourceTree = "<group>"; };
 		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
 		F0EE6E772E4A321B0089DFF3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequest.swift; sourceTree = "<group>"; };
 		F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppResetManager.swift; sourceTree = "<group>"; };
 		F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
@@ -4945,7 +4943,6 @@
 				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
 				01D13C202F11130500EC63DE /* RustLogging.swift */,
 				014E8C392F2D594400837D0A /* RustLogRedactor.swift */,
-				F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */,
 				58DFF7D92B02862E00F864E0 /* ShadowsocksCipherService.swift */,
 				F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */,
 				44DFB71B2F3DD8A6002C528E /* SwiftData.swift */,
@@ -7499,7 +7496,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F0A89CB52D9D864B00580C27 /* RustProblemReportRequest.swift in Sources */,
 				7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */,
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,

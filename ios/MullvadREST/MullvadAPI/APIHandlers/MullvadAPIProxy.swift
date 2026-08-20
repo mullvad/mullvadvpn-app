@@ -23,7 +23,7 @@ public protocol APIQuerying: Sendable {
     ) -> Cancellable
 
     func sendProblemReport(
-        _ body: ProblemReportRequest,
+        _ body: MullvadRustRuntime.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
@@ -115,7 +115,7 @@ extension REST {
         }
 
         public func sendProblemReport(
-            _ body: ProblemReportRequest,
+            _ body: MullvadRustRuntime.ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
