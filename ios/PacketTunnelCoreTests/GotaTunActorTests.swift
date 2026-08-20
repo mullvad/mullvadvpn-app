@@ -108,6 +108,35 @@ final class GotaTunActorTests: XCTestCase {
         await collectStates(from: actor, until: predicate, timeout: timeout, while: action)
     }
 
+    /// Reach `.reconnecting` on a second adapter, leaving `adaptersCreated[0]` replaced but still
+    /// able to report, the way a Rust device can when its callback is already in flight.
+    private func makeActorWithReplacedAdapter() async -> (GotaTunActor, GotaTunAdapterFactoryStub) {
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.connected(), .never])
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(
+            actor, until: { $0.isReconnecting },
+            while: {
+                actor.reconnect(to: .random, reconnectReason: .connectionLoss)
+            })
+
+        return (actor, factory)
+    }
+
+    /// Stop the actor and assert it settles in `.disconnected`.
+    private func assertStopLeadsToDisconnected(
+        _ actor: GotaTunActor,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
+        await waitFor(actor, until: { $0.isDisconnected }, while: { actor.stop() })
+
+        let state = await actor.observedState
+        XCTAssertEqual(state, .disconnected, file: file, line: line)
+    }
+
     // MARK: - Happy path
 
     func testStartGoesToConnected() async throws {
@@ -137,16 +166,6 @@ final class GotaTunActorTests: XCTestCase {
                 await actor.start(options: launchOptions)
                 await actor.start(options: launchOptions)
             })
-    }
-
-    // MARK: - Stop
-
-    func testStopGoesToDisconnected() async throws {
-        let actor = makeActor()
-
-        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
-
-        await waitFor(actor, until: { $0.isDisconnected }, while: { actor.stop() })
     }
 
     // MARK: - Timeout handling
@@ -289,19 +308,10 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertTrue(state.isConnected)
     }
 
-    // MARK: - Stale adapter callbacks
+    // MARK: - Callbacks from unexpected adapters
 
     func testStaleConnectedCallbackIsIgnored() async throws {
-        let factory = GotaTunAdapterFactoryStub(outcomes: [.connected(), .never])
-        let actor = makeActor(adapterFactory: factory)
-
-        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
-
-        await waitFor(
-            actor, until: { $0.isReconnecting },
-            while: {
-                actor.reconnect(to: .random, reconnectReason: .connectionLoss)
-            })
+        let (actor, factory) = await makeActorWithReplacedAdapter()
 
         // A callback from the replaced adapter arrives after the swap.
         factory.adaptersCreated[0].callbackHandler?.onConnected()
@@ -312,16 +322,7 @@ final class GotaTunActorTests: XCTestCase {
     }
 
     func testStaleTimeoutCallbackIsIgnored() async throws {
-        let factory = GotaTunAdapterFactoryStub(outcomes: [.connected(), .never])
-        let actor = makeActor(adapterFactory: factory)
-
-        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
-
-        await waitFor(
-            actor, until: { $0.isReconnecting },
-            while: {
-                actor.reconnect(to: .random, reconnectReason: .connectionLoss)
-            })
+        let (actor, factory) = await makeActorWithReplacedAdapter()
 
         factory.adaptersCreated[0].callbackHandler?.onTimeout()
         await actor.drainEvents()
@@ -331,6 +332,78 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(
             factory.adaptersCreated.count, 2,
             "A stale onTimeout must not restart the current attempt")
+    }
+
+    func testStaleErrorCallbackIsIgnored() async throws {
+        let (actor, factory) = await makeActorWithReplacedAdapter()
+
+        factory.adaptersCreated[0].callbackHandler?.onError(.internalError("stale"))
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertNil(state.blockedReason, "A stale onError must not block the tunnel")
+        XCTAssertTrue(state.isReconnecting)
+    }
+
+    /// A stale adapter that reports repeatedly must stay ignored, not just on its first callback.
+    func testRepeatedStaleCallbacksAreIgnored() async throws {
+        let (actor, factory) = await makeActorWithReplacedAdapter()
+
+        let stale = factory.adaptersCreated[0]
+        stale.callbackHandler?.onConnected()
+        stale.callbackHandler?.onTimeout()
+        stale.callbackHandler?.onConnected()
+        stale.callbackHandler?.onError(.invalidConfig("stale"))
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertTrue(state.isReconnecting)
+        XCTAssertEqual(factory.adaptersCreated.count, 2)
+    }
+
+    /// Entering the error state stops the adapter without replacing it. Its callbacks must not
+    /// resurrect the connection, nor rewrite the reason the tunnel is blocked for.
+    func testCallbacksFromAdapterStoppedByErrorStateAreIgnored() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .never)
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.isConnecting }, while: { await actor.start(options: launchOptions) })
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceRevoked },
+            while: {
+                actor.setErrorState(reason: .deviceRevoked)
+            })
+
+        let stopped = factory.adaptersCreated[0]
+        XCTAssertTrue(stopped.isStopped)
+
+        stopped.callbackHandler?.onConnected()
+        stopped.callbackHandler?.onError(.internalError("late"))
+        stopped.callbackHandler?.onTimeout()
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertEqual(state.blockedReason, .deviceRevoked, "A stopped adapter must not change the blocked reason")
+        XCTAssertEqual(factory.adaptersCreated.count, 1, "A stopped adapter must not trigger a new attempt")
+    }
+
+    func testCallbacksAfterStopAreIgnored() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .never)
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.isConnecting }, while: { await actor.start(options: launchOptions) })
+        await assertStopLeadsToDisconnected(actor)
+
+        let stopped = factory.adaptersCreated[0]
+        stopped.callbackHandler?.onConnected()
+        stopped.callbackHandler?.onTimeout()
+        stopped.callbackHandler?.onError(.internalError("late"))
+        await actor.drainEvents()
+
+        let state = await actor.observedState
+        XCTAssertEqual(state, .disconnected, "Nothing brings the actor back out of `.disconnected`")
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
     }
 
     // MARK: - Lifecycle guards
@@ -345,32 +418,69 @@ final class GotaTunActorTests: XCTestCase {
         XCTAssertEqual(factory.adaptersCreated.count, 0, "No adapter should be created")
     }
 
-    func testStopFromAnyState() async throws {
-        let actor = makeActor()
+    // MARK: - Stop from every state
 
-        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+    // `.negotiatingEphemeralPeer` and `.disconnecting` are unreachable for this actor: PQ is
+    // handled inside Rust, and stopping enters `.disconnected` directly.
 
-        actor.stop()
-        await actor.drainEvents()
+    func testStopFromInitial() async throws {
+        let factory = GotaTunAdapterFactoryStub()
+        let actor = makeActor(adapterFactory: factory)
 
-        let state = await actor.observedState
-        XCTAssertEqual(state, .disconnected)
+        await assertStopLeadsToDisconnected(actor)
+
+        XCTAssertEqual(factory.adaptersCreated.count, 0, "Stopping before start must not connect anything")
     }
 
-    // MARK: - Stop during connection
-
-    func testStopDuringConnecting() async throws {
+    func testStopFromConnecting() async throws {
         // The adapter never reports, so the actor stays in `.connecting` until stopped.
         let factory = GotaTunAdapterFactoryStub(outcome: .never)
         let actor = makeActor(adapterFactory: factory)
 
         await waitFor(actor, until: { $0.isConnecting }, while: { await actor.start(options: launchOptions) })
 
-        actor.stop()
-        await actor.drainEvents()
+        await assertStopLeadsToDisconnected(actor)
 
-        let state = await actor.observedState
-        XCTAssertEqual(state, .disconnected, "Should be disconnected after stop during connecting")
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+        XCTAssertTrue(factory.adaptersCreated[0].isStopped, "The in-flight attempt must be torn down")
+    }
+
+    func testStopFromConnected() async throws {
+        let factory = GotaTunAdapterFactoryStub()
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await assertStopLeadsToDisconnected(actor)
+
+        XCTAssertTrue(factory.adaptersCreated[0].isStopped)
+    }
+
+    func testStopFromReconnecting() async throws {
+        let (actor, factory) = await makeActorWithReplacedAdapter()
+
+        await assertStopLeadsToDisconnected(actor)
+
+        XCTAssertTrue(factory.adaptersCreated[1].isStopped, "The adapter of the current attempt must be stopped")
+    }
+
+    func testStopFromErrorState() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .error(.internalError("test")))
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.blockedReason != nil }, while: { await actor.start(options: launchOptions) })
+
+        await assertStopLeadsToDisconnected(actor)
+    }
+
+    func testStopFromDisconnectedIsIgnored() async throws {
+        let factory = GotaTunAdapterFactoryStub()
+        let actor = makeActor(adapterFactory: factory)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        await assertStopLeadsToDisconnected(actor)
+        await assertStopLeadsToDisconnected(actor)
 
         XCTAssertEqual(factory.adaptersCreated.count, 1)
     }

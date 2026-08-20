@@ -470,6 +470,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private func stopCurrentAdapter() {
         currentAdapter?.stopTunnel()
         currentAdapter = nil
+        adapterGeneration += 1
     }
 
     /// Whether `generation` identifies the adapter currently in use. Events from a replaced or
