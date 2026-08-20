@@ -104,7 +104,11 @@ fun FilterScreen(
     val backgroundColor = MaterialTheme.colorScheme.surface
     ScaffoldWithSmallTopBar(
         modifier = Modifier.background(backgroundColor),
-        appBarTitle = stringResource(R.string.filter),
+        appBarTitle =
+            when (state.filterTarget) {
+                RelayHopType.EXIT -> stringResource(R.string.exit_filter)
+                RelayHopType.ENTRY -> stringResource(R.string.entry_filter)
+            },
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         bottomBar = {
             BottomBar(

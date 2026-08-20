@@ -3348,10 +3348,16 @@ msgstr ""
 msgid "Enter an account number"
 msgstr ""
 
+msgid "Entry filter"
+msgstr ""
+
 msgid "Entry relay is the same as exit relay"
 msgstr ""
 
 msgid "Excluded applications"
+msgstr ""
+
+msgid "Exit filter"
 msgstr ""
 
 msgid "Expand"

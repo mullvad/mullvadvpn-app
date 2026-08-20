@@ -49,7 +49,7 @@ class FilterViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                FilterUiState(),
+                FilterUiState(filterTarget = filterTarget),
             )
 
     private fun createState(
@@ -58,6 +58,7 @@ class FilterViewModel(
         selectedProviders: Constraint<Providers>,
     ): FilterUiState =
         FilterUiState(
+            filterTarget = filterTarget,
             providerToOwnerships = providerToOwnerships,
             selectedOwnership = selectedOwnership,
             selectedProviders = selectedProviders,
