@@ -43,27 +43,12 @@ import NetworkExtension
     final class SimulatorTunnelProvider: Sendable {
         static let shared = SimulatorTunnelProvider()
 
-        private let lock = NSLock()
-        nonisolated(unsafe) private var _delegate: SimulatorTunnelProviderDelegate?
-
-        var delegate: SimulatorTunnelProviderDelegate! {
-            get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return _delegate
-            }
-            set {
-                lock.lock()
-                _delegate = newValue
-                lock.unlock()
-            }
-        }
+        nonisolated(unsafe) public var delegate: SimulatorTunnelProviderDelegate!
 
         private init() {}
 
         func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
-            delegate.handleAppMessage(messageData, completionHandler: completionHandler)
+            delegate?.handleAppMessage(messageData, completionHandler: completionHandler)
         }
     }
 
