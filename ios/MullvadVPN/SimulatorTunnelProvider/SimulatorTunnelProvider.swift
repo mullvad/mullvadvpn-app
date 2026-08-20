@@ -48,7 +48,7 @@ import NetworkExtension
         private init() {}
 
         func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)? = nil) {
-            delegate?.handleAppMessage(messageData, completionHandler: completionHandler)
+            delegate.handleAppMessage(messageData, completionHandler: completionHandler)
         }
     }
 
