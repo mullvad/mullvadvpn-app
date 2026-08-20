@@ -29,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Info
@@ -76,6 +77,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryOutlinedButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -506,10 +508,22 @@ private fun BottomBar(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 if (backButtonWidth > 0.dp) {
+                    val backMessage =
+                        stringResourceWithIcons(
+                            R.string.back_with_icon,
+                            DescribedIcon(
+                                icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = stringResource(R.string.back),
+                            ),
+                        )
                     PrimaryOutlinedButton(
-                        text = stringResource(R.string.back),
+                        text = backMessage.text,
+                        inlineContent = backMessage.inlineContent,
                         onClick = onBackClick,
-                        modifier = Modifier.width(backButtonWidth).alpha(backButtonAlpha),
+                        modifier =
+                            Modifier.width(backButtonWidth)
+                                .alpha(backButtonAlpha)
+                                .testTag(MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG),
                     )
                     Spacer(
                         modifier = Modifier.width((Dimens.smallPadding.value * backButtonAlpha).dp)
