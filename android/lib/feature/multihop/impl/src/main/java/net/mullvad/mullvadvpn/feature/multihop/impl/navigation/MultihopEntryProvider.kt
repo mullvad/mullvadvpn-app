@@ -16,6 +16,7 @@ fun EntryProviderScope<NavKey2>.multihopEntry(navigator: Navigator) {
     ) { navKey ->
         LocalSharedTransitionScope.current?.Multihop(
             isModal = navKey.isModal,
+            selectedFeature = navKey.selectedFeature,
             navigator = navigator,
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )

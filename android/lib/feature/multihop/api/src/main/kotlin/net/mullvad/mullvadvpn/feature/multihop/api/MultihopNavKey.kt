@@ -2,5 +2,10 @@ package net.mullvad.mullvadvpn.feature.multihop.api
 
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.core.NavKey2
+import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 
-@Parcelize data class MultihopNavKey(val isModal: Boolean = false) : NavKey2
+@Parcelize
+data class MultihopNavKey(
+    val selectedFeature: FeatureIndicator? = null,
+    val isModal: Boolean = false,
+) : NavKey2
