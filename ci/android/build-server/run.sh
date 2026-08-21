@@ -42,6 +42,7 @@ if [[ ! -d "$UPLOAD_DIR" ]]; then
 fi
 
 if [[ "$ENABLE_SIGNING" == "true" && -z ${YUBIKEY_PIN-} ]]; then
+    echo "Please enter the pin for the android-release.keystore YubiKey."
     read -rsp "YUBIKEY_PIN = " YUBIKEY_PIN
     echo ""
     export YUBIKEY_PIN
