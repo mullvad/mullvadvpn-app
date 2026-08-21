@@ -19,10 +19,10 @@ public final class MullvadApiCancellable: Cancellable, Sendable {
         let completionCookie = MullvadApiCompletion { apiResponse in
             try? completion?(apiResponse)
         }
-        mullvadApiStartTask(handle: handle, completionCookie: completionCookie)
+        handle.startTask(completionCookie: completionCookie)
     }
 
     public func cancel() {
-        mullvadApiCancelTask(handle: handle)
+        handle.cancelTask()
     }
 }

@@ -1765,6 +1765,31 @@ public func FfiConverterTypeGotaTunTunnel_lower(_ value: GotaTunTunnel) -> UInt6
 
 public protocol RequestCancelHandleProtocol: AnyObject, Sendable {
     
+    /**
+     * Called by the Swift side to signal that a Mullvad API call should be cancelled.
+     * Does nothing on repeated calls.
+     * Must not be called after `mullvad_api_cancel_task_drop.
+     *
+     * # Safety
+     *
+     * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+     */
+    func cancelTask() 
+    
+    /**
+     * Called by the Swift side to signal that a Mullvad API call should be started.
+     * Does nothing on repeated calls.
+     * Must not be called after `mullvad_api_cancel_task_drop.`
+     *
+     * # Safety
+     *
+     * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+     * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+     * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+     * intended to be used.
+     */
+    func startTask(completionCookie: CompletionCookieNew) 
+    
 }
 open class RequestCancelHandle: RequestCancelHandleProtocol, @unchecked Sendable {
     fileprivate let handle: UInt64
@@ -1818,6 +1843,42 @@ open class RequestCancelHandle: RequestCancelHandleProtocol, @unchecked Sendable
 
     
 
+    
+    /**
+     * Called by the Swift side to signal that a Mullvad API call should be cancelled.
+     * Does nothing on repeated calls.
+     * Must not be called after `mullvad_api_cancel_task_drop.
+     *
+     * # Safety
+     *
+     * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+     */
+open func cancelTask()  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_requestcancelhandle_cancel_task(
+            self.uniffiCloneHandle(),$0
+    )
+}
+}
+    
+    /**
+     * Called by the Swift side to signal that a Mullvad API call should be started.
+     * Does nothing on repeated calls.
+     * Must not be called after `mullvad_api_cancel_task_drop.`
+     *
+     * # Safety
+     *
+     * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+     * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+     * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+     * intended to be used.
+     */
+open func startTask(completionCookie: CompletionCookieNew)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_requestcancelhandle_start_task(
+            self.uniffiCloneHandle(),
+        FfiConverterTypeCompletionCookieNew_lower(completionCookie),$0
+    )
+}
+}
     
 
     
@@ -3690,40 +3751,6 @@ public func mullvadIosGetRelays(apiContext: ApiContext, retryStrategy: RetryStra
 })
 }
 /**
- * Called by the Swift side to signal that a Mullvad API call should be cancelled.
- * Does nothing on repeated calls.
- * Must not be called after `mullvad_api_cancel_task_drop.
- *
- * # Safety
- *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
- */
-public func mullvadApiCancelTask(handle: RequestCancelHandle)  {try! rustCall() {
-    uniffi_mullvad_ios_fn_func_mullvad_api_cancel_task(
-        FfiConverterTypeRequestCancelHandle_lower(handle),$0
-    )
-}
-}
-/**
- * Called by the Swift side to signal that a Mullvad API call should be started.
- * Does nothing on repeated calls.
- * Must not be called after `mullvad_api_cancel_task_drop.`
- *
- * # Safety
- *
- * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
- * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
- * intended to be used.
- */
-public func mullvadApiStartTask(handle: RequestCancelHandle, completionCookie: CompletionCookieNew)  {try! rustCall() {
-    uniffi_mullvad_ios_fn_func_mullvad_api_start_task(
-        FfiConverterTypeRequestCancelHandle_lower(handle),
-        FfiConverterTypeCompletionCookieNew_lower(completionCookie),$0
-    )
-}
-}
-/**
  * create device via the Mullvad API client.
  *
  * # Safety
@@ -4054,12 +4081,6 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_relays() != 2690) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_api_cancel_task() != 55639) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 11635) {
-        return InitializationResult.apiChecksumMismatch
-    }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_device() != 13944) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -4109,6 +4130,12 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_completioncookienew_finish() != 59153) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_requestcancelhandle_cancel_task() != 54677) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_requestcancelhandle_start_task() != 42346) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_body() != 24388) {

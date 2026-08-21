@@ -39,6 +39,45 @@ impl RequestCancelHandle {
     }
 }
 
+#[uniffi::export]
+impl RequestCancelHandle {
+    /// Called by the Swift side to signal that a Mullvad API call should be started.
+    /// Does nothing on repeated calls.
+    /// Must not be called after `mullvad_api_cancel_task_drop.`
+    ///
+    /// # Safety
+    ///
+    /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+    /// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+    /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+    /// intended to be used.
+    pub fn start_task(&self, completion_cookie: Arc<dyn CompletionCookieNew>) {
+        let Ok(mut handle) = self.inner.lock() else {
+            return;
+        };
+        if let Some(handle) = &mut *handle {
+            handle.start(completion_cookie);
+        }
+    }
+
+    /// Called by the Swift side to signal that a Mullvad API call should be cancelled.
+    /// Does nothing on repeated calls.
+    /// Must not be called after `mullvad_api_cancel_task_drop.
+    ///
+    /// # Safety
+    ///
+    /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
+    pub fn cancel_task(&self) {
+        // SAFETY: See notes for `as_handle`
+        let Ok(mut handle) = self.inner.lock() else {
+            return;
+        };
+        if let Some(handle) = handle.take() {
+            handle.cancel();
+        }
+    }
+}
+
 #[expect(clippy::type_complexity)]
 enum HandleState {
     ToStart {
@@ -107,45 +146,4 @@ impl HandleState {
 #[uniffi::export(with_foreign)]
 pub trait CompletionCookieNew: Send + Sync {
     fn finish(&self, result: Arc<SwiftMullvadApiResponse>);
-}
-
-/// Called by the Swift side to signal that a Mullvad API call should be started.
-/// Does nothing on repeated calls.
-/// Must not be called after `mullvad_api_cancel_task_drop.`
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
-/// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
-/// intended to be used.
-#[uniffi::export]
-pub fn mullvad_api_start_task(
-    handle: &RequestCancelHandle,
-    completion_cookie: Arc<dyn CompletionCookieNew>,
-) {
-    let Ok(mut handle) = handle.inner.lock() else {
-        return;
-    };
-    if let Some(handle) = &mut *handle {
-        handle.start(completion_cookie);
-    }
-}
-
-/// Called by the Swift side to signal that a Mullvad API call should be cancelled.
-/// Does nothing on repeated calls.
-/// Must not be called after `mullvad_api_cancel_task_drop.
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[uniffi::export]
-pub fn mullvad_api_cancel_task(handle: &RequestCancelHandle) {
-    // SAFETY: See notes for `as_handle`
-    let Ok(mut handle) = handle.inner.lock() else {
-        return;
-    };
-    if let Some(handle) = handle.take() {
-        handle.cancel();
-    }
 }
