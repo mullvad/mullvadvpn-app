@@ -107,7 +107,7 @@ struct MullvadListActionItemView<Icon: View>: View {
                 content: { item in
                     MullvadListActionItemView(item: item) {
                         if item.pressed != nil {
-                            Image.mullvadIconClose
+                            ResizableImageView(image: .mullvadIconCross, dimension: .height(24))
                         }
                     }
                 }
