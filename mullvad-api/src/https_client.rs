@@ -423,7 +423,6 @@ impl HttpsConnector {
                 .await?;
 
         Ok(TokioIo::new(stream))
-        //}
     }
 
     /// Change the proxy settings for the connector
