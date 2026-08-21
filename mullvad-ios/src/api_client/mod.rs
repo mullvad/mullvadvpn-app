@@ -36,11 +36,6 @@ mod shadowsocks_loader;
 mod storekit;
 mod swift_data;
 
-#[derive(uniffi::Record)]
-pub struct UnsafePtr {
-    ptr: u64,
-}
-
 // MOVE
 #[derive(uniffi::Record)]
 pub struct ShadowSocksExposed {

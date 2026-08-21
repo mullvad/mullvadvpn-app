@@ -2446,56 +2446,6 @@ public func FfiConverterTypeShadowSocksExposed_lower(_ value: ShadowSocksExposed
 }
 
 
-public struct UnsafePtr: Equatable, Hashable, Codable {
-    public let ptr: UInt64
-
-    // Default memberwise initializers are never public by default, so we
-    // declare one manually.
-    public init(ptr: UInt64) {
-        self.ptr = ptr
-    }
-
-    
-
-    
-}
-
-#if compiler(>=6)
-extension UnsafePtr: Sendable {}
-#endif
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeUnsafePtr: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UnsafePtr {
-        return
-            try UnsafePtr(
-                ptr: FfiConverterUInt64.read(from: &buf)
-        )
-    }
-
-    public static func write(_ value: UnsafePtr, into buf: inout [UInt8]) {
-        FfiConverterUInt64.write(value.ptr, into: &buf)
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeUnsafePtr_lift(_ buf: RustBuffer) throws -> UnsafePtr {
-    return try FfiConverterTypeUnsafePtr.lift(buf)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeUnsafePtr_lower(_ value: UnsafePtr) -> RustBuffer {
-    return FfiConverterTypeUnsafePtr.lower(value)
-}
-
-
 /**
  * Error returned when starting a tunnel.
  */
