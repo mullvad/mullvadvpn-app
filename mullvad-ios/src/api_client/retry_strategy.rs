@@ -68,7 +68,7 @@ pub fn mullvad_api_retry_strategy_constant(max_retries: u64, delay_sec: u64) -> 
     RetryStrategy {
         delays: RetryDelay::Constant {
             interval: delay_sec,
-            max_retries: max_retries as usize,
+            max_retries: max_retries.try_into().unwrap_or(usize::MAX),
         },
     }
 }
@@ -88,7 +88,7 @@ pub fn mullvad_api_retry_strategy_exponential(
             initial_delay: initial_sec,
             factor,
             max_delay: max_delay_sec,
-            max_retries: max_retries as usize,
+            max_retries: max_retries.try_into().unwrap_or(usize::MAX),
         },
     }
 }

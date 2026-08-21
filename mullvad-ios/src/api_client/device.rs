@@ -11,7 +11,7 @@ use super::{
     response::SwiftMullvadApiResponse,
     retry_strategy::RetryStrategy,
 };
-use std::{ptr, sync::Arc};
+use std::sync::Arc;
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::PublicKey;
 
@@ -122,7 +122,9 @@ pub fn mullvad_ios_create_device(
     public_key: &[u8],
 ) -> SwiftCancelHandle {
     // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-    let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8] as *const [u8; 32]) };
+    let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+        todo!()
+    };
 
     RequestCancelHandle::new(
         api_context,
@@ -213,7 +215,9 @@ pub fn mullvad_ios_rotate_device_key(
     public_key: &[u8],
 ) -> SwiftCancelHandle {
     // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-    let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8] as *const [u8; 32]) };
+    let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+        todo!()
+    };
 
     RequestCancelHandle::new(
         api_context,
