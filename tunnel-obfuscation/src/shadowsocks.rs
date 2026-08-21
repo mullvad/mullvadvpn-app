@@ -32,6 +32,8 @@ pub struct Shadowsocks {
     socket: ShadowSocket,
     shadowsocks_endpoint: SocketAddr,
     wireguard_endpoint: Address,
+    wireguard_addr: SocketAddr,
+    packet_overhead: u16,
 }
 
 #[derive(Debug, Clone)]
@@ -42,11 +44,24 @@ pub struct Settings {
     pub wireguard_endpoint: SocketAddr,
 }
 
+impl Settings {
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        // This math relies on the packet structure of Shadowsocks AEAD UDP packets.
+        // https://shadowsocks.org/doc/aead.html
+        // Those packets look like this: [salt][address][payload][tag]
+        debug_assert!(SHADOWSOCKS_CIPHER.is_aead());
+
+        let overhead = SHADOWSOCKS_CIPHER.salt_len()
+            + Address::SocketAddress(self.wireguard_endpoint).serialized_len()
+            + SHADOWSOCKS_CIPHER.tag_len();
+
+        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
+    }
+}
+
 impl Shadowsocks {
-    pub(crate) async fn new(
-        bypass: Arc<dyn SocketBypass>,
-        settings: &Settings,
-    ) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let remote_socket =
             create_remote_socket(&bypass, settings.shadowsocks_endpoint.is_ipv4()).await?;
 
@@ -57,6 +72,8 @@ impl Shadowsocks {
             socket,
             shadowsocks_endpoint: settings.shadowsocks_endpoint,
             wireguard_endpoint: Address::SocketAddress(settings.wireguard_endpoint),
+            wireguard_addr: settings.wireguard_endpoint,
+            packet_overhead: settings.packet_overhead(),
         })
     }
 }
@@ -117,16 +134,11 @@ impl ObfuscatedTransport for Shadowsocks {
         }
     }
 
+    fn endpoint(&self) -> SocketAddr {
+        self.wireguard_addr
+    }
+
     fn packet_overhead(&self) -> u16 {
-        // This math relies on the packet structure of Shadowsocks AEAD UDP packets.
-        // https://shadowsocks.org/doc/aead.html
-        // Those packets look like this: [salt][address][payload][tag]
-        debug_assert!(SHADOWSOCKS_CIPHER.is_aead());
-
-        let overhead = SHADOWSOCKS_CIPHER.salt_len()
-            + self.wireguard_endpoint.serialized_len()
-            + SHADOWSOCKS_CIPHER.tag_len();
-
-        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
+        self.packet_overhead
     }
 }

@@ -53,11 +53,6 @@ pub trait LocalSocketObfuscator: Send {
 
     /// Returns the address of the local socket.
     fn endpoint(&self) -> SocketAddr;
-
-    /// The overhead (in bytes) of this obfuscation protocol.
-    ///
-    /// This is used when deciding on MTUs.
-    fn packet_overhead(&self) -> u16;
 }
 
 /// Settings for a single obfuscator.
@@ -71,6 +66,18 @@ pub enum Settings {
     Shadowsocks(shadowsocks::Settings),
     Quic(quic::Settings),
     Lwo(lwo::Settings),
+}
+
+impl Settings {
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        match self {
+            Settings::Udp2Tcp(s) => s.packet_overhead(),
+            Settings::Shadowsocks(s) => s.packet_overhead(),
+            Settings::Quic(s) => s.packet_overhead(),
+            Settings::Lwo(s) => s.packet_overhead(),
+        }
+    }
 }
 
 /// Create an [ObfuscatedTransport] that obfuscates and deobfuscates packets in place where the
