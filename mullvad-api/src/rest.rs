@@ -213,6 +213,8 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     }
 
     async fn run(mut self) {
+        let reset = self.reset.clone();
+
         loop {
             let evict_connection = async {
                 match &self.connection {
@@ -225,17 +227,35 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             };
 
             tokio::select! {
-                _ = self.reset.notified() => self.close_connection(),
+                // Handle reset-commands
+                _ = reset.notified() => self.close_connection(),
+
+                // Handle change API access method
+                // TODO: this is the only place where receive() is used.
+                // It's triggered only in self.send_request().
+                // Can we avoid this indirection?
                 new_mode = self.connection_mode_provider.receive() => {
                     let Some(new_mode) = new_mode else { break };
                     self.soft_close_connection();
                     self.connector.set_connection_mode(new_mode);
                 }
+
+                // Handle request
                 request = self.requests_rx.next() => {
                     let Some(SendRequest { request, response_tx }) = request else { break };
-                    let result = self.send_request(request).await;
+
+                    let result = tokio::select! {
+                        r = self.send_request(request) => r,
+                        // Handle reset-commands during request processing.
+                        _ = reset.notified() => {
+                            self.close_connection();
+                            Err(Error::Aborted)
+                        }
+                    };
                     let _ = response_tx.send(result);
                 }
+
+                // Evict idle connections
                 idle_for = evict_connection => {
                     tracing::trace!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
                     // TODO: this does not take into account in-flight `Body`s
@@ -307,6 +327,9 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         {
             tracing::warn!("{uri:?} request failed: {err:?}");
             self.close_connection();
+            // TODO: this is the only place where rotate is called.
+            // It triggers a branch in RequestService::run
+            // Can we avoid this indrection?
             self.connection_mode_provider.rotate().await;
         }
 
