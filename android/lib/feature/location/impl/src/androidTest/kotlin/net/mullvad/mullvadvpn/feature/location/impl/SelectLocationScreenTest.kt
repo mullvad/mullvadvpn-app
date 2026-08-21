@@ -1,5 +1,9 @@
 package net.mullvad.mullvadvpn.feature.location.impl
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
@@ -20,6 +24,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.SetAsState
 import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.feature.location.impl.data.createSimpleRelayListItemList
+import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListUiState
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeTextAndAncestorTag
@@ -93,25 +98,41 @@ class SelectLocationScreenTest {
     ) {
 
         setContentWithTheme {
+            val lazyListStates: SnapshotStateMap<RelayListType, LazyListState> = remember {
+                mutableStateMapOf()
+            }
             SelectLocationScreen(
                 state = state,
-                navigateToBottomSheet = onUpdateBottomSheetState,
-                onSelectSinglehop = onSelectHop,
-                onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,
                 onBackClick = onBackClick,
                 onFilterClick = onFilterClick,
-                onEditCustomLists = onEditCustomLists,
-                onCreateCustomList = onCreateCustomList,
                 removeOwnershipFilter = removeOwnershipFilter,
                 removeProviderFilter = removeProviderFilter,
                 onSelectRelayList = onSelectRelayList,
-                onSelectAutomaticEntry = onSelectAutomaticEntry,
-                onAutomaticInfoClick = onAutomaticInfoClick,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 scrollToItem = onScrollToItem,
                 onSetMultihopMode = setMultihopMode,
+                relayListContent = { relayListType, bottomMargin ->
+                    SelectLocationList(
+                        relayListType = relayListType,
+                        bottomMargin = bottomMargin,
+                        onSelectRelayItem = { item, listType ->
+                            if (listType is RelayListType.Multihop) {
+                                onModifyMultihop(item, listType.hopType)
+                            } else {
+                                onSelectHop(item)
+                            }
+                        },
+                        onSetMultihopToAlways = { setMultihopMode(MultihopMode.ALWAYS) },
+                        onSelectAutomaticEntry = onSelectAutomaticEntry,
+                        onAutomaticInfoClick = onAutomaticInfoClick,
+                        onAddCustomList = onCreateCustomList,
+                        onEditCustomLists = onEditCustomLists,
+                        onUpdateBottomSheetState = onUpdateBottomSheetState,
+                        lazyListStates = lazyListStates,
+                    )
+                },
             )
         }
     }
