@@ -409,10 +409,6 @@ impl HttpsConnector {
         addr: SocketAddr,
         hostname: &str,
     ) -> io::Result<TokioIo<ApiConnection>> {
-        // TODO: preserve this behaviour
-        // Loop until we have established a connection. This starts over if a new endpoint
-        // is selected while connecting.
-        //loop {
         let stream = self
                 .proxy_config
                 .clone() // TODO: remove clone if possible
