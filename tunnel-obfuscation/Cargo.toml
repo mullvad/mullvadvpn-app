@@ -20,6 +20,7 @@ name = "multiplexer_throughput"
 
 [dependencies]
 async-trait = { workspace = true }
+blake2 = { workspace = true }
 bytes = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }

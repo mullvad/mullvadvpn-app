@@ -6801,6 +6801,7 @@ name = "tunnel-obfuscation"
 version = "0.0.0"
 dependencies = [
  "async-trait",
+ "blake2",
  "bytes",
  "criterion",
  "futures",

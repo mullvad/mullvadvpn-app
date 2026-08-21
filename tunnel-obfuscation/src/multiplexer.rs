@@ -34,12 +34,14 @@ use std::{
 use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
 use talpid_net::bypass::SocketBypass;
+use talpid_types::net::wireguard::PublicKey;
 use tokio::{net::UdpSocket, sync::oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::{
     direct::Direct,
     transport::{MAX_DATAGRAM_SIZE, ObfuscatedTransport},
+    wireguard::{HandshakeFilter, Received},
 };
 
 /// How long to wait before spawning the next transport in the queue.
@@ -56,7 +58,8 @@ type TransportId = usize;
 ///
 /// The multiplexer operates in two phases:
 /// 1. **Discovery Phase**: Spawn transports progressively and fan out traffic to all of them
-/// 2. **Connected Phase**: Once a transport responds, switch to forwarding to that transport only
+/// 2. **Connected Phase**: Once a transport responds with a valid handshake response, switch to
+///    forwarding to that transport only
 pub struct Multiplexer {
     /// Local UDP socket that WireGuard connects to
     client_socket: UdpSocket,
@@ -64,6 +67,8 @@ pub struct Multiplexer {
     client_socket_addr: SocketAddr,
     /// Queue of transports to spawn (in priority order)
     pending: VecDeque<Transport>,
+    /// Public key of the local WireGuard instance.
+    client_public_key: PublicKey,
     /// Notified with the selected transport
     selected_transport_tx: SelectedTransportTx,
     bypass: Arc<dyn SocketBypass>,
@@ -99,6 +104,7 @@ impl Multiplexer {
             client_socket,
             client_socket_addr,
             pending: VecDeque::from(settings.transports),
+            client_public_key: settings.client_public_key,
             selected_transport_tx: settings.selected_transport,
             bypass,
         })
@@ -113,6 +119,7 @@ impl Multiplexer {
         let Self {
             client_socket,
             pending,
+            client_public_key,
             selected_transport_tx,
             bypass,
             ..
@@ -123,7 +130,13 @@ impl Multiplexer {
         client_socket.connect(wg_addr).await?;
         log::debug!("Local WireGuard instance connected from {wg_addr}");
 
-        let discovery = run_discovery(&client_socket, pending, bypass, selected_transport_tx);
+        let discovery = run_discovery(
+            &client_socket,
+            pending,
+            bypass,
+            &client_public_key,
+            selected_transport_tx,
+        );
         let Some(transport) = discovery.await? else {
             return Ok(());
         };
@@ -145,10 +158,12 @@ async fn run_discovery(
     client_socket: &UdpSocket,
     mut pending: VecDeque<Transport>,
     bypass: Arc<dyn SocketBypass>,
+    client_public_key: &PublicKey,
     selected_transport_tx: SelectedTransportTx,
 ) -> io::Result<Option<Arc<dyn ObfuscatedTransport>>> {
     let mut running: Vec<RunningTransport> = vec![];
     let mut initial_packets: Vec<Box<[u8]>> = vec![];
+    let mut handshakes = HandshakeFilter::new(client_public_key);
 
     let mut wg_buf = vec![0u8; MAX_DATAGRAM_SIZE];
     // Scratch space for fanning out, since transports obfuscate in place and would otherwise
@@ -184,6 +199,7 @@ async fn run_discovery(
                     return Err(io::Error::other("Too many initial packets"));
                 }
                 initial_packets.push(Box::from(packet));
+                handshakes.record_initiation(packet);
 
                 // Fan out the latest WG packet to all currently spawned transports.
                 for (id, running) in running.iter().enumerate() {
@@ -199,24 +215,41 @@ async fn run_discovery(
                 log::error!("Dropping transport {id}, which failed to receive traffic: {err}");
                 running.remove(id);
             }
-            Event::Transport(id, Ok(n)) => {
-                // A response means this transport reached the server, so use it from now on.
-                let selected = running.swap_remove(id);
-                log::debug!(
-                    "Selecting {:?} as the valid transport configuration",
-                    selected.config
-                );
-                client_socket.send(&selected.buf[..n]).await?;
+            Event::Transport(id, Ok(n)) => match handshakes.classify(&running[id].buf[..n]) {
+                // Not an answer to anything WireGuard sent. Whatever it is, it is no reason to
+                // believe this transport reaches the relay.
+                Received::Unrecognized => {
+                    log::debug!("Ignoring unsolicited packet from transport {id}");
+                }
 
-                // Announce the selected transport, so that the firewall can be restricted to
-                // the endpoint it committed to.
-                let _ = selected_transport_tx.send(selected.config);
+                // The relay is rate limiting us. WireGuard needs the cookie in order to retry the
+                // initiation with a valid `mac2`, but reaching a rate limiter is not proof that
+                // this transport carries a handshake, so keep fanning out.
+                Received::CookieReply => {
+                    log::debug!("Forwarding cookie reply from transport {id}");
+                    client_socket.send(&running[id].buf[..n]).await?;
+                }
 
-                // Dropping the losers aborts whatever they have running.
-                drop(running);
+                // A handshake response means this transport reached the relay, so use it from
+                // now on.
+                Received::HandshakeResponse => {
+                    let selected = running.swap_remove(id);
+                    log::debug!(
+                        "Selecting {:?} as the valid transport configuration",
+                        selected.config
+                    );
+                    client_socket.send(&selected.buf[..n]).await?;
 
-                return Ok(Some(selected.transport));
-            }
+                    // Announce the selected transport, so that the firewall can be restricted to
+                    // the endpoint it committed to.
+                    let _ = selected_transport_tx.send(selected.config);
+
+                    // Dropping the losers aborts whatever they have running.
+                    drop(running);
+
+                    return Ok(Some(selected.transport));
+                }
+            },
 
             Event::Spawn => {
                 let Some(config) = pending.pop_front() else {
@@ -344,6 +377,8 @@ pub struct Settings {
     /// Spawn these transports progressively and select
     /// the first one that successfully establishes a connection.
     pub transports: Vec<Transport>,
+    /// Public key of the local WireGuard instance.
+    pub client_public_key: PublicKey,
     /// Notified with the selected transport, once one has been selected. The value is only ever
     /// set once, as the multiplexer never reconsiders its choice.
     pub selected_transport: SelectedTransportTx,
@@ -395,11 +430,27 @@ impl crate::LocalSocketObfuscator for Multiplexer {
 
 #[cfg(test)]
 mod tests {
+    use std::assert_matches;
+
     use super::*;
-    use crate::LocalSocketObfuscator;
+    use crate::{
+        LocalSocketObfuscator,
+        wireguard::{handshake_initiation, handshake_response},
+    };
     use talpid_net::bypass::NoopBypass;
 
-    /// Test whether the multiplexer works with a direct transports
+    /// The index that the handshakes in these tests are for.
+    const SESSION: u32 = 7;
+
+    fn client_key() -> PublicKey {
+        PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap()
+    }
+
+    fn server_key() -> PublicKey {
+        PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap()
+    }
+
+    /// Test whether the multiplexer works with direct transports
     #[tokio::test(start_paused = true)]
     async fn test_multiplexer_direct_forwarding() {
         let server_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
@@ -408,13 +459,14 @@ mod tests {
         let server_socket2 = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let server_addr2 = server_socket2.local_addr().unwrap();
 
-        // Create multiplexer pointing to a single direct transport
+        // Create multiplexer pointing to direct transports
         let (selected_tx, selected_rx) = oneshot::channel();
         let settings = Settings {
             transports: vec![
                 Transport::Direct(server_addr),
                 Transport::Direct(server_addr2),
             ],
+            client_public_key: client_key(),
             selected_transport: selected_tx,
         };
 
@@ -430,11 +482,10 @@ mod tests {
             boxed_multiplexer.run().await
         });
 
-        // Send a test packet from client to multiplexer and verify that it is received
-        // NOTE: This may have to be an actual WireGuard handshake packet in the future
-        let test_data = b"Ping!";
+        // Send a handshake initiation from client to multiplexer and verify that it is received
+        let test_data = handshake_initiation(SESSION);
         client_socket
-            .send_to(test_data, multiplexer_endpoint)
+            .send_to(&test_data, multiplexer_endpoint)
             .await
             .unwrap();
 
@@ -448,10 +499,15 @@ mod tests {
             server_socket2.recv_from(&mut server_buf).await.unwrap();
         assert_eq!(&server_buf[..bytes_received], test_data);
 
-        // Send a response back from the first server
-        let response_data = b"Pong!";
+        // A packet that answers nothing must neither select a transport nor be forwarded. If it
+        // were forwarded, the client would read it below instead of the handshake response.
+        server_socket.send_to(b"Pong!", client_addr).await.unwrap();
+        tokio::task::yield_now().await;
+
+        // Send a handshake response back from the first server
+        let response_data = handshake_response(SESSION, &client_key());
         server_socket
-            .send_to(response_data, client_addr)
+            .send_to(&response_data, client_addr)
             .await
             .unwrap();
 
@@ -495,16 +551,80 @@ mod tests {
         assert_eq!(&server_buf[..bytes_received], second_test_data);
     }
 
+    /// A transport that answers with anything but a handshake response for the initiation that
+    /// was sent must not be selected, and must not keep a transport that answers properly from
+    /// being selected.
+    #[tokio::test(start_paused = true)]
+    async fn test_multiplexer_ignores_invalid_handshake_responses() {
+        let liar = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let liar_addr = liar.local_addr().unwrap();
+
+        let relay = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let relay_addr = relay.local_addr().unwrap();
+
+        let (selected_tx, mut selected_rx) = oneshot::channel();
+        let settings = Settings {
+            transports: vec![Transport::Direct(liar_addr), Transport::Direct(relay_addr)],
+            client_public_key: client_key(),
+            selected_transport: selected_tx,
+        };
+
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings)
+            .await
+            .unwrap();
+        let multiplexer_endpoint = multiplexer.endpoint();
+        tokio::spawn(Box::new(multiplexer).run());
+
+        let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        wg_socket
+            .send_to(&handshake_initiation(SESSION), multiplexer_endpoint)
+            .await
+            .unwrap();
+
+        let mut buf = vec![0u8; 1024];
+        let (_, liar_client_addr) = liar.recv_from(&mut buf).await.unwrap();
+        let (_, relay_client_addr) = relay.recv_from(&mut buf).await.unwrap();
+
+        // None of these answers the initiation that was sent.
+        let junk = b"Pong!".to_vec();
+        let wrong_session = handshake_response(SESSION + 1, &client_key()).to_vec();
+        let wrong_key = handshake_response(SESSION, &server_key()).to_vec();
+        let mut tampered = handshake_response(SESSION, &client_key()).to_vec();
+        tampered[12] ^= 1;
+
+        for packet in [junk, wrong_session, wrong_key, tampered] {
+            liar.send_to(&packet, liar_client_addr).await.unwrap();
+            // Time only advances once every task is idle, so this drains the multiplexer.
+            tokio::time::sleep(Duration::from_millis(50)).await;
+            assert_matches!(
+                selected_rx.try_recv(),
+                Err(oneshot::error::TryRecvError::Empty),
+                "a packet that answers no initiation selected a transport",
+            );
+        }
+
+        // This one does.
+        let response = handshake_response(SESSION, &client_key()).to_vec();
+        relay.send_to(&response, relay_client_addr).await.unwrap();
+
+        // WireGuard should see the valid response, and nothing the liar sent before it.
+        let (n, _) = wg_socket.recv_from(&mut buf).await.unwrap();
+        assert_eq!(&buf[..n], &response[..]);
+
+        let selected = selected_rx.await.unwrap();
+        assert_matches!(
+            selected, Transport::Direct(addr) if addr == relay_addr,
+            "the transport that answered the handshake should have been selected, got {selected:?}",
+        );
+    }
+
     /// Test that an obfuscated transport is driven in process, without a local socket of its own.
     #[tokio::test(start_paused = true)]
     async fn test_multiplexer_obfuscated_transport() {
         use crate::lwo;
-        use talpid_types::net::wireguard::PublicKey;
 
-        let client_key =
-            PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
-        let server_key =
-            PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap();
+        let client_key = client_key();
+        let server_key = server_key();
 
         let server_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
@@ -515,6 +635,7 @@ mod tests {
                 client_public_key: client_key.clone(),
                 server_public_key: server_key.clone(),
             }))],
+            client_public_key: client_key.clone(),
             selected_transport: selected_tx,
         };
 
@@ -526,9 +647,8 @@ mod tests {
 
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
-        // A WireGuard data packet, which LWO obfuscates the header of
-        let mut packet = vec![0u8; 32 + 100];
-        packet[0] = 4;
+        // A WireGuard handshake initiation, which LWO obfuscates the header of
+        let packet = handshake_initiation(SESSION).to_vec();
 
         wg_socket
             .send_to(&packet, multiplexer_endpoint)
@@ -543,8 +663,7 @@ mod tests {
         assert_eq!(&server_buf[..n], &packet[..]);
 
         // The multiplexer should deobfuscate the response and hand it to WireGuard verbatim
-        let mut response = packet.clone();
-        response[4] = 0xab;
+        let response = handshake_response(SESSION, &client_key).to_vec();
         let mut obfuscated_response = response.clone();
         lwo::obfuscate(
             &mut rand::rng(),
@@ -568,7 +687,7 @@ mod tests {
         ));
 
         // The transport should now be selected: traffic keeps flowing in connected mode
-        packet[4] = 0xcd;
+        let packet = handshake_initiation(SESSION + 1).to_vec();
         wg_socket
             .send_to(&packet, multiplexer_endpoint)
             .await

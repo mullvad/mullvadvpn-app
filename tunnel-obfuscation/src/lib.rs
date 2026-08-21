@@ -12,6 +12,7 @@ pub mod shadowsocks;
 pub mod socket;
 pub mod transport;
 pub mod udp2tcp;
+pub(crate) mod wireguard;
 
 pub use transport::ObfuscatedTransport;
 
