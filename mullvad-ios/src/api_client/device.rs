@@ -6,10 +6,8 @@ use mullvad_api::{
 use crate::api_client::{ApiContext, retry_strategy::mullvad_api_retry_strategy_never};
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request, do_request_with_empty_body,
-    response::SwiftMullvadApiResponse,
-    retry_strategy::RetryStrategy,
+    cancellation::RequestCancelHandle, do_request, do_request_with_empty_body,
+    response::SwiftMullvadApiResponse, retry_strategy::RetryStrategy,
 };
 use std::sync::Arc;
 use talpid_types::net::wireguard;
@@ -35,7 +33,7 @@ pub fn mullvad_ios_get_device(
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
     identifier: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -56,7 +54,6 @@ pub fn mullvad_ios_get_device(
             }
         },
     )
-    .into_swift()
 }
 
 /// Get devices info via the Mullvad API client.
@@ -77,7 +74,7 @@ pub fn mullvad_ios_get_devices(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -97,7 +94,6 @@ pub fn mullvad_ios_get_devices(
             }
         },
     )
-    .into_swift()
 }
 
 /// create device via the Mullvad API client.
@@ -120,7 +116,7 @@ pub fn mullvad_ios_create_device(
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
     public_key: &[u8],
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
         return RequestCancelHandle::new(
@@ -131,8 +127,7 @@ pub fn mullvad_ios_create_device(
                     "bad public key size",
                 )));
             },
-        )
-        .into_swift();
+        );
     };
 
     RequestCancelHandle::new(
@@ -155,7 +150,6 @@ pub fn mullvad_ios_create_device(
             }
         },
     )
-    .into_swift()
 }
 
 /// delete device via the Mullvad API client.
@@ -177,7 +171,7 @@ pub fn mullvad_ios_delete_device(
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
     identifier: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -198,7 +192,6 @@ pub fn mullvad_ios_delete_device(
             }
         },
     )
-    .into_swift()
 }
 
 /// rotate device key via the Mullvad API client.
@@ -222,7 +215,7 @@ pub fn mullvad_ios_rotate_device_key(
     account_number: String,
     identifier: String,
     public_key: &[u8],
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
         return RequestCancelHandle::new(
@@ -233,8 +226,7 @@ pub fn mullvad_ios_rotate_device_key(
                     "bad public key size",
                 )));
             },
-        )
-        .into_swift();
+        );
     };
 
     RequestCancelHandle::new(
@@ -258,7 +250,6 @@ pub fn mullvad_ios_rotate_device_key(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_get_device_inner(

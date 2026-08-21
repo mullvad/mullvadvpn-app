@@ -8,11 +8,8 @@ use mullvad_api::{
 use crate::api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper};
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request,
-    response::SwiftMullvadApiResponse,
-    retry_request,
-    retry_strategy::RetryStrategy,
+    cancellation::RequestCancelHandle, do_request, response::SwiftMullvadApiResponse,
+    retry_request, retry_strategy::RetryStrategy,
 };
 
 /// # Safety
@@ -28,7 +25,7 @@ use super::{
 pub fn mullvad_ios_get_addresses(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -42,7 +39,6 @@ pub fn mullvad_ios_get_addresses(
             }
         },
     )
-    .into_swift()
 }
 
 /// # Safety
@@ -59,7 +55,7 @@ pub fn mullvad_ios_api_addrs_available(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     access_method_setting: Arc<AccessMethodSettingWrapper>,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
     let access_method_setting = access_method_setting.inner.clone();
 
@@ -100,7 +96,6 @@ pub fn mullvad_ios_api_addrs_available(
             }
         },
     )
-    .into_swift()
 }
 
 /// # Safety
@@ -119,7 +114,7 @@ pub fn mullvad_ios_get_relays(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     etag: Option<String>,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     let maybe_etag: Option<ETag> = etag.map(ETag);
 
     RequestCancelHandle::new(
@@ -141,7 +136,6 @@ pub fn mullvad_ios_get_relays(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_get_addresses_inner(

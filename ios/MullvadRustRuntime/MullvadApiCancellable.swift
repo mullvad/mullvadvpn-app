@@ -9,9 +9,9 @@
 import MullvadTypes
 
 public final class MullvadApiCancellable: Cancellable, Sendable {
-    private let handle: SwiftCancelHandle
+    private let handle: RequestCancelHandle
 
-    public init(handle: consuming SwiftCancelHandle) {
+    public init(handle: consuming RequestCancelHandle) {
         self.handle = handle
     }
 

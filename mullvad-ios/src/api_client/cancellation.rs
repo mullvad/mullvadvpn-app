@@ -10,14 +10,33 @@ use crate::api_client::{ApiContext, retry_strategy::RetryStrategy};
 
 use super::response::SwiftMullvadApiResponse;
 
-// TODO FIX THIS
 #[derive(uniffi::Object)]
-pub struct SwiftCancelHandle {
-    inner: Mutex<Option<RequestCancelHandle>>,
+pub struct RequestCancelHandle {
+    inner: Mutex<Option<HandleState>>,
 }
 
-pub struct RequestCancelHandle {
-    inner: HandleState,
+impl RequestCancelHandle {
+    pub fn new<I, F>(
+        api_context: Arc<ApiContext>,
+        retry_strategy: Arc<RetryStrategy>,
+        task: I,
+    ) -> Arc<Self>
+    where
+        I: FnOnce(Arc<ApiContext>, RetryStrategy, Arc<dyn CompletionCookieNew>) -> F
+            + Send
+            + 'static,
+        F: Future<Output = ()> + Send + 'static,
+    {
+        let state = HandleState::ToStart {
+            // SAFETY: See notes for `into_rust`
+            retry_strategy: *retry_strategy,
+            api_context,
+            task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
+        };
+        Arc::new(Self {
+            inner: Mutex::new(Some(state)),
+        })
+    }
 }
 
 #[expect(clippy::type_complexity)]
@@ -43,34 +62,13 @@ enum HandleState {
     },
 }
 
-impl RequestCancelHandle {
-    pub fn new<I, F>(
-        api_context: Arc<ApiContext>,
-        retry_strategy: Arc<RetryStrategy>,
-        task: I,
-    ) -> Self
-    where
-        I: FnOnce(Arc<ApiContext>, RetryStrategy, Arc<dyn CompletionCookieNew>) -> F
-            + Send
-            + 'static,
-        F: Future<Output = ()> + Send + 'static,
-    {
-        Self {
-            inner: HandleState::ToStart {
-                // SAFETY: See notes for `into_rust`
-                retry_strategy: *retry_strategy,
-                api_context,
-                task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
-            },
-        }
-    }
-
+impl HandleState {
     pub fn start(&mut self, completion: Arc<dyn CompletionCookieNew>) {
-        if !matches!(self.inner, HandleState::ToStart { .. }) {
+        if !matches!(self, HandleState::ToStart { .. }) {
             return;
         }
         let mut data = HandleState::Intermediate;
-        swap(&mut data, &mut self.inner);
+        swap(&mut data, self);
         let HandleState::ToStart {
             api_context,
             retry_strategy,
@@ -88,20 +86,14 @@ impl RequestCancelHandle {
         let task = task(api_context, retry_strategy, completion.clone());
         let handle = tokio_handle.spawn(task);
 
-        self.inner = HandleState::Started {
+        *self = HandleState::Started {
             task: handle,
             completion,
         }
     }
 
-    pub fn into_swift(self) -> SwiftCancelHandle {
-        SwiftCancelHandle {
-            inner: Mutex::new(Some(self)),
-        }
-    }
-
     pub fn cancel(self) {
-        let HandleState::Started { task, completion } = self.inner else {
+        let HandleState::Started { task, completion } = self else {
             return;
         };
         task.abort();
@@ -129,7 +121,7 @@ pub trait CompletionCookieNew: Send + Sync {
 /// intended to be used.
 #[uniffi::export]
 pub fn mullvad_api_start_task(
-    handle: &SwiftCancelHandle,
+    handle: &RequestCancelHandle,
     completion_cookie: Arc<dyn CompletionCookieNew>,
 ) {
     let Ok(mut handle) = handle.inner.lock() else {
@@ -148,7 +140,7 @@ pub fn mullvad_api_start_task(
 ///
 /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
 #[uniffi::export]
-pub fn mullvad_api_cancel_task(handle: &SwiftCancelHandle) {
+pub fn mullvad_api_cancel_task(handle: &RequestCancelHandle) {
     // SAFETY: See notes for `as_handle`
     let Ok(mut handle) = handle.inner.lock() else {
         return;

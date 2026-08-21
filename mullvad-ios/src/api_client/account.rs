@@ -8,10 +8,8 @@ use mullvad_api::{
 use crate::api_client::ApiContext;
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request, do_request_with_empty_body,
-    response::SwiftMullvadApiResponse,
-    retry_strategy::RetryStrategy,
+    cancellation::RequestCancelHandle, do_request, do_request_with_empty_body,
+    response::SwiftMullvadApiResponse, retry_strategy::RetryStrategy,
 };
 
 /// # Safety
@@ -30,7 +28,7 @@ pub fn mullvad_ios_get_account(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -48,7 +46,6 @@ pub fn mullvad_ios_get_account(
             }
         },
     )
-    .into_swift()
 }
 
 /// # Safety
@@ -64,7 +61,7 @@ pub fn mullvad_ios_get_account(
 pub fn mullvad_ios_create_account(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -79,7 +76,6 @@ pub fn mullvad_ios_create_account(
             }
         },
     )
-    .into_swift()
 }
 
 /// # Safety
@@ -98,7 +94,7 @@ pub fn mullvad_ios_delete_account(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -118,7 +114,6 @@ pub fn mullvad_ios_delete_account(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_get_account_inner(

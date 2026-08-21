@@ -9,9 +9,7 @@ use mullvad_types::account::AccountNumber;
 use crate::api_client::ApiContext;
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request,
-    response::SwiftMullvadApiResponse,
+    cancellation::RequestCancelHandle, do_request, response::SwiftMullvadApiResponse,
     retry_strategy::RetryStrategy,
 };
 
@@ -31,7 +29,7 @@ pub fn mullvad_ios_init_storekit_payment(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     account_number: String,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -51,7 +49,6 @@ pub fn mullvad_ios_init_storekit_payment(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_init_storekit_payment_inner(
@@ -84,7 +81,7 @@ pub fn mullvad_ios_check_storekit_payment(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     body: Vec<u8>,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -104,7 +101,6 @@ pub fn mullvad_ios_check_storekit_payment(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_check_storekit_payment_inner(

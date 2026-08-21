@@ -1763,6 +1763,112 @@ public func FfiConverterTypeGotaTunTunnel_lower(_ value: GotaTunTunnel) -> UInt6
 
 
 
+public protocol RequestCancelHandleProtocol: AnyObject, Sendable {
+    
+}
+open class RequestCancelHandle: RequestCancelHandleProtocol, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_requestcancelhandle(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_requestcancelhandle(handle, $0) }
+    }
+
+    
+
+    
+
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeRequestCancelHandle: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = RequestCancelHandle
+
+    public static func lift(_ handle: UInt64) throws -> RequestCancelHandle {
+        return RequestCancelHandle(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: RequestCancelHandle) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> RequestCancelHandle {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: RequestCancelHandle, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeRequestCancelHandle_lift(_ handle: UInt64) throws -> RequestCancelHandle {
+    return try FfiConverterTypeRequestCancelHandle.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeRequestCancelHandle_lower(_ value: RequestCancelHandle) -> UInt64 {
+    return FfiConverterTypeRequestCancelHandle.lower(value)
+}
+
+
+
+
+
+
 public protocol RetryStrategyProtocol: AnyObject, Sendable {
     
 }
@@ -2180,112 +2286,6 @@ public func FfiConverterTypeSwiftAccessMethodSettingsContext_lift(_ handle: UInt
 #endif
 public func FfiConverterTypeSwiftAccessMethodSettingsContext_lower(_ value: SwiftAccessMethodSettingsContext) -> UInt64 {
     return FfiConverterTypeSwiftAccessMethodSettingsContext.lower(value)
-}
-
-
-
-
-
-
-public protocol SwiftCancelHandleProtocol: AnyObject, Sendable {
-    
-}
-open class SwiftCancelHandle: SwiftCancelHandleProtocol, @unchecked Sendable {
-    fileprivate let handle: UInt64
-
-    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public struct NoHandle {
-        public init() {}
-    }
-
-    // TODO: We'd like this to be `private` but for Swifty reasons,
-    // we can't implement `FfiConverter` without making this `required` and we can't
-    // make it `required` without making it `public`.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    required public init(unsafeFromHandle handle: UInt64) {
-        self.handle = handle
-    }
-
-    // This constructor can be used to instantiate a fake object.
-    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
-    //
-    // - Warning:
-    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public init(noHandle: NoHandle) {
-        self.handle = 0
-    }
-
-#if swift(>=5.8)
-    @_documentation(visibility: private)
-#endif
-    public func uniffiCloneHandle() -> UInt64 {
-        return try! rustCall { uniffi_mullvad_ios_fn_clone_swiftcancelhandle(self.handle, $0) }
-    }
-    // No primary constructor declared for this class.
-
-    deinit {
-        if handle == 0 {
-            // Mock objects have handle=0 don't try to free them
-            return
-        }
-
-        try! rustCall { uniffi_mullvad_ios_fn_free_swiftcancelhandle(handle, $0) }
-    }
-
-    
-
-    
-
-    
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeSwiftCancelHandle: FfiConverter {
-    typealias FfiType = UInt64
-    typealias SwiftType = SwiftCancelHandle
-
-    public static func lift(_ handle: UInt64) throws -> SwiftCancelHandle {
-        return SwiftCancelHandle(unsafeFromHandle: handle)
-    }
-
-    public static func lower(_ value: SwiftCancelHandle) -> UInt64 {
-        return value.uniffiCloneHandle()
-    }
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftCancelHandle {
-        let handle: UInt64 = try readInt(&buf)
-        return try lift(handle)
-    }
-
-    public static func write(_ value: SwiftCancelHandle, into buf: inout [UInt8]) {
-        writeInt(&buf, lower(value))
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftCancelHandle_lift(_ handle: UInt64) throws -> SwiftCancelHandle {
-    return try FfiConverterTypeSwiftCancelHandle.lift(handle)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftCancelHandle_lower(_ value: SwiftCancelHandle) -> UInt64 {
-    return FfiConverterTypeSwiftCancelHandle.lower(value)
 }
 
 
@@ -3576,8 +3576,8 @@ public func initAccessMethodSettingsWrapper(direct: AccessMethodSettingWrapper, 
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosCreateAccount(apiContext: ApiContext, retryStrategy: RetryStrategy) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosCreateAccount(apiContext: ApiContext, retryStrategy: RetryStrategy) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_create_account(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),$0
@@ -3597,8 +3597,8 @@ public func mullvadIosCreateAccount(apiContext: ApiContext, retryStrategy: Retry
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosDeleteAccount(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosDeleteAccount(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_delete_account(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3619,8 +3619,8 @@ public func mullvadIosDeleteAccount(apiContext: ApiContext, retryStrategy: Retry
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosGetAccount(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosGetAccount(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_get_account(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3639,8 +3639,8 @@ public func mullvadIosGetAccount(apiContext: ApiContext, retryStrategy: RetryStr
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosApiAddrsAvailable(apiContext: ApiContext, retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosApiAddrsAvailable(apiContext: ApiContext, retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_api_addrs_available(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3659,8 +3659,8 @@ public func mullvadIosApiAddrsAvailable(apiContext: ApiContext, retryStrategy: R
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosGetAddresses(apiContext: ApiContext, retryStrategy: RetryStrategy) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosGetAddresses(apiContext: ApiContext, retryStrategy: RetryStrategy) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_get_addresses(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),$0
@@ -3680,8 +3680,8 @@ public func mullvadIosGetAddresses(apiContext: ApiContext, retryStrategy: RetryS
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosGetRelays(apiContext: ApiContext, retryStrategy: RetryStrategy, etag: String?) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosGetRelays(apiContext: ApiContext, retryStrategy: RetryStrategy, etag: String?) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_get_relays(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3698,9 +3698,9 @@ public func mullvadIosGetRelays(apiContext: ApiContext, retryStrategy: RetryStra
  *
  * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
  */
-public func mullvadApiCancelTask(handle: SwiftCancelHandle)  {try! rustCall() {
+public func mullvadApiCancelTask(handle: RequestCancelHandle)  {try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_api_cancel_task(
-        FfiConverterTypeSwiftCancelHandle_lower(handle),$0
+        FfiConverterTypeRequestCancelHandle_lower(handle),$0
     )
 }
 }
@@ -3716,9 +3716,9 @@ public func mullvadApiCancelTask(handle: SwiftCancelHandle)  {try! rustCall() {
  * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
  * intended to be used.
  */
-public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: CompletionCookieNew)  {try! rustCall() {
+public func mullvadApiStartTask(handle: RequestCancelHandle, completionCookie: CompletionCookieNew)  {try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_api_start_task(
-        FfiConverterTypeSwiftCancelHandle_lower(handle),
+        FfiConverterTypeRequestCancelHandle_lower(handle),
         FfiConverterTypeCompletionCookieNew_lower(completionCookie),$0
     )
 }
@@ -3739,8 +3739,8 @@ public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: Com
  * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosCreateDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosCreateDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, publicKey: Data) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_create_device(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3764,8 +3764,8 @@ public func mullvadIosCreateDevice(apiContext: ApiContext, retryStrategy: RetryS
  * the `identifier` must be a pointer to a null terminated string.
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosDeleteDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosDeleteDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_delete_device(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3790,8 +3790,8 @@ public func mullvadIosDeleteDevice(apiContext: ApiContext, retryStrategy: RetryS
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosGetDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosGetDevice(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_get_device(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3815,8 +3815,8 @@ public func mullvadIosGetDevice(apiContext: ApiContext, retryStrategy: RetryStra
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosGetDevices(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosGetDevices(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_get_devices(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3840,8 +3840,8 @@ public func mullvadIosGetDevices(apiContext: ApiContext, retryStrategy: RetryStr
  * the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosRotateDeviceKey(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosRotateDeviceKey(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_rotate_device_key(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3903,8 +3903,8 @@ public func newSocks5AccessMethodSetting(address: Data, port: UInt16, username: 
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosSendProblemReport(apiContext: ApiContext, retryStrategy: RetryStrategy, request: ProblemReportRequest) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosSendProblemReport(apiContext: ApiContext, retryStrategy: RetryStrategy, request: ProblemReportRequest) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_send_problem_report(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3974,8 +3974,8 @@ public func mullvadApiRetryStrategyNever() -> RetryStrategy  {
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosCheckStorekitPayment(apiContext: ApiContext, retryStrategy: RetryStrategy, body: Data) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosCheckStorekitPayment(apiContext: ApiContext, retryStrategy: RetryStrategy, body: Data) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_check_storekit_payment(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -3996,8 +3996,8 @@ public func mullvadIosCheckStorekitPayment(apiContext: ApiContext, retryStrategy
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosInitStorekitPayment(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> SwiftCancelHandle  {
-    return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
+public func mullvadIosInitStorekitPayment(apiContext: ApiContext, retryStrategy: RetryStrategy, accountNumber: String) -> RequestCancelHandle  {
+    return try!  FfiConverterTypeRequestCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_init_storekit_payment(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
@@ -4036,43 +4036,43 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 49063) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 39115) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 53009) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_account() != 34711) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_account() != 9826) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_account() != 59662) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_account() != 29265) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 45604) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 61300) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_addresses() != 44750) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_addresses() != 16842) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_relays() != 15075) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_relays() != 2690) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_api_cancel_task() != 10019) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_cancel_task() != 55639) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 20670) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 11635) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_device() != 50725) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_device() != 13944) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_device() != 19709) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_delete_device() != 24328) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_device() != 32477) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_device() != 48466) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_devices() != 49298) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_devices() != 43284) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 33379) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_rotate_device_key() != 33858) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_new_shadowsocks_access_method_setting() != 3570) {
@@ -4081,7 +4081,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_new_socks5_access_method_setting() != 57975) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_send_problem_report() != 19333) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_send_problem_report() != 60361) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_problem_report_request_init() != 61570) {
@@ -4096,10 +4096,10 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_retry_strategy_never() != 41494) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment() != 48962) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment() != 29788) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment() != 8756) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment() != 19845) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontextcallback_access_method_change() != 20435) {

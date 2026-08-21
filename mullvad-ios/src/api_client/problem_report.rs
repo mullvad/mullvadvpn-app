@@ -7,10 +7,8 @@ use std::{collections::HashMap, sync::Arc};
 use crate::api_client::ApiContext;
 
 use super::{
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request_with_empty_body,
-    response::SwiftMullvadApiResponse,
-    retry_strategy::RetryStrategy,
+    cancellation::RequestCancelHandle, do_request_with_empty_body,
+    response::SwiftMullvadApiResponse, retry_strategy::RetryStrategy,
 };
 
 /// Send a problem report via the Mullvad API client.
@@ -31,7 +29,7 @@ pub fn mullvad_ios_send_problem_report(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     request: ProblemReportRequest,
-) -> SwiftCancelHandle {
+) -> Arc<RequestCancelHandle> {
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -51,7 +49,6 @@ pub fn mullvad_ios_send_problem_report(
             }
         },
     )
-    .into_swift()
 }
 
 async fn mullvad_ios_send_problem_report_inner(
