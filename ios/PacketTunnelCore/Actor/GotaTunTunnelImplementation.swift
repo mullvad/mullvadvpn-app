@@ -46,6 +46,6 @@ public final class GotaTunTunnelImplementation: TunnelImplementation, Sendable {
     }
 
     public func wake() {
-        gotaTunActor.onWake()
+        actor.onWake()
     }
 }
