@@ -21,17 +21,17 @@ const StyledHeader = styled(AppNavigationHeader)`
 
 export function MigratedSettingsView() {
   const { pop } = useHistory();
-  const { settingsMigrations, clearSettingsMigrations } = useSettingsMigrations();
+  const { settingsMigrations, setDisplayedSettingsMigrations } = useSettingsMigrations();
   const slides = useMigrationSlides(settingsMigrations);
 
   const handleGoBack = React.useCallback(() => {
     pop();
   }, [pop]);
 
-  const handleGotIt = React.useCallback(async () => {
+  const handleGotIt = React.useCallback(() => {
     pop();
-    await clearSettingsMigrations();
-  }, [clearSettingsMigrations, pop]);
+    setDisplayedSettingsMigrations();
+  }, [pop, setDisplayedSettingsMigrations]);
 
   const showIndicators = slides && slides.length > 1;
 

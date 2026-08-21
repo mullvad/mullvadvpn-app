@@ -24,9 +24,9 @@ const StyledDiv = styled.div`
 export function AppMainHeaderSettingsButton(props: MainHeaderSettingsButtonProps) {
   const history = useHistory();
   const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
-  const { hasSettingsMigrations } = useSettingsMigrations();
+  const { displayedSettingsMigrations, hasSettingsMigrations } = useSettingsMigrations();
 
-  const showIndicator = hasSettingsMigrations || suggestedUpgrade;
+  const showIndicator = (!displayedSettingsMigrations && hasSettingsMigrations) || suggestedUpgrade;
 
   const openSettings = useCallback(() => {
     if (!props.disabled) {
