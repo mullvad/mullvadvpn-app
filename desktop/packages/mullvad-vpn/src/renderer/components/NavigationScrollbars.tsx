@@ -11,6 +11,7 @@ export interface NavigationScrollbarsProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  trackOffset?: number;
 }
 
 export const NavigationScrollbars = React.forwardRef(function NavigationScrollbarsT(
@@ -81,6 +82,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
       ref={combinedRefs}
       className={props.className}
       fillContainer={props.fillContainer}
+      trackOffset={props.trackOffset}
       onScroll={handleScroll}>
       {props.children}
     </CustomScrollbars>
