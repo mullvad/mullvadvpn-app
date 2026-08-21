@@ -335,11 +335,6 @@ uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustB
 uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new_tls_disabled(RustBuffer host, RustBuffer address, RustBuffer domain, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_callback, uint64_t access_method_change_context, RustCallStatus *_Nonnull out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UNSAFE_RAW
-RustBuffer uniffi_mullvad_ios_fn_method_apicontext_unsafe_raw(uint64_t ptr, RustCallStatus *_Nonnull out_status
-);
-#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACK
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_APICONTEXTCALLBACK
 uint64_t uniffi_mullvad_ios_fn_clone_apicontextcallback(uint64_t handle, RustCallStatus *_Nonnull out_status
@@ -1050,12 +1045,6 @@ uint16_t uniffi_mullvad_ios_checksum_func_mullvad_ios_check_storekit_payment(voi
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_IOS_INIT_STOREKIT_PAYMENT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_IOS_INIT_STOREKIT_PAYMENT
 uint16_t uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment(void
-    
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_UNSAFE_RAW
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_UNSAFE_RAW
-uint16_t uniffi_mullvad_ios_checksum_method_apicontext_unsafe_raw(void
     
 );
 #endif

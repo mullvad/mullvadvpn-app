@@ -79,15 +79,5 @@ public class MullvadApiContext: @unchecked Sendable, ApiContextCallbackContext, 
                     accessMethodChangeCallback: self,
                     accessMethodChangeContext: self)
             }
-
-        if context.unsafeRaw().ptr == 0 {
-            throw Error.failedToConstructApiClient
-        }
-    }
-}
-
-extension SwiftApiContext {
-    public func legacy() -> LegacySwiftApiContext {
-        LegacySwiftApiContext(ptr: self.ptr)
     }
 }

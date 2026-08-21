@@ -686,8 +686,6 @@ public func FfiConverterTypeAccessMethodSettingWrapper_lower(_ value: AccessMeth
 
 public protocol ApiContextProtocol: AnyObject, Sendable {
     
-    func unsafeRaw()  -> SwiftApiContext
-    
 }
 open class ApiContext: ApiContextProtocol, @unchecked Sendable {
     fileprivate let handle: UInt64
@@ -769,14 +767,6 @@ public static func newTlsDisabled(host: String, address: String, domain: String,
 }
     
 
-    
-open func unsafeRaw() -> SwiftApiContext  {
-    return try!  FfiConverterTypeSwiftApiContext_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_method_apicontext_unsafe_raw(
-            self.uniffiCloneHandle(),$0
-    )
-})
-}
     
 
     
@@ -2453,56 +2443,6 @@ public func FfiConverterTypeShadowSocksExposed_lift(_ buf: RustBuffer) throws ->
 #endif
 public func FfiConverterTypeShadowSocksExposed_lower(_ value: ShadowSocksExposed) -> RustBuffer {
     return FfiConverterTypeShadowSocksExposed.lower(value)
-}
-
-
-public struct SwiftApiContext: Equatable, Hashable, Codable {
-    public let ptr: UInt64
-
-    // Default memberwise initializers are never public by default, so we
-    // declare one manually.
-    public init(ptr: UInt64) {
-        self.ptr = ptr
-    }
-
-    
-
-    
-}
-
-#if compiler(>=6)
-extension SwiftApiContext: Sendable {}
-#endif
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public struct FfiConverterTypeSwiftApiContext: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftApiContext {
-        return
-            try SwiftApiContext(
-                ptr: FfiConverterUInt64.read(from: &buf)
-        )
-    }
-
-    public static func write(_ value: SwiftApiContext, into buf: inout [UInt8]) {
-        FfiConverterUInt64.write(value.ptr, into: &buf)
-    }
-}
-
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftApiContext_lift(_ buf: RustBuffer) throws -> SwiftApiContext {
-    return try FfiConverterTypeSwiftApiContext.lift(buf)
-}
-
-#if swift(>=5.8)
-@_documentation(visibility: private)
-#endif
-public func FfiConverterTypeSwiftApiContext_lower(_ value: SwiftApiContext) -> RustBuffer {
-    return FfiConverterTypeSwiftApiContext.lower(value)
 }
 
 

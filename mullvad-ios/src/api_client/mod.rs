@@ -36,24 +36,6 @@ mod shadowsocks_loader;
 mod storekit;
 mod swift_data;
 
-#[repr(C)]
-#[derive(uniffi::Record)]
-pub struct SwiftApiContext {
-    ptr: u64,
-}
-impl SwiftApiContext {
-    /// Extracts an `ApiContext` from `self`
-    ///
-    /// The `ApiContext` extracted is meant to live as long as the process it's used in.
-    pub fn rust_context(self) -> Arc<ApiContext> {
-        // SAFETY: This will never be deallocated
-        unsafe {
-            Arc::increment_strong_count(self.ptr as *const ApiContext);
-            Arc::from_raw(self.ptr as *const ApiContext)
-        }
-    }
-}
-
 #[derive(uniffi::Record)]
 pub struct UnsafePtr {
     ptr: u64,
@@ -130,13 +112,6 @@ impl ApiContext {
 
 #[uniffi::export]
 impl ApiContext {
-    // TODO: this needs to be removed
-    pub fn unsafe_raw(self: Arc<ApiContext>) -> SwiftApiContext {
-        let clone = self.clone();
-        SwiftApiContext {
-            ptr: Arc::into_raw(clone) as u64,
-        }
-    }
     #[uniffi::constructor]
     pub fn new(
         host: String,
