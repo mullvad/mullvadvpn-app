@@ -11,14 +11,15 @@ pub const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
 /// An obfuscation method, as seen by whoever has plaintext WireGuard datagrams to move.
 ///
 /// [Self::send] obfuscates a datagram and transmits it to the remote; [Self::recv] receives one
-/// from the remote and deobfuscates it. Implementations transform packets in place where the
-/// obfuscation protocol allows it, which is why `packet` is borrowed mutably: callers must treat
-/// the buffer as clobbered once [Self::send] has been called.
+/// from the remote and deobfuscates it.
 ///
 /// # Cancel safety
 ///
 /// Both methods must be cancel safe. A caller may drop a [Self::recv] future before it completes,
 /// and an implementation that loses a datagram when that happens would drop packets silently.
+///
+/// However, callers must treat the buffer as clobbered once [Self::send] has been called, as
+/// implementations may mutate it in place.
 #[async_trait]
 pub trait ObfuscatedTransport: Send + Sync {
     /// Obfuscate `packet` and send it to the remote.
