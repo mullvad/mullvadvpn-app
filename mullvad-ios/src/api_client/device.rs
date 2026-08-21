@@ -3,7 +3,7 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
 };
 
-use crate::api_client::ApiContext;
+use crate::api_client::{ApiContext, retry_strategy::mullvad_api_retry_strategy_never};
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
@@ -123,7 +123,16 @@ pub fn mullvad_ios_create_device(
 ) -> SwiftCancelHandle {
     // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
-        todo!()
+        return RequestCancelHandle::new(
+            api_context,
+            Arc::new(mullvad_api_retry_strategy_never()),
+            async |_, _, completion_handler| {
+                completion_handler.finish(Arc::new(SwiftMullvadApiResponse::other(
+                    "bad public key size",
+                )));
+            },
+        )
+        .into_swift();
     };
 
     RequestCancelHandle::new(
@@ -216,7 +225,16 @@ pub fn mullvad_ios_rotate_device_key(
 ) -> SwiftCancelHandle {
     // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
-        todo!()
+        return RequestCancelHandle::new(
+            api_context,
+            Arc::new(mullvad_api_retry_strategy_never()),
+            async |_, _, completion_handler| {
+                completion_handler.finish(Arc::new(SwiftMullvadApiResponse::other(
+                    "bad public key size",
+                )));
+            },
+        )
+        .into_swift();
     };
 
     RequestCancelHandle::new(

@@ -113,6 +113,17 @@ impl SwiftMullvadApiResponse {
         }
     }
 
+    pub fn other<S: Into<String>>(error: S) -> Self {
+        Self {
+            success: false,
+            error_description: Some(error.into()),
+            body: None,
+            etag: None,
+            status_code: 0,
+            server_response_code: None,
+        }
+    }
+
     pub fn no_tokio_runtime() -> Self {
         Self {
             success: false,
