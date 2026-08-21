@@ -14,10 +14,6 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
 
-typedef struct LegacySwiftApiContext {
-  uint64_t ptr;
-} LegacySwiftApiContext;
-
 typedef struct SwiftData {
   void *ptr;
 } SwiftData;
@@ -88,16 +84,6 @@ typedef struct ProxyHandle {
 } ProxyHandle;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
-
-/**
- * Called by Swift to trigger a fetching and caching of addresses
- *
- * # SAFETY
- *
- * this takes no arguments other than the API context. The API context
- * needs to be valid, and the function should not be called concurrently.
- */
-void mullvad_api_update_address_cache(struct LegacySwiftApiContext swift_api_context);
 
 extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 

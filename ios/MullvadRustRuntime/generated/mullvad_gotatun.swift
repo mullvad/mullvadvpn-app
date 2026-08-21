@@ -3222,6 +3222,20 @@ public func mullvadApiUpdateAccessMethods(apiContext: ApiContext, settingsWrappe
 }
 }
 /**
+ * Called by Swift to trigger a fetching and caching of addresses
+ *
+ * # SAFETY
+ *
+ * this takes no arguments other than the API context. The API context
+ * needs to be valid, and the function should not be called concurrently.
+ */
+public func mullvadApiUpdateAddressCache(apiContext: ApiContext)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_update_address_cache(
+        FfiConverterTypeApiContext_lower(apiContext),$0
+    )
+}
+}
+/**
  * Called by Swift to update the currently used access methods
  *
  * # SAFETY
@@ -3733,6 +3747,9 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_update_access_methods() != 11043) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_update_address_cache() != 18180) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_use_access_method() != 65406) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3806,9 +3823,6 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_init_storekit_payment() != 8756) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_method_apicontext_unsafe_raw() != 37019) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_apicontextcallback_access_method_change() != 20435) {

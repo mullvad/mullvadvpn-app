@@ -321,9 +321,8 @@ pub fn mullvad_api_use_access_method(api_context: Arc<ApiContext>, id: String) {
 ///
 /// this takes no arguments other than the API context. The API context
 /// needs to be valid, and the function should not be called concurrently.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: SwiftApiContext) {
-    let api_context = swift_api_context.rust_context();
+#[uniffi::export]
+pub fn mullvad_api_update_address_cache(api_context: Arc<ApiContext>) {
     let cloned_context = api_context.clone();
     let handle = cloned_context.api_client.handle();
     handle.spawn(async move {
