@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../shared/gettext';
 import { useRecents } from '../../../../../features/locations/hooks';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
-import { useScrollPositionContext } from '../../ScrollPositionContext';
+import { useLocationAriaLabel } from '../../hooks';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
+import { useLocationSlideContext } from '../location-slide/LocationSlideContext';
 import { GeographicalLocationTrailingActions } from './components';
 import {
   GeographicalLocationProvider,
@@ -32,15 +32,23 @@ function GeographicalLocationImpl({
   onSelect,
   ...props
 }: GeographicalLocationProps) {
+  const { searchTerm } = useSelectLocationViewContext();
   const { loading } = useGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
+  const [lastSearchTerm, setLastSearchTerm] = useState(searchTerm);
   const locationChildren = getLocationChildren(location);
-  const { selectedLocationRef } = useScrollPositionContext();
+  const { selectedLocationRef } = useLocationSlideContext();
   const { hasRecents } = useRecents();
 
+  const ariaLabel = useLocationAriaLabel(location.label);
+
+  // If search term changes, reset expanded state.
   useEffect(() => {
-    setExpanded(location.expanded);
-  }, [location.expanded]);
+    if (searchTerm !== lastSearchTerm) {
+      setLastSearchTerm(searchTerm);
+      setExpanded(location.expanded);
+    }
+  }, [searchTerm, lastSearchTerm, location.expanded]);
 
   const disabled = disabledProp || location.disabled || loading;
   const showChildren = locationChildren.length > 0 && expanded;
@@ -80,17 +88,7 @@ function GeographicalLocationImpl({
     <Location selected={location.selected} root={root}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
         <Location.Accordion.Header ref={refToScrollTo} level={level} position={position}>
-          <Location.Accordion.Header.ItemTrigger
-            onClick={handleClick}
-            aria-label={sprintf(
-              // TRANSLATORS: Accessibility label for a button that connects to a location.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-              messages.pgettext('accessibility', 'Connect to %(location)s'),
-              {
-                location: location.label,
-              },
-            )}>
+          <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
             <Location.Accordion.Header.Item>
               <Location.Accordion.Header.Item.Title>
                 {location.label}

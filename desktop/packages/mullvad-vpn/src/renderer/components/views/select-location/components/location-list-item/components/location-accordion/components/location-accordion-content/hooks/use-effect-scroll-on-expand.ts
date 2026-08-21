@@ -1,14 +1,14 @@
 import React from 'react';
 
 import { useAccordionContext } from '../../../../../../../../../../lib/components/accordion/AccordionContext';
-import { useScrollPositionContext } from '../../../../../../../ScrollPositionContext';
+import { useLocationSlideContext } from '../../../../../../location-slide/LocationSlideContext';
 import { useLocationAccordionContext } from '../../../LocationAccordionContext';
 
 export function useEffectScrollOnExpand() {
   const { userTriggeredExpand, setUserTriggeredExpand } = useLocationAccordionContext();
   const { headerRef, content } = useAccordionContext();
   const { spacePreAllocationViewRef, scrollIntoView, resetHeight, scrollViewRef } =
-    useScrollPositionContext();
+    useLocationSlideContext();
 
   React.useLayoutEffect(() => {
     if (!content || !userTriggeredExpand) {
