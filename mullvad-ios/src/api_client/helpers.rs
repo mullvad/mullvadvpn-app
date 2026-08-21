@@ -1,5 +1,5 @@
 use std::{
-    ffi::{CString, c_char, c_void},
+    ffi::CString,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
 
@@ -7,8 +7,6 @@ use shadowsocks::crypto::available_ciphers;
 use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher, Socks5Remote, SocksAuth};
 
 use crate::api_client::access_method_settings::{ShadowsocksWrapper, Socks5RemoteWrapper};
-
-use super::get_string;
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///

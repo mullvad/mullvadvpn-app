@@ -4,7 +4,6 @@ use mullvad_api::{
     ApiProxy, ETag, RelayListProxy,
     rest::{self, MullvadRestHandle},
 };
-use mullvad_types::access_method::AccessMethodSetting;
 
 use crate::api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper};
 

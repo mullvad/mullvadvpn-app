@@ -2,7 +2,6 @@ use mullvad_api::{
     ProblemReportProxy,
     rest::{self, MullvadRestHandle},
 };
-use std::sync::Mutex;
 use std::{collections::HashMap, sync::Arc};
 
 use crate::api_client::ApiContext;
@@ -13,8 +12,6 @@ use super::{
     response::SwiftMullvadApiResponse,
     retry_strategy::RetryStrategy,
 };
-
-use std::collections::BTreeMap;
 
 /// Send a problem report via the Mullvad API client.
 ///
@@ -98,9 +95,4 @@ pub fn problem_report_request_init(
         log,
         metadata,
     }
-}
-
-#[derive(uniffi::Object)]
-pub struct ProblemReportMetadata {
-    inner: Mutex<BTreeMap<String, String>>,
 }

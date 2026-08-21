@@ -445,16 +445,6 @@ uint64_t uniffi_mullvad_ios_fn_clone_swiftcancelhandle(uint64_t handle, RustCall
 void uniffi_mullvad_ios_fn_free_swiftcancelhandle(uint64_t handle, RustCallStatus *_Nonnull out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_PROBLEMREPORTMETADATA
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_PROBLEMREPORTMETADATA
-uint64_t uniffi_mullvad_ios_fn_clone_problemreportmetadata(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_PROBLEMREPORTMETADATA
-#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_PROBLEMREPORTMETADATA
-void uniffi_mullvad_ios_fn_free_problemreportmetadata(uint64_t handle, RustCallStatus *_Nonnull out_status
-);
-#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_RETRYSTRATEGY
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_RETRYSTRATEGY
 uint64_t uniffi_mullvad_ios_fn_clone_retrystrategy(uint64_t handle, RustCallStatus *_Nonnull out_status

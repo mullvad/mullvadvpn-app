@@ -2,18 +2,6 @@ use std::time::Duration;
 
 use talpid_future::retry::{ConstantInterval, ExponentialBackoff, Jittered};
 
-#[repr(C)]
-pub struct LegacySwiftRetryStrategy(*mut RetryStrategy);
-
-impl LegacySwiftRetryStrategy {
-    /// # Safety
-    /// The pointer must be a pointing to a valid instance of a `Box<RetryStrategy>`.
-    pub unsafe fn into_rust(self) -> RetryStrategy {
-        // SAFETY: the pointer must be pointing to a valid instance of a `Box<RetryStrategy>`
-        unsafe { *Box::from_raw(self.0) }
-    }
-}
-
 #[derive(uniffi::Object, Clone, Copy)]
 pub struct RetryStrategy {
     delays: RetryDelay,
