@@ -1,10 +1,12 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  ShadowsocksCipherService.swift
-//  MullvadVPN
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Jon Petersson on 10/3/2026.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 import MullvadLogging
 import MullvadTypes
