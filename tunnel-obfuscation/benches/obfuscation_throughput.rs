@@ -11,13 +11,11 @@
 
 use core::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
-use std::sync::Arc;
-use talpid_net::bypass::NoopBypass;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::net::UdpSocket;
 use tunnel_obfuscation::{
-    LocalSocketObfuscator,
-    lwo::{self, Lwo, Settings, obfuscate_thread_local},
+    create_local_socket_obfuscator,
+    lwo::{self, Settings, obfuscate_thread_local},
 };
 
 /// Baseline: plain UDP send -> recv, no obfuscation.
@@ -99,9 +97,11 @@ fn bench_proxy_lwo(c: &mut Criterion) {
             client_public_key: client_key.clone(),
             server_public_key: server_key.clone(),
         };
-        let lwo = Lwo::new(Arc::new(NoopBypass), &settings).await.unwrap();
+        let lwo = create_local_socket_obfuscator(&tunnel_obfuscation::Settings::Lwo(settings))
+            .await
+            .unwrap();
         let proxy_addr = lwo.endpoint();
-        tokio::spawn((Box::new(lwo) as Box<dyn LocalSocketObfuscator>).run());
+        tokio::spawn(lwo.run());
 
         // Warm up: send one packet so the proxy connects its client socket
         let wg = UdpSocket::bind("127.0.0.1:0").await.unwrap();

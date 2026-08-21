@@ -96,11 +96,11 @@ impl Multiplexer {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> crate::Result<Self> {
         let client_socket = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0))
             .await
-            .map_err(crate::Error::CreateMultiplexerObfuscator)?;
+            .map_err(crate::Error::BindLocalUdp)?;
 
         let client_socket_addr = client_socket
             .local_addr()
-            .map_err(crate::Error::CreateMultiplexerObfuscator)?;
+            .map_err(crate::Error::BindLocalUdp)?;
 
         let proxy_socket_v4 = create_remote_socket(&bypass, true).await?;
         let proxy_socket_v6 = create_remote_socket(&bypass, false).await?;
