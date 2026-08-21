@@ -23,8 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 
+### Added
+- Show obfuscation type in connection view.
+
 ### Fixed
-- Locale-aware sorting of relay list on iOS
+- Locale-aware sorting of relay list on iOS.
 
 ## [2026.4 - 2026-08-11]
 ### Added

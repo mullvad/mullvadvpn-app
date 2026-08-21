@@ -219,7 +219,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             transportLayer: .udp,
             remotePort: 1234,
             isPostQuantum: enablePostQuantum,
-            isDaitaEnabled: enableDaita
+            isDaitaEnabled: enableDaita,
+            obfuscationMethod: .off
         )
     }
 }
