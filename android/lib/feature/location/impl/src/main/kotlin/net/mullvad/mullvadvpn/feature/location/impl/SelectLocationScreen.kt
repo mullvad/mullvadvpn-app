@@ -912,7 +912,7 @@ private fun SelectionContainer(
                     constrain(filters) {
                         linkTo(start = parent.start, end = parent.end)
                         bottom.linkTo(parent.top)
-                        visibility = Visibility.Invisible
+                        visibility = Visibility.Gone
                     }
                 }
 
