@@ -26,8 +26,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 
+### Added
+- Show obfuscation type in connection view.
+
+## [2026.5]
 ### Fixed
-- Locale-aware sorting of relay list on iOS
+- Locale-aware sorting of relay list on iOS.
 
 ## [2026.4 - 2026-08-11]
 ### Added

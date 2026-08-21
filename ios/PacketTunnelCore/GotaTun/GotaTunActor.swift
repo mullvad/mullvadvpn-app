@@ -611,7 +611,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             remotePort: selectedRelays.ingress.endpoint.socketAddress.port,
             lastKeyRotation: lastKeyRotation,
             isPostQuantum: config.isPostQuantum,
-            isDaitaEnabled: config.isDaitaEnabled
+            isDaitaEnabled: config.isDaitaEnabled,
+            obfuscationMethod: selectedRelays.obfuscation,
         )
     }
 

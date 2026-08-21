@@ -48699,6 +48699,7 @@
       }
     },
     "Obfuscation" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

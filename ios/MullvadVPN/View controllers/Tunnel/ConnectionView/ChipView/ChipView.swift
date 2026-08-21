@@ -45,6 +45,8 @@ struct ChipView: View {
                 )
                 .padding(borderWidth)
         )
+        .accessibilityIdentifier(item.id.accessibilityId)
+        .accessibilityLabel(item.name)
     }
 }
 
