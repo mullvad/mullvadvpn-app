@@ -461,8 +461,12 @@ class ApplicationMain
     );
 
     this.tunnelStateExpectation = new Expectation(async () => {
+      const initialTunnelState = this.settings.gui.autoConnect
+        ? { state: 'connecting' as const, featureIndicators: undefined }
+        : this.tunnelState.tunnelState;
+
       this.userInterface?.createTrayIconController(
-        this.tunnelState.tunnelState,
+        initialTunnelState,
         this.settings.gui.monochromaticIcon,
       );
       await this.userInterface?.updateTrayTheme();
