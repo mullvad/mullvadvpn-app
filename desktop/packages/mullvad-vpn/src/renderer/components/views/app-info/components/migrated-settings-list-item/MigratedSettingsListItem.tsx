@@ -2,6 +2,7 @@ import React from 'react';
 
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
+import { useSettingsMigrations } from '../../../../../features/migration/hooks';
 import { Flex, Icon } from '../../../../../lib/components';
 import { Dot } from '../../../../../lib/components/dot';
 import { ListItem, ListItemProps } from '../../../../../lib/components/list-item';
@@ -16,6 +17,8 @@ export function MigratedSettingsListItem(props: MigratedSettingsListItemProps) {
     push(RoutePath.migratedSettings);
   }, [push]);
 
+  const { displayedSettingsMigrations, hasSettingsMigrations } = useSettingsMigrations();
+
   return (
     <ListItem {...props}>
       <ListItem.Trigger onClick={handleClick}>
@@ -29,7 +32,9 @@ export function MigratedSettingsListItem(props: MigratedSettingsListItemProps) {
             </ListItem.Item.Label>
           </Flex>
           <ListItem.Item.ActionGroup>
-            <Dot variant="warning" size="small" />
+            {!displayedSettingsMigrations && hasSettingsMigrations && (
+              <Dot variant="warning" size="small" />
+            )}
             <Icon icon="chevron-right" />
           </ListItem.Item.ActionGroup>
         </ListItem.Item>
