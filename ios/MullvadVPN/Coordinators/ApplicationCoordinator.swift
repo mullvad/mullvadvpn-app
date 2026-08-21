@@ -62,7 +62,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let settingsManager: SettingsManager
     private let logRedactor: LogRedacting?
     private let migratedSettingsListener: MigratedSettingsListener
+    private let inAppLogObserver: InAppLogBlockObserver
 
+    private var isPresentingAccountExpiryBanner = false
     private var outOfTimeTimer: Timer?
 
     var rootViewController: UIViewController {
@@ -84,7 +86,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         breadcrumbsProvider: BreadcrumbsProvider,
         settingsManager: SettingsManager,
         logRedactor: LogRedacting? = nil,
-        migratedSettingsListener: MigratedSettingsListener
+        migratedSettingsListener: MigratedSettingsListener,
+        inAppLogObserver: InAppLogBlockObserver
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -101,6 +104,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.logRedactor = logRedactor
         self.settingsManager = settingsManager
         self.migratedSettingsListener = migratedSettingsListener
+        self.inAppLogObserver = inAppLogObserver
 
         super.init()
 
@@ -302,8 +306,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     // MARK: - Private
-
-    private var isPresentingAccountExpiryBanner = false
 
     /**
      Sets up breadcrumbs and observers for them.
