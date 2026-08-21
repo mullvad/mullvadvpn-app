@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
 - Set tray-icon to 'connecting' on TrayIconController creation (start), when auto-connect is turned on.
+- Remove tray-icon delay and add follow-up to ensure state change.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
