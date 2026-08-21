@@ -305,7 +305,6 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let connection = match &mut self.connection {
             Some(sr) => sr,
             None => {
-                // TODO: retry if connection mode changes
                 let host = request.uri().host().unwrap(); // TODO:
                 let connection = timeout(CONNECT_TIMEOUT, self.connect(host))
                     .map_err(|_elapsed| Error::TimeoutError)
