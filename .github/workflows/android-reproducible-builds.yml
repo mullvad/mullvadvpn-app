@@ -153,6 +153,7 @@ jobs:
   build-using-nix:
     name: Build assembleOssProdRelease using nix
     runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 90
     needs: set-up-env
     strategy:
       fail-fast: false
