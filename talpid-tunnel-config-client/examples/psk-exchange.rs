@@ -22,12 +22,15 @@ async fn main() {
     // which can also be provided by other means.
     let ephemeral_private_key = PrivateKey::new_from_random();
 
+    let diagnostics =
+        std::sync::Arc::new(talpid_tunnel_config_client::tcp_info::TcpDiagnostics::new());
     let ephemeral_peer = talpid_tunnel_config_client::request_ephemeral_peer(
         tuncfg_server_ip,
         public_key, // Parent connection's public key.
         ephemeral_private_key.public_key(),
         true,  // Whether to negotiate a "PQ-safe" PSK.
         false, // Whether to use DAITA (Does not work with Linux kernel WireGuard.)
+        diagnostics,
     )
     .await
     .unwrap();

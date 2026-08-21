@@ -1,22 +1,69 @@
-//! A TCP stream with a low MSS set. This prevents incorrectly configured MTU from causing
-//! fragmentation/packet loss. This is only supported on non-Windows targets.
+//! A TCP stream configured for reliability over throughput.
 //!
-//! On windows this solution does not work. So on Windows we instead temporarily lower the MTU
-//! while negotiating the ephemeral peer. This code lives in `talpid-wireguard/src/ephemeral.rs`
-//! These two solutions to the same problem should probably be refactored to end up closer
-//! to each other.
+//! The socket is configured with:
+//! - Low MSS (prevents MTU fragmentation)
+//! - TCP_NODELAY
+//! - TCP keepalives (detect dead connections quickly)
+//! - TCP_USER_TIMEOUT on Linux (kernel gives up if data isn't ACKed in time)
+//!
+//! On non-Windows targets the MSS is lowered via `setsockopt`. On Windows
+//! this doesn't work, so the MTU is temporarily lowered instead — see
+//! `talpid-wireguard/src/ephemeral.rs`.
 
 use std::io;
 use std::net::SocketAddr;
+use std::time::Duration;
 use tokio::net::TcpSocket as StdTcpSocket;
 use tokio::net::TcpStream;
+
+use crate::tcp_info::TcpDiagnostics;
+
+/// Time before TCP starts sending keepalive probes.
+const KEEPALIVE_TIME: Duration = Duration::from_secs(5);
+
+/// Time between keepalive probes.
+const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(2);
+
+/// Number of unacknowledged keepalive probes before giving up.
+const KEEPALIVE_RETRIES: u32 = 3;
+
+/// Set TCP parameters that prioritize reliability and low latency over throughput.
+fn set_reliability_params(socket: &StdTcpSocket) {
+    // Send small gRPC frames immediately.
+    if let Err(e) = socket.set_nodelay(true) {
+        log::error!("Failed to set TCP_NODELAY on tunnel config socket: {e}");
+    }
+
+    let sock_ref = socket2::SockRef::from(socket);
+    let keepalive = socket2::TcpKeepalive::new()
+        .with_time(KEEPALIVE_TIME)
+        .with_interval(KEEPALIVE_INTERVAL)
+        .with_retries(KEEPALIVE_RETRIES);
+    if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
+        log::error!("Failed to set TCP keepalive on tunnel config socket: {e}");
+    }
+
+    // Linux: set TCP_USER_TIMEOUT so the kernel gives up if our data
+    // isn't ACKed within the specified time.
+    #[cfg(target_os = "linux")]
+    {
+        const USER_TIMEOUT_MS: u32 = 30_000;
+        if let Err(e) = nix::sys::socket::setsockopt(
+            socket,
+            nix::sys::socket::sockopt::TcpUserTimeout,
+            &USER_TIMEOUT_MS,
+        ) {
+            log::error!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
+        }
+    }
+}
 
 #[cfg(unix)]
 mod sys {
     use super::*;
 
     use nix::sys::socket::{setsockopt, sockopt::TcpMaxSeg};
-    use std::os::fd::AsFd;
+    use std::os::fd::{AsFd, AsRawFd};
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
@@ -31,9 +78,13 @@ mod sys {
     }
 
     impl TcpSocket {
-        pub fn new() -> io::Result<Self> {
+        pub fn new(diagnostics: &TcpDiagnostics) -> io::Result<Self> {
             let socket = StdTcpSocket::new_v4()?;
             try_set_tcp_sock_mtu(&socket);
+            set_reliability_params(&socket);
+            // Stash the raw fd so we can query TCP_INFO even if the timeout
+            // fires during the connect phase.
+            diagnostics.set_raw_socket(socket.as_fd().as_raw_fd() as i64);
             Ok(Self { socket })
         }
 
@@ -61,16 +112,20 @@ mod sys {
 #[cfg(windows)]
 mod sys {
     use super::*;
+    use std::os::windows::io::AsRawSocket;
 
     pub struct TcpSocket {
         socket: StdTcpSocket,
     }
 
     impl TcpSocket {
-        pub fn new() -> io::Result<Self> {
-            Ok(Self {
-                socket: StdTcpSocket::new_v4()?,
-            })
+        pub fn new(diagnostics: &TcpDiagnostics) -> io::Result<Self> {
+            let socket = StdTcpSocket::new_v4()?;
+            set_reliability_params(&socket);
+            // Stash the raw socket handle so we can query TCP_INFO even if the
+            // timeout fires during the connect phase.
+            diagnostics.set_raw_socket(socket.as_raw_socket() as i64);
+            Ok(Self { socket })
         }
 
         pub async fn connect(self, addr: SocketAddr) -> io::Result<TcpStream> {

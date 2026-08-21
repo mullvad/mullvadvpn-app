@@ -19,8 +19,7 @@ mod ml_kem;
 #[cfg(not(target_os = "ios"))]
 mod socket;
 
-#[cfg(not(target_os = "ios"))]
-mod socket_sniffer;
+pub mod tcp_info;
 
 #[expect(clippy::allow_attributes)]
 mod proto {
@@ -128,9 +127,10 @@ pub async fn request_ephemeral_peer(
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
+    diagnostics: std::sync::Arc<tcp_info::TcpDiagnostics>,
 ) -> Result<EphemeralPeer, Error> {
     log::debug!("Connecting to relay config service at {service_address}");
-    let client = connect_relay_config_client(service_address).await?;
+    let client = connect_relay_config_client(service_address, diagnostics).await?;
     log::debug!("Connected to relay config service at {service_address}");
 
     request_ephemeral_peer_with(
@@ -321,18 +321,23 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 /// On non-Windows platforms the connection is made with a socket where the MSS
 /// value has been speficically lowered, to avoid MTU issues. See the `socket` module.
 #[cfg(not(target_os = "ios"))]
-async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService, Error> {
+async fn connect_relay_config_client(
+    ip: Ipv4Addr,
+    diagnostics: std::sync::Arc<tcp_info::TcpDiagnostics>,
+) -> Result<RelayConfigService, Error> {
     use hyper_util::rt::tokio::TokioIo;
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
 
     let connection = endpoint
-        .connect_with_connector(service_fn(move |_| async move {
-            let sock = socket::TcpSocket::new()?;
-            let stream = sock.connect(addr).await?;
-            let sniffer = socket_sniffer::SocketSniffer::new(stream);
-            Ok::<_, std::io::Error>(TokioIo::new(sniffer))
+        .connect_with_connector(service_fn(move |_| {
+            let diagnostics = diagnostics.clone();
+            async move {
+                let sock = socket::TcpSocket::new(&diagnostics)?;
+                let stream = sock.connect(addr).await?;
+                Ok::<_, std::io::Error>(TokioIo::new(stream))
+            }
         }))
         .await
         .map_err(Error::GrpcConnectError)?;

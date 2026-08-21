@@ -6037,6 +6037,7 @@ version = "0.0.0"
 dependencies = [
  "gotatun",
  "hyper-util",
+ "libc",
  "log",
  "ml-kem",
  "nix 0.31.3",
@@ -6045,12 +6046,14 @@ dependencies = [
  "prost",
  "rand_core 0.6.4",
  "sha2",
+ "socket2 0.6.5",
  "talpid-types",
  "tokio",
  "tonic",
  "tonic-prost",
  "tonic-prost-build",
  "tower",
+ "windows-sys 0.61.2",
  "zeroize",
 ]
 

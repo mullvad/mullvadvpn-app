@@ -39,7 +39,13 @@ zeroize = { workspace = true }
 tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [target.'cfg(unix)'.dependencies]
+libc = "0.2"
 nix = { workspace = true, features = ["socket"] }
+socket2 = { workspace = true }
+
+[target.'cfg(windows)'.dependencies]
+socket2 = { workspace = true }
+windows-sys = { workspace = true, features = ["Win32_Networking_WinSock"] }
 
 [lints]
 workspace = true
