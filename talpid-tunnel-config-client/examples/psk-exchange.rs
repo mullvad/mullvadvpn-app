@@ -22,15 +22,22 @@ async fn main() {
     // which can also be provided by other means.
     let ephemeral_private_key = PrivateKey::new_from_random();
 
+    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
+        .expect("Failed to create tunnel config socket");
     let ephemeral_peer = talpid_tunnel_config_client::request_ephemeral_peer(
         tuncfg_server_ip,
         public_key, // Parent connection's public key.
         ephemeral_private_key.public_key(),
         true,  // Whether to negotiate a "PQ-safe" PSK.
         false, // Whether to use DAITA (Does not work with Linux kernel WireGuard.)
+        &tcp_socket,
     )
     .await
     .unwrap();
+
+    if let Some(info) = tcp_socket.query_tcp_info() {
+        println!("TCP info after request: {info:?}");
+    }
 
     println!("Private key: {ephemeral_private_key}");
     // Use fmt::Debug since Serialize is not implemented for PresharedKey.
