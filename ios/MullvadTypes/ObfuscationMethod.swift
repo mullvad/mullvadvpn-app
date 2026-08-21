@@ -24,4 +24,14 @@ public enum ObfuscationMethod: Equatable, Codable, Sendable {
             true
         }
     }
+
+    /// The transport layer carrying the tunnel traffic to the relay.
+    public var transportLayer: TransportLayer {
+        switch self {
+        case .udpOverTcp:
+            .tcp
+        case .off, .shadowsocks, .quic, .lwo:
+            .udp
+        }
+    }
 }
