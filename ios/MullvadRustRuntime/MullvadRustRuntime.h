@@ -1,10 +1,12 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  MullvadRustRuntime.h
-//  MullvadRustRuntime
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Marco Nikic on 2024-06-20.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 #import <Foundation/Foundation.h>
 #import "mullvad_rust_runtime.h"

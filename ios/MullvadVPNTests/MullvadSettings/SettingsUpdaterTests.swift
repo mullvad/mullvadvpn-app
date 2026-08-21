@@ -1,12 +1,14 @@
 import XCTest
 
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  SettingsUpdaterTests.swift
-//  MullvadVPNTests
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Mojgan on 2024-05-29.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 @testable import MullvadSettings
 @testable import MullvadTypes
 
