@@ -201,8 +201,8 @@ impl WireguardMonitor {
             .block_on(get_route_mtu(params, &args.route_manager));
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
-        // Build obfuscation settings and optionally start a local socket obfuscator.
-        // For GotaTun + LWO/QUIC, obfuscation is applied inline and no local socket is needed.
+        // Build obfuscation settings and optionally start a local socket obfuscator. Only the
+        // multiplexer still needs one; every single method is applied inline by GotaTun.
         let obfuscation_mtu = route_mtu;
         let mut config =
             crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
@@ -493,7 +493,7 @@ impl WireguardMonitor {
         );
 
         // Android always uses GotaTun (userspace WireGuard). When the obfuscation can be
-        // applied inline (LWO or QUIC), skip the local socket obfuscator and let
+        // applied inline, skip the local socket obfuscator and let
         // MaybeObfuscatingTransportFactory handle it directly.
         let userspace_obfuscation =
             obfuscation::userspace_transport_available(params) && !*FORCE_LOCAL_SOCKET_OBFUSCATION;
