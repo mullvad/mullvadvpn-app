@@ -17,7 +17,7 @@ import {
   unsetIpcWebContents,
 } from './ipc-event-channel';
 import { WebContentsConsoleInput } from './logging';
-import { isMacOs11OrNewer } from './platform-version';
+import { isMacOs11OrNewer, isMacOs27OrNewer } from './platform-version';
 import { resolveBin } from './proc';
 import { createTray } from './tray';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
@@ -533,6 +533,10 @@ export default class UserInterface implements WindowControllerDelegate {
 
   // setup NSEvent forwarder to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
+  //
+  // NOTE: The inconsistent window.blur is only present on macOS 26
+  // and below. For macOS 27 and above we do not need any special
+  // handling as the blur events fire properly.
   private async installMacOsMenubarAppWindowHandlers() {
     if (this.delegate.isUnpinnedWindow()) {
       return;
@@ -541,12 +545,21 @@ export default class UserInterface implements WindowControllerDelegate {
     const nseventforwarder = await import('nseventforwarder');
     let nseventforwarderStop: ReturnType<typeof nseventforwarder.start>;
 
-    this.windowController.window?.on(
-      'show',
-      () => (nseventforwarderStop = nseventforwarder.start(() => this.windowController.hide())),
-    );
-    this.windowController.window?.on('closed', () => nseventforwarderStop?.());
-    this.windowController.window?.on('hide', () => nseventforwarderStop?.());
+    this.windowController.window?.on('show', () => {
+      if (!isMacOs27OrNewer()) {
+        nseventforwarderStop = nseventforwarder.start(() => this.windowController.hide());
+      }
+    });
+    this.windowController.window?.on('closed', () => {
+      if (!isMacOs27OrNewer()) {
+        nseventforwarderStop?.();
+      }
+    });
+    this.windowController.window?.on('hide', () => {
+      if (!isMacOs27OrNewer()) {
+        nseventforwarderStop?.();
+      }
+    });
     this.windowController.window?.on('blur', () => {
       // Make sure to hide the menubar window when other program captures the focus if the app is unpinned.
       // But avoid hiding the window when dev tools capture the focus to make it possible to inspect the UI.
@@ -593,15 +606,19 @@ export default class UserInterface implements WindowControllerDelegate {
           if (event.metaKey) {
             setImmediate(() => this.windowController.updatePosition());
           } else {
-            if (isMacOs11OrNewer() && !this.windowController.isVisible()) {
-              // This is a workaround for this Electron issue, when it's resolved
-              // `this.windowController.toggle()` should do the trick on all platforms:
-              // https://github.com/electron/electron/issues/28776
+            // Show window when the tray icon is clicked.
+            //
+            // The logic to hide the window is handled in the 'blur' and 'hide' event handlers
+            // for the window controller event.
+
+            // macOS < 11 and macOS >= 27 can be shown in the same way,
+            // however macOS >= 11 and macOS <= 26 needs a workaround,
+            if (isMacOs27OrNewer() || !isMacOs11OrNewer()) {
+              this.windowController.show();
+            } else {
               const contextMenu = Menu.buildFromTemplate([]);
               contextMenu.on('menu-will-show', () => this.windowController.show());
               this.tray?.popUpContextMenu(contextMenu);
-            } else {
-              this.windowController.toggle();
             }
           }
         });
