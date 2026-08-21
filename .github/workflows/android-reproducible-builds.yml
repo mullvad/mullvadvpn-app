@@ -153,6 +153,7 @@ jobs:
   build-using-nix:
     name: Build assembleOssProdRelease using nix
     runs-on: ${{ matrix.runs-on }}
+    timeout-minutes: 90
     needs: set-up-env
     strategy:
       fail-fast: false
@@ -175,7 +176,10 @@ jobs:
 
       - name: Build app
         env:
-          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
+          # The Gradle JVM and the Kotlin daemon together would exceed the 7 GB RAM of the
+          # ubuntu-latest runner and cause OOM during R8. Run the Kotlin compiler in-process
+          # (inside the Gradle JVM) to stay within the memory budget.
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.compiler.execution.strategy=in-process'
         run: nix develop .#android -c buildRelease
 
       - name: Upload apks
