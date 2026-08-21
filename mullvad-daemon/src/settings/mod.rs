@@ -29,6 +29,13 @@ pub enum Error {
     #[error("Unable to parse settings file")]
     ParseError(#[source] serde_json::Error),
 
+    /// Parsing the settings file failed, but `lockdown_mode` and `auto_connect`
+    /// could be read and were both disabled. The caller may safely reset to defaults
+    /// without entering lockdown mode, since the user's prior config did not request
+    /// leak protection at launch.
+    #[error("Unable to parse settings file, but safe to reset to defaults")]
+    ParseErrorSafe(#[source] serde_json::Error),
+
     #[error("Unable to remove settings file {0}")]
     DeleteError(String, #[source] io::Error),
 
@@ -67,6 +74,7 @@ impl From<Error> for mullvad_management_interface::Status {
             }
             Error::SerializeError(..)
             | Error::ParseError(..)
+            | Error::ParseErrorSafe(..)
             | Error::UpdateFailed(..)
             | Error::ParseIp(..) => Status::new(Code::Internal, error.to_string()),
         }
@@ -114,6 +122,24 @@ fn handle_custom_list_error(
 
 type ChangeListener =
     Box<dyn FnMut(&Settings) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>;
+
+/// Attempts to parse just the safety-relevant fields (`lockdown_mode` and
+/// `auto_connect`) from raw settings bytes that failed full deserialization.
+///
+/// If they are both set to false, we can safely disconnect without lockdown mode.
+fn disconnecting_is_safe(bytes: &[u8]) -> bool {
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(bytes) else {
+        return false;
+    };
+
+    let is_set_false = |key: &str| value.get(key).and_then(|v| v.as_bool()) == Some(false);
+
+    if cfg!(target_os = "android") {
+        is_set_false("auto_connect")
+    } else {
+        is_set_false("auto_connect") && is_set_false("lockdown_mode")
+    }
+}
 
 pub struct SettingsPersister {
     settings: Settings,
@@ -183,10 +209,23 @@ impl SettingsPersister {
                     should_save: true,
                 }
             }
-            Err(error) => {
+            Err(Error::ParseErrorSafe(error)) => {
                 log::warn!(
                     "{}",
                     error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                );
+
+                LoadSettingsResult {
+                    settings: Self::default_settings(),
+                    should_save: true,
+                }
+            }
+            Err(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to load settings. Using defaults and enabling lockdown mode."
+                    )
                 );
 
                 let settings = Settings {
@@ -227,12 +266,17 @@ impl SettingsPersister {
         let settings_bytes = fs::read(path)
             .await
             .map_err(|error| Error::ReadError(display.as_ref().display().to_string(), error))?;
-        let settings = Self::load_from_bytes(&settings_bytes)?;
-        Ok(settings)
+        Self::load_from_bytes(&settings_bytes)
     }
 
     fn load_from_bytes(bytes: &[u8]) -> Result<Settings, Error> {
-        serde_json::from_slice(bytes).map_err(Error::ParseError)
+        serde_json::from_slice(bytes).map_err(|err| {
+            if disconnecting_is_safe(bytes) {
+                Error::ParseErrorSafe(err)
+            } else {
+                Error::ParseError(err)
+            }
+        })
     }
 
     async fn save(&mut self) -> Result<(), Error> {
@@ -785,6 +829,22 @@ mod test {
             settings.lockdown_mode,
             "The daemon should block the internet if settings are corrupt"
         );
+    }
+
+    #[test]
+    fn test_parse_safety_fields() {
+        // Both fields explicitly set to false.
+        assert!(disconnecting_is_safe(
+            br#"{"lockdown_mode": false, "auto_connect": false}"#
+        ));
+        // auto_connect enabled is unsafe on all platforms.
+        assert!(!disconnecting_is_safe(
+            br#"{"lockdown_mode": false, "auto_connect": true}"#
+        ));
+        // Missing safety fields can't be classified.
+        assert!(!disconnecting_is_safe(br#"{"settings_version": 1000}"#));
+        // Invalid JSON can't be classified.
+        assert!(!disconnecting_is_safe(b"not json"));
     }
 
     #[tokio::test]
