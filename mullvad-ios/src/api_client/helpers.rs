@@ -6,6 +6,8 @@ use std::{
 use shadowsocks::crypto::available_ciphers;
 use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher, Socks5Remote, SocksAuth};
 
+use crate::api_client::access_method_settings::{ShadowsocksWrapper, Socks5RemoteWrapper};
+
 use super::get_string;
 
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
@@ -39,31 +41,26 @@ pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<I
 /// # SAFETY
 /// `address` must be a pointer to at least `address_len` bytes.
 /// `c_password` and `c_cipher` must be pointers to null terminated strings
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
-    address: *const u8,
-    address_len: usize,
+#[uniffi::export]
+pub fn new_shadowsocks_access_method_setting(
+    address: Vec<u8>,
     port: u16,
-    c_password: *const c_char,
-    c_cipher: *const c_char,
-) -> *mut c_void {
+    password: String,
+    cipher: String,
+) -> ShadowsocksWrapper {
     let endpoint: SocketAddr =
         // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
-        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
+        if let Some(ip_address) = unsafe { parse_ip_addr(address.as_ptr(), address.len()) } {
             SocketAddr::new(ip_address, port)
         } else {
-            return std::ptr::null_mut();
+            todo!()
         };
 
-    // SAFETY: `c_password` pointer must be a valid C string pointer
-    let password = unsafe { get_string(c_password) };
-    // SAFETY: `c_cipher` pointer must be a valid C string pointer
-    let cipher = unsafe { get_string(c_cipher) };
     let cipher = ShadowsocksCipher::new(&cipher).unwrap();
 
     let shadowsocks_configuration = Shadowsocks::new(endpoint, cipher, password);
 
-    Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void
+    ShadowsocksWrapper(shadowsocks_configuration)
 }
 
 /// Converts parameters into a boxed `Socks5Remote` configuration that is safe
@@ -73,36 +70,25 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
 /// # SAFETY
 /// `address` must be a pointer to at least `address_len` bytes.
 /// `c_username` and `c_password` must be pointers to null terminated strings, or null
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn new_socks5_access_method_setting(
-    address: *const u8,
-    address_len: usize,
+#[uniffi::export]
+pub fn new_socks5_access_method_setting(
+    address: Vec<u8>,
     port: u16,
-    c_username: *const c_char,
-    c_password: *const c_char,
-) -> *mut c_void {
+    username: Option<String>,
+    password: Option<String>,
+) -> Socks5RemoteWrapper {
     let endpoint: SocketAddr =
         // SAFETY: caller guarantees that `address` is valid for at least `address_len` bytes
-        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
+        if let Some(ip_address) = unsafe { parse_ip_addr(address.as_ptr(), address.len()) } {
             SocketAddr::new(ip_address, port)
         } else {
-            return std::ptr::null_mut();
+            panic!()
         };
 
-    let auth = {
-        if c_username.is_null() || c_password.is_null() {
-            None
-        } else {
-            // SAFETY: The caller must guarantee that `c_username` is a valid C string pointer
-            let username = unsafe { get_string(c_username) };
-            // SAFETY: The caller must guarantee that `c_password` is a valid C string pointer
-            let password = unsafe { get_string(c_password) };
-            SocksAuth::new(username, password).ok()
-        }
-    };
+    let auth = SocksAuth::new(username.unwrap_or_default(), password.unwrap_or_default()).ok();
 
     let socks5_configuration = Socks5Remote { endpoint, auth };
-    Box::into_raw(Box::new(socks5_configuration)) as *mut c_void
+    Socks5RemoteWrapper(socks5_configuration)
 }
 
 #[unsafe(no_mangle)]

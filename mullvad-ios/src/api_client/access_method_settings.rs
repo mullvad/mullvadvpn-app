@@ -22,20 +22,13 @@ pub fn convert_builtin_access_method_setting(
     name: String,
     is_enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: Option<u64>,
 ) -> Option<Arc<AccessMethodSettingWrapper>> {
-    convert_builtin_access_method_setting_inner(
-        unique_identifier,
-        name,
-        is_enabled,
-        method_kind,
-        proxy_configuration,
-    )
-    .map(|access_method| {
-        Arc::new(AccessMethodSettingWrapper {
-            inner: access_method,
+    convert_builtin_access_method_setting_inner(unique_identifier, name, is_enabled, method_kind)
+        .map(|access_method| {
+            Arc::new(AccessMethodSettingWrapper {
+                inner: access_method,
+            })
         })
-    })
 }
 
 /// Converts parameters into an `AccessMethodSetting`
@@ -47,9 +40,7 @@ fn convert_builtin_access_method_setting_inner(
     name: String,
     enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: Option<u64>,
 ) -> Option<AccessMethodSetting> {
-    // SAFETY: See `convert_builtin_access_method_setting`
     let id = Id::from_string(unique_identifier)?;
     match method_kind {
         SwiftAccessMethodKind::KindDirect => Some(AccessMethodSetting::with_id(
@@ -72,44 +63,39 @@ fn convert_builtin_access_method_setting_inner(
             AccessMethod::BuiltIn(EncryptedDnsProxy),
         )),
 
-        SwiftAccessMethodKind::KindShadowsocks => {
-            proxy_configuration.map(|configuration| {
-                // SAFETY: See `convert_builtin_access_method_setting`
-                let configuration: Shadowsocks = unsafe { *Box::from_raw(configuration as *mut _) };
-                AccessMethodSetting::with_id(
-                    id,
-                    name,
-                    enabled,
-                    AccessMethod::Custom(proxy::CustomProxy::Shadowsocks(configuration)),
-                )
-            })
-        }
-        SwiftAccessMethodKind::KindSocks5Local => {
-            proxy_configuration.map(|configuration| {
-                // SAFETY: See `convert_builtin_access_method_setting`
-                let configuration: Socks5Remote =
-                    unsafe { *Box::from_raw(configuration as *mut _) };
-                AccessMethodSetting::with_id(
-                    id,
-                    name,
-                    enabled,
-                    AccessMethod::Custom(proxy::CustomProxy::Socks5Remote(configuration)),
-                )
-            })
-        }
+        SwiftAccessMethodKind::KindShadowsocks(configuration) => Some({
+            AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                AccessMethod::Custom(proxy::CustomProxy::Shadowsocks(configuration.0.clone())),
+            )
+        }),
+        SwiftAccessMethodKind::KindSocks5Local(configuration) => Some({
+            AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                AccessMethod::Custom(proxy::CustomProxy::Socks5Remote(configuration.0.clone())),
+            )
+        }),
     }
 }
+
+#[derive(uniffi::Object)]
+pub struct ShadowsocksWrapper(pub Shadowsocks);
+#[derive(uniffi::Object)]
+pub struct Socks5RemoteWrapper(pub Socks5Remote);
 
 /// Used by Swift to instruct which access method kind it is trying to convert
 
 #[derive(uniffi::Enum)]
-#[repr(u8)]
 pub enum SwiftAccessMethodKind {
-    KindDirect = 0,
+    KindDirect,
     KindBridge,
     KindEncryptedDnsProxy,
-    KindShadowsocks,
-    KindSocks5Local,
+    KindShadowsocks(Arc<ShadowsocksWrapper>),
+    KindSocks5Local(Arc<Socks5RemoteWrapper>),
 }
 
 #[derive(uniffi::Object)]

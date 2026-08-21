@@ -127,35 +127,6 @@ extern struct SwiftData swift_read_address_cache(void);
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
 
-/**
- * Converts parameters into a boxed `Shadowsocks` configuration that is safe
- * to send across the FFI boundary
- *
- * # SAFETY
- * `address` must be a pointer to at least `address_len` bytes.
- * `c_password` and `c_cipher` must be pointers to null terminated strings
- */
-void *new_shadowsocks_access_method_setting(const uint8_t *address,
-                                            uintptr_t address_len,
-                                            uint16_t port,
-                                            const char *c_password,
-                                            const char *c_cipher);
-
-/**
- * Converts parameters into a boxed `Socks5Remote` configuration that is safe
- *
- * to send across the FFI boundary
- *
- * # SAFETY
- * `address` must be a pointer to at least `address_len` bytes.
- * `c_username` and `c_password` must be pointers to null terminated strings, or null
- */
-void *new_socks5_access_method_setting(const uint8_t *address,
-                                       uintptr_t address_len,
-                                       uint16_t port,
-                                       const char *c_username,
-                                       const char *c_password);
-
 char *get_shadowsocks_chipers(void);
 
 /**
