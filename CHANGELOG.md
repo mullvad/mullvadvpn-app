@@ -65,6 +65,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
+- Clarify that restarting the daemon can resolve an app and daemon version mismatch.
 
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is

@@ -787,6 +787,11 @@ msgstr ""
 
 #. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart the app or daemon."
+msgstr ""
+
+#. Description for version list item when app is out of sync.
+msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
@@ -1487,6 +1492,10 @@ msgid "NEW VERSION INSTALLED"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "Please quit and restart the app or daemon."
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr ""
 
@@ -1837,6 +1846,10 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Account is out of time"
+msgstr ""
+
+msgctxt "notifications"
+msgid "App is out of sync. Please quit and restart the app or daemon."
 msgstr ""
 
 msgctxt "notifications"
