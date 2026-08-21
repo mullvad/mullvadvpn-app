@@ -263,23 +263,32 @@ extension IncludeAllNetworksSettingsViewModel {
             return nil
         }
 
-        var message = [
-            String(
-                format:
-                    NSLocalizedString(
-                        "%@ “%@“ requires restarting the VPN connection, which will disconnect "
-                            + "you and briefly expose your traffic. To prevent this, manually enable "
-                            + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
-                enabled ? NSLocalizedString("Enabling", comment: "") : NSLocalizedString("Disabling", comment: ""),
-                NSLocalizedString(feature.rawValue, comment: "")
-            ),
-            String(
-                format: NSLocalizedString("Would you like to continue to %@ “%@”?", comment: ""),
-                enabled ? NSLocalizedString("enable", comment: "") : NSLocalizedString("disable", comment: ""),
-                NSLocalizedString(feature.rawValue, comment: "")
-            ),
-        ]
-
+        var message: [String] = {
+            let firstMessage =
+                if enabled {
+                    String(
+                        format:
+                            NSLocalizedString(
+                                "Enabling “%@“ requires restarting the VPN connection, which will disconnect "
+                                    + "you and briefly expose your traffic. To prevent this, manually enable "
+                                    + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
+                        NSLocalizedString(feature.rawValue, comment: "")
+                    )
+                } else {
+                    String(
+                        format:
+                            NSLocalizedString(
+                                "Disabling “%@“ requires restarting the VPN connection, which will disconnect "
+                                    + "you and briefly expose your traffic. To prevent this, manually enable "
+                                    + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
+                        NSLocalizedString(feature.rawValue, comment: "")
+                    )
+                }
+            return [
+                firstMessage,
+                NSLocalizedString("Would you like to continue?", comment: ""),
+            ]
+        }()
         if !enabled && feature == .includeAllNetworks {
             message.insert(
                 String(

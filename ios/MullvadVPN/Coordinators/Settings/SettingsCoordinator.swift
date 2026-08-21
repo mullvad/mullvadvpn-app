@@ -223,9 +223,13 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         let presentation = AlertPresentation(
             id: "settings-disconnect-warning-alert",
             icon: .alert,
-            message: .Alerts.disconnectWarning(
-                action: NSLocalizedString("changing", comment: ""), feature: NSLocalizedString("language", comment: ""),
-                quoteFeature: false),
+            message: [
+                NSLocalizedString(
+                    "Changing language requires restarting the VPN connection, which will disconnect "
+                        + "you and briefly expose your traffic. To prevent this, manually enable "
+                        + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
+                NSLocalizedString("Would you like to continue?", comment: ""),
+            ].joinedParagraphs(lineBreaks: 1),
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Cancel", comment: ""),
