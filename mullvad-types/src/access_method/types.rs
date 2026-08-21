@@ -49,7 +49,7 @@ pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
     EncryptedDnsProxy,
-    // DomainFronting,
+    DomainFronting,
 }
 
 impl BuiltInAccessMethod {
@@ -58,7 +58,7 @@ impl BuiltInAccessMethod {
             BuiltInAccessMethod::Direct => "Direct".to_string(),
             BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
             BuiltInAccessMethod::EncryptedDnsProxy => "Encrypted DNS proxy".to_string(),
-            // BuiltInAccessMethod::DomainFronting => "Domain fronting".to_string(),
+            BuiltInAccessMethod::DomainFronting => "Domain fronting".to_string(),
         }
     }
 }
