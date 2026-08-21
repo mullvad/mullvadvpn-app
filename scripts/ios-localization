@@ -41,20 +41,36 @@ function prepare_localization_strings {
 }
 
 function upload_to_crowdin {
+  branch=$(git branch --show-current)
+  branch_args=""
+
+  if echo "$branch" | grep -Eq '^ios-release-20[0-9]{2}'; then
+    echo "Found release branch: $branch"
+    branch_args="-b $branch"
+  fi
+
   ensure_crowdin_api_key
   prepare_localization_strings
   log_header "Uploading iOS translations to Crowdin"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin upload sources
-  crowdin upload translations
+  crowdin upload sources $branch_args
+  crowdin upload translations $branch_args
   popd
 }
 
 function download_from_crowdin {
+  branch=$(git branch --show-current)
+  branch_args=""
+
+  if echo "$branch" | grep -Eq '^ios-release-20[0-9]{2}'; then
+    echo "Found release branch: $branch"
+    branch_args="-b $branch"
+  fi
+
   ensure_crowdin_api_key
   log_header "Downloading iOS translations from Crowdin"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin download translations
+  crowdin download translations $branch_args
   popd
   update_ios_strings import
   commit_changes "Import iOS translations"
