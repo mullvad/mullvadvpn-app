@@ -2054,14 +2054,6 @@ open class SwiftAccessMethodSettingsContext: SwiftAccessMethodSettingsContextPro
     }
 
     
-public static func unsafeFromRaw(ptr: UInt64) -> SwiftAccessMethodSettingsContext  {
-    return try!  FfiConverterTypeSwiftAccessMethodSettingsContext_lift(try! rustCall() {
-    uniffi_mullvad_ios_fn_constructor_swiftaccessmethodsettingscontext_unsafe_from_raw(
-        FfiConverterUInt64.lower(ptr),$0
-    )
-})
-}
-    
 
     
 
@@ -3930,9 +3922,6 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_apicontext_new_tls_disabled() != 36862) {
-        return InitializationResult.apiChecksumMismatch
-    }
-    if (uniffi_mullvad_ios_checksum_constructor_swiftaccessmethodsettingscontext_unsafe_from_raw() != 40193) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_gotatuntunnel_start() != 62227) {
