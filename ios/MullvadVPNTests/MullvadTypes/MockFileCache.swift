@@ -20,36 +20,32 @@ final class MockFileCache<Content: Codable & Equatable>: FileCacheProtocol {
 
     /// Returns internal state.
     func getState() -> State {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        return state
+        stateLock.withLock {
+            state
+        }
     }
 
     func read() throws -> Content {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        switch state {
-        case .fileNotFound:
-            throw CocoaError(.fileReadNoSuchFile)
-        case let .exists(content):
-            return content
+        try stateLock.withLock {
+            switch state {
+            case .fileNotFound:
+                throw CocoaError(.fileReadNoSuchFile)
+            case let .exists(content):
+                return content
+            }
         }
     }
 
     func write(_ content: Content) throws {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        state = .exists(content)
+        stateLock.withLock {
+            state = .exists(content)
+        }
     }
 
     func clear() throws {
-        stateLock.lock()
-        defer { stateLock.unlock() }
-
-        state = .fileNotFound
+        stateLock.withLock {
+            state = .fileNotFound
+        }
     }
 
     enum State: Equatable {

@@ -46,6 +46,10 @@ jobs:
         run: |
           brew install zip
 
+      - name: Install ripgrep
+        run: |
+          brew install ripgrep
+
       - name: Run screenshot tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \

@@ -50,6 +50,11 @@ runs:
         brew install protobuf
       shell: bash
 
+    - name: Install ripgrep
+      run: |
+        brew install ripgrep
+      shell: bash
+
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:

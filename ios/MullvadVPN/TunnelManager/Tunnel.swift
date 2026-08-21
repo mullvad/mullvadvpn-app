@@ -80,10 +80,9 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     /// It's set to `distantPast` when the VPN connection was established prior to being observed
     /// by the class.
     var startDate: Date? {
-        lock.lock()
-        defer { lock.unlock() }
-
-        return _startDate
+        lock.withLock {
+            _startDate
+        }
     }
 
     /// Tunnel connection status.
@@ -208,29 +207,25 @@ final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
-        switch status {
-        case .connecting:
-            lock.lock()
-            _startDate = Date()
-            lock.unlock()
+        lock.withLock {
+            switch status {
+            case .connecting:
+                _startDate = Date()
 
-        case .connected, .reasserting:
-            lock.lock()
-            if _startDate == nil {
-                _startDate = .distantPast
+            case .connected, .reasserting:
+                if _startDate == nil {
+                    _startDate = .distantPast
+                }
+
+            case .disconnecting:
+                break
+
+            case .disconnected, .invalid:
+                _startDate = nil
+
+            @unknown default:
+                break
             }
-            lock.unlock()
-
-        case .disconnecting:
-            break
-
-        case .disconnected, .invalid:
-            lock.lock()
-            _startDate = nil
-            lock.unlock()
-
-        @unknown default:
-            break
         }
     }
 

@@ -55,36 +55,34 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func startPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard !isPeriodicUpdatesEnabled else {
+                return
+            }
 
-        guard !isPeriodicUpdatesEnabled else {
-            return
+            logger.debug("Start periodic address cache updates.")
+
+            isPeriodicUpdatesEnabled = true
+
+            let scheduleDate = _nextScheduleDate()
+
+            logger.debug("Schedule address cache update at \(scheduleDate.logFormatted).")
+
+            scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
         }
-
-        logger.debug("Start periodic address cache updates.")
-
-        isPeriodicUpdatesEnabled = true
-
-        let scheduleDate = _nextScheduleDate()
-
-        logger.debug("Schedule address cache update at \(scheduleDate.logFormatted).")
-
-        scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
     }
 
     func stopPeriodicUpdates() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard isPeriodicUpdatesEnabled else { return }
 
-        guard isPeriodicUpdatesEnabled else { return }
+            logger.debug("Stop periodic address cache updates.")
 
-        logger.debug("Stop periodic address cache updates.")
+            isPeriodicUpdatesEnabled = false
 
-        isPeriodicUpdatesEnabled = false
-
-        timer?.cancel()
-        timer = nil
+            timer?.cancel()
+            timer = nil
+        }
     }
 
     func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) {
@@ -93,10 +91,9 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func nextScheduleDate() -> Date {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        return _nextScheduleDate()
+        nslock.withLock {
+            _nextScheduleDate()
+        }
     }
 
     private func scheduleEndpointsUpdate(startTime: DispatchWallTime) {
@@ -113,18 +110,18 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     private func handleTimer() {
-        updateEndpoints { _ in
-            self.nslock.lock()
-            defer { self.nslock.unlock() }
+        updateEndpoints { [weak self] _ in
+            guard let self else { return }
+            self.nslock.withLock {
+                guard self.isPeriodicUpdatesEnabled else { return }
 
-            guard self.isPeriodicUpdatesEnabled else { return }
+                let scheduleDate = self._nextScheduleDate()
 
-            let scheduleDate = self._nextScheduleDate()
+                self.logger
+                    .debug("Schedule next address cache update at \(scheduleDate.logFormatted).")
 
-            self.logger
-                .debug("Schedule next address cache update at \(scheduleDate.logFormatted).")
-
-            self.scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
+                self.scheduleEndpointsUpdate(startTime: .now() + scheduleDate.timeIntervalSinceNow)
+            }
         }
     }
 
@@ -137,8 +134,8 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     private func recordUpdateRequestTime() {
-        nslock.lock()
-        defer { nslock.unlock() }
-        lastUpdateRequestDate = Date()
+        nslock.withLock {
+            lastUpdateRequestDate = Date()
+        }
     }
 }

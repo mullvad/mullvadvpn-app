@@ -59,51 +59,49 @@ private final class ExclusivityManager: @unchecked Sendable {
     private init() {}
 
     func addOperation(_ operation: AsyncOperation, categories: Set<String>) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            for category in categories {
+                var operations = operationsByCategory[category] ?? []
 
-        for category in categories {
-            var operations = operationsByCategory[category] ?? []
+                if let lastOperation = operations.last {
+                    operation.addDependency(lastOperation)
+                }
 
-            if let lastOperation = operations.last {
-                operation.addDependency(lastOperation)
-            }
+                operations.append(operation)
 
-            operations.append(operation)
+                operationsByCategory[category] = operations
 
-            operationsByCategory[category] = operations
-
-            operation.onFinish { [weak self] op, _ in
-                self?.removeOperation(op, categories: categories)
+                operation.onFinish { [weak self] op, _ in
+                    self?.removeOperation(op, categories: categories)
+                }
             }
         }
     }
 
     private func removeOperation(_ operation: Operation, categories: Set<String>) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        for category in categories {
-            guard var operations = operationsByCategory[category] else {
-                continue
-            }
-
-            if let index = operations.firstIndex(of: operation) {
-                // Break the successor's back-pointer so finished operations can be
-                // released immediately. Without this, addDependency chains every op
-                // to its predecessor — under load, releasing the tail triggers a
-                // recursive deinit cascade that overflows the stack.
-                let nextIndex = operations.index(after: index)
-                if nextIndex < operations.endIndex {
-                    operations[nextIndex].removeDependency(operation)
+        nslock.withLock {
+            for category in categories {
+                guard var operations = operationsByCategory[category] else {
+                    continue
                 }
-                operations.remove(at: index)
-            }
 
-            if operations.isEmpty {
-                operationsByCategory.removeValue(forKey: category)
-            } else {
-                operationsByCategory[category] = operations
+                if let index = operations.firstIndex(of: operation) {
+                    // Break the successor's back-pointer so finished operations can be
+                    // released immediately. Without this, addDependency chains every op
+                    // to its predecessor — under load, releasing the tail triggers a
+                    // recursive deinit cascade that overflows the stack.
+                    let nextIndex = operations.index(after: index)
+                    if nextIndex < operations.endIndex {
+                        operations[nextIndex].removeDependency(operation)
+                    }
+                    operations.remove(at: index)
+                }
+
+                if operations.isEmpty {
+                    operationsByCategory.removeValue(forKey: category)
+                } else {
+                    operationsByCategory[category] = operations
+                }
             }
         }
     }

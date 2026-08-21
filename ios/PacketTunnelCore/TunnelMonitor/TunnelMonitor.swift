@@ -74,51 +74,47 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     }
 
     public func start(probeAddress: IPv4Address) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            if case .stopped = state.connectionState {
+                logger.debug("Start with address: \(probeAddress).")
+            } else {
+                _stop(forRestart: true)
+                logger.debug("Restart with address: \(probeAddress).")
+            }
 
-        if case .stopped = state.connectionState {
-            logger.debug("Start with address: \(probeAddress).")
-        } else {
-            _stop(forRestart: true)
-            logger.debug("Restart with address: \(probeAddress).")
+            self.probeAddress = probeAddress
+            state.connectionState = .pendingStart
+
+            startMonitoring()
         }
-
-        self.probeAddress = probeAddress
-        state.connectionState = .pendingStart
-
-        startMonitoring()
     }
 
     public func stop() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        _stop()
+        nslock.withLock {
+            _stop()
+        }
     }
 
     public func onWake() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            logger.trace("Wake up.")
 
-        logger.trace("Wake up.")
+            switch state.connectionState {
+            case .connecting, .connected:
+                startConnectivityCheckTimer()
 
-        switch state.connectionState {
-        case .connecting, .connected:
-            startConnectivityCheckTimer()
-
-        case .waitingConnectivity, .pendingStart, .stopped, .recovering:
-            break
+            case .waitingConnectivity, .pendingStart, .stopped, .recovering:
+                break
+            }
         }
     }
 
     public func onSleep() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            logger.trace("Prepare to sleep.")
 
-        logger.trace("Prepare to sleep.")
-
-        stopConnectivityCheckTimer()
+            stopConnectivityCheckTimer()
+        }
     }
 
     public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {
@@ -173,54 +169,53 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     }
 
     private func checkConnectivity() {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard let newStats = getStats(),
+                state.connectionState == .connecting || state.connectionState == .connected
+            else { return }
 
-        guard let newStats = getStats(),
-            state.connectionState == .connecting || state.connectionState == .connected
-        else { return }
+            // Check if counters were reset.
+            let isStatsReset =
+                newStats.bytesReceived < state.netStats.bytesReceived || newStats.bytesSent < state.netStats.bytesSent
 
-        // Check if counters were reset.
-        let isStatsReset =
-            newStats.bytesReceived < state.netStats.bytesReceived || newStats.bytesSent < state.netStats.bytesSent
-
-        guard !isStatsReset else {
-            logger.trace("Stats was being reset.")
-            state.netStats = newStats
-            return
-        }
-
-        #if DEBUG
-            logCounters(currentStats: state.netStats, newStats: newStats)
-        #endif
-
-        let now = Date()
-        state.updateNetStats(newStats: newStats, now: now)
-
-        let timeout = state.getPingTimeout()
-        let evaluation = state.evaluateConnection(now: now, pingTimeout: timeout)
-
-        if evaluation != .ok {
-            logger.trace("Evaluation: \(evaluation)")
-        }
-
-        switch evaluation {
-        case .ok:
-            break
-
-        case .pingTimeout:
-            startConnectionRecovery()
-
-        case .suspendHeartbeat:
-            state.isHeartbeatSuspended = true
-
-        case .sendHeartbeatPing, .retryHeartbeatPing, .sendNextPing, .sendInitialPing,
-            .inboundTrafficTimeout, .trafficTimeout:
-            if state.isHeartbeatSuspended {
-                state.isHeartbeatSuspended = false
-                state.timeoutReference = now
+            guard !isStatsReset else {
+                logger.trace("Stats was being reset.")
+                state.netStats = newStats
+                return
             }
-            sendPing(now: now)
+
+            #if DEBUG
+                logCounters(currentStats: state.netStats, newStats: newStats)
+            #endif
+
+            let now = Date()
+            state.updateNetStats(newStats: newStats, now: now)
+
+            let timeout = state.getPingTimeout()
+            let evaluation = state.evaluateConnection(now: now, pingTimeout: timeout)
+
+            if evaluation != .ok {
+                logger.trace("Evaluation: \(evaluation)")
+            }
+
+            switch evaluation {
+            case .ok:
+                break
+
+            case .pingTimeout:
+                startConnectionRecovery()
+
+            case .suspendHeartbeat:
+                state.isHeartbeatSuspended = true
+
+            case .sendHeartbeatPing, .retryHeartbeatPing, .sendNextPing, .sendInitialPing,
+                .inboundTrafficTimeout, .trafficTimeout:
+                if state.isHeartbeatSuspended {
+                    state.isHeartbeatSuspended = false
+                    state.timeoutReference = now
+                }
+                sendPing(now: now)
+            }
         }
     }
 
@@ -262,36 +257,35 @@ public final class TunnelMonitor: TunnelMonitorProtocol, @unchecked Sendable {
     }
 
     private func didReceivePing(from sender: IPAddress, sequenceNumber: UInt16) {
-        nslock.lock()
-        defer { nslock.unlock() }
+        nslock.withLock {
+            guard let probeAddress else { return }
 
-        guard let probeAddress else { return }
+            if sender.rawValue != probeAddress.rawValue {
+                logger.trace("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
+            }
 
-        if sender.rawValue != probeAddress.rawValue {
-            logger.trace("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
-        }
+            let now = Date()
+            guard let pingTimestamp = state.setPingReplyReceived(sequenceNumber, now: now) else {
+                logger.trace("Got unknown ping sequence: \(sequenceNumber).")
+                return
+            }
 
-        let now = Date()
-        guard let pingTimestamp = state.setPingReplyReceived(sequenceNumber, now: now) else {
-            logger.trace("Got unknown ping sequence: \(sequenceNumber).")
-            return
-        }
+            logger.trace(
+                {
+                    let time = now.timeIntervalSince(pingTimestamp) * 1000
+                    let message = String(
+                        format: "Received reply icmp_seq=%d, time=%.2f ms.",
+                        sequenceNumber,
+                        time
+                    )
+                    return Logger.Message(stringLiteral: message)
+                }())
 
-        logger.trace(
-            {
-                let time = now.timeIntervalSince(pingTimestamp) * 1000
-                let message = String(
-                    format: "Received reply icmp_seq=%d, time=%.2f ms.",
-                    sequenceNumber,
-                    time
-                )
-                return Logger.Message(stringLiteral: message)
-            }())
-
-        if case .connecting = state.connectionState {
-            state.connectionState = .connected
-            state.retryAttempt = 0
-            sendConnectionEstablishedEvent()
+            if case .connecting = state.connectionState {
+                state.connectionState = .connected
+                state.retryAttempt = 0
+                sendConnectionEstablishedEvent()
+            }
         }
     }
 

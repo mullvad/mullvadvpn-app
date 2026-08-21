@@ -18,87 +18,80 @@
         private let lock = NSLock()
         private var tunnelInfo: SimulatorTunnelInfo
         private var identifier: String {
-            lock.lock()
-            defer { lock.unlock() }
-
-            return tunnelInfo.identifier
+            lock.withLock {
+                tunnelInfo.identifier
+            }
         }
 
         var isOnDemandEnabled: Bool {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return tunnelInfo.isOnDemandEnabled
+                lock.withLock {
+                    tunnelInfo.isOnDemandEnabled
+                }
             }
             set {
-                lock.lock()
-                tunnelInfo.isOnDemandEnabled = newValue
-                lock.unlock()
+                lock.withLock {
+                    tunnelInfo.isOnDemandEnabled = newValue
+                }
             }
         }
 
         var onDemandRules: [NEOnDemandRule] {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return tunnelInfo.onDemandRules
+                lock.withLock {
+                    tunnelInfo.onDemandRules
+                }
             }
             set {
-                lock.lock()
-                tunnelInfo.onDemandRules = newValue
-                lock.unlock()
+                lock.withLock {
+                    tunnelInfo.onDemandRules = newValue
+                }
             }
         }
 
         var isEnabled: Bool {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return tunnelInfo.isEnabled
+                lock.withLock {
+                    tunnelInfo.isEnabled
+                }
             }
             set {
-                lock.lock()
-                tunnelInfo.isEnabled = newValue
-                lock.unlock()
+                lock.withLock {
+                    tunnelInfo.isEnabled = newValue
+                }
             }
         }
 
         var protocolConfiguration: NEVPNProtocol? {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return tunnelInfo.protocolConfiguration
+                lock.withLock {
+                    tunnelInfo.protocolConfiguration
+                }
             }
             set {
-                lock.lock()
-                tunnelInfo.protocolConfiguration = newValue
-                lock.unlock()
+                lock.withLock {
+                    tunnelInfo.protocolConfiguration = newValue
+                }
             }
         }
 
         var localizedDescription: String? {
             get {
-                lock.lock()
-                defer { lock.unlock() }
-
-                return tunnelInfo.localizedDescription
+                lock.withLock {
+                    return tunnelInfo.localizedDescription
+                }
             }
             set {
-                lock.lock()
-                tunnelInfo.localizedDescription = newValue
-                lock.unlock()
+                lock.withLock {
+                    tunnelInfo.localizedDescription = newValue
+                }
             }
         }
 
         var connection: SimulatorVPNConnection {
-            lock.lock()
-            defer { lock.unlock() }
-
-            return tunnelInfo.connection
+            lock.withLock {
+                tunnelInfo.connection
+            }
         }
 
         static func loadAllFromPreferences(
@@ -107,12 +100,11 @@
                 Error?
             ) -> Void
         ) {
-            Self.tunnelsLock.lock()
-            let tunnelProviders = tunnels.map { tunnelInfo in
-                SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
+            let tunnelProviders = Self.tunnelsLock.withLock {
+                tunnels.map { tunnelInfo in
+                    SimulatorTunnelProviderManager(tunnelInfo: tunnelInfo)
+                }
             }
-            Self.tunnelsLock.unlock()
-
             completionHandler(tunnelProviders, nil)
         }
 
@@ -136,45 +128,39 @@
         func loadFromPreferences(completionHandler: (Error?) -> Void) {
             var error: NEVPNError?
 
-            Self.tunnelsLock.lock()
-
-            if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
-                tunnelInfo = savedTunnel
-            } else {
-                error = NEVPNError(.configurationInvalid)
+            Self.tunnelsLock.withLock {
+                if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
+                    tunnelInfo = savedTunnel
+                } else {
+                    error = NEVPNError(.configurationInvalid)
+                }
             }
-
-            Self.tunnelsLock.unlock()
 
             completionHandler(error)
         }
 
         func saveToPreferences(completionHandler: ((Error?) -> Void)?) {
-            Self.tunnelsLock.lock()
+            Self.tunnelsLock.withLock {
+                if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
+                    Self.tunnels[index] = tunnelInfo
+                } else {
+                    Self.tunnels.append(tunnelInfo)
+                }
 
-            if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                Self.tunnels[index] = tunnelInfo
-            } else {
-                Self.tunnels.append(tunnelInfo)
             }
-
-            Self.tunnelsLock.unlock()
-
             completionHandler?(nil)
         }
 
         func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {
             var error: NEVPNError?
 
-            Self.tunnelsLock.lock()
-
-            if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                Self.tunnels.remove(at: index)
-            } else {
-                error = NEVPNError(.configurationReadWriteFailed)
+            Self.tunnelsLock.withLock {
+                if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
+                    Self.tunnels.remove(at: index)
+                } else {
+                    error = NEVPNError(.configurationReadWriteFailed)
+                }
             }
-
-            Self.tunnelsLock.unlock()
 
             completionHandler?(error)
         }

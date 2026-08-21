@@ -69,45 +69,45 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     /// Operation state.
     @objc private var state: State {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-            return _state
+            stateLock.withLock {
+                _state
+            }
         }
         set(newState) {
             willChangeValue(for: \.state)
-            stateLock.lock()
-            assert(_state < newState)
-            _state = newState
-            stateLock.unlock()
+            stateLock.withLock {
+                assert(_state < newState)
+                _state = newState
+            }
             didChangeValue(for: \.state)
         }
     }
 
     private var _isCancelled: Bool {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-            return __isCancelled
+            stateLock.withLock {
+                __isCancelled
+            }
         }
         set {
             willChangeValue(for: \.isCancelled)
-            stateLock.lock()
-            __isCancelled = newValue
-            stateLock.unlock()
+            stateLock.withLock {
+                __isCancelled = newValue
+            }
             didChangeValue(for: \.isCancelled)
         }
     }
 
     private var _error: Error? {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-            return __error
+            stateLock.withLock {
+                __error
+            }
         }
         set {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-            __error = newValue
+            stateLock.withLock {
+                __error = newValue
+            }
         }
     }
 
@@ -116,25 +116,24 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     }
 
     dynamic override public final var isReady: Bool {
-        stateLock.lock()
-        defer { stateLock.unlock() }
+        stateLock.withLock {
+            // super.isReady should turn true when all dependencies are satisfied.
+            guard super.isReady else {
+                return false
+            }
 
-        // super.isReady should turn true when all dependencies are satisfied.
-        guard super.isReady else {
-            return false
-        }
+            // Mark operation ready when cancelled, so that operation queue could flush it faster.
+            guard !__isCancelled else {
+                return true
+            }
 
-        // Mark operation ready when cancelled, so that operation queue could flush it faster.
-        guard !__isCancelled else {
-            return true
-        }
+            switch _state {
+            case .initialized, .pending, .evaluatingConditions:
+                return false
 
-        switch _state {
-        case .initialized, .pending, .evaluatingConditions:
-            return false
-
-        case .ready, .executing, .finished:
-            return true
+            case .ready, .executing, .finished:
+                return true
+            }
         }
     }
 
@@ -159,17 +158,16 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     private var _observers: [OperationObserver] = []
 
     public final var observers: [OperationObserver] {
-        operationLock.lock()
-        defer { operationLock.unlock() }
-
-        return _observers
+        operationLock.withLock {
+            _observers
+        }
     }
 
     public final func addObserver(_ observer: OperationObserver) {
-        operationLock.lock()
-        assert(state < .executing)
-        _observers.append(observer)
-        operationLock.unlock()
+        operationLock.withLock {
+            assert(state < .executing)
+            _observers.append(observer)
+        }
         observer.didAttach(to: self)
     }
 
@@ -178,17 +176,16 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     private var _conditions: [OperationCondition] = []
 
     public final var conditions: [OperationCondition] {
-        operationLock.lock()
-        defer { operationLock.unlock() }
-        return _conditions
+        operationLock.withLock {
+            _conditions
+        }
     }
 
     public func addCondition(_ condition: OperationCondition) {
-        operationLock.lock()
-        defer { operationLock.unlock() }
-
-        assert(state < .evaluatingConditions)
-        _conditions.append(condition)
+        operationLock.withLock {
+            assert(state < .evaluatingConditions)
+            _conditions.append(condition)
+        }
     }
 
     private func evaluateConditions() {
@@ -218,17 +215,16 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     }
 
     private func didEvaluateConditions(_ results: [Bool]) {
-        operationLock.lock()
-        defer { operationLock.unlock() }
+        operationLock.withLock {
+            guard state < .ready else { return }
 
-        guard state < .ready else { return }
+            let conditionsSatisfied = results.allSatisfy { $0 }
+            if !conditionsSatisfied {
+                cancel()
+            }
 
-        let conditionsSatisfied = results.allSatisfy { $0 }
-        if !conditionsSatisfied {
-            cancel()
+            state = .ready
         }
-
-        state = .ready
     }
 
     // MARK: -
@@ -302,19 +298,19 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     }
 
     override public final func cancel() {
-        operationLock.lock()
-        if !_isCancelled {
-            _isCancelled = true
+        operationLock.withLock {
+            if !_isCancelled {
+                _isCancelled = true
 
-            // Notify observers only when executing, otherwise `_start()` will take care of doing this as soon
-            // as operation is ready to execute.
-            if state == .executing {
-                dispatchQueue.async {
-                    self.notifyCancellation()
+                // Notify observers only when executing, otherwise `_start()` will take care of doing this as soon
+                // as operation is ready to execute.
+                if state == .executing {
+                    dispatchQueue.async {
+                        self.notifyCancellation()
+                    }
                 }
             }
         }
-        operationLock.unlock()
 
         super.cancel()
     }
@@ -339,35 +335,32 @@ open class AsyncOperation: Operation, @unchecked Sendable {
     // MARK: - Private
 
     internal func didEnqueue() {
-        operationLock.lock()
-        defer { operationLock.unlock() }
+        operationLock.withLock {
+            guard state == .initialized else {
+                return
+            }
 
-        guard state == .initialized else {
-            return
+            state = .pending
         }
-
-        state = .pending
     }
 
     private func checkReadiness() {
-        operationLock.lock()
-        defer { operationLock.unlock() }
-
-        if state == .pending, !_isCancelled, super.isReady {
-            evaluateConditions()
+        operationLock.withLock {
+            if state == .pending, !_isCancelled, super.isReady {
+                evaluateConditions()
+            }
         }
     }
 
     private func tryFinish(error: Error?) -> Bool {
-        operationLock.lock()
-        defer { operationLock.unlock() }
+        operationLock.withLock {
+            guard state < .finished else { return false }
 
-        guard state < .finished else { return false }
+            _error = error
+            state = .finished
 
-        _error = error
-        state = .finished
-
-        return true
+            return true
+        }
     }
 
     private func notifyCancellation() {

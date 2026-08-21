@@ -3327,7 +3327,6 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
-				449EBA242B975B7C00DFA4EB /* Protocols */,
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
@@ -3360,6 +3359,7 @@
 				586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */,
 				44EC6C592E3BB3EF0087F54A /* PersistentProxyConfiguration.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
+				449EBA242B975B7C00DFA4EB /* Protocols */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */,
@@ -5602,6 +5602,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E72224146210008646E /* Build configuration list for PBXNativeTarget "MullvadVPN" */;
 			buildPhases = (
+				A938DC0F302E0B27005AF92F /* Disable NSLock usage */,
 				580E3F212A9860F20061809D /* Run SwiftLint */,
 				58CE5E5C224146200008646E /* Sources */,
 				58CE5E5D224146200008646E /* Frameworks */,
@@ -6216,6 +6217,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "./format.sh lint\n";
+		};
+		A938DC0F302E0B27005AF92F /* Disable NSLock usage */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Disable NSLock usage";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n./disable_nslock.sh ${SRCROOT}\n";
 		};
 		A93969802CE603110032A7A0 /* Import maybenot_machines */ = {
 			isa = PBXShellScriptBuildPhase;
