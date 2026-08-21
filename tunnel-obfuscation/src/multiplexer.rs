@@ -16,12 +16,15 @@
 //! 5. **Connection Establishment**: Once a transport is selected, the multiplexer switches to a
 //!    direct forwarding mode between WireGuard and the selected transport
 //!
+//! Transports are driven through [ObfuscatedTransport], so their packets never leave the process
+//! on their way to being obfuscated.
+//!
 //! ## Transport Types
 //!
 //! See the [Transport] enum.
 
 use std::{
-    collections::{BTreeMap, VecDeque},
+    collections::VecDeque,
     io,
     net::{Ipv4Addr, SocketAddr},
     sync::Arc,
@@ -29,16 +32,24 @@ use std::{
 };
 
 use async_trait::async_trait;
-use talpid_net::bypass::{BypassSocket, SocketBypass};
+use futures::{StreamExt, stream::FuturesUnordered};
+use talpid_net::bypass::SocketBypass;
 use tokio::{net::UdpSocket, sync::oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
-use crate::socket::create_remote_socket;
+use crate::{
+    direct::Direct,
+    transport::{MAX_DATAGRAM_SIZE, ObfuscatedTransport},
+};
 
-const MAX_DATAGRAM_SIZE: usize = u16::MAX as usize;
+/// How long to wait before spawning the next transport in the queue.
+const SPAWN_INTERVAL: Duration = Duration::from_secs(1);
 
 /// Max number of initial outgoing packets to buffer for replaying to new transports
 const MAX_INITIAL_PACKETS: usize = 100;
+
+/// Index of a transport in the set of running transports.
+type TransportId = usize;
 
 /// An obfuscator that manages multiple other obfuscators and automatically
 /// selects the first one that successfully establishes a connection.
@@ -48,41 +59,23 @@ const MAX_INITIAL_PACKETS: usize = 100;
 /// 2. **Connected Phase**: Once a transport responds, switch to forwarding to that transport only
 pub struct Multiplexer {
     /// Local UDP socket that WireGuard connects to
-    client_socket: Arc<UdpSocket>,
+    client_socket: UdpSocket,
     /// Address of the client socket that WireGuard should connect to
     client_socket_addr: SocketAddr,
-    /// IPv4 socket for communicating with obfuscation proxies
-    proxy_socket_v4: Arc<BypassSocket<UdpSocket>>,
-    /// IPv6 socket for communicating with obfuscation proxies
-    proxy_socket_v6: Arc<BypassSocket<UdpSocket>>,
-    /// Map of currently active transport endpoints and their configurations
-    running_endpoints: BTreeMap<SocketAddr, RunningTransport>,
     /// Queue of transports to spawn (in priority order)
-    transports: VecDeque<Transport>,
-    /// Buffer of initial packets received from WireGuard to replay to new transports
-    initial_packets_to_send: Vec<Vec<u8>>,
-    /// Address of WG endpoint socket
-    wg_addr: Option<SocketAddr>,
+    pending: VecDeque<Transport>,
     /// Notified with the selected transport
-    selected_transport_tx: Option<SelectedTransportTx>,
+    selected_transport_tx: SelectedTransportTx,
     bypass: Arc<dyn SocketBypass>,
 }
 
 /// A transport that has been spawned and is being fanned out to.
 struct RunningTransport {
-    transport: Transport,
-    /// Handle to the task running the obfuscator. `None` for [`Transport::Direct`], which needs
-    /// no obfuscator. Only held so that dropping it aborts the obfuscator.
-    #[expect(dead_code)]
-    task: Option<AbortOnDropHandle<()>>,
-}
-
-/// The transport that the multiplexer has committed to, and the peer it forwards traffic for.
-struct Selection {
-    /// Address of the local WireGuard instance
-    wg_addr: SocketAddr,
-    /// Local address of the selected obfuscator
-    proxy_addr: SocketAddr,
+    /// The configuration this transport was spawned from. Announced if it is selected.
+    config: Transport,
+    transport: Arc<dyn ObfuscatedTransport>,
+    /// Buffer that this transport deobfuscates received packets into.
+    buf: Box<[u8]>,
 }
 
 impl Multiplexer {
@@ -102,307 +95,242 @@ impl Multiplexer {
             .local_addr()
             .map_err(crate::Error::BindLocalUdp)?;
 
-        let proxy_socket_v4 = create_remote_socket(&bypass, true).await?;
-        let proxy_socket_v6 = create_remote_socket(&bypass, false).await?;
-
         Ok(Self {
-            client_socket: Arc::new(client_socket),
+            client_socket,
             client_socket_addr,
-            proxy_socket_v4: Arc::new(proxy_socket_v4),
-            proxy_socket_v6: Arc::new(proxy_socket_v6),
-            running_endpoints: BTreeMap::new(),
-            transports: VecDeque::from(settings.transports.clone()),
-            initial_packets_to_send: vec![],
-            wg_addr: None,
-            selected_transport_tx: Some(settings.selected_transport),
+            pending: VecDeque::from(settings.transports),
+            selected_transport_tx: settings.selected_transport,
             bypass,
         })
     }
 
-    fn proxy_for_addr(&self, addr: SocketAddr) -> &Arc<BypassSocket<UdpSocket>> {
-        if addr.is_ipv4() {
-            &self.proxy_socket_v4
-        } else {
-            &self.proxy_socket_v6
-        }
-    }
-
-    /// Start the multiplexer in discovery mode.
+    /// Run the multiplexer: discover a working transport, then forward traffic over it.
     ///
-    /// Run the main event loop:
-    /// 1. Receive packets from WireGuard and fan them out to all active transports
-    /// 2. Receive responses from obfuscation proxies
-    /// 3. Spawn new transports at timed intervals
-    /// 4. Switch to connected mode when the first transport responds successfully
-    async fn start(mut self) -> io::Result<()> {
+    /// Blocks until WireGuard sends its first packet, and then until the connection fails.
+    async fn start(self) -> io::Result<()> {
         log::debug!("Running multiplexer obfuscation");
 
-        let Some(selection) = self.run_discovery().await? else {
+        let Self {
+            client_socket,
+            pending,
+            selected_transport_tx,
+            bypass,
+            ..
+        } = self;
+
+        // Wait for WireGuard's first packet so that we know where to send replies.
+        let wg_addr = client_socket.peek_sender().await?;
+        client_socket.connect(wg_addr).await?;
+        log::debug!("Local WireGuard instance connected from {wg_addr}");
+
+        let discovery = run_discovery(&client_socket, pending, bypass, selected_transport_tx);
+        let Some(transport) = discovery.await? else {
             return Ok(());
         };
 
-        // Stop all transports but the selected one.
-        self.running_endpoints
-            .retain(|addr, _| *addr == selection.proxy_addr);
-
-        self.run_connected(selection.wg_addr, selection.proxy_addr)
-            .await
+        run_connected(client_socket, transport).await
     }
+}
 
-    /// Fan traffic out to all transports until one of them responds.
-    ///
-    /// Returns the selected transport, or `None` if the local WireGuard instance went away before
-    /// any transport was selected.
-    async fn run_discovery(&mut self) -> io::Result<Option<Selection>> {
-        let mut wg_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
-        let mut obfs_recv_v4_buf = vec![0u8; MAX_DATAGRAM_SIZE];
-        let mut obfs_recv_v6_buf = vec![0u8; MAX_DATAGRAM_SIZE];
+/// Fan traffic out to all transports until one of them responds.
+///
+/// Run the main event loop:
+/// 1. Receive packets from WireGuard and fan them out to all active transports
+/// 2. Receive responses from the transports
+/// 3. Spawn new transports at timed intervals
+///
+/// Returns the selected transport, or `None` if the local WireGuard instance went away before any
+/// transport was selected.
+async fn run_discovery(
+    client_socket: &UdpSocket,
+    mut pending: VecDeque<Transport>,
+    bypass: Arc<dyn SocketBypass>,
+    selected_transport_tx: SelectedTransportTx,
+) -> io::Result<Option<Arc<dyn ObfuscatedTransport>>> {
+    let mut running: Vec<RunningTransport> = vec![];
+    let mut initial_packets: Vec<Box<[u8]>> = vec![];
 
-        let mut delay = tokio::time::interval(Duration::from_secs(1));
+    let mut wg_buf = vec![0u8; MAX_DATAGRAM_SIZE];
+    // Scratch space for fanning out, since transports obfuscate in place and would otherwise
+    // clobber the packet for everyone that comes after them.
+    let mut scratch = vec![0u8; MAX_DATAGRAM_SIZE];
 
-        /// Helper to fan out a packet to all currently running endpoints
-        async fn send_to_all<'a>(
-            endpoints: &BTreeMap<SocketAddr, RunningTransport>,
-            get_socket: impl Fn(SocketAddr) -> &'a Arc<BypassSocket<UdpSocket>>,
-            packet: &[u8],
-        ) {
-            let mut futs = vec![];
-            for &addr in endpoints.keys() {
-                let udp = get_socket(addr);
-                futs.push(async move {
-                    log::info!("Sending received packet to proxy {addr}");
-                    if let Err(err) = udp.send_to(packet, addr).await {
-                        log::error!("Failed to send received packet to proxy {addr}: {err}");
-                    } else {
-                        log::info!("Successfully sent traffic to obfuscator {addr}");
-                    }
-                });
+    let mut spawn_timer = tokio::time::interval(SPAWN_INTERVAL);
+
+    loop {
+        let event = tokio::select! {
+            // From local WG
+            result = client_socket.recv(&mut wg_buf) => Event::Wireguard(result),
+
+            // From any running transport
+            (id, result) = recv_any(&mut running) => Event::Transport(id, result),
+
+            // Spawning the next transport
+            _ = spawn_timer.tick() => Event::Spawn,
+        };
+
+        match event {
+            Event::Wireguard(Err(err)) => {
+                log::error!("Failed to receive traffic from local WireGuard instance: {err}");
+                return Ok(None);
             }
-            futures::future::join_all(futs).await;
-        }
+            Event::Wireguard(Ok(n)) => {
+                let packet = &wg_buf[..n];
 
-        loop {
-            tokio::select! {
-                // From local WG
-                socket_recv = self.client_socket.recv_from(&mut wg_recv_buf) => {
-                    match socket_recv {
-                        Ok((bytes_received, from_addr)) => {
-                            if let Some(prev_addr) = self.wg_addr && prev_addr != from_addr {
-                                log::debug!(
-                                    "WireGuard endpoint address changed from {prev_addr} to {from_addr}"
-                                );
-                            }
-                            self.wg_addr = Some(from_addr);
-                            let pkt = &wg_recv_buf[..bytes_received];
+                if initial_packets.len() >= MAX_INITIAL_PACKETS {
+                    // Initial packets should be handshake initiation packets, so we
+                    // should not end up here if there's some reasonable timeout.
+                    // If we do, fail so we don't use excessive memory.
+                    return Err(io::Error::other("Too many initial packets"));
+                }
+                initial_packets.push(Box::from(packet));
 
-                            if self.initial_packets_to_send.len() >= MAX_INITIAL_PACKETS {
-                                // Initial packets should be handshake initiation packets, so we
-                                // should not end up here if there's some reasonable timeout.
-                                // If we do, fail so we don't use excessive memory.
-                                return Err(io::Error::other("Too many initial packets"));
-                            }
-
-                            self.initial_packets_to_send.push(pkt.to_vec());
-
-                            // Fan out latest WG packet to all currently spawned endpoints.
-                            send_to_all(
-                                &self.running_endpoints,
-                                |addr| self.proxy_for_addr(addr),
-                                pkt
-                            ).await;
-                        },
-                        Err(err) => {
-                            log::error!("Failed to receive traffic from local WireGuard instance: {err}");
-                            return Ok(None);
-                        }
-                    }
-                },
-
-                // From any IPv4 proxy
-                obfuscator_recv = self.proxy_socket_v4.recv_from(&mut obfs_recv_v4_buf) => {
-                    if let Some(selection) = self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v4_buf[..n], addr))).await? {
-                        return Ok(Some(selection));
-                    }
-                },
-
-                // From any IPv6 proxy
-                obfuscator_recv = self.proxy_socket_v6.recv_from(&mut obfs_recv_v6_buf) => {
-                    if let Some(selection) = self.process_obfuscator_recv(obfuscator_recv.map(|(n, addr)| (&obfs_recv_v6_buf[..n], addr))).await? {
-                        return Ok(Some(selection));
-                    }
-                },
-
-                // Spawning the next transport
-                _ = delay.tick() => {
-                    let Some(transport) = self.transports.pop_front() else { continue; };
-                    if let Err(err) = self.spawn_new_transport(transport).await {
-                        log::error!("Failed to spawn new transport: {err}");
+                // Fan out the latest WG packet to all currently spawned transports.
+                for (id, running) in running.iter().enumerate() {
+                    scratch[..n].copy_from_slice(packet);
+                    if let Err(err) = running.transport.send(&mut scratch[..n]).await {
+                        log::error!("Failed to send packet to transport {id}: {err}");
                     }
                 }
             }
-        }
-    }
 
-    /// Handler for packets received from any proxy.
-    ///
-    /// If received bytes were forwarded from an obfuscator back to wireguard, this indicates that
-    /// a handshake response was received (hopefully) and that we should switch to connected mode.
-    ///
-    /// Returns the selected transport if the received packet selected one.
-    async fn process_obfuscator_recv(
-        &mut self,
-        obfuscator_recv: io::Result<(&[u8], SocketAddr)>,
-    ) -> io::Result<Option<Selection>> {
-        match obfuscator_recv {
-            Ok((received, obfuscator_addr)) => {
-                let Some(running) = self.running_endpoints.get(&obfuscator_addr) else {
-                    log::trace!("Ignoring data from unexpected address {obfuscator_addr}");
-                    return Ok(None);
-                };
-                let Some(wg_addr) = self.wg_addr else {
-                    log::trace!(
-                        "Received data from {obfuscator_addr} before receiving any data from WireGuard"
-                    );
-                    return Ok(None);
-                };
+            Event::Transport(id, Err(err)) => {
+                // A single failing transport is not fatal; the others may still connect.
+                log::error!("Dropping transport {id}, which failed to receive traffic: {err}");
+                running.remove(id);
+            }
+            Event::Transport(id, Ok(n)) => {
+                // A response means this transport reached the server, so use it from now on.
+                let selected = running.swap_remove(id);
                 log::debug!(
-                    "Selecting {:?} as valid transport configuration via {obfuscator_addr}",
-                    running.transport
+                    "Selecting {:?} as the valid transport configuration",
+                    selected.config
                 );
+                client_socket.send(&selected.buf[..n]).await?;
 
-                let transport = running.transport.clone();
-                // Announce selected transport
-                let tx = self
-                    .selected_transport_tx
-                    .take()
-                    .expect("announce only once");
-                let _ = tx.send(transport);
+                // Announce the selected transport, so that the firewall can be restricted to
+                // the endpoint it committed to.
+                let _ = selected_transport_tx.send(selected.config);
 
-                let _ = self.client_socket.send_to(received, wg_addr).await;
-                Ok(Some(Selection {
-                    wg_addr,
-                    proxy_addr: obfuscator_addr,
-                }))
+                // Dropping the losers aborts whatever they have running.
+                drop(running);
+
+                return Ok(Some(selected.transport));
             }
-            Err(err) => {
-                log::error!("Failed to receive traffic from obfuscators: {err}");
-                Err(err)
-            }
-        }
-    }
 
-    /// Switch to connected mode after a transport has been successfully selected.
-    ///
-    /// In this mode, the multiplexer acts as a simple UDP proxy between WireGuard
-    /// and the selected obfuscation transport.
-    ///
-    /// # Arguments
-    /// * `local_address` - Address of the local WireGuard instance
-    /// * `proxy_address` - Address of the selected obfuscation proxy
-    async fn run_connected(
-        &self,
-        local_address: SocketAddr,
-        proxy_address: SocketAddr,
-    ) -> io::Result<()> {
-        let mut wg_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
-        let mut obfuscator_recv_buf = vec![0u8; MAX_DATAGRAM_SIZE];
-
-        self.client_socket
-            .connect(local_address)
-            .await
-            .inspect_err(|err| {
-                log::error!("Failed to connect client socket: {err}");
-            })?;
-
-        let proxy_socket = self.proxy_for_addr(proxy_address).clone();
-
-        let tx_client_socket = self.client_socket.clone();
-        let tx_proxy_socket = proxy_socket.clone();
-
-        let tx_task = tokio::spawn(async move {
-            loop {
-                let n = tx_client_socket.recv(&mut wg_recv_buf).await?;
-                tx_proxy_socket
-                    .send_to(&wg_recv_buf[..n], proxy_address)
-                    .await?;
-            }
-        });
-        let mut tx_task = AbortOnDropHandle::new(tx_task);
-        let client_socket = self.client_socket.clone();
-
-        let rx_task = tokio::spawn(async move {
-            loop {
-                let (n, src) = proxy_socket.recv_from(&mut obfuscator_recv_buf).await?;
-                if src != proxy_address {
-                    log::trace!("Ignoring data from unselected obfuscator {src}");
+            Event::Spawn => {
+                let Some(config) = pending.pop_front() else {
                     continue;
+                };
+                match spawn_transport(&bypass, config.clone()).await {
+                    Ok(transport) => {
+                        send_initial_packets(&transport, &initial_packets, &mut scratch).await;
+                        running.push(RunningTransport {
+                            config,
+                            transport,
+                            buf: vec![0u8; MAX_DATAGRAM_SIZE].into_boxed_slice(),
+                        });
+                    }
+                    Err(err) => log::error!("Failed to spawn new transport: {err}"),
                 }
-                client_socket.send(&obfuscator_recv_buf[..n]).await?;
-            }
-        });
-        let mut rx_task = AbortOnDropHandle::new(rx_task);
-
-        tokio::select! {
-            Ok(result) = &mut tx_task => result,
-            Ok(result) = &mut rx_task => result,
-            else => Ok(()),
-        }
-    }
-
-    /// Spawn a new obfuscation transport and add it to the active set.
-    ///
-    /// For direct transports, simply register the endpoint. For obfuscated
-    /// transports, start the obfuscation process in a background task.
-    ///
-    /// # Arguments
-    /// * `transport` - The obfuscation type to spawn
-    async fn spawn_new_transport(&mut self, transport: Transport) -> crate::Result<()> {
-        let endpoint = match transport.clone() {
-            Transport::Direct(addr) => {
-                self.running_endpoints.insert(
-                    addr,
-                    RunningTransport {
-                        transport,
-                        task: None,
-                    },
-                );
-                log::info!("Spawning direct forwarder");
-                Ok(addr)
-            }
-            Transport::Obfuscated(obfuscator_settings) => {
-                let obfuscator = crate::create_local_socket_obfuscator_with_bypass(
-                    Arc::clone(&self.bypass),
-                    &obfuscator_settings,
-                )
-                .await?;
-                let endpoint = obfuscator.endpoint();
-                let task = AbortOnDropHandle::new(tokio::spawn(async move {
-                    log::info!("Spawning new obfuscator");
-                    let _ = obfuscator.run().await;
-                }));
-                self.running_endpoints.insert(
-                    endpoint,
-                    RunningTransport {
-                        transport: Transport::Obfuscated(obfuscator_settings),
-                        task: Some(task),
-                    },
-                );
-                Ok(endpoint)
-            }
-        }?;
-
-        self.send_initial_packets_to(endpoint).await;
-
-        Ok(())
-    }
-
-    async fn send_initial_packets_to(&self, endpoint: SocketAddr) {
-        let udp = self.proxy_for_addr(endpoint);
-        for packet in &self.initial_packets_to_send {
-            if let Err(err) = udp.send_to(packet, endpoint).await {
-                log::error!("Failed to forward packet to new obfuscator {endpoint}: {err}");
             }
         }
+    }
+}
+
+enum Event {
+    /// A packet from the local WireGuard instance, or the error that prevented it.
+    Wireguard(io::Result<usize>),
+    /// A packet from a running transport, deobfuscated into that transport's buffer.
+    Transport(TransportId, io::Result<usize>),
+    /// Time to spawn the next pending transport.
+    Spawn,
+}
+
+/// Receive from whichever transport produces a packet first, into that transport's own buffer.
+///
+/// Never resolves if there are no running transports. Cancelling this drops every in-flight
+/// `recv`, which is why [ObfuscatedTransport] requires them to be cancel safe.
+async fn recv_any(transports: &mut [RunningTransport]) -> (TransportId, io::Result<usize>) {
+    let mut recvs: FuturesUnordered<_> = transports
+        .iter_mut()
+        .enumerate()
+        .map(|(id, running)| async move { (id, running.transport.recv(&mut running.buf).await) })
+        .collect();
+
+    match recvs.next().await {
+        Some(result) => result,
+        None => std::future::pending().await,
+    }
+}
+
+/// Create the [ObfuscatedTransport] for `transport`.
+async fn spawn_transport(
+    bypass: &Arc<dyn SocketBypass>,
+    transport: Transport,
+) -> crate::Result<Arc<dyn ObfuscatedTransport>> {
+    match transport {
+        Transport::Direct(addr) => {
+            log::info!("Spawning direct forwarder");
+            Ok(Arc::new(Direct::new(bypass, addr).await?))
+        }
+        Transport::Obfuscated(settings) => {
+            log::info!("Spawning new obfuscator");
+            crate::create_transport(Arc::clone(bypass), &settings).await
+        }
+    }
+}
+
+/// Replay the packets WireGuard sent before `transport` existed.
+async fn send_initial_packets(
+    transport: &Arc<dyn ObfuscatedTransport>,
+    packets: &[Box<[u8]>],
+    scratch: &mut [u8],
+) {
+    for packet in packets {
+        let n = packet.len();
+        scratch[..n].copy_from_slice(packet);
+        if let Err(err) = transport.send(&mut scratch[..n]).await {
+            log::error!("Failed to forward packet to new transport: {err}");
+        }
+    }
+}
+
+/// Switch to connected mode after a transport has been successfully selected.
+///
+/// In this mode, the multiplexer is a plain proxy between WireGuard and the selected transport.
+/// Since it is the only transport left, packets are obfuscated in place with no copies.
+///
+/// Blocks until either direction fails.
+async fn run_connected(
+    client_socket: UdpSocket,
+    transport: Arc<dyn ObfuscatedTransport>,
+) -> io::Result<()> {
+    let client_socket = Arc::new(client_socket);
+
+    let mut tx_task = AbortOnDropHandle::new(tokio::spawn({
+        let (client_socket, transport) = (Arc::clone(&client_socket), Arc::clone(&transport));
+        async move {
+            let mut buf = vec![0u8; MAX_DATAGRAM_SIZE];
+            loop {
+                let n = client_socket.recv(&mut buf).await?;
+                transport.send(&mut buf[..n]).await?;
+            }
+        }
+    }));
+
+    let mut rx_task = AbortOnDropHandle::new(tokio::spawn(async move {
+        let mut buf = vec![0u8; MAX_DATAGRAM_SIZE];
+        loop {
+            let n = transport.recv(&mut buf).await?;
+            client_socket.send(&buf[..n]).await?;
+        }
+    }));
+
+    tokio::select! {
+        Ok(result) = &mut tx_task => result,
+        Ok(result) = &mut rx_task => result,
+        else => Ok(()),
     }
 }
 
@@ -428,6 +356,28 @@ pub enum Transport {
     Direct(SocketAddr),
     /// An obfuscated transport (UDP2TCP, Shadowsocks, QUIC, etc.)
     Obfuscated(crate::Settings),
+}
+
+impl Transport {
+    /// The overhead (in bytes) that this transport adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        match self {
+            Transport::Direct(_) => 0,
+            Transport::Obfuscated(settings) => settings.packet_overhead(),
+        }
+    }
+}
+
+/// The largest overhead among `transports`.
+///
+/// Which of them is selected is not known until one of them answers, and the MTU has to be
+/// decided before that, so every transport has to fit within it.
+pub fn packet_overhead(transports: &[Transport]) -> u16 {
+    transports
+        .iter()
+        .map(Transport::packet_overhead)
+        .max()
+        .unwrap_or(0)
 }
 
 #[async_trait]
@@ -543,5 +493,89 @@ mod tests {
         let (bytes_received, _) = server_socket.recv_from(&mut server_buf).await.unwrap();
 
         assert_eq!(&server_buf[..bytes_received], second_test_data);
+    }
+
+    /// Test that an obfuscated transport is driven in process, without a local socket of its own.
+    #[tokio::test(start_paused = true)]
+    async fn test_multiplexer_obfuscated_transport() {
+        use crate::lwo;
+        use talpid_types::net::wireguard::PublicKey;
+
+        let client_key =
+            PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
+        let server_key =
+            PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap();
+
+        let server_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+
+        let (selected_tx, selected_rx) = oneshot::channel();
+        let settings = Settings {
+            transports: vec![Transport::Obfuscated(crate::Settings::Lwo(lwo::Settings {
+                server_addr: server_socket.local_addr().unwrap(),
+                client_public_key: client_key.clone(),
+                server_public_key: server_key.clone(),
+            }))],
+            selected_transport: selected_tx,
+        };
+
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings)
+            .await
+            .unwrap();
+        let multiplexer_endpoint = multiplexer.endpoint();
+        tokio::spawn(Box::new(multiplexer).run());
+
+        let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+
+        // A WireGuard data packet, which LWO obfuscates the header of
+        let mut packet = vec![0u8; 32 + 100];
+        packet[0] = 4;
+
+        wg_socket
+            .send_to(&packet, multiplexer_endpoint)
+            .await
+            .unwrap();
+
+        // The server should see the packet obfuscated with the server's key
+        let mut server_buf = vec![0u8; 1024];
+        let (n, transport_addr) = server_socket.recv_from(&mut server_buf).await.unwrap();
+        assert_ne!(&server_buf[..n], &packet[..], "packet was not obfuscated");
+        lwo::deobfuscate(&mut server_buf[..n], server_key.as_bytes());
+        assert_eq!(&server_buf[..n], &packet[..]);
+
+        // The multiplexer should deobfuscate the response and hand it to WireGuard verbatim
+        let mut response = packet.clone();
+        response[4] = 0xab;
+        let mut obfuscated_response = response.clone();
+        lwo::obfuscate(
+            &mut rand::rng(),
+            &mut obfuscated_response,
+            client_key.as_bytes(),
+        );
+        server_socket
+            .send_to(&obfuscated_response, transport_addr)
+            .await
+            .unwrap();
+
+        let mut wg_buf = vec![0u8; 1024];
+        let (n, _) = wg_socket.recv_from(&mut wg_buf).await.unwrap();
+        assert_eq!(&wg_buf[..n], &response[..]);
+
+        // The LWO transport should have been announced as selected
+        let selected = selected_rx.await.unwrap();
+        assert!(matches!(
+            selected,
+            Transport::Obfuscated(crate::Settings::Lwo(_))
+        ));
+
+        // The transport should now be selected: traffic keeps flowing in connected mode
+        packet[4] = 0xcd;
+        wg_socket
+            .send_to(&packet, multiplexer_endpoint)
+            .await
+            .unwrap();
+
+        let (n, _) = server_socket.recv_from(&mut server_buf).await.unwrap();
+        lwo::deobfuscate(&mut server_buf[..n], server_key.as_bytes());
+        assert_eq!(&server_buf[..n], &packet[..]);
     }
 }
