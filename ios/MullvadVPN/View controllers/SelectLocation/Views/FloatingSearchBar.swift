@@ -21,7 +21,8 @@ struct FloatingSearchBar: View {
                     isFocused: isFocused,
                     borderStyle: .constant(.none),
                     appearance: InputViewAppearance(
-                        cornerRadius: 28.0,
+                        clearButtonImage: .mullvadIconClose,
+                        cornerRadius: 24.0,
                         backgroundColor: Color.mullvadContainerBackground,
                         height: 48.0,
                         spacing: 0
@@ -58,6 +59,7 @@ struct FloatingSearchBar: View {
                         .frame(width: 48, height: 48)
                         .background(Color.mullvadContainerBackground)
                         .clipShape(Circle())
+                        .padding(.leading, 12)
                 }
                 .accessibilityLabel(Text("Close search"))
                 .accessibilityIdentifier(.closeSearchButton)
@@ -72,7 +74,7 @@ struct FloatingSearchBar: View {
                     searchIcon
                         .frame(width: 48, height: 48)
                         .background {
-                            RoundedRectangle(cornerRadius: 28)
+                            RoundedRectangle(cornerRadius: 24)
                                 .fill(Color.mullvadContainerBackground)
                                 .matchedGeometryEffect(id: AnimationID.searchBackground, in: animation)
                         }

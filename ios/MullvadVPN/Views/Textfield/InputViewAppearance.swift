@@ -10,11 +10,12 @@ import SwiftUI
 struct InputViewAppearance {
     var titleFont: Font = .mullvadTinySemiBold
     var font: Font = .mullvadSmall
-    var foregroundColor: Color = Color.MullvadTextField.textInput
-    var placeholderColor: Color = Color.MullvadTextField.inputPlaceholder
+    var foregroundColor: Color = .MullvadTextField.textInput
+    var placeholderColor: Color = .MullvadTextField.inputPlaceholder
+    var clearButtonImage: Image = .mullvadIconCross
     var cornerRadius: CGFloat = 4.0
     var messageFont: Font = .mullvadTiny
-    var backgroundColor: Color = Color.MullvadTextField.background
+    var backgroundColor: Color = .MullvadTextField.background
     var height: CGFloat
     var spacing: CGFloat = 4.0
 }
