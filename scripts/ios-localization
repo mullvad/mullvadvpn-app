@@ -14,10 +14,11 @@ source utils/localization_utils
 
 function main {
   case ${1:-""} in
-    upload) upload_to_crowdin ;;
-    download) download_from_crowdin ;;
+    upload) upload_to_crowdin "${2:-}" ;;
+    download) download_from_crowdin "${2:-}" ;;
     "")
-      echo "Available subcommands: upload and download"
+      echo "Available subcommands: \"upload [branch]\" and \"download [branch]\""
+      echo "If on a release branch, supplying no branch name defaults to current branch."
       ;;
     *)
       echo "Unknown parameter: $1"
@@ -26,35 +27,35 @@ function main {
   esac
 }
 
-function update_relay_locations {
-  log_header "Retrieving relay locations from server list and updating RelayLocationList.Swift"
-  pushd "$iOS_LOCALIZATION_DIR"
-  ./scripts/fetch-relay-locations.sh
-  ./scripts/relays-localization.sh
-  popd
-}
-
-function prepare_localization_strings {
-  update_relay_locations
-  update_ios_strings export
-  commit_changes "Export iOS strings"
-}
-
 function upload_to_crowdin {
+  local branch_args=$(get_branch_args "${1:-}")
+  local log_appendix=""
+
+  if [ -n "$branch_args" ]; then
+    log_appendix=", branch: ${branch_args#-b }"
+  fi
+
   ensure_crowdin_api_key
   prepare_localization_strings
-  log_header "Uploading iOS translations to Crowdin"
+  log_header "Uploading iOS translations to Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin upload sources
-  crowdin upload translations
+  crowdin upload sources $branch_args
+  crowdin upload translations $branch_args
   popd
 }
 
 function download_from_crowdin {
+  local branch_args=$(get_branch_args "${1:-}")
+  local log_appendix=""
+
+  if [ -n "$branch_args" ]; then
+    log_appendix=", branch: ${branch_args#-b }"
+  fi
+
   ensure_crowdin_api_key
-  log_header "Downloading iOS translations from Crowdin"
+  log_header "Downloading iOS translations from Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin download translations
+  crowdin download translations $branch_args
   popd
   update_ios_strings import
   commit_changes "Import iOS translations"
@@ -73,6 +74,37 @@ function update_ios_strings {
   pushd "$iOS_LOCALIZATION_DIR"
   ./scripts/localizations.sh "$1"
   popd
+}
+
+function update_relay_locations {
+  log_header "Retrieving relay locations from server list and updating RelayLocationList.Swift"
+  pushd "$iOS_LOCALIZATION_DIR"
+  ./scripts/fetch-relay-locations.sh
+  ./scripts/relays-localization.sh
+  popd
+}
+
+function prepare_localization_strings {
+  update_relay_locations
+  update_ios_strings export
+  commit_changes "Export iOS strings"
+}
+
+function get_branch_args {
+  local branch_override="${1:-}"
+  local branch_args=""
+
+  if [ -n "$branch_override" ]; then
+    branch_args="-b $branch_override"
+  else 
+    local current_branch=$(git branch --show-current)
+
+    if echo "$current_branch" | grep -Eq '^ios-release-20[0-9]{2}'; then
+      branch_args="-b $current_branch"
+    fi
+  fi
+
+  echo "$branch_args"
 }
 
 main "$@"
