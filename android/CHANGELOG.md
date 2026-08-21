@@ -22,15 +22,26 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2026.9-beta1] - 2026-08-20
 ### Added
-- Make the globe interactive, with supports for pan, pinch-to-zoom, and fling. This to discover
+- Make the globe interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
   where servers are located as well as displaying your connection path.
-- Added a new multihop design with a new "when needed" option that will automatically multihop
+- Add a new multihop design with a new "when needed" option that will automatically multihop
   when it is needed given the currently active settings (e.g. DAITA is on).
+- Highlight search phrase when searching in Select location.
 
 ### Changed
 - Route 10.124.0.0/23 inside the tunnel when Local network sharing is turned on. This is to enable
-  the use SOCKS5 proxies on other relays together with Local network sharing.
+  the use of SOCKS5 proxies on other relays together with Local network sharing.
+- Filters are split into entry and exit filters which can be set independently from each other.
+- Improve search in Select location, ordering is now by relevancy and fuzzy search results are
+  included.
+
+### Fixed
+- Fix the device sometimes being incorrectly marked as revoked when the API rejects an expired
+  access token.
 
 
 ## [android/2026.8] - 2026-07-15
