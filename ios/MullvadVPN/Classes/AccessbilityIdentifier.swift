@@ -288,6 +288,9 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationLwoTable
     case wireGuardObfuscationIncompatibilityAlert
 
+    // Feature indicators
+    case obfuscationFeatureIndicator
+
     // Error
     case unknown
 

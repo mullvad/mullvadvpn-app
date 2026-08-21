@@ -18,35 +18,40 @@ import SwiftUI
 struct ConnectionViewComponentPreview<Content: View>: View {
     let settingsManager = SettingsManager()
     let showIndicators: Bool
-    let connectedTunnelStatus = TunnelStatus(
-        observedState: .connected(
-            ObservedConnectionState(
-                selectedRelays: RelaySelectorStub.selectedRelays,
-                relayConstraints: RelayConstraints(
-                    entryLocations: .any,
-                    exitLocations: .any,
-                    port: .any,
-                    entryFilter: .any,
-                    exitFilter: .any
-                ),
-                networkReachability: .reachable,
-                connectionAttemptCount: 0,
-                transportLayer: .udp,
-                remotePort: 80,
-                isPostQuantum: true,
-                isDaitaEnabled: true
-            )),
-        state:
-            .connected(
-                RelaySelectorStub.selectedRelays,
-                isPostQuantum: true,
-                isDaita: true
-            )
-    )
+    let connectedTunnelStatus: TunnelStatus
     let disconnectedTunnelStatus = TunnelStatus(
         observedState: .disconnected,
         state: .disconnected
     )
+
+    private static func makeConnectedTunnelStatus(obfuscationMethod: ObfuscationMethod) -> TunnelStatus {
+        TunnelStatus(
+            observedState: .connected(
+                ObservedConnectionState(
+                    selectedRelays: RelaySelectorStub.selectedRelays,
+                    relayConstraints: RelayConstraints(
+                        entryLocations: .any,
+                        exitLocations: .any,
+                        port: .any,
+                        entryFilter: .any,
+                        exitFilter: .any
+                    ),
+                    networkReachability: .reachable,
+                    connectionAttemptCount: 0,
+                    transportLayer: .udp,
+                    remotePort: 80,
+                    isPostQuantum: true,
+                    isDaitaEnabled: true,
+                    obfuscationMethod: obfuscationMethod
+                )),
+            state:
+                .connected(
+                    RelaySelectorStub.selectedRelays,
+                    isPostQuantum: true,
+                    isDaita: true
+                )
+        )
+    }
 
     private var tunnelSettings: LatestTunnelSettings {
         LatestTunnelSettings(
@@ -70,6 +75,10 @@ struct ConnectionViewComponentPreview<Content: View>: View {
     ) {
         self.showIndicators = showIndicators
         self.content = content
+        let connectedTunnelStatus = Self.makeConnectedTunnelStatus(
+            obfuscationMethod: showIndicators ? .udpOverTcp : .off
+        )
+        self.connectedTunnelStatus = connectedTunnelStatus
         viewModel = ConnectionViewViewModel(
             tunnelStatus: isConnected ? connectedTunnelStatus : disconnectedTunnelStatus,
             relayConstraints: RelayConstraints(),
