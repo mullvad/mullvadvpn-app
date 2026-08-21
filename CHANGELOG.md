@@ -61,6 +61,9 @@ Line wrap the file at 100 chars.                                              Th
   pools, so this has not been necessary since 2022.5-beta1.
 
 ### Fixed
+#### Windows
+- Fix OS theme check for the monochromatic tray-icon.
+
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
