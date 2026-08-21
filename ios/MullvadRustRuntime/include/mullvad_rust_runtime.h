@@ -90,16 +90,6 @@ typedef struct ProxyHandle {
 extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
- * Called by Swift to update the currently used access methods
- *
- * # SAFETY
- * `access_method_id` must point to a null terminated string in a UUID format
- *
- */
-void mullvad_api_use_access_method(struct LegacySwiftApiContext api_context,
-                                   const char *access_method_id);
-
-/**
  * Called by Swift to trigger a fetching and caching of addresses
  *
  * # SAFETY

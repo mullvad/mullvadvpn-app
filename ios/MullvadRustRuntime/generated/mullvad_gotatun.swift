@@ -3222,6 +3222,20 @@ public func mullvadApiUpdateAccessMethods(apiContext: ApiContext, settingsWrappe
 }
 }
 /**
+ * Called by Swift to update the currently used access methods
+ *
+ * # SAFETY
+ * `access_method_id` must point to a null terminated string in a UUID format
+
+ */
+public func mullvadApiUseAccessMethod(apiContext: ApiContext, id: String)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_func_mullvad_api_use_access_method(
+        FfiConverterTypeApiContext_lower(apiContext),
+        FfiConverterString.lower(id),$0
+    )
+}
+}
+/**
  * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
  * can be passed across the FFI boundary
  *
@@ -3717,6 +3731,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.contractVersionMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_update_access_methods() != 11043) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_use_access_method() != 65406) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_convert_builtin_access_method_setting() != 43435) {

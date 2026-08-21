@@ -500,6 +500,11 @@ void uniffi_mullvad_ios_fn_init_callback_vtable_gotatuncallback(const UniffiVTab
 void uniffi_mullvad_ios_fn_func_mullvad_api_update_access_methods(uint64_t api_context, uint64_t settings_wrapper, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_MULLVAD_API_USE_ACCESS_METHOD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_MULLVAD_API_USE_ACCESS_METHOD
+void uniffi_mullvad_ios_fn_func_mullvad_api_use_access_method(uint64_t api_context, RustBuffer id, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_CONVERT_BUILTIN_ACCESS_METHOD_SETTING
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_CONVERT_BUILTIN_ACCESS_METHOD_SETTING
 RustBuffer uniffi_mullvad_ios_fn_func_convert_builtin_access_method_setting(RustBuffer unique_identifier, RustBuffer name, int8_t is_enabled, RustBuffer method_kind, RustCallStatus *_Nonnull out_status
@@ -884,6 +889,12 @@ void ffi_mullvad_ios_rust_future_complete_void(uint64_t handle, RustCallStatus *
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_API_UPDATE_ACCESS_METHODS
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_API_UPDATE_ACCESS_METHODS
 uint16_t uniffi_mullvad_ios_checksum_func_mullvad_api_update_access_methods(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_API_USE_ACCESS_METHOD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_FUNC_MULLVAD_API_USE_ACCESS_METHOD
+uint16_t uniffi_mullvad_ios_checksum_func_mullvad_api_use_access_method(void
     
 );
 #endif

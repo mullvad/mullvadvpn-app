@@ -1,10 +1,7 @@
-use std::{ffi::c_char, future::Future, net::SocketAddr, sync::Arc};
+use std::{future::Future, net::SocketAddr, sync::Arc};
 
-use crate::{
-    api_client::{
-        access_method_settings::SwiftAccessMethodSettingsContext, helpers::parse_ip_addr,
-    },
-    get_string,
+use crate::api_client::{
+    access_method_settings::SwiftAccessMethodSettingsContext, helpers::parse_ip_addr,
 };
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use futures::{
@@ -310,15 +307,8 @@ pub fn mullvad_api_update_access_methods(
 /// # SAFETY
 /// `access_method_id` must point to a null terminated string in a UUID format
 ///
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_use_access_method(
-    api_context: SwiftApiContext,
-    access_method_id: *const c_char,
-) {
-    let api_context = api_context.rust_context();
-    // SAFETY: See Safety notes for `get_string`
-    let id = unsafe { get_string(access_method_id) };
-
+#[uniffi::export]
+pub fn mullvad_api_use_access_method(api_context: Arc<ApiContext>, id: String) {
     let Some(id) = Id::from_string(id) else {
         return;
     };
