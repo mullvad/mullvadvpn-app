@@ -36,6 +36,10 @@ export interface IGuiSettingsState {
   // whether to show the update notification.
   updateDismissedForVersion: string;
 
+  // The last version that the setting migrations were displayed for.
+  // This is used to determine whether to show the settings migrations notification.
+  settingsMigratedDismissedForVersion: string;
+
   // Tells the app whether or not to show the map in the main view.
   animateMap: boolean;
 }

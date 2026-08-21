@@ -16,6 +16,7 @@ import {
 } from '../../shared/notifications';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { useSettingsMigrations } from '../features/migration/hooks';
 import { useSplitTunnelingSupported } from '../features/split-tunneling/hooks';
 import {
   useAppUpgradeDownloadProgressValue,
@@ -31,6 +32,8 @@ import {
   AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
+  ResolveConnectionIssuesNotificationProvider,
+  SettingsMigratedNotificationProvider,
   UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
@@ -75,8 +78,13 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
-    useAppContext();
+  const {
+    setDisplayedChangelog,
+    setDismissedUpgrade,
+    dismissSettingsMigrated,
+    appUpgrade,
+    appUpgradeInstallerStart,
+  } = useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -117,6 +125,14 @@ export default function NotificationArea(props: IProps) {
   const appUpgradeEventType = useAppUpgradeEventType();
   const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
 
+  const settingsMigratedDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.settingsMigratedDismissedForVersion,
+  );
+  const { hasSettingsMigrations } = useSettingsMigrations();
+  const handleCloseSettingsMigratedNotification = useCallback(() => {
+    dismissSettingsMigrated();
+  }, [dismissSettingsMigrated]);
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -145,6 +161,10 @@ export default function NotificationArea(props: IProps) {
       obfuscationSettings,
       allowedPortRanges,
     }),
+    new ResolveConnectionIssuesNotificationProvider({
+      hasSettingsMigrations,
+      connectionBlocked: connection.isBlocked,
+    }),
     new ErrorNotificationProvider({
       tunnelState,
       hasExcludedApps,
@@ -168,6 +188,14 @@ export default function NotificationArea(props: IProps) {
       deviceName: account.deviceName ?? '',
       close: hideNewDeviceBanner,
     }),
+
+    new SettingsMigratedNotificationProvider({
+      hasSettingsMigrations,
+      dismissedForVersion: settingsMigratedDismissedForVersion,
+      currentVersion,
+      close: handleCloseSettingsMigratedNotification,
+    }),
+
     new NewVersionNotificationProvider({
       currentVersion,
       displayedForVersion,
