@@ -110,7 +110,7 @@ public struct MullvadApiRequestFactory: Sendable {
                 handle: mullvadIosApiAddrsAvailable(
                     apiContext: apiContext.context,
                     retryStrategy: retryStrategy.toRustStrategy(),
-                    accessMethodSetting: UInt64(Int(bitPattern: convertAccessMethod(accessMethod: accessMethod)))
+                    accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!
                 ))
         case let .initStorekitPayment(
             retryStrategy: retryStrategy,

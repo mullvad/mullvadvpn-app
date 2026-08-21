@@ -10,18 +10,6 @@
  */
 #define WIREGUARD_OVERHEAD (8 + 32)
 
-/**
- * Used by Swift to instruct which access method kind it is trying to convert
- */
-enum SwiftAccessMethodKind {
-  KindDirect = 0,
-  KindBridge,
-  KindEncryptedDnsProxy,
-  KindShadowsocks,
-  KindSocks5Local,
-};
-typedef uint8_t SwiftAccessMethodKind;
-
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct LogRedactor LogRedactor;
@@ -124,23 +112,6 @@ void mullvad_api_update_address_cache(struct LegacySwiftApiContext swift_api_con
 extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 
 extern struct SwiftData swift_read_address_cache(void);
-
-/**
- * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
- * can be passed across the FFI boundary
- *
- * # SAFETY:
- * `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
- * They are only valid for the duration of this call.
- *
- * `proxy_configuration` can be NULL, or must be a pointer gotten through
- * either the `convert_shadowsocks` or `convert_socks5` methods.
- */
-void *convert_builtin_access_method_setting(const char *unique_identifier,
-                                            const char *name,
-                                            bool is_enabled,
-                                            SwiftAccessMethodKind method_kind,
-                                            void *proxy_configuration);
 
 /**
  * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing

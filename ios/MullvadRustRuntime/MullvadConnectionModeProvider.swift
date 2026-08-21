@@ -29,38 +29,34 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
         return !defaultMethods.contains($0.proxyConfiguration)
     }
 
+    // TODO: REMOVE UNWRAPS
     // 3. Convert the builtin access methods
-    let directMethodRaw = convertAccessMethod(accessMethod: directMethod)
-    let bridgesMethodRaw = convertAccessMethod(accessMethod: bridgesMethod)
-    let encryptedDNSMethodRaw = convertAccessMethod(accessMethod: encryptedDNSMethod)
+    let directMethodRaw = convertAccessMethod(accessMethod: directMethod)!
+    let bridgesMethodRaw = convertAccessMethod(accessMethod: bridgesMethod)!
+    let encryptedDNSMethodRaw = convertAccessMethod(accessMethod: encryptedDNSMethod)!
 
     // 4. Convert the custom access methods (all takes different parameters)
-    var rawCustomMethods = customMethods.map { convertAccessMethod(accessMethod: $0) }
+    var rawCustomMethods = customMethods.map { convertAccessMethod(accessMethod: $0)! }
 
     // 5. Reunite them all in one, and pass it to rust
     let customMethodCount = rawCustomMethods.count
-    return rawCustomMethods.withUnsafeMutableBufferPointer(
-        {
-            initAccessMethodSettingsWrapper(
-                directMethodRaw: UInt64(Int(bitPattern: directMethodRaw)),
-                bridgesMethodRaw: UInt64(Int(bitPattern: bridgesMethodRaw)),
-                encryptedDnsMethodRaw: UInt64(Int(bitPattern: encryptedDNSMethodRaw)),
-                customMethodsRaw: UInt64(Int(bitPattern: $0.baseAddress!)),
-                customMethodCount: UInt64(Int(bitPattern: UInt(customMethodCount)))
-            )
-        }
+    return initAccessMethodSettingsWrapper(
+        direct: directMethodRaw,
+        bridges: bridgesMethodRaw,
+        encryptedDns: encryptedDNSMethodRaw,
+        custom: rawCustomMethods,
     )
 }
 
-public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeMutableRawPointer? {
+public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> AccessMethodSettingWrapper? {
     switch accessMethod.proxyConfiguration {
     case .direct, .bridges, .encryptedDNS:
-        return convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            nil
+        return convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: accessMethod.kind(),
+            proxyConfiguration: nil
         )
     case let .shadowsocks(configuration):
         let serverAddress = configuration.server.rawValue.map { $0 }
@@ -71,12 +67,12 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
             configuration.password,
             configuration.cipher
         )
-        let shadowsocksMethodRaw = convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            shadowsocksConfiguration
+        let shadowsocksMethodRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: accessMethod.kind(),
+            proxyConfiguration: UInt64(Int(bitPattern: shadowsocksConfiguration))
         )
         return shadowsocksMethodRaw
     case let .socks5(configuration):
@@ -88,12 +84,12 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
             configuration.credential?.username,
             configuration.credential?.password
         )
-        let socks5MethodRaw = convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            socks5Configuration
+        let socks5MethodRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: accessMethod.kind(),
+            proxyConfiguration: UInt64(Int(bitPattern: socks5Configuration))
         )
         return socks5MethodRaw
     }
@@ -102,13 +98,13 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
 fileprivate
     extension PersistentAccessMethod
 {
-    func kind() -> UInt8 {
+    func kind() -> SwiftAccessMethodKind {
         switch kind {
-        case .direct: UInt8(KindDirect.rawValue)
-        case .bridges: UInt8(KindBridge.rawValue)
-        case .encryptedDNS: UInt8(KindEncryptedDnsProxy.rawValue)
-        case .shadowsocks: UInt8(KindShadowsocks.rawValue)
-        case .socks5: UInt8(KindSocks5Local.rawValue)
+        case .direct: .kindDirect
+        case .bridges: .kindBridge
+        case .encryptedDNS: .kindEncryptedDnsProxy
+        case .shadowsocks: .kindShadowsocks
+        case .socks5: .kindShadowsocks
         }
     }
 }

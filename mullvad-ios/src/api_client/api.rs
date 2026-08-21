@@ -6,7 +6,7 @@ use mullvad_api::{
 };
 use mullvad_types::access_method::AccessMethodSetting;
 
-use crate::api_client::ApiContext;
+use crate::api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper};
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
@@ -59,11 +59,10 @@ pub fn mullvad_ios_get_addresses(
 pub fn mullvad_ios_api_addrs_available(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
-    access_method_setting: u64, // TODO: traitify
+    access_method_setting: Arc<AccessMethodSettingWrapper>,
 ) -> SwiftCancelHandle {
     // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
-    let access_method_setting: AccessMethodSetting =
-        unsafe { *Box::from_raw(access_method_setting as *mut _) };
+    let access_method_setting = access_method_setting.inner.clone();
 
     RequestCancelHandle::new(
         api_context,

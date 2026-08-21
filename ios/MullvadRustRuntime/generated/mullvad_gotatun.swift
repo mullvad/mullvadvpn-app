@@ -578,6 +578,112 @@ fileprivate struct FfiConverterData: FfiConverterRustBuffer {
 
 
 
+public protocol AccessMethodSettingWrapperProtocol: AnyObject, Sendable {
+    
+}
+open class AccessMethodSettingWrapper: AccessMethodSettingWrapperProtocol, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_accessmethodsettingwrapper(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_accessmethodsettingwrapper(handle, $0) }
+    }
+
+    
+
+    
+
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeAccessMethodSettingWrapper: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = AccessMethodSettingWrapper
+
+    public static func lift(_ handle: UInt64) throws -> AccessMethodSettingWrapper {
+        return AccessMethodSettingWrapper(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: AccessMethodSettingWrapper) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AccessMethodSettingWrapper {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: AccessMethodSettingWrapper, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAccessMethodSettingWrapper_lift(_ handle: UInt64) throws -> AccessMethodSettingWrapper {
+    return try FfiConverterTypeAccessMethodSettingWrapper.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeAccessMethodSettingWrapper_lower(_ value: AccessMethodSettingWrapper) -> UInt64 {
+    return FfiConverterTypeAccessMethodSettingWrapper.lower(value)
+}
+
+
+
+
+
+
 public protocol ApiContextProtocol: AnyObject, Sendable {
     
     func unsafeRaw()  -> SwiftApiContext
@@ -2543,6 +2649,97 @@ public func FfiConverterTypeGotaTunObfuscation_lower(_ value: GotaTunObfuscation
 }
 
 
+// Note that we don't yet support `indirect` for enums.
+// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+/**
+ * Used by Swift to instruct which access method kind it is trying to convert
+ */
+
+public enum SwiftAccessMethodKind: UInt8, Equatable, Hashable, Codable {
+    
+    case kindDirect = 0
+    case kindBridge = 1
+    case kindEncryptedDnsProxy = 2
+    case kindShadowsocks = 3
+    case kindSocks5Local = 4
+
+
+
+
+
+}
+
+#if compiler(>=6)
+extension SwiftAccessMethodKind: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeSwiftAccessMethodKind: FfiConverterRustBuffer {
+    typealias SwiftType = SwiftAccessMethodKind
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftAccessMethodKind {
+        let variant: Int32 = try readInt(&buf)
+        switch variant {
+        
+        case 1: return .kindDirect
+        
+        case 2: return .kindBridge
+        
+        case 3: return .kindEncryptedDnsProxy
+        
+        case 4: return .kindShadowsocks
+        
+        case 5: return .kindSocks5Local
+        
+        default: throw UniffiInternalError.unexpectedEnumCase
+        }
+    }
+
+    public static func write(_ value: SwiftAccessMethodKind, into buf: inout [UInt8]) {
+        switch value {
+        
+        
+        case .kindDirect:
+            writeInt(&buf, Int32(1))
+        
+        
+        case .kindBridge:
+            writeInt(&buf, Int32(2))
+        
+        
+        case .kindEncryptedDnsProxy:
+            writeInt(&buf, Int32(3))
+        
+        
+        case .kindShadowsocks:
+            writeInt(&buf, Int32(4))
+        
+        
+        case .kindSocks5Local:
+            writeInt(&buf, Int32(5))
+        
+        }
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftAccessMethodKind_lift(_ buf: RustBuffer) throws -> SwiftAccessMethodKind {
+    return try FfiConverterTypeSwiftAccessMethodKind.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftAccessMethodKind_lower(_ value: SwiftAccessMethodKind) -> RustBuffer {
+    return FfiConverterTypeSwiftAccessMethodKind.lower(value)
+}
+
+
 
 
 
@@ -2743,6 +2940,30 @@ public func FfiConverterCallbackInterfaceGotaTunCallback_lower(_ v: GotaTunCallb
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterOptionUInt64: FfiConverterRustBuffer {
+    typealias SwiftType = UInt64?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterUInt64.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterUInt64.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
     typealias SwiftType = String?
 
@@ -2759,6 +2980,30 @@ fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
         switch try readInt(&buf) as Int8 {
         case 0: return nil
         case 1: return try FfiConverterString.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+fileprivate struct FfiConverterOptionTypeAccessMethodSettingWrapper: FfiConverterRustBuffer {
+    typealias SwiftType = AccessMethodSettingWrapper?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterTypeAccessMethodSettingWrapper.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterTypeAccessMethodSettingWrapper.read(from: &buf)
         default: throw UniffiInternalError.unexpectedOptionalTag
         }
     }
@@ -2839,6 +3084,31 @@ fileprivate struct FfiConverterOptionTypeShadowSocksExposed: FfiConverterRustBuf
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterSequenceTypeAccessMethodSettingWrapper: FfiConverterRustBuffer {
+    typealias SwiftType = [AccessMethodSettingWrapper]
+
+    public static func write(_ value: [AccessMethodSettingWrapper], into buf: inout [UInt8]) {
+        let len = Int32(value.count)
+        writeInt(&buf, len)
+        for item in value {
+            FfiConverterTypeAccessMethodSettingWrapper.write(item, into: &buf)
+        }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> [AccessMethodSettingWrapper] {
+        let len: Int32 = try readInt(&buf)
+        var seq = [AccessMethodSettingWrapper]()
+        seq.reserveCapacity(Int(len))
+        for _ in 0 ..< len {
+            seq.append(try FfiConverterTypeAccessMethodSettingWrapper.read(from: &buf))
+        }
+        return seq
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
     public static func write(_ value: [String: String], into buf: inout [UInt8]) {
         let len = Int32(value.count)
@@ -2872,6 +3142,28 @@ public func mullvadApiUpdateAccessMethods(apiContext: ApiContext, settingsWrappe
 }
 }
 /**
+ * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
+ * can be passed across the FFI boundary
+ *
+ * # SAFETY:
+ * `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+ * They are only valid for the duration of this call.
+ *
+ * `proxy_configuration` can be NULL, or must be a pointer gotten through
+ * either the `convert_shadowsocks` or `convert_socks5` methods.
+ */
+public func convertBuiltinAccessMethodSetting(uniqueIdentifier: String, name: String, isEnabled: Bool, methodKind: SwiftAccessMethodKind, proxyConfiguration: UInt64?) -> AccessMethodSettingWrapper?  {
+    return try!  FfiConverterOptionTypeAccessMethodSettingWrapper.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_func_convert_builtin_access_method_setting(
+        FfiConverterString.lower(uniqueIdentifier),
+        FfiConverterString.lower(name),
+        FfiConverterBool.lower(isEnabled),
+        FfiConverterTypeSwiftAccessMethodKind_lower(methodKind),
+        FfiConverterOptionUInt64.lower(proxyConfiguration),$0
+    )
+})
+}
+/**
  * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
  *
  * # SAFETY
@@ -2879,14 +3171,13 @@ public func mullvadApiUpdateAccessMethods(apiContext: ApiContext, settingsWrappe
  * resulting from a call to `convert_builtin_access_method_setting`.
  * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
  */
-public func initAccessMethodSettingsWrapper(directMethodRaw: UInt64, bridgesMethodRaw: UInt64, encryptedDnsMethodRaw: UInt64, customMethodsRaw: UInt64, customMethodCount: UInt64) -> SwiftAccessMethodSettingsContext  {
+public func initAccessMethodSettingsWrapper(direct: AccessMethodSettingWrapper, bridges: AccessMethodSettingWrapper, encryptedDns: AccessMethodSettingWrapper, custom: [AccessMethodSettingWrapper]) -> SwiftAccessMethodSettingsContext  {
     return try!  FfiConverterTypeSwiftAccessMethodSettingsContext_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_init_access_method_settings_wrapper(
-        FfiConverterUInt64.lower(directMethodRaw),
-        FfiConverterUInt64.lower(bridgesMethodRaw),
-        FfiConverterUInt64.lower(encryptedDnsMethodRaw),
-        FfiConverterUInt64.lower(customMethodsRaw),
-        FfiConverterUInt64.lower(customMethodCount),$0
+        FfiConverterTypeAccessMethodSettingWrapper_lower(direct),
+        FfiConverterTypeAccessMethodSettingWrapper_lower(bridges),
+        FfiConverterTypeAccessMethodSettingWrapper_lower(encryptedDns),
+        FfiConverterSequenceTypeAccessMethodSettingWrapper.lower(custom),$0
     )
 })
 }
@@ -2964,12 +3255,12 @@ public func mullvadIosGetAccount(apiContext: ApiContext, retryStrategy: RetryStr
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
-public func mullvadIosApiAddrsAvailable(apiContext: ApiContext, retryStrategy: RetryStrategy, accessMethodSetting: UInt64) -> SwiftCancelHandle  {
+public func mullvadIosApiAddrsAvailable(apiContext: ApiContext, retryStrategy: RetryStrategy, accessMethodSetting: AccessMethodSettingWrapper) -> SwiftCancelHandle  {
     return try!  FfiConverterTypeSwiftCancelHandle_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_ios_api_addrs_available(
         FfiConverterTypeApiContext_lower(apiContext),
         FfiConverterTypeRetryStrategy_lower(retryStrategy),
-        FfiConverterUInt64.lower(accessMethodSetting),$0
+        FfiConverterTypeAccessMethodSettingWrapper_lower(accessMethodSetting),$0
     )
 })
 }
@@ -3312,7 +3603,10 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_update_access_methods() != 11043) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 11200) {
+    if (uniffi_mullvad_ios_checksum_func_convert_builtin_access_method_setting() != 29643) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 49063) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_account() != 39115) {
@@ -3324,7 +3618,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_account() != 59662) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 14997) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_ios_api_addrs_available() != 45604) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_get_addresses() != 44750) {
