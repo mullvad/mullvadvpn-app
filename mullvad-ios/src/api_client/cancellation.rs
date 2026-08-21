@@ -28,7 +28,6 @@ impl RequestCancelHandle {
         F: Future<Output = ()> + Send + 'static,
     {
         let state = HandleState::ToStart {
-            // SAFETY: See notes for `into_rust`
             retry_strategy: *retry_strategy,
             api_context,
             task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
@@ -43,14 +42,6 @@ impl RequestCancelHandle {
 impl RequestCancelHandle {
     /// Called by the Swift side to signal that a Mullvad API call should be started.
     /// Does nothing on repeated calls.
-    /// Must not be called after `mullvad_api_cancel_task_drop.`
-    ///
-    /// # Safety
-    ///
-    /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-    /// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
-    /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
-    /// intended to be used.
     pub fn start_task(&self, completion_cookie: Arc<dyn CompletionCookieNew>) {
         let Ok(mut handle) = self.inner.lock() else {
             return;
@@ -62,13 +53,7 @@ impl RequestCancelHandle {
 
     /// Called by the Swift side to signal that a Mullvad API call should be cancelled.
     /// Does nothing on repeated calls.
-    /// Must not be called after `mullvad_api_cancel_task_drop.
-    ///
-    /// # Safety
-    ///
-    /// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
     pub fn cancel_task(&self) {
-        // SAFETY: See notes for `as_handle`
         let Ok(mut handle) = self.inner.lock() else {
             return;
         };

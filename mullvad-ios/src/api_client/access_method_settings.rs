@@ -9,13 +9,6 @@ use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
 
 /// Converts parameters into a `Box<AccessMethodSetting>` raw representation that
 /// can be passed across the FFI boundary
-///
-/// # SAFETY:
-/// `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
-/// They are only valid for the duration of this call.
-///
-/// `proxy_configuration` can be NULL, or must be a pointer gotten through
-/// either the `convert_shadowsocks` or `convert_socks5` methods.
 #[uniffi::export]
 pub fn convert_builtin_access_method_setting(
     unique_identifier: String,
@@ -104,11 +97,6 @@ pub struct AccessMethodSettingWrapper {
 }
 
 /// Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
-///
-/// # SAFETY
-/// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
-/// resulting from a call to `convert_builtin_access_method_setting`.
-/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
 #[uniffi::export]
 pub fn init_access_method_settings_wrapper(
     direct: Arc<AccessMethodSettingWrapper>,
@@ -116,10 +104,6 @@ pub fn init_access_method_settings_wrapper(
     encrypted_dns: Arc<AccessMethodSettingWrapper>,
     custom: Vec<Arc<AccessMethodSettingWrapper>>,
 ) -> SwiftAccessMethodSettingsContext {
-    // SAFETY: each of these pointers must be created by a call to
-    // `convert_builtin_access_method_setting`, as per the function docs.
-
-    // SAFETY: custom_methods_raw must be a valid pointer to an AccessMethodSetting.
     let settings = Settings::new(
         direct.inner.clone(),
         bridges.inner.clone(),

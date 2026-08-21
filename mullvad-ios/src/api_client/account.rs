@@ -12,17 +12,6 @@ use super::{
     response::SwiftMullvadApiResponse, retry_strategy::RetryStrategy,
 };
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `account_number` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_get_account(
     api_context: Arc<ApiContext>,
@@ -48,15 +37,6 @@ pub fn mullvad_ios_get_account(
     )
 }
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_create_account(
     api_context: Arc<ApiContext>,
@@ -78,17 +58,6 @@ pub fn mullvad_ios_create_account(
     )
 }
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `account_number` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_delete_account(
     api_context: Arc<ApiContext>,

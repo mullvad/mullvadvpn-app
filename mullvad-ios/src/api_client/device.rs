@@ -14,19 +14,6 @@ use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::PublicKey;
 
 /// Get device info via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_ios_init_new`.
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_get_device(
     api_context: Arc<ApiContext>,
@@ -57,18 +44,6 @@ pub fn mullvad_ios_get_device(
 }
 
 /// Get devices info via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// the `account_number` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_get_devices(
     api_context: Arc<ApiContext>,
@@ -97,19 +72,6 @@ pub fn mullvad_ios_get_devices(
 }
 
 /// create device via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_create_device(
     api_context: Arc<ApiContext>,
@@ -117,7 +79,6 @@ pub fn mullvad_ios_create_device(
     account_number: String,
     public_key: &[u8],
 ) -> Arc<RequestCancelHandle> {
-    // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
         return RequestCancelHandle::new(
             api_context,
@@ -152,19 +113,7 @@ pub fn mullvad_ios_create_device(
     )
 }
 
-/// delete device via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
+/// Delete device via the Mullvad API client.
 #[uniffi::export]
 pub fn mullvad_ios_delete_device(
     api_context: Arc<ApiContext>,
@@ -194,20 +143,7 @@ pub fn mullvad_ios_delete_device(
     )
 }
 
-/// rotate device key via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
+/// Rotate device key via the Mullvad API client.
 #[uniffi::export]
 pub fn mullvad_ios_rotate_device_key(
     api_context: Arc<ApiContext>,
@@ -216,7 +152,6 @@ pub fn mullvad_ios_rotate_device_key(
     identifier: String,
     public_key: &[u8],
 ) -> Arc<RequestCancelHandle> {
-    // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
     let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
         return RequestCancelHandle::new(
             api_context,

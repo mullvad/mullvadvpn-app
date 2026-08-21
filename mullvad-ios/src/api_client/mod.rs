@@ -35,7 +35,7 @@ mod shadowsocks_loader;
 mod storekit;
 mod swift_data;
 
-// MOVE
+// TODO MOVE
 #[derive(uniffi::Record)]
 pub struct ShadowSocksExposed {
     address: Vec<u8>,
@@ -170,7 +170,6 @@ impl ApiContext {
         tokio_handle.clone().block_on(async move {
             let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
 
-            // SAFETY: The callback is expected to be called from the Swift side
             if let Some(callback) = access_method_change_callback {
                 tokio::spawn(async move {
                     let access_method_change_context = access_method_change_context;
@@ -186,7 +185,6 @@ impl ApiContext {
                         let uuid = setting.get_id();
                         // TODO: see if we can remove allocation
                         let uuid_bytes = uuid.as_bytes().to_vec();
-                        // SAFETY: The callback is expected to be safe to call
                         callback
                             .access_method_change(access_method_change_context.clone(), uuid_bytes);
                     }
@@ -272,10 +270,6 @@ pub fn mullvad_api_update_access_methods(
 }
 
 /// Called by Swift to update the currently used access methods
-///
-/// # SAFETY
-/// `access_method_id` must point to a null terminated string in a UUID format
-///
 #[uniffi::export]
 pub fn mullvad_api_use_access_method(api_context: Arc<ApiContext>, id: String) {
     let Some(id) = Id::from_string(id) else {
@@ -285,11 +279,6 @@ pub fn mullvad_api_use_access_method(api_context: Arc<ApiContext>, id: String) {
 }
 
 /// Called by Swift to trigger a fetching and caching of addresses
-///
-/// # SAFETY
-///
-/// this takes no arguments other than the API context. The API context
-/// needs to be valid, and the function should not be called concurrently.
 #[uniffi::export]
 pub fn mullvad_api_update_address_cache(api_context: Arc<ApiContext>) {
     let cloned_context = api_context.clone();

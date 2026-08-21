@@ -13,17 +13,6 @@ use super::{
     retry_strategy::RetryStrategy,
 };
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `account_number` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_init_storekit_payment(
     api_context: Arc<ApiContext>,
@@ -63,19 +52,6 @@ async fn mullvad_ios_init_storekit_payment_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// `body` must be a pointer to a contiguous memory segment
-///
-/// `body_size` must be the size of the body
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_check_storekit_payment(
     api_context: Arc<ApiContext>,

@@ -8,6 +8,7 @@ use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher, Socks5Remote, Soc
 
 use crate::api_client::access_method_settings::{ShadowsocksWrapper, Socks5RemoteWrapper};
 
+/// TODO: MAKE THIS SAFE
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///
 /// SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
@@ -35,10 +36,6 @@ pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<I
 
 /// Converts parameters into a boxed `Shadowsocks` configuration that is safe
 /// to send across the FFI boundary
-///
-/// # SAFETY
-/// `address` must be a pointer to at least `address_len` bytes.
-/// `c_password` and `c_cipher` must be pointers to null terminated strings
 #[uniffi::export]
 pub fn new_shadowsocks_access_method_setting(
     address: Vec<u8>,
@@ -64,10 +61,6 @@ pub fn new_shadowsocks_access_method_setting(
 /// Converts parameters into a boxed `Socks5Remote` configuration that is safe
 ///
 /// to send across the FFI boundary
-///
-/// # SAFETY
-/// `address` must be a pointer to at least `address_len` bytes.
-/// `c_username` and `c_password` must be pointers to null terminated strings, or null
 #[uniffi::export]
 pub fn new_socks5_access_method_setting(
     address: Vec<u8>,

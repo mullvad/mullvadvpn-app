@@ -12,15 +12,6 @@ use super::{
     retry_request, retry_strategy::RetryStrategy,
 };
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_get_addresses(
     api_context: Arc<ApiContext>,
@@ -41,22 +32,12 @@ pub fn mullvad_ios_get_addresses(
     )
 }
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_api_addrs_available(
     api_context: Arc<ApiContext>,
     retry_strategy: Arc<RetryStrategy>,
     access_method_setting: Arc<AccessMethodSettingWrapper>,
 ) -> Arc<RequestCancelHandle> {
-    // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
     let access_method_setting = access_method_setting.inner.clone();
 
     RequestCancelHandle::new(
@@ -98,17 +79,6 @@ pub fn mullvad_ios_api_addrs_available(
     )
 }
 
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `etag` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_get_relays(
     api_context: Arc<ApiContext>,

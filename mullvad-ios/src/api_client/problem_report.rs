@@ -12,18 +12,6 @@ use super::{
 };
 
 /// Send a problem report via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the string properties of `SwiftProblemReportRequest` must be pointers to a null terminated strings.
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[uniffi::export]
 pub fn mullvad_ios_send_problem_report(
     api_context: Arc<ApiContext>,
