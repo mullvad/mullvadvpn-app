@@ -10,13 +10,6 @@ use tokio::net::UdpSocket;
 
 use crate::{socket::create_remote_socket, transport::ObfuscatedTransport};
 
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    /// Failed to connect remote UDP socket
-    #[error("Failed to connect remote UDP socket")]
-    ConnectRemoteUdp(#[source] io::Error),
-}
-
 #[derive(Debug, Clone)]
 pub struct Settings {
     /// Remote LWO/WG server
@@ -30,6 +23,7 @@ pub struct Settings {
 /// Obfuscates the WireGuard header in place and forwards the packet to the LWO/WG server.
 pub struct Lwo {
     remote_socket: BypassSocket<UdpSocket>,
+    server_addr: SocketAddr,
     /// Key that the server obfuscates incoming packets with.
     rx_key: PublicKey,
     /// Key to obfuscate outgoing packets with.
@@ -39,15 +33,10 @@ pub struct Lwo {
 impl Lwo {
     pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let remote_socket = create_remote_socket(&bypass, settings.server_addr.is_ipv4()).await?;
-        remote_socket
-            .connect(settings.server_addr)
-            .await
-            .map_err(Error::ConnectRemoteUdp)
-            .map_err(crate::Error::CreateLwoObfuscator)?;
-        log::debug!("Connected to {}", settings.server_addr);
 
         Ok(Self {
             remote_socket,
+            server_addr: settings.server_addr,
             rx_key: settings.client_public_key.clone(),
             tx_key: settings.server_public_key.clone(),
         })
@@ -58,13 +47,22 @@ impl Lwo {
 impl ObfuscatedTransport for Lwo {
     async fn send(&self, packet: &mut [u8]) -> io::Result<()> {
         obfuscate(&mut rand::rng(), packet, self.tx_key.as_bytes());
-        self.remote_socket.send(packet).await.map(drop)
+        self.remote_socket
+            .send_to(packet, self.server_addr)
+            .await
+            .map(drop)
     }
 
     async fn recv(&self, buf: &mut [u8]) -> io::Result<usize> {
-        let n = self.remote_socket.recv(buf).await?;
-        deobfuscate(&mut buf[..n], self.rx_key.as_bytes());
-        Ok(n)
+        loop {
+            let (n, from) = self.remote_socket.recv_from(buf).await?;
+            if from != self.server_addr {
+                continue;
+            }
+
+            deobfuscate(&mut buf[..n], self.rx_key.as_bytes());
+            return Ok(n);
+        }
     }
 
     fn packet_overhead(&self) -> u16 {

@@ -27,9 +27,6 @@ pub enum Error {
     #[error("Failed to initialize Quic")]
     CreateQuicObfuscator(#[source] quic::Error),
 
-    #[error("Failed to initialize LWO")]
-    CreateLwoObfuscator(#[source] lwo::Error),
-
     #[error("Failed to bind remote socket")]
     BindRemoteUdp(#[source] io::Error),
 
