@@ -18,20 +18,6 @@ typedef struct SwiftData {
   void *ptr;
 } SwiftData;
 
-typedef struct SwiftMullvadApiResponse {
-  uint8_t *body;
-  uintptr_t body_size;
-  char *etag;
-  uint16_t status_code;
-  char *error_description;
-  char *server_response_code;
-  bool success;
-} SwiftMullvadApiResponse;
-
-typedef struct CompletionCookie {
-  void *inner;
-} CompletionCookie;
-
 typedef struct SwiftServerMock {
   const void *server_ptr;
   const void *mock_ptr;
@@ -89,20 +75,6 @@ extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 
 extern struct SwiftData swift_read_address_cache(void);
 
-/**
- * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
- * network calls through Mullvad API on Rust side.
- *
- * # Safety
- *
- * `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`.
- * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
- * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
- * intended to be used.
- */
-extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
-                                          struct CompletionCookie completion_cookie);
-
 char *get_shadowsocks_chipers(void);
 
 /**
@@ -156,17 +128,6 @@ struct SwiftServerMock mullvad_api_mock_post(const char *path,
  * is not safe to call multiple times with the same `SwiftServerMock`.
  */
 void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
-
-/**
- * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely
- * dropped from memory.
- *
- * # Safety
- *
- * `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`. This function
- * is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
- */
-void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 /**
  * Called by the Swift side in order to provide an object to rust that can create

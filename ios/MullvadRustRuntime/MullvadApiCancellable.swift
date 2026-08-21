@@ -15,12 +15,11 @@ public final class MullvadApiCancellable: Cancellable, Sendable {
         self.handle = handle
     }
 
-    public func start(_ completion: ((MullvadApiResponse) throws -> Void)?) {
-        let completionPointer = MullvadApiCompletion { apiResponse in
+    public func start(_ completion: (@Sendable (SwiftMullvadApiResponse) throws -> Void)?) {
+        let completionCookie = MullvadApiCompletion { apiResponse in
             try? completion?(apiResponse)
         }
-        let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
-        mullvadApiStartTask(handle: handle, completionCookie: UInt64(Int(bitPattern: rawCompletionPointer)))
+        mullvadApiStartTask(handle: handle, completionCookie: completionCookie)
     }
 
     public func cancel() {

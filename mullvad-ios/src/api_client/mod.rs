@@ -25,7 +25,6 @@ mod access_method_settings;
 mod account;
 mod api;
 mod cancellation;
-mod completion;
 mod device;
 pub(super) mod helpers;
 mod mock;

@@ -41,10 +41,10 @@ pub fn mullvad_ios_get_account(
         )
         .await
         {
-            Ok(response) => completion.finish(response),
+            Ok(response) => completion.finish(Arc::new(response)),
             Err(err) => {
                 log::error!("{err:?}");
-                completion.finish(SwiftMullvadApiResponse::rest_error(err));
+                completion.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
             }
         },
     )
@@ -71,10 +71,10 @@ pub fn mullvad_ios_create_account(
         async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_create_account_inner(api_context.rest_handle(), retry_strategy).await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -110,10 +110,10 @@ pub fn mullvad_ios_delete_account(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },

@@ -6,9 +6,9 @@ use std::{
 
 use tokio::task::JoinHandle;
 
-use crate::api_client::{ApiContext, completion::CompletionCookie, retry_strategy::RetryStrategy};
+use crate::api_client::{ApiContext, retry_strategy::RetryStrategy};
 
-use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiResponse};
+use super::response::SwiftMullvadApiResponse;
 
 // TODO FIX THIS
 #[derive(uniffi::Object)]
@@ -29,7 +29,7 @@ enum HandleState {
             dyn FnOnce(
                     Arc<ApiContext>,
                     RetryStrategy,
-                    SwiftCompletionHandler,
+                    Arc<dyn CompletionCookieNew>,
                 ) -> Pin<Box<dyn Future<Output = ()> + Send>>
                 + Send,
         >,
@@ -39,7 +39,7 @@ enum HandleState {
     Intermediate,
     Started {
         task: JoinHandle<()>,
-        completion: SwiftCompletionHandler,
+        completion: Arc<dyn CompletionCookieNew>,
     },
 }
 
@@ -50,7 +50,9 @@ impl RequestCancelHandle {
         task: I,
     ) -> Self
     where
-        I: FnOnce(Arc<ApiContext>, RetryStrategy, SwiftCompletionHandler) -> F + Send + 'static,
+        I: FnOnce(Arc<ApiContext>, RetryStrategy, Arc<dyn CompletionCookieNew>) -> F
+            + Send
+            + 'static,
         F: Future<Output = ()> + Send + 'static,
     {
         Self {
@@ -63,7 +65,7 @@ impl RequestCancelHandle {
         }
     }
 
-    pub fn start(&mut self, completion: SwiftCompletionHandler) {
+    pub fn start(&mut self, completion: Arc<dyn CompletionCookieNew>) {
         if !matches!(self.inner, HandleState::ToStart { .. }) {
             return;
         }
@@ -79,7 +81,7 @@ impl RequestCancelHandle {
         };
 
         let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            completion.finish(Arc::new(SwiftMullvadApiResponse::no_tokio_runtime()));
             return;
         };
 
@@ -106,8 +108,13 @@ impl RequestCancelHandle {
         // TODO: should this call block until the task returns?
         // We can make it do that.
         // let _ = handle.block_on(self.task);
-        completion.finish(SwiftMullvadApiResponse::cancelled());
+        completion.finish(Arc::new(SwiftMullvadApiResponse::cancelled()));
     }
+}
+
+#[uniffi::export(with_foreign)]
+pub trait CompletionCookieNew: Send + Sync {
+    fn finish(&self, result: Arc<SwiftMullvadApiResponse>);
 }
 
 /// Called by the Swift side to signal that a Mullvad API call should be started.
@@ -121,16 +128,15 @@ impl RequestCancelHandle {
 /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
 /// intended to be used.
 #[uniffi::export]
-pub fn mullvad_api_start_task(handle: &SwiftCancelHandle, completion_cookie: u64) {
-    let completion_cookie = completion_cookie as *mut libc::c_void;
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
+pub fn mullvad_api_start_task(
+    handle: &SwiftCancelHandle,
+    completion_cookie: Arc<dyn CompletionCookieNew>,
+) {
     let Ok(mut handle) = handle.inner.lock() else {
         return;
     };
     if let Some(handle) = &mut *handle {
-        handle.start(completion);
+        handle.start(completion_cookie);
     }
 }
 

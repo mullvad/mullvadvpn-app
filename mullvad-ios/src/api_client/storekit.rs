@@ -43,10 +43,10 @@ pub fn mullvad_ios_init_storekit_payment(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -96,10 +96,10 @@ pub fn mullvad_ios_check_storekit_payment(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },

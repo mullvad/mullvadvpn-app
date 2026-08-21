@@ -34,10 +34,10 @@ pub fn mullvad_ios_get_addresses(
         retry_strategy,
         async move |api_context, retry_strategy, completion_handler| {
             match mullvad_ios_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -77,24 +77,26 @@ pub fn mullvad_ios_api_addrs_available(
                     .mullvad_rest_handle(resolved_connection_mode.connection_mode.into_provider());
 
                 match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy).await {
-                    Ok(_) => completion_handler.finish(SwiftMullvadApiResponse::ok()),
+                    Ok(_) => completion_handler.finish(Arc::new(SwiftMullvadApiResponse::ok())),
                     Err(err) => {
                         log::error!("{err:?}");
-                        completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                        completion_handler
+                            .finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                     }
                 }
             }
             Ok(None) => {
                 log::error!("Invalid access method configuration, {access_method_setting:?}");
-                completion_handler.finish(SwiftMullvadApiResponse::access_method_error(
+                completion_handler.finish(Arc::new(SwiftMullvadApiResponse::access_method_error(
                     mullvad_api::access_mode::Error::Resolve {
                         access_method: access_method_setting.access_method,
                     },
-                ));
+                )));
             }
             Err(err) => {
                 log::error!("{err:?}");
-                completion_handler.finish(SwiftMullvadApiResponse::access_method_error(err));
+                completion_handler
+                    .finish(Arc::new(SwiftMullvadApiResponse::access_method_error(err)));
             }
         },
     )
@@ -131,10 +133,10 @@ pub fn mullvad_ios_get_relays(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },

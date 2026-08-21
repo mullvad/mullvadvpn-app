@@ -48,10 +48,10 @@ pub fn mullvad_ios_get_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -89,10 +89,10 @@ pub fn mullvad_ios_get_devices(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -136,10 +136,10 @@ pub fn mullvad_ios_create_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -179,10 +179,10 @@ pub fn mullvad_ios_delete_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },
@@ -228,10 +228,10 @@ pub fn mullvad_ios_rotate_device_key(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(SwiftMullvadApiResponse::rest_error(err)));
                 }
             }
         },

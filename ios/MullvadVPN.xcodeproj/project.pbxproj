@@ -695,7 +695,6 @@
 		7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */; };
 		7AB73F6E2D9AAD0A00DA5E1D /* MullvadAccountProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */; };
 		7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */; };
-		7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */; };
 		7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */; };
 		7ABBE0142F1A2CFF00AD8176 /* IncludeAllNetworksSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */; };
 		7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */; };
@@ -1179,6 +1178,7 @@
 		F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */; };
 		F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
+		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
 		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
 		F0F313A72E85321D00D55C43 /* RecentConnectionsRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */; };
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
@@ -2396,7 +2396,6 @@
 		7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideInteractor.swift; sourceTree = "<group>"; };
 		7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccountProxy.swift; sourceTree = "<group>"; };
 		7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiContext.swift; sourceTree = "<group>"; };
-		7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiResponse.swift; sourceTree = "<group>"; };
 		7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkOperation.swift; sourceTree = "<group>"; };
 		7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -2778,6 +2777,7 @@
 		F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppResetManager.swift; sourceTree = "<group>"; };
 		F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
+		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayLocationList.swift; sourceTree = "<group>"; };
 		F0F313A62E85320D00D55C43 /* RecentConnectionsRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryTests.swift; sourceTree = "<group>"; };
@@ -4935,7 +4935,6 @@
 				7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */,
 				7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */,
 				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
-				7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */,
 				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
 				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
 				A98207F02D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift */,
@@ -5279,6 +5278,7 @@
 		F0F146932D9462BA00BF78E7 /* MullvadApi */ = {
 			isa = PBXGroup;
 			children = (
+				F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */,
 			);
 			path = MullvadApi;
 			sourceTree = "<group>";
@@ -6556,6 +6556,7 @@
 				F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
 				7AFF5B9F2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
+				F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */,
 				7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */,
 				F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */,
 				F0F939802FD8121000AF42D7 /* MigratedSettingsObserver.swift in Sources */,
@@ -7499,7 +7500,6 @@
 				A9B95DEF2EC73BB800C7FE9B /* MullvadAPIMock.swift in Sources */,
 				A98207F12D91A0AC00654558 /* MullvadShadowsocksBridgeProvider.swift in Sources */,
 				44DFB71C2F3DD8AB002C528E /* SwiftData.swift in Sources */,
-				7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */,
 				A98207F32D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift in Sources */,
 				F0A607C52FAA0A4B00094833 /* Array+String.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,

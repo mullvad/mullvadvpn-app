@@ -1376,6 +1376,203 @@ public func FfiConverterTypeBridgeProvider_lower(_ value: BridgeProvider) -> UIn
 
 
 
+public protocol CompletionCookieNew: AnyObject, Sendable {
+    
+    func finish(result: SwiftMullvadApiResponse) 
+    
+}
+open class CompletionCookieNewImpl: CompletionCookieNew, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_completioncookienew(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_completioncookienew(handle, $0) }
+    }
+
+    
+
+    
+open func finish(result: SwiftMullvadApiResponse)  {try! rustCall() {
+    uniffi_mullvad_ios_fn_method_completioncookienew_finish(
+            self.uniffiCloneHandle(),
+        FfiConverterTypeSwiftMullvadApiResponse_lower(result),$0
+    )
+}
+}
+    
+
+    
+}
+
+
+
+// Put the implementation in a struct so we don't pollute the top-level namespace
+fileprivate struct UniffiCallbackInterfaceCompletionCookieNew {
+
+    // Create the VTable using a series of closures.
+    // Swift automatically converts these into C callback functions.
+    //
+    // Store the vtable directly.
+    static let vtable: UniffiVTableCallbackInterfaceCompletionCookieNew = UniffiVTableCallbackInterfaceCompletionCookieNew(
+        uniffiFree: { (uniffiHandle: UInt64) -> () in
+            do {
+                try FfiConverterTypeCompletionCookieNew.handleMap.remove(handle: uniffiHandle)
+            } catch {
+                print("Uniffi callback interface CompletionCookieNew: handle missing in uniffiFree")
+            }
+        },
+        uniffiClone: { (uniffiHandle: UInt64) -> UInt64 in
+            do {
+                return try FfiConverterTypeCompletionCookieNew.handleMap.clone(handle: uniffiHandle)
+            } catch {
+                fatalError("Uniffi callback interface CompletionCookieNew: handle missing in uniffiClone")
+            }
+        },
+        finish: { (
+            uniffiHandle: UInt64,
+            result: UInt64,
+            uniffiOutReturn: UnsafeMutableRawPointer,
+            uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
+        ) in
+            let makeCall = {
+                () throws -> () in
+                guard let uniffiObj = try? FfiConverterTypeCompletionCookieNew.handleMap.get(handle: uniffiHandle) else {
+                    throw UniffiInternalError.unexpectedStaleHandle
+                }
+                return uniffiObj.finish(
+                     result: try FfiConverterTypeSwiftMullvadApiResponse_lift(result)
+                )
+            }
+
+            
+            let writeReturn = { () }
+            uniffiTraitInterfaceCall(
+                callStatus: uniffiCallStatus,
+                makeCall: makeCall,
+                writeReturn: writeReturn
+            )
+        }
+    )
+
+    // Rust stores this pointer for future callback invocations, so it must live
+    // for the process lifetime (not just for the init function call).
+    //
+    // `nonisolated(unsafe)` is needed under Swift 6 strict concurrency.
+    // This is safe because the pointee is initialized once during static init
+    // and never mutated by either side of the FFI.  Its fields are C function pointers.
+    nonisolated(unsafe) static let vtablePtr: UnsafePointer<UniffiVTableCallbackInterfaceCompletionCookieNew> = {
+        let ptr = UnsafeMutablePointer<UniffiVTableCallbackInterfaceCompletionCookieNew>.allocate(capacity: 1)
+        ptr.initialize(to: vtable)
+        return UnsafePointer(ptr)
+    }()
+}
+
+private func uniffiCallbackInitCompletionCookieNew() {
+    uniffi_mullvad_ios_fn_init_callback_vtable_completioncookienew(UniffiCallbackInterfaceCompletionCookieNew.vtablePtr)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeCompletionCookieNew: FfiConverter {
+    fileprivate static let handleMap = UniffiHandleMap<CompletionCookieNew>()
+
+    typealias FfiType = UInt64
+    typealias SwiftType = CompletionCookieNew
+
+    public static func lift(_ handle: UInt64) throws -> CompletionCookieNew {
+        if ((handle & 1) == 0) {
+            // Rust-generated handle, construct a new class that uses the handle to implement the
+            // interface
+            return CompletionCookieNewImpl(unsafeFromHandle: handle)
+        } else {
+            // Swift-generated handle, get the object from the handle map
+            return try handleMap.remove(handle: handle)
+        }
+    }
+
+    public static func lower(_ value: CompletionCookieNew) -> UInt64 {
+         if let rustImpl = value as? CompletionCookieNewImpl {
+             // Rust-implemented object.  Clone the handle and return it
+            return rustImpl.uniffiCloneHandle()
+         } else {
+            // Swift object, generate a new vtable handle and return that.
+            return handleMap.insert(obj: value)
+         }
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> CompletionCookieNew {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: CompletionCookieNew, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeCompletionCookieNew_lift(_ handle: UInt64) throws -> CompletionCookieNew {
+    return try FfiConverterTypeCompletionCookieNew.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeCompletionCookieNew_lower(_ value: CompletionCookieNew) -> UInt64 {
+    return FfiConverterTypeCompletionCookieNew.lower(value)
+}
+
+
+
+
+
+
 /**
  * A running GotaTun tunnel. Dropping it stops the tunnel (via
  * [`IosTunnelAdapter`]'s `Drop`); `stop` is exposed for deterministic teardown.
@@ -2089,6 +2286,172 @@ public func FfiConverterTypeSwiftCancelHandle_lift(_ handle: UInt64) throws -> S
 #endif
 public func FfiConverterTypeSwiftCancelHandle_lower(_ value: SwiftCancelHandle) -> UInt64 {
     return FfiConverterTypeSwiftCancelHandle.lower(value)
+}
+
+
+
+
+
+
+public protocol SwiftMullvadApiResponseProtocol: AnyObject, Sendable {
+    
+    func body()  -> Data?
+    
+    func errorDescription()  -> String?
+    
+    func etag()  -> String?
+    
+    func serverResponseCode()  -> String?
+    
+    func statusCode()  -> UInt16
+    
+    func success()  -> Bool
+    
+}
+open class SwiftMullvadApiResponse: SwiftMullvadApiResponseProtocol, @unchecked Sendable {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_swiftmullvadapiresponse(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_swiftmullvadapiresponse(handle, $0) }
+    }
+
+    
+
+    
+open func body() -> Data?  {
+    return try!  FfiConverterOptionData.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_body(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func errorDescription() -> String?  {
+    return try!  FfiConverterOptionString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_error_description(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func etag() -> String?  {
+    return try!  FfiConverterOptionString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_etag(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func serverResponseCode() -> String?  {
+    return try!  FfiConverterOptionString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_server_response_code(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func statusCode() -> UInt16  {
+    return try!  FfiConverterUInt16.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_status_code(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+open func success() -> Bool  {
+    return try!  FfiConverterBool.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_swiftmullvadapiresponse_success(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeSwiftMullvadApiResponse: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = SwiftMullvadApiResponse
+
+    public static func lift(_ handle: UInt64) throws -> SwiftMullvadApiResponse {
+        return SwiftMullvadApiResponse(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: SwiftMullvadApiResponse) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftMullvadApiResponse {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: SwiftMullvadApiResponse, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftMullvadApiResponse_lift(_ handle: UInt64) throws -> SwiftMullvadApiResponse {
+    return try FfiConverterTypeSwiftMullvadApiResponse.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeSwiftMullvadApiResponse_lower(_ value: SwiftMullvadApiResponse) -> UInt64 {
+    return FfiConverterTypeSwiftMullvadApiResponse.lower(value)
 }
 
 
@@ -2958,6 +3321,30 @@ fileprivate struct FfiConverterOptionString: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterOptionData: FfiConverterRustBuffer {
+    typealias SwiftType = Data?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterData.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterData.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterOptionTypeAccessMethodSettingWrapper: FfiConverterRustBuffer {
     typealias SwiftType = AccessMethodSettingWrapper?
 
@@ -3329,10 +3716,10 @@ public func mullvadApiCancelTask(handle: SwiftCancelHandle)  {try! rustCall() {
  * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
  * intended to be used.
  */
-public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: UInt64)  {try! rustCall() {
+public func mullvadApiStartTask(handle: SwiftCancelHandle, completionCookie: CompletionCookieNew)  {try! rustCall() {
     uniffi_mullvad_ios_fn_func_mullvad_api_start_task(
         FfiConverterTypeSwiftCancelHandle_lower(handle),
-        FfiConverterUInt64.lower(completionCookie),$0
+        FfiConverterTypeCompletionCookieNew_lower(completionCookie),$0
     )
 }
 }
@@ -3670,7 +4057,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_mullvad_api_cancel_task() != 10019) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 9336) {
+    if (uniffi_mullvad_ios_checksum_func_mullvad_api_start_task() != 20670) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_mullvad_ios_create_device() != 50725) {
@@ -3721,6 +4108,27 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_bridgeprovider_get_bridges() != 24171) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_mullvad_ios_checksum_method_completioncookienew_finish() != 59153) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_body() != 24388) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_error_description() != 61602) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_etag() != 11689) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_server_response_code() != 48209) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_status_code() != 33523) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_swiftmullvadapiresponse_success() != 53762) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets() != 48993) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3755,6 +4163,7 @@ private let initializationResult: InitializationResult = {
     uniffiCallbackInitApiContextCallback()
     uniffiCallbackInitApiContextCallbackContext()
     uniffiCallbackInitBridgeProvider()
+    uniffiCallbackInitCompletionCookieNew()
     uniffiCallbackInitGotaTunCallback()
     return InitializationResult.ok
 }()
