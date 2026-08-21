@@ -42,11 +42,11 @@ struct CustomToggleStyle: ToggleStyle {
                 )
                 .opacity(disabled ? 0.4 : 1)
         }
-        .accessibilityIdentifier(accessibilityId?.asString ?? "")
         .onTapGesture {
             toggle(configuration)
         }
         .adjustingTapAreaSize()
+        .accessibilityIdentifier(accessibilityId?.asString ?? "")
     }
 
     private func toggle(_ configuration: Configuration) {

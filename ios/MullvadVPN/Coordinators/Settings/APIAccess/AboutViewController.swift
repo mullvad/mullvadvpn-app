@@ -92,4 +92,39 @@ class AboutViewController: UIViewController {
             contentView.addArrangedSubview(label)
         }
     }
+
+    static func presentWithNavigationController(_ navigationController: UINavigationController) {
+        let header = NSLocalizedString("Server IP override", comment: "")
+        let body = [
+            NSLocalizedString(
+                """
+                On some networks, where various types of censorship are being used, our server IP addresses are \
+                sometimes blocked.
+                """,
+                comment: ""
+            ),
+            NSLocalizedString(
+                "To circumvent this you can import a file or a text, provided by our support team, "
+                    + "with new IP addresses that override the default addresses of the servers "
+                    + "in the Select location view.",
+                comment: ""
+            ),
+            NSLocalizedString(
+                "If you are having issues connecting to VPN servers, please contact support.",
+                comment: ""
+            ),
+        ]
+
+        let aboutController = AboutViewController(header: header, preamble: nil, body: body)
+        let aboutNavController = UINavigationController(rootViewController: aboutController)
+
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction { [weak aboutNavController] _ in
+                aboutNavController?.dismiss(animated: true)
+            }
+        )
+
+        navigationController.present(aboutNavController, animated: true)
+    }
 }

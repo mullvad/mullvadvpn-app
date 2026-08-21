@@ -16,6 +16,8 @@ struct SegmentedListItem<Leading: View>: View {
     var userInteraction: UserInteraction
     var accessibilityIdentifier: AccessibilityIdentifier?
     var accessibilityLabel: String
+    /// A `NavigationLink` destination, triggered by either tapping on the leading, or trailing view.
+    var leadingAndTrailingDestination: AnyView?
     /// A leading sub component. Intended to be used for leading elements, such as titles, status indicators etc.
     @ViewBuilder var leading: () -> Leading
     /// A trailing sub component. Intended to be used for trailing elements, such as subtitles, buttons etc.
@@ -36,6 +38,7 @@ struct SegmentedListItem<Leading: View>: View {
         userInteraction: UserInteraction = .enabled,
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
+        @ViewBuilder leadingAndTrailingDestination: () -> any View = { EmptyView() },
         @ViewBuilder leading: @escaping () -> Leading,
         @ViewBuilder trailing: () -> Trailing = { EmptyView() },
         @ViewBuilder segment: () -> Segment = { EmptyView() },
@@ -48,6 +51,7 @@ struct SegmentedListItem<Leading: View>: View {
         self.userInteraction = userInteraction
         self.accessibilityIdentifier = accessibilityIdentifier
         self.accessibilityLabel = accessibilityLabel
+        self.leadingAndTrailingDestination = leadingAndTrailingDestination().typeErase()
         self.leading = leading
         self.trailing = trailing().typeErase()
         self.segment = segment().typeErase()
@@ -65,12 +69,27 @@ struct SegmentedListItem<Leading: View>: View {
             : 0
     }
 
+    @ViewBuilder func leadingAndTrailing() -> some View {
+        if let leadingAndTrailingDestination {
+            NavigationLink {
+                leadingAndTrailingDestination
+            } label: {
+                leading()
+                Spacer()
+                trailing
+            }
+        } else {
+            leading()
+            Spacer()
+            trailing
+        }
+    }
+
     var body: some View {
         HStack(spacing: 2) {
             let label = HStack(spacing: 8) {
-                leading()
-                Spacer()
-                trailing?.accessibilityIdentifier(self.accessibilityIdentifier)
+                leadingAndTrailing()
+                    .accessibilityIdentifier(self.accessibilityIdentifier)
             }
             .padding(.leading, 16)
             .padding(.trailing, trailing == nil ? 16 : 0)
@@ -84,7 +103,15 @@ struct SegmentedListItem<Leading: View>: View {
                     onSelect?()
                 }
             } label: {
-                label
+                HStack(spacing: 8) {
+                    leadingAndTrailing()
+                }
+                .padding(.leading, 16)
+                .padding(.trailing, trailing == nil ? 16 : 0)
+                .background(Color.colorForIndentationLevel(level))
+                .sizeOfView {
+                    segmentHeight = $0.height
+                }
             }
 
             if onSelect != nil {

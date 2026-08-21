@@ -777,7 +777,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     func presentVPNSettings(
-        section: VPNSettingsSection?,
+        section: VPNSettingsSection,
         animated: Bool,
         completion: @escaping @Sendable (Coordinator) -> Void
     ) {

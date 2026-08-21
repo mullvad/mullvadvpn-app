@@ -9,7 +9,7 @@
 import Foundation
 
 /// IP version preference for relay connections
-public enum IPVersion: Codable, Sendable {
+public enum IPVersion: Codable, Sendable, CaseIterable {
     case automatic
     case ipv4
     case ipv6

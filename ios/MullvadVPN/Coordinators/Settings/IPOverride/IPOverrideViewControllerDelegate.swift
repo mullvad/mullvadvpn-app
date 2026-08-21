@@ -8,6 +8,7 @@
 
 import Foundation
 
+@MainActor
 protocol IPOverrideViewControllerDelegate: AnyObject {
     func presentImportTextController()
     func presentAbout()
