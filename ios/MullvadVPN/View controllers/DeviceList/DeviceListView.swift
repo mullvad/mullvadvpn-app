@@ -67,7 +67,7 @@ struct DeviceListView: View {
                                     .frame(width: 24, height: 24)
                                     .accessibilityIdentifier(.deviceRemovalProgressView)
                             } else {
-                                Image.mullvadIconClose
+                                ResizableImageView(image: .mullvadIconCross, dimension: .height(24))
                             }
                         }
                     }
