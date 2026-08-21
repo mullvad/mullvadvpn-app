@@ -24,7 +24,10 @@ use std::{
     borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, io,
     net::SocketAddr, str::FromStr, sync::Arc, time::Duration,
 };
-use tokio::time::{sleep, timeout};
+use tokio::{
+    sync::Notify,
+    time::{sleep, timeout},
+};
 
 pub use hyper::StatusCode;
 
@@ -137,7 +140,10 @@ impl Error {
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
 pub(crate) struct RequestService<C> {
-    command_rx: mpsc::UnboundedReceiver<RequestCommand>,
+    requests_rx: mpsc::UnboundedReceiver<SendRequest>,
+    /// [`Notify`] that is used to signal whether [`Connection`] should be closed.
+    reset: Arc<Notify>,
+    /// The active HTTP connection to the server, if any.
     connection: Option<Connection>,
     dns_resolver: Arc<dyn DnsResolver>,
     connector: HttpsConnector,
@@ -149,6 +155,19 @@ struct Connection {
     send_request: http1::SendRequest<BoxBody<Bytes, Error>>,
     idle_timeout: Duration,
     connection_task: tokio::task::AbortHandle,
+}
+
+#[derive(Clone)]
+/// A handle to interact with a spawned `RequestService`.
+pub struct RequestServiceHandle {
+    tx: Arc<mpsc::UnboundedSender<SendRequest>>,
+    reset: Arc<Notify>,
+}
+
+#[derive(Debug)]
+pub struct SendRequest {
+    request: Request<BoxBody<Bytes, Error>>,
+    response_tx: oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
 }
 
 impl<C: ConnectionModeProvider + 'static> RequestService<C> {
@@ -175,15 +194,20 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
 
         let (command_tx, command_rx) = mpsc::unbounded();
         let command_tx = Arc::new(command_tx);
+        let reset = Arc::new(Notify::new());
         let service = Self {
             dns_resolver,
-            command_rx,
+            requests_rx: command_rx,
+            reset: Arc::clone(&reset),
             connector,
             connection_mode_provider,
             api_availability,
             connection: None,
         };
-        let handle = RequestServiceHandle { tx: command_tx };
+        let handle = RequestServiceHandle {
+            tx: command_tx,
+            reset,
+        };
         tokio::spawn(service.run());
         handle
     }
@@ -201,32 +225,22 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             };
 
             tokio::select! {
+                _ = self.reset.notified() => self.close_connection(),
                 new_mode = self.connection_mode_provider.receive() => {
                     let Some(new_mode) = new_mode else { break };
                     self.soft_close_connection();
                     self.connector.set_connection_mode(new_mode);
                 }
-                command = self.command_rx.next() => {
-                    let Some(command) = command else { break };
-                    self.process_command(command).await;
+                request = self.requests_rx.next() => {
+                    let Some(SendRequest { request, response_tx }) = request else { break };
+                    let result = self.send_request(request).await;
+                    let _ = response_tx.send(result);
                 }
                 idle_for = evict_connection => {
                     tracing::trace!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
                     // TODO: this does not take into account in-flight `Body`s
                     self.soft_close_connection();
                 }
-            }
-        }
-    }
-
-    async fn process_command(&mut self, command: RequestCommand) {
-        match command {
-            // TODO: should Reset command be serialized with NewRequest commands,
-            // or should they preempt them?
-            RequestCommand::Reset => self.close_connection(),
-            RequestCommand::NewRequest(request, completion_tx) => {
-                let result = self.send_request(request).await;
-                let _ = completion_tx.send(result);
             }
         }
     }
@@ -246,7 +260,8 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     async fn connect(&mut self, host: &str) -> Result<Connection> {
         let addr = self.resolve(host).await?;
         tracing::trace!("connecting to {addr} ({host:?})");
-        let (connection, idle_timeout) = self
+        let idle_timeout = self.connector.idle_timeout();
+        let connection = self
             .connector
             .connect(addr, host)
             .await
@@ -323,16 +338,10 @@ impl<C> Drop for RequestService<C> {
     }
 }
 
-#[derive(Clone)]
-/// A handle to interact with a spawned `RequestService`.
-pub struct RequestServiceHandle {
-    tx: Arc<mpsc::UnboundedSender<RequestCommand>>,
-}
-
 impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub fn reset(&self) {
-        let _ = self.tx.unbounded_send(RequestCommand::Reset);
+        self.reset.notify_one();
     }
 
     /// Submits a `RestRequest` for execution to the request service.
@@ -342,22 +351,16 @@ impl RequestServiceHandle {
         Error: From<B::Error>,
         Bytes: From<B::Data>,
     {
-        let (completion_tx, completion_rx) = oneshot::channel();
+        let (response_tx, response_rx) = oneshot::channel();
         let request = request.map(|r| r.map(box_body));
         self.tx
-            .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
+            .unbounded_send(SendRequest {
+                request,
+                response_tx,
+            })
             .map_err(|_| Error::RestServiceDown)?;
-        completion_rx.await.map_err(|_| Error::RestServiceDown)?
+        response_rx.await.map_err(|_| Error::RestServiceDown)?
     }
-}
-
-#[derive(Debug)]
-pub(crate) enum RequestCommand {
-    NewRequest(
-        Request<BoxBody<Bytes, Error>>,
-        oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
-    ),
-    Reset,
 }
 
 /// A REST request that is sent to the RequestService to be executed.

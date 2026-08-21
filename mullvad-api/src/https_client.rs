@@ -43,6 +43,7 @@ use crate::proxy::ConnectionDecorator;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
+// TODO: kill this type?
 #[derive(Clone, Debug)]
 pub(crate) enum InnerConnectionMode {
     /// Connect directly to the target.
@@ -397,18 +398,21 @@ impl HttpsConnector {
         Ok(SocketAddr::new(addr.ip(), port))
     }
 
+    /// Get the idle timeout of the curren connection method.
+    pub fn idle_timeout(&self) -> Duration {
+        self.proxy_config.idle_timeout()
+    }
+
     /// Establish an HTTPS [`ApiConnection`] to `addr`, with HTTP host `hostname`.
     pub async fn connect(
         &mut self,
         addr: SocketAddr,
         hostname: &str,
-        // TODO: this is ass
-    ) -> io::Result<(TokioIo<ApiConnection>, Duration)> {
+    ) -> io::Result<TokioIo<ApiConnection>> {
         // TODO: preserve this behaviour
         // Loop until we have established a connection. This starts over if a new endpoint
         // is selected while connecting.
         //loop {
-        let idle_timeout = self.proxy_config.idle_timeout();
         let stream = self
                 .proxy_config
                 .clone() // TODO: remove clone if possible
@@ -422,7 +426,7 @@ impl HttpsConnector {
                 )
                 .await?;
 
-        Ok((TokioIo::new(stream), idle_timeout))
+        Ok(TokioIo::new(stream))
         //}
     }
 
