@@ -111,13 +111,13 @@ class PaymentPage: Page {
     }
 
     @discardableResult func submitRenewSubscriptionSheet() -> Self {
-        springboard.buttons["Buy"].tapWhenHittable(timeout: .veryLong)
+        springboard.buttons["Buy"].tapWhenHittable(timeout: .extremelyLong)
 
         return self
     }
 
     @discardableResult func submitPurchaseFinishedAlert() -> Self {
-        springboard.buttons["OK"].tapWhenHittable(timeout: .veryLong)
+        springboard.buttons["OK"].tapWhenHittable(timeout: .extremelyLong)
 
         return self
     }
