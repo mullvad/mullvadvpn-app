@@ -1,1 +1,10 @@
-# See repository root `osv-scanner.toml` for instructions and rules for this file.
+# When editing this file, please refer to `osv-scanner.toml` at the root of the repo for instructions.
+
+## paste is unmaintained. Ignored for six months since the code has no known issues.
+[[IgnoredVulns]]
+id = "RUSTSEC-2024-0436"
+ignoreUntil = 2026-10-25
+reason = """
+Paste unmaintained, but considered complete and trusted by the community.
+netlink-packet-core depends on it.
+"""
