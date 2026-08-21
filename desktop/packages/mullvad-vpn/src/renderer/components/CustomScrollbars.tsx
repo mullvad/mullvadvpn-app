@@ -29,18 +29,20 @@ const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   },
 }));
 
-const StyledTrack = styled.div<{ $canScroll: boolean; $show: boolean }>((props) => ({
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  bottom: 0,
-  width: '16px',
-  backgroundColor: props.$show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
-  borderRadius: '8px',
-  transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
-  zIndex: 99,
-  pointerEvents: props.$canScroll ? 'auto' : 'none',
-}));
+const StyledTrack = styled.div<{ $canScroll: boolean; $show: boolean; $trackOffset?: number }>(
+  (props) => ({
+    position: 'absolute',
+    top: props.$trackOffset ?? 0,
+    right: 0,
+    bottom: 0,
+    width: '16px',
+    backgroundColor: props.$show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
+    borderRadius: '8px',
+    transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
+    zIndex: 99,
+    pointerEvents: props.$canScroll ? 'auto' : 'none',
+  }),
+);
 
 const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: boolean }>(
   (props) => ({
@@ -70,6 +72,7 @@ interface IProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  trackOffset?: number;
 }
 
 interface IState {
@@ -161,6 +164,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       }
 
       const scrollTop = this.computeScrollTop(scrollable, child, scrollPosition);
+
       this.scrollTo(0, scrollTop);
     }
   }
@@ -225,6 +229,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       prevProps.autoHide !== nextProps.autoHide ||
       prevProps.trackPadding?.x !== nextProps.trackPadding?.x ||
       prevProps.trackPadding?.y !== nextProps.trackPadding?.y ||
+      prevProps.trackOffset !== nextProps.trackOffset ||
       prevState.canScroll !== nextState.canScroll ||
       prevState.showScrollIndicators !== nextState.showScrollIndicators ||
       prevState.isDragging !== nextState.isDragging ||
@@ -257,6 +262,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      trackOffset,
       ...otherProps
     } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
@@ -267,6 +273,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
           ref={this.trackRef}
           $show={showScrollbars && this.state.active}
           $canScroll={this.state.canScroll}
+          $trackOffset={trackOffset}
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}>
           <StyledThumb
@@ -477,16 +484,17 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     scrollPosition: ScrollPosition,
   ) {
     const offsetTop = this.computeOffsetTop(scrollable, child);
+    const trackOffset = this.props.trackOffset ?? 0;
 
     switch (scrollPosition) {
       case 'top':
-        return offsetTop;
+        return offsetTop + trackOffset;
 
       case 'bottom':
-        return offsetTop - (scrollable.offsetHeight - child.clientHeight);
+        return offsetTop + trackOffset - (scrollable.offsetHeight - child.clientHeight);
 
       case 'middle':
-        return offsetTop - (scrollable.offsetHeight - child.clientHeight) * 0.5;
+        return offsetTop + trackOffset - (scrollable.offsetHeight - child.clientHeight) * 0.5;
     }
   }
 
@@ -520,6 +528,16 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     };
   }
 
+  private computeTrackOffset(scrollable: HTMLElement) {
+    // scroll offset
+    const scrollTop = scrollable.scrollTop;
+
+    const trackOffset = this.props.trackOffset ?? 0;
+    const trackPosition = scrollTop < trackOffset ? trackOffset - scrollTop : 0;
+
+    return trackPosition;
+  }
+
   private computeThumbHeight(scrollable: HTMLElement) {
     const scrollHeight = scrollable.scrollHeight;
     const visibleHeight = scrollable.offsetHeight;
@@ -533,14 +551,16 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private updateScrollbarsHelper(updateFlags: Partial<IScrollbarUpdateContext>) {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
-    if (scrollable && thumb) {
-      this.updateScrollbars(scrollable, thumb, updateFlags);
+    const track = this.trackRef.current;
+    if (scrollable && thumb && track) {
+      this.updateScrollbars(scrollable, thumb, track, updateFlags);
     }
   }
 
   private updateScrollbars(
     scrollable: HTMLElement,
     thumb: HTMLElement,
+    track: HTMLElement,
     context: Partial<IScrollbarUpdateContext>,
   ) {
     if (context.size) {
@@ -562,6 +582,9 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     }
 
     if (context.position) {
+      const trackOffset = this.computeTrackOffset(scrollable);
+      track.style.setProperty('top', `${trackOffset}px`);
+
       const { x, y } = this.computeThumbPosition(scrollable, thumb);
       thumb.style.setProperty('transform', `translate(${x}px, ${y}px)`);
     }
