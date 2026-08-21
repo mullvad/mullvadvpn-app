@@ -12,7 +12,7 @@ use sysctl::{Ctl, CtlValue, Sysctl};
 
 use arc_swap::ArcSwap;
 use ipnetwork::IpNetwork;
-use tun_rs::{AsyncDevice, DeviceBuilder};
+use tun::{AbstractDevice, AsyncDevice};
 
 use super::rule::BlockRule;
 
@@ -267,21 +267,30 @@ pub fn setup_utun() -> Result<(TunnelDevices, FirewallConfiguration), io::Error>
     // The MTU is left at the device default. It does not have to track the default route's: we
     // terminate the client's TCP connections ourselves, so the client's leg and the upstream leg
     // negotiate their MSS independently and the upstream path MTU never constrains this one.
-    let source = DeviceBuilder::new()
-        .ipv4("10.0.0.2", 24, Some("10.0.0.1"))
-        .packet_information(false)
-        .build_async()?;
-    let source_name = source.name()?;
+    let source = build_utun("10.0.0.2", "10.0.0.1")?;
+    let source_name = source.tun_name().map_err(io::Error::other)?;
     let sink_peer = "10.0.0.2";
-    let sink = DeviceBuilder::new()
-        .ipv4("10.0.0.3", 24, Some(sink_peer))
-        .packet_information(false)
-        .build_async()?;
-    let sink_name = sink.name()?;
+    let sink = build_utun("10.0.0.3", sink_peer)?;
+    let sink_name = sink.tun_name().map_err(io::Error::other)?;
     println!("using source utun with name {source_name}, sink utun with name {sink_name}");
     let configuration = configure_firewall_rules(source_name, sink_name, sink_peer)?;
 
     Ok((TunnelDevices { source, sink }, configuration))
+}
+
+fn build_utun(address: &str, destination: &str) -> Result<AsyncDevice, io::Error> {
+    let mut config = tun::Configuration::default();
+    config
+        .address(address)
+        .destination(destination)
+        .netmask("255.255.255.0")
+        .up();
+    // A macOS utun fd always carries a four byte address family header. Leaving packet
+    // information on hands that header to the crate, so the router only ever sees raw IP.
+    config.platform_config(|platform| {
+        platform.packet_information(true);
+    });
+    tun::create_as_async(&config).map_err(io::Error::other)
 }
 
 fn configure_firewall_rules(

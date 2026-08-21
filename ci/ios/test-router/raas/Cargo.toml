@@ -35,4 +35,4 @@ arc-swap = "1"
 netdev = "0.46.0"
 smoltcp = { version = "0.13", features = ["std"] }
 sysctl = "0.7.1"
-tun-rs = { version = "2", features = ["async"] }
+tun = { version = "0.8", features = ["async"] }

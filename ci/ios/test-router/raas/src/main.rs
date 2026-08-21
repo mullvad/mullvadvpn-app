@@ -29,7 +29,7 @@ async fn main() {
         }
         #[cfg(target_os = "macos")]
         {
-            tunnel_device.source.name().unwrap()
+            tun::AbstractDevice::tun_name(&*tunnel_device.source).unwrap()
         }
     };
 
