@@ -29,6 +29,12 @@ A protobuf compiler is also required in order to build some of the rust dependen
 brew install protobuf
 ```
 
+In an effort to switch to using Swift's structured concurrency as much as possible, uses of certain locking primitives
+will issue warnings at compile time. This is enforced by a build script that uses the `ripgrep` binary.
+```bash
+brew install ripgrep
+```
+
 ## Submodules
 
 The iOS app imports Mullvad's version of `wireguard-go` as a Git submodule. Before building, this must be checked out with
