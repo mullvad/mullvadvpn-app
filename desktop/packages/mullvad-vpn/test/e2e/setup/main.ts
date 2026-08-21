@@ -32,6 +32,8 @@ class ApplicationMain {
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
     updateDismissedForVersion: '',
+    settingsMigrationsDismissedForVersion: '',
+    settingsMigrationsDisplayedForVersion: '',
     animateMap: true,
   };
 

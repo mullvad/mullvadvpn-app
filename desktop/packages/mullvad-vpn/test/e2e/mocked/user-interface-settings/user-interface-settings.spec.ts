@@ -32,6 +32,8 @@ test.describe('User interface settings', () => {
       changelogDisplayedForVersion: '',
       preferredLocale: 'en',
       updateDismissedForVersion: '',
+      settingsMigrationsDismissedForVersion: '',
+      settingsMigrationsDisplayedForVersion: '',
     };
 
     await util.ipc.guiSettings[''].notify({
