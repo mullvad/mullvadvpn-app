@@ -3,7 +3,6 @@ import { useActiveFilters } from '../../../../../features/locations/hooks';
 import { LocationType } from '../../../../../features/locations/types';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { LocationSelector } from '../../../../../lib/components/location-selector';
-import { useIsLocationSelectorExpanded } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { FilterChips } from '../filter-chips';
 import { SelectLocationSelectorEntryItem, SelectLocationSelectorExitItem } from './components';
@@ -14,10 +13,13 @@ import {
   useShowSelectLocationSelectorExitItem,
 } from './hooks';
 
-export function SelectLocationSelector() {
+type SelectLocationSelectorProps = {
+  expanded: boolean;
+};
+
+export function SelectLocationSelector({ expanded }: SelectLocationSelectorProps) {
   const { locationType } = useSelectLocationViewContext();
   const { isAnyFilterActive: showFilterChips } = useActiveFilters(locationType);
-  const expanded = useIsLocationSelectorExpanded();
   const handleSelectedItemChange = useHandleSelectedItemChange();
 
   const selectedItem = locationType === LocationType.entry ? 'entry' : 'exit';
