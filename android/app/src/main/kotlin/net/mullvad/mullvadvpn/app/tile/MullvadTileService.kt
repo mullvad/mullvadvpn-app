@@ -48,6 +48,7 @@ class MullvadTileService : TileService() {
     }
 
     override fun onClick() {
+        // Workaround for the reported bug: https://issuetracker.google.com/issues/236862865
         suspend fun isUnlockStatusPropagatedWithinTimeout(
             unlockTimeoutMillis: Long,
             unlockCheckDelayMillis: Long,
@@ -88,6 +89,7 @@ class MullvadTileService : TileService() {
     @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun toggleTunnel() {
         val isSetup = applicationContext.prepareVpnSafe().isRight()
+        // TODO This logic should be more advanced, we should ensure user has an account setup etc.
         if (isSetup) {
             Logger.i("TileService: VPN service is setup")
 
@@ -102,6 +104,8 @@ class MullvadTileService : TileService() {
                         }
                 }
 
+            // Always start as foreground, e.g if app is dead we won't be allowed to start if not
+            // in foreground.
             startForegroundService(intent)
         } else {
             Logger.i("TileService: VPN service not setup, starting main activity")
