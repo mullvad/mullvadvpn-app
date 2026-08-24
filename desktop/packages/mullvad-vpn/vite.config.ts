@@ -10,11 +10,11 @@ import { treeKillSync } from './vite-utils.ts';
 // vite-plugin-electron's treeKillSync function to target only the electron
 // application's process and its children and not the current behavior where
 // the current process' children is targeted. This is because the current
-// process spawns two processes, the electron app and esbuild.
+// process spawns two processes, the electron app and ocx.
 //
 // The default behavior of vite-plugin-electron when the electron app needs to
-// restart is to kill both the electron app and the esbuild processes, however
-// after that only the electron app gets respawned, leaving the esbuild process
+// restart is to kill both the electron app and the oxc processes, however
+// after that only the electron app gets respawned, leaving the oxc process
 // permanently dead after the first time the electron app has restarted.
 //
 // This should be fixed upstream but until then this is an okay workaround.
