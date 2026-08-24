@@ -1,6 +1,6 @@
 //! This module contains types and functions for parsing and validating the Sigsum transparency log
-//! signatures and timestamps that are available at the `/trl/v0/timestamps/latest` and
-//! `/trl/v0/data/` endpoints.
+//! signatures and timestamps that are available at the `/trl/v1/timestamps/latest` and
+//! `/trl/v1/data/` endpoints.
 
 mod test;
 mod validate;
@@ -96,7 +96,7 @@ pub struct SigsumVerifiedRelayList {
     pub content: Vec<u8>,
     /// The digest for the raw JSON bytes.
     pub digest: RelayListDigest,
-    /// The timestamp that was returned from the corresponding call to `/trl/v0/timestamps/latest`.
+    /// The timestamp that was returned from the corresponding call to `/trl/v1/timestamps/latest`.
     pub timestamp: DateTime<Utc>,
 }
 
