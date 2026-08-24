@@ -16,6 +16,20 @@ class TunnelControlPage: Page {
         let ipAddress: String
         let port: String
         let protocolName: String
+        /// Label of the obfuscation feature indicator, `nil` when no obfuscation is in use.
+        let obfuscation: String?
+
+        func isSameEndpoint(as other: ConnectionAttempt?) -> Bool {
+            ipAddress == other?.ipAddress && port == other?.port && protocolName == other?.protocolName
+        }
+    }
+
+    /// Labels of the obfuscation feature indicator, one per obfuscation method.
+    enum ObfuscationIndicator {
+        static let udpOverTcp = "UDP-over-TCP"
+        static let shadowsocks = "Shadowsocks"
+        static let quic = "QUIC"
+        static let lwo = "LWO"
     }
 
     /// Strips the accessibility label prefix (e.g. "In ") from a combined row label,
@@ -44,6 +58,7 @@ class TunnelControlPage: Page {
         let pollingInterval = TimeInterval(0.5)  // How often to check for changes
 
         let inAddressRow = app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow]
+        let obfuscationIndicator = app.buttons[AccessibilityIdentifier.obfuscationFeatureIndicator]
 
         while Date().timeIntervalSince(startTime) < timeout {
             let expectation = XCTestExpectation(description: "Wait for connection attempts")
@@ -72,10 +87,11 @@ class TunnelControlPage: Page {
             let connectionAttempt = ConnectionAttempt(
                 ipAddress: ipAddress,
                 port: port,
-                protocolName: protocolName
+                protocolName: protocolName,
+                obfuscation: obfuscationIndicator.exists ? obfuscationIndicator.label : nil
             )
 
-            if connectionAttempt != lastConnectionAttempt {
+            if !connectionAttempt.isSameEndpoint(as: lastConnectionAttempt) {
                 connectionAttempts.append(connectionAttempt)
                 lastConnectionAttempt = connectionAttempt
 
@@ -155,16 +171,29 @@ class TunnelControlPage: Page {
         var connectionAttempts = waitForConnectionAttempts(5, timeout: 80)
         XCTAssertEqual(connectionAttempts.count, 5)
 
-        let expectedProtocols = [
-            "UDP",
-            "UDP",
-            "UDP",
-            "TCP",
-            "UDP",
+        // The automatic obfuscation order is off, Shadowsocks, QUIC, UDP-over-TCP, LWO.
+        // No indicator is shown for the unobfuscated attempt.
+        let expectedAttempts: [(protocolName: String, obfuscation: String?)] = [
+            ("UDP", nil),
+            ("UDP", ObfuscationIndicator.shadowsocks),
+            ("UDP", ObfuscationIndicator.quic),
+            ("TCP", ObfuscationIndicator.udpOverTcp),
+            ("UDP", ObfuscationIndicator.lwo),
         ]
-        for (attempt, expectedProtocol) in zip(connectionAttempts, expectedProtocols) {
-            XCTAssertEqual(attempt.protocolName, expectedProtocol)
+        for (attempt, expected) in zip(connectionAttempts, expectedAttempts) {
+            XCTAssertEqual(attempt.protocolName, expected.protocolName)
+            XCTAssertEqual(attempt.obfuscation, expected.obfuscation)
         }
+        return self
+    }
+
+    /// Verify that the obfuscation feature indicator names the expected obfuscation method.
+    /// Requires the connection panel to be expanded, otherwise the chip may be collapsed
+    /// behind the "more..." button.
+    @discardableResult func verifyObfuscationFeatureIndicator(_ expectedLabel: String) -> Self {
+        let indicator = app.buttons[AccessibilityIdentifier.obfuscationFeatureIndicator]
+        XCTAssertTrue(indicator.existsAfterWait(), "Obfuscation feature indicator not presented")
+        XCTAssertEqual(indicator.label, expectedLabel)
         return self
     }
 
