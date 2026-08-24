@@ -21,8 +21,16 @@ use hyper::{
 };
 use mullvad_types::account::AccountNumber;
 use std::{
-    convert::Infallible, error::Error as StdError, future::pending, io, net::SocketAddr, pin::Pin,
-    str::FromStr, sync::Arc, time::Duration,
+    convert::Infallible,
+    error::Error as StdError,
+    future::pending,
+    io,
+    net::SocketAddr,
+    ops::{Deref, DerefMut},
+    pin::Pin,
+    str::FromStr,
+    sync::Arc,
+    time::Duration,
 };
 use tokio::{
     sync::Notify,
@@ -703,9 +711,8 @@ impl RequestFactory {
         self.json_request(Method::PUT, path, body)
     }
 
-    pub fn default_timeout(mut self, timeout: Duration) -> Self {
+    pub fn set_default_timeout(&mut self, timeout: Duration) {
         self.default_timeout = timeout;
-        self
     }
 
     fn json_request_with_bytes(
@@ -823,7 +830,7 @@ where
 #[derive(Clone)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
-    pub factory: RequestFactory,
+    pub(crate) factory: RequestFactory,
     pub availability: ApiAvailability,
 }
 
@@ -842,6 +849,19 @@ impl MullvadRestHandle {
 
     pub fn service(&self) -> RequestServiceHandle {
         self.service.clone()
+    }
+}
+
+impl Deref for MullvadRestHandle {
+    type Target = RequestFactory;
+    fn deref(&self) -> &Self::Target {
+        &self.factory
+    }
+}
+
+impl DerefMut for MullvadRestHandle {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.factory
     }
 }
 

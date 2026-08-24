@@ -81,7 +81,7 @@ impl AppVersionProxy {
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
         let path = format!("app/releases/{platform}.json");
-        let request = self.handle.factory.get(&path);
+        let request = self.handle.get(&path);
 
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
@@ -142,7 +142,7 @@ impl AppVersionProxy {
     ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let path = "app/releases/android.json".to_string();
-        let request = self.handle.factory.get(&path);
+        let request = self.handle.get(&path);
 
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);

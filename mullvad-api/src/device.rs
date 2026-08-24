@@ -98,9 +98,9 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let factory = self.handle.factory.clone();
+        let handle = self.handle.clone();
         async move {
-            factory
+            handle
                 .delete(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
                 .expected_status(&[StatusCode::NO_CONTENT])
                 .account(account)?
@@ -135,10 +135,11 @@ impl DevicesProxy {
         account: AccountNumber,
         id: DeviceId,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let factory = self.handle.factory.clone();
+        let request = self
+            .handle
+            .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"));
         async move {
-            factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
+            request?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?
                 .await
@@ -149,10 +150,9 @@ impl DevicesProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let factory = self.handle.factory.clone();
+        let request = self.handle.get(&format!("{ACCOUNTS_URL_PREFIX}/devices"));
         async move {
-            factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/devices"))?
+            request?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?
                 .await
@@ -171,13 +171,12 @@ impl DevicesProxy {
         }
         let req_body = RotateDevicePubkey { pubkey };
 
-        let factory = self.handle.factory.clone();
+        let request = self.handle.put_json(
+            &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}/pubkey"),
+            &req_body,
+        );
         async move {
-            factory
-                .put_json(
-                    &format!("{ACCOUNTS_URL_PREFIX}/devices/{id}/pubkey"),
-                    &req_body,
-                )?
+            request?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?
                 .await
@@ -200,10 +199,11 @@ impl DevicesProxy {
             hijack_dns: false,
         };
 
-        let factory = self.handle.factory.clone();
+        let request = self
+            .handle
+            .post_json(&format!("{ACCOUNTS_URL_PREFIX}/devices"), &submission);
         async move {
-            factory
-                .post_json(&format!("{ACCOUNTS_URL_PREFIX}/devices"), &submission)?
+            request?
                 .expected_status(&[StatusCode::CREATED])
                 .account(account)?
                 .await
