@@ -413,7 +413,7 @@ impl HttpsConnector {
                 .proxy_config
                 .clone() // TODO: remove clone if possible
                 .connect(
-                    &hostname,
+                    hostname,
                     &addr,
                     #[cfg(target_os = "android")]
                     self.socket_bypass_tx.clone(),

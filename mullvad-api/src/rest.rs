@@ -21,8 +21,8 @@ use hyper::{
 };
 use mullvad_types::account::AccountNumber;
 use std::{
-    borrow::Cow, convert::Infallible, error::Error as StdError, future::pending, io,
-    net::SocketAddr, str::FromStr, sync::Arc, time::Duration,
+    convert::Infallible, error::Error as StdError, future::pending, io, net::SocketAddr, pin::Pin,
+    str::FromStr, sync::Arc, time::Duration,
 };
 use tokio::{
     sync::Notify,
@@ -137,9 +137,11 @@ impl Error {
 }
 
 // TODO: fix comment
-/// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
-/// requests
+/// A service that sends HTTP requests to a specific host.
+///
+/// It allows for on-demand termination of all in-flight requests.
 pub(crate) struct RequestService<C> {
+    host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
     /// [`Notify`] that is used to signal whether [`Connection`] should be closed.
     reset: Arc<Notify>,
@@ -157,11 +159,12 @@ struct Connection {
     connection_task: tokio::task::AbortHandle,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 /// A handle to interact with a spawned `RequestService`.
 pub struct RequestServiceHandle {
     tx: Arc<mpsc::UnboundedSender<SendRequest>>,
     reset: Arc<Notify>,
+    host: Arc<str>,
 }
 
 #[derive(Debug)]
@@ -173,6 +176,7 @@ pub struct SendRequest {
 impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     /// Constructs a new request service.
     pub fn spawn(
+        host: impl Into<Arc<str>>,
         api_availability: ApiAvailability,
         connection_mode_provider: C,
         dns_resolver: Arc<dyn DnsResolver>,
@@ -195,7 +199,9 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let (command_tx, command_rx) = mpsc::unbounded();
         let command_tx = Arc::new(command_tx);
         let reset = Arc::new(Notify::new());
+        let host = host.into();
         let service = Self {
+            host: Arc::clone(&host),
             dns_resolver,
             requests_rx: command_rx,
             reset: Arc::clone(&reset),
@@ -205,6 +211,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             connection: None,
         };
         let handle = RequestServiceHandle {
+            host,
             tx: command_tx,
             reset,
         };
@@ -220,6 +227,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
                 match &self.connection {
                     None => pending().await,
                     Some(c) => {
+                        // TODO: this does not take into account in-flight `Body`s
                         sleep(c.idle_timeout).await;
                         c.idle_timeout
                     }
@@ -231,9 +239,6 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
                 _ = reset.notified() => self.close_connection(),
 
                 // Handle change API access method
-                // TODO: this is the only place where receive() is used.
-                // It's triggered only in self.send_request().
-                // Can we avoid this indirection?
                 new_mode = self.connection_mode_provider.receive() => {
                     let Some(new_mode) = new_mode else { break };
                     self.soft_close_connection();
@@ -258,17 +263,16 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
                 // Evict idle connections
                 idle_for = evict_connection => {
                     tracing::trace!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
-                    // TODO: this does not take into account in-flight `Body`s
                     self.soft_close_connection();
                 }
             }
         }
     }
 
-    async fn resolve(&self, host: &str) -> Result<SocketAddr> {
-        tracing::trace!("resolving {host:?}");
+    async fn resolve(&self) -> Result<SocketAddr> {
+        tracing::trace!("resolving {:?}", self.host);
         self.dns_resolver
-            .resolve(host.to_string())
+            .resolve(self.host.to_string())
             .await
             // TODO  should no dns response map to another error?
             // TODO  it used to map to io::Error::other
@@ -277,13 +281,13 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             .map_err(Error::Dns)
     }
 
-    async fn connect(&mut self, host: &str) -> Result<Connection> {
-        let addr = self.resolve(host).await?;
-        tracing::trace!("connecting to {addr} ({host:?})");
+    async fn connect(&mut self) -> Result<Connection> {
+        let addr = self.resolve().await?;
+        tracing::trace!("connecting to {addr} ({:?})", self.host);
         let idle_timeout = self.connector.idle_timeout();
         let connection = self
             .connector
-            .connect(addr, host)
+            .connect(addr, &self.host)
             .await
             .map_err(Arc::new)
             .map_err(Error::Connect)?;
@@ -305,8 +309,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let connection = match &mut self.connection {
             Some(sr) => sr,
             None => {
-                let host = request.uri().host().unwrap(); // TODO:
-                let connection = timeout(CONNECT_TIMEOUT, self.connect(host))
+                let connection = timeout(CONNECT_TIMEOUT, self.connect())
                     .map_err(|_elapsed| Error::TimeoutError)
                     .await??;
                 self.connection.insert(connection)
@@ -316,7 +319,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         let api_availability = self.api_availability.clone();
         let result = request
             .map(|r| http::Request::map(r, BodyExt::boxed))
-            .into_future(&mut connection.send_request, api_availability.clone())
+            .send(&mut connection.send_request, api_availability.clone())
             .map_err(|error| error.map_aborted())
             .await;
 
@@ -326,9 +329,6 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         {
             tracing::warn!("{uri:?} request failed: {err:?}");
             self.close_connection();
-            // TODO: this is the only place where rotate is called.
-            // It triggers a branch in RequestService::run
-            // Can we avoid this indrection?
             self.connection_mode_provider.rotate().await;
         }
 
@@ -337,7 +337,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
 }
 
 impl<C> RequestService<C> {
-    /// This drop [`RequestService::connection`], and aborts [`Connection::connection_task`].
+    /// Drop [`RequestService::connection`] and abort [`Connection::connection_task`].
     ///
     /// Any in-flight [`Body`] returned [`Self::send_request`] will be aborted.
     fn close_connection(&mut self) {
@@ -346,8 +346,9 @@ impl<C> RequestService<C> {
         }
     }
 
-    /// This drop [`RequestService::connection`], preventing it to be used for new requests,
-    /// but does not directly abort [`Connection::connection_task`], which keeps in-flight
+    /// Drop [`RequestService::connection`], preventing it to be used for new requests.
+    ///
+    /// This does not directly abort [`Connection::connection_task`], which keeps in-flight
     /// [`Body`]s active.
     fn soft_close_connection(&mut self) {
         self.connection = None;
@@ -366,8 +367,8 @@ impl RequestServiceHandle {
         self.reset.notify_one();
     }
 
-    /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request<B>(&self, request: Request<B>) -> Result<Response<Incoming>>
+    /// Submits a [`Request`] for execution to the request service.
+    async fn dispatch<B>(&self, request: Request<B>) -> Result<Response<Incoming>>
     where
         B: Body + Send + Sync + 'static,
         Error: From<B::Error>,
@@ -383,43 +384,38 @@ impl RequestServiceHandle {
             .map_err(|_| Error::RestServiceDown)?;
         response_rx.await.map_err(|_| Error::RestServiceDown)?
     }
+
+    /// Get a [`RequestFactory`] that can be used to construct HTTP requests for dispatch on this [`RequestService`].
+    pub fn request(&self) -> RequestFactory {
+        RequestFactory {
+            service: self.clone(),
+            token_store: None,
+            default_timeout: DEFAULT_TIMEOUT,
+        }
+    }
 }
 
-/// A REST request that is sent to the RequestService to be executed.
+/// A REST request that is sent to the [`RequestService`] to be executed.
 #[derive(Debug)]
 pub struct Request<B> {
     request: hyper::Request<B>,
     timeout: Duration,
+    service: RequestServiceHandle,
     access_token_store: Option<AccessTokenStore>,
     account: Option<AccountNumber>,
     expected_status: &'static [hyper::StatusCode],
 }
 
-// TODO: merge with `RequestFactory::get`
-/// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
-pub fn get(uri: &str) -> Result<Request<Empty<Bytes>>> {
-    let uri = hyper::Uri::from_str(uri)?;
-
-    let mut builder = http::request::Builder::new()
-        .method(Method::GET)
-        .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
-        .header(header::ACCEPT, HeaderValue::from_static("application/json"));
-    if let Some(host) = uri.host() {
-        builder = builder.header(
-            header::HOST,
-            HeaderValue::from_str(host).map_err(|_e| Error::InvalidHeaderError)?,
-        );
-    };
-
-    let request = builder.uri(uri).body(Empty::<Bytes>::new())?;
-    Ok(Request::new(request, None))
-}
-
 impl<B: Body> Request<B> {
-    fn new(request: hyper::Request<B>, access_token_store: Option<AccessTokenStore>) -> Self {
+    fn new(
+        request: hyper::Request<B>,
+        service: RequestServiceHandle,
+        access_token_store: Option<AccessTokenStore>,
+    ) -> Self {
         Self {
             request,
             timeout: DEFAULT_TIMEOUT,
+            service,
             access_token_store,
             account: None,
             expected_status: &[],
@@ -459,6 +455,7 @@ impl<B: Body> Request<B> {
         self.request.uri()
     }
 }
+
 impl<B> Request<B> {
     /// Map the underlying [`hyper::Request`] type
     fn map<F, B2>(self, f: F) -> Request<B2>
@@ -471,6 +468,7 @@ impl<B> Request<B> {
             access_token_store: self.access_token_store,
             account: self.account,
             expected_status: self.expected_status,
+            service: self.service,
         }
     }
 }
@@ -501,27 +499,40 @@ where
     }
 }
 
-impl<B> Request<B>
+/// Dispatch the [`Request`] to the [`RequestService`].
+impl<B> IntoFuture for Request<B>
 where
-    B: Body + Send + 'static + Unpin,
-    B::Data: Send,
-    B::Error: Into<Box<dyn StdError + Send + Sync>>,
+    B: Body + Send + Sync + 'static + Unpin,
+    Error: From<B::Error>,
+    Bytes: From<B::Data>,
 {
-    async fn into_future(
+    type Output = Result<Response<Incoming>>;
+
+    // TODO: When ATPIT is stablized, switch to `impl Future`
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + Sync>>;
+
+    fn into_future(self) -> Self::IntoFuture {
+        // TODO: avoid extra clone
+        Box::pin(async move { self.service.clone().dispatch(self).await })
+    }
+}
+
+impl Request<BoxBody<Bytes, Error>> {
+    async fn send(
         self,
-        send_request: &mut http1::SendRequest<B>,
+        send_request: &mut http1::SendRequest<BoxBody<Bytes, Error>>,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>> {
         let timeout = self.timeout;
-        let inner_fut = self.into_future_without_timeout(send_request, api_availability);
+        let inner_fut = self.send_with_timeout(send_request, api_availability);
         tokio::time::timeout(timeout, inner_fut)
             .await
             .map_err(|_| Error::TimeoutError)?
     }
 
-    async fn into_future_without_timeout(
+    async fn send_with_timeout(
         mut self,
-        send_request: &mut http1::SendRequest<B>,
+        send_request: &mut http1::SendRequest<BoxBody<Bytes, Error>>,
         api_availability: ApiAvailability,
     ) -> Result<Response<Incoming>> {
         let _ = api_availability.wait_for_unsuspend().await;
@@ -630,28 +641,26 @@ struct NewErrorResponse {
 
 #[derive(Clone)]
 pub struct RequestFactory {
-    hostname: Cow<'static, str>,
+    service: RequestServiceHandle,
     token_store: Option<AccessTokenStore>,
     default_timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(
-        hostname: impl Into<Cow<'static, str>>,
-        token_store: Option<AccessTokenStore>,
-    ) -> Self {
-        Self {
-            hostname: hostname.into(),
-            token_store,
-            default_timeout: DEFAULT_TIMEOUT,
+    pub fn with_access_token_store(self, token_store: AccessTokenStore) -> Self {
+        RequestFactory {
+            token_store: Some(token_store),
+            ..self
         }
     }
 
     pub fn request<B: Body + Default>(&self, path: &str, method: Method) -> Result<Request<B>> {
-        Ok(
-            Request::new(self.hyper_request(path, method)?, self.token_store.clone())
-                .timeout(self.default_timeout),
+        Ok(Request::new(
+            self.hyper_request(path, method, B::default())?,
+            self.service.clone(),
+            self.token_store.clone(),
         )
+        .timeout(self.default_timeout))
     }
 
     pub fn get(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
@@ -705,19 +714,22 @@ impl RequestFactory {
         path: &str,
         body: Vec<u8>,
     ) -> Result<Request<Full<Bytes>>> {
-        let mut request = self.hyper_request(path, method)?;
-
         let body_length = body.len();
-        *request.body_mut() = Full::new(Bytes::from(body));
+        let body = Full::new(Bytes::from(body));
+        let mut request = self.hyper_request(path, method, body)?;
 
         let headers = request.headers_mut();
+        // TODO: pretty sure hyper sets CONTENT_LENGTH automatically
         headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
         headers.insert(
             header::CONTENT_TYPE,
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
+        Ok(
+            Request::new(request, self.service.clone(), self.token_store.clone())
+                .timeout(self.default_timeout),
+        )
     }
 
     fn json_request<S: serde::Serialize>(
@@ -730,7 +742,7 @@ impl RequestFactory {
         self.json_request_with_bytes(method, path, json_body)
     }
 
-    fn hyper_request<B: Default>(&self, path: &str, method: Method) -> Result<http::Request<B>> {
+    fn hyper_request<B>(&self, path: &str, method: Method, body: B) -> Result<http::Request<B>> {
         let uri = self.get_uri(path)?;
         let request = http::request::Builder::new()
             .method(method)
@@ -739,15 +751,14 @@ impl RequestFactory {
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
             .header(
                 header::HOST,
-                HeaderValue::from_str(&self.hostname).map_err(|_| Error::InvalidHeaderError)?,
-            );
-
-        let result = request.body(B::default())?;
-        Ok(result)
+                HeaderValue::from_str(&self.service.host).map_err(|_| Error::InvalidHeaderError)?,
+            )
+            .body(body)?;
+        Ok(request)
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let uri = format!("https://{}/{}", self.hostname, path);
+        let uri = format!("https://{}/{}", self.service.host, path);
         Ok(hyper::Uri::from_str(&uri)?)
     }
 }
@@ -845,7 +856,6 @@ macro_rules! impl_into_arc_err {
 }
 
 impl_into_arc_err!(hyper::Error);
-// impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);

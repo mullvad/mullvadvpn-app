@@ -8,7 +8,7 @@ use futures::{
 };
 use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
-use std::{borrow::Cow, collections::HashMap};
+use std::collections::HashMap;
 use tokio::select;
 use tracing::{Level, instrument};
 
@@ -37,21 +37,17 @@ struct AccountState {
 }
 
 impl AccessTokenStore {
-    pub(crate) fn new(
-        service: RequestServiceHandle,
-        hostname: impl Into<Cow<'static, str>>,
-    ) -> Self {
-        let factory = rest::RequestFactory::new(hostname, None);
+    pub(crate) fn new(service: RequestServiceHandle) -> Self {
         let (tx, rx) = mpsc::unbounded();
-        tokio::spawn(Self::service_requests(rx, service, factory));
+        tokio::spawn(Self::service_requests(rx, service));
         Self { tx }
     }
 
     async fn service_requests(
         mut rx: mpsc::UnboundedReceiver<StoreAction>,
         service: RequestServiceHandle,
-        factory: RequestFactory,
     ) {
+        let requests = service.request();
         let mut account_states: HashMap<AccountNumber, AccountState> = HashMap::new();
 
         let (completed_tx, mut completed_rx) = mpsc::unbounded();
@@ -90,13 +86,12 @@ impl AccessTokenStore {
                                 .get_or_insert_with(|| {
                                     let completed_tx = completed_tx.clone();
                                     let account = account.clone();
-                                    let service = service.clone();
-                                    let factory = factory.clone();
+                                    let requests = requests.clone();
 
                                     tracing::debug!("Fetching access token for an account");
 
                                     tokio::spawn(async move {
-                                        let result = fetch_access_token(service, factory, account.clone()).await;
+                                        let result = fetch_access_token(requests, account.clone()).await;
                                         let _ = completed_tx.unbounded_send((account, result));
                                     })
                                 });
@@ -166,10 +161,9 @@ impl AccessTokenStore {
     }
 }
 
-#[instrument(level = Level::TRACE, skip(service, factory, account_number), ret)]
+#[instrument(level = Level::TRACE, skip(requests, account_number), ret)]
 async fn fetch_access_token(
-    service: RequestServiceHandle,
-    factory: RequestFactory,
+    requests: RequestFactory,
     account_number: AccountNumber,
 ) -> Result<AccessTokenData, rest::Error> {
     #[derive(serde::Serialize)]
@@ -178,8 +172,10 @@ async fn fetch_access_token(
     }
     let request = AccessTokenRequest { account_number };
 
-    let rest_request = factory
+    requests
         .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?
-        .expected_status(&[StatusCode::OK]);
-    service.request(rest_request).await?.deserialize().await
+        .expected_status(&[StatusCode::OK])
+        .await?
+        .deserialize()
+        .await
 }
