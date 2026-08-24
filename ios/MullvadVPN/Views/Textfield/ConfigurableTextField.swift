@@ -179,7 +179,7 @@ struct ConfigurableTextField: View {
             Button {
                 text = ""
             } label: {
-                ResizableImageView(image: .mullvadIconCross, dimension: .width(24.0))
+                ResizableImageView(image: appearance.clearButtonImage, dimension: .width(24.0))
             }
             .buttonStyle(.plain)
             .padding(.horizontal, 8.0)
