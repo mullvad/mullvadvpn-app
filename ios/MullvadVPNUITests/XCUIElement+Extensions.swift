@@ -142,22 +142,17 @@ extension XCUIElement {
         // 10 sec * 3 tries + 2 sec + 2 sec ^ 2 = 36
         case longerThanMullvadAPITimeout = 37
         case extremelyLong = 180
+    }
 
-        var pollInterval: TimeInterval {
-            switch self {
-            case .short, .default, .long, .veryLong: 0.2
-            case .longerThanMullvadAPITimeout: 0.5
-            case .extremelyLong: 1
-            }
-        }
+    private struct PollInterval {
+        static let minPollInterval: TimeInterval = 0.2
+        static let maxPollInterval: TimeInterval = 2
 
-        var maxIterations: Int {
-            switch self {
-            case .short, .default, .long, .veryLong, .longerThanMullvadAPITimeout: 100
-            // 1 check per second for 180 seconds < 200
-            case .extremelyLong: 200
-            }
-        }
+        static let pollMultiplier: Double = 1.5
+        // To accomodate the `extermelyLong` timeout, we allow for max
+        // 100 iterations * 2 seconds.
+        // In practice the timeout is leading, so it won't actually go to 200s.
+        static let maxIterations: Int = 100
     }
 
     // This function actively polls the hierarchy on a set interval. This speeds up the waiting process
@@ -173,13 +168,14 @@ extension XCUIElement {
             return true
         }
 
+        var pollInterval = PollInterval.minPollInterval
         let timeoutDate = Date().addingTimeInterval(timeout.rawValue)
         let expectation = XCTestExpectation(description: description ?? "Waiting for condition to be met")
         var iterationCount = 0
 
         while Date() < timeoutDate {
             iterationCount += 1
-            if iterationCount > timeout.maxIterations {
+            if iterationCount > PollInterval.maxIterations {
                 return false
             }
 
@@ -188,7 +184,13 @@ extension XCUIElement {
                 return true
             }
 
-            RunLoop.current.run(until: Date().addingTimeInterval(timeout.pollInterval))
+            let remainingTime = timeoutDate.timeIntervalSinceNow
+            let effectivePollInterval = min(pollInterval, remainingTime)
+            if effectivePollInterval <= 0 { break }
+
+            RunLoop.current.run(until: Date().addingTimeInterval(effectivePollInterval))
+            let dynamicInterval = max(PollInterval.minPollInterval, pollInterval * PollInterval.pollMultiplier)
+            pollInterval = min(dynamicInterval, PollInterval.maxPollInterval)
         }
 
         return false
