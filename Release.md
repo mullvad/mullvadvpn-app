@@ -18,20 +18,21 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
     Please verify that the script did the right thing before you push the commit and tag it created.
 
 1. When building for Windows or macOS, the following environment variables must be set:
-   * `CSC_LINK` - The path to the certificate used for code signing.
-      * Windows: A `.pfx` certificate.
-      * macOS: A `.p12` certificate file with the Apple application signing keys.
-        This file must contain both the "Developer ID Application" and the "Developer ID Installer"
-        certificates + private keys.
-   * `CSC_KEY_PASSWORD` - The password to the file given in `CSC_LINK`. If this is not set then
-      `build.sh` will prompt you for it. If you set it yourself, make sure to define it in such a
-      way that it's not stored in your bash history:
-      ```bash
-      export HISTCONTROL=ignorespace
-      export CSC_KEY_PASSWORD='my secret'
-      ```
+   * *Windows only*:
+      * `CERT_HASH` - The SHA-1 thumbprint of the code signing certificate to use. The certificate
+         itself must be available to `signtool` in a certificate store.
 
    * *macOS only*:
+      * `CSC_LINK` - The path to a `.p12` certificate file with the Apple application signing keys.
+         This file must contain both the "Developer ID Application" and the "Developer ID
+         Installer" certificates + private keys.
+      * `CSC_KEY_PASSWORD` - The password to the file given in `CSC_LINK`. If this is not set then
+         `build.sh` will prompt you for it. If you set it yourself, make sure to define it in such
+         a way that it's not stored in your bash history:
+         ```bash
+         export HISTCONTROL=ignorespace
+         export CSC_KEY_PASSWORD='my secret'
+         ```
       * `NOTARIZE_KEYCHAIN` - The keychain in which the profile is stored
       * `NOTARIZE_KEYCHAIN_PROFILE` - The name of the notarytool profile containing the credentials.
          The credentials include Apple-ID, app specific password and team ID. Don't use the real

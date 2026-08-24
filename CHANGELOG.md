@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
+- Sign the uninstaller and Electron binaries. Some NSIS binaries are still unsigned.
 
 ### Removed
 #### Windows
