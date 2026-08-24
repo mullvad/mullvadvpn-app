@@ -34,7 +34,7 @@ because they trust our signing key.
 
 ## Downloading the relay list from the app
 
-The app utilizes a two-step process to download the new relay list. First it makes a request to the `/trl/v0/timestamps/latest` 
+The app utilizes a two-step process to download the new relay list. First it makes a request to the `/trl/v1/timestamps/latest`
 endpoint. This returns the hash of the transparency logged relay list along with Sigsum metadata such as which public keys have
 signed the Sigsum log entry. 
 
@@ -43,7 +43,7 @@ certain amount of witnesses that we trust. The exact policy for which and how ma
 to be accepted by the app is hardcoded into the app binary.
 
 After the app has validated the relay list hash, it uses the hash to download the corresponding relay list 
-from the `trl/v0/data` endpoint. 
+from the `trl/v1/data` endpoint.
 
 # Who is the attacker
 

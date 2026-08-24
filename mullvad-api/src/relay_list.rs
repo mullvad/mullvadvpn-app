@@ -59,6 +59,7 @@ pub struct RelayListProxy {
 }
 
 const RELAY_LIST_TIMEOUT: Duration = Duration::from_secs(15);
+const SIGSUM_API_VERSION: &str = "v1";
 
 impl RelayListProxy {
     /// Construct a new relay list rest client
@@ -125,7 +126,10 @@ impl RelayListProxy {
         digest: &RelayListDigest,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.get(&format!("trl/v0/data/{digest}"));
+        let request = self
+            .handle
+            .factory
+            .get(&format!("trl/{SIGSUM_API_VERSION}/data/{digest}"));
 
         let request = request?
             .timeout(RELAY_LIST_TIMEOUT)
@@ -153,7 +157,10 @@ impl RelayListProxy {
 
     async fn relay_list_timestamp_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.get("trl/v0/timestamps/latest");
+        let request = self
+            .handle
+            .factory
+            .get(&format!("trl/{SIGSUM_API_VERSION}/timestamps/latest"));
 
         let request = request?
             .timeout(RELAY_LIST_TIMEOUT)

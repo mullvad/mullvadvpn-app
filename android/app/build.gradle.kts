@@ -132,8 +132,11 @@ android {
             buildConfigField(
                 "String",
                 "SIGSUM_TRUSTED_PUBKEYS",
-                "\"41ab8cc0fe1027757eda650545a09011ddfd1e4af278c520e19cc6513c850af8" +
-                    ":f61f46a8a8fa4b1df038d36d78b97593f0f4f3b56857a6847399a028f765e0ce\"",
+                "\"fe3d764133dd82d50b75778bfd6500987b579e573bb628d13e1eab4398b2aea2" +
+                    ":da0203a8fa4cc388644539ae39df28a3d612b66cf75ff1ae2acbf5cd9c1dee2d" +
+                    ":f6b4a2b58e41fed02a8f2228054642783c43d6110caa5d7415b4198cac037df3" +
+                    ":e7ee3a760f4b039589cd80fc227cd60c85659073fbecb822d4ce785631029890" +
+                    ":545c3c459e88ebb013b4ae408b129912ee175edf0be88314b608f7d525c98b1a\"",
             )
         }
         create(Flavors.STAGEMOLE) {
@@ -144,8 +147,10 @@ android {
             buildConfigField(
                 "String",
                 "SIGSUM_TRUSTED_PUBKEYS",
-                "\"35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284" +
-                    ":9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d\"",
+                "\"97d155e299dae58377d6b9b91739ac08e16b883781038398fe07fea1be9684b3" +
+                    ":bcc9dc6dadca9de57d67799d6aff1a4a11ac4ea1eed659215751c8de6ae19b6b" +
+                    ":74df47593c1c5fdee247b2b24440224ffb20d204cce7b11054a43c3b2b7a608f" +
+                    ":70b9de05582ab87049f9408f856edac340138d52708283058f136229119a090d\"",
             )
         }
     }
