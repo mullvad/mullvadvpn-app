@@ -174,6 +174,8 @@ if [[ "$SIGN" == "true" ]]; then
             exit 1
         fi
 
+        NPM_PACK_ARGS+=(--sign)
+
         unset CSC_LINK CSC_KEY_PASSWORD
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     else
@@ -210,30 +212,7 @@ fi
 
 # Sign all binaries passed as arguments to this function
 function sign_win {
-    local NUM_RETRIES=3
-
-    for binary in "$@"; do
-        # Try multiple times in case the timestamp server cannot
-        # be contacted.
-        for i in $(seq 0 ${NUM_RETRIES}); do
-            log_info "Signing $binary..."
-            if signtool sign \
-                -tr http://timestamp.digicert.com -td sha256 \
-                -fd sha256 -d "Mullvad VPN" \
-                -du "https://github.com/mullvad/mullvadvpn-app#readme" \
-                -sha1 "$CERT_HASH" "$binary"
-            then
-                break
-            fi
-
-            if [ "$i" -eq "${NUM_RETRIES}" ]; then
-                return 1
-            fi
-
-            sleep 1
-        done
-    done
-    return 0
+    "$SCRIPT_DIR/scripts/sign-windows.sh" "$@"
 }
 
 # Build the daemon and other Rust/C++ binaries, optionally
@@ -343,6 +322,7 @@ function build {
         cp "$source" "$destination"
 
         if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+            # electron-builder appears to not sign "extraResources"
             sign_win "$destination"
         fi
     done
@@ -514,14 +494,6 @@ if [[ "$SIGN" == "true" ]]; then
     assert_clean_working_directory
 fi
 
-# sign installer on Windows
-if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
-    for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
-        log_info "Signing $installer_path"
-        sign_win "$installer_path"
-    done
-fi
-
 # pack universal installer on Windows
 if [[ "$UNIVERSAL" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     WIN_PACK_ARGS=()
@@ -534,6 +506,8 @@ if [[ "$UNIVERSAL" == "true" && "$(uname -s)" == "MINGW"* ]]; then
         "${WIN_PACK_ARGS[@]}"
     if [[ "$SIGN" == "true" ]]; then
         assert_clean_working_directory
+        # Unlike the per-architecture installers, which electron-builder signs, this one is
+        # packed by us and has to be signed here.
         sign_win "dist/MullvadVPN-${PRODUCT_VERSION}.exe"
     fi
 fi
