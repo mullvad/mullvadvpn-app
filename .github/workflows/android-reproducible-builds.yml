@@ -65,7 +65,10 @@ jobs:
 
       - name: Build app
         env:
-          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
+          GRADLE_OPTS: >
+            -Dorg.gradle.jvmargs=-Xmx4096M
+            -Dkotlin.daemon.jvm.options="-Xmx4096M"
+            -Dkotlin.compiler.execution.strategy=in-process
         run: ./building/containerized-build.sh android fullRelease
 
       - name: Upload apks
@@ -175,7 +178,10 @@ jobs:
 
       - name: Build app
         env:
-          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
+          GRADLE_OPTS: >
+            -Dorg.gradle.jvmargs=-Xmx4096M
+            -Dkotlin.daemon.jvm.options="-Xmx4096M"
+            -Dkotlin.compiler.execution.strategy=in-process
         run: nix develop .#android -c buildRelease
 
       - name: Upload apks
