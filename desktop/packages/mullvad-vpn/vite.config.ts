@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import { startup } from 'vite-plugin-electron';
 import electron from 'vite-plugin-electron/simple';
 
-import { treeKillSync } from './vite-utils';
+import { treeKillSync } from './vite-utils.ts';
 
 // NOTE: We have to monkey patch the exit handler to override the default
 // behavior for how to kill the electron app. We use a custom variant of the
