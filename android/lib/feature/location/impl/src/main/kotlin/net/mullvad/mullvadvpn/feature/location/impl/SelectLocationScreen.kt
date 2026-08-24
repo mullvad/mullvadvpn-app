@@ -46,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -94,7 +95,9 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
+import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.isTv
@@ -113,6 +116,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -139,23 +143,43 @@ private fun PreviewSelectLocationScreen(
         SelectLocationScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
-            onSelectSinglehop = {},
-            onModifyMultihop = { _, _ -> },
             onSearchClick = {},
             onBackClick = {},
             onFilterClick = {},
-            onEditCustomLists = {},
             onRecentsToggleEnableClick = {},
             removeOwnershipFilter = {},
             removeProviderFilter = {},
             onSelectRelayList = {},
-            onSelectAutomaticEntry = {},
-            onAutomaticInfoClick = {},
             onRefreshRelayList = {},
             scrollToItem = {},
             onSetMultihopMode = {},
-            onCreateCustomList = {},
-            navigateToBottomSheet = {},
+            relayListContent = { relayListType, bottomMargin ->
+                SelectLocationList(
+                    state =
+                        Lce.Content(
+                            SelectLocationListUiState(
+                                relayListItems =
+                                    RelayListItemPreviewData.generateRelayListItems(
+                                        includeCustomLists = true,
+                                        isSearching = false,
+                                    ),
+                                relayListType = relayListType,
+                                recentsEnabled = true,
+                            )
+                        ),
+                    bottomMargin = bottomMargin,
+                    relayListType = relayListType,
+                    onSelectRelayItem = { _, _ -> },
+                    onSetMultihopToAlways = {},
+                    onSelectAutomaticEntry = {},
+                    onAutomaticInfoClick = {},
+                    onAddCustomList = {},
+                    onEditCustomLists = {},
+                    onUpdateBottomSheetState = {},
+                    onToggleExpand = { _, _, _ -> },
+                    lazyListStates = SnapshotStateMap(),
+                )
+            },
         )
     }
 }
@@ -340,30 +364,39 @@ fun SelectLocation(navigator: Navigator) {
     SelectLocationScreen(
         state = state.value,
         snackbarHostState = snackbarHostState,
-        onSelectSinglehop = vm::selectSingle,
-        onModifyMultihop = vm::modifyMultihop,
         onSearchClick =
             dropUnlessResumed { relayListType ->
                 navigator.navigate(SearchLocationNavKey(relayListType))
             },
-        onCreateCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListNavKey()) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onFilterClick =
             dropUnlessResumed { filterTarget -> navigator.navigate(FilterNavKey(filterTarget)) },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onSelectRelayList = vm::selectRelayList,
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
-        onSelectAutomaticEntry = vm::selectAutomaticMultihopEntry,
-        onAutomaticInfoClick = dropUnlessResumed { navigator.navigate(AutomaticEntryInfoNavKey) },
         onRefreshRelayList = vm::refreshRelayList,
         onSetMultihopMode = vm::setMultihopMode,
         scrollToItem = vm::scrollToItem,
-        navigateToBottomSheet =
-            dropUnlessResumed { sheetState ->
-                navigator.navigate(LocationBottomSheetNavKey(sheetState))
-            },
+        relayListContent = { relayListType, bottomMargin ->
+            RelayLists(
+                relayListType = relayListType,
+                bottomMargin = bottomMargin,
+                onSelect = vm::selectSingle,
+                onModifyMultihop = vm::modifyMultihop,
+                onSelectAutomaticEntry = vm::selectAutomaticMultihopEntry,
+                onAutomaticInfoClick =
+                    dropUnlessResumed { navigator.navigate(AutomaticEntryInfoNavKey) },
+                onAddCustomList =
+                    dropUnlessResumed { navigator.navigate(CreateCustomListNavKey()) },
+                onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
+                onUpdateBottomSheetState =
+                    dropUnlessResumed { sheetState ->
+                        navigator.navigate(LocationBottomSheetNavKey(sheetState))
+                    },
+                onSetMultihopToAlways = { vm.setMultihopMode(MultihopMode.ALWAYS) },
+            )
+        },
     )
 }
 
@@ -372,23 +405,17 @@ fun SelectLocation(navigator: Navigator) {
 fun SelectLocationScreen(
     state: Lc<Unit, SelectLocationUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectSinglehop: (item: RelayItem) -> Unit,
-    onModifyMultihop: (relayItem: RelayItem, relayListType: RelayHopType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: (filterTarget: RelayHopType) -> Unit,
-    onCreateCustomList: () -> Unit,
-    onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
     removeProviderFilter: (filterTarget: RelayHopType) -> Unit,
     onSelectRelayList: (RelayHopType) -> Unit,
-    onSelectAutomaticEntry: () -> Unit,
-    onAutomaticInfoClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     onSetMultihopMode: (MultihopMode) -> Unit,
-    navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
+    relayListContent: @Composable (RelayListType, bottomMargin: Dp) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -530,18 +557,7 @@ fun SelectLocationScreen(
                         onFilterClick = onFilterClick,
                     )
 
-                    RelayLists(
-                        relayListType = state.value.relayListType,
-                        bottomMargin = bottomMarginList,
-                        onSelect = onSelectSinglehop,
-                        onModifyMultihop = onModifyMultihop,
-                        onSelectAutomaticEntry = onSelectAutomaticEntry,
-                        onAutomaticInfoClick = onAutomaticInfoClick,
-                        onAddCustomList = onCreateCustomList,
-                        onEditCustomLists = onEditCustomLists,
-                        onUpdateBottomSheetState = navigateToBottomSheet,
-                        onSetMultihopToAlways = { onSetMultihopMode(MultihopMode.ALWAYS) },
-                    )
+                    relayListContent(state.value.relayListType, bottomMarginList)
                 }
             }
         }
