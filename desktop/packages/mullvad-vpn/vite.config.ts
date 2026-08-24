@@ -88,7 +88,7 @@ const viteConfig = defineConfig({
                 /node_modules/,
               ],
             },
-            rollupOptions: {
+            rolldownOptions: {
               output: {
                 // We have to specify main.js here as otherwise it would
                 // inherit the name from the entry file, i.e. index
