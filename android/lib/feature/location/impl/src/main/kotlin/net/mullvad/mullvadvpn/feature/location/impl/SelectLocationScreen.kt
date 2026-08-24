@@ -46,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -94,7 +95,9 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
+import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.isTv
@@ -113,6 +116,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
+import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemPreviewData
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
@@ -149,7 +153,33 @@ private fun PreviewSelectLocationScreen(
             onRefreshRelayList = {},
             scrollToItem = {},
             onSetMultihopMode = {},
-            relayListContent = { _, _ -> },
+            relayListContent = { relayListType, bottomMargin ->
+                SelectLocationList(
+                    state =
+                        Lce.Content(
+                            SelectLocationListUiState(
+                                relayListItems =
+                                    RelayListItemPreviewData.generateRelayListItems(
+                                        includeCustomLists = true,
+                                        isSearching = false,
+                                    ),
+                                relayListType = relayListType,
+                                recentsEnabled = true,
+                            )
+                        ),
+                    bottomMargin = bottomMargin,
+                    relayListType = relayListType,
+                    onSelectRelayItem = { _, _ -> },
+                    onSetMultihopToAlways = {},
+                    onSelectAutomaticEntry = {},
+                    onAutomaticInfoClick = {},
+                    onAddCustomList = {},
+                    onEditCustomLists = {},
+                    onUpdateBottomSheetState = {},
+                    onToggleExpand = { _, _, _ -> },
+                    lazyListStates = SnapshotStateMap(),
+                )
+            },
         )
     }
 }
@@ -385,7 +415,7 @@ fun SelectLocationScreen(
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     onSetMultihopMode: (MultihopMode) -> Unit,
-    relayListContent: @Composable (RelayListType, Dp) -> Unit,
+    relayListContent: @Composable (RelayListType, bottomMargin: Dp) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
