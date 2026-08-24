@@ -207,6 +207,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
             let (connectedToIPAddress, _) = TunnelControlPage(app)
                 .tapRelayStatusExpandCollapseButton()
+                .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.udpOverTcp)
                 .getInIPAddressAndPortFromConnectionStatus()
 
             try Networking.verifyCanAccessInternet()
@@ -269,6 +270,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
             let (connectedToIPAddress, _) = TunnelControlPage(app)
                 .tapRelayStatusExpandCollapseButton()
+                .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.shadowsocks)
                 .getInIPAddressAndPortFromConnectionStatus()
 
             try Networking.verifyCanAccessInternet()
@@ -331,6 +333,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
             let (connectedToIPAddress, _) = TunnelControlPage(app)
                 .tapRelayStatusExpandCollapseButton()
+                .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.lwo)
                 .getInIPAddressAndPortFromConnectionStatus()
 
             try Networking.verifyCanAccessInternet()
@@ -377,6 +380,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.udpOverTcp)
 
         try Networking.verifyCanAccessInternet()
 
@@ -411,6 +416,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.shadowsocks)
 
         try Networking.verifyCanAccessInternet()
 
@@ -458,6 +465,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
             let (connectedToIPAddress, _) = TunnelControlPage(app)
                 .tapRelayStatusExpandCollapseButton()
+                .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.quic)
                 .getInIPAddressAndPortFromConnectionStatus()
 
             let (relayIPAddress, _) = TunnelControlPage(app)
@@ -523,6 +531,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .verifyObfuscationFeatureIndicator(TunnelControlPage.ObfuscationIndicator.lwo)
 
         try Networking.verifyCanAccessInternet()
 
