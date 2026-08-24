@@ -58,7 +58,6 @@ function newConfig() {
       'node_modules/',
       '!node_modules/grpc-tools',
       '!node_modules/@types',
-      '!node_modules/@rollup',
       '!node_modules/nseventforwarder/debug',
       '!node_modules/windows-utils/debug',
     ],
