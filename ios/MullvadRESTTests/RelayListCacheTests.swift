@@ -76,7 +76,7 @@ class RelayListCacheTests: XCTestCase {
 
         // 4. Read back from a fresh FileCache (forces disk round-trip, no in-memory cache).
         let freshFileCache = FileCache<StoredRelays>(fileURL: fileURL)
-        let readBack = try freshFileCache.read()
+        let readBack = try await freshFileCache.read()
 
         // 5. Verify rawData is preserved byte-for-byte.
         XCTAssertEqual(readBack.rawData, rawData)
