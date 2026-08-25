@@ -10,16 +10,16 @@
 
 import Foundation
 
-/// Protocol describing file cache that's able to read and write serializable content.
+/// File cache able to read and write serializable content.
 public protocol FileCacheProtocol<Content> {
-    associatedtype Content: Codable
+    associatedtype Content: Codable & Sendable
 
     func read() throws -> Content
     func write(_ content: Content) throws
     func clear() throws
 }
 
-/// File cache implementation that can read and write any `Codable` content.
+/// File cache actor that can read and write any `Codable` content.
 ///
 /// Cross-process coordination relies on atomic whole-file replacement instead of file locks:
 /// writes go to a uniquely named temporary file that is then `rename(2)`d into place. A reader
@@ -27,79 +27,147 @@ public protocol FileCacheProtocol<Content> {
 /// in-memory cache keyed by file modification time guarantees that content replaced by another
 /// process is picked up on the next read.
 ///
+/// The actor's custom `DispatchSerialQueue` executor means all blocking file I/O and JSON
+/// decode/encode happen on a single dedicated thread.
+///
 /// Multiple `FileCache` instances backed by the same file are safe — writes are atomic and each
 /// instance detects external changes through the file modification time. But we should use a shared
 /// instance instead. There is no reason for a single file to be backed by multiple file caches in the same process.
-public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Sendable {
-    public let fileURL: URL
+public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
+    private enum State {
+        case fresh(content: Content, date: Date?)
+        /// A disk read is in flight. All concurrent async readers suspend on this task.
+        case refreshing(Task<(content: Content, date: Date?), any Error>)
+        case stale
+    }
 
-    /// Lock protecting `cachedContent` and `contentModified` against data races.
-    private let cacheLock = NSLock()
-    private var cachedContent: Content?
-    private var contentModified: Date?
+    public nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    private var cacheState: State = .stale
+    private let queue: DispatchSerialQueue
+    private let fileURL: URL
+
+    /// Bumped on every write so that a stale in-flight refresh cannot overwrite a
+    /// subsequent write's update.
+    private var currentWrite = UUID()
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
+        self.queue = DispatchSerialQueue(
+            label: "net.mullvad.filecache.\(fileURL.lastPathComponent)",
+            qos: .userInitiated
+        )
     }
 
-    public func read() throws -> Content {
-        try cacheLock.withLock {
-            // Stat before reading, so that a concurrent replacement between the stat and the read can
-            // only mark the cache as stale and cause an extra re-read, never serve stale content.
-            let modificationTime = fileModificationTime(at: fileURL)
-            if let cachedContent, let contentModified, modificationTime != nil,
-                contentModified == modificationTime
-            {
-                return cachedContent
+    // MARK: - Asynchronous functions
+
+    public func read() async throws -> Content {
+        switch cacheState {
+        case let .fresh(cache, lastModified):
+            if lastModified == Self.fileLastModified(at: fileURL) {
+                cache
+            } else {
+                try await refresh()
             }
-
-            let data = try Data(contentsOf: fileURL)
-            let content = try JSONDecoder().decode(Content.self, from: data)
-
-            cachedContent = content
-            contentModified = modificationTime
-
-            return content
+        case let .refreshing(task):
+            try await task.value.content
+        case .stale:
+            try await refresh()
         }
     }
 
-    public func write(_ content: Content) throws {
-        try cacheLock.withLock {
-            let data = try JSONEncoder().encode(content)
+    public func write(_ content: Content) async throws {
+        let write = bumpWrite()
+        let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
 
-            // Write to a uniquely named temporary file, then atomically rename into place. The unique
-            // name prevents concurrent writers in this or another process from clobbering each other's
-            // in-progress writes.
-            let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
-            try data.write(to: tempURL)
+        let data = try JSONEncoder().encode(content)
+        try data.write(to: tempURL)
+        let lastModified = Self.fileLastModified(at: tempURL)
 
-            // Capture the modification time before the rename, which preserves it. If another process
-            // replaces the file afterwards, the stored time no longer matches and the next read
-            // re-reads from disk.
-            let writtenModificationTime = fileModificationTime(at: tempURL)
+        if rename(tempURL.path, fileURL.path) != 0 {
+            try? FileManager.default.removeItem(at: tempURL)
+            throw FileCacheError.renameFailed(errno)
+        }
 
-            if rename(tempURL.path, fileURL.path) != 0 {
-                try? FileManager.default.removeItem(at: tempURL)
-                throw FileCacheError.renameFailed(errno)
-            }
+        update(state: .fresh(content: content, date: lastModified), for: write)
+    }
 
-            cachedContent = content
-            contentModified = writtenModificationTime
+    public func clear() async throws {
+        let write = bumpWrite()
+        try FileManager.default.removeItem(at: fileURL)
+
+        update(state: .stale, for: write)
+    }
+
+    // MARK: - Synchronous shims
+    // Will be removed once all call sites have been migrated.
+
+    public nonisolated func read() throws -> Content {
+        try SynchRunner.run {
+            try await self.read()
         }
     }
 
-    public func clear() throws {
-        try cacheLock.withLock {
-            try FileManager.default.removeItem(at: fileURL)
+    public nonisolated func write(_ content: Content) throws {
+        try SynchRunner.run {
+            try await self.write(content)
+        }
+    }
 
-            cachedContent = nil
-            contentModified = nil
+    public nonisolated func clear() throws {
+        try SynchRunner.run {
+            try await self.clear()
         }
     }
 
     // MARK: - Private
 
-    private func fileModificationTime(at url: URL) -> Date? {
+    private func refresh() async throws -> Content {
+        let write = currentWrite
+        let fileURL = fileURL
+
+        let task = Task<(content: Content, date: Date?), any Error> {
+            try await withCheckedThrowingContinuation { continuation in
+                queue.async {
+                    do {
+                        let lastModified = Self.fileLastModified(at: fileURL)
+                        let data = try Data(contentsOf: fileURL)
+                        let cache = try JSONDecoder().decode(Content.self, from: data)
+
+                        continuation.resume(returning: (cache, lastModified))
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+        }
+
+        cacheState = .refreshing(task)
+
+        do {
+            let (cache, lastModified) = try await task.value
+            update(state: .fresh(content: cache, date: lastModified), for: write)
+            return cache
+        } catch {
+            update(state: .stale, for: write)
+            throw error
+        }
+    }
+
+    private func bumpWrite() -> UUID {
+        currentWrite = UUID()
+        return currentWrite
+    }
+
+    private func update(state: State, for write: UUID) {
+        if currentWrite == write {
+            cacheState = state
+        }
+    }
+
+    private static func fileLastModified(at url: URL) -> Date? {
         (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
     }
 }
