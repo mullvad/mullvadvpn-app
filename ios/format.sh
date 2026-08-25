@@ -48,7 +48,7 @@ included_folders=(
 )
 cd "$script_dir"
 
-if [[ "$ENABLE_PREVIEWS" == "NO" ]]; then
+if [[ "${ENABLE_PREVIEWS:-NO}" == "NO" ]]; then
     if [[ "$command" == "lint" ]]; then
         swift format lint -r -p "$@" "${included_folders[@]}"
     elif [[ "$command" == "format" ]]; then
