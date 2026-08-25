@@ -710,7 +710,6 @@
 		7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */; };
 		7ABBE0182F1A2D4100AD8176 /* IncludeAllNetworksSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */; };
 		7ABBE01A2F1A2D8700AD8176 /* IncludeAllNetworksSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0192F1A2D8400AD8176 /* IncludeAllNetworksSettings.swift */; };
-		7ABBE01E2F1E266F00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01D2F1E266A00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift */; };
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
@@ -2427,7 +2426,6 @@
 		7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsViewModel.swift; sourceTree = "<group>"; };
 		7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsView.swift; sourceTree = "<group>"; };
 		7ABBE0192F1A2D8400AD8176 /* IncludeAllNetworksSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettings.swift; sourceTree = "<group>"; };
-		7ABBE01D2F1E266A00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksCheckboxToggleStyle.swift; sourceTree = "<group>"; };
 		7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheck.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
@@ -4799,7 +4797,6 @@
 		7ABBE0122F1A2CDE00AD8176 /* IncludeAllNetworks */ = {
 			isa = PBXGroup;
 			children = (
-				7ABBE01D2F1E266A00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift */,
 				7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */,
 				7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */,
 				7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */,
@@ -7215,7 +7212,6 @@
 				A99E5EE22B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift in Sources */,
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
-				7ABBE01E2F1E266F00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
 				A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */,
 				F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */,
