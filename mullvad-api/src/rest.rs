@@ -1,11 +1,8 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client::SocketBypassRequest;
 use crate::{
-    DnsResolver, SigsumPublicKey,
-    access::AccessTokenStore,
-    availability::ApiAvailability,
-    https_client::{HttpsConnector, InnerConnectionMode},
-    proxy::ConnectionModeProvider,
+    DnsResolver, SigsumPublicKey, access::AccessTokenStore, availability::ApiAvailability,
+    https_client::HttpsConnector, proxy::ConnectionModeProvider,
 };
 use futures::{
     TryFutureExt as _,
@@ -202,13 +199,10 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
-        let proxy_config = {
-            let api_connection_mode = connection_mode_provider.initial();
-            InnerConnectionMode::from(api_connection_mode)
-        };
+        let connection_mode = connection_mode_provider.initial();
 
         let connector = HttpsConnector::new(
-            proxy_config,
+            connection_mode,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
