@@ -45,7 +45,6 @@ struct ActionBox: View {
                 }
             }
             if let additionalInfo, isChecked {
-
                 VStack(alignment: .leading) {
                     Button {
                         withAnimation {
