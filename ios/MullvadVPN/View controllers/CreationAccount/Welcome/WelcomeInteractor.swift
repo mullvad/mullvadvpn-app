@@ -39,7 +39,9 @@ final class WelcomeInteractor: @unchecked Sendable {
     }
 
     var accountNumber: String {
-        tunnelManager.deviceState.accountData?.number ?? ""
+        get async {
+            await tunnelManager.deviceState.accountData?.number ?? ""
+        }
     }
 
     var viewModel: WelcomeViewModel {

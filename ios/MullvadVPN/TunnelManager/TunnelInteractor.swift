@@ -15,33 +15,54 @@ import MullvadTypes
 import PacketTunnelCore
 
 protocol TunnelInteractor {
-    // MARK: - Tunnel manipulation
 
+    // MARK: - Tunnel manipulation
+    
     var tunnel: (any TunnelProtocol)? { get }
     var backgroundTaskProvider: BackgroundTaskProviding { get }
-
     func getPersistentTunnels() -> [any TunnelProtocol]
     func createNewTunnel() -> any TunnelProtocol
-    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool)
+    func setTunnel(
+        _ tunnel: (any TunnelProtocol)?,
+        shouldRefreshTunnelState: Bool
+    ) async
 
     // MARK: - Tunnel status
 
     var tunnelStatus: TunnelStatus { get }
-    @discardableResult func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus
+
+    @discardableResult
+    func updateTunnelStatus(
+        _ block: @Sendable (inout TunnelStatus) -> Void
+    ) async -> TunnelStatus
 
     // MARK: - Configuration
 
     var isConfigurationLoaded: Bool { get }
+
     var settings: LatestTunnelSettings { get }
+
     var deviceState: DeviceState { get }
 
-    func setConfigurationLoaded()
-    func setSettings(_ settings: LatestTunnelSettings, persist: Bool)
-    func setDeviceState(_ deviceState: DeviceState, persist: Bool)
-    func removeLastUsedAccount()
-    func handleRestError(_ error: Error)
+    func setConfigurationLoaded() async
 
-    func startTunnel()
-    func prepareForVPNConfigurationDeletion()
-    func selectRelays() throws -> SelectedRelays
+    func setSettings(
+        _ settings: LatestTunnelSettings,
+        persist: Bool
+    ) async
+
+    func setDeviceState(
+        _ deviceState: DeviceState,
+        persist: Bool
+    ) async
+
+    func removeLastUsedAccount() async
+
+    func handleRestError(_ error: Error) async
+
+    func startTunnel() async
+
+    func prepareForVPNConfigurationDeletion() async
+
+    func selectRelays() async throws -> SelectedRelays
 }
