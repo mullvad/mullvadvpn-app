@@ -21,7 +21,6 @@ use hyper_util::client::legacy::connect::Connect;
 use mullvad_types::account::AccountNumber;
 use std::{
     borrow::Cow,
-    convert::Infallible,
     error::Error as StdError,
     str::FromStr,
     sync::{Arc, Weak},
@@ -88,9 +87,9 @@ pub enum Error {
     BodyTooLarge,
 }
 
-impl From<Infallible> for Error {
-    fn from(_: Infallible) -> Self {
-        unreachable!()
+impl From<!> for Error {
+    fn from(never: !) -> Self {
+        never
     }
 }
 

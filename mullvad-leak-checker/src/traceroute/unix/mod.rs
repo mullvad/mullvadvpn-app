@@ -1,6 +1,5 @@
 use std::{
     ascii::escape_default,
-    convert::Infallible,
     io,
     net::{IpAddr, SocketAddr},
     ops::RangeFrom,
@@ -125,7 +124,7 @@ pub async fn try_run_leak_test<Impl: Traceroute>(
         timeout(SEND_TIMEOUT, send_probes)
             .await
             .map_err(|_timeout| anyhow!("Timed out while trying to send probe packet"))??;
-        Ok(pending::<Infallible>().await)
+        pending::<Result<!, _>>().await
     };
 
     let recv_probe_responses = icmp_socket.recv_ttl_responses(opt);

@@ -7,7 +7,6 @@ fn main() {
 mod inner {
     use nix::unistd::{Pid, execvp, getgid, getpid, getuid, setgid, setuid};
     use std::{
-        convert::Infallible,
         env,
         error::Error as StdError,
         ffi::{CString, NulError},
@@ -83,7 +82,7 @@ mod inner {
             .map_err(Error::from)
     }
 
-    fn run() -> Result<Infallible, Error> {
+    fn run() -> Result<!, Error> {
         let mut args_iter = env::args_os().skip(1);
         let program = args_iter.next().ok_or(Error::InvalidArguments)?;
         let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
