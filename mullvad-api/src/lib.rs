@@ -230,6 +230,7 @@ impl ApiEndpoint {
             env::API_ADDR_VAR,
             env::DISABLE_TLS_VAR,
             env::API_FORCE_DIRECT_VAR,
+            env::SIGSUM_TRUSTED_PUBKEYS_VAR,
         ];
 
         if env_vars.map(Self::read_env_var).iter().any(Option::is_some) {
@@ -257,20 +258,31 @@ impl ApiEndpoint {
     }
 
     /// Returns a new API endpoint with the given host and socket address.
-    pub fn new(
-        host: String,
-        address: SocketAddr,
-        sigsum_trusted_pubkeys: Option<Vec<SigsumPublicKey>>,
-        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
-    ) -> Self {
+    pub fn new(host: String, address: SocketAddr) -> Self {
         Self {
             host: Some(host),
             address: Some(address),
-            sigsum_trusted_pubkeys,
+            sigsum_trusted_pubkeys: None,
             #[cfg(any(feature = "api-override", test))]
-            disable_tls,
+            disable_tls: false,
             #[cfg(feature = "api-override")]
             force_direct: false,
+        }
+    }
+
+    #[cfg(feature = "api-override")]
+    pub fn trust_sigsum_pubkeys(self, keys: Vec<SigsumPublicKey>) -> Self {
+        Self {
+            sigsum_trusted_pubkeys: Some(keys),
+            ..self
+        }
+    }
+
+    #[cfg(any(feature = "api-override", test))]
+    pub fn disable_tls(self) -> Self {
+        Self {
+            disable_tls: true,
+            ..self
         }
     }
 
