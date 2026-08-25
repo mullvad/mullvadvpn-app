@@ -5643,7 +5643,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
 			buildPhases = (
-				580E3F222A9861990061809D /* Run SwiftLint */,
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
 				58CE5E77224146470008646E /* Resources */,
@@ -6187,25 +6186,6 @@
 
 /* Begin PBXShellScriptBuildPhase section */
 		580E3F212A9860F20061809D /* Run SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run SwiftLint";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./format.sh lint\n";
-		};
-		580E3F222A9861990061809D /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
