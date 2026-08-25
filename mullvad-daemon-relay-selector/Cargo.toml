@@ -7,6 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+chrono = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 mullvad-api = { path = "../mullvad-api" }
@@ -18,7 +19,6 @@ talpid-future = { path = "../talpid-future/" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs"] }
-chrono = { workspace = true }
 
 [features]
 default = []
