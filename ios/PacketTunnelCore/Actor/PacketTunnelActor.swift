@@ -221,6 +221,57 @@ public actor PacketTunnelActor {
 
 extension PacketTunnelActor {
     /**
+<<<<<<< Updated upstream
+=======
+     Start the tunnel.
+
+     Can only be called once, all subsequent attempts are ignored. Use `reconnect()` if you wish to change relay.
+
+     - Parameter options: start options produced by packet tunnel
+     */
+    public func start(options: StartOptions) async {
+        guard case .initial = state else { return }
+
+        logger.debug("\(options.logFormat())")
+
+        do {
+            try await tryStart(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
+        } catch {
+            logger.error(error: error, message: "Failed to start the tunnel.")
+
+            await setErrorStateInternal(with: error)
+        }
+    }
+
+    /// Stop the tunnel.
+    public func stop() async {
+        switch state {
+        case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
+            let .negotiatingEphemeralPeer(connState, _):
+            state = .disconnecting(connState)
+            tunnelMonitor.stop()
+
+            // Fallthrough to stop adapter and shift to `.disconnected` state.
+            fallthrough
+
+        case .error:
+            do {
+                try await tunnelAdapter.stop()
+            } catch {
+                logger.error(error: error, message: "Failed to stop adapter.")
+            }
+            state = .disconnected
+
+        case .initial, .disconnected:
+            break
+
+        case .disconnecting:
+            assertionFailure("stop(): out of order execution.")
+        }
+    }
+
+    /**
+>>>>>>> Stashed changes
      Entry point for attempting to start the tunnel by performing the following steps:
 
      - Read settings

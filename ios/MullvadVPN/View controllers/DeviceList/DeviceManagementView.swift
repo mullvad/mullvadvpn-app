@@ -73,26 +73,29 @@ struct DeviceManagementView: View {
         }
     }
 
-    private func fetchDevices() {
+    @MainActor
+    private func fetchDevices() async {
         loading = true
-        _ = deviceManaging.getDevices { result in
-            Task { @MainActor in
-                loading = false
-                switch result {
-                case let .success(devices):
-                    self.loggedInDevices = devices.map {
-                        DeviceListView.Device(
-                            id: $0.id,
-                            name: $0.name.capitalized,
-                            created: $0.created,
-                            isCurrentDevice: $0.id == self.deviceManaging.currentDeviceId,
-                            isBeingRemoved: false
-                        )
-                    }
-                case let .failure(error):
-                    onError("Failed to fetch devices", error)
-                }
+        defer {
+            loading = false
+        }
+
+        let result = await deviceManaging.getDevices()
+
+        switch result {
+        case let .success(devices):
+            loggedInDevices = devices.map {
+                DeviceListView.Device(
+                    id: $0.id,
+                    name: $0.name.capitalized,
+                    created: $0.created,
+                    isCurrentDevice: $0.id == deviceManaging.currentDeviceId,
+                    isBeingRemoved: false
+                )
             }
+
+        case let .failure(error):
+            onError("Failed to fetch devices", error)
         }
     }
 
@@ -112,36 +115,36 @@ struct DeviceManagementView: View {
                                 title: style.actionButtonTitle,
                                 identifier: AccessibilityIdentifier.logOutDeviceConfirmButton,
                                 handler: {
-                                    await withCheckedContinuation { continuation in
-                                        guard let loggedInDevices else {
-                                            return
-                                        }
-                                        self.loggedInDevices = loggedInDevices.map {
-                                            $0.id == device.id ? $0.setIsBeingRemoved(true) : $0
-                                        }
-                                        deviceManagementAlert = nil
-                                        _ = deviceManaging.deleteDevice(
-                                            device.id,
-                                            completionHandler: { result in
-                                                Task { @MainActor in
-                                                    switch result {
-                                                    case .success:
-                                                        self.loggedInDevices?.removeAll(where: { $0.id == device.id })
-                                                    case let .failure(error):
-                                                        self.loggedInDevices = loggedInDevices.map {
-                                                            $0.id
-                                                                == device
-                                                                .id ? $0.setIsBeingRemoved(false) : $0
-                                                        }
-                                                        onError("Failed to log out device", error)
-                                                    }
-                                                    continuation.resume()
-                                                }
-                                            }
-                                        )
+                                    guard let loggedInDevices else {
+                                        return
                                     }
-                                }
-                            ),
+
+                                    self.loggedInDevices = loggedInDevices.map {
+                                        $0.id == device.id
+                                            ? $0.setIsBeingRemoved(true)
+                                            : $0
+                                    }
+
+                                    deviceManagementAlert = nil
+
+                                    let result = await deviceManaging.deleteDevice(device.id)
+
+                                    switch result {
+                                    case .success:
+                                        self.loggedInDevices?.removeAll {
+                                            $0.id == device.id
+                                        }
+
+                                    case let .failure(error):
+                                        self.loggedInDevices = loggedInDevices.map {
+                                            $0.id == device.id
+                                                ? $0.setIsBeingRemoved(false)
+                                                : $0
+                                        }
+
+                                        onError("Failed to log out device", error)
+                                    }
+                                }),
                             .init(
                                 type: .secondary,
                                 title: "Cancel",
@@ -199,7 +202,7 @@ struct DeviceManagementView: View {
         .mullvadAlert(item: $deviceManagementAlert)
         .background(Color.mullvadBackground)
         .task {
-            fetchDevices()
+            await fetchDevices()
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier(

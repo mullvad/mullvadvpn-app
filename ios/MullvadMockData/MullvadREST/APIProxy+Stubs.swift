@@ -18,17 +18,42 @@ struct APIProxyStub: APIQuerying {
     var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
     var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
-    var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
     var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
     var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
     var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
+    var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
 
-    func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable {
-        completionHandler(getAddressListResult)
-        return AnyCancellable()
+    func getAddressList(retryStrategy: REST.RetryStrategy) async -> Result<[AnyIPEndpoint], any Error> {
+        getAddressListResult
+    }
+
+    func getRelays(etag: String?, retryStrategy: REST.RetryStrategy) async -> Result<
+        REST.ServerRelaysCacheResponse, any Error
+    > {
+        getRelaysResult
+    }
+
+    func sendProblemReport(_ body: ProblemReportRequest, retryStrategy: REST.RetryStrategy) async -> Result<
+        Void, any Error
+    > {
+        sendProblemReportResult
+    }
+
+    func initStoreKitPayment(accountNumber: String, retryStrategy: REST.RetryStrategy) async -> Result<UUID, any Error>
+    {
+        initStorekitPaymentResult
+    }
+
+    func checkStoreKitPayment(transaction: StoreKitTransaction, retryStrategy: REST.RetryStrategy) async -> Result<
+        Void, any Error
+    > {
+        checkStorekitPaymentResult
+    }
+
+    func checkApiAvailability(retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod) async -> Result<
+        Bool, any Error
+    > {
+        checkApiAvailabilityResult
     }
 
     func getRelays(
@@ -40,15 +65,6 @@ struct APIProxyStub: APIQuerying {
         return AnyCancellable()
     }
 
-    func sendProblemReport(
-        _ body: ProblemReportRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<Void>
-    ) -> Cancellable {
-        completionHandler(sendProblemReportResult)
-        return AnyCancellable()
-    }
-
     func submitVoucher(
         voucherCode: String,
         accountNumber: String,
@@ -56,33 +72,6 @@ struct APIProxyStub: APIQuerying {
         completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable {
         completionHandler(submitVoucherResult)
-        return AnyCancellable()
-    }
-
-    func initStoreKitPayment(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<UUID>
-    ) -> any MullvadTypes.Cancellable {
-        completionHandler(initStorekitPaymentResult)
-        return AnyCancellable()
-    }
-
-    func checkStoreKitPayment(
-        transaction: StoreKitTransaction,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<Void>
-    ) -> any MullvadTypes.Cancellable {
-        completionHandler(checkStorekitPaymentResult)
-        return AnyCancellable()
-    }
-
-    func checkApiAvailability(
-        retryStrategy: REST.RetryStrategy,
-        accessMethod: PersistentAccessMethod,
-        completion: @escaping ProxyCompletionHandler<Bool>
-    ) -> any MullvadTypes.Cancellable {
-        completion(checkApiAvailabilityResult)
         return AnyCancellable()
     }
 }

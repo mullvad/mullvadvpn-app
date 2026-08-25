@@ -6,15 +6,14 @@
 //
 //   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
-
-@preconcurrency import Combine
+import Combine
 import MullvadSettings
 
-struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
+final class EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
     let repository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    private var proxyConfigurationTestTask: Task<Void, Never>?
 
     var shadowsocksCiphers: [String] {
         repository.shadowsocksCiphers
@@ -62,27 +61,48 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
         }
     }
 
-    func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
-        guard let config = try? subject.value.intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers) else {
+    func startProxyConfigurationTest(
+        _ completion: (@Sendable (Bool) -> Void)?
+    ) {
+        guard
+            let config = try? subject.value.intoPersistentAccessMethod(
+                shadowsocksCiphers: shadowsocksCiphers
+            )
+        else {
             return
         }
 
         let subject = subject
         subject.value.testingStatus = .inProgress
 
-        proxyConfigurationTester.start(configuration: config) { error in
-            let succeeded = error == nil
+        proxyConfigurationTestTask?.cancel()
 
-            subject.value.testingStatus = succeeded ? .succeeded : .failed
+        proxyConfigurationTestTask = Task {
+            do {
+                try await proxyConfigurationTester.start(
+                    configuration: config
+                )
 
-            completion?(succeeded)
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                subject.value.testingStatus = .succeeded
+                completion?(true)
+            } catch {
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                subject.value.testingStatus = .failed
+                completion?(false)
+            }
         }
     }
 
     func cancelProxyConfigurationTest() {
         subject.value.testingStatus = .initial
-
-        proxyConfigurationTester.cancel()
+        proxyConfigurationTestTask?.cancel()
     }
 
     // The access method can only be disabled if at least one other method is enabled

@@ -347,9 +347,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
             using: .main
         ) { [self] task in
-            nonisolated(unsafe) let handle = tunnelManager.rotatePrivateKey { [self] error in
+            let handle = Task { @MainActor [self] in
+                let result = await tunnelManager.rotatePrivateKey()
+
                 scheduleKeyRotationTask()
-                task.setTaskCompleted(success: error == nil)
+                task.setTaskCompleted(success: result == nil)
             }
 
             task.expirationHandler = { @Sendable in
@@ -363,6 +365,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             logger.error("Failed to register private key rotation task.")
         }
     }
+
+    //    private func registerKeyRotationTask() {
+    //        let isRegistered = BGTaskScheduler.shared.register(
+    //            forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
+    //            using: .main
+    //        ) { [self] task in
+    //            nonisolated(unsafe) let handle = tunnelManager.rotatePrivateKey { [self] error in
+    //                scheduleKeyRotationTask()
+    //                task.setTaskCompleted(success: error == nil)
+    //            }
+    //
+    //            task.expirationHandler = { @Sendable in
+    //                handle.cancel()
+    //            }
+    //        }
+    //
+    //        if isRegistered {
+    //            logger.debug("Registered private key rotation task.")
+    //        } else {
+    //            logger.error("Failed to register private key rotation task.")
+    //        }
+    //    }
 
     private func registerAddressCacheUpdateTask() {
         let isRegistered = BGTaskScheduler.shared.register(
@@ -625,13 +649,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 let accountData = deviceState.accountData,
                 let deviceData = deviceState.deviceData
             {
-                // this part is asynchronous, but we don't await the result
-                _ = self.devicesProxy.deleteDevice(
-                    accountNumber: accountData.number,
-                    identifier: deviceData.identifier,
-                    retryStrategy: .noRetry
-                ) { _ in
-                    // Do nothing.
+                Task {
+                    _ = await self.devicesProxy.deleteDevice(
+                        accountNumber: accountData.number,
+                        identifier: deviceData.identifier,
+                        retryStrategy: .noRetry
+                    )
                 }
             }
 

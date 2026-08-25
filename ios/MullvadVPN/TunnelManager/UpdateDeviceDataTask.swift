@@ -1,19 +1,16 @@
-// This Source Code Form is subject to the terms of the GPLv3 License.
-// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-// This file incorporates work covered by the following copyright and
-// permission notice:
+//  UpdateDeviceDataTask.swift
+//  MullvadVPN
 //
-//   Copyright (c) Mullvad VPN AB. All rights reserved.
+//  Created by pronebird on 13/05/2022.
+//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
-// SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
 import MullvadTypes
-import Operations
 
 final class UpdateDeviceDataTask: Sendable {
 
@@ -60,7 +57,7 @@ final class UpdateDeviceDataTask: Sendable {
                 return .failure(error)
             }
         } catch is CancellationError {
-            return .failure(OperationError.cancelled)
+            return .failure(CancellationError())
         } catch {
             return .failure(error)
         }

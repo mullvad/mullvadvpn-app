@@ -15,35 +15,30 @@ public protocol DeviceHandling: Sendable {
     func getDevice(
         accountNumber: String,
         identifier: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, Error>
 
     func getDevices(
         accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<[Device]>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<[Device], Error>
 
     func createDevice(
         accountNumber: String,
         request: CreateDeviceRequest,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, Error>
 
     func deleteDevice(
         accountNumber: String,
         identifier: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Bool, Error>
 
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
         publicKey: WireGuard.PublicKey,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<Device>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, Error>
 }

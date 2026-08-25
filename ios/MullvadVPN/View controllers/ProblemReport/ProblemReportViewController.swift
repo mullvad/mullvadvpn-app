@@ -30,6 +30,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     var isMessageTextViewExpanded = false
 
     static var persistentViewModel = ProblemReportViewModel()
+    private var sendProblemReportTask: Task<Void, Never>?
 
     /// Scroll view
     lazy var scrollView: UIScrollView = { makeScrollView() }()
@@ -265,22 +266,36 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     // MARK: - Problem report submission helpers
 
+    @MainActor
     func sendProblemReport() {
+        sendProblemReportTask?.cancel()
+
         let viewModel = Self.persistentViewModel
 
         willSendProblemReport()
 
-        interactor.sendReport(
-            email: viewModel.email,
-            message: viewModel.message,
-            includeAccountTokenInLogs: includeAccountTokenInLogs
-        ) { [weak self] completion in
-            Task { @MainActor in
-                self?.didSendProblemReport(viewModel: viewModel, completion: completion)
+        sendProblemReportTask = Task { @MainActor [weak self] in
+            guard let self else {
+                return
             }
+
+            let completion = await interactor.sendReport(
+                email: viewModel.email,
+                message: viewModel.message,
+                includeAccountTokenInLogs: includeAccountTokenInLogs
+            )
+
+            didSendProblemReport(
+                viewModel: viewModel,
+                completion: completion
+            )
         }
     }
 
+    @MainActor
+    func cancel() {
+        sendProblemReportTask?.cancel()
+    }
     // MARK: - Input fields notifications
 
     func didToggleIncludeAccountTokenInLogs(_ includeTokenInLogs: Bool) {

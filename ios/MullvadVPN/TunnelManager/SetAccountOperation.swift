@@ -162,19 +162,16 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
        otherwise, propagate the error.
      */
     private func startDeleteAccountFlow(
-        accountNumber: String,
-        completion: @escaping @Sendable (Result<Void, Error>) -> Void
-    ) {
-        deleteAccount(accountNumber: accountNumber) { [self] result in
-            if result.isSuccess {
-                interactor.removeLastUsedAccount()
-                unsetDeviceState {
-                    completion(result)
-                }
-            } else {
-                completion(result)
-            }
+        accountNumber: String
+    ) async -> Result<StoredAccountData?, Error> {
+        let result = await deleteAccount(accountNumber: accountNumber)
+
+        guard result.isSuccess else {
+            return result.map { _ in nil }
         }
+        await updateState(.logout(isRemovingProfile: true))
+
+        return .success(nil)
     }
 
     /**

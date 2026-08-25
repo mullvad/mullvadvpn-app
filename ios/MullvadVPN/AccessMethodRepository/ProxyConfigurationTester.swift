@@ -15,25 +15,19 @@ import MullvadSettings
 import MullvadTypes
 
 /// A concrete implementation of an access method proxy configuration.
-class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
-    private var cancellable: MullvadTypes.Cancellable?
+final class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     private let apiProxy: APIQuerying
 
     init(apiProxy: APIQuerying) {
         self.apiProxy = apiProxy
     }
 
-    func start(configuration: PersistentAccessMethod, completion: @escaping @Sendable (Error?) -> Void) {
-        cancellable = apiProxy.checkApiAvailability(retryStrategy: .noRetry, accessMethod: configuration) { success in
-            switch success {
-            case .success: completion(nil)
-            case let .failure(error): completion(error)
-            }
-        }
-    }
+    func start(configuration: PersistentAccessMethod) async throws {
+        let result = await apiProxy.checkApiAvailability(
+            retryStrategy: .noRetry,
+            accessMethod: configuration
+        )
 
-    func cancel() {
-        cancellable?.cancel()
-        cancellable = nil
+        _ = try result.get()
     }
 }

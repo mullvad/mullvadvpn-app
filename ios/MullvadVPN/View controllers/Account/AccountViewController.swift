@@ -17,7 +17,6 @@ enum AccountViewControllerAction: Sendable {
     case deviceManagement
     case finish
     case logOut
-    case navigateToVoucher
     case navigateToDeleteAccount
     case restorePurchasesInfo
     case showPurchaseOptions
@@ -182,10 +181,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         actionHandler?(.finish)
     }
 
-    @objc private func redeemVoucher() {
-        actionHandler?(.navigateToVoucher)
-    }
-
     @objc private func deleteAccount() {
         actionHandler?(.navigateToDeleteAccount)
     }
@@ -246,16 +241,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         )
         sheetController.overrideUserInterfaceStyle = .dark
         sheetController.view.tintColor = .AlertController.tintColor
-
-        sheetController.addAction(
-            UIAlertAction(
-                title: "Redeem voucher",
-                style: .default,
-                handler: { _ in
-                    self.redeemVoucher()
-                }
-            )
-        )
 
         sheetController.addAction(
             UIAlertAction(

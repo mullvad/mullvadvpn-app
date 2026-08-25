@@ -13,8 +13,8 @@
     import Foundation
     import NetworkExtension
 
-    final class SimulatorTunnelProviderSession: SimulatorVPNConnection, VPNTunnelProviderSessionProtocol,
-        @unchecked Sendable
+    final class SimulatorTunnelProviderSession: SimulatorVPNConnection,
+        @MainActor VPNTunnelProviderSessionProtocol
     {
         func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
             SimulatorTunnelProvider.shared.handleAppMessage(

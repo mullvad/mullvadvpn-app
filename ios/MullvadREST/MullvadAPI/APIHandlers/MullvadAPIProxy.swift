@@ -13,47 +13,46 @@ import MullvadTypes
 import Operations
 
 public protocol APIQuerying: Sendable {
-    func getAddressList(
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
-    ) -> Cancellable
 
+    @available(
+        *,
+        deprecated,
+        message: "Use the async version instead."
+    )
     func getRelays(
         etag: String?,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
+    func getAddressList(
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<[AnyIPEndpoint], Error>
+
+    func getRelays(
+        etag: String?,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<REST.ServerRelaysCacheResponse, Error>
+
     func sendProblemReport(
         _ body: ProblemReportRequest,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
-    ) -> Cancellable
-
-    func submitVoucher(
-        voucherCode: String,
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Void, Error>
 
     func initStoreKitPayment(
         accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<UUID>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<UUID, Error>
 
     func checkStoreKitPayment(
         transaction: StoreKitTransaction,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Void, Error>
 
     func checkApiAvailability(
         retryStrategy: REST.RetryStrategy,
-        accessMethod: PersistentAccessMethod,
-        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
-    ) -> Cancellable
+        accessMethod: PersistentAccessMethod
+    ) async -> Result<Bool, Error>
 }
 
 extension REST {
@@ -74,19 +73,140 @@ extension REST {
         }
 
         public func getAddressList(
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<[AnyIPEndpoint], Swift.Error> {
+            let request = APIRequest.getAddressList(retryStrategy)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: [AnyIPEndpoint].self,
+                    with: responseDecoder
+                )
+            )
+
+            return await task.startRequest()
+        }
+
+        public func getRelays(
+            etag: String?,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<REST.ServerRelaysCacheResponse, Swift.Error> {
+
+            if var etag {
+                // Enforce weak validator to account for some backend caching quirks.
+                if etag.starts(with: "\"") {
+                    etag.insert(contentsOf: "W/", at: etag.startIndex)
+                }
+            }
+            let responseHandler = rustCustomResponseHandler { data, responseEtag in
+                if let responseEtag, responseEtag == etag {
+                    return REST.ServerRelaysCacheResponse.notModified
+                } else {
+                    return REST.ServerRelaysCacheResponse.newContent(responseEtag, data)
+                }
+            }
+
+            let request = APIRequest.getRelayList(retryStrategy, etag: etag)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: responseHandler
+            )
+
+            return await task.startRequest()
+        }
+
+        public func sendProblemReport(
+            _ body: ProblemReportRequest,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Void, Swift.Error> {
+            let request = APIRequest.sendProblemReport(retryStrategy, problemReportRequest: body)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            return await task.startRequest()
+        }
+
+        public func checkStoreKitPayment(
+            transaction: StoreKitTransaction,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Void, Swift.Error> {
+            let request = APIRequest.checkStorekitPayment(
+                retryStrategy: retryStrategy,
+                transaction: transaction
+            )
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            return await task.startRequest()
+        }
+
+        public func checkApiAvailability(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
-        ) -> Cancellable {
+            accessMethod: PersistentAccessMethod
+        ) async -> Result<Bool, Swift.Error> {
+            let request = APIRequest.checkApiAvailability(retryStrategy, accessMethod: accessMethod)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            let response = await task.startRequest()
+            return switch response {
+            case .success:
+                .success(true)
+            case .failure(let error):
+                .failure(error)
+            }
+        }
+
+        public func initStoreKitPayment(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<UUID, Swift.Error> {
+            let request = APIRequest.initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber)
+
+            struct InitStorekitPaymentResponse: Codable {
+                let paymentToken: UUID
+            }
+
             let responseHandler = rustResponseHandler(
-                decoding: [AnyIPEndpoint].self,
+                decoding: InitStorekitPaymentResponse.self,
                 with: responseDecoder
             )
 
-            return createNetworkOperation(
-                request: .getAddressList(retryStrategy),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: responseHandler
             )
+
+            let response = await task.startRequest()
+            return switch response {
+            case .success(let value):
+                .success(value.paymentToken)
+            case .failure(let error):
+                .failure(error)
+            }
         }
 
         public func getRelays(
@@ -115,86 +235,6 @@ extension REST {
                 completionHandler: completionHandler
             )
         }
-
-        public func sendProblemReport(
-            _ body: ProblemReportRequest,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<Void>
-        ) -> Cancellable {
-            createNetworkOperation(
-                request: .sendProblemReport(retryStrategy, problemReportRequest: body),
-                responseHandler: rustEmptyResponseHandler(),
-                completionHandler: completionHandler
-            )
-        }
-
-        public func submitVoucher(
-            voucherCode: String,
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
-        ) -> Cancellable {
-            AnyCancellable()
-        }
-
-        public func checkApiAvailability(
-            retryStrategy: REST.RetryStrategy,
-            accessMethod: PersistentAccessMethod,
-            completion: @escaping @Sendable ProxyCompletionHandler<Bool>
-        ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-            return createNetworkOperation(
-                request: .checkApiAvailability(retryStrategy, accessMethod: accessMethod),
-                responseHandler: responseHandler
-            ) { result in
-                if case let .failure(err) = result {
-                    completion(.failure(err))
-                } else {
-                    completion(.success(true))
-                }
-            }
-        }
-
-        public func initStoreKitPayment(
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<UUID>
-        ) -> Cancellable {
-            struct InitStorekitPaymentResponse: Codable {
-                let paymentToken: UUID
-            }
-
-            let responseHandler = rustResponseHandler(
-                decoding: InitStorekitPaymentResponse.self,
-                with: responseDecoder
-            )
-
-            return createNetworkOperation(
-                request:
-                    .initStorekitPayment(retryStrategy: retryStrategy, accountNumber: accountNumber),
-                responseHandler: responseHandler,
-                completionHandler: { completionHandler($0.map { $0.paymentToken }) }
-            )
-        }
-
-        public func checkStoreKitPayment(
-            transaction: StoreKitTransaction,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<Void>
-        ) -> Cancellable {
-            let responseHandler = rustEmptyResponseHandler()
-
-            return createNetworkOperation(
-                request:
-                    .checkStorekitPayment(
-                        retryStrategy: retryStrategy,
-                        transaction: transaction
-                    ),
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
-            )
-        }
-
         private func createNetworkOperation<Success>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,

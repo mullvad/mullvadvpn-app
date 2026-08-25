@@ -19,7 +19,6 @@ final class ProblemReportInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let consolidatedLog: ConsolidatedApplicationLog
     private var reportedString = ""
-    private var requestCancellable: Cancellable?
 
     init(apiProxy: APIQuerying, tunnelManager: TunnelManager, redactor: LogRedacting?) {
         self.apiProxy = apiProxy
@@ -30,65 +29,70 @@ final class ProblemReportInteractor: @unchecked Sendable {
         )
     }
 
-    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
-        consolidatedLog.addLogFiles(
-            fileURLs: ApplicationTarget.allCases.flatMap {
-                ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
+    func fetchReportString() async -> String {
+        await withCheckedContinuation { continuation in
+            consolidatedLog.addLogFiles(
+                fileURLs: ApplicationTarget.allCases.flatMap {
+                    ApplicationConfiguration.logFileURLs(
+                        for: $0,
+                        in: ApplicationConfiguration.containerURL
+                    )
+                }
+            ) { [weak self] in
+                guard let self else {
+                    continuation.resume(returning: "")
+                    return
+                }
+
+                continuation.resume(
+                    returning: consolidatedLog.string
+                )
             }
-        ) { [weak self] in
-            guard let self else { return }
-            completion(consolidatedLog.string)
         }
     }
 
     func sendReport(
         email: String,
         message: String,
-        includeAccountTokenInLogs: Bool,
-        completion: @escaping @Sendable (Result<Void, Error>) -> Void
-    ) {
-        let logString = self.consolidatedLog.string
+        includeAccountTokenInLogs: Bool
+    ) async -> Result<Void, Error> {
+        let logString = consolidatedLog.string
+
         let accountToken =
-            if isUserLoggedIn() && includeAccountTokenInLogs,
+            if isUserLoggedIn(),
+                includeAccountTokenInLogs,
                 let token = tunnelManager.deviceState.accountData?.identifier
             {
                 "\naccount-token: \(token)"
-            } else { "" }
+            } else {
+                ""
+            }
+
+        let updatedLogString: String
 
         if logString.isEmpty {
-            fetchReportString { [weak self, accountToken] updatedLogString in
-                self?.sendProblemReport(
-                    email: email,
-                    message: message + accountToken,
-                    logString: updatedLogString,
-                    completion: completion
-                )
-            }
+            updatedLogString = await fetchReportString()
         } else {
-            sendProblemReport(
-                email: email,
-                message: message + accountToken,
-                logString: logString,
-                completion: completion
-            )
+            updatedLogString = logString
         }
+
+        return await sendProblemReport(
+            email: email,
+            message: message + accountToken,
+            logString: updatedLogString
+        )
     }
 
     func isUserLoggedIn() -> Bool {
         tunnelManager.deviceState.isLoggedIn
     }
 
-    func cancelSendingReport() {
-        requestCancellable?.cancel()
-    }
-
     private func sendProblemReport(
         email: String,
         message: String,
-        logString: String,
-        completion: @escaping @Sendable (Result<Void, Error>) -> Void
-    ) {
-        let metadataDict = self.consolidatedLog.metadata.reduce(into: [:]) { output, entry in
+        logString: String
+    ) async -> Result<Void, Error> {
+        let metadataDict = consolidatedLog.metadata.reduce(into: [:]) { output, entry in
             output[entry.key.rawValue] = entry.value
         }
 
@@ -99,10 +103,9 @@ final class ProblemReportInteractor: @unchecked Sendable {
             metadata: metadataDict
         )
 
-        requestCancellable = apiProxy.sendProblemReport(request, retryStrategy: .default) { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
+        return await apiProxy.sendProblemReport(
+            request,
+            retryStrategy: .default
+        )
     }
 }

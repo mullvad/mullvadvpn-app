@@ -181,7 +181,7 @@ extension ProblemReportViewController {
         }
 
         overlay.cancelButtonAction = { [weak self] in
-            self?.interactor.cancelSendingReport()
+            self?.cancel()
         }
 
         overlay.editButtonAction = { [weak self] in

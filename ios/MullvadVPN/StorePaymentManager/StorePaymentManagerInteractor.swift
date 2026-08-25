@@ -47,25 +47,17 @@ final actor StorePaymentManagerInteractor {
             return .failure(NSError(domain: "User is not logged in", code: 0))
         }
 
-        return await withCheckedContinuation { continuation in
-            _ = apiProxy.initStoreKitPayment(
-                accountNumber: accountNumber,
-                retryStrategy: .noRetry,
-            ) { result in
-                continuation.resume(returning: result)
-            }
-        }
+        return await apiProxy.initStoreKitPayment(
+            accountNumber: accountNumber,
+            retryStrategy: .noRetry,
+        )
     }
 
     func checkPayment(jwsRepresentation: String) async -> Result<Void, Error> {
-        await withCheckedContinuation { continuation in
-            _ = apiProxy.checkStoreKitPayment(
-                transaction: StoreKitTransaction(transaction: jwsRepresentation),
-                retryStrategy: .purchaseReceiptUpload,
-            ) { result in
-                continuation.resume(returning: result)
-            }
-        }
+        await apiProxy.checkStoreKitPayment(
+            transaction: StoreKitTransaction(transaction: jwsRepresentation),
+            retryStrategy: .purchaseReceiptUpload,
+        )
     }
 
     // MARK: Account proxy

@@ -48,7 +48,12 @@ public final class AppMessageHandler {
 
         case let .sendAPIRequest(request):
             logMessageWithLastGetTunnelStatus(message)
-            return await encodeReply(apiRequestProxy.sendRequest(request))
+            do {
+                let data = try await apiRequestProxy.sendRequest(request)
+                return encodeReply(data)
+            } catch {
+                return nil
+            }
 
         case let .cancelAPIRequest(id):
             logMessageWithLastGetTunnelStatus(message)

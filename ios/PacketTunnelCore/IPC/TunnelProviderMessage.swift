@@ -12,7 +12,7 @@ import Foundation
 import MullvadREST
 
 /// Enum describing supported app messages handled by packet tunnel provider.
-public enum TunnelProviderMessage: Codable, CustomStringConvertible {
+public enum TunnelProviderMessage: Codable, CustomStringConvertible, Sendable {
     /// Request the tunnel to reconnect.
     case reconnectTunnel(NextRelays)
 

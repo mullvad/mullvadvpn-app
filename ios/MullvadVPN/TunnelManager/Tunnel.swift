@@ -47,6 +47,7 @@ protocol TunnelProtocol: AnyObject, Sendable {
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
     func stop()
+
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
 }
 

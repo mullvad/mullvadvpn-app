@@ -12,20 +12,17 @@ import MullvadRustRuntime
 import MullvadTypes
 
 public protocol APIRequestProxyProtocol {
-    func sendRequest(_ proxyRequest: ProxyAPIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void)
-    func sendRequest(_ proxyRequest: ProxyAPIRequest) async -> ProxyAPIResponse
+    func sendRequest(_ proxyRequest: ProxyAPIRequest) async throws -> ProxyAPIResponse
     func cancelRequest(identifier: UUID)
 }
 
 /// Network request proxy capable of passing serializable requests and responses over the given transport provider.
 public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable {
-    /// Serial queue used for synchronizing access to class members.
-    private let dispatchQueue: DispatchQueue
 
     private let transportProvider: APITransportProviderProtocol
+    private let dispatchQueue: DispatchQueue
 
-    /// List of all proxied network requests bypassing VPN.
-    private var proxiedRequests: [UUID: Cancellable] = [:]
+    private var proxiedRequests: [UUID: RequestTask] = [:]
 
     public init(
         dispatchQueue: DispatchQueue,
@@ -36,77 +33,91 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
     }
 
     public func sendRequest(
-        _ proxyRequest: ProxyAPIRequest,
-        completion: @escaping @Sendable (ProxyAPIResponse) -> Void
-    ) {
-        dispatchQueue.async {
-            guard let transport = self.transportProvider.makeTransport() else {
-                // Cancel old task, if there's one scheduled.
-                self.cancelRequest(identifier: proxyRequest.id)
+        _ proxyRequest: ProxyAPIRequest
+    ) async throws -> ProxyAPIResponse {
+        guard let transport = transportProvider.makeTransport() else {
+            cancelRequest(identifier: proxyRequest.id)
 
-                completion(
-                    ProxyAPIResponse(
-                        data: nil,
-                        error: APIError(
-                            statusCode: 0,
-                            errorDescription: REST.InternalTransportError.noTransport.errorDescription,
-                            serverResponseCode: nil
-                        )
-                    )
+            return ProxyAPIResponse(
+                data: nil,
+                error: APIError(
+                    statusCode: 0,
+                    errorDescription: REST.InternalTransportError.noTransport.errorDescription,
+                    serverResponseCode: nil
                 )
-                return
-            }
-            do {
-                let cancellable = try transport.sendRequest(proxyRequest.request) { [weak self] response in
-                    guard let self else { return }
-
-                    // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                    dispatchQueue.async {
-                        _ = self.removeRequest(identifier: proxyRequest.id)
-                        completion(response)
-                    }
-                }
-
-                // Cancel old task, if there's one scheduled.
-                let oldTask = self.addRequest(identifier: proxyRequest.id, task: cancellable)
-                oldTask?.cancel()
-            } catch {
-                completion(
-                    ProxyAPIResponse(
-                        data: nil,
-                        error: APIError(
-                            statusCode: 0,
-                            errorDescription: error.localizedDescription,
-                            serverResponseCode: nil
-                        )
-                    )
-                )
-            }
+            )
         }
-    }
 
-    public func sendRequest(_ proxyRequest: ProxyAPIRequest) async -> ProxyAPIResponse {
-        return await withCheckedContinuation { continuation in
-            sendRequest(proxyRequest) { proxyResponse in
-                continuation.resume(returning: proxyResponse)
+        let requestTask = RequestTask(
+            task: Task {
+                try await transport.sendRequest(
+                    proxyRequest.request
+                )
             }
+        )
+
+        let oldTask = replaceRequest(
+            identifier: proxyRequest.id,
+            task: requestTask
+        )
+
+        oldTask?.task.cancel()
+
+        defer {
+            removeRequest(
+                identifier: proxyRequest.id,
+                task: requestTask
+            )
+        }
+
+        do {
+            return try await requestTask.task.value
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw error
         }
     }
 
     public func cancelRequest(identifier: UUID) {
-        dispatchQueue.async {
-            let task = self.removeRequest(identifier: identifier)
-            task?.cancel()
+        let task = dispatchQueue.sync {
+            proxiedRequests.removeValue(forKey: identifier)
+        }
+
+        task?.task.cancel()
+    }
+
+    private func replaceRequest(
+        identifier: UUID,
+        task: RequestTask
+    ) -> RequestTask? {
+        dispatchQueue.sync {
+            proxiedRequests.updateValue(
+                task,
+                forKey: identifier
+            )
         }
     }
 
-    private func addRequest(identifier: UUID, task: Cancellable) -> Cancellable? {
-        dispatchPrecondition(condition: .onQueue(dispatchQueue))
-        return proxiedRequests.updateValue(task, forKey: identifier)
-    }
+    private func removeRequest(
+        identifier: UUID,
+        task: RequestTask
+    ) {
+        dispatchQueue.sync {
+            guard proxiedRequests[identifier] === task else {
+                return
+            }
 
-    private func removeRequest(identifier: UUID) -> Cancellable? {
-        dispatchPrecondition(condition: .onQueue(dispatchQueue))
-        return proxiedRequests.removeValue(forKey: identifier)
+            proxiedRequests.removeValue(forKey: identifier)
+        }
+    }
+}
+
+private final class RequestTask: @unchecked Sendable {
+
+    let task: Task<ProxyAPIResponse, Error>
+
+    init(task: Task<ProxyAPIResponse, Error>) {
+        self.task = task
     }
 }

@@ -12,7 +12,7 @@ import Foundation
 import MullvadSettings
 
 /// A protocol that formalizes device state accessor dependency used by `DeviceCheckOperation`.
-protocol DeviceStateAccessorProtocol {
+protocol DeviceStateAccessorProtocol: Sendable {
     func read() throws -> DeviceState
     func write(_ deviceState: DeviceState) throws
 }

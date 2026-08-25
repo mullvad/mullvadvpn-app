@@ -82,40 +82,47 @@ class ProblemReportReviewViewController: UIViewController {
         // view insets.
         view.layoutIfNeeded()
 
-        loadLogs()
+        Task { @MainActor in
+            await loadLogs()
+        }
     }
 
     override func selectAll(_ sender: Any?) {
         textView.selectAll(sender)
     }
 
-    private func loadLogs() {
+    private func loadLogs() async {
         spinnerView.startAnimating()
-        interactor.fetchReportString { [weak self] reportString in
-            guard let self else { return }
-            Task { @MainActor in
-                textView.text = reportString
-                spinnerView.stopAnimating()
-                spinnerContainerView.isHidden = true
-            }
-        }
+
+        let reportString = await interactor.fetchReportString()
+
+        textView.text = reportString
+        spinnerView.stopAnimating()
+        spinnerContainerView.isHidden = true
     }
 
     #if DEBUG
+
+        @MainActor
         private func share() {
-            interactor.fetchReportString { [weak self] reportString in
-                guard let self, !reportString.isEmpty else { return }
-                Task { @MainActor in
-                    let activityController = UIActivityViewController(
-                        activityItems: [reportString],
-                        applicationActivities: nil
-                    )
+            Task {
+                let reportString = await interactor.fetchReportString()
 
-                    activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
-
-                    present(activityController, animated: true)
+                guard !reportString.isEmpty else {
+                    return
                 }
+
+                let activityController = UIActivityViewController(
+                    activityItems: [reportString],
+                    applicationActivities: nil
+                )
+
+                activityController.popoverPresentationController?.barButtonItem =
+                    navigationItem.leftBarButtonItem
+
+                present(activityController, animated: true)
             }
         }
+
     #endif
 }

@@ -16,58 +16,37 @@ struct DevicesProxyStubError: Error {}
 
 struct DevicesProxyStub: DeviceHandling {
     var deviceResult: Result<Device, Error> = .failure(DevicesProxyStubError())
-    func getDevice(
-        accountNumber: String,
-        identifier: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
-    ) -> Cancellable {
-        completion(deviceResult)
-        return AnyCancellable()
+
+    func getDevice(accountNumber: String, identifier: String, retryStrategy: REST.RetryStrategy) async -> Result<
+        Device, any Error
+    > {
+        deviceResult
     }
 
-    func getDevices(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<[Device]>
-    ) -> Cancellable {
+    func getDevices(accountNumber: String, retryStrategy: REST.RetryStrategy) async -> Result<[Device], any Error> {
         switch deviceResult {
         case let .success(success):
-            completion(.success([success]))
+            .success([success])
         case let .failure(failure):
-            completion(.failure(failure))
+            .failure(failure)
         }
-        return AnyCancellable()
     }
 
-    func createDevice(
-        accountNumber: String,
-        request: CreateDeviceRequest,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
-    ) -> Cancellable {
-        completion(deviceResult)
-        return AnyCancellable()
+    func createDevice(accountNumber: String, request: CreateDeviceRequest, retryStrategy: REST.RetryStrategy) async
+        -> Result<Device, any Error>
+    {
+        deviceResult
     }
 
-    func deleteDevice(
-        accountNumber: String,
-        identifier: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Bool>
-    ) -> Cancellable {
-        completion(.success(true))
-        return AnyCancellable()
+    func deleteDevice(accountNumber: String, identifier: String, retryStrategy: REST.RetryStrategy) async -> Result<
+        Bool, any Error
+    > {
+        .success(true)
     }
 
     func rotateDeviceKey(
-        accountNumber: String,
-        identifier: String,
-        publicKey: WireGuard.PublicKey,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
-    ) -> Cancellable {
-        completion(deviceResult)
-        return AnyCancellable()
+        accountNumber: String, identifier: String, publicKey: WireGuard.PublicKey, retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, any Error> {
+        deviceResult
     }
 }

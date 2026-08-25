@@ -12,7 +12,8 @@ import Foundation
 import MullvadTypes
 
 /// The type implementing the facilities for testing proxy configuration.
-protocol ProxyConfigurationInteractorProtocol {
+@MainActor
+protocol ProxyConfigurationInteractorProtocol: Sendable {
     /// Start testing proxy configuration with data from view model.
     ///
     /// - It's expected that the completion handler is not called if testing is cancelled.

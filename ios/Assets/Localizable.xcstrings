@@ -2157,6 +2157,7 @@
       }
     },
     "%@ was added to your account." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -26693,6 +26694,7 @@
       }
     },
     "Enter voucher code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -38151,6 +38153,7 @@
       }
     },
     "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -41516,6 +41519,7 @@
       }
     },
     "Logging out..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -56709,6 +56713,7 @@
       }
     },
     "Redeem" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -56833,6 +56838,7 @@
       }
     },
     "Redeem voucher" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -78829,6 +78835,7 @@
       }
     },
     "Verifying voucher..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -79325,6 +79332,7 @@
       }
     },
     "Voucher code has already been used." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -79449,6 +79457,7 @@
       }
     },
     "Voucher code is invalid." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -79573,6 +79582,7 @@
       }
     },
     "Voucher was successfully redeemed." : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

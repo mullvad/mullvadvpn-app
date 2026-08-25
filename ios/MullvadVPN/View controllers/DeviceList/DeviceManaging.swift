@@ -12,13 +12,10 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-protocol DeviceManaging {
+protocol DeviceManaging: Sendable {
     var currentDeviceId: String? { get }
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, Error>) -> Void
-    ) -> Cancellable
+    func getDevices() async -> Result<[Device], Error>
+    func deleteDevice(_ identifier: String) async -> Result<Bool, Error>
 }
 
 class DeviceManagementInteractor: DeviceManaging, @unchecked Sendable {
@@ -32,32 +29,21 @@ class DeviceManagementInteractor: DeviceManaging, @unchecked Sendable {
         self.currentDeviceId = currentDeviceId
     }
 
-    @discardableResult
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
-        devicesProxy.getDevices(
-            accountNumber: accountNumber,
-            retryStrategy: .default,
-            completion: completionHandler
-        )
+    func getDevices() async -> Result<[Device], any Error> {
+        await devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default)
     }
 
-    @discardableResult
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, Error>) -> Void
-    ) -> Cancellable {
-        devicesProxy.deleteDevice(
-            accountNumber: accountNumber,
-            identifier: identifier,
-            retryStrategy: .default,
-            completion: completionHandler
-        )
+    func deleteDevice(_ identifier: String) async -> Result<Bool, any Error> {
+        await devicesProxy.deleteDevice(accountNumber: accountNumber, identifier: identifier, retryStrategy: .default)
     }
 }
 
-class MockDeviceManaging: DeviceManaging {
+final class MockDeviceManaging: DeviceManaging {
+
     let currentDeviceId: String? = "123"
-    let getDevicesCompletionHandler: (() -> Result<[Device], Error>)?
+
+    let getDevicesCompletionHandler: (@Sendable () -> Result<[Device], any Error>)?
+
     static private let mockDevices = [
         Device(
             id: "123",
@@ -105,31 +91,38 @@ class MockDeviceManaging: DeviceManaging {
             ipv6Address: IPAddressRange(from: "::ff/64")!
         ),
     ]
+
     let devicesToReturn: Int
+
     init(
         devicesToReturn: Int = 5,
-        getDevicesCompletionHandler: (() -> Result<[Device], Error>)? = {
-            .success(mockDevices)
-        }
+        getDevicesCompletionHandler:
+            (@Sendable () -> Result<[Device], any Error>)? = {
+                .success(mockDevices)
+            }
     ) {
         self.devicesToReturn = devicesToReturn
         self.getDevicesCompletionHandler = getDevicesCompletionHandler
     }
 
     func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, any Error>) -> Void
-    ) -> any MullvadTypes.Cancellable {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            completionHandler(.success(true))
+        _ identifier: String
+    ) async -> Result<Bool, any Error> {
+        do {
+            try await Task.sleep(for: .seconds(2))
+            try Task.checkCancellation()
+            return .success(true)
+        } catch {
+            return .failure(error)
         }
-        return AnyCancellable()
     }
 
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
-        if let getDevicesCompletionHandler {
-            completionHandler(getDevicesCompletionHandler().map { Array($0.prefix(devicesToReturn)) })
+    func getDevices() async -> Result<[Device], any Error> {
+        guard let getDevicesCompletionHandler else {
+            return .failure(CancellationError())
         }
-        return AnyCancellable()
+
+        return getDevicesCompletionHandler()
+            .map { Array($0.prefix(devicesToReturn)) }
     }
 }

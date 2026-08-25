@@ -11,13 +11,12 @@
 import MullvadRustRuntime
 import MullvadTypes
 
-public protocol APITransportProtocol {
+public protocol APITransportProtocol: Sendable {
     var name: String { get }
+    func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse
 
     func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void) throws
         -> Cancellable
-
-    func sendRequest(_ request: APIRequest) async throws -> ProxyAPIResponse
 }
 
 public final class APITransport: APITransportProtocol {
