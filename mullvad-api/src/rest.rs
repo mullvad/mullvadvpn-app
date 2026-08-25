@@ -22,7 +22,6 @@ use hyper::{
 };
 use mullvad_types::account::AccountNumber;
 use std::{
-    convert::Infallible,
     error::Error as StdError,
     future::pending,
     io,
@@ -104,9 +103,9 @@ pub enum Error {
     InvalidUtf8Error,
 }
 
-impl From<Infallible> for Error {
-    fn from(never: Infallible) -> Self {
-        match never {}
+impl From<!> for Error {
+    fn from(never: !) -> Self {
+        never
     }
 }
 
@@ -243,7 +242,7 @@ impl RequestService {
         handle
     }
 
-    async fn run(mut self) -> Option<Infallible> {
+    async fn run(mut self) -> Option<!> {
         let reset = self.reset.clone();
 
         loop {
@@ -802,10 +801,7 @@ fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
         .unwrap_or(0)
 }
 
-// TODO: replace Infallible with ! when Rust 1.100 is stabilized
-pub(crate) async fn handle_error_response<B: Body>(
-    response: hyper::Response<B>,
-) -> Result<Infallible>
+pub(crate) async fn handle_error_response<B: Body>(response: hyper::Response<B>) -> Result<!>
 where
     Error: From<B::Error>,
 {

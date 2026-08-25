@@ -11,12 +11,10 @@ use futures::channel::mpsc;
 use futures::channel::mpsc::UnboundedReceiver;
 #[cfg(windows)]
 use std::io;
-use std::sync::mpsc::Sender;
 use std::{
-    convert::Infallible,
     net::IpAddr,
     path::Path,
-    sync::{Arc, mpsc as sync_mpsc},
+    sync::{Arc, mpsc as sync_mpsc, mpsc::Sender},
     time::Duration,
 };
 #[cfg(not(target_os = "android"))]
@@ -29,8 +27,7 @@ use talpid_tunnel::{
 use talpid_error::{BoxedError, ErrorExt};
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::TunnelParameters;
-use tokio::sync::Mutex as AsyncMutex;
-use tokio::task::JoinHandle;
+use tokio::{sync::Mutex as AsyncMutex, task::JoinHandle};
 
 #[cfg(feature = "custom-vpn")]
 use {std::sync::Weak, tokio::sync::Mutex};
@@ -405,13 +402,12 @@ impl WireguardMonitor {
                 );
             }
 
-            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+            Err::<!, CloseMsg>(CloseMsg::PingErr)
         };
 
         let close_sender = close_obfs_sender.clone();
         let monitor_handle = tokio::spawn(async move {
-            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
-            let close_msg = tunnel_fut.await.unwrap_err();
+            let Err(close_msg) = tunnel_fut.await;
             let _ = close_sender.send(close_msg);
         });
 
@@ -548,18 +544,18 @@ impl WireguardMonitor {
                     // sometimes not report the new routes. Instead of throwing an error after
                     // timing out we will continue as we can assume that the routes are up even
                     // though the android system has not reported it.
-                    .or_else(|error| {
-                        match error {
-                            talpid_routing::Error::PlatformError(talpid_routing::RoutesTimedOutError) => {
-                                log::warn!("Timed out while waiting for routes: {:?}", error);
-                                Ok(())
-                            }
-                            _ => Err(CloseMsg::SetupError(Error::TunnelError(
-                                TunnelError::RecoverableStartWireguardError(Box::new(
-                                    Error::SetupRoutingError(error),
-                                )),
-                            )))
+                    .or_else(|error| match error {
+                        talpid_routing::Error::PlatformError(
+                            talpid_routing::RoutesTimedOutError,
+                        ) => {
+                            log::warn!("Timed out while waiting for routes: {:?}", error);
+                            Ok(())
                         }
+                        _ => Err(CloseMsg::SetupError(Error::TunnelError(
+                            TunnelError::RecoverableStartWireguardError(Box::new(
+                                Error::SetupRoutingError(error),
+                            )),
+                        ))),
                     })?;
             }
 
@@ -603,13 +599,12 @@ impl WireguardMonitor {
                 );
             }
 
-            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+            Err::<!, CloseMsg>(CloseMsg::PingErr)
         };
 
         let close_sender = close_obfs_sender.clone();
         let monitor_handle = tokio::spawn(async move {
-            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
-            let close_msg = tunnel_fut.await.unwrap_err();
+            let Err(close_msg) = tunnel_fut.await;
             let _ = close_sender.send(close_msg);
         });
 
@@ -906,10 +901,10 @@ impl WireguardMonitor {
             ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
             gateway_node.clone(),
         ))
-            // same but ipv6
-            .chain(config.ipv6_gateway.map(|gateway| {
-                RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
-            }));
+        // same but ipv6
+        .chain(config.ipv6_gateway.map(|gateway| {
+            RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), gateway_node)
+        }));
 
         // e.g. utun4 and utun4
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);

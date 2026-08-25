@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::Infallible, future::pending, mem, time::Duration};
+use std::{collections::HashMap, future::pending, mem, time::Duration};
 
 use futures::{
     FutureExt, StreamExt,
@@ -207,7 +207,7 @@ fn filter_duplicates<T: PartialEq + Clone + Send + 'static>(
     async fn do_filtering<T: PartialEq + Clone + Send + 'static>(
         mut unfiltered_rx: UnboundedReceiver<T>,
         filtered_tx: UnboundedSender<T>,
-    ) -> Option<Infallible> {
+    ) -> Option<!> {
         let mut last_value = unfiltered_rx.next().await?;
         filtered_tx.unbounded_send(last_value.clone()).ok()?;
 
