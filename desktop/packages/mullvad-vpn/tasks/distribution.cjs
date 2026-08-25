@@ -4,8 +4,11 @@ const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
 const { execFileSync } = require('child_process');
 
+const { signWindows } = require('./sign-windows.cjs');
+
 const noCompression = process.argv.includes('--no-compression');
 const shouldNotarize = process.argv.includes('--notarize');
+const shouldSign = process.argv.includes('--sign');
 
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
@@ -259,6 +262,16 @@ function newConfig() {
   };
 }
 
+const WINDOWS_SIGNING_OPTIONS = {
+  signExts: ['.dll', '.node'],
+  signtoolOptions: {
+    sign: signWindows,
+    // Our signing script produces a single SHA-256 signature. Without this, electron-builder
+    // calls the hook twice per file, expecting a second, SHA-1, signature to be appended.
+    signingHashAlgorithms: ['sha256'],
+  },
+};
+
 async function packWin() {
   const DEFAULT_ARCH = targets === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
 
@@ -266,6 +279,9 @@ async function packWin() {
     const config = newConfig();
     return {
       ...config,
+      // Never produce an unsigned artifact when signing was asked for. Without this,
+      // electron-builder logs failures to sign individual files and carries on.
+      forceCodeSigning: shouldSign,
       win: {
         ...config.win,
         target: [
@@ -274,6 +290,7 @@ async function packWin() {
             arch: arch,
           },
         ],
+        ...(shouldSign ? WINDOWS_SIGNING_OPTIONS : {}),
       },
       asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico', '**/*.node'],
       beforeBuild: (options) => {

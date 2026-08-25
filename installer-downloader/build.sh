@@ -285,30 +285,9 @@ function notarize_mac {
     xcrun stapler staple "$file"
 }
 
-# Sign a file.
-# Arguments:
-# - file to sign
+# Sign all files passed as arguments to this function.
 function sign_win {
-    local binary=$1
-    local num_retries=3
-
-    for i in $(seq 0 ${num_retries}); do
-        log_info "Signing $binary..."
-        if signtool sign \
-            -tr http://timestamp.digicert.com -td sha256 \
-            -fd sha256 -d "Mullvad VPN loader" \
-            -du "https://github.com/mullvad/mullvadvpn-app#readme" \
-            -sha1 "$CERT_HASH" "$binary"
-        then
-            break
-        fi
-
-        if [ "$i" -eq "${num_retries}" ]; then
-            return 1
-        fi
-
-        sleep 1
-    done
+    "$SCRIPT_DIR/../scripts/sign-windows.sh" --description "Mullvad VPN loader" "$@"
 }
 
 # Copy executable and optionally sign it.

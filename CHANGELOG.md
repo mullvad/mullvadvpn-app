@@ -42,6 +42,8 @@ Line wrap the file at 100 chars.                                              Th
 - Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
 
 #### Windows
+- Sign the uninstaller, Electron binaries, and native modules. Some NSIS binaries are still
+  unsigned.
 - Switch winreg out for windows_registry.
 
 ### Fixed
