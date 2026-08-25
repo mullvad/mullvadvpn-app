@@ -708,7 +708,6 @@
 		7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */; };
 		7ABBE0182F1A2D4100AD8176 /* IncludeAllNetworksSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */; };
 		7ABBE01A2F1A2D8700AD8176 /* IncludeAllNetworksSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0192F1A2D8400AD8176 /* IncludeAllNetworksSettings.swift */; };
-		7ABBE01C2F1E263400AD8176 /* ActionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01B2F1E263100AD8176 /* ActionBox.swift */; };
 		7ABBE01E2F1E266F00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE01D2F1E266A00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift */; };
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1225,6 +1224,7 @@
 		F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA32EE03072000E9D97 /* LineOverlayView.swift */; };
 		F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA52EE030BA000E9D97 /* HopView.swift */; };
 		F95CDDA82EE07F7F000E9D97 /* PressedExposingButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */; };
+		F95FF984303C7B9E0028B28E /* ActionBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95FF983303C7B9E0028B28E /* ActionBox.swift */; };
 		F96D04E72EC3174D004A4D48 /* LocationContextMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */; };
 		F96D04E92EC317B9004A4D48 /* ExitLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */; };
 		F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */; };
@@ -2414,7 +2414,6 @@
 		7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsViewModel.swift; sourceTree = "<group>"; };
 		7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsView.swift; sourceTree = "<group>"; };
 		7ABBE0192F1A2D8400AD8176 /* IncludeAllNetworksSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettings.swift; sourceTree = "<group>"; };
-		7ABBE01B2F1E263100AD8176 /* ActionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBox.swift; sourceTree = "<group>"; };
 		7ABBE01D2F1E266A00AD8176 /* IncludeAllNetworksCheckboxToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksCheckboxToggleStyle.swift; sourceTree = "<group>"; };
 		7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheck.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
@@ -2827,6 +2826,7 @@
 		F95CDDA32EE03072000E9D97 /* LineOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineOverlayView.swift; sourceTree = "<group>"; };
 		F95CDDA52EE030BA000E9D97 /* HopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HopView.swift; sourceTree = "<group>"; };
 		F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressedExposingButton.swift; sourceTree = "<group>"; };
+		F95FF983303C7B9E0028B28E /* ActionBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBox.swift; sourceTree = "<group>"; };
 		F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationContextMenu.swift; sourceTree = "<group>"; };
 		F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExitLocationView.swift; sourceTree = "<group>"; };
 		F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListSectionHeader.swift; sourceTree = "<group>"; };
@@ -3627,12 +3627,13 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				7ABBE01B2F1E263100AD8176 /* ActionBox.swift */,
+				F95FF983303C7B9E0028B28E /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
 				7AEB49362FBD9DA50053FEFC /* CheckboxToggleStyle.swift */,
 				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
 				F90A98892E042D040020F64F /* ClearBackgroundView.swift */,
+				F09E81EA301370C800F6F2B8 /* Common */,
 				5868585424054096000B8131 /* CustomButton.swift */,
 				58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */,
 				58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */,
@@ -3645,6 +3646,7 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
+				F9394EF12DC21D7B009595EA /* List */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
 				440DA5C4300540F10057069A /* MullvadButton.swift */,
 				44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */,
@@ -3655,18 +3657,16 @@
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				F049087C2F9275F800DEB09C /* MullvadStateView.swift */,
 				F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */,
+				F00C8C4E2FC9DBBA00B760BB /* Previews */,
 				F049087D2F9275F800DEB09C /* ResizableImageView.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
+				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7A6B968B2FEC0F3500DBF9BD /* StaticButtonStyle.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
-				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
-				F09E81EA301370C800F6F2B8 /* Common */,
-				F9394EF12DC21D7B009595EA /* List */,
-				F00C8C4E2FC9DBBA00B760BB /* Previews */,
-				7A95A9D42FA8D1270096009A /* SegmentedListItem */,
 				F03FC85C300E08B600DE2F5D /* Textfield */,
+				7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -6823,7 +6823,6 @@
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				7AEB49352FBC9FBA0053FEFC /* CustomListLocationItemView.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
-				7ABBE01C2F1E263400AD8176 /* ActionBox.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
 				A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
@@ -7081,6 +7080,7 @@
 				4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
 				4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */,
+				F95FF984303C7B9E0028B28E /* ActionBox.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
 				F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */,

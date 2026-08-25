@@ -40,4 +40,5 @@ extension Image {
     static let mullvadIconCheckboxUnselected = Image("CheckboxUnselected")
     static let mullvadAutomaticMultihopBanner = Image("AutomaticMultihopBanner")
     static let mullvadUniqueFilterBanner = Image("UniqueFilterBanner")
+    static let mullvadIconWarning = Image("IconWarning")
 }
