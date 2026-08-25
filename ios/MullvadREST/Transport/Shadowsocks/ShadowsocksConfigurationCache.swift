@@ -17,11 +17,10 @@ public protocol ShadowsocksConfigurationCacheProtocol: Sendable {
     func clear() throws
 }
 
-/// Holds a shadowsocks configuration object backed by a caching mechanism shared across processes
-public final class ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol, @unchecked Sendable {
-    private let configurationLock = NSLock()
+/// Holds a shadowsocks configuration object backed by a caching mechanism shared across processes.
+public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol {
     private var cachedConfiguration: ShadowsocksConfiguration?
-    private let fileCache: FileCache<ShadowsocksConfiguration>
+    private nonisolated let fileCache: FileCache<ShadowsocksConfiguration>
 
     public init(cacheDirectory: URL) {
         fileCache = FileCache(
@@ -29,33 +28,45 @@ public final class ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheP
         )
     }
 
-    /// Returns configuration from memory cache if available, otherwise attempts to load it from disk cache before
-    /// returning.
-    public func read() throws -> ShadowsocksConfiguration {
-        try configurationLock.withLock {
-            if let cachedConfiguration {
-                return cachedConfiguration
-            } else {
-                let readConfiguration = try fileCache.read()
-                cachedConfiguration = readConfiguration
-                return readConfiguration
-            }
+    // MARK: - Asynchronous functions
+
+    public func read() async throws -> ShadowsocksConfiguration {
+        if let cachedConfiguration {
+            return cachedConfiguration
+        }
+        let readConfiguration = try await fileCache.read()
+        cachedConfiguration = readConfiguration
+        return readConfiguration
+    }
+
+    public func write(_ configuration: ShadowsocksConfiguration) async throws {
+        cachedConfiguration = configuration
+        try await fileCache.write(configuration)
+    }
+
+    public func clear() async throws {
+        cachedConfiguration = nil
+        try await fileCache.clear()
+    }
+
+    // MARK: - Synchronous shims
+    // Will be removed once all call sites have been migrated.
+
+    public nonisolated func read() throws -> ShadowsocksConfiguration {
+        try SynchRunner.run {
+            try await self.read()
         }
     }
 
-    /// Replace memory cache with new configuration and attempt to persist it on disk.
-    public func write(_ configuration: ShadowsocksConfiguration) throws {
-        try configurationLock.withLock {
-            cachedConfiguration = configuration
-            try fileCache.write(configuration)
+    public nonisolated func write(_ configuration: ShadowsocksConfiguration) throws {
+        try SynchRunner.run {
+            try await self.write(configuration)
         }
     }
 
-    /// Clear cached configuration.
-    public func clear() throws {
-        try configurationLock.withLock {
-            cachedConfiguration = nil
-            try fileCache.clear()
+    public nonisolated func clear() throws {
+        try SynchRunner.run {
+            try await self.clear()
         }
     }
 }
