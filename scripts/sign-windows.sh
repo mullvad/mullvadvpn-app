@@ -45,6 +45,13 @@ fi
 NUM_RETRIES=3
 
 for binary in "$@"; do
+    # Some binaries, such as those shipped by third parties, are already signed.
+    if signtool verify -pa -q "$binary" 2>/dev/null; then
+    if signtool verify -pa -q "$binary" > /dev/null 2>&1; then
+        log_info "Skipping already signed $binary"
+        continue
+    fi
+
     # Try multiple times in case the timestamp server cannot be contacted.
     for i in $(seq 0 ${NUM_RETRIES}); do
         log_info "Signing $binary..."
