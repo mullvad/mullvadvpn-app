@@ -321,10 +321,22 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         switch viewController {
         case is SettingsViewController:
             return .root
-        case is ProblemReportViewController:
-            return .problemReport
+        case is UIHostingController<SettingsDAITAView<DAITATunnelSettingsViewModel>>:
+            return .daita
+        case is UIHostingController<SettingsMultihopView>:
+            return .multihop
+        case is UIHostingController<VPNSettingsNavigationView>:
+            return .vpnSettings
+        case is UIHostingController<IncludeAllNetworksSettingsView<IncludeAllNetworksSettingsViewModelImpl>>:
+            return .includeAllNetworks
         case is UIHostingController<ListAccessMethodView<ListAccessViewModelBridge>>:
             return .apiAccess
+        case is UIHostingController<NotificationSettingsView<NotificationSettingsViewModel>>:
+            return .notificationSettings
+        case is UIHostingController<ChangeLogView<ChangeLogViewModel>>:
+            return .changelog
+        case is ProblemReportViewController:
+            return .problemReport
         default:
             return nil
         }
