@@ -1096,6 +1096,18 @@ fn get_obfuscator(
     let Some(obfuscation_settings) = config.obfuscation_settings() else {
         return Ok(None);
     };
+
+    // The obfuscation adds this to every packet whether it is applied inline or behind a local
+    // socket, so make room for it before deciding which of the two to set up.
+    if params.options.mtu.is_none() {
+        config.mtu = clamp_tunnel_mtu(
+            params,
+            config
+                .mtu
+                .saturating_sub(obfuscation_settings.packet_overhead()),
+        );
+    }
+
     if userspace_obfuscation {
         log::debug!("Using inline obfuscation");
         return Ok(None);
@@ -1111,12 +1123,6 @@ fn get_obfuscator(
             Arc::clone(bypass),
         ))?;
 
-    if params.options.mtu.is_none() {
-        config.mtu = clamp_tunnel_mtu(
-            params,
-            config.mtu.saturating_sub(obfuscator.packet_overhead()),
-        );
-    }
     Ok(Some(obfuscator))
 }
 

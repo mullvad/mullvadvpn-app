@@ -36,6 +36,8 @@ pub struct QuicTransport {
     /// Aborts the QUIC client when this transport is dropped.
     _client: AbortOnDropHandle<()>,
     _bypass: BypassGuard,
+    wireguard_endpoint: SocketAddr,
+    packet_overhead: u16,
 }
 
 #[derive(Debug, Clone)]
@@ -96,6 +98,13 @@ impl Settings {
             .build()
     }
 
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
+        // The above would prevent mullvad-masque-proxy-level fragmentation
+        0
+    }
+
     pub fn wireguard_endpoint(&self) -> SocketAddr {
         self.wireguard_endpoint
     }
@@ -146,10 +155,7 @@ impl std::str::FromStr for AuthToken {
 }
 
 impl QuicTransport {
-    pub(crate) async fn new(
-        bypass: Arc<dyn SocketBypass>,
-        settings: &Settings,
-    ) -> crate::Result<Self> {
+    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let BypassSocket {
             socket: quic_socket,
             guard: _bypass,
@@ -167,6 +173,8 @@ impl QuicTransport {
             incoming_rx: Mutex::new(incoming_rx),
             _client: AbortOnDropHandle::new(client),
             _bypass,
+            wireguard_endpoint: settings.wireguard_endpoint,
+            packet_overhead: settings.packet_overhead(),
         })
     }
 }
@@ -223,9 +231,11 @@ impl ObfuscatedTransport for QuicTransport {
         Ok(packet.len())
     }
 
+    fn endpoint(&self) -> SocketAddr {
+        self.wireguard_endpoint
+    }
+
     fn packet_overhead(&self) -> u16 {
-        // TODO: 95 = IPv6 (40) + UDP (8) + QUIC (<= 41) + stream ID (1) + fragment header (5)
-        // The above would prevent mullvad-masque-proxy-level fragmentation
-        0
+        self.packet_overhead
     }
 }

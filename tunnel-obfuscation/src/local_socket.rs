@@ -46,10 +46,6 @@ impl LocalSocketObfuscator for LocalSocketRunner {
         self.endpoint
     }
 
-    fn packet_overhead(&self) -> u16 {
-        self.transport.packet_overhead()
-    }
-
     async fn run(self: Box<Self>) -> crate::Result<()> {
         let Self {
             socket, transport, ..

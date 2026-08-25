@@ -23,6 +23,18 @@ pub struct Settings {
     pub peer: SocketAddr,
 }
 
+impl Settings {
+    /// The overhead (in bytes) that this obfuscation protocol adds to every packet.
+    pub fn packet_overhead(&self) -> u16 {
+        let max_tcp_header_len = 60; // https://datatracker.ietf.org/doc/html/rfc9293#section-3.1-6.22.1
+        let udp_header_len = 8; // https://datatracker.ietf.org/doc/html/rfc768
+
+        let overhead = max_tcp_header_len - udp_header_len + HEADER_LEN;
+
+        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
+    }
+}
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to create the TCP socket
@@ -58,10 +70,14 @@ pub struct Udp2Tcp {
 
     /// Keeps the TCP socket excluded from tunnel traffic.
     _bypass: BypassGuard,
+
+    peer: SocketAddr,
+
+    packet_overhead: u16,
 }
 
 impl Udp2Tcp {
-    pub(crate) fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
+    pub fn new(bypass: Arc<dyn SocketBypass>, settings: &Settings) -> crate::Result<Self> {
         let tcp_socket = match settings.peer {
             SocketAddr::V4(..) => TcpSocket::new_v4(),
             SocketAddr::V6(..) => TcpSocket::new_v6(),
@@ -99,6 +115,8 @@ impl Udp2Tcp {
             incoming: Mutex::new(incoming),
             _forwarder: AbortOnDropHandle::new(forwarder),
             _bypass,
+            peer,
+            packet_overhead: settings.packet_overhead(),
         })
     }
 }
@@ -123,13 +141,12 @@ impl ObfuscatedTransport for Udp2Tcp {
         copy_datagram(&datagram, buf)
     }
 
+    fn endpoint(&self) -> SocketAddr {
+        self.peer
+    }
+
     fn packet_overhead(&self) -> u16 {
-        let max_tcp_header_len = 60; // https://datatracker.ietf.org/doc/html/rfc9293#section-3.1-6.22.1
-        let udp_header_len = 8; // https://datatracker.ietf.org/doc/html/rfc768
-
-        let overhead = max_tcp_header_len - udp_header_len + HEADER_LEN;
-
-        u16::try_from(overhead).expect("packet overhead is less than u16::MAX")
+        self.packet_overhead
     }
 }
 
