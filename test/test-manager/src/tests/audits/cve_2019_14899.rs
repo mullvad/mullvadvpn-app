@@ -13,7 +13,6 @@
 //! Note that only linux was susceptible to this vulnerability.
 
 use std::{
-    convert::Infallible,
     net::{IpAddr, Ipv4Addr},
     time::Duration,
 };
@@ -230,11 +229,10 @@ fn ethernetframe_to_tcp(packet: &[u8]) -> Option<TcpPacket<'static>> {
 }
 
 /// Send `packet` on the link in a loop.
-// NOTE: Replace return type with ! if/when stable.
 async fn spam_packet(
     mut send: Box<dyn DataLinkSender>,
     packet: &EthernetPacket<'_>,
-) -> anyhow::Result<Infallible> {
+) -> anyhow::Result<!> {
     loop {
         send
         // destination is part of packet.

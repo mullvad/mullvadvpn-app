@@ -1,3 +1,4 @@
 [toolchain]
 # Must be greater than or equal to `rust-version` in `Cargo.toml`
-channel = "1.97.1"
+# channel = "1.100.0" # TODO
+channel = "nightly"

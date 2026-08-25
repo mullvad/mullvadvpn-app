@@ -12,7 +12,6 @@ use std::collections::HashSet;
 #[cfg(windows)]
 use std::io;
 use std::{
-    convert::Infallible,
     env,
     net::IpAddr,
     path::Path,
@@ -436,13 +435,12 @@ impl WireguardMonitor {
                 );
             }
 
-            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+            Err::<!, CloseMsg>(CloseMsg::PingErr)
         };
 
         let close_sender = close_obfs_sender.clone();
         let monitor_handle = tokio::spawn(async move {
-            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
-            let close_msg = tunnel_fut.await.unwrap_err();
+            let Err(close_msg) = tunnel_fut.await;
             let _ = close_sender.send(close_msg);
         });
 
@@ -625,13 +623,12 @@ impl WireguardMonitor {
                 );
             }
 
-            Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
+            Err::<!, CloseMsg>(CloseMsg::PingErr)
         };
 
         let close_sender = close_obfs_sender.clone();
         let monitor_handle = tokio::spawn(async move {
-            // This is safe to unwrap because the future resolves to `Result<Infallible, E>`.
-            let close_msg = tunnel_fut.await.unwrap_err();
+            let Err(close_msg) = tunnel_fut.await;
             let _ = close_sender.send(close_msg);
         });
 
