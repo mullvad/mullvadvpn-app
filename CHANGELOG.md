@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
+- Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
 
 #### Linux
 - Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
