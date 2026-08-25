@@ -11,51 +11,67 @@
 import Foundation
 import MullvadTypes
 
-/// File cache implementation that simulates file state and uses internal lock to synchronize access to it.
-final class MockFileCache<Content: Codable & Equatable>: FileCacheProtocol {
+/// File cache actor that simulates file state for use in tests.
+actor MockFileCache<Cache: Codable & Equatable & Sendable>: FileCacheProtocol {
     private var state: State
-    private let stateLock = NSLock()
 
     init(initialState: State = .fileNotFound) {
         state = initialState
     }
 
+    // MARK: - Asynchronous functions
+
     /// Returns internal state.
     func getState() -> State {
-        stateLock.withLock {
-            state
+        state
+    }
+
+    func read() async throws -> Cache {
+        switch state {
+        case .fileNotFound:
+            throw CocoaError(.fileReadNoSuchFile)
+        case let .exists(content):
+            return content
         }
     }
 
-    func read() throws -> Content {
-        try stateLock.withLock {
-            switch state {
-            case .fileNotFound:
-                throw CocoaError(.fileReadNoSuchFile)
-            case let .exists(content):
-                return content
-            }
+    func write(_ content: Cache) async throws {
+        state = .exists(content)
+    }
+
+    func clear() async throws {
+        state = .fileNotFound
+    }
+
+    // MARK: - Synchronous shims
+    // Will be removed once all call sites have been migrated.
+
+    nonisolated func read() throws -> Cache {
+        try SynchRunner.run {
+            try await self.read()
         }
     }
 
-    func write(_ content: Content) throws {
-        stateLock.withLock {
-            state = .exists(content)
+    nonisolated func write(_ cache: Cache) throws {
+        try SynchRunner.run {
+            try await self.write(cache)
         }
     }
 
-    func clear() throws {
-        stateLock.withLock {
-            state = .fileNotFound
+    nonisolated func clear() throws {
+        try SynchRunner.run {
+            try await self.clear()
         }
     }
+
+    // MARK: - Private
 
     enum State: Equatable {
         /// File does not exist yet.
         case fileNotFound
 
         /// File exists with the given contents.
-        case exists(Content)
+        case exists(Cache)
 
         var isExists: Bool {
             if case .exists = self {
