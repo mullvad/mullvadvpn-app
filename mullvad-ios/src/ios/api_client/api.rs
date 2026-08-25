@@ -122,40 +122,40 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
     retry_strategy: SwiftRetryStrategy,
     _etag: *const c_char,
 ) -> SwiftCancelHandle {
-// <<<<<<< HEAD
-//     let mut maybe_etag: Option<ETag> = None;
-//     if !etag.is_null() {
-//         // SAFETY: See param documentation for `etag`.
-//         let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-//         maybe_etag = Some(ETag(String::from(unwrapped_tag)));
-//     }
-//
-//     RequestCancelHandle::new(
-//         api_context,
-//         retry_strategy,
-//         async move |api_context, retry_strategy, completion_handler| {
-//             match mullvad_ios_get_relays_inner(
-//                 api_context.rest_handle(),
-//                 retry_strategy,
-//                 maybe_etag,
-//             )
+    // <<<<<<< HEAD
+    let mut maybe_etag: Option<ETag> = None;
+    if !etag.is_null() {
+        // SAFETY: See param documentation for `etag`.
+        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
+        maybe_etag = Some(ETag(String::from(unwrapped_tag)));
+    }
+
+    RequestCancelHandle::new(
+        api_context,
+        retry_strategy,
+        async move |api_context, retry_strategy, completion_handler| {
+            match mullvad_ios_get_relays_inner(
+                api_context.rest_handle(),
+                retry_strategy,
+                maybe_etag,
+            )
 // =======
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion_handler =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-
-    let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-        completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-        return SwiftCancelHandle::empty();
-    };
-
-    let api_context = api_context.rust_context();
-    // SAFETY: See notes for `into_rust`
-    let retry_strategy = unsafe { retry_strategy.into_rust() };
-
-    let completion = completion_handler.clone();
-    let task = tokio_handle.clone().spawn(async move {
-        match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, None, None)
+//     // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
+//     let completion_handler =
+//         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
+//
+//     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+//         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+//         return SwiftCancelHandle::empty();
+//     };
+//
+//     let api_context = api_context.rust_context();
+//     // SAFETY: See notes for `into_rust`
+//     let retry_strategy = unsafe { retry_strategy.into_rust() };
+//
+//     let completion = completion_handler.clone();
+//     let task = tokio_handle.clone().spawn(async move {
+//         match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, None, None)
 // >>>>>>> 08bec497dd (Make it work)
             .await
             {
