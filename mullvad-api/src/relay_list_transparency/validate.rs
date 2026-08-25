@@ -63,7 +63,7 @@ fn parse_timestamp(unparsed_timestamp: &str) -> Result<SigsumPayload, serde_json
     serde_json::from_str(unparsed_timestamp)
 }
 
-/// Exposes a method to parse a [`Payload`] that failed signature validation.
+/// Exposes a method to parse a [`SigsumPayload`] that failed signature validation.
 /// Should be removed once we go over to failing hard on signature verification errors.
 #[derive(Debug, Clone)]
 pub struct NoVerificationTimestampParser {
