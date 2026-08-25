@@ -231,16 +231,10 @@ extension IncludeAllNetworksSettingsView {
                     image: .ianSolutionIllustration,
                     customView: AnyView(
                         ActionBox(
-                            isChecked: viewModel.consent,
-                            label: NSLocalizedString(
-                                "I understand the benefits and risks of using this feature",
-                                comment: ""
-                            ),
-                            toggleStyle: IncludeAllNetworksCheckboxToggleStyle(),
-                            didToggle: { isChecked in
-                                viewModel.consent = isChecked
-                            }
+                            isChecked: $viewModel.consent,
+                            toggleTitle: "I understand the benefits and risks of using this feature"
                         )
+                        .disabled(viewModel.consent)
                         .accessibilityIdentifier(.actionBox)
                     )
                 ),
