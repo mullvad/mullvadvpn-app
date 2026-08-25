@@ -59,7 +59,33 @@ struct SettingsMultihopView: View {
                         )
                 }
 
-                SettingsInfoView(viewModel: dataViewModel)
+                SettingsInfoView {
+                    SettingsInfoPage(
+                        text: NSLocalizedString(
+                            "Multihop routes your traffic into one WireGuard server and out another, "
+                                + "making it harder to trace. This results in increased latency but increases "
+                                + "anonymity online. Multihop has three different modes to choose between: "
+                                + "When needed, Always, and Never.",
+                            comment: ""
+                        ),
+                        image: .multihopIllustrationGeneral
+                    )
+                    SettingsInfoPage(
+                        image: .multihopIllustrationWhenNeeded,
+                    ) {
+                        WhenNeededPage()
+                    }
+                    SettingsInfoPage(
+                        image: .multihopIllustrationAlways,
+                    ) {
+                        AlwaysPage()
+                    }
+                    SettingsInfoPage(
+                        image: .multihopIllustrationNever,
+                    ) {
+                        NeverPage()
+                    }
+                }
 
                 VStack(spacing: 0) {
                     SegmentedListItem(
@@ -123,34 +149,6 @@ struct SettingsMultihopView: View {
 }
 
 extension SettingsMultihopView {
-    private var dataViewModel: SettingsInfoViewModel {
-        SettingsInfoViewModel(
-            pages: [
-                SettingsInfoViewModelPage(
-                    body: NSLocalizedString(
-                        "Multihop routes your traffic into one WireGuard server and out another, "
-                            + "making it harder to trace. This results in increased latency but increases "
-                            + "anonymity online. Multihop has three different modes to choose between: "
-                            + "When needed, Always, and Never.",
-                        comment: ""
-                    ),
-                    image: .multihopIllustrationGeneral
-                ),
-                SettingsInfoViewModelPage(
-                    image: .multihopIllustrationWhenNeeded,
-                    customView: AnyView(WhenNeededPage())
-                ),
-                SettingsInfoViewModelPage(
-                    image: .multihopIllustrationAlways,
-                    customView: AnyView(AlwaysPage())
-                ),
-                SettingsInfoViewModelPage(
-                    image: .multihopIllustrationNever,
-                    customView: AnyView(NeverPage())
-                ),
-            ]
-        )
-    }
 
     private struct WhenNeededPage: View {
         var body: some View {

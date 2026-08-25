@@ -18,7 +18,58 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
-                SettingsInfoView(viewModel: dataViewModel)
+                SettingsInfoView {
+                    let daitafullTitle = "Defense against AI-guided Traffic Analysis"
+                    let daitaTitle = NSLocalizedString("DAITA", comment: "")
+                    SettingsInfoPage(
+                        text: [
+                            NSLocalizedString(
+                                "**Attention: This increases network traffic and will also negatively affect "
+                                    + "speed, latency, and battery usage. Use with caution on limited plans.**",
+                                comment: ""
+                            ),
+                            String(
+                                format: NSLocalizedString(
+                                    "%@ (%@) hides patterns in your encrypted VPN traffic.",
+                                    comment: ""
+                                ),
+                                daitaTitle,
+                                daitafullTitle
+                            ),
+                            NSLocalizedString(
+                                "By using sophisticated AI it’s possible to analyze "
+                                    + "the traffic of data packets going in and out of your "
+                                    + "device (even if the traffic is encrypted).",
+                                comment: ""
+                            ),
+                        ].joinedParagraphs(),
+                        image: .daitaOffIllustration
+                    )
+                    SettingsInfoPage(
+                        text: [
+                            String(
+                                format: NSLocalizedString(
+                                    "If an observer monitors these data packets, %@ makes it "
+                                        + "significantly harder for them to identify which websites "
+                                        + "you are visiting or with whom you are communicating.",
+                                    comment: ""
+                                ), daitaTitle),
+                            String(
+                                format: NSLocalizedString(
+                                    "%@ does this by carefully adding network noise and making "
+                                        + "all network packets the same size.",
+                                    comment: ""
+                                ), daitaTitle),
+                            String(
+                                format: NSLocalizedString(
+                                    "Not all our servers are %@-enabled. Therefore, we use multihop "
+                                        + "automatically to enable %@ with any server.",
+                                    comment: ""
+                                ), daitaTitle, daitaTitle),
+                        ].joinedParagraphs(),
+                        image: .daitaOnIllustration
+                    )
+                }
 
                 SegmentedListItem(
                     userInteraction: .enabledWithoutHighlight,
@@ -59,64 +110,5 @@ extension SettingsDAITAView {
     var isAutomaticRoutingActive: Bool {
         let viewModel = tunnelViewModel as? DAITATunnelSettingsViewModel
         return viewModel?.isAutomaticRoutingActive ?? false
-    }
-}
-
-extension SettingsDAITAView {
-    private var dataViewModel: SettingsInfoViewModel {
-        let daitafullTitle = "Defense against AI-guided Traffic Analysis"
-        let daitaTitle = NSLocalizedString("DAITA", comment: "")
-        return SettingsInfoViewModel(
-            pages: [
-                SettingsInfoViewModelPage(
-                    body: [
-                        NSLocalizedString(
-                            "**Attention: This increases network traffic and will also negatively affect "
-                                + "speed, latency, and battery usage. Use with caution on limited plans.**",
-                            comment: ""
-                        ),
-                        String(
-                            format: NSLocalizedString(
-                                "%@ (%@) hides patterns in your encrypted VPN traffic.",
-                                comment: ""
-                            ),
-                            daitaTitle,
-                            daitafullTitle
-                        ),
-                        NSLocalizedString(
-                            "By using sophisticated AI it’s possible to analyze "
-                                + "the traffic of data packets going in and out of your "
-                                + "device (even if the traffic is encrypted).",
-                            comment: ""
-                        ),
-                    ].joinedParagraphs(),
-                    image: .daitaOffIllustration
-                ),
-                SettingsInfoViewModelPage(
-                    body: [
-                        String(
-                            format: NSLocalizedString(
-                                "If an observer monitors these data packets, %@ makes it "
-                                    + "significantly harder for them to identify which websites "
-                                    + "you are visiting or with whom you are communicating.",
-                                comment: ""
-                            ), daitaTitle),
-                        String(
-                            format: NSLocalizedString(
-                                "%@ does this by carefully adding network noise and making "
-                                    + "all network packets the same size.",
-                                comment: ""
-                            ), daitaTitle),
-                        String(
-                            format: NSLocalizedString(
-                                "Not all our servers are %@-enabled. Therefore, we use multihop "
-                                    + "automatically to enable %@ with any server.",
-                                comment: ""
-                            ), daitaTitle, daitaTitle),
-                    ].joinedParagraphs(),
-                    image: .daitaOnIllustration
-                ),
-            ]
-        )
     }
 }
