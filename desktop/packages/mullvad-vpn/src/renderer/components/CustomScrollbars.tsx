@@ -53,9 +53,7 @@ const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: bo
       'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
     opacity: props.$show ? 1 : 0,
     backgroundColor: props.$isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
-
-    // Thumb should be less transparent when track is hovered.
-    [`${StyledTrack}:hover &&`]: {
+    '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.65)',
     },
   }),
