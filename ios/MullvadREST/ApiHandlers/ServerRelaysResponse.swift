@@ -70,9 +70,12 @@ extension REST {
                 // Intentionally left blank.
             }
 
+            public struct LWOV2: Codable, Equatable, Sendable {}
+
             public let daita: DAITA?
             public let quic: QUIC?
             public let lwo: LWO?
+            public var lwoV2: LWOV2?
         }
 
         public let hostname: String
@@ -100,6 +103,11 @@ extension REST {
 
         public var supportsLwo: Bool {
             features?.lwo != nil
+        }
+
+        /// LWOv2 requires GotaTun, and is advertised separately from ``supportsLwo``.
+        public var supportsLwoV2: Bool {
+            features?.lwoV2 != nil
         }
 
         /// Returns true if the relay has IPv6 addresses in shadowsocksExtraAddrIn

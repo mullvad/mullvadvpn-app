@@ -36,7 +36,8 @@ class ServerRelayTests: XCTestCase {
                         "domain": "se-got-wg-881.blockerad.eu",
                         "token": "test"
                     },
-                    "lwo": {}
+                    "lwo": {},
+                    "lwo_v2": {}
                 }
             }
             """
@@ -68,10 +69,27 @@ class ServerRelayTests: XCTestCase {
                         domain: "se-got-wg-881.blockerad.eu",
                         token: "test"
                     ),
-                    lwo: .init()
+                    lwo: .init(),
+                    lwoV2: .init()
                 ),
                 isIPOverridden: nil
             ))
+    }
+
+    func testLwoVersionsAreDistinguished() {
+        let relayWithLwoV1 = mockServerRelay.override(features: .init(daita: nil, quic: nil, lwo: .init()))
+        let relayWithLwoV2 = mockServerRelay.override(
+            features: .init(daita: nil, quic: nil, lwo: .init(), lwoV2: .init())
+        )
+
+        XCTAssertTrue(relayWithLwoV1.supportsLwo)
+        XCTAssertFalse(relayWithLwoV1.supportsLwoV2)
+
+        XCTAssertTrue(relayWithLwoV2.supportsLwo)
+        XCTAssertTrue(relayWithLwoV2.supportsLwoV2)
+
+        XCTAssertFalse(mockServerRelay.supportsLwo)
+        XCTAssertFalse(mockServerRelay.supportsLwoV2)
     }
 
     func testCheckForDaitaWorksFromFeatures() {
@@ -126,13 +144,15 @@ class ServerRelayTests: XCTestCase {
             features: REST.ServerRelay.Features(
                 daita: REST.ServerRelay.Features.DAITA(),
                 quic: REST.ServerRelay.Features.QUIC(addrIn: [""], domain: "", token: ""),
-                lwo: REST.ServerRelay.Features.LWO()
+                lwo: REST.ServerRelay.Features.LWO(),
+                lwoV2: REST.ServerRelay.Features.LWOV2()
             )
         )
 
         XCTAssertNotNil(overrideRelay.features?.daita)
         XCTAssertNotNil(overrideRelay.features?.quic)
         XCTAssertNotNil(overrideRelay.features?.lwo)
+        XCTAssertNotNil(overrideRelay.features?.lwoV2)
     }
 
     var shadowSocksExtraAddrIn: [String] {
