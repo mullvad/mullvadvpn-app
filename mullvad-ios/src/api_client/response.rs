@@ -13,7 +13,6 @@ use mullvad_api::{
 pub struct SwiftMullvadApiResponse {
     body: *mut u8,
     body_size: usize,
-    etag: *mut c_char,
     status_code: u16,
     error_description: *mut c_char,
     server_response_code: *mut c_char,
@@ -35,7 +34,6 @@ impl SwiftMullvadApiResponse {
         Ok(Self {
             body: Box::<[u8]>::into_raw(body).cast(),
             body_size,
-            etag: null_mut(),
             status_code,
             error_description: null_mut(),
             server_response_code: null_mut(),
@@ -77,7 +75,6 @@ impl SwiftMullvadApiResponse {
             error_description: null_mut(),
             body,
             body_size,
-            etag: null_mut(),
             status_code: 0,
             server_response_code: null_mut(),
             sigsum_timestamp,
@@ -91,7 +88,6 @@ impl SwiftMullvadApiResponse {
             error_description: null_mut(),
             body: null_mut(),
             body_size: 0,
-            etag: null_mut(),
             status_code: StatusCode::NO_CONTENT.as_u16(),
             server_response_code: null_mut(),
             sigsum_timestamp: 0,
@@ -110,7 +106,6 @@ impl SwiftMullvadApiResponse {
         Self {
             body: null_mut(),
             body_size: 0,
-            etag: null_mut(),
             status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
             error_description,
             server_response_code: null_mut(),
@@ -142,7 +137,6 @@ impl SwiftMullvadApiResponse {
         Self {
             body: null_mut(),
             body_size: 0,
-            etag: null_mut(),
             status_code,
             error_description,
             server_response_code,
@@ -158,7 +152,6 @@ impl SwiftMullvadApiResponse {
             error_description: c"Request was cancelled".to_owned().into_raw(),
             body: null_mut(),
             body_size: 0,
-            etag: null_mut(),
             status_code: 0,
             server_response_code: null_mut(),
             sigsum_timestamp: 0,
@@ -172,7 +165,6 @@ impl SwiftMullvadApiResponse {
             error_description: c"Failed to get Tokio runtime".to_owned().into_raw(),
             body: null_mut(),
             body_size: 0,
-            etag: null_mut(),
             status_code: 0,
             server_response_code: null_mut(),
             sigsum_timestamp: 0,
@@ -195,10 +187,6 @@ pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse
     unsafe {
         if !response.body.is_null() {
             let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);
-        }
-
-        if !response.etag.is_null() {
-            let _ = CString::from_raw(response.etag);
         }
 
         if !response.error_description.is_null() {

@@ -29,14 +29,15 @@ public struct MullvadApiRequestFactory: Sendable {
                     retryStrategy.toRustStrategy()
                 ))
 
-        case let .getRelayList(retryStrategy, etag):
+        case let .getRelayList(retryStrategy, digest, timestamp):
             return MullvadApiCancellable(
                 handle: mullvad_ios_get_relays(
                     apiContext.context,
                     retryStrategy.toRustStrategy(),
-                    nil,
-                    0
+                    digest,
+                    timestamp ?? 0
                 ))
+
         case let .sendProblemReport(retryStrategy, problemReportRequest):
             let rustRequest = RustProblemReportRequest(from: problemReportRequest)
             return MullvadApiCancellable(

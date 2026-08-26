@@ -67,7 +67,6 @@ typedef struct SwiftRetryStrategy {
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
-  char *etag;
   uint16_t status_code;
   char *error_description;
   char *server_response_code;

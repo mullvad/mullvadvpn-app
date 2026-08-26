@@ -19,7 +19,7 @@ public protocol APIQuerying: Sendable {
     ) -> Cancellable
 
     func getRelays(
-        etag: String?,
+        sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
@@ -90,27 +90,25 @@ extension REST {
         }
 
         public func getRelays(
-            etag: String?,
+            sigsum: (String, Int64)?,
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
         ) -> Cancellable {
-            if var etag {
-                // Enforce weak validator to account for some backend caching quirks.
-                if etag.starts(with: "\"") {
-                    etag.insert(contentsOf: "W/", at: etag.startIndex)
-                }
+            let responseHandler = rustCustomResponseHandler { data, digest, timestamp in
+                REST.ServerRelaysCacheResponse.newContent(digest, timestamp, data)
             }
 
-            let responseHandler = rustCustomResponseHandler { data, responseEtag in
-                if let responseEtag, responseEtag == etag {
-                    return REST.ServerRelaysCacheResponse.notModified
-                } else {
-                    return REST.ServerRelaysCacheResponse.newContent(responseEtag, data)
-                }
+            var sigsumDigest: String? = nil
+            var sigsumTimestamp: Int64? = nil
+            if let (digest, timestamp) = sigsum {
+                sigsumDigest = digest
+                sigsumTimestamp = timestamp
             }
-
             return createNetworkOperation(
-                request: .getRelayList(retryStrategy, etag: etag),
+                request: .getRelayList(
+                    retryStrategy,
+                    digest: sigsumDigest,
+                    timestamp: sigsumTimestamp),
                 responseHandler: responseHandler,
                 completionHandler: completionHandler
             )
@@ -220,7 +218,7 @@ extension REST {
 
     public enum ServerRelaysCacheResponse: Sendable, Decodable {
         case notModified
-        case newContent(_ etag: String?, _ rawData: Data)
+        case newContent(_ digest: String?, _ timestamp: Int64?, _ rawData: Data)
     }
 
     public enum CreateApplePaymentResponse: Sendable, Decodable {
