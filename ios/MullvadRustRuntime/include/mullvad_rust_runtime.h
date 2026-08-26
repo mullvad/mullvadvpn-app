@@ -358,16 +358,19 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `etag` must be a pointer to a null terminated string.
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * `digest` must point to valid checksum consisting of 32 bytes, or null if not used.
+ *
+ * `digest_timestamp` should be a valid UTC timestamp, or 0 if not used.
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const char *_etag);
+                                                const uint8_t *digest,
+                                                int64_t digest_timestamp);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be started.
