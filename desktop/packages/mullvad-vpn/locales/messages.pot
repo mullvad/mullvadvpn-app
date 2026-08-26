@@ -3876,7 +3876,7 @@ msgstr ""
 msgid "Too many attempts, please try again later"
 msgstr ""
 
-msgid "Turn off Private DNS in %s as it might interfere with Mullvad's DNS settings."
+msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
 msgstr ""
 
 msgid "UDP"
