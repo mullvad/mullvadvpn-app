@@ -103,6 +103,21 @@ def git_show(revision: str, path: str) -> str | None:
     return result.stdout if result.returncode == 0 else None
 
 
+def tracked_lockfiles() -> list[str]:
+    """Every Cargo.lock tracked by git, as paths relative to the repo root.
+
+    Exits on failure rather than returning nothing: an empty list would make the
+    whole check silently pass.
+    """
+    result = git("ls-files", "*Cargo.lock")
+    if result.returncode != 0:
+        sys.exit(f"error: listing lockfiles failed: {result.stderr.strip()}")
+    lockfiles = sorted(result.stdout.splitlines())
+    if not lockfiles:
+        sys.exit(f"error: no Cargo.lock is tracked by git in {REPO_ROOT}")
+    return lockfiles
+
+
 def index_url(name: str) -> str:
     """The sparse-index URL for a crate, per the crates.io path layout."""
     lowercase_name = name.lower()
@@ -162,7 +177,7 @@ def main() -> int:
         if git("rev-parse", "--verify", "--quiet", base_ref).returncode != 0:
             sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
 
-    lockfiles = sorted(git("ls-files", "*Cargo.lock").stdout.split())
+    lockfiles = tracked_lockfiles()
 
     violations = []
     num_checked_versions = 0
