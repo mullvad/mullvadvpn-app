@@ -165,7 +165,7 @@ def main() -> int:
     lockfiles = sorted(git("ls-files", "*Cargo.lock").stdout.split())
 
     violations = []
-    num_checked_crates = 0
+    num_checked_versions = 0
     for lock in lockfiles:
         head_crates = crates_io_versions((REPO_ROOT / lock).read_text())
         # With no base ref, check the whole lockfile; otherwise only the crates.io
@@ -183,7 +183,7 @@ def main() -> int:
                 # an anomaly (e.g. an index change); fail loudly rather than skip.
                 sys.exit(f"error: no publish time for {name} {version} in the "
                          "crates.io index")
-            num_checked_crates += 1
+            num_checked_versions += 1
             age = now - datetime.fromisoformat(pubtime.replace("Z", "+00:00"))
             if age < min_publish_age.duration:
                 violations.append(
@@ -201,8 +201,9 @@ def main() -> int:
               f"{ALLOWLIST.relative_to(REPO_ROOT)}.", file=sys.stderr)
         return 1
 
-    scope = "in the full lockfile" if base_ref is None else f"added since {base_ref!r}"
-    print(f"OK: checked {num_checked_crates} crates.io version(s) {scope}; "
+    scope = (f"across {len(lockfiles)} lockfile(s)" if base_ref is None
+             else f"added since {base_ref!r}")
+    print(f"OK: checked {num_checked_versions} crates.io version(s) {scope}; "
           f"none younger than {min_publish_age.text} "
           f"(allowlist: {len(allowlist)} crate(s)).")
     return 0
