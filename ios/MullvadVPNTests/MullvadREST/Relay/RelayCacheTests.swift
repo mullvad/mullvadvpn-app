@@ -51,7 +51,7 @@ final class RelayCacheTests: XCTestCase {
         let emptyRelays = REST.ServerRelaysResponse.mock(serverRelays: [], bridgeRelays: [])
         XCTAssertTrue(emptyRelays.isEmpty)
 
-        let cachedRelays = CachedRelays(etag: nil, relays: emptyRelays, updatedAt: Date())
+        let cachedRelays = CachedRelays(relays: emptyRelays, updatedAt: Date())
         XCTAssertTrue(cachedRelays.isEmpty)
     }
 
@@ -119,7 +119,7 @@ final class RelayCacheTests: XCTestCase {
         let relays = ServerRelaysResponseStubs.sampleRelays
         XCTAssertFalse(relays.isEmpty)
 
-        let cachedRelays = CachedRelays(etag: nil, relays: relays, updatedAt: Date())
+        let cachedRelays = CachedRelays(relays: relays, updatedAt: Date())
         XCTAssertFalse(cachedRelays.isEmpty)
     }
 }

@@ -49,14 +49,14 @@ class RelayListCacheTests: XCTestCase {
         let result: Result<REST.ServerRelaysCacheResponse, Error> =
             await withCheckedContinuation { continuation in
                 _ = apiProxy.getRelays(
-                    etag: nil,
+                    sigsum: nil,
                     retryStrategy: .noRetry
                 ) { result in
                     continuation.resume(returning: result)
                 }
             }
 
-        guard case let .newContent(etag, rawData) = try result.get() else {
+        guard case let .newContent(rawData) = try result.get() else {
             XCTFail("Expected .newContent response")
             return
         }
@@ -71,7 +71,7 @@ class RelayListCacheTests: XCTestCase {
         let fileCache = FileCache<StoredRelays>(fileURL: fileURL)
         let relayCache = RelayCache(fileCache: fileCache)
 
-        let storedRelays = try StoredRelays(etag: etag, rawData: rawData, updatedAt: Date())
+        let storedRelays = try StoredRelays(rawData: rawData, updatedAt: Date())
         try relayCache.write(record: storedRelays)
 
         // 4. Read back from a fresh FileCache (forces disk round-trip, no in-memory cache).
