@@ -12,8 +12,10 @@ import Foundation
 
 /// A struct that represents the relay cache on disk
 public struct StoredRelays: Codable, Equatable {
-    /// E-tag returned by server
-    public let etag: String?
+    /// The sigsum digest for the cache entry
+    public let digest: String?
+    /// The timestamp of the sigsum digest
+    public let timestamp: Int64?
 
     /// The raw relay JSON data stored within the cache entry
     public let rawData: Data
@@ -33,13 +35,18 @@ public struct StoredRelays: Codable, Equatable {
                     REST.ServerRelaysResponse.self,
                     from: rawData
                 )
-                return CachedRelays(etag: etag, relays: relays, updatedAt: updatedAt)
+                return CachedRelays(
+                    digest: digest,
+                    timestamp: timestamp,
+                    relays: relays,
+                    updatedAt: updatedAt)
             }
         }
     }
 
-    public init(etag: String? = nil, rawData: Data, updatedAt: Date) throws {
-        self.etag = etag
+    public init(digest: String? = nil, timestamp: Int64? = nil, rawData: Data, updatedAt: Date) throws {
+        self.digest = digest
+        self.timestamp = timestamp
         self.rawData = rawData
         self.updatedAt = updatedAt
         // Eagerly deserialize so failures surface at construction time
@@ -48,11 +55,12 @@ public struct StoredRelays: Codable, Equatable {
             REST.ServerRelaysResponse.self,
             from: rawData
         )
-        cache.set(.success(CachedRelays(etag: etag, relays: relays, updatedAt: updatedAt)))
+        cache.set(.success(CachedRelays(digest: digest, timestamp: timestamp, relays: relays, updatedAt: updatedAt)))
     }
 
     public init(cachedRelays: CachedRelays) throws {
-        etag = cachedRelays.etag
+        digest = cachedRelays.digest
+        timestamp = cachedRelays.timestamp
         rawData = try REST.Coding.makeJSONEncoder().encode(cachedRelays.relays)
         updatedAt = cachedRelays.updatedAt
         // Pre-populate cache with the already-known value.
@@ -62,12 +70,13 @@ public struct StoredRelays: Codable, Equatable {
     // MARK: - Codable
 
     private enum CodingKeys: String, CodingKey {
-        case etag, rawData, updatedAt
+        case digest, timestamp, rawData, updatedAt
     }
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        etag = try container.decodeIfPresent(String.self, forKey: .etag)
+        digest = try? container.decode(String?.self, forKey: .digest)
+        timestamp = try? container.decode(Int64?.self, forKey: .timestamp)
         rawData = try container.decode(Data.self, forKey: .rawData)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         // Eagerly deserialize relay data so the result is cached before
@@ -79,14 +88,14 @@ public struct StoredRelays: Codable, Equatable {
                 REST.ServerRelaysResponse.self,
                 from: rawData
             )
-        }.map { CachedRelays(etag: etag, relays: $0, updatedAt: updatedAt) }
+        }.map { CachedRelays(digest: digest, timestamp: timestamp, relays: $0, updatedAt: updatedAt) }
         cache.set(result)
     }
 
     // MARK: - Equatable
 
     public static func == (lhs: StoredRelays, rhs: StoredRelays) -> Bool {
-        lhs.etag == rhs.etag && lhs.rawData == rhs.rawData && lhs.updatedAt == rhs.updatedAt
+        lhs.rawData == rhs.rawData && lhs.updatedAt == rhs.updatedAt
     }
 }
 
