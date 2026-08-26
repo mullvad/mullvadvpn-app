@@ -18,10 +18,8 @@ Crates listed in ci/rust-min-publish-age-allowlist.txt are exempt from the check
 The cooldown window lives only in .cargo/config.toml (registry.global-min-publish-age).
 This script reads it from there, so there is a single source of truth.
 
-Hopefully cargo develop native functionality that can replace this script eventually.
+Hopefully cargo develops native functionality that can replace this script eventually.
 """
-
-from __future__ import annotations
 
 import argparse
 import json
@@ -39,6 +37,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 CONFIG = REPO_ROOT / ".cargo" / "config.toml"
 ALLOWLIST = SCRIPT_DIR / "rust-min-publish-age-allowlist.txt"
+# A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
+CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
 INDEX_BASE = "https://index.crates.io"
 USER_AGENT = "mullvadvpn-app min-publish-age check (github.com/mullvad/mullvadvpn-app)"
 
@@ -84,9 +84,6 @@ def load_allowlist() -> set[str]:
 
 def crates_io_versions(lockfile_text: str) -> set[tuple[str, str]]:
     """The (name, version) of every crates.io package in a Cargo.lock."""
-    # A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
-    CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
-
     packages = tomllib.loads(lockfile_text).get("package", [])
     return {
         (package["name"], package["version"])
