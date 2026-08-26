@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -24,17 +25,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,12 +58,16 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.RunOnKeyChange
 import net.mullvad.mullvadvpn.lib.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
+import net.mullvad.mullvadvpn.lib.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.isTv
 import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.common.util.openNetworkSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.component.Accordion
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
@@ -104,6 +115,7 @@ private fun PreviewDnsSettingsScreen() {
             onToggleBlockSocialMedia = {},
             onToggleBlockTrackers = {},
             navigateToMalwareInfo = {},
+            navigateToNetworkSettings = {},
             onBackClick = {},
         )
     }
@@ -142,6 +154,7 @@ fun SharedTransitionScope.DnsSettings(
         }
     }
 
+    val context = LocalContext.current
     val state by vm.uiState.collectAsStateWithLifecycle()
     DnsSettingsScreen(
         modifier =
@@ -167,6 +180,7 @@ fun SharedTransitionScope.DnsSettings(
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
+        navigateToNetworkSettings = dropUnlessResumed { context.openNetworkSettings() },
         onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -188,6 +202,7 @@ fun DnsSettingsScreen(
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
+    navigateToNetworkSettings: () -> Unit,
     onBackClick: () -> Unit,
 ) {
     ScaffoldWithSmallTopBar(
@@ -219,6 +234,7 @@ fun DnsSettingsScreen(
                         onToggleBlockSocialMedia = onToggleBlockSocialMedia,
                         onToggleBlockTrackers = onToggleBlockTrackers,
                         navigateToMalwareInfo = navigateToMalwareInfo,
+                        navigateToNetworkSettings = navigateToNetworkSettings,
                     )
             }
         }
@@ -240,6 +256,7 @@ private fun Content(
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
+    navigateToNetworkSettings: () -> Unit,
 ) {
     val highlightAnimation = remember { Animatable(AlphaVisible) }
     if (selectedFeatureIndicator != null) {
@@ -323,6 +340,42 @@ private fun Content(
         }
 
         item(key = ContentKey.DESCRIPTION) { Description() }
+
+        item(key = ContentKey.EXTRA_INFORMATION) {
+            if (!isTv()) {
+                var expandedState by rememberSaveable { mutableStateOf(false) }
+
+                Accordion(
+                    modifier = Modifier.padding(bottom = Dimens.cellVerticalSpacing),
+                    title = stringResource(R.string.if_you_have_any_issues),
+                    expandedText =
+                        clickableAnnotatedString(
+                            text =
+                                buildString {
+                                    appendLine(
+                                        stringResource(R.string.dns_settings_issues_first_paragraph)
+                                    )
+                                    append(
+                                        stringResource(
+                                            R.string.dns_settings_issues_second_paragraph
+                                        )
+                                    )
+                                },
+                            argument = stringResource(R.string.system_network_settings),
+                            linkStyle =
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                            onClick = { navigateToNetworkSettings() },
+                        ),
+                    icon = Icons.Rounded.Info,
+                    iconContentDescription = stringResource(R.string.info),
+                    isExpanded = expandedState,
+                    onClick = { expandedState = !expandedState },
+                )
+            }
+        }
 
         contentBlockers(
             focusDnsBlockersRequester = focusDnsBlockersRequester,
@@ -416,8 +469,10 @@ private fun LazyItemScope.Description() {
                 appendLine(annotatedStringResource(R.string.dns_settings_description_first_item))
                 appendLine()
                 appendLine(annotatedStringResource(R.string.dns_settings_description_second_item))
-                appendLine()
-                appendLine(annotatedStringResource(R.string.dns_settings_description_warning))
+                if (isTv()) {
+                    appendLine()
+                    appendLine(annotatedStringResource(R.string.dns_settings_description_warning))
+                }
             },
     )
 }
@@ -583,6 +638,7 @@ private fun Loading() {
 private object ContentKey {
     const val IMAGE = "image"
     const val DESCRIPTION = "description"
+    const val EXTRA_INFORMATION = "extra_information"
     const val DNS_CONTENT_BLOCKERS_HEADER = "dns_content_blockers_header"
     const val DNS_CONTENT_BLOCKER_ALL = "dns_content_blocker_all"
     const val DNS_CONTENT_BLOCKER_ADS = "dns_content_blocker_ads"
