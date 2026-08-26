@@ -589,4 +589,8 @@
     <string name="automatic_entry_description">When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</string>
     <string name="exit_filter">Exit filter</string>
     <string name="entry_filter">Entry filter</string>
+    <string name="if_you_have_any_issues">If you have any issues</string>
+    <string name="dns_settings_issues_first_paragraph">DNS settings might not go into effect immediately.</string>
+    <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad\'s DNS settings.</string>
+    <string name="system_network_settings">System network settings</string>
 </resources>
