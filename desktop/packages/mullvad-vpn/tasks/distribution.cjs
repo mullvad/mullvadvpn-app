@@ -104,6 +104,7 @@ function newConfig() {
         { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
         { from: buildAssets('shell-completions/_mullvad'), to: '.' },
         { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
+        { from: buildAssets('shell-completions/mullvad.nu'), to: '.' },
       ],
     },
 
@@ -214,6 +215,8 @@ function newConfig() {
         buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
         buildAssets('shell-completions/mullvad.fish') +
           '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+        buildAssets('shell-completions/mullvad.nu') +
+          '=/usr/share/nushell/vendor/autoload/mullvad.nu',
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
@@ -257,6 +260,8 @@ function newConfig() {
         buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
         buildAssets('shell-completions/mullvad.fish') +
           '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+        buildAssets('shell-completions/mullvad.nu') +
+          '=/usr/share/nushell/vendor/autoload/mullvad.nu',
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
