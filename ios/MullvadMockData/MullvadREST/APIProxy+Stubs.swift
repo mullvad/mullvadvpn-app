@@ -32,7 +32,7 @@ struct APIProxyStub: APIQuerying {
     }
 
     func getRelays(
-        etag: String?,
+        signum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable {

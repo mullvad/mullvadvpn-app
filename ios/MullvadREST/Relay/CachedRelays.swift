@@ -12,8 +12,10 @@ import Foundation
 
 /// A struct that represents the relay cache in memory
 public struct CachedRelays: Codable, Equatable {
-    /// E-tag returned by server
-    public let etag: String?
+    /// The signum digest returned by the server
+    public let digest: String?
+    /// The signum timestamp returned by the server
+    public let timestamp: Int64?
 
     /// The relay list stored within the cache entry
     public let relays: REST.ServerRelaysResponse
@@ -21,8 +23,14 @@ public struct CachedRelays: Codable, Equatable {
     /// The date when this cache was last updated
     public let updatedAt: Date
 
-    public init(etag: String? = nil, relays: REST.ServerRelaysResponse, updatedAt: Date) {
-        self.etag = etag
+    public init(
+        digest: String? = nil,
+        timestamp: Int64? = nil,
+        relays: REST.ServerRelaysResponse,
+        updatedAt: Date
+    ) {
+        self.digest = digest
+        self.timestamp = timestamp
         self.relays = relays
         self.updatedAt = updatedAt
     }
@@ -35,7 +43,8 @@ public struct CachedRelays: Codable, Equatable {
     /// Empty relay list used when prebundled file is empty (Debug/Staging builds)
     public static var empty: CachedRelays {
         CachedRelays(
-            etag: nil,
+            digest: nil,
+            timestamp: nil,
             relays: .empty,
             updatedAt: Date(timeIntervalSince1970: 0)
         )

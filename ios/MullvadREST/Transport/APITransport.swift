@@ -55,7 +55,8 @@ public final class APITransport: APITransportProtocol {
                         returning: ProxyAPIResponse(
                             data: response.body,
                             error: error,
-                            etag: response.etag
+                            digest: response.digest,
+                            timestamp: response.timestamp,
                         )
                     )
                 }
@@ -85,7 +86,8 @@ public final class APITransport: APITransportProtocol {
                 ProxyAPIResponse(
                     data: response.body,
                     error: error,
-                    etag: response.etag
+                    digest: response.digest,
+                    timestamp: response.timestamp,
                 ))
         }
         return apiRequest
