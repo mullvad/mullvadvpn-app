@@ -370,16 +370,27 @@ done
 
 log_header "Preparing for packaging Mullvad VPN $PRODUCT_VERSION"
 
-if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
+case "$(uname -s)" in
+Darwin|Linux)
     mkdir -p "build/shell-completions"
     for sh in bash zsh fish nushell; do
         log_info "Generating shell completion script for $sh..."
         cargo run --bin mullvad "${CARGO_ARGS[@]}" -- shell-completions "$sh" \
             "build/shell-completions/"
     done
-else
+    ;;
+MINGW*)
+    mkdir -p "build/shell-completions"
+    for sh in powershell nushell; do
+        log_info "Generating shell completion script for $sh..."
+        cargo run --bin mullvad "${CARGO_ARGS[@]}" -- shell-completions "$sh" \
+            "build/shell-completions/"
+    done
+    ;;
+*)
     mkdir -p "build"
-fi
+    ;;
+esac
 
 # Everything that goes into the installers and packages is in place by now, so give it all one
 # deterministic modification time. The packaging tools record these timestamps, and they would
