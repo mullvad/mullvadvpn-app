@@ -163,40 +163,48 @@ final class StateViewModel: Identifiable, ObservableObject {
 // MARK: - Main State View
 struct MullvadStateView: View {
     @ObservedObject var viewModel: StateViewModel
+    @ScaledMetric private var actionHeight: CGFloat = 36.0
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                StateView(state: viewModel.style)
-                    .padding(.bottom, Layout.sectionSpacing)
+        ZStack {
+            ScrollView {
+                ZStack {
+                    Spacer().containerRelativeFrame([.horizontal, .vertical])
+                    VStack(spacing: 0) {
+                        Spacer()
+                        StateView(state: viewModel.style)
+                            .padding(.bottom, Layout.sectionSpacing)
 
-                StyledTextView(item: viewModel.title)
+                        StyledTextView(item: viewModel.title)
 
-                if let banner = viewModel.banner {
-                    ResizableImageView(image: banner, dimension: .width(.infinity))
-                        .padding(.bottom, Layout.bannerSpacing)
-                }
+                        if let banner = viewModel.banner {
+                            ResizableImageView(image: banner, dimension: .width(.infinity))
+                                .padding(.bottom, Layout.bannerSpacing)
+                        }
 
-                ForEach(viewModel.details) { item in
-                    StyledTextView(item: item)
-                }
+                        ForEach(viewModel.details) { item in
+                            StyledTextView(item: item)
+                        }
 
-                Spacer()
+                        Spacer()
 
-                if let explanation = viewModel.explanation {
-                    StyledTextView(item: explanation)
-                }
+                        if let explanation = viewModel.explanation {
+                            StyledTextView(item: explanation)
+                        }
 
-                VStack(spacing: 12) {
-                    ForEach(viewModel.actions) { action in
-                        ActionButton(action: action)
+                        Spacer().frame(height: actionHeight * CGFloat(viewModel.actions.count))
                     }
+                    .padding(.top, Layout.topPadding)
+                    .padding(.horizontal, Layout.horizontalPadding)
+                    .padding(.bottom, Layout.bottomPadding)
                 }
-                .padding(.top, 8)
             }
-            .padding(.top, Layout.topPadding)
-            .padding(.horizontal, Layout.horizontalPadding)
-            .padding(.bottom, Layout.bottomPadding)
+            VStack(spacing: 12) {
+                Spacer()
+                ForEach(viewModel.actions) { action in
+                    ActionButton(action: action)
+                }
+            }
         }
     }
 }
