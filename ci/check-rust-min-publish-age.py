@@ -59,8 +59,8 @@ class MinPublishAge(NamedTuple):
 
 
 def load_min_publish_age() -> MinPublishAge:
-    with CONFIG.open("rb") as f:
-        raw = tomllib.load(f).get("registry", {}).get("global-min-publish-age")
+    with CONFIG.open("rb") as config_file:
+        raw = tomllib.load(config_file).get("registry", {}).get("global-min-publish-age")
     if raw is None:
         sys.exit(f"error: registry.global-min-publish-age is not set in {CONFIG}")
     raw = raw.strip()
@@ -82,16 +82,16 @@ def load_allowlist() -> set[str]:
     return names
 
 
-def crates_io_versions(lock_text: str) -> set[tuple[str, str]]:
+def crates_io_versions(lockfile_text: str) -> set[tuple[str, str]]:
     """The (name, version) of every crates.io package in a Cargo.lock."""
     # A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
     CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
 
-    packages = tomllib.loads(lock_text).get("package", [])
+    packages = tomllib.loads(lockfile_text).get("package", [])
     return {
-        (pkg["name"], pkg["version"])
-        for pkg in packages
-        if pkg.get("source") == CRATES_IO_SOURCE
+        (package["name"], package["version"])
+        for package in packages
+        if package.get("source") == CRATES_IO_SOURCE
     }
 
 
@@ -108,15 +108,15 @@ def git_show(revision: str, path: str) -> str | None:
 
 def index_url(name: str) -> str:
     """The sparse-index URL for a crate, per the crates.io path layout."""
-    n = name.lower()
-    if len(n) == 1:
-        path = f"1/{n}"
-    elif len(n) == 2:
-        path = f"2/{n}"
-    elif len(n) == 3:
-        path = f"3/{n[0]}/{n}"
+    lowercase_name = name.lower()
+    if len(lowercase_name) == 1:
+        path = f"1/{lowercase_name}"
+    elif len(lowercase_name) == 2:
+        path = f"2/{lowercase_name}"
+    elif len(lowercase_name) == 3:
+        path = f"3/{lowercase_name[0]}/{lowercase_name}"
     else:
-        path = f"{n[0:2]}/{n[2:4]}/{n}"
+        path = f"{lowercase_name[:2]}/{lowercase_name[2:4]}/{lowercase_name}"
     return f"{INDEX_BASE}/{path}"
 
 
