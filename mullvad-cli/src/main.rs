@@ -1,5 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
+#[cfg(all(unix, not(target_os = "android")))]
+use clap::ValueEnum;
 
 mod cmds;
 mod format;
@@ -8,6 +10,43 @@ use cmds::*;
 use crate::cmds::reset::SettingsKey;
 
 pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
+
+#[cfg(all(unix, not(target_os = "android")))]
+#[derive(Clone, ValueEnum, Debug)]
+enum CompletionShell {
+    Bash,
+    Elvish,
+    Fish,
+    Nushell,
+    #[value(name = "powershell")]
+    PowerShell,
+    Zsh,
+}
+
+#[cfg(all(unix, not(target_os = "android")))]
+impl CompletionShell {
+    fn generate_to(self, dir: &std::path::Path) -> std::io::Result<std::path::PathBuf> {
+        use clap::CommandFactory;
+        use clap_complete::Shell;
+
+        let mut command = Cli::command();
+        match self {
+            Self::Bash => clap_complete::generate_to(Shell::Bash, &mut command, BIN_NAME, dir),
+            Self::Elvish => clap_complete::generate_to(Shell::Elvish, &mut command, BIN_NAME, dir),
+            Self::Fish => clap_complete::generate_to(Shell::Fish, &mut command, BIN_NAME, dir),
+            Self::Nushell => clap_complete::generate_to(
+                clap_complete_nushell::Nushell,
+                &mut command,
+                BIN_NAME,
+                dir,
+            ),
+            Self::PowerShell => {
+                clap_complete::generate_to(Shell::PowerShell, &mut command, BIN_NAME, dir)
+            }
+            Self::Zsh => clap_complete::generate_to(Shell::Zsh, &mut command, BIN_NAME, dir),
+        }
+    }
+}
 
 #[derive(Debug, Parser)]
 #[command(version = mullvad_version::VERSION, about, long_about = None)]
@@ -116,7 +155,7 @@ enum Cli {
     #[command(hide = true)]
     ShellCompletions {
         /// The shell to generate the script for
-        shell: clap_complete::Shell,
+        shell: CompletionShell,
 
         /// Output directory where the shell completions are written
         #[arg(default_value = "./")]
@@ -200,11 +239,10 @@ async fn main() -> Result<()> {
         #[cfg(all(unix, not(target_os = "android")))]
         Cli::ShellCompletions { shell, dir } => {
             use anyhow::Context;
-            use clap::CommandFactory;
-
             // FIXME: The shell completions include hidden commands (including "shell-completions")
             println!("Generating shell completions to {}", dir.display());
-            clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
+            shell
+                .generate_to(&dir)
                 .context("Failed to generate shell completions")?;
             Ok(())
         }
