@@ -28,8 +28,9 @@ Host android-runner-bender
   IdentitiesOnly yes
 ```
 2. Get a shell with the `nixos-rebuild` command (if not already available): `nix-shell -p nixos-rebuild`
-3. From this directory, run: `nixos-rebuild -I nixos-config=$(pwd)/configuration.nix --build-host android-runner-bender --target-host android-runner-bender --sudo --ask-sudo-password --no-flake switch`
+3. From this directory, run: `nixos-rebuild switch -I nixos-config=$(pwd)/configuration.nix -I nixpkgs=https://nixos.org/channels/nixos-25.11/nixexprs.tar.xz --build-host android-runner-bender --target-host android-runner-bender --sudo --ask-sudo-password --no-flake`
 
+Note: the `-I nixpkgs=` says to update to the latest packages for the given channel. If this is not specified, older versions of packages could be installed and the runners could stop working.
 ### Upgrading to the latest Nix packages
 
 If using `nix-shell`, one way to do this is by specifying the channel to use with `-I nixpkgs`, for example:
