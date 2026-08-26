@@ -129,30 +129,24 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
     /// it.
     private func fetchData(
         accountNumber: String, deviceIdentifier: String,
-        completion: @escaping (Result<Account, Error>, Result<Device, Error>) -> Void
+        completion: @escaping @Sendable (Result<Account, Error>, Result<Device, Error>) -> Void
     ) {
-        nonisolated(unsafe) var accountResult: Result<Account, Error> = .failure(OperationError.cancelled)
-        nonisolated(unsafe) var deviceResult: Result<Device, Error> = .failure(OperationError.cancelled)
+        let task = Task {
+            async let accountResult = remoteService.getAccountData(
+                accountNumber: accountNumber
+            )
 
-        let dispatchGroup = DispatchGroup()
+            async let deviceResult = remoteService.getDevice(
+                accountNumber: accountNumber,
+                identifier: deviceIdentifier
+            )
 
-        dispatchGroup.enter()
-        let accountTask = Task {
-            accountResult = await remoteService.getAccountData(accountNumber: accountNumber)
-            dispatchGroup.leave()
+            let (account, device) = await (accountResult, deviceResult)
+
+            completion(account, device)
         }
 
-        dispatchGroup.enter()
-        let deviceTask = remoteService.getDevice(accountNumber: accountNumber, identifier: deviceIdentifier) { result in
-            deviceResult = result
-            dispatchGroup.leave()
-        }
-
-        tasks.append(contentsOf: [accountTask.cancellable, deviceTask])
-
-        dispatchGroup.notify(queue: dispatchQueue) {
-            completion(accountResult, deviceResult)
-        }
+        tasks.append(task.cancellable)
     }
 
     // MARK: - Key rotation
@@ -196,18 +190,24 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
 
         logger.debug("Rotate private key from packet tunnel.")
 
-        let task = remoteService.rotateDeviceKey(
-            accountNumber: accountData.number,
-            identifier: deviceData.identifier,
-            publicKey: publicKey
-        ) { result in
-            self.dispatchQueue.async {
-                let returnResult = result.tryMap { device -> KeyRotationStatus in
-                    try self.completeKeyRotation(device)
+        let task = Task {
+            let result = await remoteService.rotateDeviceKey(
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
+                publicKey: publicKey
+            )
+
+            let returnResult =
+                result
+                .tryMap { [self] device -> KeyRotationStatus in
+                    try completeKeyRotation(device)
                     return .succeeded(Date())
                 }
-                .flatMapError { error in
-                    self.logger.error(error: error, message: "Failed to rotate device key.")
+                .flatMapError { [self] error in
+                    logger.error(
+                        error: error,
+                        message: "Failed to rotate device key."
+                    )
 
                     if error.isOperationCancellationError {
                         return .failure(error)
@@ -216,11 +216,12 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
                     }
                 }
 
+            dispatchQueue.async {
                 completion(returnResult)
             }
         }
 
-        tasks.append(task)
+        tasks.append(task.cancellable)
     }
 
     /**

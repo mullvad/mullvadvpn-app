@@ -12,13 +12,10 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-protocol DeviceManaging {
+protocol DeviceManaging: Sendable {
     var currentDeviceId: String? { get }
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, Error>) -> Void
-    ) -> Cancellable
+    func getDevices() async -> Result<[Device], Error>
+    func deleteDevice(_ identifier: String) async -> Result<Bool, Error>
 }
 
 class DeviceManagementInteractor: DeviceManaging, @unchecked Sendable {
@@ -32,32 +29,25 @@ class DeviceManagementInteractor: DeviceManaging, @unchecked Sendable {
         self.currentDeviceId = currentDeviceId
     }
 
-    @discardableResult
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
-        devicesProxy.getDevices(
+    func getDevices() async -> Result<[Device], Error> {
+        await devicesProxy.getDevices(
             accountNumber: accountNumber,
-            retryStrategy: .default,
-            completion: completionHandler
+            retryStrategy: .default
         )
     }
 
-    @discardableResult
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, Error>) -> Void
-    ) -> Cancellable {
-        devicesProxy.deleteDevice(
+    func deleteDevice(_ identifier: String) async -> Result<Bool, Error> {
+        await devicesProxy.deleteDevice(
             accountNumber: accountNumber,
             identifier: identifier,
-            retryStrategy: .default,
-            completion: completionHandler
+            retryStrategy: .default
         )
     }
 }
 
-class MockDeviceManaging: DeviceManaging {
+final class MockDeviceManaging: DeviceManaging {
     let currentDeviceId: String? = "123"
-    let getDevicesCompletionHandler: (() -> Result<[Device], Error>)?
+    let getDevicesCompletionHandler: (@Sendable () -> Result<[Device], Error>)?
     static private let mockDevices = [
         Device(
             id: "123",
@@ -108,7 +98,7 @@ class MockDeviceManaging: DeviceManaging {
     let devicesToReturn: Int
     init(
         devicesToReturn: Int = 5,
-        getDevicesCompletionHandler: (() -> Result<[Device], Error>)? = {
+        getDevicesCompletionHandler: (@Sendable () -> Result<[Device], Error>)? = {
             .success(mockDevices)
         }
     ) {
@@ -116,20 +106,15 @@ class MockDeviceManaging: DeviceManaging {
         self.getDevicesCompletionHandler = getDevicesCompletionHandler
     }
 
-    func deleteDevice(
-        _ identifier: String,
-        completionHandler: @escaping @Sendable (Result<Bool, any Error>) -> Void
-    ) -> any MullvadTypes.Cancellable {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            completionHandler(.success(true))
-        }
-        return AnyCancellable()
+    func deleteDevice(_ identifier: String) async -> Result<Bool, any Error> {
+        try? await Task.sleep(for: .seconds(2))
+        return .success(true)
     }
 
-    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
+    func getDevices() async -> Result<[Device], any Error> {
         if let getDevicesCompletionHandler {
-            completionHandler(getDevicesCompletionHandler().map { Array($0.prefix(devicesToReturn)) })
+            return getDevicesCompletionHandler().map { Array($0.prefix(devicesToReturn)) }
         }
-        return AnyCancellable()
+        return .success([])
     }
 }

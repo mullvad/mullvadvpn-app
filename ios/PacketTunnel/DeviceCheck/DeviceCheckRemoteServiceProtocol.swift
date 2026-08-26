@@ -17,14 +17,12 @@ protocol DeviceCheckRemoteServiceProtocol {
 
     func getDevice(
         accountNumber: String,
-        identifier: String,
-        completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    ) -> Cancellable
+        identifier: String
+    ) async -> Result<Device, Error>
 
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: WireGuard.PublicKey,
-        completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    ) -> Cancellable
+        publicKey: WireGuard.PublicKey
+    ) async -> Result<Device, Error>
 }

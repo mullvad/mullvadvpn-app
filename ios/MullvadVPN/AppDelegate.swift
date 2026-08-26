@@ -347,9 +347,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
             using: .main
         ) { [self] task in
-            nonisolated(unsafe) let handle = tunnelManager.rotatePrivateKey { [self] error in
-                scheduleKeyRotationTask()
-                task.setTaskCompleted(success: error == nil)
+            let handle = Task {
+                do {
+                    try await tunnelManager.rotatePrivateKey()
+                    scheduleKeyRotationTask()
+                    task.setTaskCompleted(success: true)
+                } catch {
+                    scheduleKeyRotationTask()
+                    task.setTaskCompleted(success: false)
+                }
             }
 
             task.expirationHandler = { @Sendable in
@@ -626,12 +632,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 let deviceData = deviceState.deviceData
             {
                 // this part is asynchronous, but we don't await the result
-                _ = self.devicesProxy.deleteDevice(
-                    accountNumber: accountData.number,
-                    identifier: deviceData.identifier,
-                    retryStrategy: .noRetry
-                ) { _ in
-                    // Do nothing.
+                Task {
+                    _ = await self.devicesProxy.deleteDevice(
+                        accountNumber: accountData.number,
+                        identifier: deviceData.identifier,
+                        retryStrategy: .noRetry
+                    )
                 }
             }
 

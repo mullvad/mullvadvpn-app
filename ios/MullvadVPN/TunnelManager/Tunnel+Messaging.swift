@@ -103,14 +103,6 @@ extension TunnelProtocol {
         return operation
     }
 
-    func mapObservedState(data: Data?) throws -> ObservedState {
-        if let data {
-            return try TunnelProviderReply<ObservedState>(messageData: data).value
-        } else {
-            throw EmptyTunnelProviderResponseError()
-        }
-    }
-
     /// Notify tunnel about private key rotation.
     func notifyKeyRotation(
         completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void

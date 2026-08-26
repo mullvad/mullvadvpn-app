@@ -238,7 +238,7 @@ class TunnelManagerTests: XCTestCase {
             }
         }
 
-        tunnelManager.reconnectTunnel(selectNewRelay: false)
+        try await tunnelManager.reconnectTunnel(selectNewRelay: false)
         await fulfillment(
             of: [reconnectMessageExpectation, reconnectingExpectation], enforceOrder: true
         )

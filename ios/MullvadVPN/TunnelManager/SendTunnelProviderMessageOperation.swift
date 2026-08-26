@@ -12,15 +12,6 @@ import MullvadTypes
 import NetworkExtension
 import Operations
 import PacketTunnelCore
-import UIKit
-
-/// Delay for sending tunnel provider messages to the tunnel when in connecting state.
-/// Used to workaround a bug when talking to the tunnel too early during startup may cause it
-/// to freeze.
-private let connectingStateWaitDelay: Duration = .seconds(5)
-
-/// Default timeout in seconds.
-private let defaultTimeout: Duration = .seconds(5)
 
 final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperation<Output>, @unchecked Sendable {
     typealias DecoderHandler = (Data?) throws -> Output
@@ -33,10 +24,17 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     private let decoderHandler: DecoderHandler
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private var timeoutWork: DispatchWorkItem?
-    private var waitForConnectingStateWork: DispatchWorkItem?
+    private var waitForConnectingStateTask: Task<Void, Never>?
 
     private var messageSent = false
+
+    /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
+    /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
+    /// to freeze.
+    private let connectingStateWaitDelay: Duration = .seconds(5)
+
+    /// Default timeout in seconds.
+    private let defaultTimeout: Duration = .seconds(5)
 
     init(
         dispatchQueue: DispatchQueue,
@@ -70,8 +68,6 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     }
 
     override func main() {
-        setTimeoutTimer(connectingStateWaitDelay: .zero)
-
         statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
             self?.handleVPNStatus(status)
         }
@@ -88,8 +84,7 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         removeVPNStatusObserver()
 
         // Cancel pending work.
-        timeoutWork?.cancel()
-        waitForConnectingStateWork?.cancel()
+        waitForConnectingStateTask?.cancel()
 
         // Finish operation.
         super.finish(result: result)
@@ -98,23 +93,6 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
     private func removeVPNStatusObserver() {
         statusObserver?.invalidate()
         statusObserver = nil
-    }
-
-    private func setTimeoutTimer(connectingStateWaitDelay delay: Duration) {
-        let workItem = DispatchWorkItem { [weak self] in
-            self?.finish(result: .failure(SendTunnelProviderMessageError.timeout))
-        }
-
-        // Cancel pending timeout work.
-        timeoutWork?.cancel()
-
-        // Assign new timeout work.
-        timeoutWork = workItem
-
-        // Schedule timeout work.
-        let deadline: DispatchWallTime = .now() + timeout + delay
-
-        dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
     }
 
     private func handleVPNStatus(_ status: NEVPNStatus) {
@@ -142,38 +120,42 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         }
     }
 
-    private func waitForConnectingState(block: @escaping () -> Void) {
-        // Compute amount of time elapsed since the tunnel was launched.
-        let timeElapsed: TimeInterval
-        if let startDate = tunnel.startDate {
-            timeElapsed = Date().timeIntervalSince(startDate)
-        } else {
-            timeElapsed = 0
+    private func waitForConnectingState(block: @escaping @Sendable () -> Void) {
+        Task { [weak self, tunnel] in
+            guard let self else { return }
+
+            // Compute amount of time elapsed since the tunnel was launched.
+            let timeElapsed: TimeInterval
+            if let startDate = await tunnel.startDate {
+                timeElapsed = Date().timeIntervalSince(startDate)
+            } else {
+                timeElapsed = 0
+            }
+
+            // Cancel pending work.
+            waitForConnectingStateTask?.cancel()
+            waitForConnectingStateTask = nil
+
+            // Execute right away if enough time passed since the tunnel was launched.
+            guard timeElapsed < connectingStateWaitDelay else {
+                block()
+                return
+            }
+
+            let waitDelay = connectingStateWaitDelay - timeElapsed
+
+            let task = Task {
+                try? await Task.sleep(nanoseconds: UInt64(waitDelay.milliseconds * 1_000_000))
+
+                guard !Task.isCancelled else {
+                    return
+                }
+
+                block()
+            }
+
+            waitForConnectingStateTask = task
         }
-
-        // Cancel pending work.
-        waitForConnectingStateWork?.cancel()
-        waitForConnectingStateWork = nil
-
-        // Execute right away if enough time passed since the tunnel was launched.
-        guard timeElapsed < connectingStateWaitDelay else {
-            block()
-            return
-        }
-
-        let waitDelay = connectingStateWaitDelay - timeElapsed
-        let workItem = DispatchWorkItem(block: block)
-
-        // Assign new work.
-        waitForConnectingStateWork = workItem
-
-        // Reschedule the timeout work.
-        setTimeoutTimer(connectingStateWaitDelay: waitDelay)
-
-        // Schedule delayed work.
-        let deadline: DispatchWallTime = .now() + waitDelay
-
-        dispatchQueue.asyncAfter(wallDeadline: deadline, execute: workItem)
     }
 
     private func sendMessage() {
@@ -184,7 +166,7 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         removeVPNStatusObserver()
 
         // Cancel pending delayed work.
-        waitForConnectingStateWork?.cancel()
+        waitForConnectingStateTask?.cancel()
 
         // Encode message.
         let messageData: Data

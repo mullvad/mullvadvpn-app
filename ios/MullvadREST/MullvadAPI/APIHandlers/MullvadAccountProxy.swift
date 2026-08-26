@@ -13,21 +13,19 @@ import MullvadTypes
 import Operations
 
 public protocol RESTAccountHandling: Sendable {
-    func createAccount(
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping @Sendable ProxyCompletionHandler<NewAccountData>
-    ) -> Cancellable
-
     func getAccountData(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy
     ) async -> Result<Account, Error>
 
+    func createAccount(
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<NewAccountData, Error>
+
     func deleteAccount(
         accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Void>
-    ) -> Cancellable
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Void, Error>
 }
 
 extension REST {
@@ -46,21 +44,22 @@ extension REST {
             self.dispatchQueue = dispatchQueue
             self.responseDecoder = responseDecoder
         }
-
         public func createAccount(
-            retryStrategy: REST.RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<NewAccountData>
-        ) -> Cancellable {
-            let responseHandler = rustResponseHandler(
-                decoding: NewAccountData.self,
-                with: responseDecoder
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<NewAccountData, Swift.Error> {
+            let request = APIRequest.createAccount(retryStrategy)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: NewAccountData.self,
+                    with: responseDecoder
+                )
             )
 
-            return createNetworkOperation(
-                request: .createAccount(retryStrategy),
-                responseHandler: responseHandler,
-                completionHandler: completion
-            )
+            return await task.startRequest()
         }
 
         public func getAccountData(
@@ -80,6 +79,37 @@ extension REST {
             )
 
             return await task.startRequest()
+        }
+
+        public func deleteAccount(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Void, Swift.Error> {
+            let request = APIRequest.deleteAccount(retryStrategy, accountNumber: accountNumber)
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            return await task.startRequest()
+        }
+
+        public func createAccount(
+            retryStrategy: REST.RetryStrategy,
+            completion: @escaping ProxyCompletionHandler<NewAccountData>
+        ) -> Cancellable {
+            let responseHandler = rustResponseHandler(
+                decoding: NewAccountData.self,
+                with: responseDecoder
+            )
+
+            return createNetworkOperation(
+                request: .createAccount(retryStrategy),
+                responseHandler: responseHandler,
+                completionHandler: completion
+            )
         }
 
         public func deleteAccount(

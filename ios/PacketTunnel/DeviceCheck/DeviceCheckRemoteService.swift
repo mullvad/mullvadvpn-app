@@ -29,31 +29,24 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         )
     }
 
-    func getDevice(
-        accountNumber: String,
-        identifier: String,
-        completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    ) -> Cancellable {
-        devicesProxy.getDevice(
+    func getDevice(accountNumber: String, identifier: String) async -> Result<Device, any Error> {
+        await devicesProxy.getDevice(
             accountNumber: accountNumber,
             identifier: identifier,
-            retryStrategy: .noRetry,
-            completion: completion
+            retryStrategy: .noRetry
         )
     }
 
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: WireGuard.PublicKey,
-        completion: @escaping @Sendable (Result<Device, Error>) -> Void
-    ) -> Cancellable {
-        devicesProxy.rotateDeviceKey(
+        publicKey: WireGuard.PublicKey
+    ) async -> Result<Device, Error> {
+        await devicesProxy.rotateDeviceKey(
             accountNumber: accountNumber,
             identifier: identifier,
             publicKey: publicKey,
-            retryStrategy: .default,
-            completion: completion
+            retryStrategy: .default
         )
     }
 }

@@ -144,5 +144,108 @@ extension REST {
 
             return networkOperation
         }
+
+        func getDevice(
+            accountNumber: String,
+            identifier: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Device, Swift.Error> {
+            let request = APIRequest.getDevice(retryStrategy, accountNumber: accountNumber, identifier: identifier)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: Device.self,
+                    with: responseDecoder
+                )
+            )
+
+            return await task.startRequest()
+        }
+
+        func getDevices(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<[Device], Swift.Error> {
+            let request = APIRequest.getDevices(retryStrategy, accountNumber: accountNumber)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: [Device].self,
+                    with: responseDecoder
+                )
+            )
+
+            return await task.startRequest()
+        }
+
+        func createDevice(
+            accountNumber: String,
+            request: CreateDeviceRequest,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Device, Swift.Error> {
+            let request = APIRequest.createDevice(retryStrategy, accountNumber: accountNumber, request: request)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: Device.self,
+                    with: responseDecoder
+                )
+            )
+
+            return await task.startRequest()
+        }
+
+        func deleteDevice(
+            accountNumber: String,
+            identifier: String,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Bool, Swift.Error> {
+            let request = APIRequest.deleteDevice(retryStrategy, accountNumber: accountNumber, identifier: identifier)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustEmptyResponseHandler()
+            )
+
+            let result = await task.startRequest()
+            return switch result {
+            case .success(let success):
+                .success(true)
+            case .failure(let failure):
+                .failure(failure)
+            }
+        }
+
+        func rotateDeviceKey(
+            accountNumber: String,
+            identifier: String,
+            publicKey: WireGuard.PublicKey,
+            retryStrategy: REST.RetryStrategy
+        ) async -> Result<Device, Swift.Error> {
+            let request = APIRequest.rotateDeviceKey(
+                retryStrategy, accountNumber: accountNumber, identifier: identifier, publicKey: publicKey)
+
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: Device.self,
+                    with: responseDecoder
+                )
+            )
+            return await task.startRequest()
+        }
     }
 }
