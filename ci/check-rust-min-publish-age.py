@@ -95,12 +95,14 @@ def crates_io_versions(lock_text: str) -> set[tuple[str, str]]:
     }
 
 
+def git(*args: str) -> subprocess.CompletedProcess[str]:
+    """Run a git command in the repo root. What a failure means is up to the caller."""
+    return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True)
+
+
 def git_show(revision: str, path: str) -> str | None:
     """Contents of `path` at git `revision`, or None if it doesn't exist there."""
-    result = subprocess.run(
-        ["git", "show", f"{revision}:{path}"],
-        cwd=REPO_ROOT, capture_output=True, text=True,
-    )
+    result = git("show", f"{revision}:{path}")
     return result.stdout if result.returncode == 0 else None
 
 
@@ -159,16 +161,11 @@ def main() -> int:
     # UTC keeps `now` timezone-aware for subtracting the index's UTC pubtimes.
     now = datetime.now(timezone.utc)
 
-    if base_ref is not None and subprocess.run(
-        ["git", "rev-parse", "--verify", "--quiet", base_ref],
-        cwd=REPO_ROOT, capture_output=True,
-    ).returncode != 0:
-        sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
+    if base_ref is not None:
+        if git("rev-parse", "--verify", "--quiet", base_ref).returncode != 0:
+            sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
 
-    lockfiles = sorted(subprocess.run(
-        ["git", "ls-files", "*Cargo.lock"],
-        cwd=REPO_ROOT, capture_output=True, text=True,
-    ).stdout.split())
+    lockfiles = sorted(git("ls-files", "*Cargo.lock").stdout.split())
 
     violations = []
     num_checked_crates = 0
