@@ -79,6 +79,7 @@ EOM
 )
 
 ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
+NUSHELL_COMPLETIONS_DIR="/usr/local/share/nushell/vendor/autoload/"
 
 if [[ -d "/opt/homebrew/share/fish/vendor_completions.d/" ]]; then
     FISH_COMPLETIONS_DIR="/opt/homebrew/share/fish/vendor_completions.d/"
@@ -105,6 +106,9 @@ ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-problem-report" 
 
 mkdir -p "$ZSH_COMPLETIONS_DIR"
 ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" "$ZSH_COMPLETIONS_DIR/_mullvad"
+
+mkdir -p "$NUSHELL_COMPLETIONS_DIR"
+ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.nu" "$NUSHELL_COMPLETIONS_DIR/mullvad.nu"
 
 if [[ -d "$FISH_COMPLETIONS_DIR" ]]; then
     ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.fish" "$FISH_COMPLETIONS_DIR/mullvad.fish"
