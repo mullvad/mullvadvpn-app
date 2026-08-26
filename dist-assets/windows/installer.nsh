@@ -555,6 +555,17 @@ ManifestDPIAware true
 
 !define AddCLIToEnvironPath '!insertmacro "AddCLIToEnvironPath"'
 
+# Install Nushell completions in its machine-wide vendor autoload directory.
+!macro InstallShellCompletions
+
+	SetShellVarContext all
+	CreateDirectory "$LOCALAPPDATA\nushell\vendor\autoload"
+	CopyFiles /SILENT "$INSTDIR\resources\mullvad.nu" "$LOCALAPPDATA\nushell\vendor\autoload\mullvad.nu"
+
+!macroend
+
+!define InstallShellCompletions '!insertmacro "InstallShellCompletions"'
+
 #
 # RemoveCLIFromEnvironPath
 #
@@ -587,6 +598,15 @@ ManifestDPIAware true
 !macroend
 
 !define RemoveCLIFromEnvironPath '!insertmacro "RemoveCLIFromEnvironPath"'
+
+!macro RemoveShellCompletions
+
+	SetShellVarContext all
+	Delete "$LOCALAPPDATA\nushell\vendor\autoload\mullvad.nu"
+
+!macroend
+
+!define RemoveShellCompletions '!insertmacro "RemoveShellCompletions"'
 
 #
 # ClearFirewallRules
@@ -816,6 +836,7 @@ ManifestDPIAware true
 	${EndIf}
 
 	${AddCLIToEnvironPath}
+	${InstallShellCompletions}
 	${InstallTrayIcon}
 
 	Goto customInstall_skip_abort
@@ -1210,6 +1231,7 @@ ManifestDPIAware true
 	customRemoveFiles_final_cleanup:
 
 	${RemoveCLIFromEnvironPath}
+	${RemoveShellCompletions}
 
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
