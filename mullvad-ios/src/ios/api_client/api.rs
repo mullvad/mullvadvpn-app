@@ -1,8 +1,7 @@
 use chrono::{DateTime, Utc};
 use std::ffi::c_void;
-use std::os::raw::c_char;
 
-use mullvad_api::relay_list_transparency::RelayListDigest;
+use mullvad_api::relay_list_transparency::{RelayListDigest, SigsumPayload};
 use mullvad_api::{
     ApiProxy, RelayListProxy,
     rest::{self, MullvadRestHandle},
@@ -110,26 +109,35 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 /// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
 /// by calling `mullvad_api_init_new`.
 ///
-/// `etag` must be a pointer to a null terminated string.
-///
 /// `retry_strategy` must have been created by a call to either of the following functions
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+///
+/// `digest` must point to valid checksum consisting of 32 bytes, or null if not used.
+///
+/// `digest_timestamp` should be a valid UTC timestamp, or 0 if not used.
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_ios_get_relays(
     api_context: SwiftApiContext,
     retry_strategy: SwiftRetryStrategy,
-    _etag: *const c_char,
+    digest: *const u8,
+    digest_timestamp: i64,
 ) -> SwiftCancelHandle {
-    // <<<<<<< HEAD
-    let mut maybe_etag: Option<ETag> = None;
-    if !etag.is_null() {
-        // SAFETY: See param documentation for `etag`.
-        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-        maybe_etag = Some(ETag(String::from(unwrapped_tag)));
-    }
-
+    let digest = if !digest.is_null() {
+        let mut bytes = [0; 32];
+        // Safety: See `digest` above
+        let source = unsafe { std::slice::from_raw_parts(digest, 32) };
+        bytes.as_mut_slice().copy_from_slice(source);
+        Some(RelayListDigest::new(bytes))
+    } else {
+        None
+    };
+    let timestamp = if digest_timestamp != 0 {
+        DateTime::from_timestamp_millis(digest_timestamp)
+    } else {
+        None
+    };
     RequestCancelHandle::new(
         api_context,
         retry_strategy,
@@ -137,26 +145,9 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
             match mullvad_ios_get_relays_inner(
                 api_context.rest_handle(),
                 retry_strategy,
-                maybe_etag,
+                digest,
+                timestamp,
             )
-// =======
-//     // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-//     let completion_handler =
-//         SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-//
-//     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-//         completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
-//         return SwiftCancelHandle::empty();
-//     };
-//
-//     let api_context = api_context.rust_context();
-//     // SAFETY: See notes for `into_rust`
-//     let retry_strategy = unsafe { retry_strategy.into_rust() };
-//
-//     let completion = completion_handler.clone();
-//     let task = tokio_handle.clone().spawn(async move {
-//         match mullvad_ios_get_relays_inner(api_context.rest_handle(), retry_strategy, None, None)
-// >>>>>>> 08bec497dd (Make it work)
             .await
             {
                 Ok(response) => completion_handler.finish(response),
@@ -188,8 +179,11 @@ async fn mullvad_ios_get_relays_inner(
     digest_timestamp: Option<DateTime<Utc>>,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = RelayListProxy::new(rest_client);
+    let sigsum_payload = digest
+        .zip(digest_timestamp)
+        .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
 
-    let future_factory = || api.relay_list_response(digest.clone(), digest_timestamp);
+    let future_factory = || api.relay_list_response(sigsum_payload.clone());
 
     let response = retry_request(retry_strategy, future_factory).await?;
     SwiftMullvadApiResponse::with_sigsum_verified_body(response)
