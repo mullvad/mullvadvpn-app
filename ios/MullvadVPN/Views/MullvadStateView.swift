@@ -163,7 +163,7 @@ final class StateViewModel: Identifiable, ObservableObject {
 // MARK: - Main State View
 struct MullvadStateView: View {
     @ObservedObject var viewModel: StateViewModel
-    @ScaledMetric private var actionHeight: CGFloat = 36.0
+    @State private var actionHeight: CGFloat = 0
 
     var body: some View {
         ZStack {
@@ -192,7 +192,7 @@ struct MullvadStateView: View {
                             StyledTextView(item: explanation)
                         }
 
-                        Spacer().frame(height: actionHeight * CGFloat(viewModel.actions.count))
+                        Spacer().frame(height: actionHeight)
                     }
                     .padding(.top, Layout.topPadding)
                     .padding(.horizontal, Layout.horizontalPadding)
@@ -201,8 +201,12 @@ struct MullvadStateView: View {
             }
             VStack(spacing: 12) {
                 Spacer()
-                ForEach(viewModel.actions) { action in
-                    ActionButton(action: action)
+                Group {
+                    ForEach(viewModel.actions) { action in
+                        ActionButton(action: action)
+                    }
+                }.sizeOfView { size in
+                    self.actionHeight = size.height
                 }
             }
         }
