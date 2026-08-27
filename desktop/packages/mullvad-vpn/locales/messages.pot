@@ -3273,6 +3273,9 @@ msgstr ""
 msgid "DNS settings"
 msgstr ""
 
+msgid "DNS settings might not go into effect immediately."
+msgstr ""
+
 msgid "Delete \"%s\"?"
 msgstr ""
 
@@ -3439,6 +3442,9 @@ msgid "If the split tunneling feature is used, then the app queries your system 
 msgstr ""
 
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr ""
+
+msgid "If you have any issues"
 msgstr ""
 
 msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
@@ -3765,6 +3771,9 @@ msgstr ""
 msgid "Suggested multihop entry"
 msgstr ""
 
+msgid "System network settings"
+msgstr ""
+
 msgid "TCP"
 msgstr ""
 
@@ -3865,6 +3874,9 @@ msgid "Toggle VPN"
 msgstr ""
 
 msgid "Too many attempts, please try again later"
+msgstr ""
+
+msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
 msgstr ""
 
 msgid "UDP"

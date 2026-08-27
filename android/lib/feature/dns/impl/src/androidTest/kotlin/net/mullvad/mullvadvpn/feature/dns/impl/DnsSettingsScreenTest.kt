@@ -67,6 +67,7 @@ class DnsSettingsScreenTest {
         onToggleBlockAdultContent: (Boolean) -> Unit = {},
         onToggleAllContentBlockers: (Boolean) -> Unit = {},
         navigateToMalwareInfo: () -> Unit = {},
+        navigateToNetworkSettings: () -> Unit = {},
         onBackClick: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -85,6 +86,7 @@ class DnsSettingsScreenTest {
                 onToggleBlockAdultContent = onToggleBlockAdultContent,
                 onToggleAllContentBlockers = onToggleAllContentBlockers,
                 navigateToMalwareInfo = navigateToMalwareInfo,
+                navigateToNetworkSettings = navigateToNetworkSettings,
                 onBackClick = onBackClick,
             )
         }

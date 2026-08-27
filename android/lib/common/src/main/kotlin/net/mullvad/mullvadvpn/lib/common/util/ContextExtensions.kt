@@ -7,6 +7,7 @@ import android.net.Uri
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS
 import android.provider.Settings.ACTION_VPN_SETTINGS
+import android.provider.Settings.ACTION_WIRELESS_SETTINGS
 import android.provider.Settings.EXTRA_APP_PACKAGE
 import androidx.core.net.toUri
 import arrow.core.Either
@@ -52,4 +53,12 @@ fun Context.openAppInfoNotificationSettings(): Either<ActivityNotFoundException,
             startActivity(intent)
         }
         .onLeft { Logger.e("Failed to open app info notification settings", it) }
+        .mapLeft { it as? ActivityNotFoundException ?: throw it }
+
+fun Context.openNetworkSettings(): Either<ActivityNotFoundException, Unit> =
+    Either.catch {
+            val intent = Intent(ACTION_WIRELESS_SETTINGS)
+            startActivity(intent)
+        }
+        .onLeft { Logger.e("Failed to open network settings", it) }
         .mapLeft { it as? ActivityNotFoundException ?: throw it }
