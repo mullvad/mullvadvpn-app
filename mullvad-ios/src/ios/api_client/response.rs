@@ -113,10 +113,10 @@ impl ApiResponse {
         }
     }
 
-    pub fn other<S: Into<String>>(error: S) -> Self {
+    pub fn bad_public_key_size() -> Self {
         Self {
             success: false,
-            error_description: Some(error.into()),
+            error_description: Some("bad public key size".to_string()),
             body: None,
             etag: None,
             status_code: 0,
