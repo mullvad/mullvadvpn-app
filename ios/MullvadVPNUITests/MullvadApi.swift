@@ -10,6 +10,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
 import MullvadRustRuntime
 
 struct MullvadApiError: Error {
@@ -150,8 +151,8 @@ class MullvadApi {
             apiResponse = response
             semaphore.signal()
         }
-        let strategy = mullvadApiRetryStrategyConstant(maxRetries: 3, delaySec: 1)
-        var handle = call(strategy)
+        let strategy = REST.RetryStrategy.apiRequest.toRustStrategy()
+        let handle = call(strategy)
         handle.startTask(completionCookie: completion)
         semaphore.wait()
 
