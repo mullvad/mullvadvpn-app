@@ -6,3 +6,4 @@ ffi_module_name = "MullvadRustRuntimeProxy"
 generate_module_map = false
 # Records as immutable `let` fields.
 generate_immutable_records = true
+generate_codable_conformance = true
