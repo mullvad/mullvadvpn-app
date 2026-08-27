@@ -23,8 +23,6 @@ pub struct SwiftMullvadApiResponse {
 
 impl SwiftMullvadApiResponse {
     pub async fn with_body(response: Response<hyper::body::Incoming>) -> Result<Self, rest::Error> {
-        // let maybe_etag = None;
-
         let status_code: u16 = response.status().into();
         let body: Vec<u8> = response.body().await?;
 
