@@ -33,7 +33,7 @@ use talpid_tunnel_config_client::{
     self, EphemeralPeer, RelayConfigService, request_ephemeral_peer_with,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::sync::Notify;
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 use tunnel_obfuscation::create_local_socket_obfuscator;
@@ -177,10 +177,16 @@ pub trait TunnelCallbackHandler: Send + Sync + 'static {
     fn on_error(&self, message: String);
 }
 
+pub(crate) enum TunnelAdapterChannelCommand {
+    Wake,
+    Suspend,
+    Stop,
+}
+
 /// A single tunnel connection attempt.
 pub struct IosTunnelAdapter {
     stopped: Arc<AtomicBool>,
-    stop_notify: Arc<Notify>,
+    tx: UnboundedSender<TunnelAdapterChannelCommand>,
     task_handle: Option<tokio::task::JoinHandle<()>>,
 }
 
@@ -192,19 +198,13 @@ impl IosTunnelAdapter {
         callback: Arc<dyn TunnelCallbackHandler>,
     ) -> Self {
         let stopped = Arc::new(AtomicBool::new(false));
-        let stop_notify = Arc::new(Notify::new());
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
-        let task = runtime.spawn(Self::run(
-            config,
-            udp,
-            callback,
-            stopped.clone(),
-            stop_notify.clone(),
-        ));
+        let task = runtime.spawn(Self::run(config, udp, callback, rx, stopped.clone()));
 
         Self {
             stopped,
-            stop_notify,
+            tx,
             task_handle: Some(task),
         }
     }
@@ -213,7 +213,8 @@ impl IosTunnelAdapter {
         if self.stopped.swap(true, Ordering::SeqCst) {
             return;
         }
-        self.stop_notify.notify_waiters();
+        _ = self.tx.send(TunnelAdapterChannelCommand::Stop);
+        log::debug!("Stopping device");
         if let Some(handle) = &self.task_handle {
             handle.abort();
         }
@@ -230,26 +231,28 @@ impl IosTunnelAdapter {
         if self.stopped.load(Ordering::SeqCst) {
             return;
         }
-        log::debug!("suspend: not yet implemented");
+        log::debug!("Suspending device");
+        _ = self.tx.send(TunnelAdapterChannelCommand::Suspend);
     }
 
     pub fn wake(&self) {
         if self.stopped.load(Ordering::SeqCst) {
             return;
         }
-        log::debug!("wake: not yet implemented");
+        log::debug!("Awaking device");
+        _ = self.tx.send(TunnelAdapterChannelCommand::Wake);
     }
 
     async fn run(
         config: TunnelConfig,
         udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
+        rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: Arc<AtomicBool>,
-        stop_notify: Arc<Notify>,
     ) {
         // Every phase below returns a `Result`; the callback is fired exactly
         // once, here, based on the final outcome.
-        match Self::run_inner(config, udp, &callback, &stopped, &stop_notify).await {
+        match Self::run_inner(config, udp, &callback, rx, &stopped).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(TunnelError::Timeout) => Self::fire_timeout(&stopped, &callback),
             Err(TunnelError::Error(msg)) => Self::fire_error(&stopped, &callback, msg),
@@ -260,8 +263,8 @@ impl IosTunnelAdapter {
         mut config: TunnelConfig,
         udp: BoundUdpTransports,
         callback: &Arc<dyn TunnelCallbackHandler>,
+        mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
-        stop_notify: &Notify,
     ) -> Result<(), TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
         let tun_dev = IosTunDevice::new(config.tun_fd, config.mtu)
@@ -307,7 +310,7 @@ impl IosTunnelAdapter {
             &smoltcp_handle,
             &config,
             stopped,
-            stop_notify,
+            &mut rx,
         )
         .await
         {
@@ -324,7 +327,7 @@ impl IosTunnelAdapter {
 
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
-        Self::monitor_connectivity(&devices, stopped, stop_notify).await;
+        Self::monitor_connectivity(&devices, rx, stopped).await;
         devices.stop().await;
         Err(TunnelError::Timeout)
     }
@@ -567,7 +570,7 @@ impl IosTunnelAdapter {
         smoltcp_handle: &SmoltcpHandle,
         config: &TunnelConfig,
         stopped: &AtomicBool,
-        stop_notify: &Notify,
+        rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
     ) -> Result<bool, TunnelError> {
         // Bind the socket to the pinger's ident so echo replies reach it.
         let ping_ident: u16 = rand::random();
@@ -587,7 +590,9 @@ impl IosTunnelAdapter {
         Ok(tokio::select! {
             result = Self::wait_for_connectivity(devices, &mut pinger, stopped) => result,
             _ = tokio::time::sleep(establish_timeout) => false,
-            _ = stop_notify.notified() => false,
+            event = rx.recv() =>
+                !matches!(event, Some(TunnelAdapterChannelCommand::Stop))
+            ,
         })
     }
 
@@ -814,14 +819,31 @@ impl IosTunnelAdapter {
     }
 
     /// Monitor an established connection. Returns when connectivity is lost or stopped.
-    async fn monitor_connectivity(devices: &Devices, stopped: &AtomicBool, stop_notify: &Notify) {
+    async fn monitor_connectivity(
+        devices: &Devices,
+        mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
+        stopped: &AtomicBool,
+    ) {
         let mut last_rx_bytes: usize = 0;
         let mut last_rx_time = Instant::now();
 
         loop {
             tokio::select! {
                 _ = tokio::time::sleep(Duration::from_secs(1)) => {}
-                _ = stop_notify.notified() => return,
+                event = rx.recv() => {
+                    let Some(event) = event else {
+                        break;
+                    };
+                    match event {
+                        TunnelAdapterChannelCommand::Wake => {
+                            devices.wake().await;
+                        },
+                        TunnelAdapterChannelCommand::Suspend => {
+                            devices.suspend().await;
+                        },
+                        TunnelAdapterChannelCommand::Stop => return,
+                    };
+                }
             }
 
             if stopped.load(Ordering::SeqCst) {
@@ -946,6 +968,27 @@ impl Devices {
                 exit.stop().await;
             }
         }
+    }
+
+    async fn suspend(&self) {
+        match self {
+            Devices::Singlehop(dev) => dev.suspend().await,
+            Devices::Multihop { entry, exit } => {
+                entry.suspend().await;
+                exit.suspend().await;
+            }
+        }
+    }
+
+    async fn wake(&self) {
+        _ = match self {
+            Devices::Singlehop(dev) => dev.resume().await,
+            Devices::Multihop { entry, exit } => {
+                _ = entry.resume().await;
+                _ = exit.resume().await;
+                Ok(())
+            }
+        };
     }
 
     /// Peer stats of the ingress device - the one whose rx reflects tunnel
