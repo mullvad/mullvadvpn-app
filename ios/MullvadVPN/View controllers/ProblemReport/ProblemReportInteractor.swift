@@ -11,6 +11,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import Operations
 
