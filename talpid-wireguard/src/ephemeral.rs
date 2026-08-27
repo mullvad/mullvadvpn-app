@@ -272,11 +272,10 @@ async fn request_ephemeral_peer(
     );
 
     // TCP socket with extra reliability settings
-    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new().map_err(|error| {
-        CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(
-            talpid_tunnel_config_client::Error::TcpSocketError(error),
-        ))
-    })?;
+    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
+        .map_err(talpid_tunnel_config_client::Error::TcpSocketError)
+        .map_err(Error::EphemeralPeerNegotiationError)
+        .map_err(CloseMsg::SetupError)?;
 
     let start_time = Instant::now();
     let request_future = talpid_tunnel_config_client::request_ephemeral_peer(
@@ -293,15 +292,13 @@ async fn request_ephemeral_peer(
             .map_err(Error::EphemeralPeerNegotiationError)
             .map_err(CloseMsg::SetupError)?,
         Err(_) => {
-            let tcp_info = talpid_tunnel_config_client::tcp_info::query_tcp_info(&tcp_socket);
             let elapsed = start_time.elapsed();
-
             log::warn!(
                 "Timeout while negotiating ephemeral peer \
                  (retry {retry_attempt}, timeout {timeout:?}, PQ={enable_pq}, \
                  DAITA={enable_daita}, elapsed {elapsed:?})"
             );
-            if let Some(info) = tcp_info {
+            if let Some(info) = tcp_socket.query_tcp_info() {
                 log::warn!("{info:?}");
             }
 
