@@ -188,34 +188,11 @@ pub mod tcp_info {
         }
     }
 
-    /// Normalized TCP diagnostics snapshot, populated from platform-specific APIs.
-    #[derive(Debug)]
-    pub struct TcpInfoSnapshot {
-        /// TCP connection state.
-        pub state: TcpState,
-        /// Smoothed round-trip time in microseconds.
-        pub rtt_us: u32,
-        /// Bytes sent (kernel-level).
-        pub bytes_sent: u64,
-        /// Bytes received (kernel-level).
-        pub bytes_received: u64,
-        /// Total retransmissions.
-        pub retransmits: u32,
-        /// Congestion window size.
-        pub cwnd: u32,
-        /// RTT variance in microseconds.
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        pub rtt_var_us: u32,
-        /// SYN retransmissions (handshake phase).
-        #[cfg(target_os = "windows")]
-        pub syn_retransmits: u32,
-        /// RTO timeout episodes.
-        #[cfg(target_os = "windows")]
-        pub timeout_episodes: u32,
-        /// Bytes currently in flight (sent but not yet ACKed).
-        #[cfg(target_os = "windows")]
-        pub bytes_in_flight: u32,
-    }
+    /// Platform-specific TCP diagnostics snapshot, populated from the
+    /// platform's kernel TCP info API. The available fields differ per
+    /// platform; see the concrete type on the current target.
+    #[cfg(not(target_os = "ios"))]
+    pub type TcpInfoSnapshot = platform::TcpInfoSnapshot;
 
     /// Query TCP info from the given socket. Returns `None` if the query fails.
     #[cfg(not(target_os = "ios"))]
@@ -241,6 +218,25 @@ pub mod tcp_info {
             libc::tcp_info
         );
 
+        /// TCP diagnostics snapshot from Linux's `TCP_INFO`.
+        #[derive(Debug)]
+        pub struct TcpInfoSnapshot {
+            /// TCP connection state.
+            pub state: TcpState,
+            /// Smoothed round-trip time in microseconds.
+            pub rtt_us: u32,
+            /// Bytes acknowledged by the peer.
+            pub bytes_acked: u64,
+            /// Bytes received.
+            pub bytes_received: u64,
+            /// Total retransmitted segments.
+            pub retransmits: u32,
+            /// Congestion window size in segments (MSS-sized packets).
+            pub cwnd_segments: u32,
+            /// RTT variance in microseconds.
+            pub rtt_var_us: u32,
+        }
+
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
             let info = nix::sys::socket::getsockopt(socket, TcpInfoOpt)
                 .map_err(|err| {
@@ -251,10 +247,10 @@ pub mod tcp_info {
             Some(TcpInfoSnapshot {
                 state: linux_tcp_state(info.tcpi_state),
                 rtt_us: info.tcpi_rtt,
-                bytes_sent: info.tcpi_bytes_acked,
+                bytes_acked: info.tcpi_bytes_acked,
                 bytes_received: info.tcpi_bytes_received,
                 retransmits: info.tcpi_total_retrans,
-                cwnd: info.tcpi_snd_cwnd,
+                cwnd_segments: info.tcpi_snd_cwnd,
                 rtt_var_us: info.tcpi_rttvar,
             })
         }
@@ -291,6 +287,25 @@ pub mod tcp_info {
             libc::tcp_connection_info
         );
 
+        /// TCP diagnostics snapshot from macOS's `TCP_CONNECTION_INFO`.
+        #[derive(Debug)]
+        pub struct TcpInfoSnapshot {
+            /// TCP connection state.
+            pub state: TcpState,
+            /// Smoothed round-trip time in microseconds.
+            pub rtt_us: u32,
+            /// Bytes sent.
+            pub bytes_sent: u64,
+            /// Bytes received.
+            pub bytes_received: u64,
+            /// Total retransmitted bytes.
+            pub retransmitted_bytes: u32,
+            /// Congestion window size in bytes.
+            pub cwnd_bytes: u32,
+            /// RTT variance in microseconds.
+            pub rtt_var_us: u32,
+        }
+
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
             let info = nix::sys::socket::getsockopt(socket, TcpConnectionInfoOpt)
                 .map_err(|err| {
@@ -303,8 +318,8 @@ pub mod tcp_info {
                 rtt_us: info.tcpi_srtt,
                 bytes_sent: info.tcpi_txbytes,
                 bytes_received: info.tcpi_rxbytes,
-                retransmits: u32::try_from(info.tcpi_txretransmitbytes).unwrap_or(u32::MAX),
-                cwnd: info.tcpi_snd_cwnd,
+                retransmitted_bytes: u32::try_from(info.tcpi_txretransmitbytes).unwrap_or(u32::MAX),
+                cwnd_bytes: info.tcpi_snd_cwnd,
                 rtt_var_us: info.tcpi_rttvar,
             })
         }
@@ -335,6 +350,29 @@ pub mod tcp_info {
         use windows_sys::Win32::Networking::WinSock::{
             SIO_TCP_INFO, SOCKET, TCP_INFO_v0, TCPSTATE, WSAIoctl,
         };
+
+        /// TCP diagnostics snapshot from Windows's `SIO_TCP_INFO`.
+        #[derive(Debug)]
+        pub struct TcpInfoSnapshot {
+            /// TCP connection state.
+            pub state: TcpState,
+            /// Smoothed round-trip time in microseconds.
+            pub rtt_us: u32,
+            /// Bytes sent.
+            pub bytes_sent: u64,
+            /// Bytes received.
+            pub bytes_received: u64,
+            /// Total retransmitted bytes.
+            pub retransmitted_bytes: u32,
+            /// Congestion window size in bytes.
+            pub cwnd_bytes: u32,
+            /// SYN retransmissions (handshake phase).
+            pub syn_retransmits: u32,
+            /// RTO timeout episodes.
+            pub timeout_episodes: u32,
+            /// Bytes currently in flight (sent but not yet ACKed).
+            pub bytes_in_flight: u32,
+        }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
             let raw = socket.as_raw_socket() as SOCKET;
@@ -380,8 +418,8 @@ pub mod tcp_info {
                 rtt_us: info.RttUs,
                 bytes_sent: info.BytesOut,
                 bytes_received: info.BytesIn,
-                retransmits: info.BytesRetrans,
-                cwnd: info.Cwnd,
+                retransmitted_bytes: info.BytesRetrans,
+                cwnd_bytes: info.Cwnd,
                 syn_retransmits: u32::from(info.SynRetrans),
                 timeout_episodes: info.TimeoutEpisodes,
                 bytes_in_flight: info.BytesInFlight,
@@ -417,6 +455,10 @@ pub mod tcp_info {
     )))]
     mod platform {
         use super::*;
+
+        /// TCP diagnostics are not available on this platform.
+        #[derive(Debug)]
+        pub struct TcpInfoSnapshot {}
 
         pub fn query(_socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
             log::debug!("TCP info querying not supported on this platform");
