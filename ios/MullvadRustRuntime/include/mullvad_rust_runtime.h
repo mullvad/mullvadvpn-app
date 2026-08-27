@@ -79,9 +79,17 @@ typedef struct CompletionCookie {
   void *inner;
 } CompletionCookie;
 
+typedef struct MockEndpoint {
+  const char *path;
+  uintptr_t response_code;
+  int8_t *response_body;
+} MockEndpoint;
+
 typedef struct SwiftServerMock {
   const void *server_ptr;
-  const void *mock_ptr;
+  const void *mocks_ptr;
+  uintptr_t mocks_len;
+  uintptr_t mocks_capacity;
   uint16_t port;
 } SwiftServerMock;
 
@@ -568,19 +576,37 @@ void mullvad_api_cstring_drop(char *cstr_ptr);
 /**
  * # Safety
  *
- * `method` must be a pointer to a null terminated string representing the http method.
- *
  * `path` must be a pointer to a null terminated string representing the url path.
  *
  * `response_code` must be a usize representing the http response code.
  *
  * `response_body` must be a pointer to a null terminated string representing the body.
  *
+ * This must be used in conjuction with [mullvad_api_mock_get] and subsequently [mullvad_api_mock_drop]
+ * to make sure it is properly dropped.
+ */
+struct MockEndpoint create_mock_endpoint(const char *path,
+                                         uintptr_t response_code,
+                                         const int8_t *response_body);
+
+/**
+ * # Safety
+ *
+ * `endpoints` must be a pointer to an array of [MockEndpoint]s.
+ *
+ * `endpoint_count` must be a usize matching the length of the array
+ *
+ * Each [MockEndpoint] must fulfill the following:
+ * - `path` must be a pointer to a null terminated string representing the url path.
+ *
+ * - `response_code` must be a usize representing the http response code.
+ *
+ * - `response_body` must be a pointer to a null terminated string representing the body.
+ *
  * This function is safe.
  */
-struct SwiftServerMock mullvad_api_mock_get(const char *path,
-                                            uintptr_t response_code,
-                                            const uint8_t *response_body);
+struct SwiftServerMock mullvad_api_mock_get(const struct MockEndpoint *endpoints,
+                                            uintptr_t endpoint_count);
 
 /**
  * # Safety
