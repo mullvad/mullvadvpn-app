@@ -60,7 +60,9 @@ locked_down_paths=$(\
 
 
 unsigned_commits_exist=0
+unsigned_paths=()
 important_file_was_removed=0
+important_file_paths=()
 for locked_path in $locked_down_paths; do
     echo "Checking $locked_path"
 
@@ -72,6 +74,7 @@ for locked_path in $locked_down_paths; do
         if ! git verify-commit "$commit" 2> /dev/null; then
             echo "Commit $commit which changed $locked_path is not signed."
             unsigned_commits_exist=1
+            unsigned_paths+=("$locked_path")
         fi
     done
 
@@ -79,10 +82,30 @@ for locked_path in $locked_down_paths; do
     if [[ ! -e "$REPO_DIR/$locked_path" ]]; then
         echo "$locked_path was removed. If this was intentional, remove it from 'verify-locked-down-signatures.yml'"
         important_file_was_removed=1
+        important_file_paths+=("$locked_path")
     fi
 done
 
 if [[ "$unsigned_commits_exist" != 0 || "$important_file_was_removed" != 0 ]]; then
+    if (( ${#unsigned_paths[@]} )); then
+        echo
+        echo "The following files are changed but not correctly signed:"
+        for unsigned in "${unsigned_paths[@]}"; do
+            echo "$unsigned"
+        done
+    fi
+
+    if (( ${#important_file_paths[@]} )); then
+        echo
+        echo "The following files were removed:"
+        for important_file in "${important_file_paths[@]}"; do
+            echo "$important_file"
+        done
+    fi
+
+    echo
+    echo "ERROR: Found offenses to locked down paths, see above for more information"
+
     exit 1
 fi
 
