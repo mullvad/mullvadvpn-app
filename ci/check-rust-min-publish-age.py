@@ -132,22 +132,41 @@ def index_url(name: str) -> str:
     return f"{INDEX_BASE}/{path}"
 
 
-# Memoizes pubtimes() so each crate's index is fetched from the network at most once.
-_pubtime_cache: dict[str, dict[str, str]] = {}
-
-
 def pubtimes(name: str) -> dict[str, str]:
     """Map of version -> pubtime for a crate, read from the sparse index."""
-    if name not in _pubtime_cache:
-        request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
-        try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                body = response.read().decode()
-        except urllib.error.URLError as e:
-            sys.exit(f"error: failed to fetch crates.io index for {name!r}: {e}")
-        entries = (json.loads(line) for line in body.splitlines() if line.strip())
-        _pubtime_cache[name] = {e["vers"]: e["pubtime"] for e in entries if e.get("pubtime")}
-    return _pubtime_cache[name]
+    request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            body = response.read().decode()
+    except urllib.error.URLError as e:
+        sys.exit(f"error: failed to fetch crates.io index for {name!r}: {e}")
+    entries = (json.loads(line) for line in body.splitlines() if line.strip())
+    return {e["vers"]: e["pubtime"] for e in entries if e.get("pubtime")}
+
+
+def versions_to_check(lockfiles: list[str], base_ref: str | None,
+                      allowlist: set[str]) -> dict[str, dict[str, list[str]]]:
+    """Crate name -> version -> the lockfiles that version was found in.
+
+    Grouped by crate name because one index request answers for all of its
+    versions, and lockfiles overlap heavily.
+
+    With a base_ref, only the versions the working tree adds on top of that git
+    ref are included. With None, every crates.io version in the lockfiles is.
+    """
+    crates: dict[str, dict[str, list[str]]] = {}
+    for lockfile in lockfiles:
+        versions = crates_io_versions((REPO_ROOT / lockfile).read_text())
+        if base_ref is not None:
+            # A lockfile that does not exist at the base ref is entirely new, so
+            # every version in it gets checked.
+            base_text = git_show(base_ref, lockfile)
+            if base_text is not None:
+                versions -= crates_io_versions(base_text)
+        for name, version in versions:
+            if name not in allowlist:
+                crates.setdefault(name, {}).setdefault(version, []).append(lockfile)
+    return crates
 
 
 def parse_args() -> argparse.Namespace:
@@ -178,21 +197,15 @@ def main() -> int:
             sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
 
     lockfiles = tracked_lockfiles()
+    crates = versions_to_check(lockfiles, base_ref, allowlist)
 
     violations = []
     num_checked_versions = 0
-    for lock in lockfiles:
-        head_crates = crates_io_versions((REPO_ROOT / lock).read_text())
-        # With no base ref, check the whole lockfile; otherwise only the crates.io
-        # versions the working tree adds on top of that ref.
-        base_ref_crates: set[tuple[str, str]] = set()
-        if base_ref is not None:
-            base_text = git_show(base_ref, lock)
-            base_ref_crates = crates_io_versions(base_text) if base_text else set()
-        for name, version in sorted(head_crates - base_ref_crates):
-            if name in allowlist:
-                continue
-            pubtime = pubtimes(name).get(version)
+    for name, versions in sorted(crates.items()):
+        # One index request answers for every version of a crate.
+        crate_pubtimes = pubtimes(name)
+        for version, version_lockfiles in sorted(versions.items()):
+            pubtime = crate_pubtimes.get(version)
             if pubtime is None:
                 # crates.io backfills pubtime on every version, so a miss here is
                 # an anomaly (e.g. an index change); fail loudly rather than skip.
@@ -202,7 +215,7 @@ def main() -> int:
             age = now - datetime.fromisoformat(pubtime.replace("Z", "+00:00"))
             if age < min_publish_age.duration:
                 violations.append(
-                    f"{name} {version} ({lock}): published "
+                    f"{name} {version} ({', '.join(version_lockfiles)}): published "
                     f"{age.total_seconds() / 86400:.1f} days ago, minimum is "
                     f"{min_publish_age.text}"
                 )
