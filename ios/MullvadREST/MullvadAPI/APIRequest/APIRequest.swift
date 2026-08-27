@@ -7,6 +7,7 @@
 //   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
 // SPDX-License-Identifier: GPL-3.0-only
+import MullvadRustRuntime
 import MullvadTypes
 
 public enum APIRequest: Codable, Sendable {
