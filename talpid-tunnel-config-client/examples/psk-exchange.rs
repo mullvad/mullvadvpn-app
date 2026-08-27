@@ -35,7 +35,7 @@ async fn main() {
     .await
     .unwrap();
 
-    if let Some(info) = talpid_tunnel_config_client::tcp_info::query_tcp_info(&tcp_socket) {
+    if let Some(info) = tcp_socket.query_tcp_info() {
         println!("TCP info after request: {info:?}");
     }
 

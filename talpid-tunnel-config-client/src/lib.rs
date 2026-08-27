@@ -19,8 +19,6 @@ mod ml_kem;
 #[cfg(not(target_os = "ios"))]
 pub mod socket;
 
-pub mod tcp_info;
-
 #[expect(clippy::allow_attributes)]
 mod proto {
     tonic::include_proto!("ephemeralpeer");
