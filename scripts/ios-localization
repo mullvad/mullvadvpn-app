@@ -28,7 +28,8 @@ function main {
 }
 
 function upload_to_crowdin {
-  local branch_args=$(get_branch_args "${1:-}")
+  local branch_args
+  branch_args=$(get_branch_args "${1:-}")
   local log_appendix=""
 
   if [ -n "$branch_args" ]; then
@@ -39,13 +40,14 @@ function upload_to_crowdin {
   prepare_localization_strings
   log_header "Uploading iOS translations to Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin upload sources $branch_args
-  crowdin upload translations $branch_args
+  crowdin upload sources "$branch_args"
+  crowdin upload translations "$branch_args"
   popd
 }
 
 function download_from_crowdin {
-  local branch_args=$(get_branch_args "${1:-}")
+  local branch_args
+  branch_args=$(get_branch_args "${1:-}")
   local log_appendix=""
 
   if [ -n "$branch_args" ]; then
@@ -55,7 +57,7 @@ function download_from_crowdin {
   ensure_crowdin_api_key
   log_header "Downloading iOS translations from Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin download translations $branch_args
+  crowdin download translations "$branch_args"
   popd
   update_ios_strings import
   commit_changes "Import iOS translations"
@@ -96,8 +98,9 @@ function get_branch_args {
 
   if [ -n "$branch_override" ]; then
     branch_args="-b $branch_override"
-  else 
-    local current_branch=$(git branch --show-current)
+  else
+    local current_branch
+    current_branch="$(git branch --show-current)"
 
     if echo "$current_branch" | grep -Eq '^ios-release-20[0-9]{2}'; then
       branch_args="-b $current_branch"
