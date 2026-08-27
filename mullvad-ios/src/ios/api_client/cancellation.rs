@@ -6,24 +6,59 @@ use std::{
 
 use tokio::task::JoinHandle;
 
-use crate::api_client::{
-    ApiContext, SwiftApiContext,
-    completion::CompletionCookie,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-};
+use crate::api_client::{ApiContext, retry_strategy::RetryStrategy};
 
-use super::{completion::SwiftCompletionHandler, response::SwiftMullvadApiResponse};
+use super::response::ApiResponse;
 
-// `cbindgen` does not handle structs with generic fields, so this is used to hide that
-struct SwiftCancelHandleInner(Mutex<Option<RequestCancelHandle>>);
-
-#[repr(C)]
-pub struct SwiftCancelHandle {
-    ptr: *mut SwiftCancelHandleInner,
+#[derive(uniffi::Object)]
+pub struct RequestCancelHandle {
+    inner: Mutex<Option<HandleState>>,
 }
 
-pub struct RequestCancelHandle {
-    inner: HandleState,
+impl RequestCancelHandle {
+    pub fn new<I, F>(
+        api_context: Arc<ApiContext>,
+        retry_strategy: Arc<RetryStrategy>,
+        task: I,
+    ) -> Arc<Self>
+    where
+        I: FnOnce(Arc<ApiContext>, RetryStrategy, Arc<dyn RequestCompletion>) -> F + Send + 'static,
+        F: Future<Output = ()> + Send + 'static,
+    {
+        let state = HandleState::ToStart {
+            retry_strategy: *retry_strategy,
+            api_context,
+            task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
+        };
+        Arc::new(Self {
+            inner: Mutex::new(Some(state)),
+        })
+    }
+}
+
+#[uniffi::export]
+impl RequestCancelHandle {
+    /// Called by the Swift side to signal that a Mullvad API call should be started.
+    /// Does nothing on repeated calls.
+    pub fn start_task(&self, completion_cookie: Arc<dyn RequestCompletion>) {
+        let Ok(mut handle) = self.inner.lock() else {
+            return;
+        };
+        if let Some(handle) = &mut *handle {
+            handle.start(completion_cookie);
+        }
+    }
+
+    /// Called by the Swift side to signal that a Mullvad API call should be cancelled.
+    /// Does nothing on repeated calls.
+    pub fn cancel_task(&self) {
+        let Ok(mut handle) = self.inner.lock() else {
+            return;
+        };
+        if let Some(handle) = handle.take() {
+            handle.cancel();
+        }
+    }
 }
 
 #[expect(clippy::type_complexity)]
@@ -35,7 +70,7 @@ enum HandleState {
             dyn FnOnce(
                     Arc<ApiContext>,
                     RetryStrategy,
-                    SwiftCompletionHandler,
+                    Arc<dyn RequestCompletion>,
                 ) -> Pin<Box<dyn Future<Output = ()> + Send>>
                 + Send,
         >,
@@ -45,36 +80,17 @@ enum HandleState {
     Intermediate,
     Started {
         task: JoinHandle<()>,
-        completion: SwiftCompletionHandler,
+        completion: Arc<dyn RequestCompletion>,
     },
 }
 
-impl RequestCancelHandle {
-    pub fn new<I, F>(
-        api_context: SwiftApiContext,
-        retry_strategy: SwiftRetryStrategy,
-        task: I,
-    ) -> Self
-    where
-        I: FnOnce(Arc<ApiContext>, RetryStrategy, SwiftCompletionHandler) -> F + Send + 'static,
-        F: Future<Output = ()> + Send + 'static,
-    {
-        Self {
-            inner: HandleState::ToStart {
-                // SAFETY: See notes for `into_rust`
-                retry_strategy: unsafe { retry_strategy.into_rust() },
-                api_context: api_context.rust_context(),
-                task: Box::new(move |a, r, c| Box::pin(task(a, r, c))),
-            },
-        }
-    }
-
-    pub fn start(&mut self, completion: SwiftCompletionHandler) {
-        if !matches!(self.inner, HandleState::ToStart { .. }) {
+impl HandleState {
+    pub fn start(&mut self, completion: Arc<dyn RequestCompletion>) {
+        if !matches!(self, HandleState::ToStart { .. }) {
             return;
         }
         let mut data = HandleState::Intermediate;
-        swap(&mut data, &mut self.inner);
+        swap(&mut data, self);
         let HandleState::ToStart {
             api_context,
             retry_strategy,
@@ -85,93 +101,32 @@ impl RequestCancelHandle {
         };
 
         let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+            completion.finish(Arc::new(ApiResponse::no_tokio_runtime()));
             return;
         };
 
         let task = task(api_context, retry_strategy, completion.clone());
         let handle = tokio_handle.spawn(task);
 
-        self.inner = HandleState::Started {
+        *self = HandleState::Started {
             task: handle,
             completion,
         }
     }
 
-    pub fn into_swift(self) -> SwiftCancelHandle {
-        SwiftCancelHandle {
-            ptr: Box::into_raw(Box::new(SwiftCancelHandleInner(Mutex::new(Some(self))))),
-        }
-    }
-
     pub fn cancel(self) {
-        let HandleState::Started { task, completion } = self.inner else {
+        let HandleState::Started { task, completion } = self else {
             return;
         };
         task.abort();
         // TODO: should this call block until the task returns?
         // We can make it do that.
         // let _ = handle.block_on(self.task);
-        completion.finish(SwiftMullvadApiResponse::cancelled());
+        completion.finish(Arc::new(ApiResponse::cancelled()));
     }
 }
 
-/// Called by the Swift side to signal that a Mullvad API call should be started.
-/// Does nothing on repeated calls.
-/// Must not be called after `mullvad_api_cancel_task_drop.`
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
-/// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
-/// intended to be used.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_start_task(
-    handle_ptr: SwiftCancelHandle,
-    completion_cookie: *mut libc::c_void,
-) {
-    // SAFETY: See safety notes above
-    let handle = unsafe { &*handle_ptr.ptr };
-    // SAFETY: It is safe to call CompletionCookie::new with a valid completion cookie
-    let completion =
-        SwiftCompletionHandler::new(unsafe { CompletionCookie::new(completion_cookie) });
-    let Ok(mut handle) = handle.0.lock() else {
-        return;
-    };
-    if let Some(handle) = &mut *handle {
-        handle.start(completion);
-    }
-}
-
-/// Called by the Swift side to signal that a Mullvad API call should be cancelled.
-/// Does nothing on repeated calls.
-/// Must not be called after `mullvad_api_cancel_task_drop.
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
-    // SAFETY: See notes for `as_handle`
-    let handle = unsafe { &*handle_ptr.ptr };
-    let Ok(mut handle) = handle.0.lock() else {
-        return;
-    };
-    if let Some(handle) = handle.take() {
-        handle.cancel();
-    }
-}
-
-/// Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
-/// dropped from memory.
-/// Must be called once, and at most once.
-///
-/// # Safety
-///
-/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`.
-#[unsafe(no_mangle)]
-extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
-    // SAFETY: See safety notes above
-    let _ptr = unsafe { Box::from_raw(handle_ptr.ptr) };
+#[uniffi::export(with_foreign)]
+pub trait RequestCompletion: Send + Sync {
+    fn finish(&self, result: Arc<ApiResponse>);
 }
