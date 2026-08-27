@@ -44,7 +44,7 @@ impl TcpSocket {
     pub fn try_clone(&self) -> io::Result<Self> {
         let dup = socket2::SockRef::from(&self.socket).try_clone()?;
         // `from_std_stream` expects an unconnected, nonblocking socket.
-        // The dup inherits there invariants from `TcpSocket`
+        dup.set_nonblocking(true)?;
         let socket = TokioTcpSocket::from_std_stream(std::net::TcpStream::from(dup));
         Ok(Self { socket })
     }
