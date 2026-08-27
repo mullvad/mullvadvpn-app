@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 - Fix the device sometimes being incorrectly marked as revoked when the API rejects an expired
   access token.
+- Fix daemon crashing on startup when migrating settings that contain no WireGuard entry location.
 
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
