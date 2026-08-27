@@ -185,16 +185,7 @@ pub mod tcp_info {
     #[cfg(target_os = "linux")]
     mod platform {
         use super::*;
-        // Both macros are needed: `sockopt_impl!` internally calls `getsockopt_impl!`.
-        use nix::{getsockopt_impl, sockopt_impl};
-
-        nix::sockopt_impl!(
-            TcpInfoOpt,
-            GetOnly,
-            libc::SOL_TCP,
-            libc::TCP_INFO,
-            libc::tcp_info
-        );
+        use std::os::fd::AsRawFd;
 
         /// TCP congestion algorithm state (Linux's `tcpi_ca_state`).
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -247,11 +238,46 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-            let info = nix::sys::socket::getsockopt(socket, TcpInfoOpt)
-                .map_err(|err| {
-                    log::debug!("Failed to query TCP_INFO: {err}");
-                })
-                .ok()?;
+            // Zero the struct first, so unread fields (on older kernels that
+            // support fewer fields than the libc definition) are zero, not
+            // uninitialized memory.
+            // SAFETY: `libc::tcp_info` is a plain struct of integers, all of
+            // which are valid when zeroed.
+            let mut info: libc::tcp_info = unsafe { std::mem::zeroed() };
+            let mut len = std::mem::size_of::<libc::tcp_info>() as libc::socklen_t;
+
+            let fd = socket.as_raw_fd();
+            // SAFETY: `info` is a valid pointer to a zeroed `tcp_info` buffer,
+            // `len` is its size. The kernel writes at most `len` bytes and
+            // updates `len` to the number of bytes actually written.
+            let ret = unsafe {
+                libc::getsockopt(
+                    fd,
+                    libc::SOL_TCP,
+                    libc::TCP_INFO,
+                    std::ptr::addr_of_mut!(info).cast(),
+                    std::ptr::addr_of_mut!(len),
+                )
+            };
+
+            if ret != 0 {
+                log::debug!(
+                    "Failed to query TCP_INFO: {}",
+                    std::io::Error::last_os_error()
+                );
+                return None;
+            }
+
+            let expected = std::mem::size_of::<libc::tcp_info>();
+            if (len as usize) < expected {
+                // The kernel is older than the libc definition and returned a
+                // shorter struct. Fields past the kernel's version are zero.
+                // Log so the snapshot can be interpreted with this in mind.
+                log::warn!(
+                    "Partial TCP_INFO: kernel returned {len} bytes, \
+                     expected {expected}; newer fields will be zero"
+                );
+            }
 
             Some(TcpInfoSnapshot {
                 state: linux_tcp_state(info.tcpi_state),
