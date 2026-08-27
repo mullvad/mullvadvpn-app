@@ -150,7 +150,7 @@ class MullvadApi {
             apiResponse = response
             semaphore.signal()
         }
-        let strategy = mullvadApiRetryStrategyConstant(maxRetries: 3, delaySec: 1)
+        let strategy = RetryStrategy.constant(maxRetries: 3, delaySec: 1)
         var handle = call(strategy)
         handle.startTask(completionCookie: completion)
         semaphore.wait()
