@@ -7,7 +7,6 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-chrono = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 mullvad-api = { path = "../mullvad-api" }
