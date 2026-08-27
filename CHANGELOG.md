@@ -63,6 +63,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix IPv6 obfuscation relay selection when the relay's WireGuard endpoint only has IPv4.
 - Fix the device sometimes being incorrectly marked as revoked when the API rejects an expired
   access token.
+- Fix daemon crashing on startup when migrating settings that contain no WireGuard entry location.
 
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives

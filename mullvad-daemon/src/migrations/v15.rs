@@ -29,7 +29,7 @@ fn migrate_entry_location(settings: &mut serde_json::Value) -> Option<()> {
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("wireguard_constraints"))
         .and_then(|wireguard_constraints| wireguard_constraints.as_object_mut())?;
 
-    let entry_location_value = &wireguard_constraints[WIREGUARD_ENTRY_LOCATION_KEY];
+    let entry_location_value = wireguard_constraints.get(WIREGUARD_ENTRY_LOCATION_KEY)?;
 
     let bad_entry_location = json!({ "only": {
         "location": {
