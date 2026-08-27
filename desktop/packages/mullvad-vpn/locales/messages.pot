@@ -3864,7 +3864,7 @@ msgstr ""
 msgid "To delete your Mullvad VPN account, please enter your account number below."
 msgstr ""
 
-msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the X symbol."
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
