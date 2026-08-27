@@ -16,8 +16,6 @@ use std::time::Duration;
 use tokio::net::TcpSocket as StdTcpSocket;
 use tokio::net::TcpStream;
 
-use crate::tcp_info::TcpDiagnostics;
-
 /// Time before TCP starts sending keepalive probes.
 const KEEPALIVE_TIME: Duration = Duration::from_secs(5);
 
@@ -63,7 +61,7 @@ mod sys {
     use super::*;
 
     use nix::sys::socket::{setsockopt, sockopt::TcpMaxSeg};
-    use std::os::fd::{AsFd, AsRawFd};
+    use std::os::fd::AsFd;
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
@@ -78,14 +76,17 @@ mod sys {
     }
 
     impl TcpSocket {
-        pub fn new(diagnostics: &TcpDiagnostics) -> io::Result<Self> {
+        pub fn new() -> io::Result<Self> {
             let socket = StdTcpSocket::new_v4()?;
             try_set_tcp_sock_mtu(&socket);
             set_reliability_params(&socket);
-            // Stash the raw fd so we can query TCP_INFO even if the timeout
-            // fires during the connect phase.
-            diagnostics.set_raw_socket(socket.as_fd().as_raw_fd() as i64);
             Ok(Self { socket })
+        }
+
+        /// Duplicate the underlying kernel socket. The returned handle refers
+        /// to the same kernel socket object and keeps it alive.
+        pub fn dup(&self) -> io::Result<socket2::Socket> {
+            socket2::SockRef::from(&self.socket).try_clone()
         }
 
         pub async fn connect(self, addr: SocketAddr) -> io::Result<TcpStream> {
@@ -112,20 +113,22 @@ mod sys {
 #[cfg(windows)]
 mod sys {
     use super::*;
-    use std::os::windows::io::AsRawSocket;
 
     pub struct TcpSocket {
         socket: StdTcpSocket,
     }
 
     impl TcpSocket {
-        pub fn new(diagnostics: &TcpDiagnostics) -> io::Result<Self> {
+        pub fn new() -> io::Result<Self> {
             let socket = StdTcpSocket::new_v4()?;
             set_reliability_params(&socket);
-            // Stash the raw socket handle so we can query TCP_INFO even if the
-            // timeout fires during the connect phase.
-            diagnostics.set_raw_socket(socket.as_raw_socket() as i64);
             Ok(Self { socket })
+        }
+
+        /// Duplicate the underlying kernel socket. The returned handle refers
+        /// to the same kernel socket object and keeps it alive.
+        pub fn dup(&self) -> io::Result<socket2::Socket> {
+            socket2::SockRef::from(&self.socket).try_clone()
         }
 
         pub async fn connect(self, addr: SocketAddr) -> io::Result<TcpStream> {

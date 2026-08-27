@@ -6,7 +6,7 @@ use super::{CloseMsg, Error, TunnelType, config::Config, obfuscation::Obfuscator
 use std::{
     net::IpAddr,
     sync::{Arc, mpsc as sync_mpsc},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use talpid_net::bypass::SocketBypass;
 
@@ -271,30 +271,38 @@ async fn request_ephemeral_peer(
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
     );
 
-    let diagnostics =
-        std::sync::Arc::new(talpid_tunnel_config_client::tcp_info::TcpDiagnostics::new());
+    // TCP socket with extra reliability settings
+    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new().map_err(|error| {
+        CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(
+            talpid_tunnel_config_client::Error::TcpSocketError(error),
+        ))
+    })?;
 
+    // Dup the socket, so that we can keep it alive if the handshake times out to query
+    // for TCP info.
+    let socket_dup = tcp_socket.dup().map_err(|error| {
+        CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(
+            talpid_tunnel_config_client::Error::TcpSocketError(error),
+        ))
+    })?;
+
+    let start_time = Instant::now();
     let request_future = talpid_tunnel_config_client::request_ephemeral_peer(
         config.ipv4_gateway,
         config.tunnel.private_key.public_key(),
         wg_psk_pubkey,
         enable_pq,
         enable_daita,
-        diagnostics.clone(),
+        tcp_socket,
     );
-    tokio::pin!(request_future);
 
-    let ephemeral = tokio::select! {
-        result = &mut request_future => {
-            result
-                .map_err(Error::EphemeralPeerNegotiationError)
-                .map_err(CloseMsg::SetupError)?
-        }
-        _ = tokio::time::sleep(timeout) => {
-            // The future is still alive here — the socket hasn't been dropped yet.
-            // Query TCP-level diagnostics before returning.
-            let tcp_info = talpid_tunnel_config_client::tcp_info::query_tcp_info(&diagnostics);
-            let elapsed = diagnostics.elapsed();
+    let ephemeral = match tokio::time::timeout(timeout, request_future).await {
+        Ok(result) => result
+            .map_err(Error::EphemeralPeerNegotiationError)
+            .map_err(CloseMsg::SetupError)?,
+        Err(_) => {
+            let tcp_info = talpid_tunnel_config_client::tcp_info::query_tcp_info(&socket_dup);
+            let elapsed = start_time.elapsed();
 
             log::warn!(
                 "Timeout while negotiating ephemeral peer \

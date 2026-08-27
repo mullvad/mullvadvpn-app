@@ -2,6 +2,8 @@ use gotatun::device::daita;
 use proto::PostQuantumRequestV1;
 use std::fmt;
 #[cfg(not(target_os = "ios"))]
+use std::io;
+#[cfg(not(target_os = "ios"))]
 use std::net::SocketAddr;
 #[cfg(not(target_os = "ios"))]
 use std::net::{IpAddr, Ipv4Addr};
@@ -17,7 +19,7 @@ use zeroize::Zeroize;
 mod hqc;
 mod ml_kem;
 #[cfg(not(target_os = "ios"))]
-mod socket;
+pub mod socket;
 
 pub mod tcp_info;
 
@@ -34,6 +36,8 @@ pub enum Error {
     // TODO: Remove box when upgrading tonic to a version with
     // https://github.com/hyperium/tonic/pull/2282
     GrpcError(Box<tonic::Status>),
+    /// Failed to create or duplicate the tunnel config socket.
+    TcpSocketError(std::io::Error),
     MissingCiphertexts,
     InvalidCiphertextLength {
         algorithm: &'static str,
@@ -64,6 +68,7 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(err) => write!(f, "Failed to connect to config service: {err:?}"),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
+            TcpSocketError(err) => write!(f, "Failed to create tunnel config socket: {err}"),
             MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
                 algorithm,
@@ -98,6 +103,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::GrpcConnectError(error) => Some(error),
+            Self::TcpSocketError(error) => Some(error),
             _ => None,
         }
     }
@@ -127,10 +133,10 @@ pub async fn request_ephemeral_peer(
     ephemeral_pubkey: PublicKey,
     enable_post_quantum: bool,
     enable_daita: bool,
-    diagnostics: std::sync::Arc<tcp_info::TcpDiagnostics>,
+    socket: socket::TcpSocket,
 ) -> Result<EphemeralPeer, Error> {
     log::debug!("Connecting to relay config service at {service_address}");
-    let client = connect_relay_config_client(service_address, diagnostics).await?;
+    let client = connect_relay_config_client(service_address, socket).await?;
     log::debug!("Connected to relay config service at {service_address}");
 
     request_ephemeral_peer_with(
@@ -318,24 +324,28 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 }
 
 /// Create a new `RelayConfigService` connected to the given IP.
+///
 /// On non-Windows platforms the connection is made with a socket where the MSS
-/// value has been speficically lowered, to avoid MTU issues. See the `socket` module.
+/// value has been specifically lowered, to avoid MTU issues. See the `socket` module.
 #[cfg(not(target_os = "ios"))]
 async fn connect_relay_config_client(
     ip: Ipv4Addr,
-    diagnostics: std::sync::Arc<tcp_info::TcpDiagnostics>,
+    socket: socket::TcpSocket,
 ) -> Result<RelayConfigService, Error> {
     use hyper_util::rt::tokio::TokioIo;
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
 
+    let mut socket_slot = Some(socket);
     let connection = endpoint
         .connect_with_connector(service_fn(move |_| {
-            let diagnostics = diagnostics.clone();
+            let socket = socket_slot.take();
             async move {
-                let sock = socket::TcpSocket::new(&diagnostics)?;
-                let stream = sock.connect(addr).await?;
+                let socket = socket.ok_or_else(|| {
+                    io::Error::other("relay config connector called more than once")
+                })?;
+                let stream = socket.connect(addr).await?;
                 Ok::<_, std::io::Error>(TokioIo::new(stream))
             }
         }))
