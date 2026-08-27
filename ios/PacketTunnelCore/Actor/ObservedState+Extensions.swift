@@ -66,3 +66,10 @@ extension ObservedState {
         }
     }
 }
+
+extension ObservedConnectionState {
+    mutating func incrementAttemptCount() {
+        let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
+        connectionAttemptCount = isOverflow ? 0 : value
+    }
+}

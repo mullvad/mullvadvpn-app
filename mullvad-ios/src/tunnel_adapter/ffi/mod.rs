@@ -11,7 +11,10 @@ use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
 
-use super::{IosTunnelAdapter, ObfuscationConfig, PeerConfig, TunnelCallbackHandler, TunnelConfig};
+use super::{
+    BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, PeerConfig, TunnelCallbackHandler,
+    TunnelConfig,
+};
 
 /// A WireGuard peer (entry or exit).
 #[derive(uniffi::Record)]
@@ -70,6 +73,8 @@ pub enum GotaTunObfuscation {
 pub enum GotaTunFfiError {
     /// A field in the config was malformed (bad key length, unparseable address, ...).
     InvalidConfig(String),
+    /// UDP sockets could not be bound, typically because no interface is available.
+    BindSockets(String),
     /// An internal failure (e.g. the async runtime was unavailable).
     Internal(String),
 }
@@ -78,6 +83,7 @@ impl std::fmt::Display for GotaTunFfiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             GotaTunFfiError::InvalidConfig(msg) => write!(f, "invalid config: {msg}"),
+            GotaTunFfiError::BindSockets(msg) => write!(f, "failed to bind UDP sockets: {msg}"),
             GotaTunFfiError::Internal(msg) => write!(f, "internal error: {msg}"),
         }
     }
@@ -134,8 +140,15 @@ impl GotaTunTunnel {
     ) -> Result<Arc<Self>, GotaTunFfiError> {
         let tunnel_config = build_tunnel_config(tun_fd, config)?;
         let runtime = crate::mullvad_ios_runtime().map_err(GotaTunFfiError::Internal)?;
+
+        // Bind before returning, so a missing interface is reported to the caller instead of
+        // arriving later as a callback that races the rest of startup.
+        let udp = runtime
+            .block_on(BoundUdpTransports::bind())
+            .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
+
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
-        let adapter = IosTunnelAdapter::start(runtime, tunnel_config, handler);
+        let adapter = IosTunnelAdapter::start(runtime, tunnel_config, udp, handler);
         Ok(Arc::new(Self { adapter }))
     }
 
