@@ -137,6 +137,7 @@ tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 tun = { version = "0.8.14", default-features = false, features = ["async"] }
 tun05 = { package = "tun", version = "0.5.5", features = ["async"] }
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "06e6438d3a2537786efde7185f5675ce5e38d45e" }
 uniffi = "0.31.2"
 vec1 = "1.12"
 webpki-roots = "1.0.4"
