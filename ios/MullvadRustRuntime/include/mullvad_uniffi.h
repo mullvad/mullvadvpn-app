@@ -428,6 +428,11 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_devices(uint64_t ptr, uint6
 uint64_t uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustBuffer identifier, RustBuffer public_key, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_am_i_mullvad(uint64_t ptr, RustBuffer address, uint64_t retry_strategy
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 uint64_t uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(uint64_t ptr, uint64_t retry_strategy, RustBuffer request, RustCallStatus *_Nonnull out_status
@@ -1000,6 +1005,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_apicontext_get_devices(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_ROTATE_DEVICE_KEY
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_ROTATE_DEVICE_KEY
 uint16_t uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+uint16_t uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad(void
     
 );
 #endif
