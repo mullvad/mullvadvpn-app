@@ -138,8 +138,6 @@ const fn desired_mss() -> u16 {
 /// state) from a socket. Used for diagnostics when ephemeral peer
 /// negotiation times out.
 pub mod tcp_info {
-    use std::fmt;
-
     /// Normalized TCP state, platform-independent.
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum TcpState {
@@ -169,28 +167,8 @@ pub mod tcp_info {
         Unknown(i32),
     }
 
-    impl fmt::Display for TcpState {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                Self::Closed => write!(f, "CLOSED"),
-                Self::SynSent => write!(f, "SYN_SENT"),
-                Self::SynReceived => write!(f, "SYN_RECEIVED"),
-                Self::Established => write!(f, "ESTABLISHED"),
-                Self::FinWait1 => write!(f, "FIN_WAIT_1"),
-                Self::FinWait2 => write!(f, "FIN_WAIT_2"),
-                Self::CloseWait => write!(f, "CLOSE_WAIT"),
-                Self::Closing => write!(f, "CLOSING"),
-                Self::LastAck => write!(f, "LAST_ACK"),
-                Self::TimeWait => write!(f, "TIME_WAIT"),
-                Self::Listen => write!(f, "LISTEN"),
-                Self::Unknown(v) => write!(f, "UNKNOWN({v})"),
-            }
-        }
-    }
-
     /// Platform-specific TCP diagnostics snapshot, populated from the
-    /// platform's kernel TCP info API. The available fields differ per
-    /// platform; see the concrete type on the current target.
+    /// platform's kernel TCP info API.
     #[cfg(not(target_os = "ios"))]
     pub type TcpInfoSnapshot = platform::TcpInfoSnapshot;
 
@@ -218,13 +196,40 @@ pub mod tcp_info {
             libc::tcp_info
         );
 
-        /// TCP diagnostics snapshot from Linux's `TCP_INFO`.
+        /// TCP congestion algorithm state (Linux's `tcpi_ca_state`).
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        pub enum CaState {
+            /// Open — no congestion, normal slow-start / congestion avoidance.
+            Open,
+            /// Disorder — duplicate ACKs or SACKs observed, cwnd may be reduced.
+            Disorder,
+            /// CWR — congestion window reduced (ECN or other signal).
+            Cwr,
+            /// Recovery — fast recovery after loss.
+            Recovery,
+            /// Loss — RTO fired, connection backed off.
+            Loss,
+            /// Unknown or unrecognized state.
+            Unknown(u8),
+        }
+
+        /// Subset of  Linux's `TCP_INFO`.
         #[derive(Debug)]
         pub struct TcpInfoSnapshot {
             /// TCP connection state.
             pub state: TcpState,
+            /// Congestion control state.
+            pub ca_state: CaState,
             /// Smoothed round-trip time in microseconds.
             pub rtt_us: u32,
+            /// Current retransmit timeout in microseconds.
+            pub rto_us: u32,
+            /// Packets declared lost.
+            pub lost: u32,
+            /// Packets currently in flight (sent but not yet ACKed).
+            pub unacked: u32,
+            /// Retransmits currently in flight.
+            pub retrans_in_flight: u32,
             /// Bytes acknowledged by the peer.
             pub bytes_acked: u64,
             /// Bytes received.
@@ -233,8 +238,12 @@ pub mod tcp_info {
             pub retransmits: u32,
             /// Congestion window size in segments (MSS-sized packets).
             pub cwnd_segments: u32,
+            /// Slow-start threshold in segments.
+            pub ssthresh: u32,
             /// RTT variance in microseconds.
             pub rtt_var_us: u32,
+            /// Milliseconds since the last data segment was received.
+            pub last_data_recv_ms: u32,
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
@@ -246,13 +255,32 @@ pub mod tcp_info {
 
             Some(TcpInfoSnapshot {
                 state: linux_tcp_state(info.tcpi_state),
+                ca_state: linux_ca_state(info.tcpi_ca_state),
                 rtt_us: info.tcpi_rtt,
+                rto_us: info.tcpi_rto,
+                lost: info.tcpi_lost,
+                unacked: info.tcpi_unacked,
+                retrans_in_flight: info.tcpi_retrans,
                 bytes_acked: info.tcpi_bytes_acked,
                 bytes_received: info.tcpi_bytes_received,
                 retransmits: info.tcpi_total_retrans,
                 cwnd_segments: info.tcpi_snd_cwnd,
+                ssthresh: info.tcpi_snd_ssthresh,
                 rtt_var_us: info.tcpi_rttvar,
+                last_data_recv_ms: info.tcpi_last_data_recv,
             })
+        }
+
+        fn linux_ca_state(state: u8) -> CaState {
+            // Linux CA states from include/net/tcp.h
+            match state {
+                0 => CaState::Open,
+                1 => CaState::Disorder,
+                2 => CaState::Cwr,
+                3 => CaState::Recovery,
+                4 => CaState::Loss,
+                v => CaState::Unknown(v),
+            }
         }
 
         fn linux_tcp_state(state: u8) -> TcpState {
@@ -287,13 +315,17 @@ pub mod tcp_info {
             libc::tcp_connection_info
         );
 
-        /// TCP diagnostics snapshot from macOS's `TCP_CONNECTION_INFO`.
+        /// Subset of acOS's `TCP_CONNECTION_INFO`.
         #[derive(Debug)]
         pub struct TcpInfoSnapshot {
             /// TCP connection state.
             pub state: TcpState,
             /// Smoothed round-trip time in microseconds.
             pub rtt_us: u32,
+            /// Current (instantaneous) round-trip time in microseconds.
+            pub rtt_cur_us: u32,
+            /// Current retransmit timeout in microseconds.
+            pub rto_us: u32,
             /// Bytes sent.
             pub bytes_sent: u64,
             /// Bytes received.
@@ -302,6 +334,10 @@ pub mod tcp_info {
             pub retransmitted_bytes: u32,
             /// Congestion window size in bytes.
             pub cwnd_bytes: u32,
+            /// Slow-start threshold in bytes.
+            pub ssthresh: u32,
+            /// Bytes currently in the send buffer.
+            pub snd_buf_bytes: u32,
             /// RTT variance in microseconds.
             pub rtt_var_us: u32,
         }
@@ -316,10 +352,14 @@ pub mod tcp_info {
             Some(TcpInfoSnapshot {
                 state: macos_tcp_state(info.tcpi_state),
                 rtt_us: info.tcpi_srtt,
+                rtt_cur_us: info.tcpi_rttcur,
+                rto_us: info.tcpi_rto,
                 bytes_sent: info.tcpi_txbytes,
                 bytes_received: info.tcpi_rxbytes,
                 retransmitted_bytes: u32::try_from(info.tcpi_txretransmitbytes).unwrap_or(u32::MAX),
                 cwnd_bytes: info.tcpi_snd_cwnd,
+                ssthresh: info.tcpi_snd_ssthresh,
+                snd_buf_bytes: info.tcpi_snd_sbbytes,
                 rtt_var_us: info.tcpi_rttvar,
             })
         }
@@ -351,13 +391,15 @@ pub mod tcp_info {
             SIO_TCP_INFO, SOCKET, TCP_INFO_v0, TCPSTATE, WSAIoctl,
         };
 
-        /// TCP diagnostics snapshot from Windows's `SIO_TCP_INFO`.
+        /// Subset of Windows's `SIO_TCP_INFO`.
         #[derive(Debug)]
         pub struct TcpInfoSnapshot {
             /// TCP connection state.
             pub state: TcpState,
             /// Smoothed round-trip time in microseconds.
             pub rtt_us: u32,
+            /// Minimum round-trip time observed in microseconds.
+            pub min_rtt_us: u32,
             /// Bytes sent.
             pub bytes_sent: u64,
             /// Bytes received.
@@ -372,6 +414,10 @@ pub mod tcp_info {
             pub timeout_episodes: u32,
             /// Bytes currently in flight (sent but not yet ACKed).
             pub bytes_in_flight: u32,
+            /// Fast retransmit count.
+            pub fast_retrans: u32,
+            /// Duplicate ACKs received.
+            pub dup_acks_in: u32,
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
@@ -416,6 +462,7 @@ pub mod tcp_info {
             Some(TcpInfoSnapshot {
                 state: windows_tcp_state(info.State),
                 rtt_us: info.RttUs,
+                min_rtt_us: info.MinRttUs,
                 bytes_sent: info.BytesOut,
                 bytes_received: info.BytesIn,
                 retransmitted_bytes: info.BytesRetrans,
@@ -423,6 +470,8 @@ pub mod tcp_info {
                 syn_retransmits: u32::from(info.SynRetrans),
                 timeout_episodes: info.TimeoutEpisodes,
                 bytes_in_flight: info.BytesInFlight,
+                fast_retrans: info.FastRetrans,
+                dup_acks_in: info.DupAcksIn,
             })
         }
 
