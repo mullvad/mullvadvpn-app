@@ -23,7 +23,21 @@ public class MullvadApiMock {
     }
 
     public static func get(path: String, responseCode: UInt, responseData: String) -> MullvadApiMock {
-        let newMock = mullvad_api_mock_get(path, responseCode, responseData)
+        MullvadApiMock.get([(path, responseCode, responseData)])
+    }
+
+    public static func get(_ endpoints: [(path: String, responseCode: UInt, responseData: String)]) -> MullvadApiMock {
+        let cEndpoints = endpoints.map { p in
+            create_mock_endpoint(
+                p.path,
+                p.responseCode,
+                p.responseData
+            )
+        }
+        let length = cEndpoints.count
+        let newMock = cEndpoints.withUnsafeBufferPointer { ptr in
+            mullvad_api_mock_get(ptr.baseAddress, UInt(length))
+        }
         return MullvadApiMock(newMock)
     }
 

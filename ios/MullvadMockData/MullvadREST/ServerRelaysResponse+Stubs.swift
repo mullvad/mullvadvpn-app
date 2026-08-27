@@ -45,6 +45,16 @@ public enum ServerRelaysResponseStubs {
         return try JSONSerialization.data(withJSONObject: json)
     }
 
+    /// A digest. Same as `ServerRelaysResponseStubs.sampleRelaysDigest`.
+    public static let digest = "supervaliddigestmullvadmolemullvadmolemullvadmolemullvadmolemole"
+
+    /// Returns a parseable digest and timestamp. The digest is set to the same value as `ServerRelaysResponseStubs.digest`
+    public static let sampleRelaysDigest = """
+        {"digest":"\(digest)", "timestamp":"2000-01-01T00:00:00+00:00"}
+
+        version=2
+        """.data(using: .utf8)!
+
     public static let sampleRelays = REST.ServerRelaysResponse(
         locations: [
             "es-mad": REST.ServerLocation(

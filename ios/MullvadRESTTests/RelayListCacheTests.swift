@@ -37,12 +37,22 @@ class RelayListCacheTests: XCTestCase {
         let relayJSONData = try ServerRelaysResponseStubs.sampleRelaysJSONWithUnknownField()
         let relayJSON = String(data: relayJSONData, encoding: .utf8)!
 
+        let timestampJSONData = ServerRelaysResponseStubs.sampleRelaysDigest
+        let timestampJSON = String(data: timestampJSONData, encoding: .utf8)!
+
         // 1. Mock the relay list endpoint with our JSON containing unknown fields.
-        let mock = MullvadApiMock.get(
-            path: "/app/v1/relays",
-            responseCode: 200,
-            responseData: relayJSON
-        )
+        let mock = MullvadApiMock.get([
+            (
+                path: "/trl/v1/timestamps/latest",
+                responseCode: 200,
+                responseData: timestampJSON
+            ),
+            (
+                path: "/trl/v1/data/\(ServerRelaysResponseStubs.digest)",
+                responseCode: 200,
+                responseData: relayJSON
+            ),
+        ])
         let apiProxy = try makeApiProxy(port: mock.port)
 
         // 2. Fetch relays through the API proxy (exercises the full Rust FFI path).
@@ -56,7 +66,7 @@ class RelayListCacheTests: XCTestCase {
                 }
             }
 
-        guard case let .newContent(rawData) = try result.get() else {
+        guard case let .newContent(_, _, rawData) = try result.get() else {
             XCTFail("Expected .newContent response")
             return
         }
