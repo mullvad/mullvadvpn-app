@@ -3310,7 +3310,6 @@ dependencies = [
 name = "mullvad-daemon-relay-selector"
 version = "0.0.0"
 dependencies = [
- "chrono",
  "futures",
  "log",
  "mullvad-api",
@@ -6109,7 +6108,6 @@ dependencies = [
  "chrono",
  "futures",
  "gotatun",
- "hex",
  "insta",
  "internet-checksum",
  "ipnetwork",
