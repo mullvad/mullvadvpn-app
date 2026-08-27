@@ -61,7 +61,7 @@ mod sys {
     use super::*;
 
     use nix::sys::socket::{setsockopt, sockopt::TcpMaxSeg};
-    use std::os::fd::AsFd;
+    use std::os::fd::{AsFd, BorrowedFd};
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
@@ -83,14 +83,25 @@ mod sys {
             Ok(Self { socket })
         }
 
-        /// Duplicate the underlying kernel socket. The returned handle refers
-        /// to the same kernel socket object and keeps it alive.
-        pub fn dup(&self) -> io::Result<socket2::Socket> {
-            socket2::SockRef::from(&self.socket).try_clone()
+        /// Clone this socket into a new connectable `TcpSocket` sharing the
+        /// same kernel socket object (and its configured options). Each clone
+        /// can be connected independently.
+        pub fn try_clone(&self) -> io::Result<Self> {
+            let dup = socket2::SockRef::from(&self.socket).try_clone()?;
+            // `from_std_stream` expects an unconnected, nonblocking socket;
+            // the dup satisfies both (inherited from the original).
+            let socket = StdTcpSocket::from_std_stream(std::net::TcpStream::from(dup));
+            Ok(Self { socket })
         }
 
         pub async fn connect(self, addr: SocketAddr) -> io::Result<TcpStream> {
             self.socket.connect(addr).await
+        }
+    }
+
+    impl AsFd for TcpSocket {
+        fn as_fd(&self) -> BorrowedFd<'_> {
+            self.socket.as_fd()
         }
     }
 
@@ -113,6 +124,7 @@ mod sys {
 #[cfg(windows)]
 mod sys {
     use super::*;
+    use std::os::windows::io::{AsSocket, BorrowedSocket};
 
     pub struct TcpSocket {
         socket: StdTcpSocket,
@@ -125,14 +137,23 @@ mod sys {
             Ok(Self { socket })
         }
 
-        /// Duplicate the underlying kernel socket. The returned handle refers
-        /// to the same kernel socket object and keeps it alive.
-        pub fn dup(&self) -> io::Result<socket2::Socket> {
-            socket2::SockRef::from(&self.socket).try_clone()
+        /// Clone this socket into a new connectable `TcpSocket` sharing the
+        /// same kernel socket object (and its configured options). Each clone
+        /// can be connected independently.
+        pub fn try_clone(&self) -> io::Result<Self> {
+            let dup = socket2::SockRef::from(&self.socket).try_clone()?;
+            let socket = StdTcpSocket::from_std_stream(std::net::TcpStream::from(dup));
+            Ok(Self { socket })
         }
 
         pub async fn connect(self, addr: SocketAddr) -> io::Result<TcpStream> {
             self.socket.connect(addr).await
+        }
+    }
+
+    impl AsSocket for TcpSocket {
+        fn as_socket(&self) -> BorrowedSocket<'_> {
+            self.socket.as_socket()
         }
     }
 }

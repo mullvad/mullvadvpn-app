@@ -24,21 +24,18 @@ async fn main() {
 
     let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
         .expect("Failed to create tunnel config socket");
-    let socket_dup = tcp_socket
-        .dup()
-        .expect("Failed to duplicate tunnel config socket");
     let ephemeral_peer = talpid_tunnel_config_client::request_ephemeral_peer(
         tuncfg_server_ip,
         public_key, // Parent connection's public key.
         ephemeral_private_key.public_key(),
         true,  // Whether to negotiate a "PQ-safe" PSK.
         false, // Whether to use DAITA (Does not work with Linux kernel WireGuard.)
-        tcp_socket,
+        &tcp_socket,
     )
     .await
     .unwrap();
 
-    if let Some(info) = talpid_tunnel_config_client::tcp_info::query_tcp_info(&socket_dup) {
+    if let Some(info) = talpid_tunnel_config_client::tcp_info::query_tcp_info(&tcp_socket) {
         println!("TCP info after request: {info:?}");
     }
 

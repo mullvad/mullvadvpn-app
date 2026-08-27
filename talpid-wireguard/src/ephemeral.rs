@@ -278,14 +278,6 @@ async fn request_ephemeral_peer(
         ))
     })?;
 
-    // Dup the socket, so that we can keep it alive if the handshake times out to query
-    // for TCP info.
-    let socket_dup = tcp_socket.dup().map_err(|error| {
-        CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(
-            talpid_tunnel_config_client::Error::TcpSocketError(error),
-        ))
-    })?;
-
     let start_time = Instant::now();
     let request_future = talpid_tunnel_config_client::request_ephemeral_peer(
         config.ipv4_gateway,
@@ -293,7 +285,7 @@ async fn request_ephemeral_peer(
         wg_psk_pubkey,
         enable_pq,
         enable_daita,
-        tcp_socket,
+        &tcp_socket,
     );
 
     let ephemeral = match tokio::time::timeout(timeout, request_future).await {
@@ -301,7 +293,7 @@ async fn request_ephemeral_peer(
             .map_err(Error::EphemeralPeerNegotiationError)
             .map_err(CloseMsg::SetupError)?,
         Err(_) => {
-            let tcp_info = talpid_tunnel_config_client::tcp_info::query_tcp_info(&socket_dup);
+            let tcp_info = talpid_tunnel_config_client::tcp_info::query_tcp_info(&tcp_socket);
             let elapsed = start_time.elapsed();
 
             log::warn!(

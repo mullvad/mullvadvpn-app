@@ -84,8 +84,10 @@ pub struct TcpInfoSnapshot {
 }
 
 /// Query TCP info from the given socket. Returns `None` if the query fails.
-pub fn query_tcp_info(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-    platform::query(socket)
+#[cfg(not(target_os = "ios"))]
+pub fn query_tcp_info(socket: &crate::socket::TcpSocket) -> Option<TcpInfoSnapshot> {
+    let sock_ref = socket2::SockRef::from(socket);
+    platform::query(&sock_ref)
 }
 
 // ---------------------------------------------------------------------------
@@ -272,8 +274,14 @@ mod platform {
     }
 }
 
-// Fallback for platforms not covered above (Android, iOS, etc.)
-#[cfg(not(any(target_os = "linux", target_os = "macos", target_os = "windows")))]
+// Fallback for platforms not covered above (Android, etc.). iOS does not use
+// TCP info querying, so it's excluded to avoid dead code.
+#[cfg(not(any(
+    target_os = "linux",
+    target_os = "macos",
+    target_os = "windows",
+    target_os = "ios"
+)))]
 mod platform {
     use super::*;
 
