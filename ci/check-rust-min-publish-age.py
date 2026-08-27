@@ -31,6 +31,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 import tomllib
 import urllib.error
 import urllib.request
@@ -46,6 +47,11 @@ ALLOWLIST = SCRIPT_DIR / "rust-min-publish-age-allowlist.txt"
 CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
 INDEX_BASE = "https://index.crates.io"
 USER_AGENT = "mullvadvpn-app min-publish-age check (github.com/mullvad/mullvadvpn-app)"
+FETCH_TIMEOUT_SECONDS = 30
+# The index is a CDN, so failures are usually transient. Retry a few times with a
+# growing delay before giving up on a crate.
+FETCH_ATTEMPTS = 3
+FETCH_RETRY_DELAY_SECONDS = 2
 
 # Seconds per unit, matching cargo's duration parsing (a month is 30 days).
 UNIT_SECONDS = {
@@ -165,17 +171,36 @@ def parse_index(document: str) -> dict[str, str]:
 
 
 def pubtimes(name: str) -> dict[str, str]:
-    """Map of version -> pubtime for a crate, read from the sparse index.
+    """Map of version -> pubtime for a crate, retrying transient failures.
 
-    Raises CratesIoIndexError if the index cannot be fetched or parsed.
+    Raises CratesIoIndexError if the crate does not exist, or if every attempt
+    failed.
     """
     request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            body = response.read().decode()
-    except urllib.error.URLError as e:
-        raise CratesIoIndexError(f"failed to fetch the crates.io index: {e}") from e
-    return parse_index(body)
+    last_error: Exception | None = None
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
+                # A CratesIoIndexError from parse_index is deliberately not
+                # retried: a malformed document means the index itself changed,
+                # and asking again would return the same document.
+                return parse_index(response.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # A missing crate is an answer, not a hiccup; retrying cannot help.
+                raise CratesIoIndexError("not found in the crates.io index") from e
+            last_error = e
+        # URLError covers socket and TLS errors. A body truncated mid-character
+        # fails to decode, which is just as transient.
+        except (urllib.error.URLError, TimeoutError, UnicodeDecodeError) as e:
+            last_error = e
+        print(f"warning: {name}: index request failed ({last_error}); "
+              f"attempt {attempt} of {FETCH_ATTEMPTS}", file=sys.stderr)
+        if attempt < FETCH_ATTEMPTS:
+            time.sleep(FETCH_RETRY_DELAY_SECONDS * attempt)
+    raise CratesIoIndexError(
+        f"failed to fetch the crates.io index in {FETCH_ATTEMPTS} attempts: {last_error}"
+    )
 
 
 def published_at(crate_pubtimes: dict[str, str], version: str) -> datetime:
