@@ -15,6 +15,11 @@ which is the same field the nightly min-publish-age feature looks at.
 
 Crates listed in ci/rust-min-publish-age-allowlist.txt are exempt from the check.
 
+A version whose publish time cannot be determined fails the check too; an unknown
+age is not a safe age. It is reported next to the too-new ones at the end of the
+run, so a crate the index cannot answer for does not hide the rest of the
+findings.
+
 The cooldown window lives only in .cargo/config.toml (registry.global-min-publish-age).
 This script reads it from there, so there is a single source of truth.
 
@@ -56,6 +61,14 @@ UNIT_SECONDS = {
 class MinPublishAge(NamedTuple):
     duration: timedelta
     text: str  # the verbatim config value, e.g. "7 days", shown in messages
+
+
+class Undatable(NamedTuple):
+    """A crates.io version whose publish time could not be established."""
+    name: str
+    version: str
+    lockfiles: list[str]  # the lockfiles it was found in
+    reason: str
 
 
 def load_min_publish_age() -> MinPublishAge:
@@ -132,16 +145,58 @@ def index_url(name: str) -> str:
     return f"{INDEX_BASE}/{path}"
 
 
+class CratesIoIndexError(Exception):
+    """A crate version could not be dated from the crates.io index."""
+
+
+def parse_index(document: str) -> dict[str, str]:
+    """Map of version -> pubtime from an index document (one JSON object per line)."""
+    version_pubtimes = {}
+    for line in document.splitlines():
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError as e:
+            raise CratesIoIndexError(f"malformed crates.io index: {e}") from e
+        if entry.get("vers") and entry.get("pubtime"):
+            version_pubtimes[entry["vers"]] = entry["pubtime"]
+    return version_pubtimes
+
+
 def pubtimes(name: str) -> dict[str, str]:
-    """Map of version -> pubtime for a crate, read from the sparse index."""
+    """Map of version -> pubtime for a crate, read from the sparse index.
+
+    Raises CratesIoIndexError if the index cannot be fetched or parsed.
+    """
     request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             body = response.read().decode()
     except urllib.error.URLError as e:
-        sys.exit(f"error: failed to fetch crates.io index for {name!r}: {e}")
-    entries = (json.loads(line) for line in body.splitlines() if line.strip())
-    return {e["vers"]: e["pubtime"] for e in entries if e.get("pubtime")}
+        raise CratesIoIndexError(f"failed to fetch the crates.io index: {e}") from e
+    return parse_index(body)
+
+
+def published_at(crate_pubtimes: dict[str, str], version: str) -> datetime:
+    """When a version was published, as a timezone-aware datetime.
+
+    Raises CratesIoIndexError if the index has no usable publish time for it. An
+    unknown or ambiguous timestamp cannot be compared against the window, and an
+    unknown age is not a safe age.
+    """
+    pubtime = crate_pubtimes.get(version)
+    if pubtime is None:
+        # crates.io backfills pubtime on every version, so a miss here is an
+        # anomaly (e.g. an index change) rather than something to skip.
+        raise CratesIoIndexError("version has no publish time in the crates.io index")
+    try:
+        published = datetime.fromisoformat(pubtime)
+    except ValueError as e:
+        raise CratesIoIndexError(f"unparsable publish time {pubtime!r}") from e
+    if published.tzinfo is None:
+        raise CratesIoIndexError(f"publish time {pubtime!r} has no time zone")
+    return published
 
 
 def versions_to_check(lockfiles: list[str], base_ref: str | None,
@@ -200,19 +255,24 @@ def main() -> int:
     crates = versions_to_check(lockfiles, base_ref, allowlist)
 
     violations = []
+    undatable: list[Undatable] = []
     num_checked_versions = 0
     for name, versions in sorted(crates.items()):
         # One index request answers for every version of a crate.
-        crate_pubtimes = pubtimes(name)
+        try:
+            crate_pubtimes = pubtimes(name)
+        except CratesIoIndexError as e:
+            for version, version_lockfiles in sorted(versions.items()):
+                undatable.append(Undatable(name, version, version_lockfiles, str(e)))
+            continue
         for version, version_lockfiles in sorted(versions.items()):
-            pubtime = crate_pubtimes.get(version)
-            if pubtime is None:
-                # crates.io backfills pubtime on every version, so a miss here is
-                # an anomaly (e.g. an index change); fail loudly rather than skip.
-                sys.exit(f"error: no publish time for {name} {version} in the "
-                         "crates.io index")
+            try:
+                published = published_at(crate_pubtimes, version)
+            except CratesIoIndexError as e:
+                undatable.append(Undatable(name, version, version_lockfiles, str(e)))
+                continue
             num_checked_versions += 1
-            age = now - datetime.fromisoformat(pubtime.replace("Z", "+00:00"))
+            age = now - published
             if age < min_publish_age.duration:
                 violations.append(
                     f"{name} {version} ({', '.join(version_lockfiles)}): published "
@@ -227,6 +287,17 @@ def main() -> int:
             print(f"  - {violation}", file=sys.stderr)
         print("\nWait until they age past the window, or add the crate to "
               f"{ALLOWLIST.relative_to(REPO_ROOT)}.", file=sys.stderr)
+
+    if undatable:
+        if violations:
+            print(file=sys.stderr)  # separate the two lists
+        print(f"FAIL: could not determine the publish time of {len(undatable)} "
+              "version(s). An unknown age is not a safe age:\n", file=sys.stderr)
+        for entry in undatable:
+            print(f"  - {entry.name} {entry.version} ({', '.join(entry.lockfiles)}): "
+                  f"{entry.reason}", file=sys.stderr)
+
+    if violations or undatable:
         return 1
 
     scope = (f"across {len(lockfiles)} lockfile(s)" if base_ref is None
