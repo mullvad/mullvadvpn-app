@@ -209,6 +209,7 @@ quinn.opt-level = 3
 quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3
 ring.opt-level = 3
+tunnel-obfuscation.opt-level = 3
 
 # The installer-downloader is a standalone binary users download directly, so it is
 # optimized for size harder than the rest of the workspace. Used by
