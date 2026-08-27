@@ -12,7 +12,7 @@ use mullvad_types::{
         WireguardRelay,
     },
 };
-use talpid_types::net::proxy::ShadowsocksCipher;
+use talpid_types::net::{obfuscation::LwoVersion, proxy::ShadowsocksCipher};
 use vec1::Vec1;
 
 use super::net::try_transport_protocol_from_i32;
@@ -280,7 +280,7 @@ impl From<mullvad_types::relay_list::WireguardRelay> for proto::Relay {
                     .map(|addr| addr.to_string())
                     .collect(),
                 quic: quic.map(proto::relay::wireguard_endpoint::Quic::from),
-                lwo,
+                lwo: lwo.is_some(),
             }),
             location: Some(proto::Location::from(location)),
         }
@@ -389,7 +389,9 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
                     .quic
                     .map(mullvad_types::relay_list::Quic::try_from)
                     .transpose()?,
-                lwo: wireguard.lwo,
+                // TODO: This is a lie. The version is not exposed to frontends, so the relay may not
+                // support V2. V1 support will be deprecated in time. Then we can remove it.
+                lwo: wireguard.lwo.then_some(LwoVersion::V2),
                 shadowsocks_extra_addr_in: wireguard
                     .shadowsocks_extra_addr_in
                     .into_iter()

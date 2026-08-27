@@ -30,7 +30,7 @@ use mullvad_types::{
 };
 use talpid_types::net::{
     IpVersion,
-    obfuscation::{ObfuscatorConfig, Obfuscators},
+    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators},
 };
 use vec1::Vec1;
 
@@ -65,9 +65,9 @@ pub struct RelayEndpointSet {
     udp2tcp_ports: Option<Vec1<u16>>,
     /// QUIC obfuscation endpoints, if the relay supports QUIC.
     quic: Option<QuicEndpoints>,
-    /// Whether the relay supports LWO. LWO reuses the WireGuard endpoint,
-    /// so no additional address information is needed.
-    lwo: bool,
+    /// The LWO version to connect with, if the relay supports LWO. LWO reuses the WireGuard
+    /// endpoint, so no additional address information is needed.
+    lwo: Option<LwoVersion>,
 }
 
 /// The relay's WireGuard endpoint addresses and valid port ranges.
@@ -203,7 +203,7 @@ impl RelayEndpointSet {
             // LWO reuses the WireGuard endpoint, so IP version and port availability are the same
             // as for plain WireGuard.
             Constraint::Only(ObfuscationMode::Lwo(settings)) => Verdict::all([
-                self.lwo.if_false(Reason::Obfuscation),
+                self.lwo.is_some().if_false(Reason::Obfuscation),
                 self.wireguard
                     .supports_port(settings.port)
                     .if_false(Reason::Port),
@@ -313,13 +313,12 @@ impl RelayEndpointSet {
     /// the WG port ranges satisfies `port`. LWO wraps the WG socket on the relay side, so
     /// `wg_ip` must be the chosen WG endpoint IP.
     fn lwo_config(&self, wg_ip: IpAddr, port: Constraint<u16>) -> Result<ObfuscatorConfig, Error> {
-        if !self.lwo {
-            return Err(Error::MissingSupport);
-        }
+        let version = self.lwo.ok_or(Error::MissingSupport)?;
         let port = random_port_in_ranges(&self.wireguard.port_ranges, port)
             .ok_or(Error::NoMatchingPort)?;
         Ok(ObfuscatorConfig::Lwo {
             endpoint: SocketAddr::new(wg_ip, port),
+            version,
         })
     }
 

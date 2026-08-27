@@ -30,7 +30,7 @@ use std::{
 use talpid_net::bypass::SocketBypass;
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
-use talpid_types::net::wireguard::PeerConfig;
+use talpid_types::net::{obfuscation::LwoVersion, wireguard::PeerConfig};
 use tun::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
@@ -280,7 +280,12 @@ async fn configure_entry_device(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), gotatun::device::Error> {
     let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+    let mut entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+
+    if obfuscation::lwo_version(config) == Some(LwoVersion::V2) {
+        entry_peer = entry_peer.dangerously_with_timer_params(obfuscation::lwo_timer_params());
+    }
+
     device
         .write(async |device| {
             device.clear_peers();
