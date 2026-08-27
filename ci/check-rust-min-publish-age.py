@@ -18,10 +18,8 @@ Crates listed in ci/rust-min-publish-age-allowlist.txt are exempt from the check
 The cooldown window lives only in .cargo/config.toml (registry.global-min-publish-age).
 This script reads it from there, so there is a single source of truth.
 
-Hopefully cargo develop native functionality that can replace this script eventually.
+Hopefully cargo develops native functionality that can replace this script eventually.
 """
-
-from __future__ import annotations
 
 import argparse
 import json
@@ -39,6 +37,8 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 CONFIG = REPO_ROOT / ".cargo" / "config.toml"
 ALLOWLIST = SCRIPT_DIR / "rust-min-publish-age-allowlist.txt"
+# A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
+CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
 INDEX_BASE = "https://index.crates.io"
 USER_AGENT = "mullvadvpn-app min-publish-age check (github.com/mullvad/mullvadvpn-app)"
 
@@ -59,8 +59,8 @@ class MinPublishAge(NamedTuple):
 
 
 def load_min_publish_age() -> MinPublishAge:
-    with CONFIG.open("rb") as f:
-        raw = tomllib.load(f).get("registry", {}).get("global-min-publish-age")
+    with CONFIG.open("rb") as config_file:
+        raw = tomllib.load(config_file).get("registry", {}).get("global-min-publish-age")
     if raw is None:
         sys.exit(f"error: registry.global-min-publish-age is not set in {CONFIG}")
     raw = raw.strip()
@@ -82,39 +82,53 @@ def load_allowlist() -> set[str]:
     return names
 
 
-def crates_io_versions(lock_text: str) -> set[tuple[str, str]]:
+def crates_io_versions(lockfile_text: str) -> set[tuple[str, str]]:
     """The (name, version) of every crates.io package in a Cargo.lock."""
-    # A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
-    CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
-
-    packages = tomllib.loads(lock_text).get("package", [])
+    packages = tomllib.loads(lockfile_text).get("package", [])
     return {
-        (pkg["name"], pkg["version"])
-        for pkg in packages
-        if pkg.get("source") == CRATES_IO_SOURCE
+        (package["name"], package["version"])
+        for package in packages
+        if package.get("source") == CRATES_IO_SOURCE
     }
+
+
+def git(*args: str) -> subprocess.CompletedProcess[str]:
+    """Run a git command in the repo root. What a failure means is up to the caller."""
+    return subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True, text=True)
 
 
 def git_show(revision: str, path: str) -> str | None:
     """Contents of `path` at git `revision`, or None if it doesn't exist there."""
-    result = subprocess.run(
-        ["git", "show", f"{revision}:{path}"],
-        cwd=REPO_ROOT, capture_output=True, text=True,
-    )
+    result = git("show", f"{revision}:{path}")
     return result.stdout if result.returncode == 0 else None
+
+
+def tracked_lockfiles() -> list[str]:
+    """Every Cargo.lock tracked by git, as paths relative to the repo root.
+
+    Exits on failure rather than returning nothing: an empty list would make the
+    whole check silently pass.
+    """
+    result = git("ls-files", "*Cargo.lock")
+    if result.returncode != 0:
+        sys.exit(f"error: listing lockfiles failed: {result.stderr.strip()}")
+    lockfiles = sorted(result.stdout.splitlines())
+    if not lockfiles:
+        sys.exit(f"error: no Cargo.lock is tracked by git in {REPO_ROOT}")
+    return lockfiles
 
 
 def index_url(name: str) -> str:
     """The sparse-index URL for a crate, per the crates.io path layout."""
-    n = name.lower()
-    if len(n) == 1:
-        path = f"1/{n}"
-    elif len(n) == 2:
-        path = f"2/{n}"
-    elif len(n) == 3:
-        path = f"3/{n[0]}/{n}"
+    lowercase_name = name.lower()
+    if len(lowercase_name) == 1:
+        path = f"1/{lowercase_name}"
+    elif len(lowercase_name) == 2:
+        path = f"2/{lowercase_name}"
+    elif len(lowercase_name) == 3:
+        path = f"3/{lowercase_name[0]}/{lowercase_name}"
     else:
-        path = f"{n[0:2]}/{n[2:4]}/{n}"
+        path = f"{lowercase_name[:2]}/{lowercase_name[2:4]}/{lowercase_name}"
     return f"{INDEX_BASE}/{path}"
 
 
@@ -159,19 +173,14 @@ def main() -> int:
     # UTC keeps `now` timezone-aware for subtracting the index's UTC pubtimes.
     now = datetime.now(timezone.utc)
 
-    if base_ref is not None and subprocess.run(
-        ["git", "rev-parse", "--verify", "--quiet", base_ref],
-        cwd=REPO_ROOT, capture_output=True,
-    ).returncode != 0:
-        sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
+    if base_ref is not None:
+        if git("rev-parse", "--verify", "--quiet", base_ref).returncode != 0:
+            sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
 
-    lockfiles = sorted(subprocess.run(
-        ["git", "ls-files", "*Cargo.lock"],
-        cwd=REPO_ROOT, capture_output=True, text=True,
-    ).stdout.split())
+    lockfiles = tracked_lockfiles()
 
     violations = []
-    num_checked_crates = 0
+    num_checked_versions = 0
     for lock in lockfiles:
         head_crates = crates_io_versions((REPO_ROOT / lock).read_text())
         # With no base ref, check the whole lockfile; otherwise only the crates.io
@@ -189,7 +198,7 @@ def main() -> int:
                 # an anomaly (e.g. an index change); fail loudly rather than skip.
                 sys.exit(f"error: no publish time for {name} {version} in the "
                          "crates.io index")
-            num_checked_crates += 1
+            num_checked_versions += 1
             age = now - datetime.fromisoformat(pubtime.replace("Z", "+00:00"))
             if age < min_publish_age.duration:
                 violations.append(
@@ -207,8 +216,9 @@ def main() -> int:
               f"{ALLOWLIST.relative_to(REPO_ROOT)}.", file=sys.stderr)
         return 1
 
-    scope = "in the full lockfile" if base_ref is None else f"added since {base_ref!r}"
-    print(f"OK: checked {num_checked_crates} crates.io version(s) {scope}; "
+    scope = (f"across {len(lockfiles)} lockfile(s)" if base_ref is None
+             else f"added since {base_ref!r}")
+    print(f"OK: checked {num_checked_versions} crates.io version(s) {scope}; "
           f"none younger than {min_publish_age.text} "
           f"(allowlist: {len(allowlist)} crate(s)).")
     return 0
