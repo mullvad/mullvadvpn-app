@@ -490,6 +490,22 @@ fileprivate struct FfiConverterUInt64: FfiConverterPrimitive {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterDouble: FfiConverterPrimitive {
+    typealias FfiType = Double
+    typealias SwiftType = Double
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Double {
+        return try lift(readDouble(&buf))
+    }
+
+    public static func write(_ value: Double, into buf: inout [UInt8]) {
+        writeDouble(&buf, lower(value))
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterBool : FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
@@ -941,6 +957,8 @@ public protocol ApiContextProtocol: AnyObject, Sendable {
      */
     func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, identifier: String, publicKey: Data)  -> RequestCancelHandle
     
+    func amIMullvad(useIpv6: Bool, hostname: String, retryStrategy: RetryStrategy) async throws  -> IAmMullvadResponse
+    
     /**
      * Send a problem report via the Mullvad API client.
      */
@@ -1184,6 +1202,23 @@ open func rotateDeviceKey(retryStrategy: RetryStrategy, accountNumber: String, i
 })
 }
     
+open func amIMullvad(useIpv6: Bool, hostname: String, retryStrategy: RetryStrategy)async throws  -> IAmMullvadResponse  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_mullvad_ios_fn_method_apicontext_am_i_mullvad(
+                    self.uniffiCloneHandle(),
+                    FfiConverterBool.lower(useIpv6),FfiConverterString.lower(hostname),FfiConverterTypeRetryStrategy_lower(retryStrategy)
+                )
+            },
+            pollFunc: ffi_mullvad_ios_rust_future_poll_rust_buffer,
+            completeFunc: ffi_mullvad_ios_rust_future_complete_rust_buffer,
+            freeFunc: ffi_mullvad_ios_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterTypeIAmMullvadResponse_lift,
+            errorHandler: FfiConverterTypeErasedError__as_error_lift
+        )
+}
+    
     /**
      * Send a problem report via the Mullvad API client.
      */
@@ -1263,6 +1298,200 @@ public func FfiConverterTypeApiContext_lower(_ value: ApiContext) -> UInt64 {
 }
 
 
+
+
+
+
+/**
+ * An `anyhow::Error` like error, but tailored for uniffi.
+ * To get the error message in your host language (Swift in our case), you can
+ * do something like the following:
+ *
+ * ```swift
+ * do {
+ * try throwingFunction()
+ * } catch let error as ErasedError {
+ * print("error: \(error.message())")
+ * }
+ * ```
+ */
+public protocol ErasedErrorProtocol: AnyObject, Sendable {
+    
+    func asString()  -> String
+    
+}
+/**
+ * An `anyhow::Error` like error, but tailored for uniffi.
+ * To get the error message in your host language (Swift in our case), you can
+ * do something like the following:
+ *
+ * ```swift
+ * do {
+ * try throwingFunction()
+ * } catch let error as ErasedError {
+ * print("error: \(error.message())")
+ * }
+ * ```
+ */
+open class ErasedError: ErasedErrorProtocol, @unchecked Sendable, Swift.Error, Foundation.LocalizedError {
+    fileprivate let handle: UInt64
+
+    /// Used to instantiate a [FFIObject] without an actual handle, for fakes in tests, mostly.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public struct NoHandle {
+        public init() {}
+    }
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `FfiConverter` without making this `required` and we can't
+    // make it `required` without making it `public`.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    required public init(unsafeFromHandle handle: UInt64) {
+        self.handle = handle
+    }
+
+    // This constructor can be used to instantiate a fake object.
+    // - Parameter noHandle: Placeholder value so we can have a constructor separate from the default empty one that may be implemented for classes extending [FFIObject].
+    //
+    // - Warning:
+    //     Any object instantiated with this constructor cannot be passed to an actual Rust-backed object. Since there isn't a backing handle the FFI lower functions will crash.
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public init(noHandle: NoHandle) {
+        self.handle = 0
+    }
+
+#if swift(>=5.8)
+    @_documentation(visibility: private)
+#endif
+    public func uniffiCloneHandle() -> UInt64 {
+        return try! rustCall { uniffi_mullvad_ios_fn_clone_erasederror(self.handle, $0) }
+    }
+    // No primary constructor declared for this class.
+
+    deinit {
+        if handle == 0 {
+            // Mock objects have handle=0 don't try to free them
+            return
+        }
+
+        try! rustCall { uniffi_mullvad_ios_fn_free_erasederror(handle, $0) }
+    }
+
+    
+public static func msg(value: String) -> ErasedError  {
+    return try!  FfiConverterTypeErasedError_lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_constructor_erasederror_msg(
+        FfiConverterString.lower(value),$0
+    )
+})
+}
+    
+
+    
+open func asString() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_erasederror_as_string(
+            self.uniffiCloneHandle(),$0
+    )
+})
+}
+    
+
+    
+    
+    public var errorDescription: String? {
+        String(reflecting: self)
+    }
+    
+    
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeErasedError: FfiConverter {
+    typealias FfiType = UInt64
+    typealias SwiftType = ErasedError
+
+    public static func lift(_ handle: UInt64) throws -> ErasedError {
+        return ErasedError(unsafeFromHandle: handle)
+    }
+
+    public static func lower(_ value: ErasedError) -> UInt64 {
+        return value.uniffiCloneHandle()
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ErasedError {
+        let handle: UInt64 = try readInt(&buf)
+        return try lift(handle)
+    }
+
+    public static func write(_ value: ErasedError, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeErasedError_lift(_ handle: UInt64) throws -> ErasedError {
+    return try FfiConverterTypeErasedError.lift(handle)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeErasedError_lower(_ value: ErasedError) -> UInt64 {
+    return FfiConverterTypeErasedError.lower(value)
+}
+
+
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeErasedError__as_error: FfiConverterRustBuffer {
+    public static func lift(_ buf: RustBuffer) throws -> ErasedError {
+        var reader = createReader(data: Data(rustBuffer: buf))
+        return try FfiConverterTypeErasedError.read(from: &reader)
+    }
+
+    public static func lower(_ value: ErasedError) -> RustBuffer {
+        fatalError("not implemented")
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ErasedError {
+        fatalError("not implemented")
+    }
+
+    public static func write(_ value: ErasedError, into buf: inout [UInt8]) {
+        fatalError("not implemented")
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeErasedError__as_error_lift(_ buf: RustBuffer) throws -> ErasedError {
+    return try FfiConverterTypeErasedError__as_error.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeErasedError__as_error_lower(_ value: ErasedError) -> RustBuffer {
+    return FfiConverterTypeErasedError__as_error.lower(value)
+}
 
 
 
@@ -2677,6 +2906,200 @@ public func FfiConverterTypeGotaTunPeer_lower(_ value: GotaTunPeer) -> RustBuffe
 }
 
 
+public struct IAmMullvadResponse: Equatable, Hashable, Codable {
+    public let latitude: Double
+    public let longitude: Double
+    public let exitIp: Bool
+    public let ipv4: Ipv4Addr?
+    public let ipv6: Ipv6Addr?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(latitude: Double, longitude: Double, exitIp: Bool, ipv4: Ipv4Addr?, ipv6: Ipv6Addr?) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.exitIp = exitIp
+        self.ipv4 = ipv4
+        self.ipv6 = ipv6
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension IAmMullvadResponse: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeIAmMullvadResponse: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> IAmMullvadResponse {
+        return
+            try IAmMullvadResponse(
+                latitude: FfiConverterDouble.read(from: &buf), 
+                longitude: FfiConverterDouble.read(from: &buf), 
+                exitIp: FfiConverterBool.read(from: &buf), 
+                ipv4: FfiConverterOptionTypeIpv4Addr.read(from: &buf), 
+                ipv6: FfiConverterOptionTypeIpv6Addr.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: IAmMullvadResponse, into buf: inout [UInt8]) {
+        FfiConverterDouble.write(value.latitude, into: &buf)
+        FfiConverterDouble.write(value.longitude, into: &buf)
+        FfiConverterBool.write(value.exitIp, into: &buf)
+        FfiConverterOptionTypeIpv4Addr.write(value.ipv4, into: &buf)
+        FfiConverterOptionTypeIpv6Addr.write(value.ipv6, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIAmMullvadResponse_lift(_ buf: RustBuffer) throws -> IAmMullvadResponse {
+    return try FfiConverterTypeIAmMullvadResponse.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIAmMullvadResponse_lower(_ value: IAmMullvadResponse) -> RustBuffer {
+    return FfiConverterTypeIAmMullvadResponse.lower(value)
+}
+
+
+/**
+ * A 1-1 mapping of [std::net::Ipv4Addr] memorywise, but uniffi compatible.
+ * Allows for easy conversion between the [std] type and this one.
+ */
+public struct Ipv4Addr: Equatable, Hashable, Codable {
+    public let bits: UInt32
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(bits: UInt32) {
+        self.bits = bits
+    }
+
+    
+public func asString() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_ipv4addr_as_string(
+            FfiConverterTypeIpv4Addr_lower(self),$0
+    )
+})
+}
+    
+
+    
+}
+
+#if compiler(>=6)
+extension Ipv4Addr: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeIpv4Addr: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Ipv4Addr {
+        return
+            try Ipv4Addr(
+                bits: FfiConverterUInt32.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Ipv4Addr, into buf: inout [UInt8]) {
+        FfiConverterUInt32.write(value.bits, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIpv4Addr_lift(_ buf: RustBuffer) throws -> Ipv4Addr {
+    return try FfiConverterTypeIpv4Addr.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIpv4Addr_lower(_ value: Ipv4Addr) -> RustBuffer {
+    return FfiConverterTypeIpv4Addr.lower(value)
+}
+
+
+/**
+ * A 1-1 mapping of [std::net::Ipv6Addr] memorywise, but uniffi compatible.
+ * Allows for easy conversion between the [std] type and this one.
+ */
+public struct Ipv6Addr: Equatable, Hashable, Codable {
+    public let bits1: UInt64
+    public let bits2: UInt64
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(bits1: UInt64, bits2: UInt64) {
+        self.bits1 = bits1
+        self.bits2 = bits2
+    }
+
+    
+public func asString() -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_mullvad_ios_fn_method_ipv6addr_as_string(
+            FfiConverterTypeIpv6Addr_lower(self),$0
+    )
+})
+}
+    
+
+    
+}
+
+#if compiler(>=6)
+extension Ipv6Addr: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeIpv6Addr: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> Ipv6Addr {
+        return
+            try Ipv6Addr(
+                bits1: FfiConverterUInt64.read(from: &buf), 
+                bits2: FfiConverterUInt64.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: Ipv6Addr, into buf: inout [UInt8]) {
+        FfiConverterUInt64.write(value.bits1, into: &buf)
+        FfiConverterUInt64.write(value.bits2, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIpv6Addr_lift(_ buf: RustBuffer) throws -> Ipv6Addr {
+    return try FfiConverterTypeIpv6Addr.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeIpv6Addr_lower(_ value: Ipv6Addr) -> RustBuffer {
+    return FfiConverterTypeIpv6Addr.lower(value)
+}
+
+
 public struct ProblemReportRequest: Equatable, Hashable, Codable {
     public let address: String
     public let message: String
@@ -3437,6 +3860,54 @@ fileprivate struct FfiConverterOptionTypeGotaTunPeer: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
+fileprivate struct FfiConverterOptionTypeIpv4Addr: FfiConverterRustBuffer {
+    typealias SwiftType = Ipv4Addr?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterTypeIpv4Addr.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterTypeIpv4Addr.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+fileprivate struct FfiConverterOptionTypeIpv6Addr: FfiConverterRustBuffer {
+    typealias SwiftType = Ipv6Addr?
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
+        }
+        writeInt(&buf, Int8(1))
+        FfiConverterTypeIpv6Addr.write(value, into: &buf)
+    }
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterTypeIpv6Addr.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
 fileprivate struct FfiConverterSequenceTypeAccessMethodChangeCallback: FfiConverterRustBuffer {
     typealias SwiftType = [AccessMethodChangeCallback]
 
@@ -3507,6 +3978,54 @@ fileprivate struct FfiConverterDictionaryStringString: FfiConverterRustBuffer {
             dict[key] = value
         }
         return dict
+    }
+}
+private let UNIFFI_RUST_FUTURE_POLL_READY: Int8 = 0
+private let UNIFFI_RUST_FUTURE_POLL_WAKE: Int8 = 1
+
+fileprivate let uniffiContinuationHandleMap = UniffiHandleMap<UnsafeContinuation<Int8, Never>>()
+
+fileprivate func uniffiRustCallAsync<F, T>(
+    rustFutureFunc: () -> UInt64,
+    pollFunc: (UInt64, @escaping UniffiRustFutureContinuationCallback, UInt64) -> (),
+    completeFunc: (UInt64, UnsafeMutablePointer<RustCallStatus>) -> F,
+    freeFunc: (UInt64) -> (),
+    liftFunc: (F) throws -> T,
+    errorHandler: ((RustBuffer) throws -> Swift.Error)?
+) async throws -> T {
+    // Make sure to call the ensure init function since future creation doesn't have a
+    // RustCallStatus param, so doesn't use makeRustCall()
+    uniffiEnsureMullvadIosInitialized()
+    let rustFuture = rustFutureFunc()
+    defer {
+        freeFunc(rustFuture)
+    }
+    var pollResult: Int8;
+    repeat {
+        pollResult = await withUnsafeContinuation {
+            pollFunc(
+                rustFuture,
+                { handle, pollResult in
+                    uniffiFutureContinuationCallback(handle: handle, pollResult: pollResult)
+                },
+                uniffiContinuationHandleMap.insert(obj: $0)
+            )
+        }
+    } while pollResult != UNIFFI_RUST_FUTURE_POLL_READY
+
+    return try liftFunc(makeRustCall(
+        { completeFunc(rustFuture, $0) },
+        errorHandler: errorHandler
+    ))
+}
+
+// Callback handlers for an async calls.  These are invoked by Rust when the future is ready.  They
+// lift the return value or error and resume the suspended function.
+fileprivate func uniffiFutureContinuationCallback(handle: UInt64, pollResult: Int8) {
+    if let continuation = try? uniffiContinuationHandleMap.remove(handle: handle) {
+        continuation.resume(returning: pollResult)
+    } else {
+        print("uniffiFutureContinuationCallback invalid handle")
     }
 }
 /**
@@ -3638,6 +4157,9 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key() != 10270) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad() != 7794) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report() != 59490) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -3657,6 +4179,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_requestcompletion_finish() != 22882) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_method_erasederror_as_string() != 60193) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_recycle_udp_sockets() != 48993) {
@@ -3681,6 +4206,9 @@ private let initializationResult: InitializationResult = {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_retrystrategy_never() != 47410) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_mullvad_ios_checksum_constructor_erasederror_msg() != 15608) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_gotatuntunnel_start() != 62227) {

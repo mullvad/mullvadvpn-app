@@ -428,6 +428,11 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_devices(uint64_t ptr, uint6
 uint64_t uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustBuffer identifier, RustBuffer public_key, RustCallStatus *_Nonnull out_status
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_am_i_mullvad(uint64_t ptr, int8_t use_ipv6, RustBuffer hostname, uint64_t retry_strategy
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 uint64_t uniffi_mullvad_ios_fn_method_apicontext_send_problem_report(uint64_t ptr, uint64_t retry_strategy, RustBuffer request, RustCallStatus *_Nonnull out_status
@@ -569,6 +574,26 @@ uint64_t uniffi_mullvad_ios_fn_constructor_retrystrategy_never(RustCallStatus *_
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_ERASEDERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_ERASEDERROR
+uint64_t uniffi_mullvad_ios_fn_clone_erasederror(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_ERASEDERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_ERASEDERROR
+void uniffi_mullvad_ios_fn_free_erasederror(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_ERASEDERROR_MSG
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_ERASEDERROR_MSG
+uint64_t uniffi_mullvad_ios_fn_constructor_erasederror_msg(RustBuffer value, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ERASEDERROR_AS_STRING
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ERASEDERROR_AS_STRING
+RustBuffer uniffi_mullvad_ios_fn_method_erasederror_as_string(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
 uint64_t uniffi_mullvad_ios_fn_clone_gotatuntunnel(uint64_t handle, RustCallStatus *_Nonnull out_status
@@ -607,6 +632,16 @@ void uniffi_mullvad_ios_fn_method_gotatuntunnel_wake(uint64_t ptr, RustCallStatu
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_GOTATUNCALLBACK
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_INIT_CALLBACK_VTABLE_GOTATUNCALLBACK
 void uniffi_mullvad_ios_fn_init_callback_vtable_gotatuncallback(const UniffiVTableCallbackInterfaceGotaTunCallback* _Nonnull vtable
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_IPV4ADDR_AS_STRING
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_IPV4ADDR_AS_STRING
+RustBuffer uniffi_mullvad_ios_fn_method_ipv4addr_as_string(RustBuffer ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_IPV6ADDR_AS_STRING
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_IPV6ADDR_AS_STRING
+RustBuffer uniffi_mullvad_ios_fn_method_ipv6addr_as_string(RustBuffer ptr, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_CONVERT_BUILTIN_ACCESS_METHOD_SETTING
@@ -1003,6 +1038,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+uint16_t uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 uint16_t uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report(void
@@ -1042,6 +1083,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_requestcancelhandle_start_task(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
 uint16_t uniffi_mullvad_ios_checksum_method_requestcompletion_finish(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ERASEDERROR_AS_STRING
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ERASEDERROR_AS_STRING
+uint16_t uniffi_mullvad_ios_checksum_method_erasederror_as_string(void
     
 );
 #endif
@@ -1090,6 +1137,12 @@ uint16_t uniffi_mullvad_ios_checksum_constructor_retrystrategy_exponential(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_RETRYSTRATEGY_NEVER
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_RETRYSTRATEGY_NEVER
 uint16_t uniffi_mullvad_ios_checksum_constructor_retrystrategy_never(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_ERASEDERROR_MSG
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_ERASEDERROR_MSG
+uint16_t uniffi_mullvad_ios_checksum_constructor_erasederror_msg(void
     
 );
 #endif
