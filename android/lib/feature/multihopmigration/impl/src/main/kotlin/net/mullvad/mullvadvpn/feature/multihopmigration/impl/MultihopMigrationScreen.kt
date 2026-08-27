@@ -74,8 +74,10 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithNavigationButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryOutlinedButton
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_BACK_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG
@@ -213,10 +215,19 @@ fun MultihopMigrationScreen(
 @Composable
 private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
     MultihopMigrationPage(title = stringResource(R.string.new_multihop_modes_title)) {
+        val whenNeededMessage =
+            stringResourceWithIcons(
+                id = R.string.new_multihop_nodes_when_needed_description,
+                DescribedIcon(
+                    icon = MultihopWhenNeeded,
+                    contentDescription = stringResource(R.string.multihop_when_needed),
+                ),
+            )
         Text(
             modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            inlineContent = whenNeededMessage.inlineContent,
             text =
                 buildAnnotatedString {
                     appendLine(stringResource(R.string.new_multihop_modes_first_paragraph))
@@ -228,7 +239,8 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_on_to_always),
                                 newMode = stringResource(R.string.always),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_always_description),
+                                    stringResource(R.string.new_multihop_nodes_always_description)
+                                        .toAnnotatedString(),
                             )
                         }
                         MultihopMigrationState.OFF_TO_NEVER -> {
@@ -237,7 +249,8 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_off_to_never),
                                 newMode = stringResource(R.string.never),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_never_description),
+                                    stringResource(R.string.new_multihop_nodes_never_description)
+                                        .toAnnotatedString(),
                             )
                         }
                         MultihopMigrationState.OFF_TO_WHEN_NEEDED -> {
@@ -245,10 +258,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                 fromModeToMode =
                                     stringResource(R.string.new_multihop_modes_off_to_when_needed),
                                 newMode = stringResource(R.string.when_needed),
-                                description =
-                                    stringResource(
-                                        R.string.new_multihop_nodes_when_needed_description
-                                    ),
+                                description = whenNeededMessage.text,
                             )
                         }
                         MultihopMigrationState.OFF_TO_ALWAYS -> {
@@ -257,7 +267,8 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
                                     stringResource(R.string.new_multihop_modes_off_to_always),
                                 newMode = stringResource(R.string.always),
                                 description =
-                                    stringResource(R.string.new_multihop_nodes_always_description),
+                                    stringResource(R.string.new_multihop_nodes_always_description)
+                                        .toAnnotatedString(),
                             )
                         }
                     }
@@ -270,7 +281,7 @@ private fun NewMultihopMode(multihopMigrationState: MultihopMigrationState) {
 private fun AnnotatedString.Builder.MultihopModeDescription(
     fromModeToMode: String,
     newMode: String,
-    description: String,
+    description: AnnotatedString,
 ) {
     withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface)) { appendLine(fromModeToMode) }
     appendLine()

@@ -11,6 +11,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.multihopmigration.impl" }
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.ui.icon)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
