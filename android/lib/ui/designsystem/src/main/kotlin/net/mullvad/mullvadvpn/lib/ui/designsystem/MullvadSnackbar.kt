@@ -7,7 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun MullvadSnackbar(modifier: Modifier = Modifier, snackbarData: SnackbarData) {
+fun MullvadSnackbar(
+    modifier: Modifier = Modifier,
+    actionOnNewLine: Boolean = false,
+    snackbarData: SnackbarData,
+) {
     Snackbar(
         modifier = modifier,
         snackbarData = snackbarData,
@@ -15,5 +19,6 @@ fun MullvadSnackbar(modifier: Modifier = Modifier, snackbarData: SnackbarData) {
         contentColor = MaterialTheme.colorScheme.onSurface,
         actionColor = MaterialTheme.colorScheme.onSurface,
         dismissActionContentColor = MaterialTheme.colorScheme.onSurface,
+        actionOnNewLine = actionOnNewLine,
     )
 }

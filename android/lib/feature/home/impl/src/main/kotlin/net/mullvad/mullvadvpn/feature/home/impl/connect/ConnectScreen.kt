@@ -394,7 +394,9 @@ fun ConnectScreen(
             snackbarHost = {
                 SnackbarHost(
                     snackbarHostState,
-                    snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
+                    snackbar = { snackbarData ->
+                        MullvadSnackbar(snackbarData = snackbarData, actionOnNewLine = true)
+                    },
                 )
             }
         ) {
