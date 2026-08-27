@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -14,11 +14,6 @@
         <source>%@</source>
         <target state="final">%@</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">%1$@ функции «%2$@» требует перезапуска VPN-соединения, что приведет к кратковременной уязвимости вашего трафика. Чтобы этого не произошло, вручную включите авиарежим и отключите Wi-Fi, прежде чем продолжить.</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action to be performed, and the second argument is the name of the feature that requires restarting the VPN.</note>
       </trans-unit>
       <trans-unit id="%@ (%@)" xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@)</source>
@@ -60,11 +55,6 @@
         <target state="final">На учетную запись добавлено время: %@.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">%1$@ функции «%2$@» требует перезапуска VPN-соединения, что приведет к кратковременной уязвимости вашего трафика. Чтобы этого не произошло, вручную включите авиарежим и отключите Wi-Fi, прежде чем продолжить.</target>
-        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
-      </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
         <target state="final">%1$@, %2$@</target>
@@ -90,9 +80,9 @@
         <target state="final">**Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах.**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="**Tap here to read more**" xml:space="preserve">
+      <trans-unit id="**Tap here to read more**" xml:space="preserve" approved="yes">
         <source>**Tap here to read more**</source>
-        <target state="translated">**Нажмите здесь, чтобы узнать больше**</target>
+        <target state="final">**Нажмите здесь, чтобы узнать больше**</target>
         <note from="auto-generated">Link to read more about the settings migration.</note>
       </trans-unit>
       <trans-unit id="**Tap here** to see what’s new" xml:space="preserve" approved="yes">
@@ -148,11 +138,6 @@
       <trans-unit id="Account" xml:space="preserve" approved="yes">
         <source>Account</source>
         <target state="final">Учетная запись</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Account created" xml:space="preserve" approved="yes">
-        <source>Account created</source>
-        <target state="final">Учетная запись создана</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account credit expires soon" xml:space="preserve" approved="yes">
@@ -280,6 +265,11 @@
         <target state="final">Для совместимости текущих настроек и выбранного местоположения используется дополнительный сервер</target>
         <note from="auto-generated">A description of how the automatic location feature works.</note>
       </trans-unit>
+      <trans-unit id="Anti-censorship" xml:space="preserve" approved="yes">
+        <source>Anti-censorship</source>
+        <target state="final">Обход цензуры</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Any" xml:space="preserve" approved="yes">
         <source>Any</source>
         <target state="final">Все</target>
@@ -330,9 +320,9 @@
         <target state="final">Внимание: в этом режиме фильтры не применяются к дополнительному серверу.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="translated">Внимание: фильтры не будут применяться к автоматически выбранному серверу входа.</target>
+        <target state="final">Внимание: настройки фильтров не будут применяться к автоматически выбранному серверу входа.</target>
         <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
@@ -560,6 +550,11 @@
         <target state="final">Переключиться на «%@»</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note>Fixed disconnect warning when changing language in settings</note>
+      </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
         <source>Changing language will disconnect you from the VPN and restart the app</source>
         <target state="final">При смене языка VPN отключится, а приложение перезапустится</target>
@@ -574,11 +569,6 @@
         <source>Checked</source>
         <target state="final">Отмечено</target>
         <note from="auto-generated">Text describing a checked checkbox.</note>
-      </trans-unit>
-      <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
-        <source>Checking account number</source>
-        <target state="final">Проверка номера учетной записи</target>
-        <note/>
       </trans-unit>
       <trans-unit id="Chicago, IL" xml:space="preserve" approved="yes">
         <source>Chicago, IL</source>
@@ -610,10 +600,10 @@
         <target state="final">Удалить все переопределения?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear search" xml:space="preserve" approved="yes">
-        <source>Clear search</source>
-        <target state="final">Очистить поиск</target>
-        <note from="auto-generated">A label for a button that clears text from a search field.</note>
+      <trans-unit id="Clear text" xml:space="preserve">
+        <source>Clear text</source>
+        <target state="needs-translation">Clear text</target>
+        <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
@@ -715,11 +705,6 @@
         <target state="final">Создать</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create account" xml:space="preserve" approved="yes">
-        <source>Create account</source>
-        <target state="final">Создать учетную запись</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Create new account" xml:space="preserve" approved="yes">
         <source>Create new account</source>
         <target state="final">Создать учетную запись</target>
@@ -738,11 +723,6 @@
       <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
         <target state="final">Создано: %@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
-        <source>Creating account...</source>
-        <target state="final">Создание учетной записи...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Croatia" xml:space="preserve" approved="yes">
@@ -855,11 +835,6 @@
         <target state="final">Удалить метод</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
-        <source>Deleting account...</source>
-        <target state="final">Удаление учетной записи...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">Дания</target>
@@ -910,14 +885,14 @@
         <target state="final">Отключить функцию «%@»</target>
         <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">Отключение</target>
-        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">При отключении недавнего выбора также будет очищена история.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -945,14 +920,14 @@
         <target state="final">Действительно удалить список **%@**?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
+        <source>Do you want to remove the saved account number?</source>
+        <target state="final">Удалить сохраненный номер учетной записи?</target>
+        <note from="auto-generated">Confirmation alert message when the user wants to remove the saved account number.</note>
+      </trans-unit>
       <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
         <target state="final">Готово</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
-        <source>Don’t have an account number?</source>
-        <target state="final">Нет номера учетной записи?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dublin" xml:space="preserve" approved="yes">
@@ -1030,15 +1005,15 @@
         <target state="final">Включить недавние</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">Включение</target>
-        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." xml:space="preserve" approved="yes">
         <source>Enabling %1$@ has shown to reduce the number of issues encountered when using %2$@, regardless if you are using WiFi or a cellular network.</source>
         <target state="final">Включение функции «%1$@» уменьшает количество проблем при использовании режима «%2$@» как по Wi-Fi, так и через мобильную сеть.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
+      </trans-unit>
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1190,9 +1165,9 @@
         <target state="final">Финляндия</target>
         <note/>
       </trans-unit>
-      <trans-unit id="For details, please see our blog post" xml:space="preserve">
+      <trans-unit id="For details, please see our blog post" xml:space="preserve" approved="yes">
         <source>For details, please see our blog post</source>
-        <target state="translated">Подробнее — в нашей статье в блоге</target>
+        <target state="final">Подробнее — в нашей статье в блоге</target>
         <note from="auto-generated">Link to a blog post explaining why Include All Networks is not available on iOS 16.</note>
       </trans-unit>
       <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
@@ -1570,11 +1545,6 @@
         <target state="final">Последние четыре цифры номера учетной записи неверны</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
-        <source>Last used account</source>
-        <target state="final">Последняя использованная учетная запись</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
         <source>Learn about privacy</source>
         <target state="final">Подробнее о конфиденциальности</target>
@@ -1625,34 +1595,19 @@
         <target state="final">Местоположения можно выбрать сразу или развернуть для просмотра доступных вариантов. При выборе города или страны все находящиеся там совместимые серверы будут рассматриваться как потенциальные ресурсы для VPN-туннеля.</target>
         <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
+      <trans-unit id="Log in" xml:space="preserve" approved="yes">
+        <source>Log in</source>
+        <target state="final">Войти</target>
+        <note from="auto-generated">Button to log in.</note>
+      </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
         <target state="final">Выйти</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logged in" xml:space="preserve" approved="yes">
-        <source>Logged in</source>
-        <target state="final">Вход выполнен</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Logging in..." xml:space="preserve" approved="yes">
-        <source>Logging in...</source>
-        <target state="final">Выполняется вход...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
         <target state="final">Выполняется выход...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login" xml:space="preserve" approved="yes">
-        <source>Login</source>
-        <target state="final">Вход</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login failed" xml:space="preserve" approved="yes">
-        <source>Login failed</source>
-        <target state="final">Ошибка входа</target>
         <note/>
       </trans-unit>
       <trans-unit id="London" xml:space="preserve" approved="yes">
@@ -1718,6 +1673,11 @@
       <trans-unit id="Melbourne" xml:space="preserve" approved="yes">
         <source>Melbourne</source>
         <target state="final">Мельбурн</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Method" xml:space="preserve" approved="yes">
+        <source>Method</source>
+        <target state="final">Метод</target>
         <note/>
       </trans-unit>
       <trans-unit id="Method settings" xml:space="preserve" approved="yes">
@@ -1915,9 +1875,9 @@
         <target state="final">Больше не поддерживается</target>
         <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
-      <trans-unit id="No matching servers" xml:space="preserve">
+      <trans-unit id="No matching servers" xml:space="preserve" approved="yes">
         <source>No matching servers</source>
-        <target state="translated">Подходящие серверы не найдены</target>
+        <target state="final">Подходящие серверы не найдены</target>
         <note from="auto-generated">Button title when there are no matching relays to show.</note>
       </trans-unit>
       <trans-unit id="No recent selection history" xml:space="preserve" approved="yes">
@@ -1945,14 +1905,19 @@
         <target state="final">Нет серверов, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="None" xml:space="preserve" approved="yes">
+        <source>None</source>
+        <target state="final">Нет</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Norway" xml:space="preserve" approved="yes">
         <source>Norway</source>
         <target state="final">Норвегия</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve">
+      <trans-unit id="Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server." xml:space="preserve" approved="yes">
         <source>Not all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server.</source>
-        <target state="translated">Не все наши местоположения и серверы полностью поддерживают функции приложения. Если выбранное местоположение или сервер не поддерживает отдельные включенные функции, приложение автоматически выполняет многократный переход через совместимый сервер.</target>
+        <target state="final">Не все наши местоположения и серверы полностью поддерживают функции приложения. Если выбранное местоположение или сервер не поддерживает отдельные включенные функции, приложение автоматически выполняет многократный переход через совместимый сервер.</target>
         <note from="auto-generated">A sentence that describes the feature</note>
       </trans-unit>
       <trans-unit id="Not all our servers are %@-enabled. Therefore, we use multihop automatically to enable %@ with any server." xml:space="preserve" approved="yes">
@@ -2029,6 +1994,11 @@
         <source>Optional</source>
         <target state="final">Необязательно</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Or" xml:space="preserve" approved="yes">
+        <source>Or</source>
+        <target state="final">или</target>
+        <note from="auto-generated">A separator between the login button and the "Or" text.</note>
       </trans-unit>
       <trans-unit id="Osaka" xml:space="preserve" approved="yes">
         <source>Osaka</source>
@@ -2128,6 +2098,11 @@
       <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve" approved="yes">
         <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
         <target state="final">Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please note that these methods do not improve performance, and may increase system utilization and battery consumption." xml:space="preserve" approved="yes">
+        <source>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</source>
+        <target state="final">Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please select a compatible location after %@." xml:space="preserve" approved="yes">
@@ -2270,17 +2245,10 @@
         <target state="final">Удалить устройство «%@»?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
-        <source>Remove last used account</source>
-        <target state="final">Удалить последнюю использованную учетную запись</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
-        <source>Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</source>
-        <target state="final">Удаление сохраненного номера учетной записи с этого устройства нельзя отменить.
-Действительно удалить сохраненный номер учетной записи?</target>
-        <note/>
+      <trans-unit id="Removing the saved account number from this device cannot be undone." xml:space="preserve" approved="yes">
+        <source>Removing the saved account number from this device cannot be undone.</source>
+        <target state="final">Удаление с этого устройства сохраненного номера учетной записи нельзя будет отменить.</target>
+        <note from="auto-generated">Alert message when the user is prompted to remove the saved account number.</note>
       </trans-unit>
       <trans-unit id="Rented" xml:space="preserve" approved="yes">
         <source>Rented</source>
@@ -2452,9 +2420,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Установить для входа «%@»</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Set multihop to “%@”" xml:space="preserve">
+      <trans-unit id="Set multihop to “%@”" xml:space="preserve" approved="yes">
         <source>Set multihop to “%@”</source>
-        <target state="translated">Задать режим многократного перехода «%@»</target>
+        <target state="final">Задать режим многократного перехода «%@»</target>
         <note from="auto-generated">A message that appears in a button in the state view. The argument is text describing the action.</note>
       </trans-unit>
       <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
@@ -2552,14 +2520,14 @@ Do you want to remove the saved account number?</source>
         <target state="final">При использовании режима «Принудительно для всех приложений» некоторые функции iOS могут работать некорректно.</target>
         <note from="auto-generated">Body text in an info view that explains that some iOS features are known to be affected when using Force all apps.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes and resolve any issues." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes and resolve any issues.</source>
-        <target state="translated">Некоторые настройки были перенесены. Проверьте внесенные изменения и устраните возможные проблемы.</target>
+        <target state="final">Некоторые настройки были перенесены. Проверьте внесенные изменения и устраните возможные проблемы.</target>
         <note from="auto-generated">Body text of the in-app notification when there are multiple blocked state reasons.</note>
       </trans-unit>
-      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve">
+      <trans-unit id="Some of your settings have been migrated, please review the changes." xml:space="preserve" approved="yes">
         <source>Some of your settings have been migrated, please review the changes.</source>
-        <target state="translated">Некоторые настройки были перенесены. Проверьте внесенные изменения.</target>
+        <target state="final">Некоторые настройки были перенесены. Проверьте внесенные изменения.</target>
         <note from="auto-generated">Text displayed in a notification when some of the user's settings have been migrated.</note>
       </trans-unit>
       <trans-unit id="South Africa" xml:space="preserve" approved="yes">
@@ -2807,6 +2775,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">Версия настроек, сохраненная на устройстве, не распознается. Настройки будут сброшены до значений по умолчанию, и устройство будет выведено из системы.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+        <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
+        <target state="final">Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
         <source>These settings can be changed at any time</source>
         <target state="final">Эти настройки можно изменить в любое время</target>
@@ -2957,9 +2930,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve">
+      <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve" approved="yes">
         <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
-        <target state="translated">Чтобы вручную выбрать сервер входа, переключите режим многократного перехода на «%@».</target>
+        <target state="final">Чтобы вручную выбрать сервер входа, переключите режим многократного перехода на «%@».</target>
         <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
       </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
@@ -3102,11 +3075,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">Валенсия</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valid account number" xml:space="preserve" approved="yes">
-        <source>Valid account number</source>
-        <target state="final">Действительный номер учетной записи</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Valid range: %d - %d" xml:space="preserve" approved="yes">
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">Диапазон значений: %1$d–%2$d</target>
@@ -3177,6 +3145,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">У нас возникли некоторые проблемы, пожалуйста, попробуйте позже</target>
         <note/>
       </trans-unit>
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+        <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
+        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
+      </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
         <source>We will look into this.</source>
         <target state="final">Мы рассмотрим эту проблему.</target>
@@ -3227,11 +3200,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="WireGuard obfuscation" xml:space="preserve" approved="yes">
-        <source>WireGuard obfuscation</source>
-        <target state="final">Обфускация WireGuard</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="WireGuard port" xml:space="preserve" approved="yes">
         <source>WireGuard port</source>
         <target state="final">Порт WireGuard</target>
@@ -3252,11 +3220,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">С помощью метода «Мосты Mullvad» приложение взаимодействует с сервером API Mullvad через сервер-мост Mullvad. Для этого направляемый трафик маскируется с помощью Shadowsocks.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
-        <source>Would you like to continue to %1$@ “%2$@”?</source>
-        <target state="final">Продолжить и %1$@ функцию «%2$@»?</target>
-        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
-      </trans-unit>
       <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
         <source>Would you like to continue?</source>
         <target state="final">Продолжить?</target>
@@ -3270,11 +3233,6 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
         <source>Yes, log out device</source>
         <target state="final">Выйти из профиля на устройстве</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
-        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
-        <target state="final">У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
@@ -3312,9 +3270,9 @@ Do you want to remove the saved account number?</source>
         <target state="final">Вы можете использовать функцию «Восстановить покупки», чтобы проверить все платежи в приложении, совершенные через сервисы Apple. Если будет найден платеж, который еще не был зачислен, соответствующее время добавится к активной учетной записи Mullvad.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve">
+      <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
-        <target state="translated">Сейчас используются фильтры входа. При автоматическом выборе местоположения приложение не будет применять настройки фильтров к серверу входа.</target>
+        <target state="final">Сейчас используются фильтры входа. При автоматическом выборе местоположения приложение не будет применять настройки фильтров к серверу входа.</target>
         <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
@@ -3430,40 +3388,25 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">Цюрих</target>
         <note/>
       </trans-unit>
-      <trans-unit id="changing" xml:space="preserve">
-        <source>changing</source>
-        <target state="translated">при смене</target>
-        <note from="auto-generated">Action that will be performed when showing the disconnect warning alert.</note>
-      </trans-unit>
       <trans-unit id="changing mode" xml:space="preserve" approved="yes">
         <source>changing mode</source>
         <target state="final">изменении режима</target>
         <note>Multihop mode</note>
-      </trans-unit>
-      <trans-unit id="disable" xml:space="preserve" approved="yes">
-        <source>disable</source>
-        <target state="final">отключить</target>
-        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
-      </trans-unit>
-      <trans-unit id="enable" xml:space="preserve" approved="yes">
-        <source>enable</source>
-        <target state="final">включить</target>
-        <note from="auto-generated">The action to perform when continuing.</note>
       </trans-unit>
       <trans-unit id="enabling DAITA" xml:space="preserve" approved="yes">
         <source>enabling DAITA</source>
         <target state="final">включении DAITA</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
+      <trans-unit id="fail" xml:space="preserve">
+        <source>fail</source>
+        <target state="needs-translation">fail</target>
+        <note from="auto-generated">A label describing a failed action.</note>
+      </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
         <source>iOS features known to be affected:</source>
         <target state="final">Функции iOS, которые могут работать некорректно:</target>
         <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
-      </trans-unit>
-      <trans-unit id="language" xml:space="preserve">
-        <source>language</source>
-        <target state="needs-review-translation" state-qualifier="leveraged-tm">язык</target>
-        <note from="auto-generated">Feature name for the language setting.</note>
       </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
@@ -3499,49 +3442,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3553,21 +3496,21 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3589,14 +3532,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="ru" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>

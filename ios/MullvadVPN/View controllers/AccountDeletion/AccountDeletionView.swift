@@ -39,9 +39,10 @@ struct AccountDeletionView: View {
                 .padding(.bottom, 8)
 
                 // accountTextField
+                let placeholder = "XXXX"
                 ConfigurableTextField(
                     title: "Last 4 digits",
-                    placeholder: "XXXX",
+                    placeholder: LocalizedStringKey(placeholder),
                     text: $viewModel.enteredAccountNumberSuffix,
                     message: $message,
                     accessibilityIdentifier: .deleteAccountTextField,

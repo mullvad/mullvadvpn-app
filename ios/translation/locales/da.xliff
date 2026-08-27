@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -14,11 +14,6 @@
         <source>%@</source>
         <target state="final">%@</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">%1$@ %2$@ kræver genstart af VPN-forbindelsen, hvilket vil afbryde forbindelsen og kortvarigt blotlægge din datatrafik. For at undgå dette skal du manuelt aktivere flytilstand og slukke for wi-fi, inden du fortsætter.</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action to be performed, and the second argument is the name of the feature that requires restarting the VPN.</note>
       </trans-unit>
       <trans-unit id="%@ (%@)" xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@)</source>
@@ -59,11 +54,6 @@
         <source>%@ was added to your account.</source>
         <target state="final">%@ blev føjet til din konto.</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">%1$@ "%2$@" kræver genstart af VPN-forbindelsen, hvilket vil afbryde forbindelsen og kortvarigt blotlægge din datatrafik. For at undgå dette skal du manuelt aktivere flytilstand og slukke for wi-fi, inden du fortsætter.</target>
-        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
@@ -148,11 +138,6 @@
       <trans-unit id="Account" xml:space="preserve" approved="yes">
         <source>Account</source>
         <target state="final">Konto</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Account created" xml:space="preserve" approved="yes">
-        <source>Account created</source>
-        <target state="final">Konto oprettet</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account credit expires soon" xml:space="preserve" approved="yes">
@@ -279,6 +264,11 @@
         <source>An additional server is used to match your settings for your selected location</source>
         <target state="final">En ekstra server bruges til at matche dine indstillinger for din valgte placering</target>
         <note from="auto-generated">A description of how the automatic location feature works.</note>
+      </trans-unit>
+      <trans-unit id="Anti-censorship" xml:space="preserve" approved="yes">
+        <source>Anti-censorship</source>
+        <target state="final">Anti-censur</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve" approved="yes">
         <source>Any</source>
@@ -560,6 +550,11 @@
         <target state="final">Skift til “%@”</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note>Fixed disconnect warning when changing language in settings</note>
+      </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
         <source>Changing language will disconnect you from the VPN and restart the app</source>
         <target state="final">Ændring af sprog vil afbryde din forbindelse til VPN'en og genstarte appen</target>
@@ -574,11 +569,6 @@
         <source>Checked</source>
         <target state="final">Markeret</target>
         <note from="auto-generated">Text describing a checked checkbox.</note>
-      </trans-unit>
-      <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
-        <source>Checking account number</source>
-        <target state="final">Kontrollerer kontonummer</target>
-        <note/>
       </trans-unit>
       <trans-unit id="Chicago, IL" xml:space="preserve" approved="yes">
         <source>Chicago, IL</source>
@@ -610,10 +600,10 @@
         <target state="final">Vil du rydde alle tilsidesættelser?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear search" xml:space="preserve" approved="yes">
-        <source>Clear search</source>
-        <target state="final">Ryd søgning</target>
-        <note from="auto-generated">A label for a button that clears text from a search field.</note>
+      <trans-unit id="Clear text" xml:space="preserve">
+        <source>Clear text</source>
+        <target state="needs-translation">Clear text</target>
+        <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
@@ -715,11 +705,6 @@
         <target state="final">Opret</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create account" xml:space="preserve" approved="yes">
-        <source>Create account</source>
-        <target state="final">Opret konto</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Create new account" xml:space="preserve" approved="yes">
         <source>Create new account</source>
         <target state="final">Opret ny konto</target>
@@ -738,11 +723,6 @@
       <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
         <target state="final">Oprettet: %@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
-        <source>Creating account...</source>
-        <target state="final">Opretter konto...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Croatia" xml:space="preserve" approved="yes">
@@ -855,11 +835,6 @@
         <target state="final">Slet metode</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
-        <source>Deleting account...</source>
-        <target state="final">Sletter konto ...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">Danmark</target>
@@ -910,14 +885,14 @@
         <target state="final">Deaktiver "%@"</target>
         <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">Deaktiverer</target>
-        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">Deaktivering af seneste vil også rydde historikken.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -945,14 +920,14 @@
         <target state="final">Vil du slette listen **%@**?</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
+        <source>Do you want to remove the saved account number?</source>
+        <target state="final">Vil du fjerne det gemte kontonummer?</target>
+        <note from="auto-generated">Confirmation alert message when the user wants to remove the saved account number.</note>
+      </trans-unit>
       <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
         <target state="final">Færdig</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
-        <source>Don’t have an account number?</source>
-        <target state="final">Har du ikke noget kontonummer?</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dublin" xml:space="preserve" approved="yes">
@@ -1030,15 +1005,15 @@
         <target state="final">Aktivér nylige</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">Aktiverer</target>
-        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." xml:space="preserve" approved="yes">
         <source>Enabling %1$@ has shown to reduce the number of issues encountered when using %2$@, regardless if you are using WiFi or a cellular network.</source>
         <target state="final">Aktivering af %1$@ har vist sig at reducere antallet af problemer, der opstår, når du bruger %2$@, uanset om du bruger Wi-Fi eller et mobilnetværk.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
+      </trans-unit>
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1570,11 +1545,6 @@
         <target state="final">De sidste fire cifre i kontonummeret er forkerte</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
-        <source>Last used account</source>
-        <target state="final">Sidst anvendte konto</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
         <source>Learn about privacy</source>
         <target state="final">Lær mere om privatlivets fred</target>
@@ -1625,34 +1595,19 @@
         <target state="final">Placeringer kan vælges direkte eller udvides. Når en by eller et land er valgt, vil alle kompatible servere på den pågældende placering være kandidater til en given tunnelforbindelse.</target>
         <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
+      <trans-unit id="Log in" xml:space="preserve" approved="yes">
+        <source>Log in</source>
+        <target state="final">Log på</target>
+        <note from="auto-generated">Button to log in.</note>
+      </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
         <target state="final">Log af</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logged in" xml:space="preserve" approved="yes">
-        <source>Logged in</source>
-        <target state="final">Logget ind</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Logging in..." xml:space="preserve" approved="yes">
-        <source>Logging in...</source>
-        <target state="final">Logger ind...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
         <target state="final">Logger af ...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login" xml:space="preserve" approved="yes">
-        <source>Login</source>
-        <target state="final">Log ind</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login failed" xml:space="preserve" approved="yes">
-        <source>Login failed</source>
-        <target state="final">Login mislykkedes</target>
         <note/>
       </trans-unit>
       <trans-unit id="London" xml:space="preserve" approved="yes">
@@ -1718,6 +1673,11 @@
       <trans-unit id="Melbourne" xml:space="preserve" approved="yes">
         <source>Melbourne</source>
         <target state="final">Melbourne</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Method" xml:space="preserve" approved="yes">
+        <source>Method</source>
+        <target state="final">Metode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Method settings" xml:space="preserve" approved="yes">
@@ -1945,6 +1905,11 @@
         <target state="final">Ingen servere matcher dine indstillinger. Prøv at ændre server eller andre indstillinger.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="None" xml:space="preserve" approved="yes">
+        <source>None</source>
+        <target state="final">Ingen</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Norway" xml:space="preserve" approved="yes">
         <source>Norway</source>
         <target state="final">Norge</target>
@@ -2029,6 +1994,11 @@
         <source>Optional</source>
         <target state="final">Valgfri</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Or" xml:space="preserve" approved="yes">
+        <source>Or</source>
+        <target state="final">Eller</target>
+        <note from="auto-generated">A separator between the login button and the "Or" text.</note>
       </trans-unit>
       <trans-unit id="Osaka" xml:space="preserve" approved="yes">
         <source>Osaka</source>
@@ -2128,6 +2098,11 @@
       <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve" approved="yes">
         <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
         <target state="final">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please note that these methods do not improve performance, and may increase system utilization and battery consumption." xml:space="preserve" approved="yes">
+        <source>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</source>
+        <target state="final">Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please select a compatible location after %@." xml:space="preserve" approved="yes">
@@ -2270,17 +2245,10 @@
         <target state="final">Fjern %@?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
-        <source>Remove last used account</source>
-        <target state="final">Fjern sidst brugte konto</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
-        <source>Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</source>
-        <target state="final">Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke gøre fortryde det.
-Vil du fjerne det gemte kontonummer?</target>
-        <note/>
+      <trans-unit id="Removing the saved account number from this device cannot be undone." xml:space="preserve" approved="yes">
+        <source>Removing the saved account number from this device cannot be undone.</source>
+        <target state="final">Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke fortryde det.</target>
+        <note from="auto-generated">Alert message when the user is prompted to remove the saved account number.</note>
       </trans-unit>
       <trans-unit id="Rented" xml:space="preserve" approved="yes">
         <source>Rented</source>
@@ -2807,6 +2775,11 @@ Vil du fjerne det gemte kontonummer?</target>
         <target state="final">Den version af indstillingerne, der er gemt på enheden, kan ikke genkendes. Indstillingerne nulstilles til standardindstillingerne, og enheden bliver logget af.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+        <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
+        <target state="final">Disse metoder kan være nyttige i situationer, hvor du er blokeret fra at nå Mullvad. Når "Automatisk" er valgt, vil appen forsøge alle metoder, indtil en virker.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
         <source>These settings can be changed at any time</source>
         <target state="final">Disse indstillinger kan ændres når som helst</target>
@@ -3102,11 +3075,6 @@ Vil du fjerne det gemte kontonummer?</target>
         <target state="final">Valencia</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valid account number" xml:space="preserve" approved="yes">
-        <source>Valid account number</source>
-        <target state="final">Gyldigt kontonummer</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Valid range: %d - %d" xml:space="preserve" approved="yes">
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">Gyldigt interval: %1$d - %2$d</target>
@@ -3177,6 +3145,11 @@ Vil du fjerne det gemte kontonummer?</target>
         <target state="final">Vi har nogle problemer, prøv igen senere</target>
         <note/>
       </trans-unit>
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+        <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
+        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
+      </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
         <source>We will look into this.</source>
         <target state="final">Vi vil undersøge dette.</target>
@@ -3227,11 +3200,6 @@ Vil du fjerne det gemte kontonummer?</target>
         <target state="final">Hvilken TCP-port UDP-over-TCP tilsløringsprotokollen skal forbinde til på VPN-serveren.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="WireGuard obfuscation" xml:space="preserve" approved="yes">
-        <source>WireGuard obfuscation</source>
-        <target state="final">WireGuard-tilsløring</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="WireGuard port" xml:space="preserve" approved="yes">
         <source>WireGuard port</source>
         <target state="final">WireGuard-port</target>
@@ -3252,11 +3220,6 @@ Vil du fjerne det gemte kontonummer?</target>
         <target state="final">Med "Mullvad-broer" metoden kommunikerer appen med en Mullvad API-server via en Mullvad-broserver. Det gør den ved at sende trafikken sløret af Shadowsocks.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
-        <source>Would you like to continue to %1$@ “%2$@”?</source>
-        <target state="final">Vil du fortsætte til %1$@ "%2$@"?</target>
-        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
-      </trans-unit>
       <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
         <source>Would you like to continue?</source>
         <target state="final">Vil du fortsætte?</target>
@@ -3270,11 +3233,6 @@ Vil du fjerne det gemte kontonummer?</target>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
         <source>Yes, log out device</source>
         <target state="final">Ja, log enhed af</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
-        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
-        <target state="final">Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes.</target>
         <note/>
       </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
@@ -3430,40 +3388,25 @@ Vi er overbeviste om, at vi skal opbevare så få data som muligt, da vi ønsker
         <target state="final">Zürich</target>
         <note/>
       </trans-unit>
-      <trans-unit id="changing" xml:space="preserve" approved="yes">
-        <source>changing</source>
-        <target state="final">ændrer</target>
-        <note from="auto-generated">Action that will be performed when showing the disconnect warning alert.</note>
-      </trans-unit>
       <trans-unit id="changing mode" xml:space="preserve" approved="yes">
         <source>changing mode</source>
         <target state="final">skifte tilstand</target>
         <note>Multihop mode</note>
-      </trans-unit>
-      <trans-unit id="disable" xml:space="preserve" approved="yes">
-        <source>disable</source>
-        <target state="final">deaktiver</target>
-        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
-      </trans-unit>
-      <trans-unit id="enable" xml:space="preserve" approved="yes">
-        <source>enable</source>
-        <target state="final">aktiver</target>
-        <note from="auto-generated">The action to perform when continuing.</note>
       </trans-unit>
       <trans-unit id="enabling DAITA" xml:space="preserve" approved="yes">
         <source>enabling DAITA</source>
         <target state="final">aktiverer DAITA</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
+      <trans-unit id="fail" xml:space="preserve">
+        <source>fail</source>
+        <target state="needs-translation">fail</target>
+        <note from="auto-generated">A label describing a failed action.</note>
+      </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
         <source>iOS features known to be affected:</source>
         <target state="final">iOS-funktioner, der vides at være berørt:</target>
         <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
-      </trans-unit>
-      <trans-unit id="language" xml:space="preserve">
-        <source>language</source>
-        <target state="needs-review-translation" state-qualifier="leveraged-tm">sprog</target>
-        <note from="auto-generated">Feature name for the language setting.</note>
       </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
@@ -3499,49 +3442,49 @@ Vi er overbeviste om, at vi skal opbevare så få data som muligt, da vi ønsker
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3553,21 +3496,21 @@ Vi er overbeviste om, at vi skal opbevare så få data som muligt, da vi ønsker
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3589,14 +3532,14 @@ Vi er overbeviste om, at vi skal opbevare så få data som muligt, da vi ønsker
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="da" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
