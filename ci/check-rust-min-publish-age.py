@@ -70,6 +70,15 @@ class MinPublishAge(NamedTuple):
     text: str  # the verbatim config value, e.g. "7 days", shown in messages
 
 
+class Violation(NamedTuple):
+    """A crates.io version that is younger than the cooldown window."""
+    name: str
+    version: str
+    lockfiles: list[str]  # the lockfiles it was found in
+    published: datetime
+    age: timedelta
+
+
 class Undatable(NamedTuple):
     """A crates.io version whose publish time could not be established."""
     name: str
@@ -252,6 +261,17 @@ def versions_to_check(lockfiles: list[str], base_ref: str | None,
     return crates
 
 
+def format_age(age: timedelta) -> str:
+    """An age as whole days and hours, e.g. "2d 3h".
+
+    A negative age, meaning a publish time in the future, keeps its sign rather
+    than being hidden behind wrapped-around numbers.
+    """
+    sign = "-" if age < timedelta(0) else ""
+    hours = int(abs(age).total_seconds() // 3600)
+    return f"{sign}{hours // 24}d {hours % 24}h"
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
@@ -282,7 +302,7 @@ def main() -> int:
     lockfiles = tracked_lockfiles()
     crates = versions_to_check(lockfiles, base_ref, allowlist)
 
-    violations = []
+    violations: list[Violation] = []
     undatable: list[Undatable] = []
     num_checked_versions = 0
     for name, versions in sorted(crates.items()):
@@ -303,16 +323,17 @@ def main() -> int:
             age = now - published
             if age < min_publish_age.duration:
                 violations.append(
-                    f"{name} {version} ({', '.join(version_lockfiles)}): published "
-                    f"{age.total_seconds() / 86400:.1f} days ago, minimum is "
-                    f"{min_publish_age.text}"
-                )
+                    Violation(name, version, version_lockfiles, published, age))
 
     if violations:
         print("FAIL: found crates.io versions newer than the min-publish-age "
               "cooldown window:\n", file=sys.stderr)
-        for violation in violations:
-            print(f"  - {violation}", file=sys.stderr)
+        for violation in sorted(violations, key=lambda entry: entry.age):
+            print(f"  - {violation.name} {violation.version} "
+                  f"({', '.join(violation.lockfiles)}): published "
+                  f"{violation.published:%Y-%m-%d %H:%M}Z, "
+                  f"{format_age(violation.age)} ago, minimum is {min_publish_age.text}",
+                  file=sys.stderr)
         print("\nWait until they age past the window, or add the crate to "
               f"{ALLOWLIST.relative_to(REPO_ROOT)}.", file=sys.stderr)
 
