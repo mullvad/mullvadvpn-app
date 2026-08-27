@@ -30,12 +30,11 @@ import argparse
 import http.client
 import json
 import re
+import ssl
 import subprocess
 import sys
 import time
 import tomllib
-import urllib.error
-import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import NamedTuple
@@ -46,7 +45,7 @@ CONFIG = REPO_ROOT / ".cargo" / "config.toml"
 ALLOWLIST = SCRIPT_DIR / "rust-min-publish-age-allowlist.txt"
 # A Cargo.lock package's `source` value when it comes from crates.io (vs git/path).
 CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
-INDEX_BASE = "https://index.crates.io"
+INDEX_HOST = "index.crates.io"
 USER_AGENT = "mullvadvpn-app min-publish-age check (github.com/mullvad/mullvadvpn-app)"
 FETCH_TIMEOUT_SECONDS = 30
 # The index is a CDN, so failures are usually transient. Retry a few times with a
@@ -147,26 +146,30 @@ def tracked_lockfiles() -> list[str]:
     return lockfiles
 
 
-def index_url(name: str) -> str:
-    """The sparse-index URL for a crate, per the crates.io path layout."""
+def index_path(name: str) -> str:
+    """The sparse-index path for a crate, per the crates.io path layout."""
     lowercase_name = name.lower()
     if len(lowercase_name) == 1:
-        path = f"1/{lowercase_name}"
+        return f"/1/{lowercase_name}"
     elif len(lowercase_name) == 2:
-        path = f"2/{lowercase_name}"
+        return f"/2/{lowercase_name}"
     elif len(lowercase_name) == 3:
-        path = f"3/{lowercase_name[0]}/{lowercase_name}"
+        return f"/3/{lowercase_name[0]}/{lowercase_name}"
     else:
-        path = f"{lowercase_name[:2]}/{lowercase_name[2:4]}/{lowercase_name}"
-    return f"{INDEX_BASE}/{path}"
+        return f"/{lowercase_name[:2]}/{lowercase_name[2:4]}/{lowercase_name}"
 
 
 class CratesIoIndexError(Exception):
     """A crate version could not be dated from the crates.io index."""
 
 
-def parse_index(document: str) -> dict[str, str]:
-    """Map of version -> pubtime from an index document (one JSON object per line)."""
+def parse_index(document: str, name: str) -> dict[str, str]:
+    """Map of version -> pubtime from an index document (one JSON object per line).
+
+    The name in the document is checked against the crate that was asked about:
+    all requests share one connection, so a response must never be read as an
+    answer about the wrong crate.
+    """
     version_pubtimes = {}
     for line in document.splitlines():
         if not line.strip():
@@ -175,39 +178,61 @@ def parse_index(document: str) -> dict[str, str]:
             entry = json.loads(line)
         except json.JSONDecodeError as e:
             raise CratesIoIndexError(f"malformed crates.io index: {e}") from e
+        # The index path is lowercased, so the document spells the name as published.
+        if entry.get("name", "").casefold() != name.casefold():
+            raise CratesIoIndexError(
+                f"crates.io index document is for {entry.get('name')!r}, not {name!r}"
+            )
         if entry.get("vers") and entry.get("pubtime"):
             version_pubtimes[entry["vers"]] = entry["pubtime"]
     return version_pubtimes
 
 
-def pubtimes(name: str) -> dict[str, str]:
+def request_document(connection: http.client.HTTPSConnection, name: str) -> str:
+    """One attempt at reading a crate's index document.
+
+    Raises CratesIoIndexError if crates.io says the crate does not exist, and
+    HTTPException, OSError or UnicodeDecodeError if the request failed in a way
+    worth retrying.
+    """
+    connection.request("GET", index_path(name), headers={"User-Agent": USER_AGENT})
+    response = connection.getresponse()
+    # The body has to be read in full before the connection can carry the next request.
+    body = response.read()
+    if response.status == 404:
+        # A missing crate is an answer, not a hiccup; retrying cannot help.
+        raise CratesIoIndexError("not found in the crates.io index")
+    if response.status != 200:
+        # Redirects are deliberately not followed: the index path layout is
+        # fixed, so a 3xx is an anomaly to report, not something to chase.
+        raise http.client.HTTPException(f"HTTP {response.status} {response.reason}")
+    return body.decode()
+
+
+def pubtimes(connection: http.client.HTTPSConnection, name: str) -> dict[str, str]:
     """Map of version -> pubtime for a crate, retrying transient failures.
 
-    Raises CratesIoIndexError if the crate does not exist, or if every attempt
-    failed.
+    Raises CratesIoIndexError if the crate does not exist, if the index answers
+    about a different crate, or if every attempt failed.
     """
-    request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
     last_error: Exception | None = None
     for attempt in range(1, FETCH_ATTEMPTS + 1):
         try:
-            with urllib.request.urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
-                # A CratesIoIndexError from parse_index is deliberately not
-                # retried: a malformed document means the index itself changed,
-                # and asking again would return the same document.
-                return parse_index(response.read().decode())
-        except urllib.error.HTTPError as e:
-            if e.code == 404:
-                # A missing crate is an answer, not a hiccup; retrying cannot help.
-                raise CratesIoIndexError("not found in the crates.io index") from e
-            last_error = e
-        # OSError covers socket, TLS and timeout errors, URLError among them.
-        # HTTPException covers a response that arrives damaged, such as a body
-        # shorter than its Content-Length. A body truncated mid-character fails
-        # to decode, which is just as transient.
+            # A CratesIoIndexError from either call is deliberately not retried:
+            # a missing crate, a malformed document, or a document about another
+            # crate are all answers that asking again would not change.
+            return parse_index(request_document(connection, name), name)
+        # OSError covers socket, TLS and timeout errors. HTTPException covers a
+        # response that arrives damaged, such as a body shorter than its
+        # Content-Length. A body truncated mid-character fails to decode, which
+        # is just as transient.
         except (OSError, http.client.HTTPException, UnicodeDecodeError) as e:
+            # A failed request can leave the connection unusable. Closing it is
+            # enough; the next request opens a new one by itself.
+            connection.close()
             last_error = e
-        print(f"warning: {name}: index request failed ({last_error}); "
-              f"attempt {attempt} of {FETCH_ATTEMPTS}", file=sys.stderr)
+            print(f"warning: {name}: index request failed ({e}); "
+                  f"attempt {attempt} of {FETCH_ATTEMPTS}", file=sys.stderr)
         if attempt < FETCH_ATTEMPTS:
             time.sleep(FETCH_RETRY_DELAY_SECONDS * attempt)
     raise CratesIoIndexError(
@@ -302,13 +327,21 @@ def main() -> int:
     lockfiles = tracked_lockfiles()
     crates = versions_to_check(lockfiles, base_ref, allowlist)
 
+    # One connection for every request: a fresh TLS session per crate costs several
+    # times more than transferring the small index documents does.
+    index_connection = http.client.HTTPSConnection(
+        INDEX_HOST,
+        timeout=FETCH_TIMEOUT_SECONDS,
+        # The default TLS context: certificate chain and hostname are both verified.
+        context=ssl.create_default_context(),
+    )
     violations: list[Violation] = []
     undatable: list[Undatable] = []
     num_checked_versions = 0
     for name, versions in sorted(crates.items()):
         # One index request answers for every version of a crate.
         try:
-            crate_pubtimes = pubtimes(name)
+            crate_pubtimes = pubtimes(index_connection, name)
         except CratesIoIndexError as e:
             for version, version_lockfiles in sorted(versions.items()):
                 undatable.append(Undatable(name, version, version_lockfiles, str(e)))
@@ -324,6 +357,7 @@ def main() -> int:
             if age < min_publish_age.duration:
                 violations.append(
                     Violation(name, version, version_lockfiles, published, age))
+    index_connection.close()
 
     if violations:
         print("FAIL: found crates.io versions newer than the min-publish-age "
