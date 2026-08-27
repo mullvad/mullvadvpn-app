@@ -43,19 +43,19 @@ public final class APITransport: APITransportProtocol {
 
                 rustTaskHandle.start { response in
                     let error: APIError? =
-                        if !response.success {
+                        if !response.success() {
                             APIError(
-                                statusCode: Int(response.statusCode),
-                                errorDescription: response.errorDescription ?? "",
-                                serverResponseCode: response.serverResponseCode
+                                statusCode: Int(response.statusCode()),
+                                errorDescription: response.errorDescription() ?? "",
+                                serverResponseCode: response.serverResponseCode()
                             )
                         } else { nil }
 
                     continuation.resume(
                         returning: ProxyAPIResponse(
-                            data: response.body,
+                            data: response.body(),
                             error: error,
-                            etag: response.etag
+                            etag: response.etag()
                         )
                     )
                 }
@@ -73,19 +73,19 @@ public final class APITransport: APITransportProtocol {
 
         apiRequest.start { response in
             let error: APIError? =
-                if !response.success {
+                if !response.success() {
                     APIError(
-                        statusCode: Int(response.statusCode),
-                        errorDescription: response.errorDescription ?? "",
-                        serverResponseCode: response.serverResponseCode
+                        statusCode: Int(response.statusCode()),
+                        errorDescription: response.errorDescription() ?? "",
+                        serverResponseCode: response.serverResponseCode()
                     )
                 } else { nil }
 
             completion(
                 ProxyAPIResponse(
-                    data: response.body,
+                    data: response.body(),
                     error: error,
-                    etag: response.etag
+                    etag: response.etag()
                 ))
         }
         return apiRequest
