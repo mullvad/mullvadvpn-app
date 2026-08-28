@@ -5,11 +5,11 @@
 
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};
-use hyper::{header, Request, Uri};
+use hyper::{Request, Uri, header};
 use hyper_util::client::legacy::Client;
 use rustls::{
-    pki_types::{pem::PemObject, CertificateDer},
     ClientConfig,
+    pki_types::{CertificateDer, pem::PemObject},
 };
 use serde::{Deserialize, Serialize};
 use std::{
