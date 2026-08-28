@@ -2,7 +2,7 @@
 use chrono::{DateTime, offset::Utc};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{fmt, str::FromStr, time::Duration};
-use talpid_types::net::wireguard;
+use talpid_types::net::{proxy::Socks5Proxy, wireguard};
 
 use crate::Intersection;
 
@@ -201,6 +201,8 @@ pub struct TunnelOptions {
     pub userspace: bool,
     /// Interval used for automatic key rotation
     pub rotation_interval: Option<RotationInterval>,
+    /// SOCKS5 proxy to relay the tunnel through.
+    pub socks5_proxy: Option<Socks5Proxy>,
 }
 
 #[expect(clippy::derivable_impls)]
@@ -212,6 +214,7 @@ impl Default for TunnelOptions {
             daita: false,
             userspace: false,
             rotation_interval: None,
+            socks5_proxy: None,
         }
     }
 }

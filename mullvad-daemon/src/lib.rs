@@ -112,7 +112,10 @@ use talpid_types::android::AndroidContext;
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     ErrorExt,
-    net::{IpVersion, proxy::ShadowsocksCipher},
+    net::{
+        IpVersion,
+        proxy::{ShadowsocksCipher, Socks5Proxy},
+    },
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };
 use tokio::io;
@@ -299,6 +302,8 @@ pub enum DaemonCommand {
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set if userspace WireGuard should be forced.
     SetUserspaceWireguard(ResponseTx<(), settings::Error>, bool),
+    /// Set the SOCKS5 proxy to relay the tunnel through, if any.
+    SetWireguardSocks5Proxy(ResponseTx<(), settings::Error>, Option<Socks5Proxy>),
     /// Set if recents should be enabled
     SetEnableRecents(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
@@ -1557,6 +1562,9 @@ impl Daemon {
             SetUserspaceWireguard(tx, userspace) => {
                 self.on_set_userspace_wireguard(tx, userspace).await
             }
+            SetWireguardSocks5Proxy(tx, proxy) => {
+                self.on_set_wireguard_socks5_proxy(tx, proxy).await
+            }
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
             }
@@ -2733,6 +2741,30 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_userspace_wireguard response");
+            }
+        }
+    }
+
+    async fn on_set_wireguard_socks5_proxy(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        proxy: Option<Socks5Proxy>,
+    ) {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.socks5_proxy = proxy)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_wireguard_socks5_proxy response");
+                if settings_changed {
+                    log::info!("Initiating tunnel restart because the SOCKS5 proxy changed");
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_wireguard_socks5_proxy response");
             }
         }
     }
