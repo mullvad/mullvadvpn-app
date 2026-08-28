@@ -5,7 +5,7 @@ mod cmds;
 mod format;
 use cmds::*;
 
-use crate::cmds::reset::SettingsKey;
+use crate::cmds::{reset::SettingsKey, split_tunnel::shared::SplitTunnel};
 
 pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 
@@ -92,7 +92,7 @@ enum Cli {
     AntiCensorship(anti_censorship::AntiCensorship),
 
     #[clap(subcommand)]
-    SplitTunnel(split_tunnel::SplitTunnel),
+    SplitTunnel(SplitTunnel),
 
     /// Return the state of the VPN tunnel
     Status {
