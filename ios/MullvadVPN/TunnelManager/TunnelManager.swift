@@ -461,34 +461,6 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func redeemVoucher(
-        _ voucherCode: String,
-        completion: (@Sendable (Result<REST.SubmitVoucherResponse, Error>) -> Void)? = nil
-    ) -> Cancellable {
-        let operation = RedeemVoucherOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            voucherCode: voucherCode,
-            apiProxy: apiProxy
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = completion
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Redeem voucher",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
-
-        operationQueue.addOperation(operation)
-        return operation
-    }
-
     func deleteAccount(accountNumber: String) async throws {
         _ = try await setAccount(action: .delete(accountNumber))
     }

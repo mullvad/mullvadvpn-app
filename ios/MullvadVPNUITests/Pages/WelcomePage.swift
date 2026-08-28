@@ -19,11 +19,6 @@ class WelcomePage: PaymentPage {
         waitForPageToBeShown()
     }
 
-    @discardableResult func tapRedeemButton() -> Self {
-        app.buttons[AccessibilityIdentifier.redeemVoucherButton].tap()
-        return self
-    }
-
     func getAccountNumber() -> String {
         let labelValue = app.staticTexts[AccessibilityIdentifier.welcomeAccountNumberLabel].label
         return labelValue.replacingOccurrences(of: " ", with: "")
