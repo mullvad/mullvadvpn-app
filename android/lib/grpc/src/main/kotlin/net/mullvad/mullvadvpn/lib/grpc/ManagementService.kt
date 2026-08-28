@@ -800,11 +800,15 @@ class ManagementService(
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
         Either.catch { grpc.VerifyPlayPurchase().execute(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
-            .mapLeft { error ->
-                if (error is GrpcException && error.grpcStatus == GrpcStatus.INVALID_ARGUMENT) {
-                    PlayPurchaseVerifyError.InvalidPurchase
-                } else {
-                    PlayPurchaseVerifyError.OtherError
+            .mapLeftStatus { error ->
+                when (error.grpcStatus) {
+                    GrpcStatus.INVALID_ARGUMENT -> PlayPurchaseVerifyError.InvalidPurchase
+                    GrpcStatus.UNAVAILABLE,
+                    GrpcStatus.DEADLINE_EXCEEDED -> PlayPurchaseVerifyError.ApiUnreachable
+                    else -> {
+                        Logger.e("Unknown verify play purchase error code ${error.grpcStatus}")
+                        PlayPurchaseVerifyError.OtherError
+                    }
                 }
             }
 
