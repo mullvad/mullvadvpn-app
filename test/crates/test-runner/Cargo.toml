@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-am-i-mullvad-client = { path = "../am-i-mullvad-client" }
+am-i-mullvad-client = { workspace = true }
 bytes = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 dirs = { workspace = true }

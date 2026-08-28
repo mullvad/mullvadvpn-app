@@ -16,6 +16,7 @@ repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0-or-later"
 
 [workspace.dependencies]
+am-i-mullvad-client = { path = "crates/am-i-mullvad-client" }
 async-trait = "0.1.58"
 bytes = "1.11.1"
 chrono = { version = "0.4.26", default-features = false }

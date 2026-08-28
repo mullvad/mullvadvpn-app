@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-am-i-mullvad-client = { path = "../am-i-mullvad-client" }
+am-i-mullvad-client = { workspace = true }
 anyhow = "1.0.99"
 clap = { workspace = true, features = ["derive"] }
 ping = { workspace = true }
