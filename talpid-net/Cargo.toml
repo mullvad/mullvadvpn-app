@@ -10,7 +10,7 @@ license.workspace = true
 log = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 
-[target.'cfg(unix)'.dependencies]
+[target."cfg(unix)".dependencies]
 libc = "0.2"
 nix = { workspace = true, features = ["net"] }
 talpid-types = { path = "../talpid-types" }

@@ -11,11 +11,11 @@ dirs = { workspace = true }
 log = { workspace = true }
 thiserror = { workspace = true }
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 once_cell = { workspace = true }
 widestring = { workspace = true }
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_Foundation",

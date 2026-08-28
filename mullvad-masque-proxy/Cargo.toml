@@ -20,11 +20,7 @@ h3-quinn = { version = "0.0.9", features = ["datagram"] }
 http = "1"
 libc = "0.2"
 log = { workspace = true }
-quinn = { version = "0.11", default-features = false, features = [
-  "log",
-  "runtime-tokio",
-  "rustls-ring"
-] }
+quinn = { version = "0.11", default-features = false, features = ["log", "runtime-tokio", "rustls-ring"] }
 rustls = { workspace = true }
 rustls-pki-types.workspace = true
 thiserror = { workspace = true }
@@ -36,25 +32,15 @@ clap = { workspace = true }
 criterion = { version = "0.7.0", features = ["html_reports"] }
 rand = { workspace = true }
 talpid-tunnel = { path = "../talpid-tunnel" }
-tokio = { workspace = true, features = [
-  "fs",
-  "io-util",
-  "macros",
-  "rt-multi-thread"
-] }
+tokio = { workspace = true, features = ["fs", "io-util", "macros", "rt-multi-thread"] }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 socket2 = { workspace = true }
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
-features = [
-  "Win32",
-  "Win32_Foundation",
-  "Win32_Networking",
-  "Win32_Networking_WinSock"
-]
+features = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock"]
 
 [lints]
 workspace = true
