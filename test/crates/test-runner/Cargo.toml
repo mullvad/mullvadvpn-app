@@ -1,0 +1,71 @@
+[package]
+name = "test-runner"
+edition.workspace = true
+rust-version.workspace = true
+description = "Runs inside the VM where the Mullvad VPN app is being tested"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+am-i-mullvad-client = { workspace = true }
+bytes = { workspace = true }
+chrono = { workspace = true, features = ["serde"] }
+dirs = { workspace = true }
+futures = { workspace = true }
+libc = "0.2"
+log = { workspace = true }
+mullvad-paths = { workspace = true }
+rand = { workspace = true }
+serde_json = { workspace = true }
+socket2 = { workspace = true, features = ["all"] }
+surge-ping = { workspace = true }
+talpid-platform-metadata = { workspace = true }
+tarpc = { workspace = true }
+test-rpc = { path = "../test-rpc" }
+thiserror = { workspace = true }
+tipsy = { workspace = true }
+tokio = { workspace = true, features = [
+  "fs",
+  "io-util",
+  "macros",
+  "net",
+  "process",
+  "rt",
+  "rt-multi-thread",
+  "time"
+] }
+tokio-serial = { workspace = true }
+
+[dependencies.tokio-util]
+version = "0.7"
+default-features = false
+features = ["codec"]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rs-release = "0.1.7"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "1"
+talpid-macos = { workspace = true }
+
+[target."cfg(unix)".dependencies]
+nix = { workspace = true, features = ["user"] }
+
+[target."cfg(windows)".dependencies]
+talpid-windows = { workspace = true }
+windows-registry = { workspace = true }
+windows-service = "0.6"
+
+[target."cfg(windows)".dependencies.windows-sys]
+version = "0.45.0"
+features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_System_Shutdown",
+  "Win32_System_SystemServices",
+  "Win32_System_Threading",
+  "Win32_UI_WindowsAndMessaging",
+]
+
+[lints]
+workspace = true

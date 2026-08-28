@@ -1,0 +1,260 @@
+mod access_methods;
+mod account;
+mod audits;
+pub mod config;
+mod daita;
+mod dns;
+mod helpers;
+mod install;
+mod macos;
+mod relay_ip_overrides;
+mod settings;
+mod software;
+mod split_tunnel;
+mod tunnel;
+mod tunnel_state;
+mod ui;
+mod windows;
+
+use itertools::Itertools;
+use mullvad_types::{
+    relay_constraints::{GeographicLocationConstraint, LocationConstraint},
+    settings::SettingsKeyList,
+};
+
+use anyhow::Context;
+use std::time::Duration;
+
+use crate::{
+    logging::print_mullvad_logs,
+    package::get_version_from_path,
+    test_interface::metadata::{TestContext, TestDescription, TestMetadata},
+};
+use config::TEST_CONFIG;
+use helpers::{find_custom_list, get_app_env, install_app, set_location};
+pub use install::test_upgrade_app;
+use mullvad_management_interface::MullvadProxyClient;
+use test_rpc::{ServiceClient, meta::Os};
+
+const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
+
+pub fn should_run_on_os(targets: &[Os], os: Os) -> bool {
+    targets.is_empty() || targets.contains(&os)
+}
+
+/// Get a list of all tests, sorted by priority.
+pub fn get_test_descriptions() -> Vec<TestDescription> {
+    let tests: Vec<_> = inventory::iter::<TestMetadata>()
+        .map(|test| TestDescription {
+            priority: test.priority,
+            name: test.name,
+            targets: test.targets,
+        })
+        .sorted_by_key(|test| test.priority)
+        .collect_vec();
+
+    // Since `test_upgrade_app` is not registered with inventory, we need to add it manually
+    let test_upgrade_app = TestDescription {
+        priority: None,
+        name: "test_upgrade_app",
+        targets: &[],
+    };
+    [vec![test_upgrade_app], tests].concat()
+}
+
+/// Return all tests with names matching the input argument. Filters out tests that are skipped for
+/// the target platform and `test_upgrade_app`, which is run separately.
+pub fn get_filtered_tests(
+    specified_tests: &[String],
+    skipped_tests: &[String],
+) -> Result<Vec<TestMetadata>, anyhow::Error> {
+    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
+    tests.sort_by_key(|test| test.priority.unwrap_or(0));
+
+    let mut tests = if specified_tests.is_empty() {
+        // Include all but tests labelled with 'skip'
+        tests.retain(|test| !test.skip);
+        tests
+    } else {
+        specified_tests
+            .iter()
+            .map(|f| {
+                tests
+                    .iter()
+                    .find(|t| t.name.eq_ignore_ascii_case(f))
+                    .cloned()
+                    .ok_or(anyhow::anyhow!("Test '{f}' not found"))
+            })
+            .collect::<Result<_, anyhow::Error>>()?
+    };
+
+    let on_skip_list = |test: &TestMetadata| {
+        skipped_tests
+            .iter()
+            .any(|skip| skip.eq_ignore_ascii_case(test.name))
+    };
+
+    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os) && !on_skip_list(test));
+
+    Ok(tests)
+}
+
+/// Make sure the daemon is installed and logged in and restore settings to the defaults.
+pub async fn prepare_daemon(
+    rpc: &ServiceClient,
+    context: &TestContext,
+) -> anyhow::Result<MullvadProxyClient> {
+    let client = async {
+        // Check if daemon should be restarted
+        let mut mullvad_client = ensure_daemon_version(rpc, context)
+            .await
+            .context("Failed to restart daemon")?;
+
+        log::debug!("Resetting daemon settings before test");
+        helpers::disconnect_and_wait(&mut mullvad_client)
+            .await
+            .context("Failed to disconnect daemon after test")?;
+        mullvad_client
+            .reset_settings(SettingsKeyList::default())
+            .await
+            .context("Failed to reset settings")?;
+        helpers::ensure_logged_in(&mut mullvad_client).await?;
+
+        Ok(mullvad_client)
+    }
+    .await;
+
+    if client.is_err() {
+        log::error!("Failed to prepare daemon. Attempting to get logs from daemon");
+        match rpc.get_mullvad_app_logs().await {
+            Ok(logs) => print_mullvad_logs(&logs),
+            Err(err) => {
+                log::error!("Failed to get logs from daemon: {err}");
+            }
+        }
+    }
+
+    client
+}
+
+/// Create and selects an "anonymous" custom list for this test. The custom list will
+/// have the same name as the test and contain the locations as specified by
+/// [`TestMetadata`] location field.
+pub async fn set_test_location(
+    mullvad_client: &mut MullvadProxyClient,
+    test: &TestMetadata,
+) -> anyhow::Result<()> {
+    // If no location is specified for the test, don't do anything and use the default value of the app
+    let Some(locations) = test.location.as_ref() else {
+        return Ok(());
+    };
+    // Convert locations from the test config to actual location constraints
+    let locations: Vec<GeographicLocationConstraint> = locations
+        .iter()
+        .map(|input| {
+            input
+                .parse::<GeographicLocationConstraint>()
+                .with_context(|| format!("Failed to parse {input}"))
+        })
+        .try_collect()?;
+
+    // Add the custom list to the current app instance
+    // NOTE: This const is actually defined in, `mullvad_types::custom_list`, but we cannot import it.
+    const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
+    let mut custom_list_name = test.name.to_string();
+    custom_list_name.truncate(CUSTOM_LIST_NAME_MAX_SIZE);
+    log::debug!("Creating custom list `{custom_list_name}` with locations '{locations:?}'");
+
+    let list_id = mullvad_client
+        .create_custom_list(custom_list_name.clone())
+        .await?;
+
+    let mut custom_list = find_custom_list(mullvad_client, &custom_list_name).await?;
+
+    assert_eq!(list_id, custom_list.id());
+    for location in locations {
+        custom_list.locations.insert(location);
+    }
+    mullvad_client.update_custom_list(custom_list).await?;
+    log::trace!("Added custom list");
+
+    set_location(mullvad_client, LocationConstraint::CustomList { list_id })
+        .await
+        .with_context(|| format!("Failed to set location to custom list with ID '{list_id:?}'"))?;
+    Ok(())
+}
+
+/// Reset the daemons environment.
+///
+/// Will and restart or reinstall it if necessary.
+async fn ensure_daemon_version(
+    rpc: &ServiceClient,
+    context: &TestContext,
+) -> anyhow::Result<MullvadProxyClient> {
+    let app_package_filename = &TEST_CONFIG.app_package_filename;
+
+    let must_reinstall_app =
+        match correct_daemon_version_is_running(context.rpc_provider.new_client().await).await {
+            Ok(correct_version) => !correct_version,
+            // Failing to reach the daemon is a sign that it is not installed
+            Err(mullvad_management_interface::Error::Rpc(..)) => {
+                log::debug!("Daemon is not running, attempting to start it");
+
+                let failed_starting_daemon = rpc.enable_mullvad_daemon().await.is_err()
+                    || rpc.start_mullvad_daemon().await.is_err();
+                if failed_starting_daemon {
+                    log::warn!("Failed to start the daemon service");
+                }
+                failed_starting_daemon
+            }
+            Err(e) => panic!("Failed to get app version: {e}"),
+        };
+
+    if must_reinstall_app {
+        // NOTE: Reinstalling the app resets the daemon environment
+        install_app(rpc, app_package_filename, context)
+            .await
+            .with_context(|| format!("Failed to install app '{app_package_filename}'"))
+    } else {
+        ensure_daemon_environment(rpc)
+            .await
+            .context("Failed to reset daemon environment")?;
+
+        Ok(context.rpc_provider.new_client().await)
+    }
+}
+
+/// Conditionally restart the running daemon
+///
+/// If the daemon was started with non-standard environment variables, subsequent tests may break
+/// due to assuming a default configuration. In that case, reset the environment variables and
+/// restart.
+pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow::Error> {
+    let current_env = rpc
+        .get_daemon_environment()
+        .await
+        .context("Failed to get daemon env variables")?;
+    let default_env = get_app_env()
+        .await
+        .context("Failed to get daemon default env variables")?;
+    if current_env != default_env {
+        log::debug!(
+            "Restarting daemon due changed environment variables. Values since last test {current_env:?}"
+        );
+        rpc.set_daemon_environment(default_env)
+            .await
+            .context("Failed to restart daemon")?;
+    };
+    Ok(())
+}
+
+/// Checks if daemon is installed with the version specified by `TEST_CONFIG.app_package_filename`
+async fn correct_daemon_version_is_running(
+    mut mullvad_client: MullvadProxyClient,
+) -> Result<bool, mullvad_management_interface::Error> {
+    let app_package_filename = &TEST_CONFIG.app_package_filename;
+    let expected_version = get_version_from_path(std::path::Path::new(app_package_filename))
+        .unwrap_or_else(|_| panic!("Invalid app version: {app_package_filename}"));
+    let version = mullvad_client.get_current_version().await?;
+    Ok(version == expected_version)
+}
