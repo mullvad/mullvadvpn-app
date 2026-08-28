@@ -50,12 +50,7 @@ exclude = ["ci/ios/test-router/raas"]
 # This is set to a minimal set of packages to speed up the build process and avoid building
 # crates which might not compile without additional input, such as the `windows-installer` crate.
 # To build or test everything, add `--workspace` to your cargo commands.
-default-members = [
-  "mullvad-cli",
-  "mullvad-daemon",
-  "mullvad-problem-report",
-  "mullvad-version"
-]
+default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-problem-report", "mullvad-version"]
 
 [workspace.package]
 edition = "2024"
@@ -76,9 +71,7 @@ either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.9.0", default-features = false, features = ["ring"] }
 hickory-proto = "0.26.1"
-hickory-resolver = { version = "0.26.1", default-features = false, features = [
-  "tokio"
-] }
+hickory-resolver = { version = "0.26.1", default-features = false, features = ["tokio"] }
 hickory-server = { version = "0.26.1", features = ["resolver"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
@@ -104,9 +97,7 @@ proptest = "1.9"
 prost = "0.14.3"
 prost-types = "0.14.3"
 rand = "0.9.3"
-reqwest = { version = "0.12.23", default-features = false, features = [
-  "rustls-tls"
-] }
+reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
 rtnetlink = "0.21.0"
 rustls = { version = "0.23", default-features = false }
 rustls-pki-types = "1.13.1"

@@ -12,23 +12,16 @@ clap = { workspace = true, features = ["derive"] }
 futures.workspace = true
 log.workspace = true
 socket2 = { workspace = true, features = ["all"] }
-tokio = { workspace = true, features = [
-  "macros",
-  "net",
-  "process",
-  "rt",
-  "sync",
-  "time"
-] }
+tokio = { workspace = true, features = ["macros", "net", "process", "rt", "sync", "time"] }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
 
-[target.'cfg(unix)'.dependencies]
+[target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["net", "socket", "uio"] }
 pnet_packet.workspace = true
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 talpid-windows = { path = "../talpid-windows" }
 windows-sys = { workspace = true, features = ["Win32_NetworkManagement_Ndis"] }
 
