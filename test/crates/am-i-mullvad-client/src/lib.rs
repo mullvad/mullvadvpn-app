@@ -5,11 +5,11 @@
 
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};
-use hyper::{Request, Uri, header};
+use hyper::{header, Request, Uri};
 use hyper_util::client::legacy::Client;
 use rustls::{
+    pki_types::{pem::PemObject, CertificateDer},
     ClientConfig,
-    pki_types::{CertificateDer, pem::PemObject},
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -18,7 +18,7 @@ use std::{
     time::Duration,
 };
 
-const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
+const LE_ROOT_CERT: &[u8] = include_bytes!("../../../../mullvad-api/le_root_cert.pem");
 
 const USER_AGENT: &str = "mullvad-app-testing";
 
