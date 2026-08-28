@@ -191,12 +191,10 @@ struct MullvadStateView: View {
                         if let explanation = viewModel.explanation {
                             StyledTextView(item: explanation)
                         }
-
-                        Spacer().frame(height: actionHeight)
                     }
                     .padding(.top, Layout.topPadding)
                     .padding(.horizontal, Layout.horizontalPadding)
-                    .padding(.bottom, Layout.bottomPadding)
+                    .padding(.bottom, actionHeight)
                 }
             }
             VStack(spacing: 12) {
@@ -205,7 +203,9 @@ struct MullvadStateView: View {
                     ForEach(viewModel.actions) { action in
                         ActionButton(action: action)
                     }
-                }.sizeOfView { size in
+                }
+                .padding(.bottom, Layout.bottomPadding)
+                .sizeOfView { size in
                     self.actionHeight = size.height
                 }
             }
