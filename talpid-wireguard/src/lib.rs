@@ -552,6 +552,7 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
+            // TODO: allowed tunnel traffic must permit icmp
             {
                 let lock = tunnel.lock().await;
                 let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
