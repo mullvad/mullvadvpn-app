@@ -9,7 +9,7 @@ license.workspace = true
 [dependencies]
 tokio = { workspace = true, features = ["time"] }
 
-[target.'cfg(unix)'.dependencies]
+[target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["time"] }
 
 [features]
