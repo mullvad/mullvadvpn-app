@@ -8,7 +8,7 @@ pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
 /// Script for bootstrapping the test-runner after the test-manager has successfully logged in.
 pub const BOOTSTRAP_SCRIPT: &[u8] = include_bytes!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/../scripts/",
+    "/../../scripts/",
     "ssh-setup.sh"
 ));
 

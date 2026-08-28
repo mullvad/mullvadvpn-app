@@ -25,13 +25,13 @@ inventory = "0.3"
 ipnetwork = "0.21.1"
 itertools = "0.10.5"
 log = { workspace = true }
-mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
-mullvad-api-constants = { path = "../../mullvad-api/mullvad-api-constants" }
-mullvad-daemon-relay-selector = { path = "../../mullvad-daemon-relay-selector" }
-mullvad-management-interface = { path = "../../mullvad-management-interface" }
-mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
-mullvad-types = { path = "../../mullvad-types" }
-mullvad-version = { path = "../../mullvad-version" }
+mullvad-api = { workspace = true, features = ["api-override"] }
+mullvad-api-constants = { workspace = true }
+mullvad-daemon-relay-selector = { workspace = true }
+mullvad-management-interface = { workspace = true }
+mullvad-relay-selector = { workspace = true }
+mullvad-types = { workspace = true }
+mullvad-version = { workspace = true }
 nix = { workspace = true, features = ["user"] }
 pcap = { version = "1.3", features = ["capture-stream"] }
 pnet_base = "0.34.0"
@@ -40,11 +40,11 @@ regex = "1"
 scopeguard = "1.2"
 serde = { workspace = true }
 serde_json = { workspace = true }
-socks-server = { path = "../socks-server" }
+socks-server = { workspace = true }
 ssh2 = { version = "0.9.5", features = ["vendored-openssl"] }
-talpid-types = { path = "../../talpid-types" }
-test_macro = { path = "./test_macro" }
-test-rpc = { path = "../test-rpc" }
+talpid-types = { workspace = true }
+test_macro = { workspace = true }
+test-rpc = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "io-util", "macros", "net", "process", "rt", "rt-multi-thread", "time"] }
 tokio-serial = { workspace = true }
