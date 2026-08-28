@@ -13,9 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - uses: tombi-toml/setup-tombi@cc9f0ae573fc213f40bb4844eaa64bceeaf16348  # v1.1.0
+      - uses: tombi-toml/setup-tombi@603c3e90bc4382f3dd5c44573484db1c664102dd  # v1.4.1
         with:
-          version: '0.11.6'
+          version: '1.4.1'
 
       - name: Lint TOML files
         run: tombi lint
