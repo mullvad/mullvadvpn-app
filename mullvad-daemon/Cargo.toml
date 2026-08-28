@@ -134,15 +134,8 @@ tikv-jemallocator = { version = "0.6", optional = true }
 [target.'cfg(target_os="macos")'.dependencies]
 ctrlc = { workspace = true, features = ["termination"] }
 notify = "8.0.0"
-objc2-foundation = { version = "0.3.1", features = [
-  "NSProcessInfo",
-  "NSString",
-  "NSURL"
-] }
-objc2-service-management = { version = "0.3.1", features = [
-  "SMAppService",
-  "objc2"
-] }
+objc2-foundation = { version = "0.3.1", features = ["NSProcessInfo", "NSString", "NSURL"] }
+objc2-service-management = { version = "0.3.1", features = ["SMAppService", "objc2"] }
 talpid-macos = { path = "../talpid-macos" }
 
 [target."cfg(unix)".dependencies]

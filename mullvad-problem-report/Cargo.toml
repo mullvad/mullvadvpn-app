@@ -30,11 +30,11 @@ uuid = { version = "1.4.1", features = ["v4"] }
 clap = { workspace = true }
 tracing-subscriber = { workspace = true }
 
-[target.'cfg(windows)'.build-dependencies]
+[target."cfg(windows)".build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winresource.workspace = true
 
-[target.'cfg(windows)'.build-dependencies.windows-sys]
+[target."cfg(windows)".build-dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_System_SystemServices",

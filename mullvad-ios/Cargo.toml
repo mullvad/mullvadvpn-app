@@ -47,12 +47,7 @@ smoltcp = { version = "0.13", default-features = false, features = [
 talpid-future = { path = "../talpid-future" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
-tokio = { workspace = true, features = [
-  "macros",
-  "rt-multi-thread",
-  "sync",
-  "time"
-] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
 tokio-util = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
