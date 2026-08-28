@@ -77,6 +77,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the installer UI from looking blurry by making the installer DPI-aware.
 
 ### Security
+- Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+
 #### macOS
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
