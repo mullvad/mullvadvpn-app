@@ -118,6 +118,9 @@ extension LoginView {
                     formatter: GroupedTextFormatter.accountNumber,
                     autoComplete: .init(
                         suggestions: $viewModel.loginSuggestions,
+                        isRemovable: { item in
+                            item.first?.isNumber ?? false
+                        },
                         onSelect: { item in
                             if item.first?.isNumber ?? false {
                                 viewModel.accountNumber = item

@@ -194,6 +194,7 @@ struct ConfigurableTextField: View {
             SuggestionsDropdownView(
                 suggestions: animatedSuggestions,
                 appearance: autoComplete.appearance,
+                isRemovable: autoComplete.isRemovable,
                 onSelect: { suggestion in
                     autoComplete.onSelect(suggestion)
                 },
@@ -224,17 +225,20 @@ enum TextFieldNamespace {
     struct AutoCompleteConfiguration {
         @Binding var suggestions: [String]
         let appearance: SuggestionsDropdownViewAppearance
+        let isRemovable: (String) -> Bool
         let onSelect: (String) -> Void
         let onRemove: ((String) -> Void)?
 
         init(
             suggestions: Binding<[String]>,
             appearance: SuggestionsDropdownViewAppearance = .init(),
+            isRemovable: @escaping (String) -> Bool = { _ in true },
             onSelect: @escaping (String) -> Void,
             onRemove: ((String) -> Void)? = nil
         ) {
             _suggestions = suggestions
             self.appearance = appearance
+            self.isRemovable = isRemovable
             self.onSelect = onSelect
             self.onRemove = onRemove
         }

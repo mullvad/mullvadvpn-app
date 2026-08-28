@@ -12,17 +12,20 @@ import SwiftUI
 struct SuggestionsDropdownView: View {
     private var suggestions: [String] = []
     let appearance: SuggestionsDropdownViewAppearance
+    let isRemovable: ((String) -> Bool)
     let onSelect: (String) -> Void
     let onRemove: ((String) -> Void)?
 
     init(
         suggestions: [String],
         appearance: SuggestionsDropdownViewAppearance = .init(),
+        isRemovable: @escaping ((String) -> Bool) = { _ in true },
         onSelect: @escaping (String) -> Void,
         onRemove: ((String) -> Void)? = nil
     ) {
         self.suggestions = suggestions
         self.appearance = appearance
+        self.isRemovable = isRemovable
         self.onSelect = onSelect
         self.onRemove = onRemove
     }
@@ -53,7 +56,7 @@ struct SuggestionsDropdownView: View {
                                 .foregroundStyle(appearance.foregroundColor)
                                 .padding(.horizontal, 8.0)
 
-                            if let onRemove = onRemove {
+                            if let onRemove = onRemove, isRemovable(suggestion) {
                                 Button(action: {
                                     onRemove(suggestion)
                                 }) {
