@@ -30,6 +30,7 @@ rtnetlink.workspace = true
 
 [target."cfg(windows)".dependencies]
 talpid-windows = { path = "../talpid-windows" }
+wintun-bindings = "0.7.39"
 
 [target."cfg(windows)".dependencies.windows-sys]
 workspace = true

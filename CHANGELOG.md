@@ -41,6 +41,8 @@ Line wrap the file at 100 chars.                                              Th
   from Debian. `.rpm` packages are still signed, since dnf does verify that signature.
 
 #### Windows
+- Reuse the wintun adapter when reconnecting instead of creating a new one every time. This saves
+  around 0.2 s when reconnecting using GotaTun.
 - Make the timestamps embedded in the Rust Windows binaries + winfw.dll deterministic.
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
