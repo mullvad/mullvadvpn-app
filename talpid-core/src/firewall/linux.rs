@@ -16,8 +16,8 @@ use std::{
 use talpid_cgroup::v2::CGroup2;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::net::{
-    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint, AllowedTunnelTraffic, Endpoint,
-    TransportProtocol,
+    ALLOWED_IN_TUNNEL_LAN_NETS, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, AllowedEndpoint,
+    AllowedTunnelTraffic, Endpoint, TransportProtocol,
 };
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
@@ -639,6 +639,7 @@ impl<'a> PolicyBatch<'a> {
                 if let Some(tunnel) = tunnel {
                     match allowed_tunnel_traffic {
                         AllowedTunnelTraffic::All => {
+                            self.add_block_lan_in_tunnel_rules(&tunnel.interface)?;
                             self.add_allow_tunnel_rules(&tunnel.interface)?;
                         }
                         AllowedTunnelTraffic::None => (),
@@ -694,6 +695,7 @@ impl<'a> PolicyBatch<'a> {
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
+                self.add_block_lan_in_tunnel_rules(&tunnel.interface)?;
                 self.add_allow_tunnel_rules(&tunnel.interface)?;
                 if *allow_lan {
                     self.add_block_cve_2019_14899(tunnel);
@@ -901,6 +903,43 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
+        Ok(())
+    }
+
+    /// Drop traffic between the tunnel interface and the LAN, before allowing LAN traffic
+    /// on other interfaces.
+    fn add_block_lan_in_tunnel_rules(&mut self, tunnel_interface: &str) -> Result<()> {
+        let ends = [
+            (&self.out_chain, Direction::Out, End::Dst),
+            (&self.forward_chain, Direction::Out, End::Dst),
+        ];
+
+        // Accept: Tunnel => LAN / Private IP ranges that *should* be reachable in the tunnel.
+        for (chain, direction, end) in ends {
+            for net in ALLOWED_IN_TUNNEL_LAN_NETS {
+                let mut rule = Rule::new(chain);
+                check_iface(&mut rule, direction, tunnel_interface)?;
+                check_net(&mut rule, end, net);
+                add_verdict(&mut rule, &Verdict::Accept);
+                self.batch.add(&rule, nftnl::MsgType::Add);
+            }
+        }
+
+        // Drop: LAN => Tunnel / Multicast ranges + LAN Sharing ranges.
+        for (chain, direction, end) in ends {
+            let nets = ALLOWED_LAN_NETS
+                .iter()
+                .chain(ALLOWED_LAN_MULTICAST_NETS.iter());
+
+            for net in nets {
+                let mut rule = Rule::new(chain);
+                check_iface(&mut rule, direction, tunnel_interface)?;
+                check_net(&mut rule, end, *net);
+                add_verdict(&mut rule, &Verdict::Drop);
+                self.batch.add(&rule, nftnl::MsgType::Add);
+            }
+        }
+
         Ok(())
     }
 
