@@ -135,7 +135,7 @@ extension LoginView {
                             alert = removeSavedAccountAlert
                         }
                     ),
-                    keyboardType: .numberPad,
+                    keyboardType: .asciiCapable,
                     submitConfiguration: .init(
                         label: .go,
                         action: {
