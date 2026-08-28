@@ -223,3 +223,4 @@ mullvad-kotlin-toolchain = { id = "mullvad.kotlin-toolchain" }
 mullvad-utilities = { id = "mullvad.utilities" }
 mullvad-unit-test = { id = "mullvad.unit-test" }
 wire = { id = "com.squareup.wire", version.ref = "wire" }
+wire-proto-patcher = { id = "mullvad.wire-proto-patcher" }

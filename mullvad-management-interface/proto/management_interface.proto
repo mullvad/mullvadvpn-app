@@ -9,7 +9,7 @@ import "google/protobuf/duration.proto";
 
 service ManagementService {
   // Control and get tunnel state
-  rpc ConnectTunnel(google.protobuf.Empty) returns (BoolValue) {}
+  rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
   rpc DisconnectTunnel(StringValue) returns (BoolValue) {}
   rpc ReconnectTunnel(google.protobuf.Empty) returns (BoolValue) {}
   rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}

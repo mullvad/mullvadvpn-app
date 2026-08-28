@@ -75,13 +75,13 @@ impl ManagementService for ManagementServiceImpl {
     // Control and get the tunnel state
     //
 
-    async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<BoolValue> {
+    async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("connect_tunnel");
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
         let connect_issued = self.wait_for_result(rx).await?;
-        Ok(Response::new(BoolValue::from(connect_issued)))
+        Ok(Response::new(connect_issued))
     }
 
     async fn disconnect_tunnel(&self, request: Request<StringValue>) -> ServiceResult<BoolValue> {

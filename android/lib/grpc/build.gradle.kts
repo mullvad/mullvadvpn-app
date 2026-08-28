@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.mullvad.unit.test)
     alias(libs.plugins.wire)
+    alias(libs.plugins.wire.proto.patcher)
 }
 
 android {
@@ -18,7 +19,13 @@ android {
 }
 
 wire {
-    sourcePath { srcDir("${rootProject.projectDir}/../mullvad-management-interface/proto") }
+    sourcePath {
+        // Gradle is smart enough to resolve the task's outputDir property
+        val patchedDir = tasks.named("patchProtoFiles").flatMap {
+            (it as PatchProtosTask).outputDir
+        }
+        srcDir(patchedDir)
+    }
 
     kotlin {
         android = true

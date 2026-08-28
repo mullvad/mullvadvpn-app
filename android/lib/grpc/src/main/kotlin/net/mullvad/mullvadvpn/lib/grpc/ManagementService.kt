@@ -330,7 +330,7 @@ class ManagementService(
             .mapLeft { DeleteDeviceError.Unknown(it) }
 
     suspend fun connect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.ConnectTunnel().execute(Unit).toBool() }
+        Either.catch { grpc.ConnectTunnel().execute(Unit).value_ }
             .onLeft { Logger.e("Connect error") }
             .mapLeft(ConnectError::Unknown)
 
