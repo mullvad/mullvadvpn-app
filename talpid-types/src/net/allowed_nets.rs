@@ -11,6 +11,24 @@ pub const ALLOWED_LAN_NETS: [IpNetwork; 6] = [
     v6(Ipv6Addr::new(0xfc00, 0, 0, 0, 0, 0, 0, 0), 7),
 ];
 
+/// Private networks that are legitimately reachable *inside* a Mullvad tunnel.
+///
+/// [`ALLOWED_LAN_NETS`] covers the entire private address space, but a handful of those addresses
+/// are Mullvad's own and only exist on the other side of the tunnel. Traffic to them must keep
+/// working when LAN traffic is dropped on the tunnel interface.
+pub const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 3] = [
+    // The relay IPv4 gateway. Hosts the DNS resolver, the tunnel config service used for DAITA and
+    // PQ key exchange, and connectivity check pings.
+    v4(Ipv4Addr::new(10, 64, 0, 1), 32),
+    // SOCKS proxies.
+    v4(Ipv4Addr::new(10, 124, 0, 0), 23),
+    // The relay IPv6 gateway.
+    v6(
+        Ipv6Addr::new(0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0, 0, 0, 0),
+        64,
+    ),
+];
+
 /// When "allow local network" is enabled the app will allow traffic to these networks.
 pub const ALLOWED_LAN_MULTICAST_NETS: [IpNetwork; 8] = [
     // Local network broadcast. Not routable
