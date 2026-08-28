@@ -36,7 +36,7 @@ pub async fn test_upgrade_app(
         .as_ref()
         .context("Could not find previous app version")?;
     log::debug!("Installing app version {old_version}");
-    install_app(&rpc, old_version, &ctx.rpc_provider)
+    install_app(&rpc, old_version, &ctx)
         .await
         .context("Failed to install previous app version")?;
 

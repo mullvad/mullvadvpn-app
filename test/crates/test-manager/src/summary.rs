@@ -5,7 +5,7 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt},
 };
 
-use crate::tests::should_run_on_os;
+use crate::{test_interface::metadata::TestDescription, tests::should_run_on_os};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -120,7 +120,7 @@ pub struct Summary {
 impl Summary {
     /// Read test summary from `path`.
     pub async fn parse_log<P: AsRef<Path>>(
-        all_tests: &[crate::tests::TestDescription],
+        all_tests: &[TestDescription],
         path: P,
     ) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()

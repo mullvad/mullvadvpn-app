@@ -1,15 +1,11 @@
 use super::{TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT, config::TEST_CONFIG};
-use crate::test_interface::error::Error;
-use crate::{
-    mullvad_daemon::RpcClientProvider,
-    network_monitor::{
-        self, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor, start_packet_monitor,
-    },
-    tests::{
-        account::{clear_devices, new_device_client},
-        helpers,
-    },
+use crate::network_monitor::{
+    self, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor, start_packet_monitor,
 };
+use crate::test_interface::error::Error;
+use crate::tests::account::{clear_devices, new_device_client};
+use crate::tests::helpers;
+
 use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
@@ -70,7 +66,7 @@ macro_rules! assert_tunnel_state {
 pub async fn install_app(
     rpc: &ServiceClient,
     app_filename: &str,
-    rpc_provider: &RpcClientProvider,
+    context: &TestContext,
 ) -> anyhow::Result<MullvadProxyClient> {
     // install package
     log::info!("Installing app '{}'", app_filename);
@@ -87,7 +83,7 @@ pub async fn install_app(
         .context("Failed to set daemon environment")?;
 
     // Wait for the relay list to be updated
-    let mut mullvad_client = rpc_provider.new_client().await;
+    let mut mullvad_client = context.rpc_provider.new_client().await;
     helpers::ensure_updated_relay_list(&mut mullvad_client)
         .await
         .context("Failed to update relay list")?;

@@ -1,6 +1,11 @@
-use test_rpc::meta::Os;
+use futures::future::BoxFuture;
+use mullvad_management_interface::MullvadProxyClient;
+use test_rpc::{ServiceClient, meta::Os};
 
-use crate::tests::TestWrapperFunction;
+use crate::mullvad_daemon::RpcClientProvider;
+
+// Register our test metadata struct with inventory to allow submitting tests of this type.
+inventory::collect!(TestMetadata);
 
 #[derive(Clone, Debug)]
 pub struct TestMetadata {
@@ -15,5 +20,27 @@ pub struct TestMetadata {
     pub skip: bool,
 }
 
-// Register our test metadata struct with inventory to allow submitting tests of this type.
-inventory::collect!(TestMetadata);
+pub type TestWrapperFunction = fn(
+    TestContext,
+    ServiceClient,
+    Option<MullvadProxyClient>,
+) -> BoxFuture<'static, anyhow::Result<()>>;
+
+#[derive(Clone)]
+pub struct TestContext {
+    pub rpc_provider: RpcClientProvider,
+}
+
+impl TestContext {
+    pub fn new(rpc_provider: RpcClientProvider) -> Self {
+        Self { rpc_provider }
+    }
+}
+
+#[derive(Clone)]
+/// An abbreviated version of [`TestMetadata`]
+pub struct TestDescription {
+    pub name: &'static str,
+    pub targets: &'static [Os],
+    pub priority: Option<i32>,
+}

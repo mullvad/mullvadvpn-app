@@ -1,9 +1,9 @@
 use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
-    mullvad_daemon::{self, RpcClientProvider},
+    mullvad_daemon,
     summary::SummaryLogger,
-    test_interface::metadata::TestMetadata,
-    tests::{self, TestContext, config::TEST_CONFIG},
+    test_interface::metadata::{TestContext, TestMetadata},
+    tests::{self, config::TEST_CONFIG},
     vm,
 };
 use anyhow::{Context, Result};
@@ -20,7 +20,7 @@ use test_rpc::{ServiceClient, logging::Output};
 const BAUD: u32 = if cfg!(target_os = "macos") { 0 } else { 115200 };
 
 struct TestHandler<'a> {
-    rpc_provider: &'a RpcClientProvider,
+    context: &'a TestContext,
     test_runner_client: &'a ServiceClient,
     failed_tests: Vec<&'static str>,
     successful_tests: Vec<&'static str>,
@@ -38,7 +38,7 @@ impl TestHandler<'_> {
         mullvad_client: Option<MullvadProxyClient>,
     ) -> Result<(), anyhow::Error>
     where
-        F: Fn(super::tests::TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
+        F: Fn(TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
         R: Future<Output = anyhow::Result<()>>,
     {
         log::info!("Running {test_name}");
@@ -53,9 +53,7 @@ impl TestHandler<'_> {
             mullvad_client,
             &test,
             test_name,
-            TestContext {
-                rpc_provider: self.rpc_provider.clone(),
-            },
+            self.context.clone(),
         )
         .await;
 
@@ -127,12 +125,15 @@ pub async fn run(
     log::info!("Running client");
 
     let test_runner_client = ServiceClient::new(connection_handle.clone(), runner_transport);
-    let rpc_provider = mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
+    let context = TestContext::new(mullvad_daemon::new_rpc_client(
+        connection_handle,
+        mullvad_daemon_transport,
+    ));
 
     print_os_version(&test_runner_client).await;
 
     let mut test_handler = TestHandler {
-        rpc_provider: &rpc_provider,
+        context: &context,
         test_runner_client: &test_runner_client,
         failed_tests: vec![],
         successful_tests: vec![],
@@ -155,7 +156,7 @@ pub async fn run(
     };
 
     for test in tests {
-        let mut mullvad_client = tests::prepare_daemon(&test_runner_client, &rpc_provider)
+        let mut mullvad_client = tests::prepare_daemon(&test_runner_client, &context)
             .await
             .context("Failed to reset daemon before test")?;
 
@@ -172,7 +173,7 @@ pub async fn run(
 
     // wait for cleanup
     drop(test_runner_client);
-    drop(rpc_provider);
+    drop(context);
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
     Ok(result)
@@ -206,10 +207,10 @@ pub async fn run_test_function<F, R>(
     mullvad_rpc: Option<MullvadProxyClient>,
     test: &F,
     test_name: &'static str,
-    test_context: super::tests::TestContext,
+    test_context: TestContext,
 ) -> TestOutput
 where
-    F: Fn(super::tests::TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
+    F: Fn(TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
     R: Future<Output = anyhow::Result<()>>,
 {
     let _flushed = runner_rpc.try_poll_output().await;
