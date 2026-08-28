@@ -1,7 +1,6 @@
 ---
 source: talpid-types/src/bin/generate-cpp-lannetworks.rs
 expression: out
-snapshot_kind: text
 ---
 #pragma once
 #include <libwfp/ipaddress.h>
@@ -31,4 +30,13 @@ static const wfp::IpNetwork g_ipv6MulticastNets[] = {
 	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff03, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
 	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff04, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
 	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff05, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
+};
+
+static const wfp::IpNetwork g_ipv4InTunnelLanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 64, 0, 1 }), 32),
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 124, 0, 0 }), 23),
+};
+
+static const wfp::IpNetwork g_ipv6InTunnelLanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0x0000, 0x0000, 0x0000, 0x0000 }), 64),
 };

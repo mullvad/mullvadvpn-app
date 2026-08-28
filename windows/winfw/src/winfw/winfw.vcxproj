@@ -32,6 +32,7 @@
     <ClCompile Include="mullvadobjects.cpp" />
     <ClCompile Include="objectpurger.cpp" />
     <ClCompile Include="rules\baseline\blockall.cpp" />
+    <ClCompile Include="rules\baseline\blocklanintunnel.cpp" />
     <ClCompile Include="rules\baseline\permitdhcp.cpp" />
     <ClCompile Include="rules\baseline\permitdhcpserver.cpp" />
     <ClCompile Include="rules\baseline\permitdns.cpp" />
@@ -67,6 +68,7 @@
     <ClInclude Include="mullvadobjects.h" />
     <ClInclude Include="objectpurger.h" />
     <ClInclude Include="rules\baseline\blockall.h" />
+    <ClInclude Include="rules\baseline\blocklanintunnel.h" />
     <ClInclude Include="rules\baseline\permitdhcp.h" />
     <ClInclude Include="rules\baseline\permitdhcpserver.h" />
     <ClInclude Include="rules\baseline\permitdns.h" />
