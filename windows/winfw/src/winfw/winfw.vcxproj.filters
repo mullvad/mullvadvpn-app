@@ -13,6 +13,9 @@
     <ClCompile Include="rules\baseline\blockall.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
+    <ClCompile Include="rules\baseline\blocklanintunnel.cpp">
+      <Filter>rules\baseline</Filter>
+    </ClCompile>
     <ClCompile Include="rules\baseline\permitdhcp.cpp">
       <Filter>rules\baseline</Filter>
     </ClCompile>
@@ -82,6 +85,9 @@
       <Filter>rules\baseline</Filter>
     </ClInclude>
     <ClInclude Include="rules\baseline\permitdhcpserver.h">
+      <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\baseline\blocklanintunnel.h">
       <Filter>rules\baseline</Filter>
     </ClInclude>
     <ClInclude Include="rules\baseline\permitlan.h">
