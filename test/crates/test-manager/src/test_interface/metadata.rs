@@ -1,5 +1,6 @@
-use super::TestWrapperFunction;
 use test_rpc::meta::Os;
+
+use crate::tests::TestWrapperFunction;
 
 #[derive(Clone, Debug)]
 pub struct TestMetadata {

@@ -6,6 +6,7 @@ mod network_monitor;
 mod package;
 mod run_tests;
 mod summary;
+mod test_interface;
 mod tests;
 mod vm;
 

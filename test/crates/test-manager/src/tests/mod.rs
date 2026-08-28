@@ -11,7 +11,6 @@ mod relay_ip_overrides;
 mod settings;
 mod software;
 mod split_tunnel;
-mod test_metadata;
 mod tunnel;
 mod tunnel_state;
 mod ui;
@@ -23,14 +22,13 @@ use mullvad_types::{
     settings::SettingsKeyList,
 };
 
-pub use test_metadata::TestMetadata;
-
 use anyhow::Context;
 use futures::future::BoxFuture;
 use std::time::Duration;
 
 use crate::{
     logging::print_mullvad_logs, mullvad_daemon::RpcClientProvider, package::get_version_from_path,
+    test_interface::metadata::TestMetadata,
 };
 use config::TEST_CONFIG;
 use helpers::{find_custom_list, get_app_env, install_app, set_location};

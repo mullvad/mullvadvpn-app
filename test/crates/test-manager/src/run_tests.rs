@@ -2,7 +2,8 @@ use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
     mullvad_daemon::{self, RpcClientProvider},
     summary::SummaryLogger,
-    tests::{self, TestContext, TestMetadata, config::TEST_CONFIG},
+    test_interface::metadata::TestMetadata,
+    tests::{self, TestContext, config::TEST_CONFIG},
     vm,
 };
 use anyhow::{Context, Result};

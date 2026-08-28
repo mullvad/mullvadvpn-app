@@ -176,7 +176,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     };
 
     quote! {
-        inventory::submit!(crate::tests::test_metadata::TestMetadata {
+        inventory::submit!(crate::test_interface::metadata::TestMetadata {
             name: stringify!(#func_name),
             targets: &[#targets],
             func: #wrapper_closure,
