@@ -1,12 +1,9 @@
 use anyhow::{Context, anyhow};
 use bytes::{Bytes, BytesMut};
 use rustls::client::danger::ServerCertVerified;
-use rustls_pki_types::{CertificateDer, pem::PemObject};
 use std::{
-    fs::{self},
     future, io,
     net::SocketAddr,
-    path::Path,
     str::FromStr as _,
     sync::{Arc, LazyLock},
     time::Duration,
@@ -32,8 +29,6 @@ use crate::{
 const MAX_HEADER_SIZE: u64 = 8192;
 
 const MAX_REDIRECT_COUNT: usize = 1;
-
-const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
 /// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
@@ -104,18 +99,12 @@ pub enum Error {
     CreateClient(#[source] h3::Error),
     #[error("Failed to construct a URI")]
     Uri(#[source] http::Error),
-    #[error("Failed to read certificates")]
-    ReadCerts(#[source] rustls_pki_types::pem::Error),
-    #[error("Failed to parse certificates")]
-    ParseCerts,
     #[error(transparent)]
     ProxyTask(#[from] TaskError),
     #[error("The provided idle timeout was invalid")]
     InvalidIdleTimeout(quinn::VarIntBoundsExceeded),
     #[error("The server returned an invalid HTTP redirect")]
     InvalidHttpRedirect(#[source] anyhow::Error),
-    #[error("IO error")]
-    IO(#[source] io::Error),
 }
 
 #[derive(TypedBuilder, Debug)]
@@ -136,7 +125,9 @@ pub struct ClientConfig {
     #[builder(default = 1500)]
     pub mtu: u16,
 
-    /// QUIC TLS config
+    /// QUIC TLS config. Defaults to [`default_tls_config`], which every client
+    /// shares, letting reconnections resume the TLS session instead of
+    /// handshaking in full.
     #[builder(default = default_tls_config())]
     pub tls_config: Arc<rustls::ClientConfig>,
 
@@ -778,70 +769,39 @@ fn new_connect_request(
     Ok(request)
 }
 
+/// TLS configuration for the QUIC connection to the proxy server.
+///
+/// The server certificate is accepted without being verified, so no trust
+/// anchors are configured. Authenticating the proxy server is not a goal here:
+/// whatever is tunneled through the proxy is already authenticated and
+/// encrypted end to end by the protocol running inside it, and the
+/// authorization token is handed to every client in the public relay list, so
+/// neither is at risk from an intercepting proxy.
 pub fn default_tls_config() -> Arc<rustls::ClientConfig> {
-    static TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> =
-        LazyLock::new(|| client_tls_config_with_certs(read_cert_store()));
+    static TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
+        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let mut config = rustls::ClientConfig::builder_with_provider(provider.clone())
+            .with_protocol_versions(&[&rustls::version::TLS13])
+            .expect("ring crypt-prover should support TLS 1.3")
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(AcceptAnyServerCertificate { provider }))
+            .with_no_client_auth();
+        config.alpn_protocols = vec![b"h3".to_vec()];
+        Arc::new(config)
+    });
 
     TLS_CONFIG.clone()
 }
 
-fn client_tls_config_with_certs(certs: rustls::RootCertStore) -> Arc<rustls::ClientConfig> {
-    let mut config = rustls::ClientConfig::builder_with_provider(Arc::new(
-        rustls::crypto::ring::default_provider(),
-    ))
-    .with_protocol_versions(&[&rustls::version::TLS13])
-    .expect("ring crypt-prover should support TLS 1.3")
-    .with_root_certificates(certs)
-    .with_no_client_auth();
-    config.alpn_protocols = vec![b"h3".to_vec()];
-
-    let approver = Approver {};
-    config
-        .dangerous()
-        .set_certificate_verifier(Arc::new(approver));
-    Arc::new(config)
-}
-
-fn read_cert_store() -> rustls::RootCertStore {
-    read_cert_store_from_reader(&mut std::io::BufReader::new(LE_ROOT_CERT))
-        .expect("failed to read built-in cert store")
-}
-
-pub fn client_tls_config_from_cert_path(path: &Path) -> Result<Arc<rustls::ClientConfig>> {
-    read_cert_store_from_path(path).map(client_tls_config_with_certs)
-}
-
-fn read_cert_store_from_path(path: &Path) -> Result<rustls::RootCertStore> {
-    let cert_path = fs::File::open(path).map_err(Error::IO)?;
-    read_cert_store_from_reader(&mut std::io::BufReader::new(cert_path))
-}
-
-fn read_cert_store_from_reader(reader: &mut dyn io::BufRead) -> Result<rustls::RootCertStore> {
-    let mut cert_store = rustls::RootCertStore::empty();
-
-    let certs = CertificateDer::pem_reader_iter(reader)
-        .collect::<std::result::Result<Vec<_>, _>>()
-        .map_err(Error::ReadCerts)?;
-    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
-    if num_failures > 0 || num_certs_added == 0 {
-        return Err(Error::ParseCerts);
-    }
-
-    Ok(cert_store)
-}
-
-#[cfg(test)]
-mod test {
-    #[test]
-    fn test_zero_stream_id() {
-        h3::quic::StreamId::try_from(0).expect("need to be able to create stream IDs with 0, no?");
-    }
-}
-
+/// Accepts every server certificate without validating it. See
+/// [`default_tls_config`] for why the proxy server is not authenticated.
 #[derive(Debug)]
-struct Approver {}
+struct AcceptAnyServerCertificate {
+    /// The provider the connection is configured with.
+    provider: Arc<rustls::crypto::CryptoProvider>,
+}
 
-impl rustls::client::danger::ServerCertVerifier for Approver {
+impl rustls::client::danger::ServerCertVerifier for AcceptAnyServerCertificate {
     fn verify_server_cert(
         &self,
         _end_entity: &rustls::pki_types::CertificateDer<'_>,
@@ -871,22 +831,21 @@ impl rustls::client::danger::ServerCertVerifier for Approver {
         Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
     }
 
+    /// This rejects nothing, since no certificate is verified. It only fills
+    /// the ClientHello's `signature_algorithms` extension, and mirroring the
+    /// provider keeps that identical to what a verifying client would send.
     fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
-        vec![
-            rustls::SignatureScheme::RSA_PKCS1_SHA1,
-            rustls::SignatureScheme::ECDSA_SHA1_Legacy,
-            rustls::SignatureScheme::RSA_PKCS1_SHA256,
-            rustls::SignatureScheme::ECDSA_NISTP256_SHA256,
-            rustls::SignatureScheme::RSA_PKCS1_SHA384,
-            rustls::SignatureScheme::ECDSA_NISTP384_SHA384,
-            rustls::SignatureScheme::RSA_PKCS1_SHA512,
-            rustls::SignatureScheme::ECDSA_NISTP521_SHA512,
-            rustls::SignatureScheme::RSA_PSS_SHA256,
-            rustls::SignatureScheme::RSA_PSS_SHA384,
-            rustls::SignatureScheme::RSA_PSS_SHA512,
-            rustls::SignatureScheme::ED25519,
-            rustls::SignatureScheme::ED448,
-        ]
+        self.provider
+            .signature_verification_algorithms
+            .supported_schemes()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_zero_stream_id() {
+        h3::quic::StreamId::try_from(0).expect("need to be able to create stream IDs with 0, no?");
     }
 }
 

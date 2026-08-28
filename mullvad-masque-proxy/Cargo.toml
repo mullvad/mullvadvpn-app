@@ -26,7 +26,6 @@ quinn = { version = "0.11", default-features = false, features = [
   "rustls-ring"
 ] }
 rustls = { workspace = true }
-rustls-pki-types.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "io-util", "macros"] }
 typed-builder = "0.21.0"
@@ -35,6 +34,7 @@ typed-builder = "0.21.0"
 clap = { workspace = true }
 criterion = { version = "0.7.0", features = ["html_reports"] }
 rand = { workspace = true }
+rustls-pki-types.workspace = true
 talpid-tunnel = { path = "../talpid-tunnel" }
 tokio = { workspace = true, features = ["fs", "io-util", "macros", "rt-multi-thread"] }
 tracing-subscriber = { workspace = true, features = ["env-filter"] }
