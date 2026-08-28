@@ -25,13 +25,7 @@ shadowsocks = { workspace = true }
 talpid-net = { path = "../talpid-net" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = [
-  "io-util",
-  "macros",
-  "net",
-  "rt-multi-thread",
-  "sync"
-] }
+tokio = { workspace = true, features = ["io-util", "macros", "net", "rt-multi-thread", "sync"] }
 tokio-util = { workspace = true, features = ["rt"] }
 udp-over-tcp = { workspace = true }
 

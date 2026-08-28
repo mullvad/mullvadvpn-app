@@ -13,7 +13,7 @@ talpid-dbus = { workspace = true, optional = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32",

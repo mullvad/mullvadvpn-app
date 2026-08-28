@@ -52,22 +52,7 @@ ignore = [
 [licenses]
 version = 2  # https://github.com/EmbarkStudios/cargo-deny/pull/611
 # Adding a license here has to be done carefully. Should only be done by team leads.
-allow = [
-  "GPL-3.0-or-later",
-  "Apache-2.0",
-  "MIT",
-  "MPL-2.0",
-  "WTFPL",
-  "ISC",
-  "BSD-3-Clause",
-  "BSD-2-Clause",
-  "0BSD",
-  "CC0-1.0",
-  "Unicode-DFS-2016",
-  "Zlib",
-  "Unicode-3.0",
-  "CDLA-Permissive-2.0"
-]
+allow = ["GPL-3.0-or-later", "Apache-2.0", "MIT", "MPL-2.0", "WTFPL", "ISC", "BSD-3-Clause", "BSD-2-Clause", "0BSD", "CC0-1.0", "Unicode-DFS-2016", "Zlib", "Unicode-3.0", "CDLA-Permissive-2.0"]
 
 [licenses.private]
 ignore = false

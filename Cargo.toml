@@ -1,61 +1,12 @@
 [workspace]
 resolver = "2"
-members = [
-  "android/translations-converter",
-  "desktop/packages/nseventforwarder",
-  "desktop/packages/windows-utils",
-  "installer-downloader",
-  "mullvad-api",
-  "mullvad-cli",
-  "mullvad-daemon",
-  "mullvad-daemon-relay-selector",
-  "mullvad-encrypted-dns-proxy",
-  "mullvad-exclude",
-  "mullvad-fs",
-  "mullvad-ios",
-  "mullvad-jni",
-  "mullvad-leak-checker",
-  "mullvad-logging",
-  "mullvad-management-interface",
-  "mullvad-masque-proxy",
-  "mullvad-nsis",
-  "mullvad-paths",
-  "mullvad-problem-report",
-  "mullvad-relay-selector",
-  "mullvad-release-android",
-  "mullvad-setup",
-  "mullvad-types",
-  "mullvad-types/intersection-derive",
-  "mullvad-update",
-  "mullvad-update/mullvad-release",
-  "mullvad-version",
-  "talpid-core",
-  "talpid-dbus",
-  "talpid-dns",
-  "talpid-future",
-  "talpid-macos",
-  "talpid-net",
-  "talpid-platform-metadata",
-  "talpid-routing",
-  "talpid-time",
-  "talpid-tunnel",
-  "talpid-tunnel-config-client",
-  "talpid-windows",
-  "talpid-wireguard",
-  "tunnel-obfuscation",
-  "windows-installer"
-]
+members = ["android/translations-converter", "desktop/packages/nseventforwarder", "desktop/packages/windows-utils", "installer-downloader", "mullvad-api", "mullvad-cli", "mullvad-daemon", "mullvad-daemon-relay-selector", "mullvad-encrypted-dns-proxy", "mullvad-exclude", "mullvad-fs", "mullvad-ios", "mullvad-jni", "mullvad-leak-checker", "mullvad-logging", "mullvad-management-interface", "mullvad-masque-proxy", "mullvad-nsis", "mullvad-paths", "mullvad-problem-report", "mullvad-relay-selector", "mullvad-release-android", "mullvad-setup", "mullvad-types", "mullvad-types/intersection-derive", "mullvad-update", "mullvad-update/mullvad-release", "mullvad-version", "talpid-core", "talpid-dbus", "talpid-dns", "talpid-future", "talpid-macos", "talpid-net", "talpid-platform-metadata", "talpid-routing", "talpid-time", "talpid-tunnel", "talpid-tunnel-config-client", "talpid-windows", "talpid-wireguard", "tunnel-obfuscation", "windows-installer"]
 exclude = ["ci/ios/test-router/raas"]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
 # crates which might not compile without additional input, such as the `windows-installer` crate.
 # To build or test everything, add `--workspace` to your cargo commands.
-default-members = [
-  "mullvad-cli",
-  "mullvad-daemon",
-  "mullvad-problem-report",
-  "mullvad-version"
-]
+default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-problem-report", "mullvad-version"]
 
 [workspace.package]
 edition = "2024"
@@ -76,9 +27,7 @@ either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.9.0", default-features = false, features = ["ring"] }
 hickory-proto = "0.26.1"
-hickory-resolver = { version = "0.26.1", default-features = false, features = [
-  "tokio"
-] }
+hickory-resolver = { version = "0.26.1", default-features = false, features = ["tokio"] }
 hickory-server = { version = "0.26.1", features = ["resolver"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
@@ -104,9 +53,7 @@ proptest = "1.9"
 prost = "0.14.3"
 prost-types = "0.14.3"
 rand = "0.9.3"
-reqwest = { version = "0.12.23", default-features = false, features = [
-  "rustls-tls"
-] }
+reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
 rtnetlink = "0.21.0"
 rustls = { version = "0.23", default-features = false }
 rustls-pki-types = "1.13.1"
@@ -114,10 +61,7 @@ safelog = "0.8.2"
 serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
-shadowsocks = { version = "1.23.2", default-features = false, features = [
-  "aead-cipher",
-  "stream-cipher"
-] }
+shadowsocks = { version = "1.23.2", default-features = false, features = ["aead-cipher", "stream-cipher"] }
 shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
 socket2 = "0.6.5"
 strum = { version = "0.27" }

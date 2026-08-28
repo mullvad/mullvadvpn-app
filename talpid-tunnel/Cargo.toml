@@ -28,10 +28,10 @@ netlink-packet-route.workspace = true
 netlink-sys.workspace = true
 rtnetlink.workspace = true
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 talpid-windows = { path = "../talpid-windows" }
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_Foundation",
