@@ -20,9 +20,10 @@ extension GroupedTextFormatter {
         var maxGroups: UInt8
     }
 
-    enum AllowedInput {
+    enum AllowedInput: Equatable {
         case numeric
         case alphanumeric(isUpperCase: Bool)
+        case passphrase
     }
 }
 
@@ -36,7 +37,8 @@ struct GroupedTextFormatter: TextFormatting {
     func format(_ text: String) -> String {
         let filteredText = filterAllowedCharacters(text)
         let normalizedText = normalize(filteredText)
-        return splitIntoGroups(normalizedText)
+        let effectiveGroupSize = (configuration.allowedInput == .passphrase && (text.first?.isLetter ?? false)) ? 0 : configuration.groupSize
+        return effectiveGroupSize > 0 ? splitIntoGroups(normalizedText) : normalizedText
     }
 
     private func filterAllowedCharacters(_ input: String) -> String {
@@ -49,6 +51,10 @@ struct GroupedTextFormatter: TextFormatting {
             input.filter { character in
                 character.isLetter || character.isNumber
             }
+        case .passphrase:
+            input.filter { character in
+                character.isLetter || character.isNumber || character == " "
+            }
         }
     }
 
@@ -58,6 +64,8 @@ struct GroupedTextFormatter: TextFormatting {
             input
         case .alphanumeric(let isUpperCase):
             isUpperCase ? input.uppercased() : input.lowercased()
+        case .passphrase:
+            input.lowercased()
         }
     }
 
@@ -83,7 +91,7 @@ struct GroupedTextFormatter: TextFormatting {
 extension GroupedTextFormatter {
     static let accountNumber = GroupedTextFormatter(
         configuration: .init(
-            allowedInput: .numeric,
+            allowedInput: .passphrase,
             groupSeparator: " ",
             groupSize: 4,
             maxGroups: 4

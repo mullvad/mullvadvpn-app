@@ -117,10 +117,16 @@ extension LoginView {
                 configuration: .init(
                     formatter: GroupedTextFormatter.accountNumber,
                     autoComplete: .init(
-                        suggestions: $viewModel.storedAccountNumber,
-                        onSelect: { string in
-                            viewModel.accountNumber = string
-                            viewModel.login()
+                        suggestions: $viewModel.loginSuggestions,
+                        onSelect: { item in
+                            if item.first?.isNumber ?? false {
+                                viewModel.accountNumber = item
+                                viewModel.login()
+                            } else {
+                                let previousWords = viewModel.accountNumber.split(separator: " ").dropLast(1)
+                                let prev = previousWords.isEmpty ? "" : previousWords.joined(separator: " ") + " "
+                                viewModel.accountNumber = prev + "\(item) "
+                            }
                         },
                         onRemove: { _ in
                             alert = removeSavedAccountAlert

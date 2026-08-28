@@ -83,7 +83,7 @@ struct ConfigurableTextField: View {
         }
 
         guard text.isEmpty == false else {
-            return autoComplete.$suggestions.wrappedValue
+            return autoComplete.$suggestions.wrappedValue.first.map { [$0] } ?? []
         }
 
         let suggestions = autoComplete.filteredSuggestions(for: text)
@@ -196,7 +196,6 @@ struct ConfigurableTextField: View {
                 appearance: autoComplete.appearance,
                 onSelect: { suggestion in
                     autoComplete.onSelect(suggestion)
-                    text = suggestion
                 },
                 onRemove: { suggestion in
                     autoComplete.onRemove?(suggestion)
@@ -241,10 +240,10 @@ enum TextFieldNamespace {
         }
 
         func filteredSuggestions(for text: String) -> [String] {
-            guard !text.isEmpty else { return [] }
+            guard let lastWord = text.split(separator: " ").last else { return [] }
 
             return _suggestions.wrappedValue.filter {
-                $0.localizedCaseInsensitiveContains(text)
+                $0.hasPrefix(lastWord)
             }
         }
     }

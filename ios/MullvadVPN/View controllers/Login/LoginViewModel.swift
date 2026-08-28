@@ -53,6 +53,15 @@ extension TunnelManager: LoginViewModelProviding {}
             }
         }
     }
+    
+    var loginSuggestions: [String] {
+        get {
+            storedAccountNumber + mnemonic_words
+        }
+        set(v) {
+            storedAccountNumber = v.filter { $0.first?.isNumber ?? false }
+        }
+    }
 
     var loginState: State
     var showAccessMethodInvalidView: Bool = false
@@ -64,8 +73,12 @@ extension TunnelManager: LoginViewModelProviding {}
     private let minimumAccountTokenLength = 11
     private let interactor: LoginInteractor
 
-    private var nonTokenizedAccountNumber: String {
-        accountNumber.replacingOccurrences(of: " ", with: "")
+    private var normalisedAccountNumber: String {
+        if accountNumber.first?.isLetter ?? false {
+            decodeAccountPhrase(accountNumber) ?? ""
+        } else {
+            accountNumber.replacingOccurrences(of: " ", with: "")
+        }
     }
 
     init(
@@ -86,7 +99,7 @@ extension TunnelManager: LoginViewModelProviding {}
         Task { [weak self] in
             guard let self else { return }
 
-            let accountNumber = nonTokenizedAccountNumber
+            let accountNumber = normalisedAccountNumber
             loginState = .authenticating(.login(accountNumber))
 
             do {
@@ -126,7 +139,7 @@ extension TunnelManager: LoginViewModelProviding {}
     }
 
     private var satisfiesMinimumTokenLengthRequirement: Bool {
-        nonTokenizedAccountNumber.count >= minimumAccountTokenLength
+        normalisedAccountNumber.count >= minimumAccountTokenLength
     }
 }
 

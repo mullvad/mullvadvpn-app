@@ -44,6 +44,15 @@ class AccountNumberRow: UIView {
         return textLabel
     }()
 
+    private let accountPhraseLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.font = .mullvadSmall
+        textLabel.adjustsFontForContentSizeCategory = true
+        textLabel.textColor = .white
+        textLabel.numberOfLines = 0
+        return textLabel
+    }()
+
     private let showHideButton: UIButton = {
         let button = UIButton(type: .system)
         button.tintColor = .white
@@ -65,14 +74,19 @@ class AccountNumberRow: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        addConstrainedSubviews([titleLabel, accountNumberLabel, showHideButton, copyButton]) {
+        addConstrainedSubviews([titleLabel, accountNumberLabel, accountPhraseLabel, showHideButton, copyButton]) {
             titleLabel.pinEdgesToSuperview(.all().excluding([.trailing, .bottom]))
             titleLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor)
 
             accountNumberLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: UIMetrics.padding8)
             accountNumberLabel.leadingAnchor.constraint(equalTo: leadingAnchor)
             accountNumberLabel.trailingAnchor.constraint(greaterThanOrEqualTo: showHideButton.leadingAnchor)
-            accountNumberLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
+
+            accountPhraseLabel.topAnchor.constraint(
+                equalTo: accountNumberLabel.bottomAnchor, constant: UIMetrics.padding8)
+            accountPhraseLabel.leadingAnchor.constraint(equalTo: leadingAnchor)
+            accountPhraseLabel.trailingAnchor.constraint(greaterThanOrEqualTo: showHideButton.leadingAnchor)
+            accountPhraseLabel.bottomAnchor.constraint(equalTo: bottomAnchor)
 
             showHideButton.heightAnchor.constraint(equalTo: accountNumberLabel.heightAnchor)
             showHideButton.centerYAnchor.constraint(equalTo: accountNumberLabel.centerYAnchor)
@@ -128,6 +142,7 @@ class AccountNumberRow: UIView {
 
     private func updateView() {
         accountNumberLabel.text = displayAccountNumber ?? ""
+        accountPhraseLabel.text = displayAccountPhrase ?? ""
         showHideButton.setImage(showHideImage, for: .normal)
 
         accessibilityAttributedValue = _accessibilityAttributedValue
@@ -149,6 +164,14 @@ class AccountNumberRow: UIView {
         } else {
             return formattedString
         }
+    }
+
+    private var displayAccountPhrase: String? {
+        guard let accountNumber else {
+            return nil
+        }
+
+        return isObscured ? "" : encodeAccountPhrase(accountNumber)
     }
 
     private var showHideImage: UIImage? {

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2866,6 +2866,10 @@
 		F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListInteractorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		44D71B08301CB0260003F1B2 /* Hackday */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Hackday; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		06799AB928F98E1D00ACD94E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -4286,6 +4290,7 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
+				44D71B08301CB0260003F1B2 /* Hackday */,
 				01C981E72F43C3410002D284 /* Accessibility */,
 				5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */,
 				58D7E3D629C78A130044B058 /* AddressCacheUpdateScheduler */,
@@ -5671,6 +5676,9 @@
 				58B2FDD82AA71D2A003EB5C6 /* PBXTargetDependency */,
 				F0ACE30F2BE4E478006D5333 /* PBXTargetDependency */,
 				A992DA222C24709F00DE7CE5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				44D71B08301CB0260003F1B2 /* Hackday */,
 			);
 			name = MullvadVPN;
 			packageProductDependencies = (
