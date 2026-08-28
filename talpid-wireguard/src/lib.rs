@@ -310,6 +310,27 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
+            let lock = tunnel.lock().await;
+            let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
+            match connectivity_monitor
+                .establish_connectivity(borrowed_tun.as_ref())
+                .await
+            {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            }?;
+            drop(lock);
+
             let ephemeral_obfs_sender = close_obfs_sender.clone();
             if config.quantum_resistant || config.daita {
                 if let Err(e) = ephemeral::config_ephemeral_peers(
@@ -368,27 +389,6 @@ impl WireguardMonitor {
                     };
                 });
             }
-
-            let lock = tunnel.lock().await;
-            let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
-            match connectivity_monitor
-                .establish_connectivity(borrowed_tun.as_ref())
-                .await
-            {
-                Ok(true) => Ok(()),
-                Ok(false) => {
-                    log::warn!("Timeout while checking tunnel connection");
-                    Err(CloseMsg::PingErr)
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to check tunnel connection")
-                    );
-                    Err(CloseMsg::PingErr)
-                }
-            }?;
-            drop(lock);
 
             // Add any default route(s) that may exist.
             args.route_manager
