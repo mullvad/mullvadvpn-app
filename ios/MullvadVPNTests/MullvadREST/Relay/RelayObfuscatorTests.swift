@@ -353,6 +353,25 @@ final class RelayObfuscatorTests: XCTestCase {
         XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, relaysWithLwoSupport.count)
     }
 
+    func testObfuscateLwoSelectsOnlyLwoV1Relays() throws {
+        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .lwo,
+            lwoPort: .custom(4000)
+        )
+
+        // LWOv2 requires GotaTun, so a relay only advertising it must not be selected.
+        XCTAssertTrue(sampleRelays.wireguard.relays.contains { $0.supportsLwoV2 && !$0.supportsLwo })
+
+        let obfuscationResult = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+
+        XCTAssertTrue(obfuscationResult.relays.wireguard.relays.allSatisfy { $0.supportsLwo })
+    }
+
     func testObfuscateLwoPortCustom() throws {
         tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
             state: .lwo,
