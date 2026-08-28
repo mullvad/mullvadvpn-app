@@ -174,18 +174,20 @@ class ManagementService(
 ) {
     private var job: Job? = null
 
-    // We expect daemon to create the rpc socket file on the path provided on initialisation
-    @Suppress("DEPRECATION") private val channel = socketClient(rpcSocketFile)
+    // We expect daemon to create the rpc socket file on the path provided on initialization
+    @Suppress("DEPRECATION") private val client = socketClient(rpcSocketFile)
 
+    // TODO We should add a way to check if the connection is ready so that we can show the no
+    // daemon screen properly
     val connectionState: StateFlow<GrpcConnectivityState> =
-        channel
+        client
             .connectivityFlow()
             .onEach { Logger.i("ManagementService connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, GrpcConnectivityState.Ready)
 
     private val service: RelaySelectorServiceClient by lazy {
         GrpcClient.Builder()
-            .client(channel)
+            .client(client)
             .baseUrl("http://localhost/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
@@ -204,7 +206,7 @@ class ManagementService(
 
     private val grpc: ManagementServiceClient by lazy {
         GrpcClient.Builder()
-            .client(channel)
+            .client(client)
             .baseUrl("http://localhost/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
@@ -258,8 +260,6 @@ class ManagementService(
             ?: error("ManagementService already stopped")
         job = null
     }
-
-    fun enterIdle() = { /*NO-OP*/ }
 
     private suspend fun subscribeEvents() =
         withContext(Dispatchers.IO) {
