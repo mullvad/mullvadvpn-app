@@ -26,10 +26,10 @@ tokio = { workspace = true, features = ["rt-multi-thread"] }
 tracing = "0.1.44"
 tracing-subscriber = { workspace = true }
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 windows-service = "0.6.0"
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_Devices_DeviceAndDriverInstallation",

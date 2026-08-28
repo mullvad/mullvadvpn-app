@@ -16,10 +16,7 @@ OriginalFilename = "MullvadVPN.exe"
 [build-dependencies]
 anyhow.workspace = true
 mullvad-version = { path = "../mullvad-version" }
-windows-sys = { workspace = true, features = [
-  "Win32_System",
-  "Win32_System_SystemServices"
-] }
+windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_SystemServices"] }
 winresource.workspace = true
 
 [target.'cfg(all(target_os = "windows", target_arch = "x86_64"))'.dependencies]

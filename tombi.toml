@@ -6,6 +6,9 @@ exclude = [
   "windows/windows-libraries/**",
 ]
 
+[format.rules]
+line-width = 100
+
 [[schemas]]
 toml-version = "v1.0.0"
 path = "tombi://www.schemastore.org/cargo.json"

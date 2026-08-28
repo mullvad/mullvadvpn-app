@@ -6,7 +6,7 @@ description = "Nice abstractions for Windows"
 repository.workspace = true
 license.workspace = true
 
-[target.'cfg(windows)'.dev-dependencies]
+[target."cfg(windows)".dev-dependencies]
 tokio = { workspace = true, features = [
   "fs",
   "io-util",
@@ -17,17 +17,17 @@ tokio = { workspace = true, features = [
   "time",
 ] }
 
-[target.'cfg(windows)'.dev-dependencies.windows-sys]
+[target."cfg(windows)".dev-dependencies.windows-sys]
 workspace = true
 features = ["Win32_Storage", "Win32_Storage_FileSystem"]
 
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 futures = { workspace = true }
 socket2 = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 
-[target.'cfg(windows)'.dependencies.windows-sys]
+[target."cfg(windows)".dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_Foundation",

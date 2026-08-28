@@ -37,11 +37,11 @@ tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 clap_complete = { version = "4.4.8" }
 nix = { workspace = true, features = ["signal"] }
 
-[target.'cfg(windows)'.build-dependencies]
+[target."cfg(windows)".build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winresource.workspace = true
 
-[target.'cfg(windows)'.build-dependencies.windows-sys]
+[target."cfg(windows)".build-dependencies.windows-sys]
 workspace = true
 features = [
   "Win32_System_SystemServices",
