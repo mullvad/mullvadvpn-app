@@ -111,6 +111,27 @@ impl Socks5Proxy {
     }
 }
 
+impl fmt::Display for Socks5Proxy {
+    /// Note that this says only whether credentials are configured, never what they are, since it
+    /// may end up in a log.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Socks5Proxy::Local(settings) => write!(
+                f,
+                "localhost:{}, forwarding to {}",
+                settings.local_port, settings.remote_endpoint
+            ),
+            Socks5Proxy::Remote(settings) => {
+                write!(f, "{}", settings.endpoint)?;
+                match settings.auth {
+                    Some(_) => f.write_str(" (authenticated)"),
+                    None => Ok(()),
+                }
+            }
+        }
+    }
+}
+
 impl From<Socks5Remote> for CustomProxy {
     fn from(value: Socks5Remote) -> Self {
         CustomProxy::Socks5Remote(value)

@@ -25,6 +25,7 @@ use mullvad_types::{
 use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
 use std::{path::Path, str::FromStr};
+use talpid_types::net::proxy::Socks5Proxy;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 #[cfg(not(target_os = "android"))]
@@ -288,6 +289,15 @@ impl MullvadProxyClient {
 
     pub async fn set_userspace_wireguard(&mut self, state: bool) -> Result<()> {
         self.0.set_userspace_wireguard(state).await?;
+        Ok(())
+    }
+
+    /// Set the SOCKS5 proxy to relay the tunnel through, or `None` to stop relaying.
+    pub async fn set_wireguard_socks5_proxy(&mut self, proxy: Option<Socks5Proxy>) -> Result<()> {
+        let proxy = types::Socks5ProxySettings {
+            proxy: proxy.map(types::Socks5Proxy::from),
+        };
+        self.0.set_wireguard_socks5_proxy(proxy).await?;
         Ok(())
     }
 
