@@ -13,19 +13,19 @@ use test_macro::test_function;
 use test_rpc::ServiceClient;
 
 use super::{
-    Error, TestContext,
+    TestContext,
     helpers::{self, connect_and_wait, set_custom_endpoint},
 };
-use crate::{
-    TEST_CONFIG,
-    network_monitor::{
-        Direction, IpHeaderProtocols, MonitorOptions, PacketMonitor, start_packet_monitor_until,
-        start_tunnel_packet_monitor_until,
-    },
-    vm::network::wireguard::{
-        CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
-        CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR,
-    },
+
+use crate::TEST_CONFIG;
+use crate::network_monitor::{
+    Direction, IpHeaderProtocols, MonitorOptions, PacketMonitor, start_packet_monitor_until,
+    start_tunnel_packet_monitor_until,
+};
+use crate::test_interface::error::Error;
+use crate::vm::network::wireguard::{
+    CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
+    CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR,
 };
 
 /// How long to wait for expected "DNS queries" to appear

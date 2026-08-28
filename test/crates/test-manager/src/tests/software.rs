@@ -1,6 +1,8 @@
 //! Tests of interoperability with other software
 
-use super::{Error, TestContext, helpers};
+use super::{TestContext, helpers};
+use crate::test_interface::error::Error;
+
 use mullvad_management_interface::MullvadProxyClient;
 use test_macro::test_function;
 use test_rpc::{ExecResult, ServiceClient};

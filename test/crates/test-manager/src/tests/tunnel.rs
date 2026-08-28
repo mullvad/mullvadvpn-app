@@ -1,12 +1,11 @@
 use super::{
-    Error, TestContext,
+    TestContext,
     config::TEST_CONFIG,
     helpers::{self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait},
 };
-use crate::{
-    network_monitor::{MonitorOptions, start_packet_monitor},
-    tests::helpers::{ConnChecker, geoip_lookup_with_retries, login_with_retries},
-};
+use crate::network_monitor::{MonitorOptions, start_packet_monitor};
+use crate::test_interface::error::Error;
+use crate::tests::helpers::{ConnChecker, geoip_lookup_with_retries, login_with_retries};
 
 use anyhow::{Context, ensure};
 use duplicate::duplicate_item;

@@ -11,7 +11,8 @@ use talpid_types::{net::TunnelEndpoint, tunnel::ErrorStateCause};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
-use super::{Error, TestContext, helpers};
+use super::{TestContext, helpers};
+use crate::test_interface::error::Error;
 
 /// Test that daita and daita_direct_only works by connecting
 /// - to a non-DAITA relay with singlehop (should block)

@@ -1,7 +1,8 @@
 use super::{
-    Error, TestContext, helpers,
+    TestContext, helpers,
     helpers::{connect_and_wait, send_guest_probes},
 };
+use crate::test_interface::error::Error;
 
 use anyhow::{Context, ensure};
 use mullvad_management_interface::MullvadProxyClient;

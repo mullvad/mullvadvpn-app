@@ -1,4 +1,6 @@
-use super::{Error, TestContext, config::TEST_CONFIG, helpers};
+use super::{TestContext, config::TEST_CONFIG, helpers};
+use crate::test_interface::error::Error;
+
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{

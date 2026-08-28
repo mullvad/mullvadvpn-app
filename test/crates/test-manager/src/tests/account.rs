@@ -1,6 +1,7 @@
+use crate::test_interface::error::Error;
 use crate::tests::helpers::{THROTTLE_RETRY_DELAY, login_with_retries};
 
-use super::{Error, TestContext, config::TEST_CONFIG, helpers, ui};
+use super::{TestContext, config::TEST_CONFIG, helpers, ui};
 use anyhow::Context;
 use mullvad_api::DevicesProxy;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};

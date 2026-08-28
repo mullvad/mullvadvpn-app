@@ -7,10 +7,11 @@ use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::{ServiceClient, meta::Os, mullvad_daemon::ServiceStatus};
 
+use crate::test_interface::error::Error;
 use crate::tests::helpers;
 
 use super::{
-    Error, TestContext,
+    TestContext,
     config::TEST_CONFIG,
     helpers::{
         Pinger, connect_and_wait, get_app_env, get_package_desc, install_app, wait_for_tunnel_state,

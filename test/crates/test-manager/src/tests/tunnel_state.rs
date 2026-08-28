@@ -1,13 +1,14 @@
 use super::{
-    Error, TestContext,
+    TestContext,
     helpers::{
         self, connect_and_wait, send_guest_probes, unreachable_wireguard_tunnel,
         wait_for_tunnel_state,
     },
 };
-use crate::{
-    assert_tunnel_state,
-    tests::helpers::{ping_sized_with_timeout, set_custom_endpoint, update_relay_constraints},
+use crate::assert_tunnel_state;
+use crate::test_interface::error::Error;
+use crate::tests::helpers::{
+    ping_sized_with_timeout, set_custom_endpoint, update_relay_constraints,
 };
 
 use mullvad_management_interface::MullvadProxyClient;

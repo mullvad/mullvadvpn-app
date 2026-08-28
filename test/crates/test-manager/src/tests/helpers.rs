@@ -1,4 +1,5 @@
-use super::{Error, TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT, config::TEST_CONFIG};
+use super::{TestContext, WAIT_FOR_TUNNEL_STATE_TIMEOUT, config::TEST_CONFIG};
+use crate::test_interface::error::Error;
 use crate::{
     mullvad_daemon::RpcClientProvider,
     network_monitor::{
