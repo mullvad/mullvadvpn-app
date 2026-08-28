@@ -809,9 +809,7 @@ internal fun IncompatibleConstraints.toDomain() =
         conflictWithOtherHop = conflict_with_other_hop,
     )
 
-internal fun Shadowsocks.Ciphers.toDomain() = ciphers.map {
-    ModelCipher(it.name)
-}
+internal fun Shadowsocks.Ciphers.toDomain() = ciphers.map { ModelCipher(it.name) }
 
 internal fun SplitFilterMigration.toDomain(): ModelSplitFilterMigration =
     ModelSplitFilterMigration(scenario = scenario?.toDomain())

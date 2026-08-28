@@ -21,9 +21,8 @@ android {
 wire {
     sourcePath {
         // Gradle is smart enough to resolve the task's outputDir property
-        val patchedDir = tasks.named("patchProtoFiles").flatMap {
-            (it as PatchProtosTask).outputDir
-        }
+        val patchedDir =
+            tasks.named("patchProtoFiles").flatMap { (it as PatchProtosTask).outputDir }
         srcDir(patchedDir)
     }
 

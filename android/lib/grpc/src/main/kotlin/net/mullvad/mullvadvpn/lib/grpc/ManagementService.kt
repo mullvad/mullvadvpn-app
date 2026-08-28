@@ -35,13 +35,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import mullvad_daemon.management_interface.BoolValue
 import mullvad_daemon.management_interface.Device
 import mullvad_daemon.management_interface.DeviceRemoval
 import mullvad_daemon.management_interface.ManagementServiceClient
 import mullvad_daemon.management_interface.NewCustomList
-import mullvad_daemon.management_interface.StringValue
-import mullvad_daemon.management_interface.UInt32Value
 import mullvad_daemon.relay_selector.RelaySelectorServiceClient
 import net.mullvad.mullvadvpn.lib.daemon.grpc.util.UnixDomainSocketFactory
 import net.mullvad.mullvadvpn.lib.grpc.mapper.fromDomain
@@ -165,6 +162,9 @@ import net.mullvad.mullvadvpn.lib.model.wireguardPort
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
+import safe_wrappers.SafeBoolValue
+import safe_wrappers.SafeStringValue
+import safe_wrappers.SafeUInt32Value
 
 @Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
@@ -226,9 +226,7 @@ class ManagementService(
     private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
-    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map {
-        it.countries
-    }
+    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map { it.countries }
 
     val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.map {
         it.wireguardEndpointData
@@ -336,13 +334,13 @@ class ManagementService(
 
     suspend fun disconnect(disconnectReason: DisconnectReason): Either<ConnectError, Boolean> =
         Either.catch {
-                grpc.DisconnectTunnel().execute(disconnectReason.logString.toStringValue()).toBool()
+                grpc.DisconnectTunnel().execute(disconnectReason.logString.toStringValue()).value_
             }
             .onLeft { Logger.e("Disconnect error") }
             .mapLeft(ConnectError::Unknown)
 
     suspend fun reconnect(): Either<ConnectError, Boolean> =
-        Either.catch { grpc.ReconnectTunnel().execute(Unit).toBool() }
+        Either.catch { grpc.ReconnectTunnel().execute(Unit).value_ }
             .onLeft { Logger.e("Reconnect error") }
             .mapLeft(ConnectError::Unknown)
 
@@ -542,7 +540,7 @@ class ManagementService(
             .mapLeft(SetWireguardMtuError::Unknown)
 
     suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.SetWireguardMtu().execute(UInt32Value()) }
+        Either.catch { grpc.SetWireguardMtu().execute(SafeUInt32Value()) }
             .onLeft { Logger.e("Reset wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
 
@@ -972,13 +970,11 @@ class ManagementService(
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
 
-    private fun Boolean.toBoolValue() = BoolValue(this)
+    private fun Boolean.toBoolValue() = SafeBoolValue(this)
 
-    private fun String.toStringValue() = StringValue(this)
+    private fun String.toStringValue() = SafeStringValue(this)
 
-    private fun Int.toUInt32Value() = UInt32Value(this)
-
-    private fun BoolValue.toBool() = this.value_
+    private fun Int.toUInt32Value() = SafeUInt32Value(this)
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
         f: (GrpcException) -> C

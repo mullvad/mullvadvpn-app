@@ -50,6 +50,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId as ModelGeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion as ModelIpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints as ModelMultihopConstraints
+import net.mullvad.mullvadvpn.lib.model.MultihopMode as ModelMultihopMode
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting as ModelNewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode as ModelObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings as ModelObfuscationSettings
@@ -66,7 +67,6 @@ import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings as ModelS
 import net.mullvad.mullvadvpn.lib.model.SocksAuth as ModelSocksAuth
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
-import net.mullvad.mullvadvpn.lib.model.MultihopMode as ModelMultihopMode
 
 internal fun Constraint<RelayItemId>.fromDomain(): LocationConstraint =
     when (this) {
