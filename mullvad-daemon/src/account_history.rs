@@ -1,6 +1,5 @@
 use mullvad_types::account::AccountNumber;
-use regex::Regex;
-use std::{path::Path, sync::LazyLock};
+use std::path::Path;
 use talpid_types::ErrorExt;
 use tokio::{
     fs,
@@ -31,7 +30,9 @@ pub struct AccountHistory {
     number: Option<AccountNumber>,
 }
 
-static ACCOUNT_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^[0-9]+$").unwrap());
+fn is_account_number(s: &str) -> bool {
+    !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit())
+}
 
 impl AccountHistory {
     pub async fn new(
@@ -62,7 +63,7 @@ impl AccountHistory {
         let mut buffer = String::new();
         let (number, should_save): (Option<AccountNumber>, bool) =
             match reader.read_to_string(&mut buffer).await {
-                Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => (Some(buffer), false),
+                Ok(_) if is_account_number(&buffer) => (Some(buffer), false),
                 Ok(0) => (current_number, true),
                 Ok(_) | Err(_) => {
                     log::warn!("Failed to parse account history");
