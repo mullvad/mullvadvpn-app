@@ -191,6 +191,7 @@ ignored = ["prost"]
 opt-level = "s"
 strip = true
 lto = true
+codegen-units = 1
 
 # Selectively optimize packages where we know it makes a difference
 [profile.release.package]
@@ -221,3 +222,5 @@ inherits = "release"
 debug = true
 strip = false
 lto = "thin"
+# Back to the cargo default; this profile favours build speed.
+codegen-units = 16
