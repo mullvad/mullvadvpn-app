@@ -23,25 +23,15 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
-  `debug` and `trace`.
 - Add support for the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment variable. Set it to false
   to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 
 ### Changed
 - Update LWO to improved v2 protocol.
-- Clicking on the tray icon will toggle the window instead of just showing it
-- Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
 
 #### Linux
-- Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
-  the source being built instead of the time of the build. Required for reproducible builds.
-- Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
-  build machine. Required for reproducible builds.
-- De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
-- Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
 - Stop embedding a `dpkg-sig` signature in `.deb` packages. apt verifies the signature on the
   repository, not one inside the package, and the tool making these signatures has been removed
@@ -52,12 +42,42 @@ Line wrap the file at 100 chars.                                              Th
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
-- Sign the uninstaller and Electron binaries. Some NSIS binaries are still unsigned.
 
 ### Removed
 #### Windows
 - Remove `netsh`-based DNS configuration. All Windows build older than 22H2 support configuring DNS
   via the `iphlpapi` IP helper API.
+
+### Fixed
+#### Linux
+- Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
+  when detecting if NetworkManager manages DNS.
+
+### Security
+#### macOS
+- Fix local privilege escalation attack in the uninstall script. This could be used by admin users
+  to obtain root privileges during uninstall.
+
+
+## [2026.5-beta1] - 2026-08-31
+### Added
+- Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
+  `debug` and `trace`.
+
+### Changed
+- Clicking on the tray icon will toggle the window instead of just showing it
+- Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
+
+#### Linux
+- Make all timestamps embedded in `.deb` and `.rpm` packages deterministic by deriving them from
+  the source being built instead of the time of the build. Required for reproducible builds.
+- Set the `BUILDHOST` header of `.rpm` packages to a fixed value instead of the hostname of the
+  build machine. Required for reproducible builds.
+- De-couple `mullvad-daemon.service` "After=" dependencies from systemd.resolved and NetworkManager.
+- Start `mullvad-early-boot-blocking.service` before `network-pre.target` instead of `basic.target`.
+
+#### Windows
+- Sign the uninstaller and Electron binaries. Some NSIS binaries are still unsigned.
 
 ### Fixed
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
@@ -68,20 +88,11 @@ Line wrap the file at 100 chars.                                              Th
   access token.
 - Fix daemon crashing on startup when migrating settings that contain no WireGuard entry location.
 
-#### Linux
-- Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
-  when detecting if NetworkManager manages DNS.
-
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
   enabled in order to prevent toggle switches and other custom-styled controls from becoming
   invisible.
 - Fix the installer UI from looking blurry by making the installer DPI-aware.
-
-### Security
-#### macOS
-- Fix local privilege escalation attack in the uninstall script. This could be used by admin users
-  to obtain root privileges during uninstall.
 
 
 ## [2026.4] - 2026-08-17
