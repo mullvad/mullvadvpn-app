@@ -13,7 +13,7 @@ use talpid_types::ErrorExt;
 pub mod availability;
 use availability::ApiAvailability;
 pub mod rest;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 pub mod version;
 
 mod abortable_stream;
@@ -60,7 +60,7 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 
-#[cfg(target_os = "ios")]
+#[cfg(any(target_os = "ios", target_os = "tvos"))]
 const APPLE_PAYMENT_URL_PREFIX: &str = "payments/apple/v2";
 
 #[cfg(target_os = "android")]
@@ -611,7 +611,7 @@ impl AccountsProxy {
         }
     }
 
-    #[cfg(target_os = "ios")]
+    #[cfg(any(target_os = "ios", target_os = "tvos"))]
     pub async fn init_storekit_payment(
         &self,
         account: AccountNumber,
@@ -625,7 +625,7 @@ impl AccountsProxy {
         self.handle.service.request(request).await
     }
 
-    #[cfg(target_os = "ios")]
+    #[cfg(any(target_os = "ios", target_os = "tvos"))]
     pub async fn check_storekit_payment(
         &self,
         body: Vec<u8>,
