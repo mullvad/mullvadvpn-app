@@ -1,4 +1,4 @@
-#[cfg(target_os = "ios")]
+#[cfg(any(target_os = "ios", target_os = "tvos"))]
 pub(crate) mod ffi;
 mod pinger;
 pub(crate) mod tun_device;
