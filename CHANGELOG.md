@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
-## [2026.5-beta1] - 2026-08-18
+## [2026.5-beta1] - 2026-08-31
 ### Added
 - Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
   `debug` and `trace`.
