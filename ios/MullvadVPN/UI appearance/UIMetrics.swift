@@ -68,13 +68,6 @@ enum UIMetrics {
         static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
     }
 
-    enum SettingsRedeemVoucher {
-        static let cornerRadius: CGFloat = 8
-        static let preferredContentSize = CGSize(width: 280, height: 260)
-        static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
-        static let successfulRedeemMargins = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
-    }
-
     enum AccountDeletion {
         static let preferredContentSize = CGSize(width: 480, height: 320)
     }

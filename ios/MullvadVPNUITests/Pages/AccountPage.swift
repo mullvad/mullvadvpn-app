@@ -18,11 +18,6 @@ class AccountPage: PaymentPage {
         waitForPageToBeShown()
     }
 
-    @discardableResult func tapRedeemVoucherButton() -> Self {
-        app.buttons[AccessibilityIdentifier.redeemVoucherButton.asString].tap()
-        return self
-    }
-
     @discardableResult func tapRestorePurchasesButton() -> Self {
         app.buttons[AccessibilityIdentifier.restorePurchasesButton.asString].tap()
         return self

@@ -30,13 +30,6 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
 
-    func submitVoucher(
-        voucherCode: String,
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
-    ) -> Cancellable
-
     func initStoreKitPayment(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
@@ -126,15 +119,6 @@ extension REST {
                 responseHandler: rustEmptyResponseHandler(),
                 completionHandler: completionHandler
             )
-        }
-
-        public func submitVoucher(
-            voucherCode: String,
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
-        ) -> Cancellable {
-            AnyCancellable()
         }
 
         public func checkApiAvailability(

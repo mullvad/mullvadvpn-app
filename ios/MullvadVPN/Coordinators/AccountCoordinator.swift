@@ -63,8 +63,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             didFinish?(self, .none)
         case .logOut:
             logOut()
-        case .navigateToVoucher:
-            navigateToRedeemVoucher()
         case .navigateToDeleteAccount:
             navigateToDeleteAccount()
         case .restorePurchasesInfo:
@@ -92,38 +90,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         }
         coordinator.start()
         presentChild(coordinator, animated: true)
-    }
-
-    private func navigateToRedeemVoucher() {
-        let coordinator = ProfileVoucherCoordinator(
-            navigationController: CustomNavigationController(),
-            interactor: RedeemVoucherInteractor(
-                tunnelManager: interactor.tunnelManager,
-                accountsProxy: interactor.accountsProxy,
-                verifyVoucherAsAccount: false
-            )
-        )
-        coordinator.didFinish = { coordinator in
-            coordinator.dismiss(animated: true)
-        }
-        coordinator.didCancel = { coordinator in
-            coordinator.dismiss(animated: true)
-        }
-
-        coordinator.start()
-        presentChild(
-            coordinator,
-            animated: true,
-            configuration: ModalPresentationConfiguration(
-                preferredContentSize: UIMetrics.SettingsRedeemVoucher.preferredContentSize,
-                modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate(
-                    options: FormSheetPresentationOptions(
-                        useFullScreenPresentationInCompactWidth: false,
-                        adjustViewWhenKeyboardAppears: true
-                    ))
-            )
-        )
     }
 
     private func navigateToDeviceManagement() {

@@ -18,7 +18,6 @@ struct APIProxyStub: APIQuerying {
     var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
     var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
-    var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
     var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
     var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
     var checkApiAvailabilityResult: Result<Bool, Error> = .failure(APIProxyStubError())
@@ -46,16 +45,6 @@ struct APIProxyStub: APIQuerying {
         completionHandler: @escaping ProxyCompletionHandler<Void>
     ) -> Cancellable {
         completionHandler(sendProblemReportResult)
-        return AnyCancellable()
-    }
-
-    func submitVoucher(
-        voucherCode: String,
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
-    ) -> Cancellable {
-        completionHandler(submitVoucherResult)
         return AnyCancellable()
     }
 
