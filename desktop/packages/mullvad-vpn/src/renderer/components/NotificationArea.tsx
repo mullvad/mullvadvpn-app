@@ -152,7 +152,10 @@ export default function NotificationArea(props: IProps) {
       disableSplitTunneling,
       splitTunnelingSupported,
     }),
-    new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
+    new InconsistentVersionNotificationProvider({
+      consistent: version.consistent,
+      platform: window.env.platform,
+    }),
     new UnsupportedVersionNotificationProvider(version),
   ];
 

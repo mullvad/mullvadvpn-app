@@ -63,6 +63,7 @@ export default class Version {
     // notify user about inconsistent version
     const notificationProvider = new InconsistentVersionNotificationProvider({
       consistent: versionInfo.isConsistent,
+      platform: process.platform,
     });
     if (notificationProvider.mayDisplay()) {
       this.delegate.notify(notificationProvider.getSystemNotification());
