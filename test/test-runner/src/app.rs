@@ -77,6 +77,7 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         Path::new(r"/usr/share/bash-completion/completions/mullvad"),
         Path::new(r"/usr/local/share/zsh/site-functions/_mullvad"),
         Path::new(r"/usr/share/fish/vendor_completions.d/mullvad.fish"),
+        Path::new(r"/usr/share/nushell/vendor/autoload/mullvad.nu"),
     ];
 
     Ok(existing_paths(&traces))
@@ -106,6 +107,7 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         Path::new(r"/usr/local/share/zsh/site-functions/_mullvad"),
         Path::new(r"/opt/homebrew/share/fish/vendor_completions.d/mullvad.fish"),
         Path::new(r"/usr/local/share/fish/vendor_completions.d/mullvad.fish"),
+        Path::new(r"/usr/local/share/nushell/vendor/autoload/mullvad.nu"),
     ];
 
     Ok(existing_paths(&traces))

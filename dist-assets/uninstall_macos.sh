@@ -48,6 +48,9 @@ echo "Removing fish shell completion symlink ..."
 sudo rm -f "/opt/homebrew/share/fish/vendor_completions.d/mullvad.fish"
 sudo rm -f "/usr/local/share/fish/vendor_completions.d/mullvad.fish"
 
+echo "Removing nushell completion symlink ..."
+sudo rm -f "/usr/local/share/nushell/vendor/autoload/mullvad.nu"
+
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
 
