@@ -2304,7 +2304,6 @@ dependencies = [
  "ipnetwork 0.21.1",
  "log",
  "mullvad-version",
- "regex",
  "serde",
  "talpid-types",
  "thiserror 2.0.18",

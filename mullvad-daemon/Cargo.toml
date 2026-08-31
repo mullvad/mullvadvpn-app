@@ -89,7 +89,6 @@ mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-version = { path = "../mullvad-version" }
 rand = { workspace = true }
-regex = "1.0"
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
 talpid-core = { path = "../talpid-core" }
