@@ -42,8 +42,12 @@ export PATH="${HOME}/.cargo/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Li
 export PATH="${PATH}:/opt/homebrew/bin:"
 
 TARGET=aarch64-apple-ios
-if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
-  TARGET=aarch64-apple-ios-sim
+if [ "${PLATFORM_NAME}" = "appletvos" ]; then
+TARGET=aarch64-apple-tvos
+elif [ "${PLATFORM_NAME}" = "appletvsimulator" ]; then
+TARGET=aarch64-apple-tvos-sim
+elif [ "${PLATFORM_NAME}" = "iphonesimulator" ]; then
+TARGET=aarch64-apple-ios-sim
 fi
 
 # To make GotaTun fast enough to not be bothersome in DEBUG builds, lets

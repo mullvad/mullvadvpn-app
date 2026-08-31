@@ -1,4 +1,4 @@
-#![cfg(target_os = "ios")]
+#![cfg(any(target_os = "ios", target_os = "tvos"))]
 
 use talpid_types::net::wireguard::PrivateKey;
 

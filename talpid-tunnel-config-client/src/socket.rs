@@ -169,11 +169,11 @@ pub mod tcp_info {
 
     /// Platform-specific TCP diagnostics snapshot, populated from the
     /// platform's kernel TCP info API.
-    #[cfg(not(target_os = "ios"))]
+    #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
     pub type TcpInfoSnapshot = platform::TcpInfoSnapshot;
 
     /// Query TCP info from the given socket. Returns `None` if the query fails.
-    #[cfg(not(target_os = "ios"))]
+    #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
     pub fn query_tcp_info(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
         platform::query(socket)
     }
