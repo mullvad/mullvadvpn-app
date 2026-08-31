@@ -37,10 +37,6 @@ class SplashViewModel(
     val uiState: StateFlow<SplashScreenState> = _uiState
 
     private suspend fun getStartDestination(): SplashUiSideEffect {
-        if (!userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-            return SplashUiSideEffect.NavigateToPrivacyDisclaimer
-        }
-
         val deviceState =
             deviceRepository.deviceState
                 .map {
@@ -89,8 +85,6 @@ private sealed interface ValidStartDeviceState {
 }
 
 sealed interface SplashUiSideEffect {
-    data object NavigateToPrivacyDisclaimer : SplashUiSideEffect
-
     data object NavigateToRevoked : SplashUiSideEffect
 
     data object NavigateToLogin : SplashUiSideEffect

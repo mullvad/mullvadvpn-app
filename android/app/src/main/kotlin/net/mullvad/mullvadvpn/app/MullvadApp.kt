@@ -79,7 +79,6 @@ import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
-import net.mullvad.mullvadvpn.screen.navigation.privacyDisclaimerEntry
 import net.mullvad.mullvadvpn.screen.navigation.splashEntry
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
@@ -152,7 +151,6 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         multihopMigrationEntry(nav3)
         noDaemonEntry(nav3)
         notificationEntry(nav3)
-        privacyDisclaimerEntry(nav3)
         problemReportEntry(nav3)
         redeemVoucherEntry(nav3)
         removeDeviceConfirmationDialogEntry(nav3)
