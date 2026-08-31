@@ -115,6 +115,21 @@ fn handle_custom_list_error(
 type ChangeListener =
     Box<dyn FnMut(&Settings) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>;
 
+/// Whether the daemon should enable lockdown mode as a safety measure if
+/// it fails to parse the settings file. Defaults to true.
+///
+/// Setting the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment
+/// variable to `false` disables the fallback, causing the daemon to disconnect
+/// and leak. As we do not support downgrading settings to older formats,
+/// this can be useful for developers that frequently run different builds.
+static LOCKDOWN_ON_INVALID_SETTINGS: std::sync::LazyLock<bool> =
+    std::sync::LazyLock::new(
+        || match std::env::var("MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS") {
+            Ok(value) => value != "false" && value != "0",
+            Err(_) => true,
+        },
+    );
+
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
@@ -185,18 +200,23 @@ impl SettingsPersister {
             }
             Err(error) => {
                 log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                    "Failed to parse settings. Resetting to default. {}",
+                    error.display_chain()
                 );
 
-                let settings = Settings {
-                    // Protect the user by blocking the internet by default. Previous settings may
-                    // not have caused the daemon to enter the non-blocking disconnected state.
-                    // On android lockdown mode is handled by the OS so setting this to true
-                    // has no effect.
-                    #[cfg(not(target_os = "android"))]
-                    lockdown_mode: true,
-                    ..Self::default_settings()
+                let settings = if *LOCKDOWN_ON_INVALID_SETTINGS {
+                    log::warn!("Enabling lockdown mode as a safety measure");
+                    Settings {
+                        // Protect the user by blocking the internet by default. Previous settings
+                        // may not have caused the daemon to enter the non-blocking disconnected
+                        // state. On android lockdown mode is handled by the OS so setting this to
+                        // true has no effect.
+                        #[cfg(not(target_os = "android"))]
+                        lockdown_mode: true,
+                        ..Self::default_settings()
+                    }
+                } else {
+                    Self::default_settings()
                 };
 
                 LoadSettingsResult {
@@ -227,8 +247,7 @@ impl SettingsPersister {
         let settings_bytes = fs::read(path)
             .await
             .map_err(|error| Error::ReadError(display.as_ref().display().to_string(), error))?;
-        let settings = Self::load_from_bytes(&settings_bytes)?;
-        Ok(settings)
+        Self::load_from_bytes(&settings_bytes)
     }
 
     fn load_from_bytes(bytes: &[u8]) -> Result<Settings, Error> {
