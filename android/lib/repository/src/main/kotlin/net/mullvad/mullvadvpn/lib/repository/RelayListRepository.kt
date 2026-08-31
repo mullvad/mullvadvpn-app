@@ -68,9 +68,7 @@ class RelayListRepository(
 
     private fun List<RelayItem.Location.Country>.sortLocations(): List<RelayItem.Location.Country> {
         return this.sortedByName().map { country ->
-            country.copy {
-                RelayItem.Location.Country.cities set country.cities.sortedByName()
-            }
+            country.copy { RelayItem.Location.Country.cities set country.cities.sortedByName() }
         }
     }
 
