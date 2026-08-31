@@ -10,37 +10,16 @@
 
 import SwiftUI
 
-struct SettingsInfoViewModel {
-    let pages: [SettingsInfoViewModelPage]
-}
-
-struct SettingsInfoViewModelPage: Hashable {
-    let body: String?
-    let image: ImageResource
-    let customView: AnyView?
-
-    init(body: String? = nil, image: ImageResource, customView: AnyView? = nil) {
-        self.body = body
-        self.image = image
-        self.customView = customView
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(body)
-        hasher.combine(image)
-    }
-
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.body == rhs.body && lhs.image == rhs.image
-    }
-}
-
 struct SettingsInfoView: View {
-    @State var viewModel: SettingsInfoViewModel
+    var pages: [SettingsInfoPageView]
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
-        viewModel.pages.count > 1 ? 48 : 0
+        pages.count > 1 ? 48 : 0
+    }
+
+    init(@SettingsInfoViewModelPageBuilder pages: () -> [SettingsInfoPageView]) {
+        self.pages = pages()
     }
 
     var body: some View {
@@ -67,136 +46,108 @@ struct SettingsInfoView: View {
         .hidden()
     }
 
-    private func bodyText(_ page: SettingsInfoViewModelPage) -> (some View)? {
-        if let message = page.body {
-            (try? AttributedString(
-                markdown: message,
-                options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-            )).map(Text.init) ?? Text(message)
-        } else {
-            nil
-        }
-    }
-
     private func contentView() -> some View {
-        ForEach(viewModel.pages, id: \.self) { page in
-            VStack {
-                VStack(alignment: .leading, spacing: 16) {
-                    Image(page.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                    bodyText(page)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .font(.mullvadTiny)
-                        .foregroundStyle(Color.mullvadTextSecondary)
-                    if let customView = page.customView {
-                        customView
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-                Spacer()
-            }
-            .padding(.bottom, pageIndicatorSpacing)
-            .padding(UIMetrics.SettingsInfoView.layoutMargins)
+        ForEach(pages.indices, id: \.self) { index in
+            pages[index]
         }
+        .padding(.bottom, pageIndicatorSpacing)
+        .padding(UIMetrics.SettingsInfoView.layoutMargins)
+    }
+}
+
+// Makes the initializer of SettingsInfoView pretty
+@resultBuilder
+struct SettingsInfoViewModelPageBuilder {
+    static func buildBlock(
+        _ components: SettingsInfoPageView...
+    ) -> [SettingsInfoPageView] {
+        components
     }
 }
 
 #Preview("Single page") {
-    SettingsInfoView(
-        viewModel: SettingsInfoViewModel(
-            pages: [
-                SettingsInfoViewModelPage(
-                    body: """
-                        Multihop routes your traffic into one WireGuard server and out another, making it \
-                        harder to trace. This results in increased latency but increases anonymity online.
-                        """,
-                    image: .multihopIllustrationGeneral
-                )
-            ]
-        ))
+    SettingsInfoView {
+        SettingsInfoPageView(
+            text: """
+                Multihop routes your traffic into one WireGuard server and out another, making it \
+                harder to trace. This results in increased latency but increases anonymity online.
+                """,
+            image: .multihopIllustrationGeneral
+        )
+    }
 }
 
 #Preview("Multiple pages") {
-    SettingsInfoView(
-        viewModel: SettingsInfoViewModel(
-            pages: [
-                SettingsInfoViewModelPage(
-                    body: """
-                        Multihop routes your traffic into one WireGuard server and out another, making it \
-                        harder to trace. This results in increased latency but increases anonymity online.
-                        """,
-                    image: .multihopIllustrationGeneral
-                ),
-                SettingsInfoViewModelPage(
-                    body: """
-                        Multihop routes your traffic into one WireGuard server and out another, making it \
-                        harder to trace. This results in increased latency but increases anonymity online.
-                        Multihop routes your traffic into one WireGuard server and out another, making it \
-                        harder to trace. This results in increased latency but increases anonymity online.
-                        """,
-                    image: .multihopIllustrationWhenNeeded
-                ),
-            ]
-        ))
+    SettingsInfoView {
+        SettingsInfoPageView(
+            text: """
+                Multihop routes your traffic into one WireGuard server and out another, making it \
+                harder to trace. This results in increased latency but increases anonymity online.
+                """,
+            image: .multihopIllustrationGeneral
+        )
+        SettingsInfoPageView(
+            text: """
+                Multihop routes your traffic into one WireGuard server and out another, making it \
+                harder to trace. This results in increased latency but increases anonymity online.
+                Multihop routes your traffic into one WireGuard server and out another, making it \
+                harder to trace. This results in increased latency but increases anonymity online.
+                """,
+            image: .multihopIllustrationWhenNeeded
+        )
+    }
 }
 
 #Preview("Single inside Scrollview") {
     ScrollView {
-        SettingsInfoView(
-            viewModel: SettingsInfoViewModel(
-                pages: [
-                    SettingsInfoViewModelPage(
-                        body: """
-                            Multihop routes your traffic into one WireGuard server and out another, making it \
-                            harder to trace. This results in increased latency but increases anonymity online.
-                            """,
-                        image: .multihopIllustrationGeneral
-                    )
-                ]
-            ))
+        SettingsInfoView {
+            SettingsInfoPageView(
+                text: """
+                    Multihop routes your traffic into one WireGuard server and out another, making it \
+                    harder to trace. This results in increased latency but increases anonymity online.
+                    """,
+                image: .multihopIllustrationGeneral
+            )
+        }
     }
 }
 
 #Preview("Multiple inside Scrollview") {
     ScrollView {
-        SettingsInfoView(
-            viewModel: SettingsInfoViewModel(
-                pages: [
-                    SettingsInfoViewModelPage(
-                        body: NSLocalizedString(
-                            """
-                            **Attention: This increases network traffic and will also  negatively affect speed, latency, \
-                            and battery usage. Use with caution on limited plans.**
+        SettingsInfoView {
+            SettingsInfoPageView(
+                text: NSLocalizedString(
+                    """
+                    **Attention: This increases network traffic and will also  negatively affect speed, latency, \
+                    and battery usage. Use with caution on limited plans.**
 
-                            DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
-                            your encrypted VPN traffic.
+                    DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
+                    your encrypted VPN traffic.
 
-                            By using sophisticated AI it’s possible to analyze the traffic of data \
-                            packets going in and out of your device (even if the traffic is encrypted).
-                            """,
-                            comment: ""
-                        ),
-                        image: .daitaOffIllustration
-                    ),
-                    SettingsInfoViewModelPage(
-                        body: NSLocalizedString(
-                            """
-                            If an observer monitors these data packets, DAITA makes it significantly \
-                            harder for them to identify which websites you are visiting or with whom \
-                            you are communicating.
+                    By using sophisticated AI it’s possible to analyze the traffic of data \
+                    packets going in and out of your device (even if the traffic is encrypted).
+                    """,
+                    comment: ""
+                ),
+                image: .daitaOffIllustration
+            )
+            SettingsInfoPageView(
+                text: NSLocalizedString(
+                    """
+                    If an observer monitors these data packets, DAITA makes it significantly \
+                    harder for them to identify which websites you are visiting or with whom \
+                    you are communicating.
 
-                            DAITA does this by carefully adding network noise and making all network \
-                            packets the same size.
+                    DAITA does this by carefully adding network noise and making all network \
+                    packets the same size.
 
-                            Not all our servers are DAITA-enabled. Therefore, we use multihop \
-                            automatically to enable DAITA with any server.
-                            """,
-                            comment: ""
-                        ),
-                        image: .daitaOnIllustration
-                    ),
-                ]
-            ))
+                    Not all our servers are DAITA-enabled. Therefore, we use multihop \
+                    automatically to enable DAITA with any server.
+                    """,
+                    comment: ""
+                ),
+                image: .daitaOnIllustration
+            )
+        }
     }
 }
