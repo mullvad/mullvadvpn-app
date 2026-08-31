@@ -38,8 +38,6 @@ $REPO_ROOT/scripts/utils/commit-verification
 source "$SCRIPT_DIR/release-config.sh"
 source $REPO_ROOT/scripts/utils/log
 
-rm -rf "$ARTIFACT_DIR" && mkdir -p "$ARTIFACT_DIR" || exit 1
-
 function publish_release {
     log_header "Downloading changelog"
 
