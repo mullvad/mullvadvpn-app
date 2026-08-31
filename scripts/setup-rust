@@ -16,6 +16,9 @@ ANDROID_COMPONENTS="rust-analyzer"
 IOS_TARGETS="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
 IOS_COMPONENTS="rust-analyzer"
 
+TVOS_TARGETS="aarch64-apple-tvos aarch64-apple-tvos-sim"
+TVOS_COMPONENTS="rust-analyzer"
+
 WINDOWS_TARGETS="x86_64-pc-windows-msvc aarch64-pc-windows-msvc i686-pc-windows-msvc"
 WINDOWS_COMPONENTS="rust-analyzer"
 
@@ -50,6 +53,9 @@ function main {
     "ios")
         setup "iOS" "$IOS_TARGETS" "$IOS_COMPONENTS"
         ;;
+    "tvos")
+        setup "tvOS" "$TVOS_TARGETS" "$TVOS_COMPONENTS"
+        ;;
     "install-hook")
         install_hook
         ;;
@@ -71,6 +77,7 @@ function print_usage {
     log "Usage: setup-rust android|ios|windows|linux|macos|install-hook"
     log "  android                    Run Android-specific setup"
     log "  ios                        Run iOS-specific setup"
+    log "  tvos                       Run tvOS-specific setup"
     log "  windows                    Run Windows-specific setup"
     log "  linux                      Run Linux-specific setup"
     log "  macos                      Run macOS-specific setup"
@@ -101,7 +108,7 @@ function install_hook {
         cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
         chmod +x "$hook"
         log "Hook installed. You must now set the environment variable MULLVAD_SETUP_PLATFORM to one of the following:"
-        log "\`android\`, \`ios\`, \`windows\`, \`linux\`, \`macos\`"
+        log "\`android\`, \`ios\`, \`tvos\`, \`windows\`, \`linux\`, \`macos\`"
     fi
 }
 
