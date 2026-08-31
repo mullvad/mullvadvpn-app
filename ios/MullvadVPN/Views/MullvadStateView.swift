@@ -163,40 +163,52 @@ final class StateViewModel: Identifiable, ObservableObject {
 // MARK: - Main State View
 struct MullvadStateView: View {
     @ObservedObject var viewModel: StateViewModel
+    @State private var actionHeight: CGFloat = 0
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                StateView(state: viewModel.style)
-                    .padding(.bottom, Layout.sectionSpacing)
+        ZStack {
+            ScrollView {
+                ZStack {
+                    Spacer().containerRelativeFrame([.horizontal, .vertical])
+                    VStack(spacing: 0) {
+                        Spacer()
+                        StateView(state: viewModel.style)
+                            .padding(.bottom, Layout.sectionSpacing)
 
-                StyledTextView(item: viewModel.title)
+                        StyledTextView(item: viewModel.title)
 
-                if let banner = viewModel.banner {
-                    ResizableImageView(image: banner, dimension: .width(.infinity))
-                        .padding(.bottom, Layout.bannerSpacing)
+                        if let banner = viewModel.banner {
+                            ResizableImageView(image: banner, dimension: .width(.infinity))
+                                .padding(.bottom, Layout.bannerSpacing)
+                        }
+
+                        ForEach(viewModel.details) { item in
+                            StyledTextView(item: item)
+                        }
+
+                        Spacer()
+
+                        if let explanation = viewModel.explanation {
+                            StyledTextView(item: explanation)
+                        }
+                    }
+                    .padding(.top, Layout.topPadding)
+                    .padding(.horizontal, Layout.horizontalPadding)
+                    .padding(.bottom, actionHeight)
                 }
-
-                ForEach(viewModel.details) { item in
-                    StyledTextView(item: item)
-                }
-
+            }
+            VStack(spacing: 12) {
                 Spacer()
-
-                if let explanation = viewModel.explanation {
-                    StyledTextView(item: explanation)
-                }
-
-                VStack(spacing: 12) {
+                Group {
                     ForEach(viewModel.actions) { action in
                         ActionButton(action: action)
                     }
                 }
-                .padding(.top, 8)
+                .padding(.bottom, Layout.bottomPadding)
+                .sizeOfView { size in
+                    self.actionHeight = size.height
+                }
             }
-            .padding(.top, Layout.topPadding)
-            .padding(.horizontal, Layout.horizontalPadding)
-            .padding(.bottom, Layout.bottomPadding)
         }
     }
 }
