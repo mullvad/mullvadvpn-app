@@ -37,7 +37,7 @@ assets = [
   { source = "../build/shell-completions/mullvad.bash", dest = "usr/share/bash-completion/completions/mullvad", mode = "644" },
   { source = "../build/shell-completions/_mullvad", dest = "usr/local/share/zsh/site-functions/_mullvad", mode = "644" },
   { source = "../build/shell-completions/mullvad.fish", dest = "usr/share/fish/vendor_completions.d/mullvad.fish", mode = "644" },
-  { source = "../build/shell-completions/mullvad.nu", dest = "usr/share/nushell/vendor/autoload/mullvad.nu", mode = "644" },
+  { source = "../build/shell-completions/mullvad.nu", dest = "opt/Mullvad VPN/resources/mullvad.nu", mode = "644" },
   { source = "../CHANGELOG.md", dest = "opt/Mullvad VPN/resources/", mode = "644" },
 ]
 
@@ -63,7 +63,7 @@ assets = [
   { source = "../build/shell-completions/mullvad.bash", dest = "/usr/share/bash-completion/completions/mullvad", mode = "644" },
   { source = "../build/shell-completions/_mullvad", dest = "/usr/share/zsh/site-functions/_mullvad", mode = "644" },
   { source = "../build/shell-completions/mullvad.fish", dest = "/usr/share/fish/vendor_completions.d/mullvad.fish", mode = "644" },
-  { source = "../build/shell-completions/mullvad.nu", dest = "/usr/share/nushell/vendor/autoload/mullvad.nu", mode = "644" },
+  { source = "../build/shell-completions/mullvad.nu", dest = "/opt/Mullvad VPN/resources/mullvad.nu", mode = "644" },
   { source = "../CHANGELOG.md", dest = "/opt/Mullvad VPN/resources/", mode = "644" },
 ]
 

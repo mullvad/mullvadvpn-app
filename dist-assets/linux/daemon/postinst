@@ -4,6 +4,11 @@ set -eu
 chmod u+s "/usr/bin/mullvad-exclude"
 ln -sf /opt/Mullvad\ VPN/resources/mullvad-problem-report /usr/bin/mullvad-problem-report
 
+if command -v nu >/dev/null 2>&1; then
+    install -Dm644 "/opt/Mullvad VPN/resources/mullvad.nu" \
+        "/usr/share/nushell/vendor/autoload/mullvad.nu"
+fi
+
 systemctl enable "/usr/lib/systemd/system/mullvad-daemon.service"
 systemctl start mullvad-daemon.service || echo "Failed to start mullvad-daemon.service"
 systemctl enable "/usr/lib/systemd/system/mullvad-early-boot-blocking.service"

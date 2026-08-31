@@ -18,6 +18,8 @@ if [[ "$1" == "upgrade" ]]; then
     exit 0;
 fi
 
+rm -f "/usr/share/nushell/vendor/autoload/mullvad.nu"
+
 # the user might've disabled or stopped the service themselves already
 systemctl stop mullvad-daemon.service || true
 systemctl disable mullvad-daemon.service || true

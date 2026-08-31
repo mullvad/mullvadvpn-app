@@ -217,7 +217,7 @@ function newConfig() {
         buildAssets('shell-completions/mullvad.fish') +
           '=/usr/share/fish/vendor_completions.d/mullvad.fish',
         buildAssets('shell-completions/mullvad.nu') +
-          '=/usr/share/nushell/vendor/autoload/mullvad.nu',
+          '=/opt/Mullvad VPN/resources/mullvad.nu',
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
@@ -262,7 +262,7 @@ function newConfig() {
         buildAssets('shell-completions/mullvad.fish') +
           '=/usr/share/fish/vendor_completions.d/mullvad.fish',
         buildAssets('shell-completions/mullvad.nu') +
-          '=/usr/share/nushell/vendor/autoload/mullvad.nu',
+          '=/opt/Mullvad VPN/resources/mullvad.nu',
       ],
       afterInstall: distAssets('linux/after-install.sh'),
       afterRemove: distAssets('linux/after-remove.sh'),
