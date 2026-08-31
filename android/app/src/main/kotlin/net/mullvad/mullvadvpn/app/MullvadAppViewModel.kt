@@ -17,10 +17,9 @@ import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.screen.navigation.PrivacyDisclaimerNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 
-private val noServiceNavKeys = listOf(SplashNavKey, PrivacyDisclaimerNavKey)
+private val noServiceNavKeys = listOf(SplashNavKey)
 
 class MullvadAppViewModel(
     private val connectionProxy: ConnectionProxy,

@@ -3132,9 +3132,6 @@ msgstr ""
 msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
 msgstr ""
 
-msgid "Agree and continue"
-msgstr ""
-
 msgid "All"
 msgstr ""
 
@@ -3438,9 +3435,6 @@ msgstr ""
 msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
 msgstr ""
 
-msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr ""
-
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr ""
 
@@ -3660,9 +3654,6 @@ msgstr ""
 msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr ""
 
-msgid "Privacy"
-msgstr ""
-
 msgid "Privacy policy"
 msgstr ""
 
@@ -3865,9 +3856,6 @@ msgid "To delete your Mullvad VPN account, please enter your account number belo
 msgstr ""
 
 msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
-msgstr ""
-
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr ""
 
 msgid "Toggle VPN"

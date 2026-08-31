@@ -90,25 +90,15 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         // We use lifecycleScope here to get less start service in background exceptions
         // Se this article for more information:
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-                    bindService()
-                }
-            }
-        }
+        lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { bindService() } }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         lifecycleScope.launch {
-            if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-                // If service is to be started wait for it to be connected before dismissing Splash
-                // screen
-                managementService.connectionState
-                    .filter { it is GrpcConnectivityState.Ready }
-                    .first()
-            }
+            // If service is to be started wait for it to be connected before dismissing Splash
+            // screen
+            managementService.connectionState.filter { it is GrpcConnectivityState.Ready }.first()
             splashCompleteRepository.onSplashCompleted()
         }
     }
