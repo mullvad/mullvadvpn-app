@@ -1,6 +1,6 @@
-//! Host-side entry point for generating uniffi bindings (Swift) for the gotatun
+//! Host-side entry point for generating uniffi bindings (Swift)
 //! FFI. Invoked in library mode against the compiled `libmullvad_ios` staticlib;
-//! see `ios/generate-gotatun-bindings.sh`.
+//! see `ios/generate-uniffi-bindings.sh`.
 
 fn main() {
     #[cfg(target_os = "macos")]
