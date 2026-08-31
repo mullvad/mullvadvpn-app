@@ -10,7 +10,7 @@ license.workspace = true
 bench = false
 crate-type = ["staticlib"]
 
-# Host-side binary that generates the uniffi Swift bindings for the gotatun FFI.
+# Host-side binary that generates the uniffi Swift bindings for the uniffi FFI.
 # Only built when explicitly requested (`--bin uniffi-bindgen --features uniffi-cli`);
 # the normal iOS `--lib` build never compiles it.
 [[bin]]

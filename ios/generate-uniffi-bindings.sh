@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regenerate the uniffi Swift bindings for the gotatun FFI.
+# Regenerate the uniffi Swift bindings for the FFI using uniffi.
 #
 # uniffi-bindgen runs in "library mode": it reads metadata embedded in the
 # compiled staticlib, so the lib must be built first (chicken-and-egg — this is
@@ -8,13 +8,13 @@
 # into the repo, mirroring the cbindgen-generated mullvad_rust_runtime.h.
 #
 # Outputs:
-#   ios/MullvadRustRuntime/generated/mullvad_gotatun.swift   (Swift bindings)
-#   ios/MullvadRustRuntime/include/mullvad_gotatunFFI.h       (C scaffolding header)
+#   ios/MullvadRustRuntime/generated/mullvad_uniffi.swift   (Swift bindings)
+#   ios/MullvadRustRuntime/include/mullvad_uniffi.h       (C scaffolding header)
 #
 # The Swift bindings `import MullvadRustRuntimeProxy` (the existing private
 # framework module), so the FFI header is folded into that module via
 # ios/MullvadRustRuntime/module.private.modulemap. uniffi names the header after
-# `ffi_module_name` (MullvadRustRuntimeProxy.h); we rename it to mullvad_gotatunFFI.h
+# `ffi_module_name` (MullvadRustRuntimeProxy.h); we rename it to mullvad_uniffi.h
 # to sit unambiguously beside the cbindgen header. The import is module-based, so
 # the header filename is free to change.
 
@@ -40,12 +40,12 @@ cargo run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
 
 # uniffi names the FFI header after `ffi_module_name`; rename it and place it in the
 # include dir alongside the cbindgen header so the framework module exposes it.
-mv "$OUT_DIR/MullvadRustRuntimeProxy.h" ios/MullvadRustRuntime/include/mullvad_gotatunFFI.h
+mv "$OUT_DIR/MullvadRustRuntimeProxy.h" ios/MullvadRustRuntime/include/mullvad_uniffi.h
 
 # uniffi only emits a swiftlint directive; also exempt the generated file from
 # swift-format (ios/format.sh lint), matching the Maybenot.swift convention.
-sed -i '' '1s;^;// swift-format-ignore-file\n;' "$OUT_DIR/mullvad_gotatun.swift"
+sed -i '' '1s;^;// swift-format-ignore-file\n;' "$OUT_DIR/mullvad_uniffi.swift"
 
 echo "Done. Generated:"
-echo "  $OUT_DIR/mullvad_gotatun.swift"
-echo "  ios/MullvadRustRuntime/include/mullvad_gotatunFFI.h"
+echo "  $OUT_DIR/mullvad_uniffi.swift"
+echo "  ios/MullvadRustRuntime/include/mullvad_uniffi.h"

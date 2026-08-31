@@ -6,10 +6,10 @@
 mod gotatun;
 mod tunnel_adapter;
 
-// uniffi scaffolding for the gotatun FFI. Gated to `ios` to match the gotatun FFI
+// uniffi scaffolding for the FFI. Gated to `ios` to match the FFI
 // module; the rest of the crate's FFI uses cbindgen and is unaffected.
 #[cfg(target_os = "ios")]
-uniffi::setup_scaffolding!("mullvad_gotatun");
+uniffi::setup_scaffolding!("mullvad_uniffi");
 
 #[cfg(target_os = "ios")]
 mod api_client;
