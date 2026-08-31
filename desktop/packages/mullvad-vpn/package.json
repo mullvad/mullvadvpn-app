@@ -43,7 +43,7 @@
     "@types/react-router": "^5.1.19",
     "@types/sprintf-js": "^1.1.2",
     "@types/topojson-specification": "^1.0.2",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.1.0",
     "cross-env": "^7.0.3",
     "electron": "42.5.1",
     "electron-builder": "26.15.7",
@@ -55,18 +55,10 @@
     "globals": "^15.9.0",
     "playwright": "^1.55.1",
     "postject": "^1.0.0-alpha.6",
-    "vite": "7.3.5",
-    "vite-plugin-electron": "^0.29.1",
+    "vite": "8.2.0",
+    "vite-plugin-electron": "^1.1.1",
     "vitest": "^4.1.4",
     "xvfb-maybe": "^0.2.1"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-darwin-arm64": "4.59.0",
-    "@rollup/rollup-darwin-x64": "4.59.0",
-    "@rollup/rollup-linux-arm64-gnu": "4.59.0",
-    "@rollup/rollup-linux-x64-gnu": "4.59.0",
-    "@rollup/rollup-win32-arm64-msvc": "4.59.0",
-    "@rollup/rollup-win32-x64-msvc": "4.59.0"
   },
   "scripts": {
     "preinstall": "bash -c \"test -d node_modules || mkdir node_modules\"",
