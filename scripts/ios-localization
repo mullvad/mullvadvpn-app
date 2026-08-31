@@ -30,34 +30,39 @@ function main {
 function upload_to_crowdin {
   local branch_args
   branch_args=$(get_branch_args "${1:-}")
-  local log_appendix=""
-
-  if [ -n "$branch_args" ]; then
-    log_appendix=", branch: ${branch_args#-b }"
-  fi
-
+  
   ensure_crowdin_api_key
   prepare_localization_strings
-  log_header "Uploading iOS translations to Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin upload sources "$branch_args"
-  crowdin upload translations "$branch_args"
+
+  if [ -n "$branch_args" ]; then
+    log_header "Uploading iOS translations to Crowdin, branch: ${branch_args#-b }"
+    crowdin upload sources "$branch_args"
+    crowdin upload translations "$branch_args"
+  else
+    log_header "Uploading iOS translations to Crowdin"
+    crowdin upload sources
+    crowdin upload translations
+  fi
+
   popd
 }
 
 function download_from_crowdin {
   local branch_args
   branch_args=$(get_branch_args "${1:-}")
-  local log_appendix=""
-
-  if [ -n "$branch_args" ]; then
-    log_appendix=", branch: ${branch_args#-b }"
-  fi
 
   ensure_crowdin_api_key
-  log_header "Downloading iOS translations from Crowdin$log_appendix"
   pushd "$iOS_LOCALIZATION_DIR"
-  crowdin download translations "$branch_args"
+  
+  if [ -n "$branch_args" ]; then
+    log_header "Downloading iOS translations from Crowdin, branch: ${branch_args#-b }"
+    crowdin download translations "$branch_args"
+  else
+    log_header "Downloading iOS translations from Crowdin"
+    crowdin download translations
+  fi
+
   popd
   update_ios_strings import
   commit_changes "Import iOS translations"
