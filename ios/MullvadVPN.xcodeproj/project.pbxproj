@@ -32,8 +32,6 @@
 		01335D4F2F89C396008AB806 /* RustGotaTunAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */; };
 		01335D502F89C396008AB806 /* RustGotaTunAdapterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */; };
 		01335D552F89C645008AB806 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
-		01335D5C2F89C6B2008AB901 /* mullvad_gotatun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D5D2F89C6B2008AB902 /* mullvad_gotatun.swift */; };
-		01335D5E2F89C6B2008AB903 /* mullvad_gotatunFFI.h in Headers */ = {isa = PBXBuildFile; fileRef = 01335D5F2F89C6B2008AB904 /* mullvad_gotatunFFI.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		01335D602F89D000008AB806 /* GotaTunProviderProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */; };
 		01335D612F89D400008AB806 /* ObservedStateBroadcaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */; };
 		01335D662F89E200008AB806 /* ObservedState+Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D652F89E200008AB806 /* ObservedState+Testing.swift */; };
@@ -81,6 +79,8 @@
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		0E64F2F65442F45A89B82589 /* RustLoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D702C13944A82CAF175A4443 /* RustLoggingTests.swift */; };
 		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
+		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
+		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
@@ -1792,8 +1792,6 @@
 		01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTests.swift; sourceTree = "<group>"; };
 		01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapter.swift; sourceTree = "<group>"; };
 		01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapterFactory.swift; sourceTree = "<group>"; };
-		01335D5D2F89C6B2008AB902 /* mullvad_gotatun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = mullvad_gotatun.swift; path = generated/mullvad_gotatun.swift; sourceTree = "<group>"; };
-		01335D5F2F89C6B2008AB904 /* mullvad_gotatunFFI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mullvad_gotatunFFI.h; path = include/mullvad_gotatunFFI.h; sourceTree = "<group>"; };
 		01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunProviderProxy.swift; sourceTree = "<group>"; };
 		01335D622F89D400008AB806 /* ObservedStateBroadcaster.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservedStateBroadcaster.swift; sourceTree = "<group>"; };
 		01335D652F89E200008AB806 /* ObservedState+Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObservedState+Testing.swift"; sourceTree = "<group>"; };
@@ -1842,6 +1840,8 @@
 		06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceHandling.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
+		38693EC430458CF000BC154A /* mullvad_uniffi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = mullvad_uniffi.swift; path = generated/mullvad_uniffi.swift; sourceTree = "<group>"; };
+		38693EC630458CFD00BC154A /* mullvad_uniffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mullvad_uniffi.h; path = include/mullvad_uniffi.h; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
 		440DA5C4300540F10057069A /* MullvadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButton.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
@@ -4936,12 +4936,12 @@
 			isa = PBXGroup;
 			children = (
 				F0A607C42FAA0A4B00094833 /* Array+String.swift */,
-				01335D5D2F89C6B2008AB902 /* mullvad_gotatun.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
 				A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */,
 				A9D9A4D32C36E1EA004088DD /* mullvad_rust_runtime.h */,
-				01335D5F2F89C6B2008AB904 /* mullvad_gotatunFFI.h */,
+				38693EC430458CF000BC154A /* mullvad_uniffi.swift */,
+				38693EC630458CFD00BC154A /* mullvad_uniffi.h */,
 				A98207F22D9ACE4C00654558 /* MullvadAccessMethodReceiver.swift */,
 				4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */,
 				7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */,
@@ -5435,9 +5435,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */,
 				A992DA202C24709F00DE7CE5 /* MullvadRustRuntime.h in Headers */,
 				A9D9A4D42C36E1EA004088DD /* mullvad_rust_runtime.h in Headers */,
-				01335D5E2F89C6B2008AB903 /* mullvad_gotatunFFI.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7473,7 +7473,6 @@
 			files = (
 				F0A89CB52D9D864B00580C27 /* RustProblemReportRequest.swift in Sources */,
 				7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */,
-				01335D5C2F89C6B2008AB901 /* mullvad_gotatun.swift in Sources */,
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
@@ -7493,6 +7492,7 @@
 				016EE0382F850C0E0035B25C /* WireGuardKey.swift in Sources */,
 				F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */,
 				7A4080AA2F5AFDE300C02173 /* ShadowsocksCipherService.swift in Sources */,
+				38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */,
 				7A3215722D3934E6005DF395 /* MullvadApiCompletion.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
