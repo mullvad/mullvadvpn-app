@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Removed
+- Remove the initial privacy consent screen. The app will now start into the Connect Screen.
 
 
 ## [android/2026.9-beta1] - 2026-08-20
