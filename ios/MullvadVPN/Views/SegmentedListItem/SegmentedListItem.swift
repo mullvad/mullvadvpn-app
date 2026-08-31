@@ -94,6 +94,7 @@ struct SegmentedListItem<Leading: View>: View {
             .padding(.leading, 16)
             .padding(.trailing, trailing == nil ? 16 : 0)
             .background(Color.colorForIndentationLevel(level))
+            .simultaneousGesture(TapGesture())  // Cancels tap gesture when scrolling.
             .sizeOfView {
                 segmentHeight = $0.height
             }
@@ -113,6 +114,7 @@ struct SegmentedListItem<Leading: View>: View {
                     segmentHeight = $0.height
                 }
             }
+            .simultaneousGesture(TapGesture())  // Cancels tap gesture when scrolling.
 
             if onSelect != nil {
                 switch userInteraction {
