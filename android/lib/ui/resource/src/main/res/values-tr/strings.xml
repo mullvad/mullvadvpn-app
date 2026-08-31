@@ -19,7 +19,6 @@
     <string name="add_to_list">Listeye ekle</string>
     <string name="added_to_your_account">%1$s, hesabınıza eklendi.</string>
     <string name="adding_method">Yöntem ekleniyor...</string>
-    <string name="agree_and_continue">Kabul et ve devam et</string>
     <string name="all">Tümü</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="all_locations">Tüm konumlar</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez.</string>
-    <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="privacy_policy_lower_case">gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>

@@ -19,7 +19,6 @@
     <string name="add_to_list">Dodaj do listy</string>
     <string name="added_to_your_account">Do konta dodano %1$s.</string>
     <string name="adding_method">Dodawanie metody...</string>
-    <string name="agree_and_continue">Zaakceptuj i kontynuuj</string>
     <string name="all">Wszystkie</string>
     <string name="all_applications">Wszystkie aplikacje</string>
     <string name="all_locations">Wszystkie lokalizacje</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób, który umożliwiłby zidentyfikowanie Ciebie jako osoby.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia.</string>
-    <string name="privacy_disclaimer_title">Prywatność</string>
     <string name="privacy_policy_label">Polityka prywatności</string>
     <string name="privacy_policy_lower_case">polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>

@@ -19,7 +19,6 @@
     <string name="add_to_list">စာရင်းတွင် ထည့်ရန်</string>
     <string name="added_to_your_account">%1$s ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</string>
     <string name="adding_method">နည်းလမ်း ထည့်နေဆဲ...</string>
-    <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
     <string name="all">အားလုံး</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="all_locations">တည်နေရာအာလုံး</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">မှန်ကန်သော အဝေးဆာဗာ ပေါ့တ်ကို ရိုက်ထည့်ပေးပါ</string>
     <string name="port">ပေါ့တ်</string>
     <string name="port_x">ပေါ့တ်- %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။</string>
-    <string name="privacy_disclaimer_title">ကိုယ်ရေးအချက်အလက် လုံခြုံရေး</string>
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="privacy_policy_lower_case">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>

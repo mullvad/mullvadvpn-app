@@ -19,7 +19,6 @@
     <string name="add_to_list">Ajouter à la liste</string>
     <string name="added_to_your_account">%1$s a été ajouté à votre compte.</string>
     <string name="adding_method">Ajout de la méthode...</string>
-    <string name="agree_and_continue">Accepter et continuer</string>
     <string name="all">Tous</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="all_locations">Toutes les localisations</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
     <string name="port_x">Port : %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
-    <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="privacy_policy_lower_case">politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>

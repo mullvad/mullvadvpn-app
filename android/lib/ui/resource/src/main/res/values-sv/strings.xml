@@ -19,7 +19,6 @@
     <string name="add_to_list">Lägg till i listan</string>
     <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
     <string name="adding_method">Lägger till metod ...</string>
-    <string name="agree_and_continue">Godkänn och fortsätt</string>
     <string name="all">Alla</string>
     <string name="all_applications">Alla applikationer</string>
     <string name="all_locations">Alla platser</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten.</string>
-    <string name="privacy_disclaimer_title">Sekretess</string>
     <string name="privacy_policy_label">Sekretesspolicy</string>
     <string name="privacy_policy_lower_case">integritetspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>

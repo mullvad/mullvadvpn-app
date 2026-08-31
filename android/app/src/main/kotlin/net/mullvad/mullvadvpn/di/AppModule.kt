@@ -37,7 +37,6 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.repository.UserPreferences
-import net.mullvad.mullvadvpn.repository.copy
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions
@@ -117,10 +116,7 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by
                 Logger.e(throwable = it) {
                     "Corruption of DataStore file occurred, restoring preferences file"
                 }
-                UserPreferences.getDefaultInstance().copy {
-                    // We need to mark this as accepted due to otherwise the VPN service won't start
-                    isPrivacyDisclosureAccepted = true
-                }
+                UserPreferences.getDefaultInstance()
             },
     )
 

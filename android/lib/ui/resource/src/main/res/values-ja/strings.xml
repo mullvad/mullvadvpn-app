@@ -19,7 +19,6 @@
     <string name="add_to_list">リストに追加</string>
     <string name="added_to_your_account">ご利用のアカウントに %1$s が追加されました。</string>
     <string name="adding_method">方法を追加しています...</string>
-    <string name="agree_and_continue">同意して続行</string>
     <string name="all">すべて</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="all_locations">すべての場所</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
     <string name="port">ポート</string>
     <string name="port_x">ポート: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。</string>
-    <string name="privacy_disclaimer_title">プライバシー</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="privacy_policy_lower_case">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>

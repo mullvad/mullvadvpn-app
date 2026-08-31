@@ -19,7 +19,6 @@
     <string name="add_to_list">Añadir a la lista</string>
     <string name="added_to_your_account">%1$s se ha añadido a su cuenta.</string>
     <string name="adding_method">Añadiendo método...</string>
-    <string name="agree_and_continue">Aceptar y continuar</string>
     <string name="all">Todo</string>
     <string name="all_applications">Todas las aplicaciones</string>
     <string name="all_locations">Todas las ubicaciones</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Introduzca un puerto de servidor remoto válido</string>
     <string name="port">Puerto</string>
     <string name="port_x">Puerto: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Para garantizar que tiene la versión más segura e informarle de cualquier problema con la versión actual que está ejecutando, la aplicación realiza verificaciones de versiones automáticamente. Esto envía la versión de la aplicación y la versión del sistema Android a los servidores de Mullvad. Mullvad mantiene contadores del número de versiones de la aplicación y versiones de Android usadas. Los datos nunca se almacenan ni utilizan de forma que puedan identificarle.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Si se utiliza la característica de túnel dividido, la aplicación consultará a su sistema la lista de todas las aplicaciones instaladas. Esta lista solo se recupera en la vista de túnel dividido. La lista de aplicaciones instaladas nunca se envía desde el dispositivo.</string>
-    <string name="privacy_disclaimer_title">Privacidad</string>
     <string name="privacy_policy_label">Política de privacidad</string>
     <string name="privacy_policy_lower_case">política de privacidad</string>
     <string name="problem_report_description">Para ayudarle de una forma más eficiente, se adjuntará el archivo de registro de la aplicación a este mensaje. Sus datos permanecerán protegidos y privados, ya que se anonimizan antes de enviarse a través de un canal cifrado.</string>

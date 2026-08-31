@@ -22,12 +22,6 @@ class UserPreferencesRepository(
 
     suspend fun preferences(): UserPreferences = userPreferencesStore.data.first()
 
-    suspend fun setPrivacyDisclosureAccepted() {
-        userPreferencesStore.updateData { prefs ->
-            prefs.toBuilder().setIsPrivacyDisclosureAccepted(true).build()
-        }
-    }
-
     suspend fun setHasDisplayedChangelogNotification() {
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setLastShownChangelogVersionCode(buildVersion.code).build()

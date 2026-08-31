@@ -2,10 +2,9 @@ package net.mullvad.mullvadvpn.screen.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -17,12 +16,8 @@ import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-
-data class SplashScreenState(val splashComplete: Boolean = false)
 
 class SplashViewModel(
-    private val userPreferencesRepository: UserPreferencesRepository,
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val splashCompleteRepository: SplashCompleteRepository,
@@ -33,14 +28,7 @@ class SplashViewModel(
         splashCompleteRepository.onSplashCompleted()
     }
 
-    private val _uiState = MutableStateFlow(SplashScreenState(false))
-    val uiState: StateFlow<SplashScreenState> = _uiState
-
     private suspend fun getStartDestination(): SplashUiSideEffect {
-        if (!userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-            return SplashUiSideEffect.NavigateToPrivacyDisclaimer
-        }
-
         val deviceState =
             deviceRepository.deviceState
                 .map {
@@ -69,7 +57,7 @@ class SplashViewModel(
         val accountData = select {
             expiry.onAwait { it }
             // If we don't get a response within 1 second, assume the account expiry is Missing
-            onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { null }
+            onTimeout(ACCOUNT_EXPIRY_TIMEOUT) { null }
         }
 
         return if (accountData != null && accountData.expiryDate.isBeforeNowInstant()) {
@@ -77,6 +65,10 @@ class SplashViewModel(
         } else {
             SplashUiSideEffect.NavigateToConnect
         }
+    }
+
+    companion object {
+        private val ACCOUNT_EXPIRY_TIMEOUT = 1.seconds
     }
 }
 
@@ -89,8 +81,6 @@ private sealed interface ValidStartDeviceState {
 }
 
 sealed interface SplashUiSideEffect {
-    data object NavigateToPrivacyDisclaimer : SplashUiSideEffect
-
     data object NavigateToRevoked : SplashUiSideEffect
 
     data object NavigateToLogin : SplashUiSideEffect

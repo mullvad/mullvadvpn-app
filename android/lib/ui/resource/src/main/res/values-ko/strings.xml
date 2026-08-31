@@ -19,7 +19,6 @@
     <string name="add_to_list">목록에 추가</string>
     <string name="added_to_your_account">%1$s이(가) 계정에 추가되었습니다.</string>
     <string name="adding_method">방법 추가 중...</string>
-    <string name="agree_and_continue">동의하고 계속하기</string>
     <string name="all">모두</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="all_locations">모든 위치</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
     <string name="port">포트</string>
     <string name="port_x">포트: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다.</string>
-    <string name="privacy_disclaimer_title">개인 정보 보호</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="privacy_policy_lower_case">개인 정보 보호 정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>

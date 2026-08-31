@@ -19,7 +19,6 @@
     <string name="add_to_list">Aggiungi all\'elenco</string>
     <string name="added_to_your_account">%1$s aggiunto al tuo account.</string>
     <string name="adding_method">Aggiunta metodo...</string>
-    <string name="agree_and_continue">Accetta e continua</string>
     <string name="all">Tutti</string>
     <string name="all_applications">Tutte le applicazioni</string>
     <string name="all_locations">Tutti i luoghi</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Inserisci una porta di server remoto valida</string>
     <string name="port">Porta</string>
     <string name="port_x">Porta: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione attualmente in esecuzione, l\'app esegue automaticamente i controlli di versione. Questa operazione invia la versione dell\'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene traccia dei numeri di versione dell\'app utilizzati e delle versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Se viene utilizzata la funzionalità di split tunneling, l\'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella vista split tunneling. L\'elenco delle applicazioni installate non viene mai inviato dal dispositivo.</string>
-    <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="privacy_policy_lower_case">informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>

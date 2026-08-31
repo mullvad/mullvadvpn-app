@@ -19,7 +19,6 @@
     <string name="add_to_list">Додати до списку</string>
     <string name="added_to_your_account">На баланс облікового запису додано: %1$s.</string>
     <string name="adding_method">Додавання методу...</string>
-    <string name="agree_and_continue">Погодитись і продовжити</string>
     <string name="all">Усі</string>
     <string name="all_applications">Усі застосунки</string>
     <string name="all_locations">Усі розташування</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Введіть дійсний порт віддаленого сервера</string>
     <string name="port">Порт</string>
     <string name="port_x">Порт: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Щоб переконатися, що у вас установлена найбезпечніша версія, і повідомляти про будь-які проблеми з поточною версією, застосунок автоматично перевіряє версії. Для цього дані про версію застосунку та версію Android надсилаються на сервери Mullvad. Mullvad веде підрахунок кількості використаних версій застосунку та Android. Ці дані ніколи не зберігаються і не використовуються в спосіб, що дозволяє ідентифікувати вашу особу.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Якщо використовується функція роздільного тунелювання, застосунок запитує в системи список усіх установлених застосунків. Цей список доступний лише в поданні роздільного тунелювання і ніколи не надсилається з пристрою.</string>
-    <string name="privacy_disclaimer_title">Конфіденційність</string>
     <string name="privacy_policy_label">Політика конфіденційності</string>
     <string name="privacy_policy_lower_case">політика конфіденційності</string>
     <string name="problem_report_description">Щоб допомога була ефективнішою, до цього повідомлення буде прикріплено файл журналу застосунку. Ваші дані залишаться захищеними й конфіденційними, оскільки вони анонімізуються і надсилаються зашифрованим каналом.</string>
