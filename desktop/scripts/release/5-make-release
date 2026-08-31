@@ -38,8 +38,6 @@ $REPO_ROOT/scripts/utils/commit-verification
 source "$SCRIPT_DIR/release-config.sh"
 source $REPO_ROOT/scripts/utils/log
 
-rm -rf "$ARTIFACT_DIR" && mkdir -p "$ARTIFACT_DIR" || exit 1
-
 function publish_release {
     log_header "Downloading changelog"
 
@@ -104,11 +102,6 @@ function publish_release {
     fi
 }
 
-function remove_release_artifacts {
-    log_header "Cleaning up $ARTIFACT_DIR"
-    rm -r "$ARTIFACT_DIR"
-}
-
 ./download-release-artifacts "$PRODUCT_VERSION" "$ARTIFACT_DIR"
 publish_release
-remove_release_artifacts
+rm -rf "$ARTIFACT_DIR"
