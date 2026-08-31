@@ -17,7 +17,7 @@ import arrow.core.merge
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.di.paymentModule
@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
-import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
@@ -50,7 +49,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
     private val apiEndpointFromIntentHolder by inject<ApiEndpointFromIntentHolder>()
     private val mullvadAppViewModel by inject<MullvadAppViewModel> { parametersOf(lifecycle) }
-    private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
@@ -91,30 +89,20 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         // Se this article for more information:
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-                    bindService()
-                }
-            }
+            repeatOnLifecycle(Lifecycle.State.STARTED) { serviceConnectionManager.bind() }
         }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         lifecycleScope.launch {
-            if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-                // If service is to be started wait for it to be connected before dismissing Splash
-                // screen
-                managementService.connectionState
-                    .filter { it is GrpcConnectivityState.Ready }
-                    .first()
-            }
+            // If service is to be started wait for it to be connected before dismissing Splash
+            // screen
+            managementService.connectionState
+                .filterIsInstance<GrpcConnectivityState.Ready>()
+                .first()
             splashCompleteRepository.onSplashCompleted()
         }
-    }
-
-    fun bindService() {
-        serviceConnectionManager.bind()
     }
 
     override fun onStop() {
@@ -136,8 +124,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     private fun handleRequestVpnProfileIntent() {
-        val prepareResult = prepareVpnSafe().merge()
-        when (prepareResult) {
+        when (val prepareResult = prepareVpnSafe().merge()) {
             is PrepareError.NotPrepared -> launchVpnPermission.launch(prepareResult.prepareIntent)
             // If legacy or other always on connect at let daemon generate a error state
             is PrepareError.OtherLegacyAlwaysOnVpn,

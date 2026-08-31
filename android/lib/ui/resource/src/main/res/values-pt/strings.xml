@@ -19,7 +19,6 @@
     <string name="add_to_list">Adicionar à lista</string>
     <string name="added_to_your_account">%1$s adicionado(s) à sua conta.</string>
     <string name="adding_method">A adicionar método...</string>
-    <string name="agree_and_continue">Concordar e continuar</string>
     <string name="all">Tudo</string>
     <string name="all_applications">Todas as aplicações</string>
     <string name="all_locations">Todas as localizações</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Introduza uma porta de servidor remoto válida</string>
     <string name="port">Porta</string>
     <string name="port_x">Porta: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo.</string>
-    <string name="privacy_disclaimer_title">Privacidade</string>
     <string name="privacy_policy_label">Política de privacidade</string>
     <string name="privacy_policy_lower_case">política de privacidade</string>
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>

@@ -19,7 +19,6 @@
     <string name="add_to_list">إضافة إلى القائمة</string>
     <string name="added_to_your_account">تمت إضافة %1$s إلى حسابك.</string>
     <string name="adding_method">جارٍ إضافة الطريقة...</string>
-    <string name="agree_and_continue">الموافقة والمتابعة</string>
     <string name="all">الكل</string>
     <string name="all_applications">جميع التطبيقات</string>
     <string name="all_locations">جميع المواقع</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">يُرجى إدخال منفذ خادم بعيد صالح</string>
     <string name="port">المنفذ</string>
     <string name="port_x">المنفذ: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">للتأكد من استخدامك للإصدار الأكثر أمانًا وإبلاغك بأي مشكلات في الإصدار الحالي قيد التشغيل، يُجري التطبيق عمليات فحص للإصدار تلقائيًا يتم خلالها إرسال إصدار التطبيق وإصدار نظام Android إلى خوادم Mullvad. تحتفظ Mullvad بعدادات لعدد إصدارات التطبيق وإصدارات Android المُستخدَمة. لا يتم تخزين البيانات أو استخدامها بأي طريقة يمكن من خلالها تحديد هويتك.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">في حال استخدام ميزة الانقسام النفقي، يستعلم التطبيق من نظامك للحصول على قائمة بجميع التطبيقات المُثبَّتة. يتم استدعاء هذه القائمة في شاشة الانقسام النفقي فقط. ولا يتم إرسال قائمة التطبيقات المُثبَّتة من الجهاز أبدًا.</string>
-    <string name="privacy_disclaimer_title">الخصوصية</string>
     <string name="privacy_policy_label">سياسة الخصوصية</string>
     <string name="privacy_policy_lower_case">سياسة الخصوصية</string>
     <string name="problem_report_description">لمساعدتك بشكلٍ أكثر فعالية، سيتم إرفاق ملف سجل تطبيقك بهذه الرسالة. ستبقى بياناتك آمنة وسرية، حيث يتم إخفاء هويتها قبل إرسالها عبر قناة مشفرة.</string>

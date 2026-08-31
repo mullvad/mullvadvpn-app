@@ -19,7 +19,6 @@
     <string name="add_to_list">Zu Liste hinzufügen</string>
     <string name="added_to_your_account">%1$s wurde zu Ihrem Konto hinzugefügt.</string>
     <string name="adding_method">Methode hinzufügen …</string>
-    <string name="agree_and_continue">Akzeptieren und weiter</string>
     <string name="all">Alle</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="all_locations">Alle Standorte</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Bitte geben Sie einen gültigen Remote-Server-Port ein</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Um zu gewährleisten, dass Sie die sicherste Version haben und um Sie über eventuelle Probleme mit der aktuellen Version zu informieren, führt die App automatisch Versionsprüfungen durch. Dabei werden die App-Version und die Android-Systemversion an die Mullvad-Server gesendet. Mullvad führt Zähler für die Anzahl der verwendeten App-Versionen und Android-Versionen. Die Daten werden niemals gespeichert oder in einer Weise verwendet, die Sie identifizieren könnte.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Wenn Split Tunneling verwendet wird, fragt die App Ihr System nach einer Liste aller installierten Anwendungen ab. Diese Liste wird nur in der Split-Tunneling-Ansicht abgerufen. Die Liste der installierten Anwendungen wird nie vom Gerät gesendet.</string>
-    <string name="privacy_disclaimer_title">Datenschutz</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
     <string name="privacy_policy_lower_case">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>

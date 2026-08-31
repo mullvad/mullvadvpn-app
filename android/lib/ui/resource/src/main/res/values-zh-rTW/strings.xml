@@ -19,7 +19,6 @@
     <string name="add_to_list">新增至清單</string>
     <string name="added_to_your_account">%1$s 已新增至您的帳戶。</string>
     <string name="adding_method">正在新增方式…</string>
-    <string name="agree_and_continue">同意並繼續</string>
     <string name="all">全部</string>
     <string name="all_applications">所有應用程式</string>
     <string name="all_locations">所有位置</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">請輸入有效的遠端伺服器連接埠</string>
     <string name="port">連接埠</string>
     <string name="port_x">連接埠：%1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
-    <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
-    <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
     <string name="privacy_policy_lower_case">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>

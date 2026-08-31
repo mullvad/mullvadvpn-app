@@ -19,7 +19,6 @@
     <string name="add_to_list">Føj til listen</string>
     <string name="added_to_your_account">%1$s blev føjet til din konto.</string>
     <string name="adding_method">Tilføjer metode...</string>
-    <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all">Alle</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="all_locations">Alle placeringer</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Indtast en gyldig fjernserverport</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">For at sørge for, at du har den mest sikre version og for at informere dig om eventuelle problemer med den aktuelle version, der kører, udfører appen automatisk versionstjek. Dette sender app-versionen og Android-systemversionen til Mullvad-servere. Mullvad holder tal på antallet af brugte app-versioner og Android-versioner. Dataene bliver aldrig opbevaret eller brugt på nogen måde, der kan identificere dig.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden.</string>
-    <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="privacy_policy_lower_case">fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>

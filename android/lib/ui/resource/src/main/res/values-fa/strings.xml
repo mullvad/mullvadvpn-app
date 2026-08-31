@@ -19,7 +19,6 @@
     <string name="add_to_list">افزودن به فهرست</string>
     <string name="added_to_your_account">%1$s به حساب شما اضافه شد.</string>
     <string name="adding_method">در حال افزودن روش...</string>
-    <string name="agree_and_continue">موافقت و ادامه</string>
     <string name="all">همه</string>
     <string name="all_applications">تمام اپلیکیشن‌ها</string>
     <string name="all_locations">تمام مکان‌ها</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">لطفاً یک پورت معتبرِ سرور راه‌دور وارد کنید</string>
     <string name="port">پورت</string>
     <string name="port_x">پورت: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">برای اطمینان از اینکه امن‌ترین نسخه را دارید و همچنین برای آگاه‌کردن شما از هرگونه مشکل در نسخهٔ فعلی، اپلیکیشن به‌صورت خودکار نسخه را بررسی می‌کند. در این فرایند، نسخهٔ اپلیکیشن و نسخهٔ سیستم اندروید به سرورهای Mullvad ارسال می‌شود. Mullvad فقط تعداد استفاده از نسخه‌های مختلف اپلیکیشن و نسخه‌های اندروید را شمارش می‌کند. این داده‌ها هرگز به شکلی ذخیره یا استفاده نمی‌شوند که بتوانند هویت شما را مشخص کنند.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">اگر ویژگی تونل‌گذاری تفکیک‌شده فعال باشد، اپلیکیشن از سیستم شما برای دریافت فهرستی از همهٔ اپلیکیشن‌های نصب‌شده پرس‌وجو می‌کند. این فهرست تنها در نمای تونل‌گذاری تفکیک‌شده دریافت می‌شود و هرگز از دستگاه ارسال نمی‌گردد.</string>
-    <string name="privacy_disclaimer_title">حریم خصوصی</string>
     <string name="privacy_policy_label">سیاست حفظ حریم خصوصی</string>
     <string name="privacy_policy_lower_case">سیاست حفظ حریم خصوصی</string>
     <string name="problem_report_description">برای کمک مؤثرتر، فایل لاگ اپلیکیشن شما به این پیام پیوست خواهد شد. داده‌های شما امن و خصوصی می‌مانند، زیرا پیش از ارسال از طریق یک کانال رمزگذاری‌شده، ناشناس‌ می‌شوند.</string>
