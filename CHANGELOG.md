@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add explicit log levels for `mullvad log set-level` command: `off`, `error`, `warn`, `info`,
   `debug` and `trace`.
+- Add support for the `MULLVAD_LOCKDOWN_ON_INVALID_SETTINGS` environment variable. Set it to false
+  to _disable_ the lockdown mode fallback if the settings file fails to parse and is reset.
 
 ### Changed
 - Update LWO to improved v2 protocol.
