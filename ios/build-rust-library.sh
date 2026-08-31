@@ -73,7 +73,42 @@ OPT_CONFIG=(
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
+            LIB="../target/$TARGET/debug/libmullvad_ios.a"
+            OUT_DIR="MullvadRustRuntime/generated"
+            CHECKSUM=$(find ../mullvad-ios -type f \( -name '*.rs' -o -name '*.toml' \) -exec date -r {} \; | sha256sum --quiet)
+            CACHED="no-checksum"
+            if [ -e "../target/$TARGET/modified" ]; then
+                CACHED=$(cat ../target/$TARGET/modified)
+            fi
+            if [ "$CHECKSUM" = "$CACHED" ]; then
+                echo "No notable file changes; remove 'target/$TARGET/modified' to force update"
+                break
+            fi
+
+            echo "Building libmullvad_ios for $TARGET..."
             "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+
+            echo "Generating Swift bindings from $LIB..."
+            "$HOME"/.cargo/bin/cargo run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
+                generate \
+                --library "$LIB" \
+                --language swift \
+                --config ../mullvad-ios/uniffi.toml \
+                --out-dir "$OUT_DIR"
+
+            # uniffi names the FFI header after `ffi_module_name`; rename it and place it in the
+            # include dir alongside the cbindgen header so the framework module exposes it.
+            mv "$OUT_DIR/MullvadRustRuntimeProxy.h" MullvadRustRuntime/include/mullvad_uniffi.h
+
+            # uniffi only emits a swiftlint directive; also exempt the generated file from
+            # swift-format (ios/format.sh lint), matching the Maybenot.swift convention.
+            sed -i '' '1s;^;// swift-format-ignore-file\n;' "$OUT_DIR/mullvad_uniffi.swift"
+
+            echo "Done. Generated:"
+            echo "  $OUT_DIR/mullvad_uniffi.swift"
+            echo "  MullvadRustRuntime/include/mullvad_uniffi.h"
+
+            echo "$CHECKSUM" > ../target/$TARGET/modified
             ;;
     esac
 done
