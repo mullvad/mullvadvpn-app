@@ -558,9 +558,21 @@ ManifestDPIAware true
 # Install Nushell completions in its machine-wide vendor autoload directory.
 !macro InstallShellCompletions
 
-	SetShellVarContext all
-	CreateDirectory "$LOCALAPPDATA\nushell\vendor\autoload"
-	CopyFiles /SILENT "$INSTDIR\resources\mullvad.nu" "$LOCALAPPDATA\nushell\vendor\autoload\mullvad.nu"
+	Push $0
+	Push $1
+
+	nsExec::ExecToStack 'where.exe nu.exe'
+	Pop $0
+	Pop $1
+
+	${If} $0 == 0
+		SetShellVarContext all
+		CreateDirectory "$LOCALAPPDATA\nushell\vendor\autoload"
+		CopyFiles /SILENT "$INSTDIR\resources\mullvad.nu" "$LOCALAPPDATA\nushell\vendor\autoload\mullvad.nu"
+	${EndIf}
+
+	Pop $1
+	Pop $0
 
 !macroend
 
