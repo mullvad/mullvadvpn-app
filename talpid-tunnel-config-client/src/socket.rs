@@ -178,15 +178,18 @@ pub mod tcp_info {
         platform::query(socket)
     }
 
-    /// Call `getsockopt` for a TCP info, read into a zeroed `T`.
+    /// Call `getsockopt` for a TCP info struct, reading into a zeroed `T`.
     ///
-    /// Logs a warning if the kernel returns fewer bytes than the size of `T`,
-    /// in which case the last fields will be left zeroed.
+    /// `used_bytes` is the number of bytes needed to fill the fields actually
+    /// read by the caller (computed via `offset_of!` on the last used field).
+    /// A warning is only emitted if the kernel returns fewer bytes than this,
+    /// meaning some fields the caller reads will be zero.
     #[cfg(unix)]
     fn getsockopt_tcp_struct<T>(
         socket: &socket2::Socket,
         level: libc::c_int,
         optname: libc::c_int,
+        used_bytes: usize,
     ) -> Option<T> {
         use std::os::fd::AsRawFd;
 
@@ -214,11 +217,11 @@ pub mod tcp_info {
             return None;
         }
 
-        let expected = std::mem::size_of::<T>();
-        if (len as usize) < expected {
+        if (len as usize) < used_bytes {
             log::warn!(
                 "Partial TCP info: kernel returned {len} bytes, \
-                 expected {expected}; newer fields will be zero"
+                 need {used_bytes} for the fields in use; \
+                 some fields will be zero"
             );
         }
 
@@ -284,8 +287,16 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-            let info =
-                getsockopt_tcp_struct::<libc::tcp_info>(socket, libc::SOL_TCP, libc::TCP_INFO)?;
+            // The last field we read is `tcpi_bytes_received` (u64). Only warn
+            // if the kernel didn't return enough bytes to fill it.
+            let used_bytes = std::mem::offset_of!(libc::tcp_info, tcpi_bytes_received)
+                + std::mem::size_of::<u64>();
+            let info = getsockopt_tcp_struct::<libc::tcp_info>(
+                socket,
+                libc::SOL_TCP,
+                libc::TCP_INFO,
+                used_bytes,
+            )?;
 
             Some(TcpInfoSnapshot {
                 state: linux_tcp_state(info.tcpi_state),
@@ -368,10 +379,15 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
+            // The last field we read is `tcpi_rttvar` (u32). Only warn if the
+            // kernel didn't return enough bytes to fill it.
+            let used_bytes = std::mem::offset_of!(libc::tcp_connection_info, tcpi_rttvar)
+                + std::mem::size_of::<u32>();
             let info = getsockopt_tcp_struct::<libc::tcp_connection_info>(
                 socket,
                 libc::IPPROTO_TCP,
                 libc::TCP_CONNECTION_INFO,
+                used_bytes,
             )?;
 
             Some(TcpInfoSnapshot {
