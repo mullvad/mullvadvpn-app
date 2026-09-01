@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
-import net.mullvad.mullvadvpn.test.common.page.PrivacyPage
 import net.mullvad.mullvadvpn.test.common.page.on
 
 class AppInteractor(
@@ -56,7 +55,6 @@ class AppInteractor(
 
     fun launchAndEnsureOnLoginPage(scope: LoginPage.() -> Unit = {}) {
         launch()
-        on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() }
         clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<LoginPage>(scope)
     }
