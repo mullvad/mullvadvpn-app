@@ -9,7 +9,7 @@ use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
 };
-use http_body_util::{BodyExt, Empty, Full, combinators::BoxBody};
+use http_body_util::{BodyExt, Full};
 use hyper::{
     Method, Uri,
     body::{Body, Buf, Bytes, Incoming},
@@ -25,7 +25,6 @@ use std::{
     net::SocketAddr,
     ops::{Deref, DerefMut},
     pin::Pin,
-    str::FromStr,
     sync::Arc,
     time::Duration,
 };
@@ -149,6 +148,7 @@ impl Error {
 pub(crate) struct RequestService<C> {
     host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
+    access_tokens: AccessTokenStore,
     /// [`Notify`] that is used to signal whether [`Connection`] should be closed.
     reset: Arc<Notify>,
     /// The active HTTP connection to the server, if any.
@@ -160,13 +160,13 @@ pub(crate) struct RequestService<C> {
 }
 
 struct Connection {
-    send_request: http1::SendRequest<BoxBody<Bytes, Error>>,
+    send_request: http1::SendRequest<Full<Bytes>>,
     idle_timeout: Duration,
     connection_task: tokio::task::AbortHandle,
 }
 
-#[derive(Debug, Clone)]
 /// A handle to interact with a spawned `RequestService`.
+#[derive(Debug, Clone)]
 pub struct RequestServiceHandle {
     tx: Arc<mpsc::UnboundedSender<SendRequest>>,
     reset: Arc<Notify>,
@@ -175,7 +175,7 @@ pub struct RequestServiceHandle {
 
 #[derive(Debug)]
 pub struct SendRequest {
-    request: Request<BoxBody<Bytes, Error>>,
+    request: Request<Full<Bytes>>,
     response_tx: oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
 }
 
@@ -212,6 +212,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             connection_mode_provider,
             api_availability,
             connection: None,
+            access_tokens: Default::default(),
         };
         let handle = RequestServiceHandle {
             host,
@@ -312,28 +313,21 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         })
     }
 
-    async fn send_request(
-        &mut self,
-        request: Request<BoxBody<Bytes, Error>>,
-    ) -> Result<Response<Incoming>> {
+    async fn send_request(&mut self, request: Request<Full<Bytes>>) -> Result<Response<Incoming>> {
         let uri = request.uri().clone();
 
-        let connection = match &mut self.connection {
-            Some(sr) => sr,
-            None => {
-                let connection = timeout(CONNECT_TIMEOUT, self.connect())
-                    .map_err(|_elapsed| Error::TimeoutError)
-                    .await??;
-                self.connection.insert(connection)
-            }
-        };
+        let t = request.timeout;
 
-        let api_availability = self.api_availability.clone();
-        let result = request
-            .map(|r| http::Request::map(r, BodyExt::boxed))
-            .send(&mut connection.send_request, api_availability.clone())
-            .map_err(|error| error.map_aborted())
-            .await;
+        let future = self
+            .send_request_inner(request)
+            .map_err(|error| error.map_aborted());
+
+        let result = timeout(t, future)
+            .await
+            .map_err(|_timeout| Error::TimeoutError)
+            .flatten();
+
+        // TODO: retry once if error is due to access token expiry
 
         if let Err(err) = &result
             && err.is_network_error()
@@ -345,6 +339,69 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         }
 
         result
+    }
+
+    async fn send_request_inner(
+        &mut self,
+        mut request: Request<Full<Bytes>>,
+    ) -> Result<Response<Incoming>> {
+        let _ = self.api_availability.wait_for_unsuspend().await;
+
+        let connection = match &mut self.connection {
+            Some(sr) => sr,
+            None => {
+                let connection = timeout(CONNECT_TIMEOUT, self.connect())
+                    .map_err(|_elapsed| Error::TimeoutError)
+                    .await??;
+                self.connection.insert(connection)
+            }
+        };
+
+        if let Some(account) = &request.account {
+            let access_token = self
+                .access_tokens
+                .get_token(account, &self.host, &mut connection.send_request)
+                .await?;
+            let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
+                .map_err(|_| Error::InvalidHeaderError)?;
+            request
+                .request
+                .headers_mut()
+                .insert(header::AUTHORIZATION, auth);
+        }
+
+        let response = connection
+            .send_request
+            .send_request(request.request)
+            .await
+            .map_err(Error::from)?;
+
+        if !request.expected_status.contains(&response.status()) {
+            if !request.expected_status.is_empty() {
+                tracing::error!(
+                    "Unexpected HTTP status code {}, expected codes [{}]",
+                    response.status(),
+                    request
+                        .expected_status
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join(",")
+                );
+            }
+            if !response.status().is_success() {
+                let Err(e) = handle_error_response(response).await;
+
+                // TODO: SMELL: Hitting this code-path has a dependency on the user specifying expected_status correctly
+                if let Some(account) = &request.account {
+                    self.access_tokens.check_err(account, &e);
+                }
+
+                return Err(e);
+            }
+        }
+
+        Ok(Response::new(response))
     }
 }
 
@@ -380,14 +437,8 @@ impl RequestServiceHandle {
     }
 
     /// Submits a [`Request`] for execution to the request service.
-    async fn dispatch<B>(&self, request: Request<B>) -> Result<Response<Incoming>>
-    where
-        B: Body + Send + Sync + 'static,
-        Error: From<B::Error>,
-        Bytes: From<B::Data>,
-    {
+    async fn dispatch(&self, request: Request<Full<Bytes>>) -> Result<Response<Incoming>> {
         let (response_tx, response_rx) = oneshot::channel();
-        let request = request.map(|r| r.map(box_body));
         self.tx
             .unbounded_send(SendRequest {
                 request,
@@ -401,7 +452,6 @@ impl RequestServiceHandle {
     pub fn request(&self) -> RequestFactory {
         RequestFactory {
             service: self.clone(),
-            token_store: None,
             default_timeout: DEFAULT_TIMEOUT,
         }
     }
@@ -413,33 +463,25 @@ pub struct Request<B> {
     request: hyper::Request<B>,
     timeout: Duration,
     service: RequestServiceHandle,
-    access_token_store: Option<AccessTokenStore>,
     account: Option<AccountNumber>,
     expected_status: &'static [hyper::StatusCode],
 }
 
 impl<B: Body> Request<B> {
-    fn new(
-        request: hyper::Request<B>,
-        service: RequestServiceHandle,
-        access_token_store: Option<AccessTokenStore>,
-    ) -> Self {
+    fn new(request: hyper::Request<B>, service: RequestServiceHandle) -> Self {
         Self {
             request,
             timeout: DEFAULT_TIMEOUT,
             service,
-            access_token_store,
             account: None,
             expected_status: &[],
         }
     }
 
     /// Set the account number to obtain authentication for.
-    /// This fails if no store is set.
+    ///
+    /// If set, the [`RequestService`] may pre-empt this request with a request to fetch an access token.
     pub fn account(mut self, account: AccountNumber) -> Result<Self> {
-        if self.access_token_store.is_none() {
-            return Err(Error::NoAccessTokenStore);
-        }
         self.account = Some(account);
         Ok(self)
     }
@@ -468,56 +510,8 @@ impl<B: Body> Request<B> {
     }
 }
 
-impl<B> Request<B> {
-    /// Map the underlying [`hyper::Request`] type
-    fn map<F, B2>(self, f: F) -> Request<B2>
-    where
-        F: FnOnce(hyper::Request<B>) -> hyper::Request<B2>,
-    {
-        Request {
-            request: f(self.request),
-            timeout: self.timeout,
-            access_token_store: self.access_token_store,
-            account: self.account,
-            expected_status: self.expected_status,
-            service: self.service,
-        }
-    }
-}
-
-fn box_body<B>(body: B) -> BoxBody<Bytes, Error>
-where
-    B: Body + Send + Sync + 'static,
-    Error: From<B::Error>,
-    Bytes: From<B::Data>,
-{
-    try_downcast(body).unwrap_or_else(|body| {
-        body.map_frame(|frame| frame.map_data(Bytes::from))
-            .map_err(Error::from)
-            .boxed()
-    })
-}
-
-pub(crate) fn try_downcast<T, K>(k: K) -> core::result::Result<T, K>
-where
-    T: 'static,
-    K: Send + 'static,
-{
-    let mut k = Some(k);
-    if let Some(k) = <dyn std::any::Any>::downcast_mut::<Option<T>>(&mut k) {
-        Ok(k.take().unwrap())
-    } else {
-        Err(k.unwrap())
-    }
-}
-
 /// Dispatch the [`Request`] to the [`RequestService`].
-impl<B> IntoFuture for Request<B>
-where
-    B: Body + Send + Sync + 'static + Unpin,
-    Error: From<B::Error>,
-    Bytes: From<B::Data>,
-{
+impl IntoFuture for Request<Full<Bytes>> {
     type Output = Result<Response<Incoming>>;
 
     // TODO: When ATPIT is stablized, switch to `impl Future`
@@ -526,71 +520,6 @@ where
     fn into_future(self) -> Self::IntoFuture {
         // TODO: avoid extra clone
         Box::pin(async move { self.service.clone().dispatch(self).await })
-    }
-}
-
-impl Request<BoxBody<Bytes, Error>> {
-    async fn send(
-        self,
-        send_request: &mut http1::SendRequest<BoxBody<Bytes, Error>>,
-        api_availability: ApiAvailability,
-    ) -> Result<Response<Incoming>> {
-        let timeout = self.timeout;
-        let inner_fut = self.send_with_timeout(send_request, api_availability);
-        tokio::time::timeout(timeout, inner_fut)
-            .await
-            .map_err(|_| Error::TimeoutError)?
-    }
-
-    async fn send_with_timeout(
-        mut self,
-        send_request: &mut http1::SendRequest<BoxBody<Bytes, Error>>,
-        api_availability: ApiAvailability,
-    ) -> Result<Response<Incoming>> {
-        let _ = api_availability.wait_for_unsuspend().await;
-
-        // Obtain access token first
-        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
-            let access_token = store.get_token(account).await?;
-            let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
-                .map_err(|_| Error::InvalidHeaderError)?;
-            self.request
-                .headers_mut()
-                .insert(header::AUTHORIZATION, auth);
-        }
-
-        // Make request to hyper client
-        let response = send_request
-            .send_request(self.request)
-            .await
-            .map_err(Error::from);
-
-        // Notify access token store of expired tokens
-        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
-            store.check_response(account, &response);
-        }
-
-        // Parse unexpected responses and errors
-        let response = response?;
-
-        if !self.expected_status.contains(&response.status()) {
-            if !self.expected_status.is_empty() {
-                tracing::error!(
-                    "Unexpected HTTP status code {}, expected codes [{}]",
-                    response.status(),
-                    self.expected_status
-                        .iter()
-                        .map(ToString::to_string)
-                        .collect::<Vec<_>>()
-                        .join(",")
-                );
-            }
-            if !response.status().is_success() {
-                return handle_error_response(response).await;
-            }
-        }
-
-        Ok(Response::new(response))
     }
 }
 
@@ -646,7 +575,7 @@ struct OldErrorResponse {
 
 /// If `NewErrorResponse::type` is not defined it should default to "about:blank"
 const DEFAULT_ERROR_TYPE: &str = "about:blank";
-#[derive(serde::Deserialize)]
+#[derive(Debug, serde::Deserialize)]
 struct NewErrorResponse {
     pub r#type: Option<String>,
 }
@@ -654,44 +583,35 @@ struct NewErrorResponse {
 #[derive(Clone)]
 pub struct RequestFactory {
     service: RequestServiceHandle,
-    token_store: Option<AccessTokenStore>,
     default_timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn with_access_token_store(self, token_store: AccessTokenStore) -> Self {
-        RequestFactory {
-            token_store: Some(token_store),
-            ..self
-        }
-    }
-
     pub fn request<B: Body + Default>(&self, path: &str, method: Method) -> Result<Request<B>> {
         Ok(Request::new(
             self.hyper_request(path, method, B::default())?,
             self.service.clone(),
-            self.token_store.clone(),
         )
         .timeout(self.default_timeout))
     }
 
-    pub fn get(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
+    pub fn get(&self, path: &str) -> Result<Request<Full<Bytes>>> {
         self.request(path, Method::GET)
     }
 
-    pub fn post(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
+    pub fn post(&self, path: &str) -> Result<Request<Full<Bytes>>> {
         self.request(path, Method::POST)
     }
 
-    pub fn put(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
+    pub fn put(&self, path: &str) -> Result<Request<Full<Bytes>>> {
         self.request(path, Method::PUT)
     }
 
-    pub fn delete(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
+    pub fn delete(&self, path: &str) -> Result<Request<Full<Bytes>>> {
         self.request(path, Method::DELETE)
     }
 
-    pub fn head(&self, path: &str) -> Result<Request<Empty<Bytes>>> {
+    pub fn head(&self, path: &str) -> Result<Request<Full<Bytes>>> {
         self.request(path, Method::HEAD)
     }
 
@@ -737,10 +657,7 @@ impl RequestFactory {
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(
-            Request::new(request, self.service.clone(), self.token_store.clone())
-                .timeout(self.default_timeout),
-        )
+        Ok(Request::new(request, self.service.clone()).timeout(self.default_timeout))
     }
 
     fn json_request<S: serde::Serialize>(
@@ -754,24 +671,28 @@ impl RequestFactory {
     }
 
     fn hyper_request<B>(&self, path: &str, method: Method, body: B) -> Result<http::Request<B>> {
-        let uri = self.get_uri(path)?;
-        let request = http::request::Builder::new()
-            .method(method)
-            .uri(uri)
-            .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
-            .header(header::ACCEPT, HeaderValue::from_static("application/json"))
-            .header(
-                header::HOST,
-                HeaderValue::from_str(&self.service.host).map_err(|_| Error::InvalidHeaderError)?,
-            )
-            .body(body)?;
-        Ok(request)
+        hyper_request(&self.service.host, path, method, body)
     }
+}
 
-    fn get_uri(&self, path: &str) -> Result<Uri> {
-        let uri = format!("https://{}/{}", self.service.host, path);
-        Ok(hyper::Uri::from_str(&uri)?)
-    }
+pub(crate) fn hyper_request<B>(
+    host: &str,
+    path: &str,
+    method: Method,
+    body: B,
+) -> Result<http::Request<B>> {
+    let uri = format!("https://{host}/{path}");
+    let request = http::request::Builder::new()
+        .method(method)
+        .uri(uri)
+        .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
+        .header(header::ACCEPT, HeaderValue::from_static("application/json"))
+        .header(
+            header::HOST,
+            HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
+        )
+        .body(body)?;
+    Ok(request)
 }
 
 fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
@@ -783,7 +704,10 @@ fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
         .unwrap_or(0)
 }
 
-async fn handle_error_response<T, B: Body>(response: hyper::Response<B>) -> Result<T>
+// TODO: replace <T> with never-type when Rust 1.100 is stabilized
+pub(crate) async fn handle_error_response<B: Body>(
+    response: hyper::Response<B>,
+) -> Result<Infallible>
 where
     Error: From<B::Error>,
 {
