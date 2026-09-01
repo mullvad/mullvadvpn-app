@@ -52,6 +52,14 @@ ManifestDPIAware true
 !define MVSETUP_VERSION_NOT_OLDER 2
 !define MVSETUP_DAEMON_NOT_RUNNING 3
 
+# nsExec pushes this instead of an exit code when /TIMEOUT expires
+# after an idle period (of no stdout/stderr output).
+!define NSEXEC_TIMEOUT "timeout"
+
+# How long to wait for the removal of an abandoned driver or network adapter,
+# in milliseconds.
+!define ABANDONED_DRIVER_TIMEOUT 60000
+
 # Override electron-builder generated application settings key.
 # electron-builder uses a GUID here rather than the application name.
 !define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
@@ -206,11 +214,14 @@ ManifestDPIAware true
 
 	mullvad_nsis::Log "RemoveAbandonedWireGuardNt()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt-abandoned'
+	nsExec::ExecToStack /TIMEOUT=${ABANDONED_DRIVER_TIMEOUT} '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt-abandoned'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MVSETUP_OK}
+	${If} $0 == ${NSEXEC_TIMEOUT}
+		mullvad_nsis::Log "RemoveAbandonedWireGuardNt() timed out!"
+		Goto RemoveAbandonedWireGuardNt_return_only
+	${ElseIf} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove legacy MullvadWireGuard driver: error $0"
 		mullvad_nsis::LogWithDetails $R0 $1
@@ -242,11 +253,14 @@ ManifestDPIAware true
 
 	mullvad_nsis::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
+	nsExec::ExecToStack /TIMEOUT=${ABANDONED_DRIVER_TIMEOUT} '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MVSETUP_OK}
+	${If} $0 == ${NSEXEC_TIMEOUT}
+		mullvad_nsis::Log "RemoveAbandonedWintunAdapter() timed out!"
+		Goto RemoveAbandonedWintunAdapter_return_only
+	${ElseIf} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove network adapter: error $0"
 		mullvad_nsis::LogWithDetails $R0 $1
