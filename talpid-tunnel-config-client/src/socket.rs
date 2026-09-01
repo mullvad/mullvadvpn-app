@@ -178,6 +178,53 @@ pub mod tcp_info {
         platform::query(socket)
     }
 
+    /// Call `getsockopt` for a TCP info, read into a zeroed `T`.
+    ///
+    /// Logs a warning if the kernel returns fewer bytes than the size of `T`,
+    /// in which case the last fields will be left zeroed.
+    #[cfg(unix)]
+    fn getsockopt_tcp_struct<T>(
+        socket: &socket2::Socket,
+        level: libc::c_int,
+        optname: libc::c_int,
+    ) -> Option<T> {
+        use std::os::fd::AsRawFd;
+
+        // SAFETY: T is a plain struct of integers, all valid when zeroed.
+        let mut buf: T = unsafe { std::mem::zeroed() };
+        let mut len = std::mem::size_of::<T>() as libc::socklen_t;
+
+        // SAFETY: `buf` is a valid pointer to a zeroed buffer, `len` is its
+        // size. The kernel writes at most `len` bytes and updates `len`.
+        let ret = unsafe {
+            libc::getsockopt(
+                socket.as_raw_fd(),
+                level,
+                optname,
+                std::ptr::addr_of_mut!(buf).cast(),
+                std::ptr::addr_of_mut!(len),
+            )
+        };
+
+        if ret != 0 {
+            log::debug!(
+                "Failed to query TCP info: {}",
+                std::io::Error::last_os_error()
+            );
+            return None;
+        }
+
+        let expected = std::mem::size_of::<T>();
+        if (len as usize) < expected {
+            log::warn!(
+                "Partial TCP info: kernel returned {len} bytes, \
+                 expected {expected}; newer fields will be zero"
+            );
+        }
+
+        Some(buf)
+    }
+
     // ---------------------------------------------------------------------------
     // Platform implementations
     // ---------------------------------------------------------------------------
@@ -185,7 +232,6 @@ pub mod tcp_info {
     #[cfg(target_os = "linux")]
     mod platform {
         use super::*;
-        use std::os::fd::AsRawFd;
 
         /// TCP congestion algorithm state (Linux's `tcpi_ca_state`).
         #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -238,46 +284,8 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-            // Zero the struct first, so unread fields (on older kernels that
-            // support fewer fields than the libc definition) are zero, not
-            // uninitialized memory.
-            // SAFETY: `libc::tcp_info` is a plain struct of integers, all of
-            // which are valid when zeroed.
-            let mut info: libc::tcp_info = unsafe { std::mem::zeroed() };
-            let mut len = std::mem::size_of::<libc::tcp_info>() as libc::socklen_t;
-
-            let fd = socket.as_raw_fd();
-            // SAFETY: `info` is a valid pointer to a zeroed `tcp_info` buffer,
-            // `len` is its size. The kernel writes at most `len` bytes and
-            // updates `len` to the number of bytes actually written.
-            let ret = unsafe {
-                libc::getsockopt(
-                    fd,
-                    libc::SOL_TCP,
-                    libc::TCP_INFO,
-                    std::ptr::addr_of_mut!(info).cast(),
-                    std::ptr::addr_of_mut!(len),
-                )
-            };
-
-            if ret != 0 {
-                log::debug!(
-                    "Failed to query TCP_INFO: {}",
-                    std::io::Error::last_os_error()
-                );
-                return None;
-            }
-
-            let expected = std::mem::size_of::<libc::tcp_info>();
-            if (len as usize) < expected {
-                // The kernel is older than the libc definition and returned a
-                // shorter struct. Fields past the kernel's version are zero.
-                // Log so the snapshot can be interpreted with this in mind.
-                log::warn!(
-                    "Partial TCP_INFO: kernel returned {len} bytes, \
-                     expected {expected}; newer fields will be zero"
-                );
-            }
+            let info =
+                getsockopt_tcp_struct::<libc::tcp_info>(socket, libc::SOL_TCP, libc::TCP_INFO)?;
 
             Some(TcpInfoSnapshot {
                 state: linux_tcp_state(info.tcpi_state),
@@ -331,7 +339,6 @@ pub mod tcp_info {
     #[cfg(target_os = "macos")]
     mod platform {
         use super::*;
-        use std::os::fd::AsRawFd;
 
         /// Subset of macOS's `TCP_CONNECTION_INFO`.
         #[derive(Debug)]
@@ -361,40 +368,11 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-            // SAFETY: `libc::tcp_connection_info` is a plain struct of integers,
-            // all valid when zeroed.
-            let mut info: libc::tcp_connection_info = unsafe { std::mem::zeroed() };
-            let mut len = std::mem::size_of::<libc::tcp_connection_info>() as libc::socklen_t;
-
-            let fd = socket.as_raw_fd();
-            // SAFETY: `info` is a valid pointer to a zeroed
-            // `tcp_connection_info` buffer, `len` is its size. The kernel writes
-            // at most `len` bytes and updates `len` to the actual bytes written.
-            let ret = unsafe {
-                libc::getsockopt(
-                    fd,
-                    libc::IPPROTO_TCP,
-                    libc::TCP_CONNECTION_INFO,
-                    std::ptr::addr_of_mut!(info).cast(),
-                    std::ptr::addr_of_mut!(len),
-                )
-            };
-
-            if ret != 0 {
-                log::debug!(
-                    "Failed to query TCP_CONNECTION_INFO: {}",
-                    std::io::Error::last_os_error()
-                );
-                return None;
-            }
-
-            let expected = std::mem::size_of::<libc::tcp_connection_info>();
-            if (len as usize) < expected {
-                log::warn!(
-                    "Partial TCP_CONNECTION_INFO: kernel returned {len} bytes, \
-                     expected {expected}; newer fields will be zero"
-                );
-            }
+            let info = getsockopt_tcp_struct::<libc::tcp_connection_info>(
+                socket,
+                libc::IPPROTO_TCP,
+                libc::TCP_CONNECTION_INFO,
+            )?;
 
             Some(TcpInfoSnapshot {
                 state: macos_tcp_state(info.tcpi_state),
