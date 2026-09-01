@@ -15,6 +15,7 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 domain-fronting = "0.2.0"
+duplicate = "2.0.1"
 futures = { workspace = true }
 hex = { workspace = true }
 http = "1.1.0"
