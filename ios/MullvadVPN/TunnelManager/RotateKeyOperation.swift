@@ -17,20 +17,26 @@ import Operations
 
 class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "RotateKeyOperation")
-    private let interactor: TunnelInteractor
     private let devicesProxy: DeviceHandling
+    private let deviceState: @Sendable () -> DeviceState
+    private let onUpdateAccount: @Sendable (DeviceState) -> Void
     private var task: Cancellable?
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: DeviceHandling) {
-        self.interactor = interactor
+    init(
+        dispatchQueue: DispatchQueue,
+        devicesProxy: DeviceHandling,
+        deviceState: @escaping @Sendable () -> DeviceState,
+        onUpdateAccount: @escaping @Sendable (DeviceState) -> Void
+    ) {
         self.devicesProxy = devicesProxy
-
+        self.deviceState = deviceState
+        self.onUpdateAccount = onUpdateAccount
         super.init(dispatchQueue: dispatchQueue, completionQueue: nil, completionHandler: nil)
     }
 
     override func main() {
         // Extract login metadata.
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = deviceState() else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -51,7 +57,7 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         let publicKey = keyRotation.beginAttempt()
 
         // Persist mutated device data.
-        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
+        onUpdateAccount(.loggedIn(accountData, keyRotation.data))
 
         // Send REST request to rotate the device key.
         logger.debug("Replacing old key with new key on server...")
@@ -87,24 +93,15 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         _ = keyRotation.setCompleted(with: fetchedDevice)
 
         // Persist changes.
-        interactor.setDeviceState(.loggedIn(accountData, keyRotation.data), persist: true)
+        onUpdateAccount(.loggedIn(accountData, keyRotation.data))
 
-        // Notify the tunnel that key rotation took place and that it should reload VPN configuration.
-        if let tunnel = interactor.tunnel {
-            _ = tunnel.notifyKeyRotation { [weak self] _ in
-                self?.finish(result: .success(()))
-            }
-        } else {
-            finish(result: .success(()))
-        }
+        finish(result: .success(()))
     }
 
     private func handleError(_ error: Error) {
         if !error.isOperationCancellationError {
             logger.error(error: error, message: "Failed to rotate device key.")
         }
-
-        interactor.handleRestError(error)
         finish(result: .failure(error))
     }
 }
