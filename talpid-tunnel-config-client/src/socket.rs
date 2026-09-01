@@ -331,17 +331,9 @@ pub mod tcp_info {
     #[cfg(target_os = "macos")]
     mod platform {
         use super::*;
-        use nix::{getsockopt_impl, sockopt_impl};
+        use std::os::fd::AsRawFd;
 
-        nix::sockopt_impl!(
-            TcpConnectionInfoOpt,
-            GetOnly,
-            libc::IPPROTO_TCP,
-            libc::TCP_CONNECTION_INFO,
-            libc::tcp_connection_info
-        );
-
-        /// Subset of acOS's `TCP_CONNECTION_INFO`.
+        /// Subset of macOS's `TCP_CONNECTION_INFO`.
         #[derive(Debug)]
         pub struct TcpInfoSnapshot {
             /// TCP connection state.
@@ -369,11 +361,40 @@ pub mod tcp_info {
         }
 
         pub fn query(socket: &socket2::Socket) -> Option<TcpInfoSnapshot> {
-            let info = nix::sys::socket::getsockopt(socket, TcpConnectionInfoOpt)
-                .map_err(|err| {
-                    log::debug!("Failed to query TCP_CONNECTION_INFO: {err}");
-                })
-                .ok()?;
+            // SAFETY: `libc::tcp_connection_info` is a plain struct of integers,
+            // all valid when zeroed.
+            let mut info: libc::tcp_connection_info = unsafe { std::mem::zeroed() };
+            let mut len = std::mem::size_of::<libc::tcp_connection_info>() as libc::socklen_t;
+
+            let fd = socket.as_raw_fd();
+            // SAFETY: `info` is a valid pointer to a zeroed
+            // `tcp_connection_info` buffer, `len` is its size. The kernel writes
+            // at most `len` bytes and updates `len` to the actual bytes written.
+            let ret = unsafe {
+                libc::getsockopt(
+                    fd,
+                    libc::IPPROTO_TCP,
+                    libc::TCP_CONNECTION_INFO,
+                    std::ptr::addr_of_mut!(info).cast(),
+                    std::ptr::addr_of_mut!(len),
+                )
+            };
+
+            if ret != 0 {
+                log::debug!(
+                    "Failed to query TCP_CONNECTION_INFO: {}",
+                    std::io::Error::last_os_error()
+                );
+                return None;
+            }
+
+            let expected = std::mem::size_of::<libc::tcp_connection_info>();
+            if (len as usize) < expected {
+                log::warn!(
+                    "Partial TCP_CONNECTION_INFO: kernel returned {len} bytes, \
+                     expected {expected}; newer fields will be zero"
+                );
+            }
 
             Some(TcpInfoSnapshot {
                 state: macos_tcp_state(info.tcpi_state),
