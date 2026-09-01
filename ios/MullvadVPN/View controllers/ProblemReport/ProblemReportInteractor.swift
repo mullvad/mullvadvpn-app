@@ -31,6 +31,12 @@ final class ProblemReportInteractor: @unchecked Sendable {
     }
 
     func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
+        let existing = consolidatedLog.string
+        guard existing.isEmpty else {
+            completion(existing)
+            return
+        }
+
         consolidatedLog.addLogFiles(
             fileURLs: ApplicationTarget.allCases.flatMap {
                 ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)

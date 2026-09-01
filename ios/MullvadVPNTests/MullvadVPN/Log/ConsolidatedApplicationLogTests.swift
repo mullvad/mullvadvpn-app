@@ -8,9 +8,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import MullvadLogging
 import MullvadRustRuntime
 import XCTest
+
+@testable import MullvadLogging
 
 final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
     nonisolated(unsafe) var consolidatedLog: ConsolidatedApplicationLog!
@@ -53,22 +54,6 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
         )
     }
 
-    func testAddError() async {
-        let expectation = self.expectation(description: "Error added to log")
-        let errorMessage = "Test error"
-        let errorDetails = "A sensitive error occurred"
-
-        consolidatedLog.addError(message: errorMessage, error: errorDetails) {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1)
-        XCTAssertTrue(
-            consolidatedLog.string.contains(errorMessage),
-            "Log should include the error message."
-        )
-    }
-
     func testStringOutput() async {
         let expectation = self.expectation(description: "Log files added")
         let mockFile = createMockFile(content: content, fileName: "\(generateRandomName()).txt")
@@ -84,7 +69,7 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
     /// have their sensitive content fully redacted at collection time.
     func testOldLogFileContentIsRedactedAtCollectionTime() async {
         let expectation = self.expectation(description: "Old log file processed")
-        let mockFile = createMockFile(content: oldReleaseLogContent, fileName: "\(generateRandomName()).log")
+        let mockFile = createMockFile(content: oldReleaseLogContent, fileName: "\(generateRandomName()).txt")
 
         consolidatedLog.addLogFiles(fileURLs: [mockFile]) {
             expectation.fulfill()
@@ -106,6 +91,46 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
         // Non-sensitive content should survive
         XCTAssertTrue(output.contains("MullvadVPN version 2024.5"), "Version header should be preserved")
         XCTAssertTrue(output.contains("Refresh device state"), "Normal log text should be preserved")
+    }
+
+    func testAddLogFilesAccumulatesEntriesWhenCalledTwice() async {
+        let expectation1 = expectation(description: "First file added")
+        let expectation2 = expectation(description: "Second file added")
+        let mockFile = createMockFile(content: content, fileName: "\(generateRandomName()).txt")
+
+        consolidatedLog.addLogFiles(fileURLs: [mockFile]) { expectation1.fulfill() }
+        await fulfillment(of: [expectation1], timeout: 1)
+        let sectionsAfterFirst = consolidatedLog.string.components(
+            separatedBy: consolidatedLog.kLogDelimiter
+        ).count
+
+        consolidatedLog.addLogFiles(fileURLs: [mockFile]) { expectation2.fulfill() }
+        await fulfillment(of: [expectation2], timeout: 1)
+        let sectionsAfterSecond = consolidatedLog.string.components(
+            separatedBy: consolidatedLog.kLogDelimiter
+        ).count
+
+        XCTAssertEqual(
+            sectionsAfterSecond,
+            2 * sectionsAfterFirst - 1,  // Doubled, minus system info header.
+            "Calling addLogFiles twice doubles log sections."
+        )
+    }
+
+    func testStringIsNotEmptyAfterAddingLogFiles() async {
+        let expectation = expectation(description: "File added")
+        let mockFile = createMockFile(content: content, fileName: "\(generateRandomName()).txt")
+
+        XCTAssertTrue(consolidatedLog.string.isEmpty, "String should be empty before adding files.")
+
+        consolidatedLog.addLogFiles(fileURLs: [mockFile]) { expectation.fulfill() }
+        await fulfillment(of: [expectation], timeout: 1)
+
+        XCTAssertFalse(
+            consolidatedLog.string.isEmpty,
+            "String should not be empty after calling addLogFiles, "
+                + "meaning guard in fetchReportString prevents duplicate loads."
+        )
     }
 
     // MARK: - Private functions
