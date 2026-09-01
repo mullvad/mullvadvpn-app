@@ -8,21 +8,13 @@
 
 use rand::{Rng, RngCore};
 
-// WG message types
-type MessageType = u8;
-const HANDSHAKE_INIT: MessageType = 1;
-const HANDSHAKE_RESP: MessageType = 2;
-const COOKIE_REPLY: MessageType = 3;
-const DATA: MessageType = 4;
+use crate::wireguard::{
+    COOKIE_REPLY, DATA, DATA_OVERHEAD_SIZE, HANDSHAKE_INITIATION, HANDSHAKE_INITIATION_SIZE,
+    HANDSHAKE_RESPONSE, HANDSHAKE_RESPONSE_SIZE,
+};
 
-/// Protected (obfuscated) area of a handshake initiation. Also its plaintext size.
-const HANDSHAKE_INIT_SZ: usize = 148;
-/// Protected (obfuscated) area of a handshake response. Also its plaintext size.
-const HANDSHAKE_RESP_SZ: usize = 92;
 /// Protected (obfuscated) area of a data packet.
-const DATA_PROTECTED_SZ: usize = 16;
-/// Minimum size of a valid data packet.
-const DATA_MIN_SZ: usize = 32;
+const DATA_PROTECTED_SIZE: usize = 16;
 
 /// Maximum number of random padding bytes appended to outgoing handshake packets.
 const MAX_PADDING: usize = 256;
@@ -67,7 +59,7 @@ pub enum Verdict {
 fn takes_padding(packet: &[u8]) -> bool {
     matches!(
         packet.first(),
-        Some(&HANDSHAKE_INIT) | Some(&HANDSHAKE_RESP)
+        Some(&HANDSHAKE_INITIATION) | Some(&HANDSHAKE_RESPONSE)
     )
 }
 
@@ -96,9 +88,9 @@ pub fn obfuscate(packet: &mut [u8], key: &[u8; 32]) {
         return;
     };
     let protected_len = match message_type {
-        HANDSHAKE_INIT => HANDSHAKE_INIT_SZ,
-        HANDSHAKE_RESP => HANDSHAKE_RESP_SZ,
-        DATA => DATA_PROTECTED_SZ,
+        HANDSHAKE_INITIATION => HANDSHAKE_INITIATION_SIZE,
+        HANDSHAKE_RESPONSE => HANDSHAKE_RESPONSE_SIZE,
+        DATA => DATA_PROTECTED_SIZE,
         // Cookie replies must not be obfuscated. Unknown types are left alone.
         _ => return,
     };
@@ -121,7 +113,7 @@ pub fn obfuscate(packet: &mut [u8], key: &[u8; 32]) {
 pub fn deobfuscate(packet: &mut [u8], key: &[u8; 32]) -> Verdict {
     // The shortest valid LWO v2 packet is a 32-byte data packet, but byte 1 decides whether the
     // packet claims LWO v2 at all.
-    if packet.len() < DATA_MIN_SZ {
+    if packet.len() < DATA_OVERHEAD_SIZE {
         return match packet.get(1) {
             Some(&reserved) if claims_lwo(reserved) => Verdict::Invalid,
             _ => Verdict::Plain,
@@ -141,17 +133,23 @@ pub fn deobfuscate(packet: &mut [u8], key: &[u8; 32]) -> Verdict {
 
     let message_type = packet[0] ^ key[0].wrapping_add(len_mix);
     let (protected_len, valid_len, trim_to) = match message_type {
-        HANDSHAKE_INIT => (
-            HANDSHAKE_INIT_SZ,
-            (HANDSHAKE_INIT_SZ..=HANDSHAKE_INIT_SZ + MAX_PADDING).contains(&packet.len()),
-            Some(HANDSHAKE_INIT_SZ),
+        HANDSHAKE_INITIATION => (
+            HANDSHAKE_INITIATION_SIZE,
+            (HANDSHAKE_INITIATION_SIZE..=HANDSHAKE_INITIATION_SIZE + MAX_PADDING)
+                .contains(&packet.len()),
+            Some(HANDSHAKE_INITIATION_SIZE),
         ),
-        HANDSHAKE_RESP => (
-            HANDSHAKE_RESP_SZ,
-            (HANDSHAKE_RESP_SZ..=HANDSHAKE_RESP_SZ + MAX_PADDING).contains(&packet.len()),
-            Some(HANDSHAKE_RESP_SZ),
+        HANDSHAKE_RESPONSE => (
+            HANDSHAKE_RESPONSE_SIZE,
+            (HANDSHAKE_RESPONSE_SIZE..=HANDSHAKE_RESPONSE_SIZE + MAX_PADDING)
+                .contains(&packet.len()),
+            Some(HANDSHAKE_RESPONSE_SIZE),
         ),
-        DATA => (DATA_PROTECTED_SZ, packet.len() >= DATA_MIN_SZ, None),
+        DATA => (
+            DATA_PROTECTED_SIZE,
+            packet.len() >= DATA_OVERHEAD_SIZE,
+            None,
+        ),
         // Cookie replies are never LWO v2 packets. They must be plain.
         COOKIE_REPLY => return Verdict::Invalid,
         // Unknown WireGuard type.
@@ -215,28 +213,31 @@ mod test {
 
     #[test]
     fn handshake_init_roundtrip() {
-        let original = fake_packet(HANDSHAKE_INIT, HANDSHAKE_INIT_SZ);
+        let original = fake_packet(HANDSHAKE_INITIATION, HANDSHAKE_INITIATION_SIZE);
         let mut packet = original.clone();
 
         pad_and_obfuscate(&mut packet);
         let padded_len = packet.len();
-        assert!((HANDSHAKE_INIT_SZ + 1..=HANDSHAKE_INIT_SZ + MAX_PADDING).contains(&padded_len));
+        assert!(
+            (HANDSHAKE_INITIATION_SIZE + 1..=HANDSHAKE_INITIATION_SIZE + MAX_PADDING)
+                .contains(&padded_len)
+        );
         assert!(claims_lwo(packet[1]));
-        assert_ne!(packet[..HANDSHAKE_INIT_SZ], original[..]);
+        assert_ne!(packet[..HANDSHAKE_INITIATION_SIZE], original[..]);
 
         let verdict = deobfuscate(&mut packet, &KEY);
         assert_eq!(
             verdict,
             Verdict::Lwo {
-                trim_to: Some(HANDSHAKE_INIT_SZ)
+                trim_to: Some(HANDSHAKE_INITIATION_SIZE)
             }
         );
-        assert_eq!(packet[..HANDSHAKE_INIT_SZ], original[..]);
+        assert_eq!(packet[..HANDSHAKE_INITIATION_SIZE], original[..]);
     }
 
     #[test]
     fn handshake_resp_roundtrip() {
-        let original = fake_packet(HANDSHAKE_RESP, HANDSHAKE_RESP_SZ);
+        let original = fake_packet(HANDSHAKE_RESPONSE, HANDSHAKE_RESPONSE_SIZE);
         let mut packet = original.clone();
 
         pad_and_obfuscate(&mut packet);
@@ -245,23 +246,23 @@ mod test {
         assert_eq!(
             verdict,
             Verdict::Lwo {
-                trim_to: Some(HANDSHAKE_RESP_SZ)
+                trim_to: Some(HANDSHAKE_RESPONSE_SIZE)
             }
         );
-        assert_eq!(packet[..HANDSHAKE_RESP_SZ], original[..]);
+        assert_eq!(packet[..HANDSHAKE_RESPONSE_SIZE], original[..]);
     }
 
     #[test]
     fn data_roundtrip() {
-        let original = fake_packet(DATA, DATA_MIN_SZ + 100);
+        let original = fake_packet(DATA, DATA_OVERHEAD_SIZE + 100);
         let mut packet = original.clone();
 
         pad_and_obfuscate(&mut packet);
         assert_eq!(packet.len(), original.len(), "data packets are not padded");
         assert!(claims_lwo(packet[1]));
         assert_eq!(
-            packet[DATA_PROTECTED_SZ..],
-            original[DATA_PROTECTED_SZ..],
+            packet[DATA_PROTECTED_SIZE..],
+            original[DATA_PROTECTED_SIZE..],
             "payload beyond the protected area should be unchanged"
         );
 
@@ -284,7 +285,7 @@ mod test {
 
     #[test]
     fn plain_wireguard_passes_through() {
-        let original = fake_packet(DATA, DATA_MIN_SZ + 100);
+        let original = fake_packet(DATA, DATA_OVERHEAD_SIZE + 100);
         let mut packet = original.clone();
         assert_eq!(deobfuscate(&mut packet, &KEY), Verdict::Plain);
         assert_eq!(packet, original);
@@ -293,7 +294,7 @@ mod test {
     #[test]
     fn tampered_packet_is_dropped() {
         for byte in 1..4 {
-            let mut packet = fake_packet(DATA, DATA_MIN_SZ + 100);
+            let mut packet = fake_packet(DATA, DATA_OVERHEAD_SIZE + 100);
             obfuscate(&mut packet, &KEY);
             packet[byte] ^= 0x01;
             // Flipping a bit in byte 1 may also clear the marker, making the packet plain.
@@ -323,17 +324,17 @@ mod test {
     #[test]
     fn invalid_lengths_are_dropped() {
         // A data packet shorter than 32 bytes claiming LWO.
-        let mut short_data = fake_packet(DATA, DATA_MIN_SZ - 1);
+        let mut short_data = fake_packet(DATA, DATA_OVERHEAD_SIZE - 1);
         obfuscate(&mut short_data, &KEY);
         // Force the marker in case the length made the packet skip obfuscation.
         short_data[1] = marker_byte(&KEY, short_data.len() as u8);
         assert_eq!(deobfuscate(&mut short_data, &KEY), Verdict::Invalid);
 
         // An over-padded handshake initiation.
-        let len = HANDSHAKE_INIT_SZ + MAX_PADDING + 1;
-        let mut oversized = fake_packet(HANDSHAKE_INIT, len);
+        let len = HANDSHAKE_INITIATION_SIZE + MAX_PADDING + 1;
+        let mut oversized = fake_packet(HANDSHAKE_INITIATION, len);
         let len_mix = len as u8;
-        oversized[0] = HANDSHAKE_INIT ^ KEY[0].wrapping_add(len_mix);
+        oversized[0] = HANDSHAKE_INITIATION ^ KEY[0].wrapping_add(len_mix);
         oversized[1] = marker_byte(&KEY, len_mix);
         oversized[2] = obfuscation_byte(&KEY, len_mix, 2);
         oversized[3] = obfuscation_byte(&KEY, len_mix, 3);
@@ -343,7 +344,7 @@ mod test {
     #[test]
     fn length_is_mixed_into_obfuscation() {
         // The same plaintext at two different padded lengths obfuscate differently.
-        let original = fake_packet(DATA, DATA_MIN_SZ + 100);
+        let original = fake_packet(DATA, DATA_OVERHEAD_SIZE + 100);
 
         let mut a = original.clone();
         obfuscate(&mut a, &KEY);
@@ -352,7 +353,7 @@ mod test {
         b.push(0);
         obfuscate(&mut b, &KEY);
 
-        assert_ne!(a[..DATA_PROTECTED_SZ], b[..DATA_PROTECTED_SZ]);
+        assert_ne!(a[..DATA_PROTECTED_SIZE], b[..DATA_PROTECTED_SIZE]);
 
         // And a packet deobfuscated at the wrong length does not validate.
         let mut truncated = a.clone();
