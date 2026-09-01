@@ -1,6 +1,5 @@
 [package]
 name = "mullvad-masque-proxy"
-version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 description = "A limited functionality UDP over HTTP3 proxy"
