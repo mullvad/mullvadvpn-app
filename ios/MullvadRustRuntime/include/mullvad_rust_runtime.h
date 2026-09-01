@@ -80,9 +80,9 @@ typedef struct CompletionCookie {
 } CompletionCookie;
 
 typedef struct MockEndpoint {
-  const char *path;
+  char *path;
   uintptr_t response_code;
-  int8_t *response_body;
+  char *response_body;
 } MockEndpoint;
 
 typedef struct SwiftServerMock {
@@ -576,18 +576,18 @@ void mullvad_api_cstring_drop(char *cstr_ptr);
 /**
  * # Safety
  *
- * `path` must be a pointer to a null terminated string representing the url path.
+ * `path` must be a pointer to a utf-8 null terminated string representing the url path.
  *
  * `response_code` must be a usize representing the http response code.
  *
- * `response_body` must be a pointer to a null terminated string representing the body.
+ * `response_body` must be a pointer to a utf-8 null terminated string representing the body.
  *
  * This must be used in conjuction with [mullvad_api_mock_get] and subsequently [mullvad_api_mock_drop]
  * to make sure it is properly dropped.
  */
-struct MockEndpoint create_mock_endpoint(const char *path,
-                                         uintptr_t response_code,
-                                         const int8_t *response_body);
+struct MockEndpoint mullvad_api_mock_create_endpoint(const char *path,
+                                                     uintptr_t response_code,
+                                                     const char *response_body);
 
 /**
  * # Safety
@@ -597,11 +597,11 @@ struct MockEndpoint create_mock_endpoint(const char *path,
  * `endpoint_count` must be a usize matching the length of the array
  *
  * Each [MockEndpoint] must fulfill the following:
- * - `path` must be a pointer to a null terminated string representing the url path.
+ * - `path` must be a pointer to a utf-8 null terminated string representing the url path.
  *
  * - `response_code` must be a usize representing the http response code.
  *
- * - `response_body` must be a pointer to a null terminated string representing the body.
+ * - `response_body` must be a pointer to a utf-8 null terminated string representing the body.
  *
  * This function is safe.
  */
