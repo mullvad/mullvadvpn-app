@@ -8,9 +8,10 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import MullvadLogging
 import MullvadRustRuntime
 import XCTest
+
+@testable import MullvadLogging
 
 final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
     nonisolated(unsafe) var consolidatedLog: ConsolidatedApplicationLog!
@@ -50,22 +51,6 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
         XCTAssertTrue(
             consolidatedLog.string.contains(string),
             "Log should contain the file content."
-        )
-    }
-
-    func testAddError() async {
-        let expectation = self.expectation(description: "Error added to log")
-        let errorMessage = "Test error"
-        let errorDetails = "A sensitive error occurred"
-
-        consolidatedLog.addError(message: errorMessage, error: errorDetails) {
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 1)
-        XCTAssertTrue(
-            consolidatedLog.string.contains(errorMessage),
-            "Log should include the error message."
         )
     }
 
