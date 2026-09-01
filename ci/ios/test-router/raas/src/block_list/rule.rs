@@ -146,7 +146,7 @@ fn check_l4proto(rule: &mut Rule<'_>, protocol: TransportProtocol) {
     rule.add_expr(&nft_expr!(cmp == protocol.as_ipproto()));
 }
 
-fn check_ip_addrs(rule: &mut Rule, src: IpNetwork, dst: Option<IpNetwork>) {
+fn check_ip_addrs(rule: &mut Rule<'_>, src: IpNetwork, dst: Option<IpNetwork>) {
     // Add source checking
     rule.add_expr(match src {
         IpNetwork::V4(_) => &nft_expr!(payload ipv4 saddr),
@@ -163,7 +163,7 @@ fn check_ip_addrs(rule: &mut Rule, src: IpNetwork, dst: Option<IpNetwork>) {
         check_matches_prefix(rule, dst);
     }
 
-    fn check_matches_prefix(rule: &mut Rule, network: IpNetwork) {
+    fn check_matches_prefix(rule: &mut Rule<'_>, network: IpNetwork) {
         // Check that the IP address matches the given IP network.
         // E.g. the IP network 34.117.0.0/16 will match an incoming packet IP 34.117.105.189.
         match network {
@@ -178,7 +178,7 @@ fn check_ip_addrs(rule: &mut Rule, src: IpNetwork, dst: Option<IpNetwork>) {
     }
 }
 
-fn check_wireguard_traffic(rule: &mut Rule) {
+fn check_wireguard_traffic(rule: &mut Rule<'_>) {
     rule.add_expr(&nft_expr!(meta l4proto));
     rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_UDP));
 
