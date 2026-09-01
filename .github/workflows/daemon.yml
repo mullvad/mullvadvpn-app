@@ -36,6 +36,14 @@ on:
         type: string
         required: false
 
+# Cancel superseded runs when a pull request branch moves. Runs on main and on
+# release tags are never cancelled. The same block is repeated in every
+# workflow that schedules macOS jobs, since macOS runner concurrency is the
+# bottleneck in this repo's CI.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') }}
+
 permissions: {}
 
 jobs:
