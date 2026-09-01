@@ -30,13 +30,22 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
 
         case let .getRelayList(retryStrategy, digest, timestamp):
-            return MullvadApiCancellable(
-                handle: mullvad_ios_get_relays(
-                    apiContext.context,
-                    retryStrategy.toRustStrategy(),
-                    digest,
-                    timestamp ?? 0
-                ))
+            let getRelays = { (digest: UnsafeRawPointer?, timestamp) in
+                MullvadApiCancellable(
+                    handle: mullvad_ios_get_relays(
+                        apiContext.context,
+                        retryStrategy.toRustStrategy(),
+                        digest,
+                        timestamp
+                    ))
+            }
+            return if let digest, let timestamp {
+                digest.withUnsafeBytes { ptr in
+                    getRelays(ptr.baseAddress, timestamp)
+                }
+            } else {
+                getRelays(nil, 0)
+            }
 
         case let .sendProblemReport(retryStrategy, problemReportRequest):
             let rustRequest = RustProblemReportRequest(from: problemReportRequest)

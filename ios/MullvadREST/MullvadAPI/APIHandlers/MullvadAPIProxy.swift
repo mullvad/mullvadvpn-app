@@ -98,11 +98,24 @@ extension REST {
                 REST.ServerRelaysCacheResponse.newContent(digest, timestamp, data)
             }
 
-            var sigsumDigest: String? = nil
+            var sigsumDigest: Data? = nil
             var sigsumTimestamp: Int64? = nil
             if let (digest, timestamp) = sigsum {
-                sigsumDigest = digest
-                sigsumTimestamp = timestamp
+                // Encode and verify that the sigsum is 32 bytes
+                let array = Array(digest)
+                var data = [UInt8]()
+
+                for i in stride(from: 0, to: digest.count, by: 2) {
+                    let pair = String(array[i]) + String(array[i + 1])
+                    if let byte = UInt8(pair, radix: 16) {
+                        data.append(byte)
+                    }
+                }
+
+                if data.count == 32 {
+                    sigsumDigest = Data(data)
+                    sigsumTimestamp = timestamp
+                }
             }
             return createNetworkOperation(
                 request: .getRelayList(

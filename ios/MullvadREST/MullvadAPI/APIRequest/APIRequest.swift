@@ -12,7 +12,7 @@ import MullvadTypes
 public enum APIRequest: Codable, Sendable {
     // Api Proxy
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
-    case getRelayList(_ retryStrategy: REST.RetryStrategy, digest: String?, timestamp: Int64?)
+    case getRelayList(_ retryStrategy: REST.RetryStrategy, digest: Data?, timestamp: Int64?)
     case sendProblemReport(_ retryStrategy: REST.RetryStrategy, problemReportRequest: ProblemReportRequest)
     case checkApiAvailability(_ retryStrategy: REST.RetryStrategy, accessMethod: PersistentAccessMethod)
 
