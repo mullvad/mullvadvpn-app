@@ -128,6 +128,15 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
             Variant(Box::new(peer.public_key.to_base64())),
         );
 
+        // PQ tunnels.
+        if let Some(psk) = peer.psk.as_ref() {
+            peer_config.insert("preshared-key".into(), Variant(Box::new(psk.to_base64())));
+            peer_config.insert(
+                "preshared-key-flags".into(),
+                Variant(Box::new(0u32)), // TODO: Document + update this.
+            );
+        }
+
         peer_configs.push(peer_config);
     }
     wireguard_config.insert("peers".into(), Variant(Box::new(peer_configs)));

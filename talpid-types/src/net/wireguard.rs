@@ -318,6 +318,11 @@ impl PresharedKey {
     pub fn as_bytes_mut(&mut self) -> &mut [u8; 32] {
         &mut self.0
     }
+
+    /// TODO: Document.
+    pub fn to_base64(&self) -> String {
+        STANDARD.encode(self.as_bytes())
+    }
 }
 
 impl From<Box<[u8; 32]>> for PresharedKey {
@@ -328,7 +333,7 @@ impl From<Box<[u8; 32]>> for PresharedKey {
 
 impl fmt::Debug for PresharedKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", STANDARD.encode(self.as_bytes()))
+        write!(f, "{}", self.to_base64())
     }
 }
 
