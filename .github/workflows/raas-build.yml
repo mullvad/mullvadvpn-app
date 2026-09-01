@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/raas-build.yml
       - ci/ios/test-router/flake.nix
+      - ci/ios/test-router/flake.lock
       - ci/ios/test-router/raas.nix
       - 'ci/ios/test-router/raas/**'
   push:
