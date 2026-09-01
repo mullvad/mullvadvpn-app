@@ -31,6 +31,12 @@ final class ProblemReportInteractor: @unchecked Sendable {
     }
 
     func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
+        let existing = consolidatedLog.string
+        guard existing.isEmpty else {
+            completion(existing)
+            return
+        }
+
         consolidatedLog.addLogFiles(
             fileURLs: ApplicationTarget.allCases.flatMap {
                 ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
@@ -47,7 +53,6 @@ final class ProblemReportInteractor: @unchecked Sendable {
         includeAccountTokenInLogs: Bool,
         completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
-        let logString = self.consolidatedLog.string
         let accountToken =
             if isUserLoggedIn() && includeAccountTokenInLogs,
                 let token = tunnelManager.deviceState.accountData?.identifier
@@ -55,17 +60,8 @@ final class ProblemReportInteractor: @unchecked Sendable {
                 "\naccount-token: \(token)"
             } else { "" }
 
-        if logString.isEmpty {
-            fetchReportString { [weak self, accountToken] updatedLogString in
-                self?.sendProblemReport(
-                    email: email,
-                    message: message + accountToken,
-                    logString: updatedLogString,
-                    completion: completion
-                )
-            }
-        } else {
-            sendProblemReport(
+        fetchReportString { [weak self] logString in
+            self?.sendProblemReport(
                 email: email,
                 message: message + accountToken,
                 logString: logString,

@@ -11,10 +11,10 @@
 import Foundation
 import MullvadLogging
 
-private let kLogDelimiter = "===================="
-private let kRedactedPlaceholder = "[REDACTED]"
-
 class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
+    let kLogDelimiter = "===================="
+    let kRedactedPlaceholder = "[REDACTED]"
+
     typealias Metadata = KeyValuePairs<MetadataKey, String>
     private let bufferSize: UInt64
 
@@ -48,16 +48,6 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
             for fileURL in fileURLs {
                 self.addSingleLogFile(fileURL)
             }
-            DispatchQueue.main.async {
-                completion?()
-            }
-        }
-    }
-
-    func addError(message: String, error: String, completion: (@Sendable () -> Void)? = nil) {
-        let redactedError = redact(string: error)
-        logQueue.async(flags: .barrier) {
-            self.logs.append(LogAttachment(label: message, content: redactedError))
             DispatchQueue.main.async {
                 completion?()
             }
@@ -103,10 +93,11 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     private func addSingleLogFile(_ fileURL: URL) {
         guard fileURL.isFileURL else {
-            addError(
-                message: fileURL.absoluteString,
-                error: "Invalid log file URL: \(fileURL.absoluteString)."
-            )
+            logs.append(
+                LogAttachment(
+                    label: fileURL.absoluteString,
+                    content: redact(string: "Invalid log file URL: \(fileURL.absoluteString).")
+                ))
             return
         }
 
@@ -114,12 +105,13 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         let redactedPath = redact(string: path)
 
         if let lossyString = readFileLossy(path: path, maxBytes: bufferSize) {
-            let redactedString = redact(string: lossyString)
-            logQueue.async(flags: .barrier) {
-                self.logs.append(LogAttachment(label: redactedPath, content: redactedString))
-            }
+            logs.append(LogAttachment(label: redactedPath, content: redact(string: lossyString)))
         } else {
-            addError(message: redactedPath, error: "Log file does not exist: \(path).")
+            logs.append(
+                LogAttachment(
+                    label: redactedPath,
+                    content: redact(string: "Log file does not exist: \(path).")
+                ))
         }
     }
 
