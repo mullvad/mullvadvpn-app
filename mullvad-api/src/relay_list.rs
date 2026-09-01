@@ -164,7 +164,7 @@ impl RelayListProxy {
 
         let request = request?
             .timeout(RELAY_LIST_TIMEOUT)
-            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+            .expected_status(&[StatusCode::OK]);
 
         service.request(request).await
     }
