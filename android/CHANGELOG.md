@@ -23,7 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Removed
-- Remove the initial privacy consent screen. The app will now start into the Connect Screen.
+- Remove the initial privacy consent screen. The app will now start into the Login Screen.
+  The privacy policy can still be reached from Settings.
 
 
 ## [android/2026.9-beta1] - 2026-08-20
