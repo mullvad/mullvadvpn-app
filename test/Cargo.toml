@@ -5,6 +5,7 @@ members = [
   "connection-checker",
   "socks-server",
   "test-manager",
+  "test-manager/test_macro",
   "test-rpc",
   "test-runner",
 ]
