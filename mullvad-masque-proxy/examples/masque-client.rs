@@ -6,7 +6,6 @@ use tracing_subscriber::{EnvFilter, filter::LevelFilter};
 
 use std::{
     net::{Ipv4Addr, SocketAddr},
-    path::PathBuf,
     sync::Arc,
     time::Duration,
 };
@@ -16,10 +15,6 @@ pub struct ClientArgs {
     /// Destination to forward to
     #[arg(long, short = 't')]
     target_addr: SocketAddr,
-
-    /// Path to cert
-    #[arg(long, short = 'c', required = false)]
-    root_cert_path: Option<PathBuf>,
 
     /// Server address
     #[arg(long, short = 's')]
@@ -62,7 +57,6 @@ async fn main() {
     let ClientArgs {
         server_addr,
         target_addr,
-        root_cert_path,
         server_hostname,
         bind_addr,
         mtu,
@@ -70,14 +64,10 @@ async fn main() {
         auth,
     } = ClientArgs::parse();
 
-    let mut tls_config = match root_cert_path {
-        Some(path) => mullvad_masque_proxy::client::client_tls_config_from_cert_path(path.as_ref())
-            .expect("Failed to get TLS config"),
-        None => mullvad_masque_proxy::client::default_tls_config(),
-    };
-    Arc::get_mut(&mut tls_config).unwrap().key_log = Arc::new(rustls::KeyLogFile::new());
-
-    let _keylog = rustls::KeyLogFile::new();
+    let mut tls_config = mullvad_masque_proxy::client::default_tls_config();
+    // Writes this connection's TLS secrets to the file named by SSLKEYLOGFILE,
+    // so that a packet capture of it can be decrypted. Does nothing if unset.
+    Arc::make_mut(&mut tls_config).key_log = Arc::new(rustls::KeyLogFile::new());
 
     let local_socket = UdpSocket::bind(bind_addr)
         .await
