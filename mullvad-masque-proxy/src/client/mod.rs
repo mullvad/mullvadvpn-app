@@ -108,6 +108,7 @@ pub enum Error {
 }
 
 #[derive(TypedBuilder, Debug)]
+#[builder(doc)]
 pub struct ClientConfig {
     /// Socket to bind the QUIC endpoint socket to
     pub quinn_socket: UdpSocket,
