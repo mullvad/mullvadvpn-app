@@ -471,8 +471,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
             #[cfg(any(feature = "api-override", test))]
             self.endpoint.disable_tls,
         );
-        let token_store = access::AccessTokenStore::new(service.clone());
-        let factory = service.request().with_access_token_store(token_store);
+        let factory = service.request();
 
         rest::MullvadRestHandle::new(service, factory, self.availability_handle())
     }
