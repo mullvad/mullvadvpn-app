@@ -53,10 +53,7 @@ impl SwiftMullvadApiResponse {
                 let body_size = content.len();
                 let body = Box::<[u8]>::into_raw(content.into_boxed_slice()).cast();
 
-                // TODO: consider handling invalid timestamp ? Could we not clamp the time interval
-                // down to something that is within 500 years of the unix timestamp?
-                // Should we just `.expect("Timestamp more than 500 years away from 1970");`
-                let sigsum_timestamp = timestamp.timestamp_nanos_opt().unwrap_or(0);
+                let sigsum_timestamp = timestamp.timestamp_millis();
                 let sigsum_digest = CString::new(digest.as_ref())
                     .map_err(|err| {
                         log::error!("Found a nil byte in sigsum_digest string: {err}");
