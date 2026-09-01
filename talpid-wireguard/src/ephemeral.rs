@@ -6,7 +6,7 @@ use super::{CloseMsg, Error, TunnelType, config::Config, obfuscation::Obfuscator
 use std::{
     net::IpAddr,
     sync::{Arc, mpsc as sync_mpsc},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use talpid_net::bypass::SocketBypass;
 
@@ -271,23 +271,40 @@ async fn request_ephemeral_peer(
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
     );
 
-    let ephemeral = tokio::time::timeout(
-        timeout,
-        talpid_tunnel_config_client::request_ephemeral_peer(
-            config.ipv4_gateway,
-            config.tunnel.private_key.public_key(),
-            wg_psk_pubkey,
-            enable_pq,
-            enable_daita,
-        ),
-    )
-    .await
-    .map_err(|_timeout_err| {
-        log::warn!("Timeout while negotiating ephemeral peer");
-        CloseMsg::EphemeralPeerNegotiationTimeout
-    })?
-    .map_err(Error::EphemeralPeerNegotiationError)
-    .map_err(CloseMsg::SetupError)?;
+    // TCP socket with extra reliability settings
+    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
+        .map_err(talpid_tunnel_config_client::Error::TcpSocketError)
+        .map_err(Error::EphemeralPeerNegotiationError)
+        .map_err(CloseMsg::SetupError)?;
+
+    let start_time = Instant::now();
+    let request_future = talpid_tunnel_config_client::request_ephemeral_peer(
+        config.ipv4_gateway,
+        config.tunnel.private_key.public_key(),
+        wg_psk_pubkey,
+        enable_pq,
+        enable_daita,
+        &tcp_socket,
+    );
+
+    let ephemeral = match tokio::time::timeout(timeout, request_future).await {
+        Ok(result) => result
+            .map_err(Error::EphemeralPeerNegotiationError)
+            .map_err(CloseMsg::SetupError)?,
+        Err(_) => {
+            let elapsed = start_time.elapsed();
+            log::warn!(
+                "Timeout while negotiating ephemeral peer \
+                 (retry {retry_attempt}, timeout {timeout:?}, PQ={enable_pq}, \
+                 DAITA={enable_daita}, elapsed {elapsed:?})"
+            );
+            if let Some(info) = tcp_socket.query_tcp_info() {
+                log::warn!("{info:?}");
+            }
+
+            return Err(CloseMsg::EphemeralPeerNegotiationTimeout);
+        }
+    };
 
     Ok(ephemeral)
 }
