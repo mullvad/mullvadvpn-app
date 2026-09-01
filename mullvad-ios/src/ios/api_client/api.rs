@@ -114,7 +114,7 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 ///
 /// `digest` must point to valid checksum consisting of 32 bytes, or null if not used.
 ///
-/// `digest_timestamp` should be a valid UTC timestamp, or 0 if not used.
+/// `digest_timestamp` should be a valid UTC timestamp in non-leap milliseconds since the Unix epoch, or 0 if not used.
 ///
 /// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[unsafe(no_mangle)]
