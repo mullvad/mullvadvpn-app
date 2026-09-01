@@ -243,45 +243,6 @@ ManifestDPIAware true
 !define RemoveAbandonedWireGuardNt '!insertmacro "RemoveAbandonedWireGuardNt"'
 
 #
-# RemoveAbandonedWintunAdapter
-#
-# Removes old Wintun interface, even if it belongs to a different pool.
-#
-!macro RemoveAbandonedWintunAdapter
-	Push $0
-	Push $1
-
-	mullvad_nsis::Log "RemoveAbandonedWintunAdapter()"
-
-	nsExec::ExecToStack /TIMEOUT=${ABANDONED_DRIVER_TIMEOUT} '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
-	Pop $0
-	Pop $1
-
-	${If} $0 == ${NSEXEC_TIMEOUT}
-		mullvad_nsis::Log "RemoveAbandonedWintunAdapter() timed out!"
-		Goto RemoveAbandonedWintunAdapter_return_only
-	${ElseIf} $0 != ${MVSETUP_OK}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to remove network adapter: error $0"
-		mullvad_nsis::LogWithDetails $R0 $1
-		Goto RemoveAbandonedWintunAdapter_return_only
-	${EndIf}
-
-	mullvad_nsis::Log "RemoveAbandonedWintunAdapter() completed successfully"
-
-	Push 0
-	Pop $R0
-
-	RemoveAbandonedWintunAdapter_return_only:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveAbandonedWintunAdapter '!insertmacro "RemoveAbandonedWintunAdapter"'
-
-#
 # InstallService
 #
 # Register the service with Windows and start it
@@ -812,7 +773,6 @@ ManifestDPIAware true
 	${RemoveApiAddressCache}
 
 	${ExtractMullvadSetup}
-	${RemoveAbandonedWintunAdapter}
 	${RemoveAbandonedWireGuardNt}
 
 	${RemoveSplitTunnelDriver}
