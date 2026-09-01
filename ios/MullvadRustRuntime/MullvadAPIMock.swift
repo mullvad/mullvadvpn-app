@@ -28,7 +28,7 @@ public class MullvadApiMock {
 
     public static func get(_ endpoints: [(path: String, responseCode: UInt, responseData: String)]) -> MullvadApiMock {
         let cEndpoints = endpoints.map { p in
-            create_mock_endpoint(
+            mullvad_api_mock_create_endpoint(
                 p.path,
                 p.responseCode,
                 p.responseData
