@@ -42,16 +42,13 @@ pub(crate) fn validate_relay_list_envelope(
 ) -> Result<SigsumPayload, SignatureVerificationFailedError> {
     static POLICY: &BuiltInPolicy = &sigsum::policy::SIGSUM_GENERIC_2025_1;
 
-    let sigsum_signature = SigsumSignature::from_ascii(&env.unparsed_signature)
+    let signers = trusted_pubkeys;
+    let signature = &SigsumSignature::from_ascii(&env.unparsed_signature)
         .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
+    let message = &Hash::new(env.unparsed_payload.as_bytes());
 
-    sigsum::verify(
-        &Hash::new(env.unparsed_payload.as_bytes()),
-        &sigsum_signature,
-        trusted_pubkeys,
-        POLICY,
-    )
-    .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
+    sigsum::verify(message, signature, signers, POLICY)
+        .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
 
     let timestamp = parse_timestamp(&env.unparsed_payload)
         .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;

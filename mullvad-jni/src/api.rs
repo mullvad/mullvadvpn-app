@@ -99,7 +99,7 @@ fn sigsum_trusted_pubkeys_from_java(env: &JnixEnv<'_>, endpoint_override: JObjec
         .call_method(endpoint_override, "component6", "()Ljava/lang/String;", &[])
         .expect("missing ApiEndpointOverride.sigsumTrustedPubkeys")
         .l()
-        .expect("ApiEndpointOverride.forceDirectConnection is not a string");
+        .expect("ApiEndpointOverride.sigsumTrustedPubkeys is not a string");
 
     String::from_java(env, pubkeys)
 }

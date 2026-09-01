@@ -7,6 +7,7 @@ use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
+use std::sync::LazyLock;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
 
@@ -96,7 +97,8 @@ pub struct ApiEndpoint {
     pub address: Option<SocketAddr>,
 
     /// The overridden sigsum trusted public keys used for verifying the transparency logged
-    /// relay list.
+    /// relay list. The public keys are parsed as a colon (:) separated string of 64 character
+    /// hex encoded strings.
     ///
     /// Use the associated function [`Self::sigsum_trusted_pubkeys`] to read this value with a
     /// default fallback if `MULLVAD_SIGSUM_TRUSTED_PUBKEYS` was not set.
@@ -146,8 +148,9 @@ impl ApiEndpoint {
                 .map(|force_direct| force_direct != "0")
                 .unwrap_or_else(|| host_var.is_some() || address_var.is_some()),
             sigsum_trusted_pubkeys: sigsum_trusted_pubkeys.map(|keys| {
-                Self::parse_sigsum_pubkeys(&keys)
-                    .expect("Failed to parse sigsum pubkeys from env variable content: {keys}")
+                Self::parse_sigsum_pubkeys(&keys).unwrap_or_else(|_| {
+                    panic!("Failed to parse sigsum pubkeys from env variable content: {keys}")
+                })
             }),
         };
 
@@ -306,9 +309,14 @@ impl ApiEndpoint {
     /// Read the [`Self::sigsum_trusted_pubkeys`] value, falling back to
     /// [`SIGSUM_TRUSTED_PUBKEYS_DEFAULT`] as default value if it does not exist.
     pub fn sigsum_trusted_pubkeys(&self) -> Vec<SigsumPublicKey> {
-        self.sigsum_trusted_pubkeys.clone().unwrap_or(
-            relay_list_transparency::parse_pubkeys(SIGSUM_TRUSTED_PUBKEYS_DEFAULT, '\n').unwrap(),
-        )
+        static DEFAULT_SIGSUM_PUBKEYS: LazyLock<Vec<SigsumPublicKey>> = LazyLock::new(|| {
+            relay_list_transparency::parse_pubkeys(SIGSUM_TRUSTED_PUBKEYS_DEFAULT, '\n')
+                .expect("Failed to parse default sigsum trusted pubkeys")
+        });
+
+        self.sigsum_trusted_pubkeys
+            .clone()
+            .unwrap_or_else(|| DEFAULT_SIGSUM_PUBKEYS.clone())
     }
 
     /// Try to read the value of an environment variable. Returns `None` if the

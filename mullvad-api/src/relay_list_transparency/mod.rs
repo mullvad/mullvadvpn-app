@@ -2,6 +2,7 @@
 //! signatures and timestamps that are available at the `/trl/v1/timestamps/latest` and
 //! `/trl/v1/data/` endpoints.
 
+#[cfg(test)]
 mod test;
 mod validate;
 
@@ -101,7 +102,7 @@ pub struct SigsumVerifiedRelayList {
 }
 
 /// The timestamp must not be older than this for it to be valid.
-static TIMESTAMP_MAX_VALID_AGE: Duration = Duration::from_hours(24);
+const TIMESTAMP_MAX_VALID_AGE: Duration = Duration::from_hours(24);
 
 /// Downloads and verifies the transparency logged relay list.
 /// If the verification fails the error is only logged, and a new relay list will still be
