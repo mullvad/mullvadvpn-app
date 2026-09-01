@@ -62,6 +62,33 @@ pub fn releases_cdn() -> &'static ClientConfig {
     &CONFIG
 }
 
+/// TLS configuration for the public DoH resolvers that the encrypted DNS
+/// proxy addresses are looked up through.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn doh_resolvers() -> &'static ClientConfig {
+    public_roots_config()
+}
+
+/// The configuration every third party is reached with. These hosts are not
+/// ours, so the floor is set by what they can be relied on to support rather
+/// than by what we would prefer.
+fn public_roots_config() -> &'static ClientConfig {
+    static CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
+        client_config(
+            &[&rustls::version::TLS12, &rustls::version::TLS13],
+            None,
+            Arc::clone(&cert::WEBPKI_ROOT_STORE),
+        )
+    });
+
+    &CONFIG
+}
+
 /// Helper for creating TLS client configs.
 ///
 /// It fixes what does not vary:
@@ -128,12 +155,26 @@ mod tests {
     /// served before, linking connections made from different tunnels.
     #[test]
     fn configs_disable_session_resumption() {
-        for (name, config) in [("api", api()), ("releases_cdn", releases_cdn())] {
-            let resumption = format!("{:?}", config.resumption);
-            assert!(
-                resumption.contains("NoClientSessionStorage"),
-                "{name} caches sessions: {resumption}"
-            );
+        for (name, config) in [
+            ("api", api()),
+            ("doh_resolvers", doh_resolvers()),
+        ] {
+            assert_caches_no_session(name, config);
         }
+    }
+
+    /// As does the one behind the `releases-cdn` feature.
+    #[cfg(feature = "releases-cdn")]
+    #[test]
+    fn releases_config_disables_session_resumption() {
+        assert_caches_no_session("releases_cdn", releases_cdn());
+    }
+
+    fn assert_caches_no_session(name: &str, config: &ClientConfig) {
+        let resumption = format!("{:?}", config.resumption);
+        assert!(
+            resumption.contains("NoClientSessionStorage"),
+            "{name} caches sessions: {resumption}"
+        );
     }
 }
