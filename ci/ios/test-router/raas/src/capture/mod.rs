@@ -48,7 +48,7 @@ pub struct CloneCodec;
 impl PacketCodec for CloneCodec {
     type Item = (PacketHeader, Box<[u8]>);
 
-    fn decode(&mut self, packet: Packet) -> Self::Item {
+    fn decode(&mut self, packet: Packet<'_>) -> Self::Item {
         (packet.header.to_owned(), packet.data.into())
     }
 }
@@ -64,7 +64,7 @@ impl Capture {
         std::env::temp_dir().join(RAAS_TMP_DIR)
     }
 
-    pub async fn start(&mut self, label: uuid::Uuid) -> Result<(), Error> {
+    pub fn start(&mut self, label: uuid::Uuid) -> Result<(), Error> {
         if self.captures.contains_key(&label) {
             return Err(Error::CaptureInProgress);
         }

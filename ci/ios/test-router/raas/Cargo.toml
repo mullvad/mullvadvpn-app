@@ -26,3 +26,30 @@ tokio-util = { version = "0.7", features = ["io"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["trace"] }
 uuid = { version = "1", features = ["serde"] }
+
+# This crate is excluded from the workspace, so it cannot inherit the lints.
+# Keep in sync with `[workspace.lints]` in the repository root `Cargo.toml`.
+[lints.clippy]
+allow_attributes = "warn"
+as_ptr_cast_mut = "warn"
+as_underscore = "warn"
+borrow_as_ptr = "warn"
+implicit_clone = "warn"
+undocumented_unsafe_blocks = "warn"
+unicode_not_nfc = "warn"
+unused_async = "deny"
+wildcard_dependencies = "deny"
+
+[lints.rust]
+absolute_paths_not_starting_with_crate = "deny"
+# Easy to read style and opinionated best practices
+explicit_outlives_requirements = "warn"
+macro_use_extern_crate = "deny"
+missing_abi = "deny"
+# Security
+non_ascii_idents = "forbid"
+# Deny old style Rust
+rust_2018_idioms = { level = "deny", priority = -1 }
+single_use_lifetimes = "warn"
+unused_lifetimes = "warn"
+unused_macro_rules = "warn"
