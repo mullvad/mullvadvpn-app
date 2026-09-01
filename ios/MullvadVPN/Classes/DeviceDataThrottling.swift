@@ -53,6 +53,6 @@ struct DeviceDataThrottling {
 
     private mutating func startUpdate(now: Date) {
         lastUpdate = now
-        tunnelManager.updateDeviceData()
+        tunnelManager.updateAccountData()
     }
 }
