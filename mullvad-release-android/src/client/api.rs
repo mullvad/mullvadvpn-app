@@ -31,7 +31,7 @@ impl HttpVersionInfoProvider {
     }
 
     async fn get_releases_inner(&self) -> anyhow::Result<AndroidReleases> {
-        let raw_json = Self::get(&self.url, None, self.resolve).await?;
+        let raw_json = Self::get(&self.url, self.resolve).await?;
         serde_json::from_slice(&raw_json).context("Failed to deserialize Android releases")
     }
 
@@ -39,7 +39,6 @@ impl HttpVersionInfoProvider {
     pub async fn get_latest_versions_file() -> anyhow::Result<String> {
         Self::get(
             &format!("{}{}", defaults::METADATA_URL, "latest.json"),
-            None,
             None,
         )
         .await
@@ -49,23 +48,17 @@ impl HttpVersionInfoProvider {
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
     ///
+    /// Version metadata is always fetched over TLS 1.3 with the Let's Encrypt
+    /// root as the only accepted trust anchor.
+    ///
     /// # Arguments
     /// `url` - URL to fetch
-    /// `pinned_certificate` - Optional pinned certificate for TLS verification
     /// `resolve` - Optional host to resolve (to the IP) without DNS
-    async fn get(
-        url: &str,
-        pinned_certificate: Option<reqwest::Certificate>,
-        resolve: Option<(&'static str, IpAddr)>,
-    ) -> anyhow::Result<Vec<u8>> {
-        let mut req_builder = reqwest::Client::builder();
-        req_builder = req_builder.min_tls_version(reqwest::tls::Version::TLS_1_3);
-
-        if let Some(pinned_certificate) = pinned_certificate {
-            req_builder = req_builder
-                .tls_built_in_root_certs(false)
-                .add_root_certificate(pinned_certificate);
-        }
+    async fn get(url: &str, resolve: Option<(&'static str, IpAddr)>) -> anyhow::Result<Vec<u8>> {
+        let mut req_builder = reqwest::Client::builder()
+            .min_tls_version(reqwest::tls::Version::TLS_1_3)
+            .tls_built_in_root_certs(false)
+            .add_root_certificate(defaults::PINNED_CERTIFICATE.clone());
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {
