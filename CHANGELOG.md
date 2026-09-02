@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
 - Add timeout to device cleanup tasks during installs.
+- Increase timeout on flushing DNS cache.
 
 ### Removed
 #### Windows
