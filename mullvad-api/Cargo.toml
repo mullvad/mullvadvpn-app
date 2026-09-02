@@ -15,6 +15,7 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 domain-fronting = { git = "https://github.com/mullvad/domain-fronting.git", branch = "two-streams" }
+duplicate = "2.0.1"
 futures = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"
