@@ -96,19 +96,19 @@ in
       # Each runner will only execute on a specific devices as specified with ATTR{serial}.
       extraRules = ''
         SUBSYSTEM=="usb", ATTR{serial}=="29121FDH200A6G", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android5", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-05.service" \
+          TAG+="systemd", SYMLINK="android5", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-05.service", \
           OWNER="runner05", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="3B111JEHN07568", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android6", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-06.service" \
+          TAG+="systemd", SYMLINK="android6", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-06.service", \
           OWNER="runner06", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="43151JEKB14933", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android7", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-07.service" \
+          TAG+="systemd", SYMLINK="android7", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-07.service", \
           OWNER="runner07", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="5B261JEA300091", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android8", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-08.service" \
+          TAG+="systemd", SYMLINK="android8", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-08.service", \
           OWNER="runner08", MODE="0660"
       '';
     };
@@ -446,6 +446,28 @@ in
       };
       "github-runner-android-bender-09" = import ./runner-systemd-config.nix {
         inherit lib;
+      };
+      "run-post-boot-triggers" = {
+        description = "Re-trigger USB udev rules for GitHub Runners on boot";
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [
+          "systemd-udevd.service"
+          "network-online.target"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = [
+            # Trigger udev rules to start the github runner services
+            "${pkgs.systemd}/bin/udevadm trigger --subsystem-match=usb --action=add"
+            "${pkgs.coreutils}/bin/sleep 3"
+            # Run adb to establish device connections
+            "${pkgs.android-tools}/bin/adb devices"
+            # Connect with tcp/ip to the benchmark device
+            "${pkgs.android-tools}/bin/adb connect 192.168.100.110:5555"
+          ];
+          RemainAfterExit = true;
+        };
       };
     };
   };
