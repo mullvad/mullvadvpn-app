@@ -96,19 +96,19 @@ in
       # Each runner will only execute on a specific devices as specified with ATTR{serial}.
       extraRules = ''
         SUBSYSTEM=="usb", ATTR{serial}=="29121FDH200A6G", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android5", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-05.service" \
+          TAG+="systemd", SYMLINK="android5", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-05.service", \
           OWNER="runner05", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="3B111JEHN07568", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android6", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-06.service" \
+          TAG+="systemd", SYMLINK="android6", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-06.service", \
           OWNER="runner06", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="43151JEKB14933", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android7", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-07.service" \
+          TAG+="systemd", SYMLINK="android7", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-07.service", \
           OWNER="runner07", MODE="0660"
 
         SUBSYSTEM=="usb", ATTR{serial}=="5B261JEA300091", ACTION=="add|bind", \
-          TAG+="systemd", SYMLINK="android8", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-08.service" \
+          TAG+="systemd", SYMLINK="android8", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-08.service", \
           OWNER="runner08", MODE="0660"
       '';
     };
