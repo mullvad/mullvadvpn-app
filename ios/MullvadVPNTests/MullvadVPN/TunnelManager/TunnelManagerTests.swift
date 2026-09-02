@@ -47,8 +47,6 @@ class TunnelManagerTests: XCTestCase {
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: REST.domainFrontingFront,
-            domainFrontingProxyHost: REST.domainFrontingProxyHost,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: []
