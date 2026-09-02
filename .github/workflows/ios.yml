@@ -17,12 +17,17 @@ on:
       - 'mullvad-ios/**'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 permissions: {}
 
 jobs:
   swift-format:
     name: Run swift format lint
     runs-on: macos-26
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -34,6 +39,7 @@ jobs:
   ui-test-build:
     name: Build for ui tests (staging)
     runs-on: macos-26
+    timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
@@ -59,6 +65,7 @@ jobs:
   test:
     name: Unit tests
     runs-on: macos-26-xlarge
+    timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
