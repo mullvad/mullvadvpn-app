@@ -4,6 +4,7 @@ use crate::{
     DnsResolver, access::AccessTokenStore, availability::ApiAvailability,
     https_client::HttpsConnector, proxy::ConnectionModeProvider,
 };
+use duplicate::duplicate_item;
 use futures::{
     TryFutureExt as _,
     channel::{mpsc, oneshot},
@@ -480,7 +481,7 @@ impl<B: Body> Request<B> {
 
     /// Set the account number to obtain authentication for.
     ///
-    /// If set, the [`RequestService`] may pre-empt this request with a request to fetch an access token.
+    /// If set, the [`RequestService`] may preempt this request with a request to fetch an access token.
     pub fn account(mut self, account: AccountNumber) -> Result<Self> {
         self.account = Some(account);
         Ok(self)
@@ -595,24 +596,16 @@ impl RequestFactory {
         .timeout(self.default_timeout))
     }
 
-    pub fn get(&self, path: &str) -> Result<Request<Full<Bytes>>> {
-        self.request(path, Method::GET)
-    }
-
-    pub fn post(&self, path: &str) -> Result<Request<Full<Bytes>>> {
-        self.request(path, Method::POST)
-    }
-
-    pub fn put(&self, path: &str) -> Result<Request<Full<Bytes>>> {
-        self.request(path, Method::PUT)
-    }
-
-    pub fn delete(&self, path: &str) -> Result<Request<Full<Bytes>>> {
-        self.request(path, Method::DELETE)
-    }
-
-    pub fn head(&self, path: &str) -> Result<Request<Full<Bytes>>> {
-        self.request(path, Method::HEAD)
+    #[duplicate_item(
+        method    METHOD;
+        [get]     [GET];
+        [post]    [POST];
+        [put]     [PUT];
+        [delete]  [DELETE];
+        [head]    [HEAD];
+    )]
+    pub fn method(&self, path: &str) -> Result<Request<Full<Bytes>>> {
+        self.request(path, Method::METHOD)
     }
 
     pub fn post_json<S: serde::Serialize>(
@@ -704,7 +697,7 @@ fn get_body_length<B>(response: &hyper::Response<B>) -> usize {
         .unwrap_or(0)
 }
 
-// TODO: replace <T> with never-type when Rust 1.100 is stabilized
+// TODO: replace Infallible with ! when Rust 1.100 is stabilized
 pub(crate) async fn handle_error_response<B: Body>(
     response: hyper::Response<B>,
 ) -> Result<Infallible>
