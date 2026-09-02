@@ -242,7 +242,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
                 sigsum = (digest, timestamp)
             }
             return self.apiProxy.getRelays(sigsum: sigsum, retryStrategy: .noRetry) { result in
-                finish(self.handleResponse(result: result))
+                // If the API gave us an okay but empty response we return it as not modified
+                finish(self.handleResponse(result: result.map({ $0 ?? .notModified })))
             }
         }
 
