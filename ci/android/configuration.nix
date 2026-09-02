@@ -447,6 +447,28 @@ in
       "github-runner-android-bender-09" = import ./runner-systemd-config.nix {
         inherit lib;
       };
+      "run-post-boot-triggers" = {
+        description = "Re-trigger USB udev rules for GitHub Runners on boot";
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [
+          "systemd-udevd.service"
+          "network-online.target"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = [
+            # Trigger udev rules to start the github runner services
+            "${pkgs.systemd}/bin/udevadm trigger --subsystem-match=usb --action=add"
+            "${pkgs.coreutils}/bin/sleep 3"
+            # Run adb to establish device connections
+            "${pkgs.android-tools}/bin/adb devices"
+            # Connect with tcp/ip to the benchmark device
+            "${pkgs.android-tools}/bin/adb connect 192.168.100.110:5555"
+          ];
+          RemainAfterExit = true;
+        };
+      };
     };
   };
 
