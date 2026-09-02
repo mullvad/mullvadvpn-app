@@ -45,21 +45,18 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
         case let .getAccount(retryStrategy, accountNumber: accountNumber):
             return MullvadApiCancellable(
-                handle: mullvadIosGetAccount(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.getAccount(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
                 ))
         case let .createAccount(retryStrategy):
             return MullvadApiCancellable(
-                handle: mullvadIosCreateAccount(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.createAccount(
                     retryStrategy: retryStrategy.toRustStrategy()
                 ))
         case let .deleteAccount(retryStrategy, accountNumber: accountNumber):
             return MullvadApiCancellable(
-                handle: mullvadIosDeleteAccount(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.deleteAccount(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
                 ))
