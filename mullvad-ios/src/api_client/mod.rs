@@ -166,34 +166,6 @@ pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: Swi
     });
 }
 
-/// Opaque wrapper around domain fronting configuration, created by
-/// [`new_domain_fronting_config`] and consumed by the init functions.
-#[repr(C)]
-pub struct SwiftDomainFrontingConfig(*mut DomainFrontingConfigContext);
-
-struct DomainFrontingConfigContext {
-    front: String,
-    proxy_host: String,
-}
-
-/// Creates a [`SwiftDomainFrontingConfig`] that owns copies of the provided strings.
-///
-/// # Safety
-///
-/// Both `front` and `proxy_host` must be pointers to null-terminated strings.
-/// The pointers only need to be valid for the duration of this call.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn new_domain_fronting_config(
-    front: *const c_char,
-    proxy_host: *const c_char,
-) -> SwiftDomainFrontingConfig {
-    let ctx = DomainFrontingConfigContext {
-        front: unsafe { get_string(front) },
-        proxy_host: unsafe { get_string(proxy_host) },
-    };
-    SwiftDomainFrontingConfig(Box::into_raw(Box::new(ctx)))
-}
-
 /// # Safety
 ///
 /// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
@@ -212,7 +184,6 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
     encrypted_dns_domain: *const c_char,
-    domain_fronting: SwiftDomainFrontingConfig,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -222,7 +193,6 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         host,
         address,
         encrypted_dns_domain,
-        domain_fronting,
         true,
         bridge_provider,
         settings_provider,
@@ -256,7 +226,6 @@ pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,
     encrypted_dns_domain: *const c_char,
-    domain_fronting: SwiftDomainFrontingConfig,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -267,7 +236,6 @@ pub extern "C" fn mullvad_api_init_new(
         host,
         address,
         encrypted_dns_domain,
-        domain_fronting,
         false,
         bridge_provider,
         settings_provider,
@@ -279,7 +247,6 @@ pub extern "C" fn mullvad_api_init_new(
         host,
         address,
         encrypted_dns_domain,
-        domain_fronting,
         bridge_provider,
         settings_provider,
         access_method_change_callback,
@@ -304,7 +271,6 @@ pub extern "C" fn mullvad_api_init_inner(
     host: *const c_char,
     address: *const c_char,
     encrypted_dns_domain: *const c_char,
-    domain_fronting: SwiftDomainFrontingConfig,
     #[cfg(feature = "api-override")] disable_tls: bool,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
@@ -319,9 +285,6 @@ pub extern "C" fn mullvad_api_init_inner(
             get_string(encrypted_dns_domain),
         )
     };
-    // SAFETY: `domain_fronting` must have been created by `new_domain_fronting_config`
-    let df_config = unsafe { *Box::from_raw(domain_fronting.0) };
-    let (df_front, df_proxy_host) = (df_config.front, df_config.proxy_host);
 
     // The iOS client provides a different default endpoint based on its configuration
     // Debug and Release builds use the standard endpoints
@@ -381,8 +344,6 @@ pub extern "C" fn mullvad_api_init_inner(
         let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
             endpoint.clone(),
             encrypted_dns_domain,
-            df_front,
-            df_proxy_host,
             encrypted_dns_proxy_state,
             bridge_provider,
             api_client.address_cache().clone(),
