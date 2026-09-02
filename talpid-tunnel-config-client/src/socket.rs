@@ -20,10 +20,10 @@ use tokio::net::TcpStream;
 const KEEPALIVE_TIME: Duration = Duration::from_secs(1);
 
 /// Time between keepalive probes.
-const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(2);
+const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(1);
 
 /// Number of unacknowledged keepalive probes before giving up.
-const KEEPALIVE_RETRIES: u32 = 3;
+const KEEPALIVE_RETRIES: u32 = 10;
 
 pub struct TcpSocket {
     socket: TokioTcpSocket,

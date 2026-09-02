@@ -15,9 +15,7 @@ use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
-const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
@@ -265,11 +263,7 @@ async fn request_ephemeral_peer(
 ) -> std::result::Result<EphemeralPeer, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
-    let timeout = std::cmp::min(
-        MAX_PSK_EXCHANGE_TIMEOUT,
-        INITIAL_PSK_EXCHANGE_TIMEOUT
-            .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
-    );
+    let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
 
     // TCP socket with extra reliability settings
     let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
@@ -287,24 +281,18 @@ async fn request_ephemeral_peer(
         &tcp_socket,
     );
 
-    let ephemeral = match tokio::time::timeout(timeout, request_future).await {
-        Ok(result) => result
-            .map_err(Error::EphemeralPeerNegotiationError)
-            .map_err(CloseMsg::SetupError)?,
-        Err(_) => {
-            let elapsed = start_time.elapsed();
-            log::warn!(
-                "Timeout while negotiating ephemeral peer \
-                 (retry {retry_attempt}, timeout {timeout:?}, PQ={enable_pq}, \
-                 DAITA={enable_daita}, elapsed {elapsed:?})"
-            );
-            if let Some(info) = tcp_socket.query_tcp_info() {
-                log::warn!("{info:?}");
-            }
-
-            return Err(CloseMsg::EphemeralPeerNegotiationTimeout);
-        }
+    let msg = match tokio::time::timeout(timeout, request_future).await {
+        Ok(Ok(ephemeral)) => return Ok(ephemeral),
+        Ok(Err(err)) => CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(err)),
+        Err(_) => CloseMsg::EphemeralPeerNegotiationTimeout,
     };
-
-    Ok(ephemeral)
+    let elapsed = start_time.elapsed();
+    log::warn!(
+        "Ephemeral peer negotiation failed after {elapsed:?}\
+        (retry {retry_attempt}, PQ={enable_pq}, DAITA={enable_daita})"
+    );
+    if let Some(info) = tcp_socket.query_tcp_info() {
+        log::warn!("{info:?}");
+    }
+    Err(msg)
 }
