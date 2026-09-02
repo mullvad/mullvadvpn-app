@@ -220,6 +220,9 @@ ManifestDPIAware true
 
 	${If} $0 == ${NSEXEC_TIMEOUT}
 		mullvad_nsis::Log "RemoveAbandonedWireGuardNt() timed out!"
+		# nsExec abandons the process on timeout rather than terminating it.
+		nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "mullvad-setup.exe"`
+		Pop $0
 		Goto RemoveAbandonedWireGuardNt_return_only
 	${ElseIf} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
