@@ -11,35 +11,33 @@ use super::{
     retry_strategy::RetryStrategy,
 };
 
-/// Send a problem report via the Mullvad API client.
 #[uniffi::export]
-pub fn mullvad_ios_send_problem_report(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    request: ProblemReportRequest,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_send_problem_report_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                request,
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+impl ApiContext {
+    /// Send a problem report via the Mullvad API client.
+    pub fn send_problem_report(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        request: ProblemReportRequest,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                match send_problem_report_inner(api_context.rest_handle(), retry_strategy, request)
+                    .await
+                {
+                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
 }
 
-async fn mullvad_ios_send_problem_report_inner(
+async fn send_problem_report_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     problem_report_request: ProblemReportRequest,
