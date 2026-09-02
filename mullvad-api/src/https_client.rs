@@ -233,7 +233,7 @@ impl HttpsConnector {
             ApiConnectionMode::Proxied(ProxyConfig::EncryptedDnsProxy(proxy_config)) => {
                 let first_hop = SocketAddr::V4(proxy_config.addr);
                 let make_proxy_stream = |tcp_stream| async {
-                    let forwarder = EncryptedDNSForwarder::from_stream(&proxy_config, tcp_stream);
+                    let forwarder = EncryptedDNSForwarder::from_stream(proxy_config, tcp_stream);
                     Ok(forwarder)
                 };
                 proxyer
