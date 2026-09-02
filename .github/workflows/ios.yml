@@ -48,17 +48,21 @@ jobs:
 
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
+        with:
+          ios_rust_target: aarch64-apple-ios
 
       - name: Build for ui tests
         run: |
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          set -o pipefail && \
+          env NSUnbufferedIO=YES \
+          xcodebuild CODE_SIGNING_ALLOWED=NO \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll \
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
           -allowProvisioningUpdates \
-          -destination "platform=iOS Simulator,name=iPhone 17" \
+          -destination "generic/platform=iOS" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
