@@ -47,6 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove `netsh`-based DNS configuration. All Windows build older than 22H2 support configuring DNS
   via the `iphlpapi` IP helper API.
+- Stop removing leftover Wintun adapters during installation. Wintun dropped support for adapter
+  pools, so this has not been necessary since 2022.5-beta1.
 
 ### Fixed
 #### Linux
