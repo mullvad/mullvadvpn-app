@@ -57,6 +57,10 @@ jobs:
 
       - name: Clippy check
         shell: bash
+        # The two targets differ only in target_abi and target_env ("sim"), and in the
+        # simulator's wider target_feature baseline. No crate in this repo branches on any
+        # of those, and clippy only lints workspace crates.
+        if: matrix.target == 'aarch64-apple-ios'
         run: |
           time ci/cargo-ci.sh clippy --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
             --target ${{ matrix.target }}
