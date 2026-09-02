@@ -51,9 +51,12 @@ pub fn remove_wintun_abandoned_device() -> Result<(), Error> {
         if let Ok(id) = device_info.get_device_net_cfg_instance_id()
             && id.eq_ignore_ascii_case(WINTUN_ABANDONED_GUID)
         {
-            device_info
+            let needs_reboot = device_info
                 .uninstall_device()
                 .map_err(Error::DeviceEnumeration)?;
+            if needs_reboot {
+                tracing::warn!("A reboot is needed to finish removing the Wintun adapter");
+            }
             return Ok(());
         }
     }
@@ -102,10 +105,18 @@ fn uninstall_devices_by_hardware_id(hardware_id: &str) -> Result<usize, Error> {
             if let Ok(ids) = device_info.get_hardware_ids()
                 && ids.iter().any(|id| id.eq_ignore_ascii_case(hardware_id))
             {
-                device_info
+                let needs_reboot = device_info
                     .uninstall_device()
                     .map_err(Error::DeviceEnumeration)?;
+
                 removed += 1;
+
+                // Avoid looping forever if we couldn't remove it right away.
+                if needs_reboot {
+                    tracing::warn!("A reboot is needed to finish uninstalling {hardware_id}");
+                    return Ok(removed);
+                }
+
                 continue 'outer;
             }
         }

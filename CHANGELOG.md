@@ -22,6 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Windows
+- Add timeout to device cleanup tasks during installs.
+
+### Removed
+#### Windows
+- Stop removing leftover Wintun adapters during installation. Wintun dropped support for adapter
+  pools, so this has not been necessary since 2022.5-beta1.
 
 
 ## [2026.5-beta1] - 2026-08-31

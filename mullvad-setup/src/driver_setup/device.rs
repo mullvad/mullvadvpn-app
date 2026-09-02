@@ -204,8 +204,10 @@ pub struct DeviceInfo<'a> {
 impl DeviceInfo<'_> {
     /// Uninstalls the device represented by this `DeviceInfo`. This calls [`DiUninstallDevice`].
     ///
+    /// Returns whether a reboot is needed to complete the removal.
+    ///
     /// [`DiUninstallDevice`]: https://learn.microsoft.com/en-us/windows/win32/api/newdev/nf-newdev-diuninstalldevice.
-    pub fn uninstall_device(self) -> io::Result<()> {
+    pub fn uninstall_device(self) -> io::Result<bool> {
         let mut needs_reboot: windows_sys::core::BOOL = 0;
         // SAFETY: `self.set.0` and `self.data` are valid and belong to the same enumeration.
         // `needs_reboot` is a writable BOOL.
@@ -223,7 +225,7 @@ impl DeviceInfo<'_> {
             return Err(io::Error::last_os_error());
         }
 
-        Ok(())
+        Ok(needs_reboot != FALSE)
     }
 
     /// Read the `NetCfgInstanceId` registry value from a device's driver key.
