@@ -21,6 +21,7 @@ private enum GotaTunEvent: Sendable {
     case adapterTimeout(generation: UInt64)
     case adapterError(GotaTunError, generation: UInt64)
     case reconnect(NextRelays, ActorReconnectReason)
+    case networkReachability(NWPath.Status)
     case setErrorState(BlockedStateReason)
     case sleep
     case wake
@@ -48,6 +49,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private let providerDelegate: TunnelProviderDelegate
     private let settingsReader: SettingsReaderProtocol
     private let relaySelector: RelaySelectorProtocol
+    private let defaultPathObserver: GotaTunPathObserverProtocol
     private let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     private let adapterFactory: GotaTunAdapterFactory
     private var lastAppliedSettings: TunnelInterfaceSettings?
@@ -67,7 +69,6 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private var stateBroadcaster = ObservedStateBroadcaster()
     /// Unknown until the path monitor delivers its first update, which is what releases `start`.
     private var currentReachability: NetworkReachability = .undetermined
-    private var initialReachability: CheckedContinuation<Void, Never>?
     private var currentAdapter: GotaTunAdapterProtocol?
     /// Incremented whenever the current adapter is replaced or stopped. Events tagged with an
     /// older generation come from an adapter no longer in use and are dropped.
@@ -110,12 +111,14 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         providerDelegate: sending TunnelProviderDelegate,
         settingsReader: SettingsReaderProtocol,
         relaySelector: RelaySelectorProtocol,
+        defaultPathObserver: GotaTunPathObserverProtocol = GotaTunPathObserver(),
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
         adapterFactory: GotaTunAdapterFactory
     ) {
         self.providerDelegate = providerDelegate
         self.settingsReader = settingsReader
         self.relaySelector = relaySelector
+        self.defaultPathObserver = defaultPathObserver
         self.blockedStateErrorMapper = blockedStateErrorMapper
         self.adapterFactory = adapterFactory
 
@@ -125,18 +128,28 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     deinit {
+        Task { [defaultPathObserver] in await defaultPathObserver.stop() }
         eventContinuation.finish()
     }
 
-    /// Consume events in a detached task until the event stream is finished. This function **must** be called excatly once per the lifetime of an actor. Without this, the actor will never act on events, so no work will actually be done.
+    /// Starts path observation and consumes actor events.
+    /// The events are consumed in a detached task until the event stream is finished. This function **must** be called excatly once per the lifetime of an actor. Without this, the actor will never act on events, so no work will actually be done.
     /// `self` is resolved weakly per iteration so the loop does not keep the actor alive.
     private nonisolated consuming func consumeEvents() {
         Task.detached { [weak self, eventStream] in
+            await self?.startPathObservation()
             for await event in eventStream {
                 guard let self else { return }
                 await self.handleEvent(event)
             }
         }
+    }
+
+    private func startPathObservation() async {
+        let eventContinuation = self.eventContinuation
+        currentReachability = await defaultPathObserver.start { status in
+            eventContinuation.yield(.networkReachability(status))
+        }.networkReachability
     }
 
     // MARK: - PacketTunnelActorProtocol
@@ -145,7 +158,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         stateBroadcaster.makeStream(replaying: observedState)
     }
 
-    public func start(options: StartOptions) async {
+    nonisolated public func start(options: StartOptions) async {
         eventContinuation.yield(.start(options))
     }
 
@@ -208,7 +221,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case let .start(options):
             await handleStart(options)
         case .stop:
-            handleStop()
+            await handleStop()
         case let .adapterConnected(generation):
             guard isCurrentAdapter(generation) else { return }
             await handleAdapterConnected()
@@ -220,6 +233,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             handleAdapterError(error)
         case let .reconnect(nextRelays, reason):
             await handleReconnect(nextRelays: nextRelays, reason: reason)
+        case let .networkReachability(pathStatus):
+            await handleNetworkReachability(pathStatus)
         case let .setErrorState(reason):
             handleSetErrorState(reason)
         case .sleep:
@@ -241,17 +256,24 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return
         }
 
+        guard !isDeviceOffline else {
+            logger.debug("Starting while offline, entering blocked state")
+            enterErrorState(reason: .offline)
+            return
+        }
+
         await startConnection(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
     }
 
     // MARK: - Stop
 
-    private func handleStop() {
+    private func handleStop() async {
         switch observedState {
         case .disconnected:
             return
         default:
             stopCurrentAdapter()
+            await defaultPathObserver.stop()
             observedState = .disconnected
             logger.debug("Stopped, entering disconnected state")
         }
@@ -296,7 +318,11 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
 
     private func handleReconnect(nextRelays: NextRelays, reason: ActorReconnectReason) async {
         switch observedState {
-        case .error:
+        case let .error(blocked):
+            if blocked.reason == .offline, isDeviceOffline {
+                logger.debug("Ignoring reconnect while offline")
+                return
+            }
             logger.debug("Reconnecting from error state")
             stopCurrentAdapter()
             await startConnection(nextRelays: nextRelays)
@@ -305,6 +331,44 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             await restartConnection(nextRelays: nextRelays)
         default:
             logger.debug("Ignoring reconnect, not connected or connecting")
+        }
+    }
+
+    // MARK: - Network reachability
+
+    private func handleNetworkReachability(_ pathStatus: NWPath.Status) async {
+        let newReachability = pathStatus.networkReachability
+
+        guard newReachability != .undetermined else {
+            logger.debug("Ignoring unknown network path status: \(pathStatus)")
+            return
+        }
+
+        let previousReachability = currentReachability
+        currentReachability = newReachability
+
+        switch observedState {
+        case .connecting, .connected, .reconnecting:
+            guard newReachability != .unreachable else {
+                logger.debug("Network unreachable, entering blocked state")
+                enterErrorState(reason: .offline)
+                return
+            }
+
+            observedState.mutateConnectionState { $0.networkReachability = newReachability }
+            currentAdapter?.recycleUdpSockets()
+
+        case let .error(blocked):
+            // Restoration requires connectivity to have been lost first, otherwise the first
+            // update after starting would masquerade as a recovery and pre-empt the retry timer.
+            guard newReachability == .reachable, previousReachability == .unreachable,
+                blocked.reason.recoverableError()
+            else { return }
+            logger.debug("Network reachable, restoring connectivity from \(blocked.reason)")
+            await startConnection(nextRelays: .random)
+
+        default:
+            return
         }
     }
 
@@ -414,7 +478,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             config: config,
             selectedRelays: selectedRelays,
             relayConstraints: settings.tunnelSettings.relayConstraints,
-            networkReachability: .undetermined,
+            networkReachability: currentReachability,
             connectionAttemptCount: attemptCount,
             lastKeyRotation: nil
         )
@@ -552,6 +616,10 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     // MARK: - Helpers
+
+    private var isDeviceOffline: Bool {
+        currentReachability == .unreachable
+    }
 
     /// Whether the tunnel was already up, so a fresh attempt is reported as `.reconnecting`.
     private var isTunnelEstablished: Bool {

@@ -293,5 +293,6 @@ public enum ActorReconnectReason: Equatable, Sendable {
     case connectionLoss
 
     /// Restored  connectivity
+    // TODO: remove when WireGuardGo is removed
     case restoredConnectivity
 }
