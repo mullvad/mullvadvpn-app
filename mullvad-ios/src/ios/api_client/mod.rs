@@ -7,12 +7,12 @@ use futures::{
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{
-    AddressCache, ApiEndpoint, ApiProxy, Runtime,
+    ApiEndpoint, ApiProxy, Runtime,
     access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_types::access_method::{Id, Settings};
+use mullvad_types::access_method::Id;
 use response::ApiResponse;
 use retry_strategy::RetryStrategy;
 use std::{future::Future, sync::Arc};
@@ -195,77 +195,60 @@ impl ApiContext {
     pub fn rest_handle(&self) -> MullvadRestHandle {
         self.rest_client.clone()
     }
+}
+#[uniffi::export]
+impl ApiContext {
+    /// Replaces the current set of access methods with `access_methods.
+    ///
+    /// This function will block the current thread until it is complete,
+    /// make sure to not call this from a UI Thread if possible.
+    pub fn update_access_methods(&self, settings_wrapper: Arc<SwiftAccessMethodSettingsContext>) {
+        let access_methods = settings_wrapper.settings.clone();
+        _ = self.api_client.handle().block_on(async {
+            self.access_mode_handler
+                .update_access_methods(access_methods)
+                .await
+        });
+    }
 
     /// Sets the access method referenced by `id` as currently in use.
     ///
     /// This function will block the current thread until it is complete,
     /// make sure to not call this from a UI Thread if possible.
-    pub fn use_access_method(&self, id: Id) {
+    pub fn use_access_method(&self, id: String) {
+        let Some(id) = Id::from_string(id) else {
+            return;
+        };
         _ = self
             .api_client
             .handle()
             .block_on(async { self.access_mode_handler.use_access_method(id).await });
     }
 
-    /// Replaces the current set of access methods with `access_methods.
-    ///
-    /// This function will block the current thread until it is complete,
-    /// make sure to not call this from a UI Thread if possible.
-    pub fn update_access_methods(&self, access_methods: &Settings) {
-        _ = self.api_client.handle().block_on(async {
-            self.access_mode_handler
-                .update_access_methods(access_methods.clone())
-                .await
-        });
-    }
+    /// Called by Swift to trigger a fetching and caching of addresses
+    pub fn update_address_cache(self: Arc<Self>) {
+        let cloned_context = self.clone();
+        let handle = cloned_context.api_client.handle();
+        handle.spawn(async move {
+            let api_proxy = ApiProxy::new(self.rest_handle());
 
-    pub fn address_cache(&self) -> &AddressCache<IOSAddressCacheBacking> {
-        self.api_client.address_cache()
-    }
-}
-
-/// Called by Swift to set the available access methods
-#[uniffi::export]
-pub fn mullvad_api_update_access_methods(
-    api_context: Arc<ApiContext>,
-    settings_wrapper: Arc<SwiftAccessMethodSettingsContext>,
-) {
-    api_context.update_access_methods(&settings_wrapper.settings);
-}
-
-/// Called by Swift to update the currently used access methods
-#[uniffi::export]
-pub fn mullvad_api_use_access_method(api_context: Arc<ApiContext>, id: String) {
-    let Some(id) = Id::from_string(id) else {
-        return;
-    };
-    api_context.use_access_method(id);
-}
-
-/// Called by Swift to trigger a fetching and caching of addresses
-#[uniffi::export]
-pub fn mullvad_api_update_address_cache(api_context: Arc<ApiContext>) {
-    let cloned_context = api_context.clone();
-    let handle = cloned_context.api_client.handle();
-    handle.spawn(async move {
-        let api_proxy = ApiProxy::new(api_context.rest_handle());
-
-        match api_proxy.get_api_addrs().await {
-            Ok(new_addrs) => {
-                if let Some(addr) = new_addrs.first() {
-                    log::debug!("Fetched new API address {:?}", addr,);
-                    if let Err(err) = api_context.address_cache().set_address(*addr).await {
-                        log::error!("Failed to save newly updated API address: {}", err);
+            match api_proxy.get_api_addrs().await {
+                Ok(new_addrs) => {
+                    if let Some(addr) = new_addrs.first() {
+                        log::debug!("Fetched new API address {:?}", addr,);
+                        if let Err(err) = self.api_client.address_cache().set_address(*addr).await {
+                            log::error!("Failed to save newly updated API address: {}", err);
+                        }
+                    } else {
+                        log::error!("API returned no API addresses");
                     }
-                } else {
-                    log::error!("API returned no API addresses");
+                }
+                Err(err) => {
+                    log::error!("Failed to fetch new API addresses: {}", err,);
                 }
             }
-            Err(err) => {
-                log::error!("Failed to fetch new API addresses: {}", err,);
-            }
-        }
-    });
+        });
+    }
 }
 
 async fn do_request<F, T>(
