@@ -28,30 +28,27 @@ public protocol FileCacheProtocol<Content> {
 /// process is picked up on the next read.
 ///
 /// The actor's custom `DispatchSerialQueue` executor means all blocking file I/O and JSON
-/// decode/encode happen on a single dedicated thread.
+/// decode/encode happen on a single dedicated thread. Every operation is synchronous, so the
+/// asynchronous entry points never suspend and the synchronous shims reach the same code by
+/// blocking on `queue.sync` rather than by driving a task on the cooperative pool.
 ///
 /// Multiple `FileCache` instances backed by the same file are safe — writes are atomic and each
 /// instance detects external changes through the file modification time. But we should use a shared
 /// instance instead. There is no reason for a single file to be backed by multiple file caches in the same process.
 public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
-    private enum State {
-        case fresh(content: Content, date: Date?)
-        /// A disk read is in flight. All concurrent async readers suspend on this task.
-        case refreshing(Task<(content: Content, date: Date?), any Error>)
-        case stale
+    /// In-memory cache. Every access happens on `queue`: actor-isolated code runs there because
+    /// `queue` is the actor's executor, and the synchronous shims get there through `queue.sync`.
+    private final class Storage: @unchecked Sendable {
+        var cached: (content: Content, modified: Date)?
     }
 
     public nonisolated var unownedExecutor: UnownedSerialExecutor {
         queue.asUnownedSerialExecutor()
     }
 
-    private var cacheState: State = .stale
-    private let queue: DispatchSerialQueue
-    private let fileURL: URL
-
-    /// Bumped on every write so that a stale in-flight refresh cannot overwrite a
-    /// subsequent write's update.
-    private var currentWrite = UUID()
+    private nonisolated let storage = Storage()
+    private nonisolated let queue: DispatchSerialQueue
+    private nonisolated let fileURL: URL
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
@@ -64,22 +61,58 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
     // MARK: - Asynchronous functions
 
     public func read() async throws -> Content {
-        switch cacheState {
-        case let .fresh(cache, lastModified):
-            if lastModified == Self.fileLastModified(at: fileURL) {
-                cache
-            } else {
-                try await refresh()
-            }
-        case let .refreshing(task):
-            try await task.value.content
-        case .stale:
-            try await refresh()
-        }
+        try readOnQueue()
     }
 
     public func write(_ content: Content) async throws {
-        let write = bumpWrite()
+        try writeOnQueue(content)
+    }
+
+    public func clear() async throws {
+        try clearOnQueue()
+    }
+
+    // MARK: - Synchronous shims
+    // Will be removed once all call sites have been migrated.
+
+    public nonisolated func read() throws -> Content {
+        try queue.sync { try readOnQueue() }
+    }
+
+    public nonisolated func write(_ content: Content) throws {
+        try queue.sync { try writeOnQueue(content) }
+    }
+
+    public nonisolated func clear() throws {
+        try queue.sync { try clearOnQueue() }
+    }
+
+    // MARK: - Private
+
+    private nonisolated func readOnQueue() throws -> Content {
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        let lastModified = Self.fileLastModified(at: fileURL)
+
+        if let cached = storage.cached, cached.modified == lastModified {
+            return cached.content
+        }
+
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let content = try JSONDecoder().decode(Content.self, from: data)
+
+            storage.cached = lastModified.map { (content, $0) }
+            return content
+        } catch {
+            storage.cached = nil
+            throw error
+        }
+    }
+
+    private nonisolated func writeOnQueue(_ content: Content) throws {
+        dispatchPrecondition(condition: .onQueue(queue))
+
         let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
 
         do {
@@ -88,88 +121,23 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
             let lastModified = Self.fileLastModified(at: tempURL)
 
             if rename(tempURL.path, fileURL.path) != 0 {
+                let renameErrno = errno
                 try? FileManager.default.removeItem(at: tempURL)
-                throw FileCacheError.renameFailed(errno)
+                throw FileCacheError.renameFailed(renameErrno)
             }
 
-            update(state: .fresh(content: content, date: lastModified), for: write)
+            storage.cached = lastModified.map { (content, $0) }
         } catch {
-            update(state: .stale, for: write)
+            storage.cached = nil
             throw error
         }
     }
 
-    public func clear() async throws {
-        let write = bumpWrite()
+    private nonisolated func clearOnQueue() throws {
+        dispatchPrecondition(condition: .onQueue(queue))
+
+        storage.cached = nil
         try FileManager.default.removeItem(at: fileURL)
-
-        update(state: .stale, for: write)
-    }
-
-    // MARK: - Synchronous shims
-    // Will be removed once all call sites have been migrated.
-
-    public nonisolated func read() throws -> Content {
-        try SynchRunner.run {
-            try await self.read()
-        }
-    }
-
-    public nonisolated func write(_ content: Content) throws {
-        try SynchRunner.run {
-            try await self.write(content)
-        }
-    }
-
-    public nonisolated func clear() throws {
-        try SynchRunner.run {
-            try await self.clear()
-        }
-    }
-
-    // MARK: - Private
-
-    private func refresh() async throws -> Content {
-        let write = currentWrite
-        let fileURL = fileURL
-
-        let task = Task<(content: Content, date: Date?), any Error> {
-            try await withCheckedThrowingContinuation { continuation in
-                queue.async {
-                    do {
-                        let lastModified = Self.fileLastModified(at: fileURL)
-                        let data = try Data(contentsOf: fileURL)
-                        let cache = try JSONDecoder().decode(Content.self, from: data)
-
-                        continuation.resume(returning: (cache, lastModified))
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-        }
-
-        cacheState = .refreshing(task)
-
-        do {
-            let (cache, lastModified) = try await task.value
-            update(state: .fresh(content: cache, date: lastModified), for: write)
-            return cache
-        } catch {
-            update(state: .stale, for: write)
-            throw error
-        }
-    }
-
-    private func bumpWrite() -> UUID {
-        currentWrite = UUID()
-        return currentWrite
-    }
-
-    private func update(state: State, for write: UUID) {
-        if currentWrite == write {
-            cacheState = state
-        }
     }
 
     private static func fileLastModified(at url: URL) -> Date? {

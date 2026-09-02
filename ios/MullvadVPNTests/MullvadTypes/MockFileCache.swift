@@ -13,54 +13,66 @@ import MullvadTypes
 
 /// File cache actor that simulates file state for use in tests.
 actor MockFileCache<Content: Codable & Equatable & Sendable>: FileCacheProtocol {
-    private var state: State
+    /// Only accessed while running on `queue`, mirroring `FileCache`.
+    private final class Storage: @unchecked Sendable {
+        var state: State
+
+        init(state: State) {
+            self.state = state
+        }
+    }
+
+    nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    private nonisolated let storage: Storage
+    private nonisolated let queue = DispatchSerialQueue(label: "net.mullvad.mock-filecache")
 
     init(initialState: State = .fileNotFound) {
-        state = initialState
+        storage = Storage(state: initialState)
     }
 
     // MARK: - Asynchronous functions
 
     /// Returns internal state.
     func getState() -> State {
-        state
+        storage.state
     }
 
     func read() async throws -> Content {
-        switch state {
-        case .fileNotFound:
-            throw CocoaError(.fileReadNoSuchFile)
-        case let .exists(content):
-            return content
-        }
+        try readOnQueue()
     }
 
     func write(_ content: Content) async throws {
-        state = .exists(content)
+        storage.state = .exists(content)
     }
 
     func clear() async throws {
-        state = .fileNotFound
+        storage.state = .fileNotFound
     }
 
     // MARK: - Synchronous shims
     // Will be removed once all call sites have been migrated.
 
     nonisolated func read() throws -> Content {
-        try FileCache<Content>.SynchRunner.run {
-            try await self.read()
-        }
+        try queue.sync { try readOnQueue() }
     }
 
     nonisolated func write(_ content: Content) throws {
-        try FileCache<Content>.SynchRunner.run {
-            try await self.write(content)
-        }
+        queue.sync { storage.state = .exists(content) }
     }
 
     nonisolated func clear() throws {
-        try FileCache<Content>.SynchRunner.run {
-            try await self.clear()
+        queue.sync { storage.state = .fileNotFound }
+    }
+
+    private nonisolated func readOnQueue() throws -> Content {
+        switch storage.state {
+        case .fileNotFound:
+            throw CocoaError(.fileReadNoSuchFile)
+        case let .exists(content):
+            return content
         }
     }
 

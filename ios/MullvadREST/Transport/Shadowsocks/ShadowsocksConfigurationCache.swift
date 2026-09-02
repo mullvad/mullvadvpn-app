@@ -18,8 +18,24 @@ public protocol ShadowsocksConfigurationCacheProtocol: Sendable {
 }
 
 /// Holds a shadowsocks configuration object backed by a caching mechanism shared across processes.
+///
+/// Like `FileCache`, this actor runs on a dedicated `DispatchSerialQueue` so that the synchronous
+/// shims can block on `queue.sync` without ever occupying a cooperative thread.
 public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol {
-    private var cachedConfiguration: ShadowsocksConfiguration?
+    /// Only accessed while running on `queue`.
+    private final class Storage: @unchecked Sendable {
+        var cached: ShadowsocksConfiguration?
+    }
+
+    public nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    private nonisolated let storage = Storage()
+    private nonisolated let queue = DispatchSerialQueue(
+        label: "net.mullvad.shadowsocks-configuration-cache",
+        qos: .userInitiated
+    )
     private nonisolated let fileCache: FileCache<ShadowsocksConfiguration>
 
     public init(cacheDirectory: URL) {
@@ -31,21 +47,21 @@ public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtoco
     // MARK: - Asynchronous functions
 
     public func read() async throws -> ShadowsocksConfiguration {
-        if let cachedConfiguration {
-            return cachedConfiguration
+        if let cached = storage.cached {
+            return cached
         }
-        let readConfiguration = try await fileCache.read()
-        cachedConfiguration = readConfiguration
-        return readConfiguration
+        let configuration = try await fileCache.read()
+        storage.cached = configuration
+        return configuration
     }
 
     public func write(_ configuration: ShadowsocksConfiguration) async throws {
-        cachedConfiguration = configuration
+        storage.cached = configuration
         try await fileCache.write(configuration)
     }
 
     public func clear() async throws {
-        cachedConfiguration = nil
+        storage.cached = nil
         try await fileCache.clear()
     }
 
@@ -53,20 +69,27 @@ public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtoco
     // Will be removed once all call sites have been migrated.
 
     public nonisolated func read() throws -> ShadowsocksConfiguration {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
-            try await self.read()
+        try queue.sync {
+            if let cached = storage.cached {
+                return cached
+            }
+            let configuration = try fileCache.read()
+            storage.cached = configuration
+            return configuration
         }
     }
 
     public nonisolated func write(_ configuration: ShadowsocksConfiguration) throws {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
-            try await self.write(configuration)
+        try queue.sync {
+            storage.cached = configuration
+            try fileCache.write(configuration)
         }
     }
 
     public nonisolated func clear() throws {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
-            try await self.clear()
+        try queue.sync {
+            storage.cached = nil
+            try fileCache.clear()
         }
     }
 }

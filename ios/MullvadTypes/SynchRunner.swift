@@ -35,6 +35,7 @@ extension FileCache {
             let runner = SynchRunner<T>()
             let semaphore = DispatchSemaphore(value: 0)
 
+
             Task.detached(priority: Task.currentPriority) {
                 do {
                     runner.result = .success(try await closure())
