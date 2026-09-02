@@ -16,7 +16,7 @@ struct APIProxyStubError: Error {}
 
 struct APIProxyStub: APIQuerying {
     var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
-    var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
+    var getRelaysResult: Result<REST.ServerRelaysCacheResponse?, Error> = .failure(APIProxyStubError())
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
     var submitVoucherResult: Result<REST.SubmitVoucherResponse, Error> = .failure(APIProxyStubError())
     var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
@@ -34,7 +34,7 @@ struct APIProxyStub: APIQuerying {
     func getRelays(
         sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
     ) -> Cancellable {
         completionHandler(getRelaysResult)
         return AnyCancellable()
