@@ -3514,6 +3514,7 @@ dependencies = [
  "either",
  "futures",
  "gotatun",
+ "hex",
  "hyper",
  "hyper-util",
  "ipnetwork",

@@ -23,6 +23,7 @@ chrono = { workspace = true }
 either = { workspace = true }
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
+hex = { workspace = true }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }

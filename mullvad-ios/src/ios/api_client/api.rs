@@ -8,6 +8,8 @@ use mullvad_api::{
 };
 use mullvad_types::access_method::AccessMethodSetting;
 
+use crate::get_string;
+
 use super::{
     SwiftApiContext,
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
@@ -112,7 +114,7 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 /// `retry_strategy` must have been created by a call to either of the following functions
 /// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
 ///
-/// `digest` must point to valid checksum consisting of 32 bytes, or null if not used.
+/// `digest` must point to a null terminated string representing a 64 byte hex encoded valid checksum consisting of 32 bytes, or null if not used.
 ///
 /// `digest_timestamp` should be a valid UTC timestamp in non-leap milliseconds since the Unix epoch, or 0 if not used.
 ///
@@ -121,18 +123,16 @@ pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
 pub unsafe extern "C" fn mullvad_ios_get_relays(
     api_context: SwiftApiContext,
     retry_strategy: SwiftRetryStrategy,
-    digest: *const u8,
+    digest: *const libc::c_char,
     digest_timestamp: i64,
 ) -> SwiftCancelHandle {
     let digest = if !digest.is_null() {
-        let mut bytes = [0; 32];
         // Safety: See `digest` above
-        let source = unsafe { std::slice::from_raw_parts(digest, 32) };
-        bytes.as_mut_slice().copy_from_slice(source);
-        Some(RelayListDigest::new(bytes))
+        Some(unsafe { get_string(digest) })
     } else {
         None
     };
+
     let timestamp = if digest_timestamp != 0 {
         DateTime::from_timestamp_millis(digest_timestamp)
     } else {
@@ -142,6 +142,19 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
         api_context,
         retry_strategy,
         async move |api_context, retry_strategy, completion_handler| {
+            let mut bytes = [0u8; 32];
+            let digest = if let Some(digest) = digest {
+                match hex::decode_to_slice(&digest, &mut bytes) {
+                    Ok(_) => Some(RelayListDigest::new(bytes)),
+                    Err(err) => {
+                        log::error!("bad relay digest: {err:?}");
+                        completion_handler.finish(SwiftMullvadApiResponse::cancelled());
+                        return;
+                    }
+                }
+            } else {
+                None
+            };
             match mullvad_ios_get_relays_inner(
                 api_context.rest_handle(),
                 retry_strategy,
