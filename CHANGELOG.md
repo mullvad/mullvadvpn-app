@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Changed
+- Do not show dialog when rendering the map fails due to disabled GPU acceleration.
+
 #### Windows
 - Add timeout to device cleanup tasks during installs.
 

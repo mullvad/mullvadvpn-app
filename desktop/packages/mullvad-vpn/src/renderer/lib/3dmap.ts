@@ -1,5 +1,7 @@
 import { mat4 } from 'gl-matrix';
 
+import log from '../../shared/logging';
+
 type ColorRgba = [number, number, number, number];
 type ColorRgb = [number, number, number];
 
@@ -761,7 +763,7 @@ function loadShader(gl: WebGL2RenderingContext, type: GLenum, source: string) {
 
   // See if the shader compiled successfully
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+    log.error('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
