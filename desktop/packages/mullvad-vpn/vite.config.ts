@@ -102,6 +102,7 @@ const viteConfig = defineConfig({
                 '@grpc/grpc-js',
                 'google-protobuf',
                 'simple-plist',
+                'electron-devtools-installer',
               ],
             },
           },
