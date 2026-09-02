@@ -19,11 +19,22 @@ public protocol DeviceHandling: Sendable {
         completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
 
+    func getDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, Swift.Error>
+
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping @Sendable ProxyCompletionHandler<[Device]>
     ) -> Cancellable
+
+    func getDevices(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<[Device], Swift.Error>
 
     func createDevice(
         accountNumber: String,
@@ -32,12 +43,24 @@ public protocol DeviceHandling: Sendable {
         completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
 
+    func createDevice(
+        accountNumber: String,
+        request: CreateDeviceRequest,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Device, Swift.Error>
+
     func deleteDevice(
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping @Sendable ProxyCompletionHandler<Bool>
     ) -> Cancellable
+
+    func deleteDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy
+    ) async -> Result<Bool, Swift.Error>
 
     func rotateDeviceKey(
         accountNumber: String,
@@ -46,4 +69,11 @@ public protocol DeviceHandling: Sendable {
         retryStrategy: REST.RetryStrategy,
         completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: WireGuard.PublicKey,
+        retryStrategy: REST.RetryStrategy,
+    ) async -> Result<Device, Swift.Error>
 }
