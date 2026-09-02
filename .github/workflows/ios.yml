@@ -64,7 +64,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: macos-26-xlarge
+    runs-on: macos-26
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
