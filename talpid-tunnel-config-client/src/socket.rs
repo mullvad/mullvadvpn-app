@@ -17,7 +17,7 @@ use tokio::net::TcpSocket as TokioTcpSocket;
 use tokio::net::TcpStream;
 
 /// Time before TCP starts sending keepalive probes.
-const KEEPALIVE_TIME: Duration = Duration::from_secs(5);
+const KEEPALIVE_TIME: Duration = Duration::from_secs(1);
 
 /// Time between keepalive probes.
 const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(2);
@@ -87,20 +87,6 @@ fn set_reliability_params(socket: &TokioTcpSocket) {
         .with_retries(KEEPALIVE_RETRIES);
     if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
         log::error!("Failed to set TCP keepalive on tunnel config socket: {e}");
-    }
-
-    // Linux: set TCP_USER_TIMEOUT so the kernel gives up if our data
-    // isn't ACKed within the specified time.
-    #[cfg(target_os = "linux")]
-    {
-        const USER_TIMEOUT_MS: u32 = 30_000;
-        if let Err(e) = nix::sys::socket::setsockopt(
-            socket,
-            nix::sys::socket::sockopt::TcpUserTimeout,
-            &USER_TIMEOUT_MS,
-        ) {
-            log::error!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
-        }
     }
 }
 
