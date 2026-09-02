@@ -24,15 +24,13 @@ public struct MullvadApiRequestFactory: Sendable {
         switch request {
         case let .getAddressList(retryStrategy):
             return MullvadApiCancellable(
-                handle: mullvadIosGetAddresses(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.getAddresses(
                     retryStrategy: retryStrategy.toRustStrategy()
                 ))
 
         case let .getRelayList(retryStrategy, etag: etag):
             return MullvadApiCancellable(
-                handle: mullvadIosGetRelays(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.getRelays(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     etag: etag
                 ))
@@ -106,8 +104,7 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
         case let .checkApiAvailability(retryStrategy, accessMethod):
             return MullvadApiCancellable(
-                handle: mullvadIosApiAddrsAvailable(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.apiAddrsAvailable(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accessMethodSetting: convertAccessMethod(accessMethod: accessMethod)!
                 ))
