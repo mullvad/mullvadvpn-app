@@ -134,7 +134,7 @@ pub enum SwiftAccessMethodKind {
 /// `direct_method_raw`, `bridges_method_raw`, `encrypted_dns_method_raw` and
 /// `domain_fronting_method_raw` must be raw pointers resulting from a call to
 /// `convert_builtin_access_method_setting`.
-/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
+/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *mut c_void,
