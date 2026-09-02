@@ -52,6 +52,14 @@ ManifestDPIAware true
 !define MVSETUP_VERSION_NOT_OLDER 2
 !define MVSETUP_DAEMON_NOT_RUNNING 3
 
+# nsExec pushes this instead of an exit code when /TIMEOUT expires
+# after an idle period (of no stdout/stderr output).
+!define NSEXEC_TIMEOUT "timeout"
+
+# How long to wait for the removal of an abandoned driver or network adapter,
+# in milliseconds.
+!define ABANDONED_DRIVER_TIMEOUT 60000
+
 # Override electron-builder generated application settings key.
 # electron-builder uses a GUID here rather than the application name.
 !define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
@@ -206,11 +214,18 @@ ManifestDPIAware true
 
 	mullvad_nsis::Log "RemoveAbandonedWireGuardNt()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt-abandoned'
+	nsExec::ExecToStack /TIMEOUT=${ABANDONED_DRIVER_TIMEOUT} '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt-abandoned'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MVSETUP_OK}
+	${If} $0 == ${NSEXEC_TIMEOUT}
+		StrCpy $R0 "RemoveAbandonedWireGuardNt() timed out!"
+		mullvad_nsis::LogWithDetails $R0 $1
+		# nsExec abandons the process on timeout rather than terminating it.
+		nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "mullvad-setup.exe"`
+		Pop $0
+		Goto RemoveAbandonedWireGuardNt_return_only
+	${ElseIf} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove legacy MullvadWireGuard driver: error $0"
 		mullvad_nsis::LogWithDetails $R0 $1
@@ -230,42 +245,6 @@ ManifestDPIAware true
 !macroend
 
 !define RemoveAbandonedWireGuardNt '!insertmacro "RemoveAbandonedWireGuardNt"'
-
-#
-# RemoveAbandonedWintunAdapter
-#
-# Removes old Wintun interface, even if it belongs to a different pool.
-#
-!macro RemoveAbandonedWintunAdapter
-	Push $0
-	Push $1
-
-	mullvad_nsis::Log "RemoveAbandonedWintunAdapter()"
-
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MVSETUP_OK}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to remove network adapter: error $0"
-		mullvad_nsis::LogWithDetails $R0 $1
-		Goto RemoveAbandonedWintunAdapter_return_only
-	${EndIf}
-
-	mullvad_nsis::Log "RemoveAbandonedWintunAdapter() completed successfully"
-
-	Push 0
-	Pop $R0
-
-	RemoveAbandonedWintunAdapter_return_only:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveAbandonedWintunAdapter '!insertmacro "RemoveAbandonedWintunAdapter"'
 
 #
 # InstallService
@@ -742,8 +721,8 @@ ManifestDPIAware true
 # which kills the app and may thus cause the daemon to disconnect.
 #
 !macro customCheckAppRunning
-	push $R0
-	push $R1
+	Push $R0
+	Push $R1
 
 	# This must be done here for compatibility with <= 2021.2,
 	# since those versions do not kill the GUI in the uninstaller.
@@ -760,12 +739,13 @@ ManifestDPIAware true
 	${EndIf}
 
 	# Killing without /f will likely cause the daemon to disconnect.
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $R0
 	Sleep 500
 
 	customCheckAppRunning_skip_kill:
-	pop $R1
-	pop $R0
+	Pop $R1
+	Pop $R0
 
 !macroend
 
@@ -798,8 +778,9 @@ ManifestDPIAware true
 	${RemoveApiAddressCache}
 
 	${ExtractMullvadSetup}
-	${RemoveAbandonedWintunAdapter}
+
 	${RemoveAbandonedWireGuardNt}
+	# Ignoring errors ($R0 != 0) here
 
 	${RemoveSplitTunnelDriver}
 
@@ -1095,9 +1076,11 @@ ManifestDPIAware true
 
 	Pop $FullUninstall
 
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $0
 	Sleep 500
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $0
 
 	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
