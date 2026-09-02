@@ -23,7 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Removed
-- Remove the initial privacy consent screen. The app will now start into the Login Screen.
+- Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
 
