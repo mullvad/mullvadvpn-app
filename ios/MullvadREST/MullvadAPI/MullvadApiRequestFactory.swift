@@ -36,8 +36,7 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
         case let .sendProblemReport(retryStrategy, problemReportRequest):
             return MullvadApiCancellable(
-                handle: mullvadIosSendProblemReport(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.sendProblemReport(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     request: problemReportRequest
                 ))
