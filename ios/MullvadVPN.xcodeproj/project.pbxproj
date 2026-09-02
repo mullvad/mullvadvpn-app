@@ -711,7 +711,6 @@
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
-		7ABDB8433041CD7300DA9743 /* SynchRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABDB8423041CD6E00DA9743 /* SynchRunner.swift */; };
 		7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
 		7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */; };
 		7AC6218E3017763700475F1E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC6218D3017763400475F1E /* LoginView.swift */; };
@@ -2416,7 +2415,6 @@
 		7ABBE0172F1A2D3C00AD8176 /* IncludeAllNetworksSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsView.swift; sourceTree = "<group>"; };
 		7ABBE0192F1A2D8400AD8176 /* IncludeAllNetworksSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettings.swift; sourceTree = "<group>"; };
 		7ABBE01F2F20C55F00AD8176 /* VersionCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionCheck.swift; sourceTree = "<group>"; };
-		7ABDB8423041CD6E00DA9743 /* SynchRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SynchRunner.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
 		7AC6218D3017763400475F1E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
@@ -3392,7 +3390,6 @@
 				F924C5A32DA65F28001F4660 /* Storekit.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
 				7AB288EE2F55B66000A1850F /* SwiftConnectionModeProvider.swift */,
-				7ABDB8423041CD6E00DA9743 /* SynchRunner.swift */,
 				7AEC2F69302C952000B988B6 /* Task+AnyCancellable.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				016EE03B2F8524EB0035B25C /* WireGuardKey.swift */,
@@ -7315,7 +7312,6 @@
 				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				7A460FA32F363045005A265D /* NotificationProviderIdentifier.swift in Sources */,
 				58D22414294C90210029F5F8 /* RelayLocation.swift in Sources */,
-				7ABDB8433041CD7300DA9743 /* SynchRunner.swift in Sources */,
 				581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */,
 				449EBA262B975B9700DFA4EB /* EphemeralPeerReceiving.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
