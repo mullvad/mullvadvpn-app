@@ -140,10 +140,7 @@ impl AppVersionProxy {
         platform_version: Option<String>,
         etag: Option<String>,
     ) -> impl Future<Output = Result<Option<AppVersionResponse>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let path = "app/releases/android.json".to_string();
-        let request = self.handle.get(&path);
-
+        let request = self.handle.get("app/releases/android.json");
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
             if let Some(platform_version) = platform_version {
