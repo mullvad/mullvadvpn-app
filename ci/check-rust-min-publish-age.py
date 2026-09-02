@@ -15,6 +15,11 @@ which is the same field the nightly min-publish-age feature looks at.
 
 Crates listed in ci/rust-min-publish-age-allowlist.txt are exempt from the check.
 
+A version whose publish time cannot be determined fails the check too; an unknown
+age is not a safe age. It is reported next to the too-new ones at the end of the
+run, so a crate the index cannot answer for does not hide the rest of the
+findings.
+
 The cooldown window lives only in .cargo/config.toml (registry.global-min-publish-age).
 This script reads it from there, so there is a single source of truth.
 
@@ -22,10 +27,12 @@ Hopefully cargo develops native functionality that can replace this script event
 """
 
 import argparse
+import http.client
 import json
 import re
 import subprocess
 import sys
+import time
 import tomllib
 import urllib.error
 import urllib.request
@@ -41,6 +48,11 @@ ALLOWLIST = SCRIPT_DIR / "rust-min-publish-age-allowlist.txt"
 CRATES_IO_SOURCE = "registry+https://github.com/rust-lang/crates.io-index"
 INDEX_BASE = "https://index.crates.io"
 USER_AGENT = "mullvadvpn-app min-publish-age check (github.com/mullvad/mullvadvpn-app)"
+FETCH_TIMEOUT_SECONDS = 30
+# The index is a CDN, so failures are usually transient. Retry a few times with a
+# growing delay before giving up on a crate.
+FETCH_ATTEMPTS = 3
+FETCH_RETRY_DELAY_SECONDS = 2
 
 # Seconds per unit, matching cargo's duration parsing (a month is 30 days).
 UNIT_SECONDS = {
@@ -56,6 +68,23 @@ UNIT_SECONDS = {
 class MinPublishAge(NamedTuple):
     duration: timedelta
     text: str  # the verbatim config value, e.g. "7 days", shown in messages
+
+
+class Violation(NamedTuple):
+    """A crates.io version that is younger than the cooldown window."""
+    name: str
+    version: str
+    lockfiles: list[str]  # the lockfiles it was found in
+    published: datetime
+    age: timedelta
+
+
+class Undatable(NamedTuple):
+    """A crates.io version whose publish time could not be established."""
+    name: str
+    version: str
+    lockfiles: list[str]  # the lockfiles it was found in
+    reason: str
 
 
 def load_min_publish_age() -> MinPublishAge:
@@ -132,22 +161,115 @@ def index_url(name: str) -> str:
     return f"{INDEX_BASE}/{path}"
 
 
-# Memoizes pubtimes() so each crate's index is fetched from the network at most once.
-_pubtime_cache: dict[str, dict[str, str]] = {}
+class CratesIoIndexError(Exception):
+    """A crate version could not be dated from the crates.io index."""
+
+
+def parse_index(document: str) -> dict[str, str]:
+    """Map of version -> pubtime from an index document (one JSON object per line)."""
+    version_pubtimes = {}
+    for line in document.splitlines():
+        if not line.strip():
+            continue
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError as e:
+            raise CratesIoIndexError(f"malformed crates.io index: {e}") from e
+        if entry.get("vers") and entry.get("pubtime"):
+            version_pubtimes[entry["vers"]] = entry["pubtime"]
+    return version_pubtimes
 
 
 def pubtimes(name: str) -> dict[str, str]:
-    """Map of version -> pubtime for a crate, read from the sparse index."""
-    if name not in _pubtime_cache:
-        request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
+    """Map of version -> pubtime for a crate, retrying transient failures.
+
+    Raises CratesIoIndexError if the crate does not exist, or if every attempt
+    failed.
+    """
+    request = urllib.request.Request(index_url(name), headers={"User-Agent": USER_AGENT})
+    last_error: Exception | None = None
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
         try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                body = response.read().decode()
-        except urllib.error.URLError as e:
-            sys.exit(f"error: failed to fetch crates.io index for {name!r}: {e}")
-        entries = (json.loads(line) for line in body.splitlines() if line.strip())
-        _pubtime_cache[name] = {e["vers"]: e["pubtime"] for e in entries if e.get("pubtime")}
-    return _pubtime_cache[name]
+            with urllib.request.urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
+                # A CratesIoIndexError from parse_index is deliberately not
+                # retried: a malformed document means the index itself changed,
+                # and asking again would return the same document.
+                return parse_index(response.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # A missing crate is an answer, not a hiccup; retrying cannot help.
+                raise CratesIoIndexError("not found in the crates.io index") from e
+            last_error = e
+        # OSError covers socket, TLS and timeout errors, URLError among them.
+        # HTTPException covers a response that arrives damaged, such as a body
+        # shorter than its Content-Length. A body truncated mid-character fails
+        # to decode, which is just as transient.
+        except (OSError, http.client.HTTPException, UnicodeDecodeError) as e:
+            last_error = e
+        print(f"warning: {name}: index request failed ({last_error}); "
+              f"attempt {attempt} of {FETCH_ATTEMPTS}", file=sys.stderr)
+        if attempt < FETCH_ATTEMPTS:
+            time.sleep(FETCH_RETRY_DELAY_SECONDS * attempt)
+    raise CratesIoIndexError(
+        f"failed to fetch the crates.io index in {FETCH_ATTEMPTS} attempts: {last_error}"
+    )
+
+
+def published_at(crate_pubtimes: dict[str, str], version: str) -> datetime:
+    """When a version was published, as a timezone-aware datetime.
+
+    Raises CratesIoIndexError if the index has no usable publish time for it. An
+    unknown or ambiguous timestamp cannot be compared against the window, and an
+    unknown age is not a safe age.
+    """
+    pubtime = crate_pubtimes.get(version)
+    if pubtime is None:
+        # crates.io backfills pubtime on every version, so a miss here is an
+        # anomaly (e.g. an index change) rather than something to skip.
+        raise CratesIoIndexError("version has no publish time in the crates.io index")
+    try:
+        published = datetime.fromisoformat(pubtime)
+    except ValueError as e:
+        raise CratesIoIndexError(f"unparsable publish time {pubtime!r}") from e
+    if published.tzinfo is None:
+        raise CratesIoIndexError(f"publish time {pubtime!r} has no time zone")
+    return published
+
+
+def versions_to_check(lockfiles: list[str], base_ref: str | None,
+                      allowlist: set[str]) -> dict[str, dict[str, list[str]]]:
+    """Crate name -> version -> the lockfiles that version was found in.
+
+    Grouped by crate name because one index request answers for all of its
+    versions, and lockfiles overlap heavily.
+
+    With a base_ref, only the versions the working tree adds on top of that git
+    ref are included. With None, every crates.io version in the lockfiles is.
+    """
+    crates: dict[str, dict[str, list[str]]] = {}
+    for lockfile in lockfiles:
+        versions = crates_io_versions((REPO_ROOT / lockfile).read_text())
+        if base_ref is not None:
+            # A lockfile that does not exist at the base ref is entirely new, so
+            # every version in it gets checked.
+            base_text = git_show(base_ref, lockfile)
+            if base_text is not None:
+                versions -= crates_io_versions(base_text)
+        for name, version in versions:
+            if name not in allowlist:
+                crates.setdefault(name, {}).setdefault(version, []).append(lockfile)
+    return crates
+
+
+def format_age(age: timedelta) -> str:
+    """An age as whole days and hours, e.g. "2d 3h".
+
+    A negative age, meaning a publish time in the future, keeps its sign rather
+    than being hidden behind wrapped-around numbers.
+    """
+    sign = "-" if age < timedelta(0) else ""
+    hours = int(abs(age).total_seconds() // 3600)
+    return f"{sign}{hours // 24}d {hours % 24}h"
 
 
 def parse_args() -> argparse.Namespace:
@@ -178,42 +300,53 @@ def main() -> int:
             sys.exit(f"error: base ref {base_ref!r} is not a valid git ref")
 
     lockfiles = tracked_lockfiles()
+    crates = versions_to_check(lockfiles, base_ref, allowlist)
 
-    violations = []
+    violations: list[Violation] = []
+    undatable: list[Undatable] = []
     num_checked_versions = 0
-    for lock in lockfiles:
-        head_crates = crates_io_versions((REPO_ROOT / lock).read_text())
-        # With no base ref, check the whole lockfile; otherwise only the crates.io
-        # versions the working tree adds on top of that ref.
-        base_ref_crates: set[tuple[str, str]] = set()
-        if base_ref is not None:
-            base_text = git_show(base_ref, lock)
-            base_ref_crates = crates_io_versions(base_text) if base_text else set()
-        for name, version in sorted(head_crates - base_ref_crates):
-            if name in allowlist:
+    for name, versions in sorted(crates.items()):
+        # One index request answers for every version of a crate.
+        try:
+            crate_pubtimes = pubtimes(name)
+        except CratesIoIndexError as e:
+            for version, version_lockfiles in sorted(versions.items()):
+                undatable.append(Undatable(name, version, version_lockfiles, str(e)))
+            continue
+        for version, version_lockfiles in sorted(versions.items()):
+            try:
+                published = published_at(crate_pubtimes, version)
+            except CratesIoIndexError as e:
+                undatable.append(Undatable(name, version, version_lockfiles, str(e)))
                 continue
-            pubtime = pubtimes(name).get(version)
-            if pubtime is None:
-                # crates.io backfills pubtime on every version, so a miss here is
-                # an anomaly (e.g. an index change); fail loudly rather than skip.
-                sys.exit(f"error: no publish time for {name} {version} in the "
-                         "crates.io index")
             num_checked_versions += 1
-            age = now - datetime.fromisoformat(pubtime.replace("Z", "+00:00"))
+            age = now - published
             if age < min_publish_age.duration:
                 violations.append(
-                    f"{name} {version} ({lock}): published "
-                    f"{age.total_seconds() / 86400:.1f} days ago, minimum is "
-                    f"{min_publish_age.text}"
-                )
+                    Violation(name, version, version_lockfiles, published, age))
 
     if violations:
         print("FAIL: found crates.io versions newer than the min-publish-age "
               "cooldown window:\n", file=sys.stderr)
-        for violation in violations:
-            print(f"  - {violation}", file=sys.stderr)
+        for violation in sorted(violations, key=lambda entry: entry.age):
+            print(f"  - {violation.name} {violation.version} "
+                  f"({', '.join(violation.lockfiles)}): published "
+                  f"{violation.published:%Y-%m-%d %H:%M}Z, "
+                  f"{format_age(violation.age)} ago, minimum is {min_publish_age.text}",
+                  file=sys.stderr)
         print("\nWait until they age past the window, or add the crate to "
               f"{ALLOWLIST.relative_to(REPO_ROOT)}.", file=sys.stderr)
+
+    if undatable:
+        if violations:
+            print(file=sys.stderr)  # separate the two lists
+        print(f"FAIL: could not determine the publish time of {len(undatable)} "
+              "version(s). An unknown age is not a safe age:\n", file=sys.stderr)
+        for entry in undatable:
+            print(f"  - {entry.name} {entry.version} ({', '.join(entry.lockfiles)}): "
+                  f"{entry.reason}", file=sys.stderr)
+
+    if violations or undatable:
         return 1
 
     scope = (f"across {len(lockfiles)} lockfile(s)" if base_ref is None
