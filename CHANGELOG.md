@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update LWO to improved v2 protocol.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
+- Do not show dialog when rendering the map fails due to disabled GPU acceleration.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
