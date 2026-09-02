@@ -13,19 +13,19 @@ use std::sync::Arc;
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::PublicKey;
 
-/// Get device info via the Mullvad API client.
 #[uniffi::export]
-pub fn mullvad_ios_get_device(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-    identifier: String,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_device_inner(
+impl ApiContext {
+    /// Get device info via the Mullvad API client.
+    pub fn get_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match get_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -38,23 +38,20 @@ pub fn mullvad_ios_get_device(
                     log::error!("{err:?}");
                     completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-}
+            },
+        )
+    }
 
-/// Get devices info via the Mullvad API client.
-#[uniffi::export]
-pub fn mullvad_ios_get_devices(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_devices_inner(
+    /// Get devices info via the Mullvad API client.
+    pub fn get_devices(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match get_devices_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -66,34 +63,31 @@ pub fn mullvad_ios_get_devices(
                     log::error!("{err:?}");
                     completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-}
-
-/// create device via the Mullvad API client.
-#[uniffi::export]
-pub fn mullvad_ios_create_device(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-    public_key: &[u8],
-) -> Arc<RequestCancelHandle> {
-    let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
-        return RequestCancelHandle::new(
-            api_context,
-            Arc::new(mullvad_api_retry_strategy_never()),
-            async |_, _, completion_handler| {
-                completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
             },
-        );
-    };
+        )
+    }
 
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_create_device_inner(
+    /// create device via the Mullvad API client.
+    pub fn create_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        public_key: &[u8],
+    ) -> Arc<RequestCancelHandle> {
+        let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+            return RequestCancelHandle::new(
+                self,
+                Arc::new(mullvad_api_retry_strategy_never()),
+                async |_, _, completion_handler| {
+                    completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
+                },
+            );
+        };
+
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match create_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -106,70 +100,25 @@ pub fn mullvad_ios_create_device(
                     log::error!("{err:?}");
                     completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-}
-
-/// Delete device via the Mullvad API client.
-#[uniffi::export]
-pub fn mullvad_ios_delete_device(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-    identifier: String,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_delete_device_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-                identifier,
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
-                }
-            }
-        },
-    )
-}
-
-/// Rotate device key via the Mullvad API client.
-#[uniffi::export]
-pub fn mullvad_ios_rotate_device_key(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-    identifier: String,
-    public_key: &[u8],
-) -> Arc<RequestCancelHandle> {
-    let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
-        return RequestCancelHandle::new(
-            api_context,
-            Arc::new(mullvad_api_retry_strategy_never()),
-            async |_, _, completion_handler| {
-                completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
             },
-        );
-    };
+        )
+    }
 
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_rotate_device_key_inner(
+    /// Delete device via the Mullvad API client.
+    pub fn delete_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match delete_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
                 identifier,
-                PublicKey::from(pub_key),
             )
             .await
             {
@@ -178,12 +127,53 @@ pub fn mullvad_ios_rotate_device_key(
                     log::error!("{err:?}");
                     completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
+            },
+        )
+    }
+
+    /// Rotate device key via the Mullvad API client.
+    pub fn rotate_device_key(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+        public_key: &[u8],
+    ) -> Arc<RequestCancelHandle> {
+        let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+            return RequestCancelHandle::new(
+                self,
+                Arc::new(mullvad_api_retry_strategy_never()),
+                async |_, _, completion_handler| {
+                    completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
+                },
+            );
+        };
+
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                match rotate_device_key_inner(
+                    api_context.rest_handle(),
+                    retry_strategy,
+                    account_number,
+                    identifier,
+                    PublicKey::from(pub_key),
+                )
+                .await
+                {
+                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    }
+                }
+            },
+        )
+    }
 }
 
-async fn mullvad_ios_get_device_inner(
+async fn get_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
@@ -196,7 +186,7 @@ async fn mullvad_ios_get_device_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_get_devices_inner(
+async fn get_devices_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
@@ -208,7 +198,7 @@ async fn mullvad_ios_get_devices_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_delete_device_inner(
+async fn delete_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
@@ -221,7 +211,7 @@ async fn mullvad_ios_delete_device_inner(
     do_request_with_empty_body(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_rotate_device_key_inner(
+async fn rotate_device_key_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
@@ -236,7 +226,7 @@ async fn mullvad_ios_rotate_device_key_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_create_device_inner(
+async fn create_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
