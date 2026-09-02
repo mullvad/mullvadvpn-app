@@ -368,7 +368,7 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
  *
- * `digest` must point to valid checksum consisting of 32 bytes, or null if not used.
+ * `digest` must point to a null terminated string representing a 64 byte hex encoded valid checksum consisting of 32 bytes, or null if not used.
  *
  * `digest_timestamp` should be a valid UTC timestamp in non-leap milliseconds since the Unix epoch, or 0 if not used.
  *
@@ -376,7 +376,7 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  */
 struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const uint8_t *digest,
+                                                const char *digest,
                                                 int64_t digest_timestamp);
 
 /**
