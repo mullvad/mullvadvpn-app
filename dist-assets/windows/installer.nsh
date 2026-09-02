@@ -721,8 +721,8 @@ ManifestDPIAware true
 # which kills the app and may thus cause the daemon to disconnect.
 #
 !macro customCheckAppRunning
-	push $R0
-	push $R1
+	Push $R0
+	Push $R1
 
 	# This must be done here for compatibility with <= 2021.2,
 	# since those versions do not kill the GUI in the uninstaller.
@@ -739,12 +739,13 @@ ManifestDPIAware true
 	${EndIf}
 
 	# Killing without /f will likely cause the daemon to disconnect.
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $R0
 	Sleep 500
 
 	customCheckAppRunning_skip_kill:
-	pop $R1
-	pop $R0
+	Pop $R1
+	Pop $R0
 
 !macroend
 
@@ -1075,9 +1076,11 @@ ManifestDPIAware true
 
 	Pop $FullUninstall
 
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $0
 	Sleep 500
-	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"`
+	Pop $0
 
 	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
