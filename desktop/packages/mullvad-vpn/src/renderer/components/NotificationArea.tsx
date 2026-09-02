@@ -9,10 +9,8 @@ import {
   ErrorNotificationProvider,
   InAppNotificationAction,
   InAppNotificationProvider,
-  InconsistentVersionNotificationProvider,
   LockdownModeNotificationProvider,
   ReconnectingNotificationProvider,
-  UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
@@ -169,8 +167,6 @@ export default function NotificationArea(props: IProps) {
       disableSplitTunneling,
       splitTunnelingSupported,
     }),
-    new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
-    new UnsupportedVersionNotificationProvider(version),
   ];
 
   if (account.expiry) {
