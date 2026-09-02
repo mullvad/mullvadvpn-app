@@ -201,11 +201,18 @@ androidComponents {
     }
 
     onVariants {
+        val shouldShowVersionNotification =
+            if (hasProperty("mullvad.app.config.inAppVersionNotifications.enable")) {
+                getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable")
+            } else {
+                !(appVersion.isDev || appVersion.isAlpha)
+            }
+
         it.buildConfigFields!!.put(
             "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
             BuildConfigField(
                 "boolean",
-                getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable"),
+                shouldShowVersionNotification,
                 "Show in-app version notifications",
             ),
         )
