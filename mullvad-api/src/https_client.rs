@@ -5,7 +5,7 @@ use crate::{
 use domain_fronting::client::ProxyConnection;
 use futures::future;
 #[cfg(target_os = "android")]
-use futures::{channel::oneshot, sink::SinkExt};
+use futures::{channel::oneshot, mpsc, sink::SinkExt};
 use hyper_util::rt::TokioIo;
 use mullvad_encrypted_dns_proxy::Forwarder as EncryptedDNSForwarder;
 use shadowsocks::{
