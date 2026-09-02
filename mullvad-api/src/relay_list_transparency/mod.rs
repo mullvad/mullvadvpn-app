@@ -109,8 +109,8 @@ const TIMESTAMP_MAX_VALID_AGE: Duration = Duration::from_hours(24);
 /// fetched and used as long as we are able to parse the digest (which is needed to fetch
 /// the relay list).
 ///
-/// * `latest_digest` - The latest digest that the app has successfully fetched.
-///   If the digest we get from the API is the same as `latest_digest` we do not need to
+/// * `current_digest` - The latest digest that the app has successfully fetched.
+///   If the digest we get from the API is the same as `current_digest` we do not need to
 ///   download the relay list again. If `None` the relay list is fetched unconditionally.
 /// * `sigsum_trusted_pubkeys` - The sigsum pubkeys that should be used for verification.
 pub async fn download_and_verify_relay_list(
