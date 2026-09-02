@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
+- Add timeout to device cleanup tasks during installs.
 
 ### Removed
 #### Windows
