@@ -14,33 +14,57 @@ use super::{
 };
 
 #[uniffi::export]
-pub fn mullvad_ios_init_storekit_payment(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    account_number: String,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_init_storekit_payment_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+impl ApiContext {
+    pub fn init_storekit_payment(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                match init_storekit_payment_inner(
+                    api_context.rest_handle(),
+                    retry_strategy,
+                    account_number,
+                )
+                .await
+                {
+                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
+
+    pub fn check_storekit_payment(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        body: Vec<u8>,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                match check_storekit_payment_inner(api_context.rest_handle(), retry_strategy, body)
+                    .await
+                {
+                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    }
+                }
+            },
+        )
+    }
 }
 
-async fn mullvad_ios_init_storekit_payment_inner(
+async fn init_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: AccountNumber,
@@ -52,34 +76,7 @@ async fn mullvad_ios_init_storekit_payment_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-#[uniffi::export]
-pub fn mullvad_ios_check_storekit_payment(
-    api_context: Arc<ApiContext>,
-    retry_strategy: Arc<RetryStrategy>,
-    body: Vec<u8>,
-) -> Arc<RequestCancelHandle> {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_check_storekit_payment_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                body,
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
-                }
-            }
-        },
-    )
-}
-
-async fn mullvad_ios_check_storekit_payment_inner(
+async fn check_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     body: Vec<u8>,

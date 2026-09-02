@@ -107,8 +107,7 @@ public struct MullvadApiRequestFactory: Sendable {
             accountNumber: accountNumber
         ):
             return MullvadApiCancellable(
-                handle: mullvadIosInitStorekitPayment(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.initStorekitPayment(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
                 ))
@@ -117,8 +116,7 @@ public struct MullvadApiRequestFactory: Sendable {
             transaction: transaction
         ):
             return MullvadApiCancellable(
-                handle: mullvadIosCheckStorekitPayment(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.checkStorekitPayment(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     body: try encoder.encode(transaction)
                 ))
