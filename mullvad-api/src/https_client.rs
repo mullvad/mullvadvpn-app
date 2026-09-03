@@ -18,7 +18,6 @@ use shadowsocks::{
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
-    fmt,
     future::Future,
     io,
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -50,7 +49,7 @@ impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
 }
 
 /// A connector for TLS streams for use with HTTP clients. See [`HttpsConnector::connect`].
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct HttpsConnector {
     connection_mode: ApiConnectionMode,
     #[cfg(target_os = "android")]
@@ -307,10 +306,4 @@ async fn open_socket(
     }
 
     socket.connect(addr).await
-}
-
-impl fmt::Debug for HttpsConnector {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HttpsConnector").finish() // TODO
-    }
 }
