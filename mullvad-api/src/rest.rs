@@ -319,18 +319,19 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     async fn send_request(&mut self, request: Request<Full<Bytes>>) -> Result<Response<Incoming>> {
         let uri = request.uri().clone();
 
-        let t = request.timeout;
+        let mut result = self.send_request_timeout(request.clone()).await;
 
-        let future = self
-            .send_request_inner(request)
-            .map_err(|error| error.map_aborted());
-
-        let result = timeout(t, future)
-            .await
-            .map_err(|_timeout| Error::TimeoutError)
-            .flatten();
-
-        // TODO: retry once if error is due to access token expiry
+        // The access token may have expired since it was obtained.
+        // Discard the token, fetch a new one, and give the request another chance.
+        if let Some(account) = &request.account
+            && let Err(Error::ApiError(_, code)) = &result
+            && code == crate::INVALID_ACCESS_TOKEN
+        {
+            log::debug!("Access token was rejected. Retrying with a new one");
+            self.access_tokens.invalidate_token(account);
+            // Retry with new token
+            result = self.send_request_timeout(request).await;
+        }
 
         if let Err(err) = &result
             && err.is_network_error()
@@ -342,6 +343,22 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         }
 
         result
+    }
+
+    async fn send_request_timeout(
+        &mut self,
+        request: Request<Full<Bytes>>,
+    ) -> Result<Response<Incoming>> {
+        let t = request.timeout;
+
+        let future = self
+            .send_request_inner(request)
+            .map_err(|error| error.map_aborted());
+
+        timeout(t, future)
+            .await
+            .map_err(|_timeout| Error::TimeoutError)
+            .flatten()
     }
 
     async fn send_request_inner(
@@ -394,12 +411,6 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             }
             if !response.status().is_success() {
                 let Err(e) = handle_error_response(response).await;
-
-                // TODO: SMELL: Hitting this code-path has a dependency on the user specifying expected_status correctly
-                if let Some(account) = &request.account {
-                    self.access_tokens.check_err(account, &e);
-                }
-
                 return Err(e);
             }
         }
@@ -461,7 +472,7 @@ impl RequestServiceHandle {
 }
 
 /// A REST request that is sent to the [`RequestService`] to be executed.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Request<B> {
     request: hyper::Request<B>,
     timeout: Duration,

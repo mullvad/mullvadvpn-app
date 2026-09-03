@@ -5,7 +5,7 @@ use hyper::{body::Bytes, client::conn::http1};
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
 use std::collections::{HashMap, hash_map::Entry};
 
-pub const AUTH_URL_PREFIX: &str = "auth/v1";
+pub const ACCESS_TOKEN_PATH: &str = "auth/v1/token";
 
 #[derive(Default)]
 pub(crate) struct AccessTokenStore {
@@ -41,13 +41,9 @@ impl AccessTokenStore {
         Ok(access_token)
     }
 
-    /// Remove an access token if the API response calls for it.
-    pub fn check_err(&mut self, account: &AccountNumber, error: &rest::Error) {
-        if let rest::Error::ApiError(_status, code) = error
-            && code == crate::INVALID_ACCESS_TOKEN
-        {
-            self.tokens.remove(account);
-        }
+    /// Forget the cached access token for an account, so that the next request obtains a new one.
+    pub fn invalidate_token(&mut self, account: &AccountNumber) {
+        self.tokens.remove(account);
     }
 }
 
@@ -62,9 +58,8 @@ async fn fetch_access_token(
     }
     let body = AccessTokenRequest { account_number };
 
-    let path = format!("{AUTH_URL_PREFIX}/token");
     let body = serde_json::to_vec(&body)?;
-    let request = hyper_request_json_bytes(host, &path, Method::POST, body)?;
+    let request = hyper_request_json_bytes(host, ACCESS_TOKEN_PATH, Method::POST, body)?;
     let response = send_request.send_request(request).await?;
 
     if !response.status().is_success() {
