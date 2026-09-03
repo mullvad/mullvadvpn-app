@@ -1,50 +1,76 @@
-import { AnimatePresence, motion } from 'motion/react';
-import React, { useCallback } from 'react';
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css } from 'styled-components';
 
-import { messages } from '../../../../shared/gettext';
 import { LocationType } from '../../../features/locations/types';
+import { usePrevious } from '../../../hooks';
 import { Carousel } from '../../../lib/components/carousel';
-import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
-import { AppNavigationHeader } from '../../';
 import type { IScrollEvent } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  HeaderMenuIconButton,
   LocationLists,
+  SelectLocationHeader,
   SelectLocationSelector,
   SpacePreAllocationView,
 } from './components';
+import { useMeasureExpandedLocationSelector, useMeasureIsolatedLocationSelector } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
 } from './SelectLocationViewContext';
 
-const StyledStickyContainer = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  width: 100%;
+const StyledHeaderMaxHeightContainer = styled.div<{ $height: number; $previousHeight: number }>`
+  ${({ $height, $previousHeight }) => css`
+    --transition-duration: 0.25s;
+
+    pointer-events: none;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    height: ${$height}px;
+    background-color: transparent;
+
+    transition: height var(--transition-duration) ease-in-out;
+
+    ${() => {
+      if ($previousHeight === 0) {
+        return css`
+          --transition-duration: 0;
+        `;
+      }
+      return null;
+    }}
+  `}
+`;
+
+const StyledHeaderContainer = styled.div`
+  pointer-events: auto;
   background-color: ${colors.darkBlue};
 `;
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { locationType } = useSelectLocationViewContext();
+  const { locationType, isolatedItem } = useSelectLocationViewContext();
   const [slideIndex, setSlideIndex] = React.useState(locationType === LocationType.entry ? 0 : 1);
+  const [changingSlide, setChangingSlide] = React.useState(false);
 
   React.useLayoutEffect(() => {
+    setChangingSlide(true);
     setSlideIndex(locationType === LocationType.entry ? 0 : 1);
   }, [locationType]);
 
-  const onClose = useCallback(() => history.pop(), [history]);
+  const handleSlideSettled = React.useCallback(() => {
+    setChangingSlide(false);
+  }, []);
+
+  const onClose = React.useCallback(() => history.pop(), [history]);
 
   const handleScroll = React.useCallback(
     (event: IScrollEvent) => {
@@ -53,60 +79,53 @@ export function SelectLocationViewImpl() {
     [setScrollTop],
   );
 
+  const {
+    singlehopElement,
+    multihopElement,
+    height: expandedElementHeight,
+  } = useMeasureExpandedLocationSelector();
+  const { element: isolatedElement, height: isolatedElementHeight } =
+    useMeasureIsolatedLocationSelector();
+
+  const height = isolatedItem ? isolatedElementHeight : expandedElementHeight;
+  const previousHeight = usePrevious(height);
+
   return (
     <View backgroundColor="darkBlue">
+      {singlehopElement}
+      {multihopElement}
+      {isolatedElement}
       <BackAction action={onClose}>
         <NavigationContainer>
-          <NavigationScrollbars onScroll={handleScroll} ref={scrollViewRef}>
-            <StyledStickyContainer>
-              <AppNavigationHeader
-                title={
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('select-location-nav', 'Select location')
-                }
-                titleVisible>
-                <HeaderMenuIconButton />
-              </AppNavigationHeader>
-              <FlexColumn
-                margin={{ horizontal: 'medium' }}
-                padding={{ bottom: 'small' }}
-                gap="small">
-                <SelectLocationSelector />
-              </FlexColumn>
-            </StyledStickyContainer>
+          <NavigationScrollbars
+            ref={scrollViewRef}
+            onScroll={handleScroll}
+            scrollPadding={`${height}px 0 0 0`}>
+            <StyledHeaderMaxHeightContainer $height={height} $previousHeight={previousHeight}>
+              <StyledHeaderContainer>
+                <SelectLocationHeader>
+                  <SelectLocationSelector />
+                </SelectLocationHeader>
+              </StyledHeaderContainer>
+            </StyledHeaderMaxHeightContainer>
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
                   <Carousel
                     disableScroll
                     slideIndex={slideIndex}
-                    onSlideIndexChange={setSlideIndex}>
+                    onSlideIndexChange={setSlideIndex}
+                    onSlideSettled={handleSlideSettled}>
                     <Carousel.Slides>
                       <Carousel.Slides.Slide key="entry">
-                        <AnimatePresence>
-                          {locationType === LocationType.entry && (
-                            <motion.div
-                              key="entry"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.entry} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {(changingSlide || locationType === LocationType.entry) && (
+                          <LocationLists type={LocationType.entry} />
+                        )}
                       </Carousel.Slides.Slide>
                       <Carousel.Slides.Slide key="exit">
-                        <AnimatePresence>
-                          {locationType === LocationType.exit && (
-                            <motion.div
-                              key="exit"
-                              initial={{ opacity: 1 }}
-                              exit={{ opacity: 0.4 }}
-                              transition={{ duration: 0.2 }}>
-                              <LocationLists type={LocationType.exit} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {(changingSlide || locationType === LocationType.exit) && (
+                          <LocationLists type={LocationType.exit} />
+                        )}
                       </Carousel.Slides.Slide>
                     </Carousel.Slides>
                   </Carousel>
