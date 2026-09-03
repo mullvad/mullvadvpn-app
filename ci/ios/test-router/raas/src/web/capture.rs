@@ -3,7 +3,7 @@ use std::{collections::BTreeSet, net::IpAddr};
 use axum::{
     body::Body,
     extract::{Json, Path, State},
-    http::{header, StatusCode},
+    http::{StatusCode, header},
     response::IntoResponse,
 };
 use uuid::Uuid;
