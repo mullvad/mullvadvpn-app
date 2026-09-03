@@ -142,10 +142,12 @@ impl Error {
     }
 }
 
-// TODO: fix comment
-/// A service that sends HTTP requests to a specific host.
+/// An actor service for sending HTTP requests.
 ///
-/// It allows for on-demand termination of all in-flight requests.
+/// The service is tied to a specific host, specified in [RequestService::spawn].
+/// It allows for on-demand termination of in-flight requests.
+///
+/// TLS connections are established by [`HttpsConnector`] and may be reused for multiple request.
 pub(crate) struct RequestService<C> {
     host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
@@ -181,7 +183,7 @@ pub struct SendRequest {
 }
 
 impl<C: ConnectionModeProvider + 'static> RequestService<C> {
-    /// Constructs a new request service.
+    /// Constructs a new [`RequestService`].
     pub fn spawn(
         host: impl Into<Arc<str>>,
         api_availability: ApiAvailability,
