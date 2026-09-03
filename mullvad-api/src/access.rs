@@ -1,5 +1,5 @@
-use crate::rest::{self, handle_error_response, hyper_request};
-use http::{HeaderValue, Method, header};
+use crate::rest::{self, handle_error_response, hyper_request_json_bytes};
+use http::Method;
 use http_body_util::{BodyExt, Full};
 use hyper::{body::Bytes, client::conn::http1};
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
@@ -51,7 +51,6 @@ impl AccessTokenStore {
     }
 }
 
-// TODO: deduplicate this function with RequestFactory methods
 async fn fetch_access_token(
     account_number: &AccountNumber,
     host: &str,
@@ -65,16 +64,7 @@ async fn fetch_access_token(
 
     let path = format!("{AUTH_URL_PREFIX}/token");
     let body = serde_json::to_vec(&body)?;
-    let body_len = body.len();
-    let body = Full::from(body);
-    let mut request = hyper_request(host, &path, Method::POST, body)?;
-    request.headers_mut().append(
-        header::CONTENT_TYPE,
-        HeaderValue::from_static("application/json"),
-    );
-    request
-        .headers_mut()
-        .append(header::CONTENT_LENGTH, HeaderValue::from(body_len));
+    let request = hyper_request_json_bytes(host, &path, Method::POST, body)?;
     let response = send_request.send_request(request).await?;
 
     if !response.status().is_success() {
