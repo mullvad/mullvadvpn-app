@@ -322,17 +322,17 @@
       </trans-unit>
       <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
         <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
-        <target state="final">Let op: hierdoor worden de filterinstellingen voor de inkomende server die automatisch wordt geselecteerd, genegeerd.</target>
+        <target state="final">Let op: hierdoor worden de filterinstellingen voor de ingangsserver die automatisch wordt geselecteerd, genegeerd.</target>
         <note from="auto-generated">A warning message that explains that the app will ignore filter settings for the entry server.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “%@” location, filters are ignored for the entry server." xml:space="preserve" approved="yes">
         <source>Attention: With the “%@” location, filters are ignored for the entry server.</source>
-        <target state="final">Let op: met de locatie "%@" worden filters voor de inkomende server genegeerd.</target>
+        <target state="final">Let op: met de locatie "%@" worden filters voor de ingangsserver genegeerd.</target>
         <note from="auto-generated">A note about the effect of using the "Automatic" location on filter settings. The argument is the string “Automatic”.</note>
       </trans-unit>
       <trans-unit id="Attention: With the “Automatic” location, any enabled filters are ignored for the entry server." xml:space="preserve" approved="yes">
         <source>Attention: With the “Automatic” location, any enabled filters are ignored for the entry server.</source>
-        <target state="final">Let op: met de locatie "Automatisch" worden ingeschakelde filters voor de inkomende server genegeerd.</target>
+        <target state="final">Let op: met de locatie "Automatisch" worden ingeschakelde filters voor de ingangsserver genegeerd.</target>
         <note from="auto-generated">Additional information about the "Automatic" location in the alert displayed when a user taps on the "Info" button in the list item.</note>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
@@ -550,9 +550,9 @@
         <target state="final">Wijzigen naar "%@"</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Het wijzigen van de taal vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat.</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">Alle overschrijvingen wissen?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">Tekst wissen</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">Door recente uit te schakelen, wordt ook de geschiedenis gewist.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Het uitschakelen van "%@" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">Het is gebleken dat het inschakelen van %1$@ het aantal problemen bij het gebruik van %2$@ vermindert, ongeacht of u gebruikmaakt van wifi of een mobiel netwerk.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Het inschakelen van "%@" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -1727,7 +1727,7 @@
       </trans-unit>
       <trans-unit id="Multihop entry set to “Automatic”" xml:space="preserve" approved="yes">
         <source>Multihop entry set to “Automatic”</source>
-        <target state="final">Multihop-ingang ingesteld op "Automatisch"</target>
+        <target state="final">Multihopingang ingesteld op "Automatisch"</target>
         <note from="auto-generated">Description of a settings update when the multihop entry setting is set to "Automatic".</note>
       </trans-unit>
       <trans-unit id="Multihop is being used to enable DAITA for your selected location." xml:space="preserve" approved="yes">
@@ -1742,7 +1742,7 @@
       </trans-unit>
       <trans-unit id="Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location." xml:space="preserve" approved="yes">
         <source>Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location.</source>
-        <target state="final">Multihop is ingeschakeld. Uw verbinding wordt via een inkomende server geleid voordat deze via de geselecteerde locatie eruit gaat.</target>
+        <target state="final">Multihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat.</target>
         <note from="auto-generated">Text displayed in the settings view when multihop is enabled.</note>
       </trans-unit>
       <trans-unit id="Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences." xml:space="preserve" approved="yes">
@@ -1752,12 +1752,12 @@
       </trans-unit>
       <trans-unit id="Multihop mode" xml:space="preserve" approved="yes">
         <source>Multihop mode</source>
-        <target state="final">Multihop-modus</target>
+        <target state="final">Multihopmodus</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop mode changed" xml:space="preserve" approved="yes">
         <source>Multihop mode changed</source>
-        <target state="final">Multihop-modus gewijzigd</target>
+        <target state="final">Multihopmodus gewijzigd</target>
         <note from="auto-generated">Message displayed in the action sheet when changing the VPN connection mode to "When needed".</note>
       </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
@@ -1847,7 +1847,7 @@
       </trans-unit>
       <trans-unit id="New multihop modes" xml:space="preserve" approved="yes">
         <source>New multihop modes</source>
-        <target state="final">Nieuwe multihop-modussen</target>
+        <target state="final">Nieuwe multihopmodussen</target>
         <note from="auto-generated">Title of a settings update descriptor for when the multihop modes have been updated.</note>
       </trans-unit>
       <trans-unit id="Next" xml:space="preserve" approved="yes">
@@ -2567,7 +2567,7 @@
       </trans-unit>
       <trans-unit id="Suggested multihop entry" xml:space="preserve" approved="yes">
         <source>Suggested multihop entry</source>
-        <target state="final">Aanbevolen multihop-ingang</target>
+        <target state="final">Aanbevolen multihopingang</target>
         <note/>
       </trans-unit>
       <trans-unit id="Super!" xml:space="preserve" approved="yes">
@@ -2702,7 +2702,7 @@
       </trans-unit>
       <trans-unit id="The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting." xml:space="preserve" approved="yes">
         <source>The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting.</source>
-        <target state="final">De DAITA-subinstelling "Alleen rechtstreeks" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihop-instelling.</target>
+        <target state="final">De DAITA-subinstelling "Alleen rechtstreeks" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihopinstelling.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The app communicates with a Mullvad API server directly." xml:space="preserve" approved="yes">
@@ -2747,7 +2747,7 @@
       </trans-unit>
       <trans-unit id="The entry and exit servers cannot be the same. Try changing one to a new server or location." xml:space="preserve" approved="yes">
         <source>The entry and exit servers cannot be the same. Try changing one to a new server or location.</source>
-        <target state="final">De inkomende en uitgaande servers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie.</target>
+        <target state="final">De ingangs- en uitgangsservers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The entry server is currently selected automatically to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
@@ -2757,7 +2757,7 @@
       </trans-unit>
       <trans-unit id="The multihop mode “Always” now features an “Automatic” location for the entry server selection." xml:space="preserve" approved="yes">
         <source>The multihop mode “Always” now features an “Automatic” location for the entry server selection.</source>
-        <target state="final">De multihop-modus "Altijd" beschikt nu over een locatie "Automatisch" voor de selectie van de ingangsserver.</target>
+        <target state="final">De multihopmodus "Altijd" beschikt nu over een locatie "Automatisch" voor de selectie van de ingangsserver.</target>
         <note/>
       </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
@@ -2897,12 +2897,12 @@
       </trans-unit>
       <trans-unit id="To avoid getting blocked, we recommend that you set your multihop mode to “%@”." xml:space="preserve" approved="yes">
         <source>To avoid getting blocked, we recommend that you set your multihop mode to “%@”.</source>
-        <target state="final">Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihop-modus in te stellen op "%@".</target>
+        <target state="final">Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihopmodus in te stellen op "%@".</target>
         <note/>
       </trans-unit>
       <trans-unit id="To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”." xml:space="preserve" approved="yes">
         <source>To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”.</source>
-        <target state="final">Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihop-ingangsserver in te stellen op "%@".</target>
+        <target state="final">Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihopingangsserver in te stellen op "%@".</target>
         <note from="auto-generated">A suggestion to set the multihop entry server to "Automatic". The argument is the string “Automatic”.</note>
       </trans-unit>
       <trans-unit id="To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view." xml:space="preserve" approved="yes">
@@ -2932,7 +2932,7 @@
       </trans-unit>
       <trans-unit id="To manually select an entry server, please switch multihop mode to “%@”." xml:space="preserve" approved="yes">
         <source>To manually select an entry server, please switch multihop mode to “%@”.</source>
-        <target state="final">Om handmatig een inkomende server te selecteren, stelt u de multihop-modus in op "%@".</target>
+        <target state="final">Om handmatig een ingangsserver te selecteren, stelt u de multihopmodus in op "%@".</target>
         <note from="auto-generated">A description of the warning that appears when the user is prompted to manually select an entry server. The argument is the description of the multihop mode that will be used instead.</note>
       </trans-unit>
       <trans-unit id="To start using the app, you first need to add time to your account." xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">We ondervinden enkele problemen, probeer het later opnieuw</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">We kunnen u een melding sturen wanneer een update beschikbaar is, zodat u deze functie kunt uitschakelen of de verbinding kunt verbreken voordat de update wordt uitgevoerd. U kunt dit op elk moment aanpassen in de systeeminstellingen.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3272,7 +3272,7 @@
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server." xml:space="preserve" approved="yes">
         <source>You currently have entry filters applied. Selecting the “Automatic” location, the app will ignore filter settings for the entry server.</source>
-        <target state="final">U heeft momenteel ingangsfilters toegepast. Als u de locatie "Automatisch" selecteert, negeert de app de filterinstellingen voor de inkomende server.</target>
+        <target state="final">U heeft momenteel ingangsfilters toegepast. Als u de locatie "Automatisch" selecteert, negeert de app de filterinstellingen voor de ingangsserver.</target>
         <note from="auto-generated">Warning message in an alert that appears when a user selects the "Automatic" location in the multihop flow, given that they have entry filters applied.</note>
       </trans-unit>
       <trans-unit id="You currently have entry filters applied. Switching to “%@“, the app will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve" approved="yes">
@@ -3355,7 +3355,7 @@ Wij zijn sterk overtuigd van het belang om zo min mogelijk gegevens te bewaren, 
       </trans-unit>
       <trans-unit id="Your multihop setting was migrated from “%@” to “%@”." xml:space="preserve" approved="yes">
         <source>Your multihop setting was migrated from “%1$@” to “%2$@”.</source>
-        <target state="final">Uw multihop-instelling is gemigreerd van "%1$@" naar "%2$@".</target>
+        <target state="final">Uw multihopinstelling is gemigreerd van "%1$@" naar "%2$@".</target>
         <note from="auto-generated">A text describing a migration from one multihop setting to another. The first argument is the string “%arg”. The second argument is the string “%arg”.</note>
       </trans-unit>
       <trans-unit id="Your previous purchases have already been added to this account." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ Wij zijn sterk overtuigd van het belang om zo min mogelijk gegevens te bewaren, 
         <target state="final">DAITA in te schakelen</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">mislukt</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">

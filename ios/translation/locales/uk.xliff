@@ -550,9 +550,9 @@
         <target state="final">Змінити на «%@»</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Для зміни мови потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням.</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">Видалити всі перевизначення?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">Очистити текст</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">Вимкнення нещодавнього вибору призведе до очищення історії.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Щоб вимкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">Увімкнення функції «%1$@» дозволяє зменшити кількість проблем під час використання режиму «%2$@», незалежно від того, яке підключення ви використовуєте: через Wi-Fi чи через мобільну мережу.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Щоб увімкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -1747,17 +1747,17 @@
       </trans-unit>
       <trans-unit id="Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences." xml:space="preserve" approved="yes">
         <source>Multihop is now split into three modes: When needed, Always, and Never. This gives you more flexibility with your connection preferences.</source>
-        <target state="final">Для подвійного входу тепер доступні три режими: за необхідності, завжди й ніколи. Це дозволяє гнучкіше налаштовувати параметри підключення.</target>
+        <target state="final">Подвійний VPN має три режими: «За потреби», «Завжди» і «Ніколи». Це дає вам більше можливостей налаштувати параметри з’єднання відповідно до своїх потреб.</target>
         <note from="auto-generated">Description of the change that was made to the multihop setting.</note>
       </trans-unit>
       <trans-unit id="Multihop mode" xml:space="preserve" approved="yes">
         <source>Multihop mode</source>
-        <target state="final">Режим подвійного входу</target>
+        <target state="final">Режим подвійного VPN</target>
         <note/>
       </trans-unit>
       <trans-unit id="Multihop mode changed" xml:space="preserve" approved="yes">
         <source>Multihop mode changed</source>
-        <target state="final">Режим подвійного входу змінено</target>
+        <target state="final">Режим подвійного VPN змінено</target>
         <note from="auto-generated">Message displayed in the action sheet when changing the VPN connection mode to "When needed".</note>
       </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online." xml:space="preserve" approved="yes">
@@ -1767,7 +1767,7 @@
       </trans-unit>
       <trans-unit id="Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never." xml:space="preserve" approved="yes">
         <source>Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between: When needed, Always, and Never.</source>
-        <target state="final">Режим подвійного входу спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного входу доступні три режими: за необхідності, завжди й ніколи.</target>
+        <target state="final">Режим подвійного VPN спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного VPN доступні три режими: за необхідності, завжди й ніколи.</target>
         <note from="auto-generated">Description of the Multihop feature, including its benefits and modes of operation.</note>
       </trans-unit>
       <trans-unit id="NETWORK ISSUES" xml:space="preserve" approved="yes">
@@ -1847,7 +1847,7 @@
       </trans-unit>
       <trans-unit id="New multihop modes" xml:space="preserve" approved="yes">
         <source>New multihop modes</source>
-        <target state="final">Нові режими подвійного входу</target>
+        <target state="final">Нові режими подвійного VPN</target>
         <note from="auto-generated">Title of a settings update descriptor for when the multihop modes have been updated.</note>
       </trans-unit>
       <trans-unit id="Next" xml:space="preserve" approved="yes">
@@ -2757,7 +2757,7 @@
       </trans-unit>
       <trans-unit id="The multihop mode “Always” now features an “Automatic” location for the entry server selection." xml:space="preserve" approved="yes">
         <source>The multihop mode “Always” now features an “Automatic” location for the entry server selection.</source>
-        <target state="final">У режимі подвійного входу «Завжди» для сервера входу тепер доступна опція «Автоматично».</target>
+        <target state="final">У режимі подвійного VPN «Завжди» для сервера входу тепер доступна опція «Автоматично».</target>
         <note/>
       </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
@@ -2842,7 +2842,7 @@
       </trans-unit>
       <trans-unit id="This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location." xml:space="preserve" approved="yes">
         <source>This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location.</source>
-        <target state="final">У цьому режимі застосунок за необхідності автоматично використовує подвійний вхід через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням.</target>
+        <target state="final">У цьому режимі застосунок за необхідності автоматично використовує подвійний VPN через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve" approved="yes">
@@ -2897,7 +2897,7 @@
       </trans-unit>
       <trans-unit id="To avoid getting blocked, we recommend that you set your multihop mode to “%@”." xml:space="preserve" approved="yes">
         <source>To avoid getting blocked, we recommend that you set your multihop mode to “%@”.</source>
-        <target state="final">Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного входу значення «%@».</target>
+        <target state="final">Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного VPN значення «%@».</target>
         <note/>
       </trans-unit>
       <trans-unit id="To avoid having to change the entry server manually, we recommend you set the multihop entry server to “%@”." xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">У нас виникли проблеми, спробуйте пізніше</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">Ми можемо надіслати вам сповіщення, коли стане доступним оновлення, щоб ви могли вимкнути цю функцію або від’єднатися перед оновленням. Цей параметр можна будь-коли змінити в системних налаштуваннях.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ввімкнення DAITA</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">не вдалось</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">

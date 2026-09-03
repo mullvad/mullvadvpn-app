@@ -550,9 +550,9 @@
         <target state="final">“%@” သို့ ပြောင်းမည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">ဘာသာစကားပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">ကျော်လွန် ပယ်ဖျက်မှုအားလုံးကို ရှင်းမည်လား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">စာသားကို ရှင်းရန်</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">“%@“ ကို ပိတ်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">%1$@ ကို ဖွင့်လိုက်ပါက သင် WiFi သုံးသည်ဖြစ်စေ၊ ဆယ်လူလာကွန်ရက် သုံးသည်ဖြစ်စေ ထည့်မတွက်ဘဲ %2$@ အသုံးပြုစဉ် တွေ့ကြုံရသည့် ပြဿနာအရေအတွက်ကို လျှော့ချပေးကြောင်း တွေ့ရှိရသည်။</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">“%@“ ကို ဖွင့်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">ကျွန်ုပ်တို့တွင် ပြဿနာအချို့ရှိနေပါသည်၊ နောက်မှ ထပ်မံကြိုးစားပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို ပိတ်နိုင်ရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်ရန် အပ်ဒိတ်ရရှိချိန်တွင် အသိပေးချက်တစ်စောင် သင့်ထံ ပေးပို့နိုင်ပါသည်။ စနစ်ဆက်တင်များတွင် ဤလုပ်ဆောင်ချက်ကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">DAITA ကို ဖွင့်နေသည်</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">မအောင်မြင်ပါ</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
