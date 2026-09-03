@@ -699,7 +699,7 @@
 		7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */; };
 		7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */; };
 		7AB73F6E2D9AAD0A00DA5E1D /* MullvadAccountProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */; };
-		7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */; };
+		7AB931242D43C2CA005FCEBA /* ApiContext+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931232D43C2C2005FCEBA /* ApiContext+Extensions.swift */; };
 		7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */; };
 		7ABBE0142F1A2CFF00AD8176 /* IncludeAllNetworksSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */; };
 		7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */; };
@@ -2409,7 +2409,7 @@
 		7AB4CCB82B69097E006037F5 /* IPOverrideTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideTests.swift; sourceTree = "<group>"; };
 		7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideInteractor.swift; sourceTree = "<group>"; };
 		7AB73F6D2D9AAD0400DA5E1D /* MullvadAccountProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAccountProxy.swift; sourceTree = "<group>"; };
-		7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiContext.swift; sourceTree = "<group>"; };
+		7AB931232D43C2C2005FCEBA /* ApiContext+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ApiContext+Extensions.swift"; sourceTree = "<group>"; };
 		7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkOperation.swift; sourceTree = "<group>"; };
 		7ABBE0132F1A2CF100AD8176 /* IncludeAllNetworksSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7ABBE0152F1A2D1100AD8176 /* IncludeAllNetworksSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -4930,7 +4930,7 @@
 				4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */,
 				7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */,
 				7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */,
-				7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */,
+				7AB931232D43C2C2005FCEBA /* ApiContext+Extensions.swift */,
 				A9B95DEE2EC73BB800C7FE9B /* MullvadAPIMock.swift */,
 				A96D0B442D675F0400DD6C59 /* MullvadConnectionModeProvider.swift */,
 				A992DA1F2C24709F00DE7CE5 /* MullvadRustRuntime.h */,
@@ -7438,7 +7438,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */,
+				7AB931242D43C2CA005FCEBA /* ApiContext+Extensions.swift in Sources */,
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
