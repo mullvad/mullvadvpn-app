@@ -57,7 +57,7 @@ For running tests on Linux and Windows guests, you will need these tools and lib
 #### Fedora
 ```bash
 dnf install git gcc protobuf-devel libpcap-devel qemu \
-    podman golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
+    podman golang-github-rootless-containers-rootlesskit passt dnsmasq \
     dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
     wireguard-tools
 ```
@@ -65,7 +65,7 @@ dnf install git gcc protobuf-devel libpcap-devel qemu \
 
 #### Debian / Ubuntu
 ```bash
-apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsmasq nftables
+apt install qemu-utils qemu-system-x86 libpcap-dev passt rootlesskit dnsmasq nftables
 ```
 
 ##### Note for Debian

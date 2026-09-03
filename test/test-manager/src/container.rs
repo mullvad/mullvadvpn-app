@@ -13,8 +13,9 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
 
     let mut cmd = Command::new("rootlesskit");
     cmd.args([
+        // https://github.com/rootless-containers/rootlesskit/blob/master/docs/network.md#--netpasta-experimental
         "--net",
-        "slirp4netns",
+        "pasta",
         "--ipv6",
         // A higher MTU breaks IPv6
         "--mtu",
@@ -27,7 +28,7 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
 
         cmd.args([
             "--port-driver",
-            "slirp4netns",
+            "implicit", // requires 'pasta' binary.
             "-p",
             &format!("127.0.0.1:{port}:5901/tcp"),
         ]);

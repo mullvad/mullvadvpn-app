@@ -79,10 +79,10 @@ struct DhcpProcHandle {
 /// IPv6-support in `rootlesskit` is experimental, and addresses are not automatically assigned.
 /// This function will assigned an IPv6 address to the TAP interface, and set up routes.
 async fn fix_ipv6() -> Result<()> {
-    let tap = "tap0"; // TAP-device that connects to slirp2netns
-    let addr = "fd00::1337/64"; // our address within the slirp2netns subnet
-    let gateway = "fd00::2"; // slirp2netns gateway
-    let _dns = "fd00::3"; // slirp2netns dns
+    let tap = "tap0"; // TAP-device that connects to passt
+    let addr = "fd00::1337/64"; // our address within the passt subnet
+    let gateway = "fd00::2"; // passt gateway
+    let _dns = "fd00::3"; // passt dns
 
     run_ip_cmd(["-6", "addr", "add", addr, "dev", tap]).await?;
     run_ip_cmd(["-6", "route", "add", "default", "via", gateway, "dev", tap]).await?;
