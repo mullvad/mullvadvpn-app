@@ -169,13 +169,8 @@ class MullvadTileService : TileService() {
                     }
                 }
 
-                is TunnelState.Error -> {
-                    if (tunnelState.errorState.isBlocking) {
-                        Tile.STATE_ACTIVE
-                    } else {
-                        Tile.STATE_INACTIVE
-                    }
-                }
+                is TunnelState.Error ->
+                    Tile.STATE_INACTIVE
             }
         } else {
             Tile.STATE_INACTIVE
