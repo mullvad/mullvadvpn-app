@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2026-07-10 07:35\n"
+"PO-Revision-Date: 2026-09-03 06:40\n"
 
 msgid "%(amount)d more..."
 msgstr "Mais %(amount)d..."
@@ -141,9 +141,6 @@ msgstr "Eliminar"
 msgid "Delete list"
 msgstr "Eliminar lista"
 
-msgid "Direct only"
-msgstr "Apenas direto"
-
 msgid "Disable"
 msgstr "Desativar"
 
@@ -174,10 +171,6 @@ msgstr "Ativar"
 msgid "Enable anyway"
 msgstr "Ativar mesmo assim"
 
-#. A toggle that refers to the setting "Direct only".
-msgid "Enable direct only"
-msgstr "Ativar apenas direto"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -195,6 +188,9 @@ msgstr "Ir às definições do sistema"
 
 msgid "Got it!"
 msgstr "Entendido!"
+
+msgid "Guide"
+msgstr "Guia"
 
 msgid "Import"
 msgstr "Importar"
@@ -293,17 +289,13 @@ msgstr "Pesquisar localizações ou servidores"
 msgid "SECURE CONNECTION"
 msgstr "LIGAÇÃO SEGURA"
 
-#. Text for button that sets a location as entry relay when button is disabled.
-msgid "Set as multihop entry"
-msgstr "Definir como entrada multihop"
-
-#. Text for button that sets a location as entry relay
-msgid "Set as multihop entry (incompatible)"
-msgstr "Definir como entrada multihop (incompatível)"
+#. Text for button that sets a location as entry relay.
+msgid "Set as entry"
+msgstr "Definir como entrada"
 
 #. Text for button that sets a location as exit relay
-msgid "Set as multihop exit"
-msgstr "Definir como saída multihop"
+msgid "Set as exit"
+msgstr "Definir como saída"
 
 msgid "Settings"
 msgstr "Definições"
@@ -1045,17 +1037,15 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
-#. This is used as a feature indicator to show that DAITA is enabled through
-#. multihop.
-#. Available placeholders:
-#. %(DAITA)s - Is a non-translatable feature "DAITA"
-msgctxt "connect-view"
-msgid "%(DAITA)s: Multihop"
-msgstr "%(DAITA)s: multihop"
-
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Funcionalidades ativas"
+
+#. This is used as a feature indicator to show that multihop is used
+#. to enable the connection.
+msgctxt "connect-view"
+msgid "Automatic multihop"
+msgstr "Multihop automático"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -2081,6 +2071,12 @@ msgctxt "select-location-view"
 msgid "All locations"
 msgstr "Todas as localizações"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Always".
+msgctxt "select-location-view"
+msgid "Always"
+msgstr "Sempre"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2091,11 +2087,6 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Listas personalizadas"
 
-#. Used in button to disable multihop.
-msgctxt "select-location-view"
-msgid "Disable multihop"
-msgstr "Desativar multihop"
-
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Desativar recentes"
@@ -2104,11 +2095,6 @@ msgstr "Desativar recentes"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Vazia"
-
-#. Used in button to enable multihop.
-msgctxt "select-location-view"
-msgid "Enable multihop"
-msgstr "Ativar multihop"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2126,6 +2112,17 @@ msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr "Filtrado:"
 
+#. Title for a menu with items for the Multihop mode setting options.
+msgctxt "select-location-view"
+msgid "Multihop mode"
+msgstr "Modo multihop"
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Never".
+msgctxt "select-location-view"
+msgid "Never"
+msgstr "Nunca"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
@@ -2137,10 +2134,6 @@ msgstr "Sem histórico de seleção recente"
 msgctxt "select-location-view"
 msgid "Obfuscation: %(obfuscation)s"
 msgstr "Ofuscação: %(obfuscation)s"
-
-msgctxt "select-location-view"
-msgid "Open %(daita)s settings"
-msgstr "Abrir as definições de %(daita)s"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2163,9 +2156,11 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "A mostrar %(visibleRelays)s de %(totalRelays)s"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "When needed".
 msgctxt "select-location-view"
-msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
-msgstr "O servidor de entrada para %(multihop)s é atualmente substituído por %(daita)s. Para selecionar um servidor de entrada, ative primeiro \"%(directOnly)s\", ou desative \"%(daita)s\" nas definições."
+msgid "When needed"
+msgstr "Quando necessário"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2238,6 +2233,12 @@ msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
 msgstr "Para contornar esta situação, pode importar um ficheiro ou texto, fornecido pela nossa equipa de suporte, com novos endereços IP que substituem os endereços padrão dos servidores na vista Selecionar local."
 
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Always" option is selected.
+msgctxt "settings-view"
+msgid "Always"
+msgstr "Sempre"
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -2251,6 +2252,12 @@ msgstr "Informação sobre a app"
 msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Multihop"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Never" option is selected.
+msgctxt "settings-view"
+msgid "Never"
+msgstr "Nunca"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2276,6 +2283,12 @@ msgstr "Definições da interface de utilizador"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "Definições de VPN"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "When needed" option is selected.
+msgctxt "settings-view"
+msgid "When needed"
+msgstr "Quando necessário"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -2714,6 +2727,10 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Jogos de azar"
 
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Se não conseguir estabelecer ligação, pode tentar utilizar o endereço IP em vez do nome do anfitrião. Se quer ligar a uma sub-rede ou a um intervalo de endereços de uma rede privada, pode seguir o nosso guia para adicionar uma rota estática."
+
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
 msgid "In-tunnel IPv6"
@@ -2854,21 +2871,19 @@ msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
 msgstr "Porta %(wireGuard)s"
 
+#. Label for the Multihop mode setting's option to always use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Always"
+msgstr "Sempre"
+
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "Atenção: Isto aumenta o tráfego de rede e também afeta negativamente a velocidade, a latência e a utilização da bateria. Utilize com precaução em planos limitados."
 
 msgctxt "wireguard-settings-view"
-msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
-msgstr "Ao ativar \"%(directOnly)s\", terá de selecionar manualmente um servidor que tenha %(daita)s ativado, o que pode fazer com que fique num estado bloqueado até selecionar um servidor compatível na vista \"Selecionar localização\"."
-
-msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
 msgstr "Utilizando uma IA sofisticada, é possível analisar o tráfego de pacotes de dados que entram e saem do seu dispositivo (mesmo que o tráfego esteja encriptado)."
-
-msgctxt "wireguard-settings-view"
-msgid "Cancel"
-msgstr "Cancelar"
 
 #. Title for device IP version setting.
 msgctxt "wireguard-settings-view"
@@ -2883,6 +2898,11 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr "Para isso, realiza uma troca de chaves adicional utilizando um algoritmo resistente à computação quântica, e misturando o resultado na encriptação regular do WireGuard."
 
+#. Title for Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "Mode"
+msgstr "Modo"
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
@@ -2895,17 +2915,14 @@ msgid "Multihop"
 msgstr "Multihop"
 
 msgctxt "wireguard-settings-view"
-msgid "Multihop is being used to enable DAITA for your selected location"
-msgstr "O Multihop está a ser usado para ativar DAITA na localização selecionada"
-
-msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr "Multihop encaminha o tráfego para entrar num servidor WireGuard e sair por outro, dificultando o seguimento. Isto resulta em maior latência, mas aumenta o anonimato online."
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
+#. Label for the Multihop mode setting's option to never use the multihop
+#. feature.
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
-msgstr "Nem todos os servidores suportam %(daita)s. Para utilizar a Internet, pode ter de selecionar uma nova localização após ativar esta funcionalidade."
+msgid "Never"
+msgstr "Nunca"
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
@@ -2971,12 +2988,21 @@ msgctxt "wireguard-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "Intervalos válidos: %(portRanges)s"
 
+#. Label for the Multihop mode setting's option to use the multihop
+#. feature when it is needed.
+msgctxt "wireguard-settings-view"
+msgid "When needed"
+msgstr "Quando necessário"
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN."
 
 msgid "%1$d out of %2$d"
 msgstr "%1$d de %2$d"
+
+msgid "%1$s Back"
+msgstr "%1$s Voltar"
 
 msgid "%1$s more..."
 msgstr "Mais %1$s..."
@@ -3134,6 +3160,9 @@ msgstr "VPN sempre ligada atribuída a %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN sempre ligada atribuída a outra VPN"
 
+msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
+msgstr "De momento, é selecionado um servidor de entrada automaticamente quando necessário, para garantir uma ligação ativa. Para selecionar manualmente um servidor de entrada, altere o modo multihop para \"Sempre\"."
+
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "O Android 16 tem um problema conhecido. Reinicie o seu dispositivo e tente novamente. Para saber mais,"
 
@@ -3158,11 +3187,23 @@ msgstr "É necessário ativar pelo menos um método"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, as aplicações divididas não terão Internet. Tenha sempre em mente que o túnel dividido representa um risco para a privacidade."
 
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "Atenção: neste modo, os filtros são ignorados para o servidor adicional."
+
+msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
+msgstr "Atenção: Isto irá ignorar as definições de filtro do servidor utilizado como ponto de entrada."
+
+msgid "Attention: With the “Automatic” location, filters are ignored for the entry server."
+msgstr "Atenção: Com a localização \"Automática\", os filtros são ignorados no servidor de entrada."
+
 msgid "Auto-connect & Lockdown mode"
 msgstr "Ligação automática e modo de bloqueio"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício."
+
+msgid "Automatic (%s)"
+msgstr "Automático (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "Ligar automaticamente no arranque do dispositivo."
@@ -3188,8 +3229,14 @@ msgstr "Não consegue ligar?"
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "Altere o título e o ícone da aplicação Mullvad VPN no seu dispositivo Android. Isto não irá alterar o ícone de nenhuma notificação relacionada com a Mullvad VPN."
 
+msgid "Change to “When needed”"
+msgstr "Alterar para \"Quando necessário\""
+
 msgid "Clear input"
 msgstr "Limpar entrada"
+
+msgid "Click here to read more"
+msgstr "Clique aqui para ler mais"
 
 msgid "Collapse"
 msgstr "Comprimir"
@@ -3236,6 +3283,9 @@ msgstr "Os endereços do servidor DNS personalizado %1$s são inválidos"
 msgid "DNS settings"
 msgstr "Definições de DNS"
 
+msgid "DNS settings might not go into effect immediately."
+msgstr "As definições de DNS podem não fazer efeito imediatamente."
+
 msgid "Delete \"%s\"?"
 msgstr "Eliminar \"%s\"?"
 
@@ -3259,6 +3309,9 @@ msgstr "Direto"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Desative todos os \"%s\" acima para ativar esta definição."
+
+msgid "Disable multihop"
+msgstr "Desativar multihop"
 
 msgid "Discard"
 msgstr "Descartar"
@@ -3287,9 +3340,6 @@ msgstr "Editar listas"
 msgid "Edit locations"
 msgstr "Editar localizações"
 
-msgid "Enable %1$s"
-msgstr "Ativar %1$s"
-
 msgid "Enable all & retry"
 msgstr "Ativar tudo e tentar novamente"
 
@@ -3311,11 +3361,17 @@ msgstr "Introduza os dígitos do número da conta"
 msgid "Enter an account number"
 msgstr "Introduza um número de conta"
 
+msgid "Entry filter"
+msgstr "Filtro de entrada"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "O retransmissor de entrada é o mesmo que o de saída"
 
 msgid "Excluded applications"
 msgstr "Aplicações excluídas"
+
+msgid "Exit filter"
+msgstr "Filtro de saída"
 
 msgid "Expand"
 msgstr "Expandir"
@@ -3343,6 +3399,12 @@ msgstr "Erro ao definir como atual — motivo desconhecido"
 
 msgid "File"
 msgstr "Ficheiro"
+
+msgid "Filters are overridden when using an automatic location"
+msgstr "Os filtros são substituídos ao utilizar uma localização automática"
+
+msgid "Filters can now be set separately for entry and exit locations."
+msgstr "Agora é possível definir filtros separadamente para as localizações de entrada e de saída."
 
 msgid "For details, please see our %s."
 msgstr "Para mais detalhes, consulte a nossa %s."
@@ -3391,6 +3453,12 @@ msgstr "Se for utilizada a funcionalidade de divisão do túnel, a app consulta 
 
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "Se estes passos não resultarem, envie um e-mail para o suporte através do botão abaixo. Anexará automaticamente os registos, que foram anonimizados."
+
+msgid "If you have any issues"
+msgstr "Se tiver algum problema"
+
+msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
+msgstr "Se a localização atual não for compatível com as suas preferências, como método anti-censura, filtros e/ou DAITA, será utilizado automaticamente o modo multihop, para estabelecer ligação a essa localização através de um servidor compatível, indicado pelo símbolo %1$s."
 
 msgid "Import new overrides by"
 msgstr "Importar novas substituições através de"
@@ -3452,17 +3520,35 @@ msgstr "Iniciar sessão"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Assegura que o dispositivo está sempre no túnel VPN."
 
+msgid "Migrated settings"
+msgstr "Definições migradas"
+
 msgid "More actions"
 msgstr "Mais ações"
 
 msgid "Mullvad services unavailable"
 msgstr "Serviços Mullvad indisponíveis"
 
+msgid "Multihop entry set to “Automatic”"
+msgstr "Entrada multihop definida como \"Automática\""
+
 msgid "Multihop is disabled"
 msgstr "Multihop está desativado"
 
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "O multihop está desativado. A localização selecionada tem de suportar todas as definições ativas para estabelecer uma ligação."
+
 msgid "Multihop is enabled"
 msgstr "Multihop está ativado"
+
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "O multihop está ativado. A sua ligação é encaminhada através de um servidor de entrada antes de sair pela localização selecionada."
+
+msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
+msgstr "O multihop está agora dividido em três modos: Quando necessário, Sempre e Nunca.\\nProporciona maior flexibilidade nas suas preferências de ligação."
+
+msgid "Multihop when needed"
+msgstr "Multihop quando necessário"
 
 msgid "Name is already taken."
 msgstr "O nome já está a ser utilizado."
@@ -3472,6 +3558,12 @@ msgstr "O nome foi alterado para %s"
 
 msgid "Navigate"
 msgstr "Navegar"
+
+msgid "New multihop modes"
+msgstr "Novos modos multihop"
+
+msgid "Next %1$s"
+msgstr "Seguinte %1$s"
 
 msgid "No Android app store installed, could not open link"
 msgstr "Nenhuma loja de aplicações Android instalada. Não foi possível abrir a ligação"
@@ -3532,6 +3624,9 @@ msgstr "Cole ou introduza substituições a importar"
 
 msgid "Patch not matching specification"
 msgstr "O patch não corresponde à especificação"
+
+msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
+msgstr "Escolhe uma localização adequada com base na sua localização de saída, tendo em conta vários fatores como distância, fornecedor e a carga do servidor."
 
 msgid "Please enter a message"
 msgstr "Introduza uma mensagem"
@@ -3611,6 +3706,9 @@ msgstr "Repor substituições"
 msgid "Reset to default"
 msgstr "Repor para as predefinições"
 
+msgid "Resolve connection issues"
+msgstr "Resolver problemas de ligação"
+
 msgid "Restart your device"
 msgstr "Reiniciar o seu dispositivo"
 
@@ -3620,14 +3718,35 @@ msgstr "Pesquisar"
 msgid "Send email"
 msgstr "Enviar e-mail"
 
+msgid "Separate filters"
+msgstr "Filtros separados"
+
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "Definir o valor MTU do WireGuard. Intervalo válido: %1$d — %2$d."
+
+msgid "Set as multihop entry"
+msgstr "Definir como entrada multihop"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Definir como entrada multihop (incompatível)"
+
+msgid "Set as multihop exit"
+msgstr "Definir como saída multihop"
 
 msgid "Set as multihop exit (incompatible)"
 msgstr "Definir como saída multihop (incompatível)"
 
+msgid "Set entry to “Automatic”"
+msgstr "Definir a opção como \"Automático\""
+
+msgid "Set multihop to “Always”"
+msgstr "Definir multihop como \"Sempre\""
+
 msgid "Set port"
 msgstr "Definir porta"
+
+msgid "Settings Migrated"
+msgstr "Definições migradas"
 
 msgid "Share…"
 msgstr "Partilhar…"
@@ -3644,11 +3763,26 @@ msgstr "Indica o estado atual do túnel VPN"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Mostra lembretes quando o tempo da conta está prestes a expirar"
 
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "Algumas das suas definições foram migradas. Reveja as alterações e resolva quaisquer problemas."
+
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "Algumas das suas definições foram migradas. Reveja as alterações."
+
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "Ocorreu um erro ao verificar a sua compra. Contacte o suporte."
 
 msgid "Submit"
 msgstr "Enviar"
+
+msgid "Suggested action"
+msgstr "Ação sugerida"
+
+msgid "Suggested multihop entry"
+msgstr "Entrada multihop sugerida"
+
+msgid "System network settings"
+msgstr "Definições de rede do sistema"
 
 msgid "TCP"
 msgstr "TCP"
@@ -3667,6 +3801,9 @@ msgstr "Obrigado por fazer parte da nossa comunidade.\\nA privacidade é para to
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "As definições da ligação automática e do modo de bloqueio podem ser encontradas nas definições do sistema Android. Siga este guia para ativar uma ou ambas as funcionalidades."
+
+msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
+msgstr "A subdefinição \"Apenas direto\" do DAITA foi removida e simplificada para evitar o bloqueio de ligações. Agora, com o DAITA ativado, esta opção passa a ser definida através da definição de multihop."
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "O servidor DNS IPv6 não funcionará a menos que ative a \"IPv6\" nas definições de VPN."
@@ -3692,6 +3829,9 @@ msgstr "Não foi possível à aplicação iniciar sessão devido a falta de aces
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "O servidor DNS local não funcionará a menos que ative a \"Partilha de rede local\" nas definições de VPN."
 
+msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
+msgstr "O modo multihop \"Sempre\" inclui agora uma localização \"Automática\" para a seleção do servidor de entrada."
+
 msgid "The selected %s port is not supported, please change it under"
 msgstr "A porta %s selecionada não é suportada. Altere-a em"
 
@@ -3713,17 +3853,29 @@ msgstr "Este já está definido como o atual"
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "Isto pode dever-se a censura ou a problemas de rede. Tente o seguinte:"
 
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "Este modo permite que a aplicação utilize automaticamente um servidor adicional se necessário, para garantir que as suas definições atuais funcionam com a sua localização selecionada."
+
 msgid "Time added"
 msgstr "Tempo adicionado"
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
 msgstr "Para adicionar localizações a uma lista, prima a caneta ou mantenha premido um país, uma cidade ou um servidor."
 
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”."
+msgstr "Para evitar o bloqueio, recomendamos que defina o modo multihop para \"Quando necessário\"."
+
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to “Automatic”."
+msgstr "Para evitar ter de alterar manualmente o servidor de entrada, recomendamos que defina o servidor de entrada multihop para \"Automático\"."
+
 msgid "To create a custom list press the \"+\""
 msgstr "Para criar uma lista personalizada prima o botão \"+\""
 
 msgid "To delete your Mullvad VPN account, please enter your account number below."
 msgstr "Para eliminar a sua conta Mullvad VPN, introduza o número da sua conta abaixo."
+
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
+msgstr "Para garantir que as suas definições atuais funcionam com a localização selecionada, e para evitar o bloqueio da sua ligação, a aplicação poderá fazer multihop automaticamente em vários passos através de um servidor de entrada diferente.\\nIsto será indicado pelo símbolo %1$s."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador."
@@ -3733,6 +3885,9 @@ msgstr "Alternar VPN"
 
 msgid "Too many attempts, please try again later"
 msgstr "Demasiadas tentativas. Tente novamente mais tarde"
+
+msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
+msgstr "Desative o DNS privado em %s, pois pode interferir com as definições de DNS do Mullvad."
 
 msgid "UDP"
 msgstr "UDP"
@@ -3848,6 +4003,15 @@ msgstr "Meteorologia"
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "As boas-vindas, este dispositivo tem agora o nome <b>%s</b>."
 
+msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
+msgstr "Quando o multihop está definido como \"Sempre\" ou \"Nunca\", tem de selecionar manualmente um servidor DAITA."
+
+msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "Quando o multihop está definido como \"Quando necessário\", a aplicação pode utilizar um servidor adicional para garantir que se liga à localização selecionada utilizando o DAITA."
+
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "Quando selecionada, a aplicação escolhe automaticamente um servidor aleatório, dando prioridade aos que se encontram mais próximos da localização de saída, para melhor desempenho."
+
 msgid "WireGuard port"
 msgstr "Porta WireGuard"
 
@@ -3872,11 +4036,29 @@ msgstr "Irá perder o acesso a esta conta em todos os dispositivos."
 msgid "You will lose your remaining"
 msgstr "Irá perder os restantes"
 
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "Os seus filtros atuais foram aplicados às localizações de entrada e de saída."
+
 msgid "Your device"
 msgstr "O seu dispositivo"
 
+msgid "Your device (%s)"
+msgstr "O seu dispositivo (%s)"
+
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr "A sua última compra ainda está a ser verificada. Se iniciar sessão noutra conta, a verificação falhará. Ainda assim, pretende terminar a sessão?"
+
+msgid "Your multihop setting was migrated from “Off” to “Always”"
+msgstr "A sua definição de multihop foi migrada de \"Desativada\" para \"Sempre\"."
+
+msgid "Your multihop setting was migrated from “Off” to “Never”"
+msgstr "A sua definição de multihop foi migrada de \"Desativada\" para \"Nunca\"."
+
+msgid "Your multihop setting was migrated from “Off” to “When needed”"
+msgstr "A sua definição de multihop foi migrada de \"Desativada\" para \"Quando necessário\"."
+
+msgid "Your multihop setting was migrated from “On” to “Always”"
+msgstr "A sua definição de multihop foi migrada de \"Ativada\" para \"Sempre\"."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" foi criada"
@@ -3898,6 +4080,12 @@ msgstr "política de privacidade"
 
 msgid "read more here"
 msgstr "leia mais aqui"
+
+msgid "via %1$s, %2$s"
+msgstr "via %1$s, %2$s"
+
+msgid "“Direct Only” removed"
+msgstr "\"Apenas direto\" removido"
 
 msgid "%d day"
 msgid_plural "%d days"

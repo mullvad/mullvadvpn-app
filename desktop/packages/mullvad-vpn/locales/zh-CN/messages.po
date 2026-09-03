@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2026-07-10 07:35\n"
+"PO-Revision-Date: 2026-09-03 06:40\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -135,9 +135,6 @@ msgstr "删除"
 msgid "Delete list"
 msgstr "删除列表"
 
-msgid "Direct only"
-msgstr "仅直连"
-
 msgid "Disable"
 msgstr "停用"
 
@@ -168,10 +165,6 @@ msgstr "启用"
 msgid "Enable anyway"
 msgstr "仍然启用"
 
-#. A toggle that refers to the setting "Direct only".
-msgid "Enable direct only"
-msgstr "启用仅直连"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -189,6 +182,9 @@ msgstr "前往“系统设置”"
 
 msgid "Got it!"
 msgstr "知道了！"
+
+msgid "Guide"
+msgstr "指南"
 
 msgid "Import"
 msgstr "导入"
@@ -287,17 +283,13 @@ msgstr "搜索位置或服务器"
 msgid "SECURE CONNECTION"
 msgstr "安全连接"
 
-#. Text for button that sets a location as entry relay when button is disabled.
-msgid "Set as multihop entry"
-msgstr "设置为多跳入口"
-
-#. Text for button that sets a location as entry relay
-msgid "Set as multihop entry (incompatible)"
-msgstr "设置为多跳入口（不兼容）"
+#. Text for button that sets a location as entry relay.
+msgid "Set as entry"
+msgstr "设置为入口"
 
 #. Text for button that sets a location as exit relay
-msgid "Set as multihop exit"
-msgstr "设置为多跳出口"
+msgid "Set as exit"
+msgstr "设置为出口"
 
 msgid "Settings"
 msgstr "设置"
@@ -1039,17 +1031,15 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
-#. This is used as a feature indicator to show that DAITA is enabled through
-#. multihop.
-#. Available placeholders:
-#. %(DAITA)s - Is a non-translatable feature "DAITA"
-msgctxt "connect-view"
-msgid "%(DAITA)s: Multihop"
-msgstr "%(DAITA)s：多跳"
-
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "有效功能"
+
+#. This is used as a feature indicator to show that multihop is used
+#. to enable the connection.
+msgctxt "connect-view"
+msgid "Automatic multihop"
+msgstr "自动多跳"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -2075,6 +2065,12 @@ msgctxt "select-location-view"
 msgid "All locations"
 msgstr "所有位置"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Always".
+msgctxt "select-location-view"
+msgid "Always"
+msgstr "始终"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2085,11 +2081,6 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "自定义列表"
 
-#. Used in button to disable multihop.
-msgctxt "select-location-view"
-msgid "Disable multihop"
-msgstr "停用多跳"
-
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "停用最近使用"
@@ -2098,11 +2089,6 @@ msgstr "停用最近使用"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "空"
-
-#. Used in button to enable multihop.
-msgctxt "select-location-view"
-msgid "Enable multihop"
-msgstr "启用多跳"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2120,6 +2106,17 @@ msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr "已筛选："
 
+#. Title for a menu with items for the Multihop mode setting options.
+msgctxt "select-location-view"
+msgid "Multihop mode"
+msgstr "多跳模式"
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Never".
+msgctxt "select-location-view"
+msgid "Never"
+msgstr "从不"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
@@ -2131,10 +2128,6 @@ msgstr "无最近选择历史记录"
 msgctxt "select-location-view"
 msgid "Obfuscation: %(obfuscation)s"
 msgstr "混淆：%(obfuscation)s"
-
-msgctxt "select-location-view"
-msgid "Open %(daita)s settings"
-msgstr "打开 %(daita)s 设置"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2157,9 +2150,11 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "正在显示 %(visibleRelays)s 个，共 %(totalRelays)s 个"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "When needed".
 msgctxt "select-location-view"
-msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
-msgstr "%(multihop)s的入口服务器目前被 %(daita)s 覆盖。要选择入口服务器，请先在设置中启用“%(directOnly)s”或停用“%(daita)s”。"
+msgid "When needed"
+msgstr "按需"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2232,6 +2227,12 @@ msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
 msgstr "为了避免这种情况，您可以导入由我们的支持团队提供的文件或文本，其中的新 IP 地址会覆盖“选择位置”视图中服务器的默认地址。"
 
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Always" option is selected.
+msgctxt "settings-view"
+msgid "Always"
+msgstr "始终"
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -2245,6 +2246,12 @@ msgstr "应用信息"
 msgctxt "settings-view"
 msgid "Multihop"
 msgstr "多跳"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Never" option is selected.
+msgctxt "settings-view"
+msgid "Never"
+msgstr "从不"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2270,6 +2277,12 @@ msgstr "用户界面设置"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN 设置"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "When needed" option is selected.
+msgctxt "settings-view"
+msgid "When needed"
+msgstr "按需"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -2708,6 +2721,10 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "博彩"
 
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "如果无法连接，您可以尝试使用 IP 地址代替主机名。如果要连接到子网或私有网络地址范围，可以按照我们的指南添加静态路由。"
+
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
 msgid "In-tunnel IPv6"
@@ -2848,21 +2865,19 @@ msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
 msgstr "%(wireGuard)s 端口"
 
+#. Label for the Multihop mode setting's option to always use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Always"
+msgstr "始终"
+
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "注意：这会增加网络流量，还会对速度、延迟和电池使用产生负面影响。如果套餐流量有限，请谨慎使用。"
 
 msgctxt "wireguard-settings-view"
-msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
-msgstr "启用“%(directOnly)s”后，您需要手动选择启用了 %(daita)s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。"
-
-msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
 msgstr "通过使用复杂 AI，可以分析传入和传出您的设备的数据包流量（即使流量已加密）。"
-
-msgctxt "wireguard-settings-view"
-msgid "Cancel"
-msgstr "取消"
 
 #. Title for device IP version setting.
 msgctxt "wireguard-settings-view"
@@ -2877,6 +2892,11 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr "实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。"
 
+#. Title for Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "Mode"
+msgstr "模式"
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
@@ -2889,17 +2909,14 @@ msgid "Multihop"
 msgstr "多跳"
 
 msgctxt "wireguard-settings-view"
-msgid "Multihop is being used to enable DAITA for your selected location"
-msgstr "正在使用多跳为您的所选位置启用 DAITA"
-
-msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr "多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。"
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
+#. Label for the Multihop mode setting's option to never use the multihop
+#. feature.
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
-msgstr "我们的部分服务器未启用 %(daita)s。要使用互联网，您可能需要在启用后选择新位置。"
+msgid "Never"
+msgstr "从不"
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
@@ -2965,12 +2982,21 @@ msgctxt "wireguard-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "有效范围：%(portRanges)s"
 
+#. Label for the Multihop mode setting's option to use the multihop
+#. feature when it is needed.
+msgctxt "wireguard-settings-view"
+msgid "When needed"
+msgstr "按需"
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。"
 
 msgid "%1$d out of %2$d"
 msgstr "%1$d / %2$d"
+
+msgid "%1$s Back"
+msgstr "%1$s 返回"
 
 msgid "%1$s more..."
 msgstr "其他 %1$s 个…"
@@ -3128,6 +3154,9 @@ msgstr "“始终开启 VPN”已分配给 %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "“始终开启 VPN”已分配给其他 VPN"
 
+msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
+msgstr "为确保连接正常工作，系统目前会按需自动选择入口服务器。要手动选择入口服务器，请将多跳模式切换为“始终”。"
+
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 存在已知问题。请重启您的设备并重试。如需了解详情，"
 
@@ -3152,11 +3181,23 @@ msgstr "至少需要启用一个方法"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分割应用将无法连接互联网。请牢记，分割隧道存在隐私风险。"
 
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "注意：在此模式下，附加服务器将忽略筛选器。"
+
+msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
+msgstr "注意：这将忽略正在用作入口点服务器的筛选器设置。"
+
+msgid "Attention: With the “Automatic” location, filters are ignored for the entry server."
+msgstr "注意：使用“自动”位置时，入口服务器将忽略筛选器。"
+
 msgid "Auto-connect & Lockdown mode"
 msgstr "自动连接和锁定模式"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
+
+msgid "Automatic (%s)"
+msgstr "自动（%s）"
 
 msgid "Automatically connect on device start-up."
 msgstr "设备启动时自动连接。"
@@ -3182,8 +3223,14 @@ msgstr "无法连接？"
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "更改 Android 设备上 Mullvad VPN 应用的标题和图标。这不会更改任何 Mullvad VPN 相关通知的图标。"
 
+msgid "Change to “When needed”"
+msgstr "改为“按需”"
+
 msgid "Clear input"
 msgstr "清除输入"
+
+msgid "Click here to read more"
+msgstr "点击此处了解详情"
 
 msgid "Collapse"
 msgstr "收起"
@@ -3230,6 +3277,9 @@ msgstr "自定义 DNS 服务器地址 %1$s 无效"
 msgid "DNS settings"
 msgstr "DNS 设置"
 
+msgid "DNS settings might not go into effect immediately."
+msgstr "DNS 设置可能不会立即生效."
+
 msgid "Delete \"%s\"?"
 msgstr "删除“%s”？"
 
@@ -3253,6 +3303,9 @@ msgstr "直接"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "停用上方的所有“%s”以激活此设置。"
+
+msgid "Disable multihop"
+msgstr "停用多跳"
 
 msgid "Discard"
 msgstr "舍弃"
@@ -3281,9 +3334,6 @@ msgstr "编辑列表"
 msgid "Edit locations"
 msgstr "编辑位置"
 
-msgid "Enable %1$s"
-msgstr "启用“%1$s”"
-
 msgid "Enable all & retry"
 msgstr "全部启用并重试"
 
@@ -3305,11 +3355,17 @@ msgstr "输入帐号数字"
 msgid "Enter an account number"
 msgstr "输入帐号"
 
+msgid "Entry filter"
+msgstr "入口筛选器"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "入口中继与出口中继相同"
 
 msgid "Excluded applications"
 msgstr "排除的应用程序"
+
+msgid "Exit filter"
+msgstr "出口筛选器"
 
 msgid "Expand"
 msgstr "展开"
@@ -3337,6 +3393,12 @@ msgstr "无法设置为当前方法 – 未知原因"
 
 msgid "File"
 msgstr "文件"
+
+msgid "Filters are overridden when using an automatic location"
+msgstr "使用自动位置时，筛选器会被覆盖"
+
+msgid "Filters can now be set separately for entry and exit locations."
+msgstr "现在可以为入口和出口位置分别设置筛选器。"
 
 msgid "For details, please see our %s."
 msgstr "有关详情，请参阅我们的%s。"
@@ -3385,6 +3447,12 @@ msgstr "如果使用分割隧道功能，应用会向您的系统查询所有已
 
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "如果上述步骤无效，请使用下方的按钮发送邮件给支持团队。电子邮件将自动附加经过匿名化处理的日志。"
+
+msgid "If you have any issues"
+msgstr "如果您有任何问题"
+
+msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
+msgstr "如果您的当前位置不支持您的偏好设置，例如反审查方法、筛选器和/或 DAITA，系统将自动使用多跳，以通过兼容的服务器连接到该位置。这将用 %1$s 符号表示。"
 
 msgid "Import new overrides by"
 msgstr "导入新覆盖设置的方式"
@@ -3446,17 +3514,35 @@ msgstr "登录"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "确保设备始终位于 VPN 隧道上。"
 
+msgid "Migrated settings"
+msgstr "迁移的设置"
+
 msgid "More actions"
 msgstr "更多操作"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服务不可用"
 
+msgid "Multihop entry set to “Automatic”"
+msgstr "多跳入口已被设为“自动”"
+
 msgid "Multihop is disabled"
 msgstr "多跳已停用"
 
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "多跳已禁用。您的所选位置必须支持所有有效设置才能建立连接。"
+
 msgid "Multihop is enabled"
 msgstr "多跳已启用"
+
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "多跳已启用。您的连接会先经过入口服务器，再通过所选位置传出。"
+
+msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
+msgstr "多跳现在分为三种模式：按需、始终、从不。\\n这为您的连接偏好设置提供了更大的灵活性。"
+
+msgid "Multihop when needed"
+msgstr "按需多跳"
 
 msgid "Name is already taken."
 msgstr "名称已被占用。"
@@ -3466,6 +3552,12 @@ msgstr "名称已更改为“%s”"
 
 msgid "Navigate"
 msgstr "导航"
+
+msgid "New multihop modes"
+msgstr "新多跳模式"
+
+msgid "Next %1$s"
+msgstr "下一步 %1$s"
 
 msgid "No Android app store installed, could not open link"
 msgstr "未安装 Android 应用商店，无法打开链接"
@@ -3526,6 +3618,9 @@ msgstr "粘贴或编写要导入的覆盖设置"
 
 msgid "Patch not matching specification"
 msgstr "补丁与规范不匹配"
+
+msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
+msgstr "根据您的出口位置选择合适的位置，这取决于距离、提供商和服务器负载等多种不同因素。"
 
 msgid "Please enter a message"
 msgstr "请输入消息"
@@ -3605,6 +3700,9 @@ msgstr "重置覆盖设置"
 msgid "Reset to default"
 msgstr "重置为默认值"
 
+msgid "Resolve connection issues"
+msgstr "解决连接问题"
+
 msgid "Restart your device"
 msgstr "重启您的设备"
 
@@ -3614,14 +3712,35 @@ msgstr "搜索"
 msgid "Send email"
 msgstr "发送电子邮件"
 
+msgid "Separate filters"
+msgstr "独立筛选器"
+
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "设置 WireGuard MTU 值。有效范围：%1$d - %2$d。"
+
+msgid "Set as multihop entry"
+msgstr "设置为多跳入口"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "设置为多跳入口（不兼容）"
+
+msgid "Set as multihop exit"
+msgstr "设置为多跳出口"
 
 msgid "Set as multihop exit (incompatible)"
 msgstr "设置为多跳出口（不兼容）"
 
+msgid "Set entry to “Automatic”"
+msgstr "将入口设为“自动”"
+
+msgid "Set multihop to “Always”"
+msgstr "将多跳设为“始终”"
+
 msgid "Set port"
 msgstr "设置端口"
+
+msgid "Settings Migrated"
+msgstr "设置已迁移"
 
 msgid "Share…"
 msgstr "共享…"
@@ -3638,11 +3757,26 @@ msgstr "显示当前的 VPN 隧道状态"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帐户时间即将到期时显示提醒"
 
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "您的部分设置已迁移，请检查更改内容并解决任何问题。"
+
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "您的部分设置已迁移，请检查更改内容。"
+
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "验证您的购买时出错。请联系支持团队。"
 
 msgid "Submit"
 msgstr "提交"
+
+msgid "Suggested action"
+msgstr "建议的操作"
+
+msgid "Suggested multihop entry"
+msgstr "建议的多跳入口"
+
+msgid "System network settings"
+msgstr "系统网络设置"
 
 msgid "TCP"
 msgstr "TCP"
@@ -3661,6 +3795,9 @@ msgstr "感谢您加入我们的社区。\\n每个人都有隐私权！"
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。"
+
+msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
+msgstr "DAITA 子设置“仅直连”已被移除并简化，以避免阻止连接。现在，在启用 DAITA 的情况下，您可以通过多跳设置来配置此选项。"
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "除非您在 VPN 设置中启用“IPv6”，否则 IPv6 DNS 服务器将不会运行。"
@@ -3686,6 +3823,9 @@ msgstr "由于无法访问 Mullvad API，应用无法登录。"
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
+msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
+msgstr "多跳的“始终”模式现在为入口服务器选择新增了“自动”位置选项。"
+
 msgid "The selected %s port is not supported, please change it under"
 msgstr "所选 %s 端口不受支持，请在以下位置更改："
 
@@ -3707,17 +3847,29 @@ msgstr "它已被设置为当前方法"
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "这可能由审查或网络问题造成。请尝试："
 
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "此模式允许 App 在需要时自动通过附加服务器进行多跳，以确保您当前的设置与所选位置兼容。"
+
 msgid "Time added"
 msgstr "时间已添加"
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
 msgstr "要将位置添加到列表中，请按笔形图标或长按国家/地区、城市或服务器。"
 
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”."
+msgstr "为避免被阻止，我们建议您将多跳模式设为“按需”。"
+
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to “Automatic”."
+msgstr "为避免需要手动更改入口服务器，我们建议您将多跳入口服务器设为“自动”。"
+
 msgid "To create a custom list press the \"+\""
 msgstr "要创建自定义列表，请按“+”"
 
 msgid "To delete your Mullvad VPN account, please enter your account number below."
 msgstr "要删除 Mullvad VPN 帐户，请在下方输入您的帐号。"
+
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
+msgstr "为了确保您当前的设置适用于您选择的位置，并避免阻止您的连接，该应用可能会自动通过不同的入口服务器进行多跳。\\n这将用 %1$s 符号表示。"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。"
@@ -3727,6 +3879,9 @@ msgstr "切换 VPN"
 
 msgid "Too many attempts, please try again later"
 msgstr "尝试次数过多，请稍后再试"
+
+msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
+msgstr "关闭“%s”中的私有 DNS，因为它可能会干扰 Mullvad 的 DNS 设置。"
 
 msgid "UDP"
 msgstr "UDP"
@@ -3842,6 +3997,15 @@ msgstr "天气"
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "欢迎，此设备现已命名为 <b>%s</b>。"
 
+msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
+msgstr "当多跳设为“始终”或“从不”时，您必须手动选择一个 DAITA 服务器。"
+
+msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "当多跳设为“按需”时，App 可能会使用附加服务器，以确保您能使用 DAITA 连接到所选位置。"
+
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "选中后，App 会自动挑选一个随机服务器，优先选择距离出口位置较近的服务器以获得更佳性能。"
+
 msgid "WireGuard port"
 msgstr "WireGuard 端口"
 
@@ -3866,11 +4030,29 @@ msgstr "您将在所有设备上失去此帐户的访问权限。"
 msgid "You will lose your remaining"
 msgstr "您会失去剩余的"
 
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "您当前的筛选器已同时应用到入口和出口位置。"
+
 msgid "Your device"
 msgstr "您的设备"
 
+msgid "Your device (%s)"
+msgstr "您的设备 (%s)"
+
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr "您最近的购买仍在验证中。此时登录其他帐户将导致验证失败。是否仍要退出登录？"
+
+msgid "Your multihop setting was migrated from “Off” to “Always”"
+msgstr "您的多跳设置已从“关”改为“始终”"
+
+msgid "Your multihop setting was migrated from “Off” to “Never”"
+msgstr "您的多跳设置已从“关”改为“从不”"
+
+msgid "Your multihop setting was migrated from “Off” to “When needed”"
+msgstr "您的多跳设置已从“关”改为“按需”"
+
+msgid "Your multihop setting was migrated from “On” to “Always”"
+msgstr "您的多跳设置已从“开”改为“始终”"
 
 msgid "\"%s\" was created"
 msgstr "“%s”已创建"
@@ -3892,6 +4074,12 @@ msgstr "隐私政策"
 
 msgid "read more here"
 msgstr "点击此处了解详情"
+
+msgid "via %1$s, %2$s"
+msgstr "通过%1$s，%2$s"
+
+msgid "“Direct Only” removed"
+msgstr "“仅直连”已移除"
 
 msgid "%d day"
 msgid_plural "%d days"
