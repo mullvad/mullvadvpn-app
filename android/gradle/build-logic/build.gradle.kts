@@ -65,3 +65,18 @@ gradlePlugin {
         }
     }
 }
+
+configurations
+    .matching { it.name == "kotlinAbiValidationCompatClasspath" }
+    .configureEach {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "org.jetbrains.kotlin") {
+                    useVersion(libs.versions.kotlin.asProvider().get())
+                    because(
+                        "Pin the Kotlin ABI validation compat classpath to the project's Kotlin version instead of letting the KGP-declared version range [2.4.0-Beta2, 2.5.0) float to the latest published RC."
+                    )
+                }
+            }
+        }
+    }
