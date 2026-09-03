@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -14,11 +14,6 @@
         <source>%@</source>
         <target state="final">%@</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">%2$@ ကို %1$@ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action to be performed, and the second argument is the name of the feature that requires restarting the VPN.</note>
       </trans-unit>
       <trans-unit id="%@ (%@)" xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@)</source>
@@ -59,11 +54,6 @@
         <source>%@ was added to your account.</source>
         <target state="final">%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</target>
         <note/>
-      </trans-unit>
-      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
-        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="final">"%2$@" ကို %1$@ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
-        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
@@ -148,11 +138,6 @@
       <trans-unit id="Account" xml:space="preserve" approved="yes">
         <source>Account</source>
         <target state="final">အကောင့်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Account created" xml:space="preserve" approved="yes">
-        <source>Account created</source>
-        <target state="final">အကောင့် ဖန်တီးပြီး</target>
         <note/>
       </trans-unit>
       <trans-unit id="Account credit expires soon" xml:space="preserve" approved="yes">
@@ -279,6 +264,11 @@
         <source>An additional server is used to match your settings for your selected location</source>
         <target state="final">သင်ရွေးချယ်ထားသော တည်နေရာအတွက် သင့်ဆက်တင်များနှင့် ကိုက်ညီစေရန် ထပ်ဆောင်းဆာဗာကို သုံးသည်</target>
         <note from="auto-generated">A description of how the automatic location feature works.</note>
+      </trans-unit>
+      <trans-unit id="Anti-censorship" xml:space="preserve" approved="yes">
+        <source>Anti-censorship</source>
+        <target state="final">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Any" xml:space="preserve" approved="yes">
         <source>Any</source>
@@ -560,6 +550,11 @@
         <target state="final">“%@” သို့ ပြောင်းမည်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">ဘာသာစကားပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
+        <note>Fixed disconnect warning when changing language in settings</note>
+      </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
         <source>Changing language will disconnect you from the VPN and restart the app</source>
         <target state="final">ဘာသာစကား ပြောင်းလဲခြင်းခြင့် VPN နှင့် ချိတ်ဆက်မှု ပြတ်တောက်သွားမည်ဖြစ်ပြီး စက်ကို ပြန်လည်စတင်ပါမည်</target>
@@ -574,11 +569,6 @@
         <source>Checked</source>
         <target state="final">အမှန်ခြစ်ခြစ်ပြီး</target>
         <note from="auto-generated">Text describing a checked checkbox.</note>
-      </trans-unit>
-      <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
-        <source>Checking account number</source>
-        <target state="final">အကောင့်နံပါတ်ကို စစ်နေပါသည်</target>
-        <note/>
       </trans-unit>
       <trans-unit id="Chicago, IL" xml:space="preserve" approved="yes">
         <source>Chicago, IL</source>
@@ -610,10 +600,10 @@
         <target state="final">ကျော်လွန် ပယ်ဖျက်မှုအားလုံးကို ရှင်းမည်လား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear search" xml:space="preserve" approved="yes">
-        <source>Clear search</source>
-        <target state="final">ရှာဖွေမှုကို ရှင်းလင်းရန်</target>
-        <note from="auto-generated">A label for a button that clears text from a search field.</note>
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
+        <source>Clear text</source>
+        <target state="final">စာသားကို ရှင်းရန်</target>
+        <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
         <source>Clearing the imported overrides changes the server IPs, in the Select location view, back to default.</source>
@@ -715,11 +705,6 @@
         <target state="final">ဖန်တီးမည်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Create account" xml:space="preserve" approved="yes">
-        <source>Create account</source>
-        <target state="final">အကောင့် ဖွင့်ရန်</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Create new account" xml:space="preserve" approved="yes">
         <source>Create new account</source>
         <target state="final">အကောင့်သစ် ဖွင့်ရန်</target>
@@ -738,11 +723,6 @@
       <trans-unit id="Created: %@" xml:space="preserve" approved="yes">
         <source>Created: %@</source>
         <target state="final">ဖန်တီးချိန်- %@</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Creating account..." xml:space="preserve" approved="yes">
-        <source>Creating account...</source>
-        <target state="final">အကောင့် ဖန်တီးနေဆဲ...</target>
         <note/>
       </trans-unit>
       <trans-unit id="Croatia" xml:space="preserve" approved="yes">
@@ -855,11 +835,6 @@
         <target state="final">နည်းလမ်းကို ဖျက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Deleting account..." xml:space="preserve" approved="yes">
-        <source>Deleting account...</source>
-        <target state="final">အကောင့် ဖျက်နေဆဲ...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Denmark" xml:space="preserve" approved="yes">
         <source>Denmark</source>
         <target state="final">ဒိန်းမတ်</target>
@@ -910,14 +885,14 @@
         <target state="final">"%@" ကို ပိတ်ရန်</target>
         <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">ပိတ်</target>
-        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">“%@“ ကို ပိတ်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -945,14 +920,14 @@
         <target state="final">**%@** စာရင်းကို ဖျက်လိုပါသလား။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
+        <source>Do you want to remove the saved account number?</source>
+        <target state="final">သိမ်းထားသည့် အကောင့်နံပါတ်ကို ဖြုတ်လိုပါသလား။</target>
+        <note from="auto-generated">Confirmation alert message when the user wants to remove the saved account number.</note>
+      </trans-unit>
       <trans-unit id="Done" xml:space="preserve" approved="yes">
         <source>Done</source>
         <target state="final">ပြီးပါပြီ</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Don’t have an account number?" xml:space="preserve" approved="yes">
-        <source>Don’t have an account number?</source>
-        <target state="final">အကောင့်နံပါတ် မရှိသေးဘူးလား။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Dublin" xml:space="preserve" approved="yes">
@@ -1030,15 +1005,15 @@
         <target state="final">လတ်တလောအရာများကို ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">ဖွင့်</target>
-        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
-      </trans-unit>
       <trans-unit id="Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." xml:space="preserve" approved="yes">
         <source>Enabling %1$@ has shown to reduce the number of issues encountered when using %2$@, regardless if you are using WiFi or a cellular network.</source>
         <target state="final">%1$@ ကို ဖွင့်လိုက်ပါက သင် WiFi သုံးသည်ဖြစ်စေ၊ ဆယ်လူလာကွန်ရက် သုံးသည်ဖြစ်စေ ထည့်မတွက်ဘဲ %2$@ အသုံးပြုစဉ် တွေ့ကြုံရသည့် ပြဿနာအရေအတွက်ကို လျှော့ချပေးကြောင်း တွေ့ရှိရသည်။</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
+      </trans-unit>
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">“%@“ ကို ဖွင့်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
+        <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1570,11 +1545,6 @@
         <target state="final">အကောင့်နံပါတ်၏ နောက်ဆုံးဂဏန်း လေးခု မမှန်ကန်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Last used account" xml:space="preserve" approved="yes">
-        <source>Last used account</source>
-        <target state="final">နောက်ဆုံးအသုံးပြုခဲ့သည် အကောင့်</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Learn about privacy" xml:space="preserve" approved="yes">
         <source>Learn about privacy</source>
         <target state="final">ကိုယ်ရေးအချက်အလက်လုံခြုံရေးအကြောင်း လေ့လာရန်</target>
@@ -1625,34 +1595,19 @@
         <target state="final">တည်နေရာများကို တိုက်ရိုက် ရွေးချယ်နိုင်သည် သို့မဟုတ် အကျယ်ဖြန့်နိုင်သည်။ မြို့ သို့မဟုတ် နိုင်ငံတစ်ခုကို ရွေးချယ်သည့်အခါ Tunnel ချိတ်ဆက်မှု လုပ်ဆောင်ရန်အတွက် ထိုနေရာရှိ ကိုက်ညီသော ဆာဗာအားလုံးကို ထည့်သွင်းစဉ်းစား၍ ထိုအထဲမှ ရွေးချယ်သွားပါမည်။</target>
         <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
+      <trans-unit id="Log in" xml:space="preserve" approved="yes">
+        <source>Log in</source>
+        <target state="final">ဝင်ရောက်ရန်</target>
+        <note from="auto-generated">Button to log in.</note>
+      </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
         <target state="final">ထွက်ရန်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Logged in" xml:space="preserve" approved="yes">
-        <source>Logged in</source>
-        <target state="final">ဝင်ရောက်ထားပြီး</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Logging in..." xml:space="preserve" approved="yes">
-        <source>Logging in...</source>
-        <target state="final">ဝင်ရောက်နေဆဲ...</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Logging out..." xml:space="preserve" approved="yes">
         <source>Logging out...</source>
         <target state="final">ထွက်နေဆဲ...</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login" xml:space="preserve" approved="yes">
-        <source>Login</source>
-        <target state="final">ဝင်ရန်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Login failed" xml:space="preserve" approved="yes">
-        <source>Login failed</source>
-        <target state="final">ဝင်ရောက်မှု မအောင်မြင်ပါ</target>
         <note/>
       </trans-unit>
       <trans-unit id="London" xml:space="preserve" approved="yes">
@@ -1718,6 +1673,11 @@
       <trans-unit id="Melbourne" xml:space="preserve" approved="yes">
         <source>Melbourne</source>
         <target state="final">မဲလ်ဘုန်း</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Method" xml:space="preserve" approved="yes">
+        <source>Method</source>
+        <target state="final">နည်းလမ်း</target>
         <note/>
       </trans-unit>
       <trans-unit id="Method settings" xml:space="preserve" approved="yes">
@@ -1945,6 +1905,11 @@
         <target state="final">သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="None" xml:space="preserve" approved="yes">
+        <source>None</source>
+        <target state="final">မရှိ</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Norway" xml:space="preserve" approved="yes">
         <source>Norway</source>
         <target state="final">နော်ဝေး</target>
@@ -2029,6 +1994,11 @@
         <source>Optional</source>
         <target state="final">ချန်ထားခဲ့နိုင်ပါသည်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Or" xml:space="preserve" approved="yes">
+        <source>Or</source>
+        <target state="final">သို့မဟုတ်</target>
+        <note from="auto-generated">A separator between the login button and the "Or" text.</note>
       </trans-unit>
       <trans-unit id="Osaka" xml:space="preserve" approved="yes">
         <source>Osaka</source>
@@ -2128,6 +2098,11 @@
       <trans-unit id="Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings." xml:space="preserve" approved="yes">
         <source>Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings.</source>
         <target state="final">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Please note that these methods do not improve performance, and may increase system utilization and battery consumption." xml:space="preserve" approved="yes">
+        <source>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</source>
+        <target state="final">ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်အသုံးပြုမှုနှင့် ဘက်ထရီသုံးစွဲမှုကို တိုးစေနိုင်ကြောင်း သတိပြုပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Please select a compatible location after %@." xml:space="preserve" approved="yes">
@@ -2270,17 +2245,10 @@
         <target state="final">%@ ကို ဖယ်ရှားမလား။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Remove last used account" xml:space="preserve" approved="yes">
-        <source>Remove last used account</source>
-        <target state="final">နောက်ဆုံးအသုံးပြုထားသော အကောင့်ကို ဖယ်ရှားရန်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Removing the saved account number from this device cannot be undone.&#10;Do you want to remove the saved account number?" xml:space="preserve" approved="yes">
-        <source>Removing the saved account number from this device cannot be undone.
-Do you want to remove the saved account number?</source>
-        <target state="final">ဤစက်မှ သိမ်းဆည်းထားသော အကောင့်နံပါတ်ကို ဖယ်ရှားခြင်းကို ပြန်ပြင်၍မရပါ။
-သိမ်းဆည်းထားသော အကောင့်နံပါတ်ကို ဖယ်ရှားလိုပါသလား။</target>
-        <note/>
+      <trans-unit id="Removing the saved account number from this device cannot be undone." xml:space="preserve" approved="yes">
+        <source>Removing the saved account number from this device cannot be undone.</source>
+        <target state="final">ဤစက်မှ အကောင့်နံပါတ်ကို ဖြုတ်ပြီးသွားလျှင် ပြန်ယူ၍မရပါ။</target>
+        <note from="auto-generated">Alert message when the user is prompted to remove the saved account number.</note>
       </trans-unit>
       <trans-unit id="Rented" xml:space="preserve" approved="yes">
         <source>Rented</source>
@@ -2807,6 +2775,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">စက်ပေါ်တွင် သိမ်းဆည်းထားသော ဆက်တင်များ၏ ဗားရှင်းကို မသိရှိပါ။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These methods may be useful in situations where you are blocked from reaching Mullvad. When &quot;Automatic&quot; is selected, the app will attempt all methods until one works." xml:space="preserve" approved="yes">
+        <source>These methods may be useful in situations where you are blocked from reaching Mullvad. When "Automatic" is selected, the app will attempt all methods until one works.</source>
+        <target state="final">Mullvad သို့ ဆက်သွယ်၍ မရစေရန် ပိတ်ဆို့ထားသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ "အော်တိုမက်တစ်" ကို ရွေးချယ်လိုက်သောအခါ အက်ပ်သည် နည်းလမ်းတစ်ခု အလုပ်လုပ်သည်အထိ နည်းလမ်းအားလုံးကို ကြိုးစားလုပ်ဆောင်ပါလိမ့်မည်။</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
         <source>These settings can be changed at any time</source>
         <target state="final">ဤဆက်တင်များကို အချိန်မရွေး ပြောင်းနိုင်သည်</target>
@@ -3102,11 +3075,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဗလန်စီယာ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Valid account number" xml:space="preserve" approved="yes">
-        <source>Valid account number</source>
-        <target state="final">မှန်ကန်သည့် အကောင့်နံပါတ်</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Valid range: %d - %d" xml:space="preserve" approved="yes">
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">ဝင်သည့် အပိုင်းအခြား- %1$d - %2$d</target>
@@ -3177,6 +3145,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">ကျွန်ုပ်တို့တွင် ပြဿနာအချို့ရှိနေပါသည်၊ နောက်မှ ထပ်မံကြိုးစားပါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
+        <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
+        <target state="final">အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို ပိတ်နိုင်ရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်ရန် အပ်ဒိတ်ရရှိချိန်တွင် အသိပေးချက်တစ်စောင် သင့်ထံ ပေးပို့နိုင်ပါသည်။ စနစ်ဆက်တင်များတွင် ဤလုပ်ဆောင်ချက်ကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။</target>
+        <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
+      </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
         <source>We will look into this.</source>
         <target state="final">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</target>
@@ -3227,12 +3200,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="WireGuard obfuscation" xml:space="preserve" approved="yes">
-        <source>WireGuard obfuscation</source>
-        <target state="final">WireGuard Obfuscation
-</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="WireGuard port" xml:space="preserve" approved="yes">
         <source>WireGuard port</source>
         <target state="final">WireGuard ပေါ့တ်</target>
@@ -3253,11 +3220,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">"Mullvad ပေါင်းကူးများ" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ဆာဗာအား Mullvad ပေါင်းကူး ဆာဗာမှတစ်ဆင့် ဆက်သွယ်ပါသည်။ Shadowsock များဖြင့် ရှုပ်ထွေးအောင် ပြုလုပ်ထားသည့် ဒေတာကူးလူးမှုများကို ပေးပို့ခြင်းဖြင့် ၎င်းက အဆိုပါကိစ္စကို ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
-        <source>Would you like to continue to %1$@ “%2$@”?</source>
-        <target state="final">“%2$@” ကို %1$@ ရန် ဆက်လုပ်လိုပါသလား။</target>
-        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
-      </trans-unit>
       <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
         <source>Would you like to continue?</source>
         <target state="final">ဆက်လုပ်လိုပါသလား။</target>
@@ -3271,11 +3233,6 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="Yes, log out device" xml:space="preserve" approved="yes">
         <source>Yes, log out device</source>
         <target state="final">စက်မှ ထွက်မည်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone." xml:space="preserve" approved="yes">
-        <source>You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</source>
-        <target state="final">သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address." xml:space="preserve" approved="yes">
@@ -3431,40 +3388,25 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ဇူးရစ်ချ်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="changing" xml:space="preserve" approved="yes">
-        <source>changing</source>
-        <target state="final">ပြောင်းရန်</target>
-        <note from="auto-generated">Action that will be performed when showing the disconnect warning alert.</note>
-      </trans-unit>
       <trans-unit id="changing mode" xml:space="preserve" approved="yes">
         <source>changing mode</source>
         <target state="final">မုဒ်ပြောင်းနေသည်</target>
         <note>Multihop mode</note>
-      </trans-unit>
-      <trans-unit id="disable" xml:space="preserve" approved="yes">
-        <source>disable</source>
-        <target state="final">ပိတ်ရန်</target>
-        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
-      </trans-unit>
-      <trans-unit id="enable" xml:space="preserve" approved="yes">
-        <source>enable</source>
-        <target state="final">ဖွင့်ရန်</target>
-        <note from="auto-generated">The action to perform when continuing.</note>
       </trans-unit>
       <trans-unit id="enabling DAITA" xml:space="preserve" approved="yes">
         <source>enabling DAITA</source>
         <target state="final">DAITA ကို ဖွင့်နေသည်</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
+        <source>fail</source>
+        <target state="final">မအောင်မြင်ပါ</target>
+        <note from="auto-generated">A label describing a failed action.</note>
+      </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
         <source>iOS features known to be affected:</source>
         <target state="final">iOS လုပ်ဆောင်ချက်များ ထိခိုက်နိုင်ကြောင်း သိရှိရသည်-</target>
         <note from="auto-generated">Heading for a section in the "Known issues" view that lists iOS features known to be affected.</note>
-      </trans-unit>
-      <trans-unit id="language" xml:space="preserve">
-        <source>language</source>
-        <target state="needs-review-translation" state-qualifier="leveraged-tm">ဘာသာစကား</target>
-        <note from="auto-generated">Feature name for the language setting.</note>
       </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
@@ -3500,49 +3442,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -3554,21 +3496,21 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
@@ -3590,14 +3532,14 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.5" build-num="17F42"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.6" build-num="17F113"/>
     </header>
     <body>
     </body>
