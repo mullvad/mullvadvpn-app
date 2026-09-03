@@ -14,152 +14,162 @@ import MullvadSettings
 import NetworkExtension
 import UIKit
 
+#if NEVER_IN_PRODUCTION
+    typealias AppResetManager = AppResetManagerReal
+#else
+    typealias AppResetManager = AppResetManagerNoOp
+#endif
+
+
 @MainActor
-final class AppResetManager {
-    #if NEVER_IN_PRODUCTION
-        private let launchArguments: LaunchArguments
-        private let tunnelManager: TunnelManager
-        private let settingsManager: SettingsManager
-        private var tunnelObserver: TunnelObserver!
+final class AppResetManagerReal {
+    private let launchArguments: LaunchArguments
+    private let tunnelManager: TunnelManager
+    private let settingsManager: SettingsManager
+    private var tunnelObserver: TunnelObserver!
 
-        let logger = Logger(label: "AppResetManager")
+    let logger = Logger(label: "AppResetManager")
 
-        var onAppReady: (@Sendable @MainActor () -> Void)?
+    var onAppReady: (@Sendable @MainActor () -> Void)?
 
-        private let isConfigurationLoaded = CurrentValueSubject<Bool, Never>(false)
-        private let isAppReady = CurrentValueSubject<Bool, Never>(false)
+    private let isConfigurationLoaded = CurrentValueSubject<Bool, Never>(false)
+    private let isAppReady = CurrentValueSubject<Bool, Never>(false)
 
-        private var cancellables = Set<AnyCancellable>()
-    #endif
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         launchArguments: LaunchArguments,
         tunnelManager: TunnelManager,
         settingsManager: SettingsManager
     ) {
-        #if NEVER_IN_PRODUCTION
-            self.launchArguments = launchArguments
-            self.tunnelManager = tunnelManager
-            self.settingsManager = settingsManager
-            guard launchArguments.target.isUITest else { return }
-            observeReadiness()
-            addObserver()
-        #endif
+        self.launchArguments = launchArguments
+        self.tunnelManager = tunnelManager
+        self.settingsManager = settingsManager
+        guard launchArguments.target.isUITest else { return }
+        observeReadiness()
+        addObserver()
     }
 
     func start() {
-        #if NEVER_IN_PRODUCTION
-            guard launchArguments.target.isUITest else { return }
-            Task {
-                async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
-                async let setupTask: () = setup()
-                _ = await (cleanup, setupTask)
+        guard launchArguments.target.isUITest else { return }
+        Task {
+            async let cleanup: () = StorePaymentManager.cleanupUnfinishedTransactions()
+            async let setupTask: () = setup()
+            _ = await (cleanup, setupTask)
+        }
+    }
+
+    private func observeReadiness() {
+        Publishers.CombineLatest(isConfigurationLoaded, isAppReady)
+            .filter { configurationLoaded, appReady in
+                configurationLoaded && appReady
+            }
+            .sink { [weak self] _, _ in
+                guard let self else { return }
+                tunnelManager.removeObserver(tunnelObserver)
+                onAppReady?()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func addObserver() {
+        let tunnelObserver = TunnelBlockObserver(
+            didLoadConfiguration: { [weak self] tunnelManager in
+                self?.isConfigurationLoaded.send(true)
+            },
+            didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
+                guard let self else { return }
+                if tunnelStatus.observedState != .disconnected {
+                    tunnelManager.stopTunnel()
+                } else if case .disconnected = tunnelStatus.observedState {
+                    Task {
+                        await reset()
+                    }
+                }
+            }
+        )
+        tunnelManager.addObserver(tunnelObserver)
+        self.tunnelObserver = tunnelObserver
+    }
+
+    private func setup() async {
+        do {
+            guard try await isTunnelActive() == false else { return }
+            await reset()
+        } catch {
+            logger.error("Unexpected tunnel error: \(error.localizedDescription)")
+            isAppReady.send(true)
+        }
+    }
+
+    private func reset() async {
+        switch tunnelManager.deviceState {
+        case .loggedIn:
+            await logoutIfNeeded()
+            fallthrough
+        default:
+            resetUserDefaults()
+            resetKeychain()
+            isAppReady.send(true)
+        }
+    }
+
+    private func logoutIfNeeded() async {
+        guard launchArguments.authenticationState == .forceLoggedOut else {
+            return
+        }
+        await tunnelManager.unsetAccount(isRemovingProfile: false)
+    }
+
+    private func resetKeychain() {
+        let policy = launchArguments.settingsResetPolicy
+        settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
+        if policy.shouldReset(.settings) {
+            tunnelManager.updateSettings([.reset])
+        }
+    }
+
+    private func resetUserDefaults() {
+        let policy = launchArguments.appPreferencesResetPolicy
+        let defaults = UserDefaults.standard
+        let keysToRemove: Set<UITestAppPreferencesKey> = policy.resolvedKeys()
+        for key in keysToRemove {
+            defaults.removeObject(forKey: key.rawValue)
+        }
+        defaults.synchronize()
+    }
+
+    private func isTunnelActive() async throws -> Bool {
+        #if targetEnvironment(simulator)
+            return false
+        #else
+            try await withCheckedThrowingContinuation { continuation in
+                NETunnelProviderManager.loadAllFromPreferences { managers, error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+
+                    let active = (managers ?? []).contains {
+                        [.connected, .connecting, .reasserting].contains($0.connection.status)
+                    }
+
+                    continuation.resume(returning: active)
+                }
             }
         #endif
     }
+}
 
-    #if NEVER_IN_PRODUCTION
-        private func observeReadiness() {
-            Publishers.CombineLatest(isConfigurationLoaded, isAppReady)
-                .filter { configurationLoaded, appReady in
-                    configurationLoaded && appReady
-                }
-                .sink { [weak self] _, _ in
-                    guard let self else { return }
-                    tunnelManager.removeObserver(tunnelObserver)
-                    onAppReady?()
-                }
-                .store(in: &cancellables)
-        }
+@MainActor
+final class AppResetManagerNoOp {
+    init(
+        launchArguments: LaunchArguments,
+        tunnelManager: TunnelManager,
+        settingsManager: SettingsManager
+    ) {}
 
-        private func addObserver() {
-            let tunnelObserver = TunnelBlockObserver(
-                didLoadConfiguration: { [weak self] tunnelManager in
-                    self?.isConfigurationLoaded.send(true)
-                },
-                didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
-                    guard let self else { return }
-                    if tunnelStatus.observedState != .disconnected {
-                        tunnelManager.stopTunnel()
-                    } else if case .disconnected = tunnelStatus.observedState {
-                        Task {
-                            await reset()
-                        }
-                    }
-                }
-            )
-            tunnelManager.addObserver(tunnelObserver)
-            self.tunnelObserver = tunnelObserver
-        }
-
-        private func setup() async {
-            do {
-                guard try await isTunnelActive() == false else { return }
-                await reset()
-            } catch {
-                logger.error("Unexpected tunnel error: \(error.localizedDescription)")
-                isAppReady.send(true)
-            }
-        }
-
-        private func reset() async {
-            switch tunnelManager.deviceState {
-            case .loggedIn:
-                await logoutIfNeeded()
-                fallthrough
-            default:
-                resetUserDefaults()
-                resetKeychain()
-                isAppReady.send(true)
-            }
-        }
-
-        private func logoutIfNeeded() async {
-            guard launchArguments.authenticationState == .forceLoggedOut else {
-                return
-            }
-            await tunnelManager.unsetAccount(isRemovingProfile: false)
-        }
-
-        private func resetKeychain() {
-            let policy = launchArguments.settingsResetPolicy
-            settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
-            if policy.shouldReset(.settings) {
-                tunnelManager.updateSettings([.reset])
-            }
-        }
-
-        private func resetUserDefaults() {
-            let policy = launchArguments.appPreferencesResetPolicy
-            let defaults = UserDefaults.standard
-            let keysToRemove: Set<UITestAppPreferencesKey> = policy.resolvedKeys()
-            for key in keysToRemove {
-                defaults.removeObject(forKey: key.rawValue)
-            }
-            defaults.synchronize()
-        }
-
-        private func isTunnelActive() async throws -> Bool {
-            #if targetEnvironment(simulator)
-                return false
-            #else
-                try await withCheckedThrowingContinuation { continuation in
-                    NETunnelProviderManager.loadAllFromPreferences { managers, error in
-                        if let error {
-                            continuation.resume(throwing: error)
-                            return
-                        }
-
-                        let active = (managers ?? []).contains {
-                            [.connected, .connecting, .reasserting].contains($0.connection.status)
-                        }
-
-                        continuation.resume(returning: active)
-                    }
-                }
-            #endif
-        }
-    #endif
+    func start() {}
 }
 
 extension UITestSettingsKey {
