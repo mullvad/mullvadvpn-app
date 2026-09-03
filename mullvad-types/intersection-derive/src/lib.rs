@@ -1,6 +1,5 @@
 //! This `proc-macro` crate exports the [`Intersection`] derive macro, see the trait documentation
 //! for more information.
-
 use proc_macro::TokenStream;
 use syn::{DeriveInput, parse_macro_input};
 
