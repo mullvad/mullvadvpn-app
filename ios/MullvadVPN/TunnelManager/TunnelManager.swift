@@ -465,32 +465,28 @@ final class TunnelManager: @unchecked Sendable {
         _ = try await setAccount(action: .delete(accountNumber))
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+    func updateDeviceData() async throws {
         let interactor = TunnelInteractorProxy(self)
-        Task {
-            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-                completionHandler?(InvalidDeviceStateError())
-                return
-            }
-            let result = await devicesProxy.getDevice(
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            throw InvalidDeviceStateError()
+        }
+        do {
+            let device = try await devicesProxy.getDevice(
                 accountNumber: accountData.number,
                 identifier: deviceData.identifier,
                 retryStrategy: .default
-            ).tryMap { device -> StoredDeviceData in
-                switch interactor.deviceState {
-                case .loggedIn(let storedAccount, var storedDevice):
-                    storedDevice.update(from: device)
-                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                    interactor.setDeviceState(newDeviceState, persist: true)
-                    return storedDevice
-                default:
-                    throw InvalidDeviceStateError()
-                }
+            )
+            switch interactor.deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                interactor.setDeviceState(newDeviceState, persist: true)
+            default:
+                throw InvalidDeviceStateError()
             }
-            if let error = result.error {
-                interactor.handleRestError(error)
-            }
-            completionHandler?(result.error)
+        } catch {
+            interactor.handleRestError(error)
+            throw error
         }
     }
 

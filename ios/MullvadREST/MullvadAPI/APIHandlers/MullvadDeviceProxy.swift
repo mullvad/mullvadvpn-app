@@ -50,8 +50,8 @@ extension REST {
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy
-        ) async -> Result<Device, Swift.Error> {
-            await executeRequest(
+        ) async throws -> Device {
+            try await executeRequest(
                 .getDevice(
                     retryStrategy,
                     accountNumber: accountNumber,
@@ -80,8 +80,8 @@ extension REST {
         func getDevices(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy
-        ) async -> Result<[Device], Swift.Error> {
-            await executeRequest(
+        ) async throws -> [Device] {
+            try await executeRequest(
                 .getDevices(
                     retryStrategy,
                     accountNumber: accountNumber
@@ -111,8 +111,8 @@ extension REST {
             accountNumber: String,
             request: CreateDeviceRequest,
             retryStrategy: REST.RetryStrategy
-        ) async -> Result<Device, Swift.Error> {
-            await executeRequest(
+        ) async throws -> Device {
+            try await executeRequest(
                 .createDevice(
                     retryStrategy,
                     accountNumber: accountNumber,
@@ -145,8 +145,8 @@ extension REST {
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy
-        ) async -> Result<Bool, Swift.Error> {
-            await executeRequest(
+        ) async throws -> Bool {
+            try await executeRequest(
                 .deleteDevice(
                     retryStrategy,
                     accountNumber: accountNumber,
@@ -184,8 +184,8 @@ extension REST {
             identifier: String,
             publicKey: WireGuard.PublicKey,
             retryStrategy: REST.RetryStrategy,
-        ) async -> Result<Device, Swift.Error> {
-            await executeRequest(
+        ) async throws -> Device {
+            try await executeRequest(
                 .rotateDeviceKey(
                     retryStrategy,
                     accountNumber: accountNumber,
@@ -217,7 +217,7 @@ extension REST {
 
         private func executeRequest<Success: Sendable & Decodable>(
             _ request: APIRequest
-        ) async -> Result<Success, Swift.Error> {
+        ) async throws -> Success {
             let task = MullvadApiNetworkTask(
                 name: request.name,
                 request: request,
@@ -227,8 +227,7 @@ extension REST {
                     with: responseDecoder
                 )
             )
-            return await task.startRequest()
-
+            return try await task.startRequest().get()
         }
     }
 }
