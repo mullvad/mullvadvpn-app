@@ -12,7 +12,6 @@ export function RecentLocations() {
     <FlexColumn
       as="section"
       gap="tiny"
-      margin={{ bottom: 'large' }}
       aria-labelledby={titleId}
       tabIndex={-1}
       data-focusable-heading>
