@@ -23,6 +23,7 @@ jobs:
     runs-on: macos-latest
     env:
       TARGET: aarch64-apple-ios
+      PACKAGES: -p mullvad-ios -p mullvad-api
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -44,22 +45,18 @@ jobs:
 
       - name: Build crates
         shell: bash
-        run: time ci/cargo-ci.sh build --verbose --lib -p mullvad-ios -p mullvad-api --target "$TARGET"
+        run: time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target "$TARGET"
 
       - name: Test crates
         shell: bash
         # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
         #       handy, so this takes no --target.
-        run: time ci/cargo-ci.sh test --verbose --lib -p mullvad-ios -p mullvad-api
+        run: time ci/cargo-ci.sh test --verbose --lib $PACKAGES
 
       - name: Clippy check (no features)
         shell: bash
-        run: |
-          time ci/cargo-ci.sh clippy --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
-            --target "$TARGET"
+        run: time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target "$TARGET"
 
       - name: Clippy check (all features)
         shell: bash
-        run: |
-          time ci/cargo-ci.sh clippy --all-targets --all-features -p mullvad-ios -p mullvad-api \
-            --target "$TARGET"
+        run: time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
