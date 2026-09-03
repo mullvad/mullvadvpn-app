@@ -71,15 +71,15 @@ class MullvadApi {
             host: hostname,
             address: apiAddress,
             domain: hostname,
+            disableTls: false,
             bridgeProvider: bridgeProvider,
             settingsProvider: settingsWrapper,
-            accessMethodChangeCallback: nil,
-            accessMethodChangeContext: nil)
+            accessMethodChangeListeners: [])
     }
 
     func createAccount() throws -> String {
         let response = try makeRequest { strategy in
-            mullvadIosCreateAccount(apiContext: context, retryStrategy: strategy)
+            context.createAccount(retryStrategy: strategy)
         }
         let data = try requireBody(response)
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
@@ -87,14 +87,13 @@ class MullvadApi {
 
     func delete(account: String) throws {
         _ = try makeRequest { strategy in
-            mullvadIosDeleteAccount(apiContext: context, retryStrategy: strategy, accountNumber: account)
+            context.deleteAccount(retryStrategy: strategy, accountNumber: account)
         }
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {
         try makeRequest { strategy in
-            mullvadIosCreateDevice(
-                apiContext: context,
+            context.createDevice(
                 retryStrategy: strategy,
                 accountNumber: forAccount,
                 publicKey: publicKey
@@ -104,8 +103,7 @@ class MullvadApi {
 
     func getExpiry(forAccount: String) throws -> UInt64 {
         let response = try makeRequest { strategy in
-            let handle = mullvadIosGetAccount(
-                apiContext: context,
+            let handle = context.getAccount(
                 retryStrategy: strategy,
                 accountNumber: forAccount)
             return handle
@@ -119,8 +117,7 @@ class MullvadApi {
 
     func listDevices(forAccount: String) throws -> [Device] {
         let response = try makeRequest { strategy in
-            mullvadIosGetDevices(
-                apiContext: context,
+            context.getDevices(
                 retryStrategy: strategy,
                 accountNumber: forAccount)
         }
