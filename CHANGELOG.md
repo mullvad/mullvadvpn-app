@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Add timeout to device cleanup tasks during installs.
+- Increase timeout on flushing DNS cache.
 
 ### Removed
 #### Windows

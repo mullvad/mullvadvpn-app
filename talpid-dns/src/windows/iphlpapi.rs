@@ -159,12 +159,10 @@ impl DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        if let Some(guid) = self.current_guid.take() {
-            set_interface_dns_servers_v4(&guid, &[])
-                .and(set_interface_dns_servers_v6(&guid, &[]))
-                .and(flush_dns_cache())?;
-        }
-        Ok(())
+        let Some(guid) = self.current_guid.take() else {
+            return Ok(());
+        };
+        set_interface_dns_servers_v4(&guid, &[]).and(set_interface_dns_servers_v6(&guid, &[]))
     }
 
     fn reset_before_interface_removal(&mut self) -> Result<(), Self::Error> {
