@@ -684,13 +684,10 @@ pub(crate) fn hyper_request_json_bytes(
     method: Method,
     body: Vec<u8>,
 ) -> Result<http::Request<Full<Bytes>>> {
-    let body_length = body.len();
     let body = Full::new(Bytes::from(body));
     let mut request = hyper_request(host, path, method, body)?;
 
     let headers = request.headers_mut();
-    // TODO: pretty sure hyper sets CONTENT_LENGTH automatically
-    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
     headers.insert(
         header::CONTENT_TYPE,
         HeaderValue::from_static("application/json"),
