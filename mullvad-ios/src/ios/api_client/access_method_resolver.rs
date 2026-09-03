@@ -104,19 +104,16 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 ApiConnectionMode::Proxied(ProxyConfig::from(edp))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
-                match DomainFrontingConfig::resolve(
-                    self.domain_fronting_front.clone(),
+                let config = mullvad_api::domain_fronting::DfConfig::new(
+                    self.domain_fronting_front
+                        .parse()
+                        .inspect_err(|e| {
+                            log::error!("{:?} is not a valid URI: {e}", self.domain_fronting_front)
+                        })
+                        .ok()?,
                     self.domain_fronting_proxy_host.clone(),
-                    SESSION_HEADER.to_string(),
-                )
-                .await
-                {
-                    Ok(config) => ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(config)),
-                    Err(error) => {
-                        log::warn!("Failed to resolve domain fronting config: {error}");
-                        return None;
-                    }
-                }
+                );
+                mullvad_api::domain_fronting::resolve_with(&config).await?
             }
             AccessMethod::Custom(config) => {
                 ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))

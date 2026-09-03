@@ -17,7 +17,7 @@ use tokio::{
 };
 use tracing::{Level, instrument};
 
-use crate::domain_fronting::DomainFrontingAddr;
+use crate::domain_fronting::DfConfigResolved;
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
@@ -79,7 +79,7 @@ pub enum ProxyConfig {
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
-    DomainFronting(DomainFrontingAddr),
+    DomainFronting(DfConfigResolved),
 }
 
 impl ProxyConfig {
