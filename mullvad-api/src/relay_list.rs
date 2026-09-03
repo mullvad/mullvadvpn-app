@@ -99,8 +99,7 @@ impl RelayListProxy {
         &self,
         prev_etag: Option<ETag>,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
-        let service = self.handle.service.clone();
-        let request = self.handle.factory.get("app/v1/relays");
+        let request = self.handle.get("app/v1/relays");
 
         async move {
             let mut request = request?
@@ -111,7 +110,7 @@ impl RelayListProxy {
                 request = request.header(header::IF_NONE_MATCH, &prev_tag.0)?;
             }
 
-            service.request(request).await
+            request.await
         }
     }
 

@@ -1,182 +1,74 @@
-use crate::{
-    rest,
-    rest::{RequestFactory, RequestServiceHandle},
-};
-use futures::{
-    StreamExt,
-    channel::{mpsc, oneshot},
-};
-use hyper::StatusCode;
+use crate::rest::{self, handle_error_response, hyper_request_json_bytes};
+use http::Method;
+use http_body_util::{BodyExt, Full};
+use hyper::{body::Bytes, client::conn::http1};
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountNumber};
-use std::{borrow::Cow, collections::HashMap};
-use tokio::select;
-use tracing::{Level, instrument};
+use std::collections::{HashMap, hash_map::Entry};
 
-/// Path of the API endpoint that hands out access tokens.
 pub const ACCESS_TOKEN_PATH: &str = "auth/v1/token";
 
-#[derive(Debug, Clone)]
-pub struct AccessTokenStore {
-    tx: mpsc::UnboundedSender<StoreAction>,
-}
-
-enum StoreAction {
-    /// Request an access token for `AccountNumber`, or return a saved one if it's not expired.
-    GetAccessToken(
-        AccountNumber,
-        oneshot::Sender<Result<AccessToken, rest::Error>>,
-    ),
-    /// Forget cached access token for `AccountNumber`, and drop any in-flight requests
-    InvalidateToken(AccountNumber),
-}
-
 #[derive(Default)]
-struct AccountState {
-    current_access_token: Option<AccessTokenData>,
-    inflight_request: Option<tokio::task::JoinHandle<()>>,
-    response_channels: Vec<oneshot::Sender<Result<AccessToken, rest::Error>>>,
+pub(crate) struct AccessTokenStore {
+    tokens: HashMap<AccountNumber, AccessTokenData>,
 }
 
 impl AccessTokenStore {
-    pub(crate) fn new(
-        service: RequestServiceHandle,
-        hostname: impl Into<Cow<'static, str>>,
-    ) -> Self {
-        let factory = rest::RequestFactory::new(hostname, None);
-        let (tx, rx) = mpsc::unbounded();
-        tokio::spawn(Self::service_requests(rx, service, factory));
-        Self { tx }
-    }
-
-    async fn service_requests(
-        mut rx: mpsc::UnboundedReceiver<StoreAction>,
-        service: RequestServiceHandle,
-        factory: RequestFactory,
-    ) {
-        let mut account_states: HashMap<AccountNumber, AccountState> = HashMap::new();
-
-        let (completed_tx, mut completed_rx) = mpsc::unbounded();
-
-        loop {
-            select! {
-                action = rx.next() => {
-                    let Some(action) = action else {
-                        // We're done
-                        break;
-                    };
-
-                    match action {
-                        StoreAction::GetAccessToken(account, response_tx) => {
-                            let account_state = account_states
-                                .entry(account.clone())
-                                .or_default();
-
-                            // If there is an unexpired access token, just return it.
-                            // Otherwise, generate a new token
-                            if let Some(ref access_token) = account_state.current_access_token {
-                                if !access_token.is_expired() {
-                                    tracing::trace!("Using stored access token");
-                                    let _ = response_tx.send(Ok(access_token.access_token.clone()));
-                                    continue;
-                                }
-
-                                tracing::debug!("Replacing expired access token");
-                                account_state.current_access_token = None;
-                            }
-
-                            // Begin requesting an access token if it's not already underway.
-                            // If there's already an inflight request, just save `response_tx`
-                            account_state
-                                .inflight_request
-                                .get_or_insert_with(|| {
-                                    let completed_tx = completed_tx.clone();
-                                    let account = account.clone();
-                                    let service = service.clone();
-                                    let factory = factory.clone();
-
-                                    tracing::debug!("Fetching access token for an account");
-
-                                    tokio::spawn(async move {
-                                        let result = fetch_access_token(service, factory, account.clone()).await;
-                                        let _ = completed_tx.unbounded_send((account, result));
-                                    })
-                                });
-
-                            // Save the channel to respond to later
-                            account_state.response_channels.push(response_tx);
-                        }
-                        StoreAction::InvalidateToken(account) => {
-                            let account_state = account_states
-                                .entry(account)
-                                .or_default();
-
-                            // Drop in-flight requests for the account
-                            // & forget any existing access token
-
-                            tracing::debug!("Invalidating access token for an account");
-
-                            if let Some(task) = account_state.inflight_request.take() {
-                                task.abort();
-                                let _ = task.await;
-                            }
-
-                            account_state.response_channels.clear();
-                            account_state.current_access_token = None;
-                        }
-                    }
-                }
-
-                Some((account, result)) = completed_rx.next() => {
-                    let account_state = account_states
-                        .entry(account)
-                        .or_default();
-
-                    account_state.inflight_request = None;
-
-                    // Send response to all channels
-                    for tx in account_state.response_channels.drain(..) {
-                        let _ = tx.send(result.clone().map(|data| data.access_token));
-                    }
-
-                    if let Ok(access_token) = result {
-                        account_state.current_access_token = Some(access_token);
-                    }
-                }
-            }
-        }
-    }
-
     /// Obtain access token for an account, requesting a new one from the API if necessary.
-    pub async fn get_token(&self, account: &AccountNumber) -> Result<AccessToken, rest::Error> {
-        let (tx, rx) = oneshot::channel();
-        let _ = self
-            .tx
-            .unbounded_send(StoreAction::GetAccessToken(account.to_owned(), tx));
-        rx.await.map_err(|_| rest::Error::Aborted)?
+    pub(crate) async fn get_token(
+        &mut self,
+        account: &AccountNumber,
+        host: &str,
+        send_request: &mut http1::SendRequest<Full<Bytes>>,
+    ) -> Result<AccessToken, rest::Error> {
+        // If there is an unexpired access token, just return it.
+        // Otherwise, generate a new token
+        if let Entry::Occupied(entry) = self.tokens.entry(account.clone()) {
+            let access_token_data = entry.get();
+            if !access_token_data.is_expired() {
+                tracing::trace!("Using stored access token");
+                return Ok(access_token_data.access_token.clone());
+            }
+
+            tracing::debug!("Evicting expired access token");
+            entry.remove();
+        }
+
+        tracing::debug!("Fetching access token for an account");
+        let access_token_data = fetch_access_token(account, host, send_request).await?;
+        let access_token = access_token_data.access_token.clone();
+        self.tokens.insert(account.clone(), access_token_data);
+
+        Ok(access_token)
     }
 
     /// Forget the cached access token for an account, so that the next request obtains a new one.
-    pub fn invalidate_token(&self, account: &AccountNumber) {
-        let _ = self
-            .tx
-            .unbounded_send(StoreAction::InvalidateToken(account.to_owned()));
+    pub fn invalidate_token(&mut self, account: &AccountNumber) {
+        self.tokens.remove(account);
     }
 }
 
-#[instrument(level = Level::TRACE, skip(service, factory, account_number), ret)]
 async fn fetch_access_token(
-    service: RequestServiceHandle,
-    factory: RequestFactory,
-    account_number: AccountNumber,
+    account_number: &AccountNumber,
+    host: &str,
+    send_request: &mut http1::SendRequest<Full<Bytes>>,
 ) -> Result<AccessTokenData, rest::Error> {
     #[derive(serde::Serialize)]
-    struct AccessTokenRequest {
-        account_number: String,
+    struct AccessTokenRequest<'a> {
+        account_number: &'a AccountNumber,
     }
-    let request = AccessTokenRequest { account_number };
+    let body = AccessTokenRequest { account_number };
 
-    let rest_request = factory
-        .post_json(ACCESS_TOKEN_PATH, &request)?
-        .expected_status(&[StatusCode::OK]);
-    service.request(rest_request).await?.deserialize().await
+    let body = serde_json::to_vec(&body)?;
+    let request = hyper_request_json_bytes(host, ACCESS_TOKEN_PATH, Method::POST, body)?;
+    let response = send_request.send_request(request).await?;
+
+    if !response.status().is_success() {
+        let Err(e) = handle_error_response(response).await;
+        return Err(e);
+    }
+
+    let body = response.into_body().collect().await?;
+    let access_token_data = serde_json::from_slice(&body.to_bytes())?;
+
+    Ok(access_token_data)
 }

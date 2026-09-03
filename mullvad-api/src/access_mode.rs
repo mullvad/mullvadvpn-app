@@ -205,11 +205,11 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
         self.initial.clone()
     }
 
-    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
+    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send {
         self.change_rx.next()
     }
 
-    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
+    fn rotate(&self) -> impl Future<Output = ()> + Send {
         let handle = self.handle.clone();
         async move {
             handle.rotate().await.ok();

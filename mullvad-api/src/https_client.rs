@@ -1,377 +1,37 @@
 use crate::{
-    DnsResolver,
-    abortable_stream::{AbortableStream, AbortableStreamHandle},
-    domain_fronting::DfConfigResolved,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
 use domain_fronting::client::ProxyConnection;
-use futures::FutureExt;
-use futures::{StreamExt, channel::mpsc, future, pin_mut};
+use futures::future;
 #[cfg(target_os = "android")]
-use futures::{channel::oneshot, sink::SinkExt};
-use http::uri::Scheme;
-use hyper::Uri;
+use futures::{channel::oneshot, mpsc, sink::SinkExt};
 use hyper_util::rt::TokioIo;
-use mullvad_encrypted_dns_proxy::{
-    Forwarder as EncryptedDNSForwarder, config::ProxyConfig as EncryptedDNSConfig,
-};
+use mullvad_encrypted_dns_proxy::Forwarder as EncryptedDNSForwarder;
 use shadowsocks::{
     ServerConfig,
     config::{ServerConfigError, ServerType},
-    context::{Context as SsContext, SharedContext},
+    context::Context as SsContext,
     crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
 };
-use std::ops::Deref;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
-    fmt,
     future::Future,
     io,
-    net::{IpAddr, SocketAddr},
-    pin::Pin,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     str,
-    sync::{Arc, Mutex},
-    task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::net::proxy;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
-    sync::Notify,
-    time::timeout,
 };
-use tokio_rustls::rustls::KeyLogFile;
-use tower::Service;
-use tracing::{Instrument, Level, instrument, trace_span};
+use tracing::{Level, instrument};
 
 #[cfg(any(feature = "api-override", test))]
 use crate::proxy::ConnectionDecorator;
-
-const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
-
-/// Communicate asynchronously with an [HttpsConnector] actor.
-/// Created via [HttpsConnector::spawn].
-#[derive(Clone)]
-pub struct HttpsConnectorHandle {
-    tx: mpsc::UnboundedSender<HttpsConnectorRequest>,
-}
-
-impl HttpsConnectorHandle {
-    /// Stop all streams produced by this connector
-    pub fn reset(&self) {
-        let _ = self.tx.unbounded_send(HttpsConnectorRequest::Reset);
-    }
-
-    /// Change the proxy settings for the connector
-    pub fn set_connection_mode(&self, proxy: ApiConnectionMode) {
-        let _ = self
-            .tx
-            .unbounded_send(HttpsConnectorRequest::SetConnectionMode(proxy));
-    }
-}
-
-/// Requests for the HttpsConnector actor.
-#[derive(Debug)]
-enum HttpsConnectorRequest {
-    Reset,
-    SetConnectionMode(ApiConnectionMode),
-}
-
-#[derive(Clone, Debug)]
-pub(crate) enum InnerConnectionMode {
-    /// Connect directly to the target.
-    Direct,
-    /// Connect to the destination via a Shadowsocks proxy.
-    Shadowsocks(ShadowsocksConfig),
-    /// Connect to the destination via a Socks proxy.
-    Socks5(SocksConfig),
-    /// Connect to the destination via Mullvad Encrypted DNS proxy.
-    /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
-    EncryptedDnsProxy(EncryptedDNSConfig),
-    /// Connect to the destination via domain fronting.
-    DomainFronting(DfConfigResolved),
-}
-
-impl InnerConnectionMode {
-    #[instrument(level = Level::TRACE, skip(socket_bypass_tx, disable_tls), ret)]
-    async fn connect(
-        self,
-        hostname: &str,
-        addr: &SocketAddr,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
-    ) -> Result<ApiConnection, std::io::Error> {
-        match self {
-            // Set up a TCP-socket connection.
-            InnerConnectionMode::Direct => {
-                let first_hop = *addr;
-                let make_proxy_stream = |tcp_stream| async { Ok(tcp_stream) };
-                Self::connect_proxied(
-                    first_hop,
-                    hostname,
-                    make_proxy_stream,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx,
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                )
-                .await
-            }
-            // Set up a Shadowsocks-connection.
-            InnerConnectionMode::Shadowsocks(shadowsocks) => {
-                let first_hop = shadowsocks.params.peer;
-                let make_proxy_stream = |tcp_stream| async {
-                    Ok(ProxyClientStream::from_stream(
-                        shadowsocks.proxy_context,
-                        tcp_stream,
-                        &ServerConfig::try_from(shadowsocks.params)
-                            .map_err(|_| std::io::Error::other("Invalid shadowsocks config"))?,
-                        *addr,
-                    ))
-                };
-                Self::connect_proxied(
-                    first_hop,
-                    hostname,
-                    make_proxy_stream,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx,
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                )
-                .await
-            }
-            // Set up a SOCKS5-connection.
-            InnerConnectionMode::Socks5(socks) => {
-                let first_hop = socks.peer;
-                let make_proxy_stream = |tcp_stream| async {
-                    match socks.authentication {
-                        None => {
-                            tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
-                                .await
-                        }
-                        Some(credentials) => {
-                            tokio_socks::tcp::Socks5Stream::connect_with_password_and_socket(
-                                tcp_stream,
-                                addr,
-                                credentials.username(),
-                                credentials.password(),
-                            )
-                            .await
-                        }
-                    }
-                    .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
-                };
-                Self::connect_proxied(
-                    first_hop,
-                    hostname,
-                    make_proxy_stream,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx,
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                )
-                .await
-            }
-            InnerConnectionMode::EncryptedDnsProxy(proxy_config) => {
-                let first_hop = SocketAddr::V4(proxy_config.addr);
-                let make_proxy_stream = |tcp_stream| async {
-                    let forwarder = EncryptedDNSForwarder::from_stream(&proxy_config, tcp_stream);
-                    Ok(forwarder)
-                };
-                Self::connect_proxied(
-                    first_hop,
-                    hostname,
-                    make_proxy_stream,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx,
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                )
-                .await
-            }
-            InnerConnectionMode::DomainFronting(config) => {
-                let use_http2 = crate::domain_fronting::USE_HTTP2;
-                let domain_fronting = &config.config();
-                let connect_tls = async || {
-                    let tcp_stream = HttpsConnector::open_socket(
-                        config.addr,
-                        #[cfg(target_os = "android")]
-                        socket_bypass_tx.clone(),
-                    )
-                    .await?;
-                    cdn_tls_connect(tcp_stream, domain_fronting.front_host(), use_http2).await
-                };
-
-                let proxy = if use_http2 {
-                    let stream = connect_tls().await?;
-                    ProxyConnection::http2_from_stream(stream, domain_fronting)
-                        .await
-                        .map_err(std::io::Error::other)?
-                } else {
-                    let (stream1, stream2) = future::try_join(connect_tls(), connect_tls()).await?;
-                    ProxyConnection::http1_1_from_streams(stream1, stream2, domain_fronting)
-                        .await
-                        .map_err(std::io::Error::other)?
-                };
-
-                #[cfg(any(feature = "api-override", test))]
-                if disable_tls {
-                    return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
-                }
-
-                let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
-                Ok(ApiConnection::new(Box::new(tls_stream)))
-            }
-        }
-    }
-
-    /// Create an [`ApiConnection`] from a [`TcpStream`].
-    ///
-    /// The `make_proxy_stream` closure receives a [`TcpStream`] and produces a
-    /// stream which can send to and receive data from some server using any
-    /// proxy protocol. The only restriction is that this stream must implement
-    /// [`tokio::io::AsyncRead`] and [`tokio::io::AsyncWrite`], as well as
-    /// [`Unpin`] and [`Send`].
-    ///
-    /// If a direct connection is to be established (i.e. the stream will not be
-    /// using any proxy protocol) `make_proxy_stream` may return the
-    /// [`TcpStream`] itself. See for example how a connection is established
-    /// from connection mode [`InnerConnectionMode::Direct`].
-    async fn connect_proxied<ProxyFactory, ProxyFuture, Proxy>(
-        first_hop: SocketAddr,
-        hostname: &str,
-        make_proxy_stream: ProxyFactory,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
-    ) -> Result<ApiConnection, io::Error>
-    where
-        ProxyFactory: FnOnce(TcpStream) -> ProxyFuture,
-        ProxyFuture: Future<Output = io::Result<Proxy>>,
-        Proxy: AsyncRead + AsyncWrite + Unpin + Send + 'static,
-    {
-        let socket = HttpsConnector::open_socket(
-            first_hop,
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
-        )
-        .await?;
-
-        let proxy = make_proxy_stream(socket).await?;
-
-        #[cfg(any(feature = "api-override", test))]
-        if disable_tls {
-            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
-        }
-
-        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
-        Ok(ApiConnection::new(Box::new(tls_stream)))
-    }
-
-    /// How long a connection may sit idle before it should be evicted.
-    pub const fn idle_timeout(&self) -> Duration {
-        let default = Duration::from_secs(60);
-        match self {
-            InnerConnectionMode::Direct => default,
-            InnerConnectionMode::Shadowsocks(..) => default,
-            InnerConnectionMode::Socks5(..) => default,
-            InnerConnectionMode::EncryptedDnsProxy(..) => default,
-            InnerConnectionMode::DomainFronting(..) => crate::domain_fronting::IDLE_TIMEOUT,
-        }
-    }
-}
-
-/// Establish a TLS connection to the CDN without certificate verification.
-///
-/// Certificate verification is intentionally skipped because the security of domain fronting
-/// does not depend on the CDN TLS — the actual API connection is secured by the inner TLS
-/// layer to `api.mullvad.net`.
-#[instrument(level = Level::TRACE, skip(stream), ret)]
-async fn cdn_tls_connect(
-    stream: TcpStream,
-    front_domain: &str,
-    http2: bool,
-) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
-    use std::sync::LazyLock;
-    use tokio_rustls::rustls::{self, client::danger, pki_types};
-
-    #[derive(Debug)]
-    struct NoCertVerification;
-
-    impl danger::ServerCertVerifier for NoCertVerification {
-        fn verify_server_cert(
-            &self,
-            _: &pki_types::CertificateDer<'_>,
-            _: &[pki_types::CertificateDer<'_>],
-            _: &pki_types::ServerName<'_>,
-            _: &[u8],
-            _: pki_types::UnixTime,
-        ) -> Result<danger::ServerCertVerified, rustls::Error> {
-            Ok(danger::ServerCertVerified::assertion())
-        }
-
-        fn verify_tls12_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn verify_tls13_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
-            rustls::crypto::ring::default_provider()
-                .signature_verification_algorithms
-                .supported_schemes()
-        }
-    }
-
-    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        Arc::new(
-            rustls::ClientConfig::builder()
-                .dangerous()
-                .with_custom_certificate_verifier(Arc::new(NoCertVerification))
-                .with_no_client_auth(),
-        )
-    });
-
-    static CDN_TLS_CONFIG_HTTP2: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        let mut config = CDN_TLS_CONFIG.deref().clone();
-        Arc::make_mut(&mut config)
-            .alpn_protocols
-            .push("h2".as_bytes().to_vec());
-        Arc::make_mut(&mut config).key_log = Arc::new(KeyLogFile::new()) as Arc<_>;
-        config
-    });
-
-    let config = if http2 {
-        &CDN_TLS_CONFIG_HTTP2
-    } else {
-        &CDN_TLS_CONFIG
-    };
-    let connector = tokio_rustls::TlsConnector::from(Arc::clone(config));
-    let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
-    connector.connect(server_name, stream).await
-}
-
-#[derive(Clone, Debug)]
-pub(crate) struct ShadowsocksConfig {
-    proxy_context: SharedContext,
-    params: ParsedShadowsocksConfig,
-}
 
 #[derive(Clone, Debug)]
 struct ParsedShadowsocksConfig {
@@ -388,85 +48,28 @@ impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
     }
 }
 
+/// A connector for TLS streams for use with HTTP clients. See [`HttpsConnector::connect`].
 #[derive(Clone, Debug)]
-pub(crate) struct SocksConfig {
-    peer: SocketAddr,
-    authentication: Option<proxy::SocksAuth>,
-}
-
-impl From<ApiConnectionMode> for InnerConnectionMode {
-    fn from(config: ApiConnectionMode) -> Self {
-        use std::net::Ipv4Addr;
-        match config {
-            ApiConnectionMode::Direct => InnerConnectionMode::Direct,
-            ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
-                ProxyConfig::Shadowsocks(config) => {
-                    InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
-                        params: ParsedShadowsocksConfig {
-                            peer: config.endpoint,
-                            password: config.plaintext_password().to_string(),
-                            cipher: config.cipher.kind(),
-                        },
-                        proxy_context: SsContext::new_shared(ServerType::Local),
-                    })
-                }
-                ProxyConfig::Socks5Local(config) => InnerConnectionMode::Socks5(SocksConfig {
-                    peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port),
-                    authentication: None,
-                }),
-                ProxyConfig::Socks5Remote(config) => InnerConnectionMode::Socks5(SocksConfig {
-                    peer: config.endpoint,
-                    authentication: config.auth,
-                }),
-                ProxyConfig::EncryptedDnsProxy(config) => {
-                    InnerConnectionMode::EncryptedDnsProxy(config)
-                }
-                ProxyConfig::DomainFronting(config) => InnerConnectionMode::DomainFronting(config),
-            },
-        }
-    }
-}
-
-/// A Connector for the `https` scheme.
-#[derive(Clone)]
 pub struct HttpsConnector {
-    inner: Arc<Mutex<HttpsConnectorInner>>,
-    abort_notify: Arc<Notify>,
-    dns_resolver: Arc<dyn DnsResolver>,
+    connection_mode: ApiConnectionMode,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     #[cfg(any(feature = "api-override", test))]
     disable_tls: bool,
 }
 
-struct HttpsConnectorInner {
-    stream_handles: Vec<AbortableStreamHandle>,
-    proxy_config: InnerConnectionMode,
-}
-
 #[cfg(target_os = "android")]
 pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnector {
-    /// Creates a new [HttpsConnector] actor instance, which notably implements [`Service<Uri>`].
-    ///
-    /// Call [HttpsConnector::spawn] to start listening for [events](HttpsConnectorRequest).
+    /// Create a new [`HttpsConnector`].
     pub fn new(
-        dns_resolver: Arc<dyn DnsResolver>,
-        proxy_config: InnerConnectionMode,
+        connection_mode: ApiConnectionMode,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Self {
-        let abort_notify = Arc::new(tokio::sync::Notify::new());
-        let connector = Arc::new(Mutex::new(HttpsConnectorInner {
-            proxy_config,
-            stream_handles: Default::default(),
-        }));
-
         HttpsConnector {
-            inner: connector,
-            abort_notify,
-            dns_resolver,
+            connection_mode,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
             #[cfg(any(feature = "api-override", test))]
@@ -474,194 +77,233 @@ impl HttpsConnector {
         }
     }
 
-    /// Start listening for incoming [HttpsConnectorRequest]s from the created [HttpsConnectorHandle].
-    pub fn spawn(&self) -> HttpsConnectorHandle {
-        let (tx, requests) = mpsc::unbounded();
-        let connector = self.inner.clone();
-        let notify = self.abort_notify.clone();
-        let request_handler = RequestHandler {
-            connector,
-            notify,
-            requests,
-        };
-        tokio::spawn(request_handler.run());
-        HttpsConnectorHandle { tx }
+    /// Change the proxy settings for the connector
+    pub fn set_connection_mode(&mut self, mode: ApiConnectionMode) {
+        self.connection_mode = mode;
     }
 
-    /// Establishes a TCP connection with a peer at the specified socket address.
+    /// Get the idle timeout of the curren connection method.
+    pub fn idle_timeout(&self) -> Duration {
+        let default = Duration::from_secs(60);
+        match &self.connection_mode {
+            ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(..)) => {
+                crate::domain_fronting::IDLE_TIMEOUT
+            }
+            ApiConnectionMode::Proxied(..) => default,
+            ApiConnectionMode::Direct => default,
+        }
+    }
+
+    /// Establish a TLS [`ApiConnection`] to `addr`, with HTTP host `host`.
     ///
-    /// Will timeout after [`CONNECT_TIMEOUT`] seconds.
-    #[instrument(level = Level::TRACE, skip(socket_bypass_tx), ret)]
-    async fn open_socket(
+    /// The connection will use the [`ApiConnectionMode`] specified in [`Self::new`] or
+    /// [`Self::set_connection_mode`].
+    pub async fn connect(
+        &mut self,
         addr: SocketAddr,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> std::io::Result<TcpStream> {
-        let socket = match addr {
-            SocketAddr::V4(_) => TcpSocket::new_v4()?,
-            SocketAddr::V6(_) => TcpSocket::new_v6()?,
-        };
-
-        #[cfg(target_os = "android")]
-        if let Some(mut tx) = socket_bypass_tx {
-            let (done_tx, done_rx) = oneshot::channel();
-            let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
-            if done_rx.await.is_err() {
-                tracing::error!("Failed to bypass socket, connection might fail");
-            }
+        host: &str,
+    ) -> io::Result<TokioIo<ApiConnection>> {
+        struct Proxyer<'a> {
+            host: &'a str,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls: bool,
         }
 
-        timeout(CONNECT_TIMEOUT, socket.connect(addr))
-            .await
-            .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
-    }
-
-    /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be
-    /// used. Otherwise `dns_resolver` will be used as a fallback.
-    /// If the URI contains a port, then that port will be used.
-    #[instrument(level = Level::TRACE, skip(dns_resolver), ret)]
-    async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
-        const DEFAULT_PORT: u16 = 443;
-
-        let hostname = uri.host().ok_or_else(|| {
-            io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
-        })?;
-        let port = uri.port_u16();
-        if let Ok(addr) = hostname.parse::<IpAddr>() {
-            return Ok(SocketAddr::new(addr, port.unwrap_or(DEFAULT_PORT)));
-        }
-
-        let addrs = dns_resolver.resolve(hostname.to_owned()).await?;
-        let addr = addrs
-            .first()
-            .ok_or_else(|| io::Error::other("Empty DNS response"))?;
-        let port = match (addr.port(), port) {
-            (_, Some(port)) => port,
-            (0, None) => DEFAULT_PORT,
-            (addr_port, None) => addr_port,
-        };
-        Ok(SocketAddr::new(addr.ip(), port))
-    }
-}
-
-impl fmt::Debug for HttpsConnector {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HttpsConnector").finish()
-    }
-}
-
-impl Service<Uri> for HttpsConnector {
-    type Response = TokioIo<AbortableStream<ApiConnection>>;
-    type Error = io::Error;
-    type Future =
-        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
-
-    fn poll_ready(&mut self, _: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        let mut inner = self.inner.lock().unwrap();
-        inner.stream_handles.retain(|handle| !handle.is_closed());
-        Poll::Ready(Ok(()))
-    }
-
-    fn call(&mut self, uri: Uri) -> Self::Future {
-        let inner = self.inner.clone();
-        let abort_notify = self.abort_notify.clone();
-        #[cfg(target_os = "android")]
-        let socket_bypass_tx = self.socket_bypass_tx.clone();
-        let dns_resolver = self.dns_resolver.clone();
-
-        #[cfg(any(feature = "api-override", test))]
-        let disable_tls = self.disable_tls;
-
-        let span = trace_span!("HttpsConnector::call");
-        span.record("uri", format_args!("{uri}"));
-
-        let return_span = span.clone();
-        let fut = async move {
-            if uri.scheme() != Some(&Scheme::HTTPS) {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, not https",
-                ));
-            }
-            let Some(hostname) = uri.host().map(str::to_owned) else {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid url, missing host",
-                ));
-            };
-            let addr = Self::resolve_address(&*dns_resolver, uri).await?;
-
-            // Loop until we have established a connection. This starts over if a new endpoint
-            // is selected while connecting.
-            let stream = loop {
-                let notify = abort_notify.notified();
-                let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = proxy_config.connect(
-                    &hostname,
-                    &addr,
+        impl Proxyer<'_> {
+            /// Create an [`ApiConnection`] from a [`TcpStream`].
+            ///
+            /// The `make_proxy_stream` closure receives a [`TcpStream`] and produces a
+            /// stream which can send to and receive data from some server using any
+            /// or no proxy protocol.
+            async fn connect_proxied<ProxyFactory, ProxyFuture, Proxy>(
+                self,
+                first_hop: SocketAddr,
+                make_proxy_stream: ProxyFactory,
+            ) -> io::Result<ApiConnection>
+            where
+                ProxyFactory: FnOnce(TcpStream) -> ProxyFuture,
+                ProxyFuture: Future<Output = io::Result<Proxy>>,
+                Proxy: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+            {
+                let Proxyer {
+                    host,
                     #[cfg(target_os = "android")]
-                    socket_bypass_tx.clone(),
+                    socket_bypass_tx,
                     #[cfg(any(feature = "api-override", test))]
                     disable_tls,
-                );
+                } = self;
 
-                pin_mut!(stream_fut);
-                pin_mut!(notify);
+                let socket = open_socket(
+                    first_hop,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                )
+                .await?;
 
-                // Wait for connection. Abort and retry if we switched to a different server.
-                if let future::Either::Left((stream, _)) = future::select(stream_fut, notify).await
-                {
-                    break stream?;
+                let proxy = make_proxy_stream(socket).await?;
+
+                #[cfg(any(feature = "api-override", test))]
+                if disable_tls {
+                    return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
                 }
-            };
 
-            let (stream, socket_handle) = AbortableStream::new(stream);
-
-            {
-                let mut inner = inner.lock().unwrap();
-                inner.stream_handles.push(socket_handle);
+                let tls_stream = TlsStream::connect_https(proxy, host).await?;
+                Ok(ApiConnection::new(Box::new(tls_stream)))
             }
-
-            Ok(TokioIo::new(stream))
         }
-        .inspect(move |result| {
-            return_span.record("return", format_args!("{result:?}"));
-        })
-        .instrument(span);
 
-        Box::pin(fut)
-    }
-}
+        let proxyer = Proxyer {
+            host,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx: self.socket_bypass_tx,
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls: self.disable_tls,
+        };
 
-struct RequestHandler {
-    connector: Arc<Mutex<HttpsConnectorInner>>,
-    notify: Arc<Notify>,
-    requests: mpsc::UnboundedReceiver<HttpsConnectorRequest>,
-}
+        let stream = match &self.connection_mode {
+            // Set up a TCP-socket connection.
+            ApiConnectionMode::Direct => {
+                let first_hop = addr;
+                let make_proxy_stream = |tcp_stream| async { Ok(tcp_stream) };
+                proxyer
+                    .connect_proxied(first_hop, make_proxy_stream)
+                    .await?
+            }
+            // Set up a Shadowsocks-connection.
+            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks)) => {
+                let first_hop = shadowsocks.endpoint;
+                let proxy_context = SsContext::new_shared(ServerType::Local);
+                let make_proxy_stream = |tcp_stream| async {
+                    Ok(ProxyClientStream::from_stream(
+                        proxy_context,
+                        tcp_stream,
+                        &ServerConfig::new(
+                            shadowsocks.endpoint,
+                            shadowsocks.plaintext_password(),
+                            shadowsocks.cipher.clone().kind(),
+                        )
+                        .map_err(|_| std::io::Error::other("Invalid shadowsocks config"))?,
+                        addr,
+                    ))
+                };
+                proxyer
+                    .connect_proxied(first_hop, make_proxy_stream)
+                    .await?
+            }
+            // Set up a SOCKS5-connection.
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(config)) => {
+                let first_hop =
+                    SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port);
+                let make_proxy_stream = |tcp_stream| async {
+                    tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
+                        .await
+                        .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
+                };
+                proxyer
+                    .connect_proxied(first_hop, make_proxy_stream)
+                    .await?
+            }
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5Remote(socks)) => {
+                let first_hop = socks.endpoint;
+                let make_proxy_stream = |tcp_stream| async {
+                    match &socks.auth {
+                        None => {
+                            tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
+                                .await
+                        }
+                        Some(credentials) => {
+                            tokio_socks::tcp::Socks5Stream::connect_with_password_and_socket(
+                                tcp_stream,
+                                addr,
+                                credentials.username(),
+                                credentials.password(),
+                            )
+                            .await
+                        }
+                    }
+                    .map_err(|error| io::Error::other(format!("SOCKS error: {error}")))
+                };
+                proxyer
+                    .connect_proxied(first_hop, make_proxy_stream)
+                    .await?
+            }
+            ApiConnectionMode::Proxied(ProxyConfig::EncryptedDnsProxy(proxy_config)) => {
+                let first_hop = SocketAddr::V4(proxy_config.addr);
+                let make_proxy_stream = |tcp_stream| async {
+                    let forwarder = EncryptedDNSForwarder::from_stream(proxy_config, tcp_stream);
+                    Ok(forwarder)
+                };
+                proxyer
+                    .connect_proxied(first_hop, make_proxy_stream)
+                    .await?
+            }
+            ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(config)) => {
+                let use_http2 = crate::domain_fronting::USE_HTTP2;
+                let domain_fronting = &config.config();
+                let connect_tls = async || {
+                    let tcp_stream = open_socket(
+                        config.addr,
+                        #[cfg(target_os = "android")]
+                        self.socket_bypass_tx.clone(),
+                    )
+                    .await?;
+                    crate::domain_fronting::cdn_tls_connect(
+                        tcp_stream,
+                        domain_fronting.front_host(),
+                        use_http2,
+                    )
+                    .await
+                };
 
-impl RequestHandler {
-    /// Process requests from an associated [HttpsConnectorHandle].
-    async fn run(mut self) {
-        while let Some(request) = self.requests.next().await {
-            self.handle(request);
-        }
-    }
+                let proxy = if use_http2 {
+                    let stream = connect_tls().await?;
+                    ProxyConnection::http2_from_stream(stream, domain_fronting)
+                        .await
+                        .map_err(std::io::Error::other)?
+                } else {
+                    let (stream1, stream2) = future::try_join(connect_tls(), connect_tls()).await?;
+                    ProxyConnection::http1_1_from_streams(stream1, stream2, domain_fronting)
+                        .await
+                        .map_err(std::io::Error::other)?
+                };
 
-    /// Process a single request from a connected [HttpsConnectorHandle].
-    #[instrument(level = Level::TRACE, skip(self))]
-    fn handle(&mut self, request: HttpsConnectorRequest) {
-        let handles = {
-            let mut inner = self.connector.lock().unwrap();
-            match request {
-                HttpsConnectorRequest::Reset => std::mem::take(&mut inner.stream_handles),
-                HttpsConnectorRequest::SetConnectionMode(config) => {
-                    inner.proxy_config = InnerConnectionMode::from(config);
-                    std::mem::take(&mut inner.stream_handles)
+                #[cfg(any(feature = "api-override", test))]
+                if self.disable_tls {
+                    return Ok(TokioIo::new(ApiConnection::new(Box::new(
+                        ConnectionDecorator(proxy),
+                    ))));
                 }
+
+                let tls_stream = TlsStream::connect_https(proxy, host).await?;
+                ApiConnection::new(Box::new(tls_stream))
             }
         };
-        for handle in handles {
-            handle.close();
-        }
-        self.notify.notify_waiters();
+
+        Ok(TokioIo::new(stream))
     }
+}
+
+/// Establishes a TCP connection with a peer at the specified socket address.
+#[instrument(level = Level::TRACE, skip(socket_bypass_tx), ret)]
+async fn open_socket(
+    addr: SocketAddr,
+    #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+) -> std::io::Result<TcpStream> {
+    let socket = match addr {
+        SocketAddr::V4(_) => TcpSocket::new_v4()?,
+        SocketAddr::V6(_) => TcpSocket::new_v6()?,
+    };
+
+    #[cfg(target_os = "android")]
+    if let Some(mut tx) = socket_bypass_tx {
+        let (done_tx, done_rx) = oneshot::channel();
+        let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
+        if done_rx.await.is_err() {
+            tracing::error!("Failed to bypass socket, connection might fail");
+        }
+    }
+
+    socket.connect(addr).await
 }
