@@ -14,11 +14,11 @@ import MullvadTypes
 
 public class MullvadAccessMethodReceiver {
     private var cancellables = Set<Combine.AnyCancellable>()
-    let apiContext: MullvadApiContext
+    let apiContext: ApiContext
     let validShadowsocksCiphers: [String]
 
     public init(
-        apiContext: MullvadApiContext,
+        apiContext: ApiContext,
         validShadowsocksCiphers: [String],
         accessMethodsDataSource: AnyPublisher<[PersistentAccessMethod], Never>,
         requestDataSource: AnyPublisher<PersistentAccessMethod, Never>
@@ -37,11 +37,11 @@ public class MullvadAccessMethodReceiver {
     }
 
     private func saveLastReachable(_ lastReachable: PersistentAccessMethod) {
-        apiContext.context.useAccessMethod(id: lastReachable.id.uuidString)
+        apiContext.useAccessMethod(id: lastReachable.id.uuidString)
     }
 
     private func updateAccessMethods(_ accessMethods: [PersistentAccessMethod]) {
         let settingsWrapper = initAccessMethodSettingsWrapper(methods: accessMethods)
-        apiContext.context.updateAccessMethods(settingsWrapper: settingsWrapper)
+        apiContext.updateAccessMethods(settingsWrapper: settingsWrapper)
     }
 }

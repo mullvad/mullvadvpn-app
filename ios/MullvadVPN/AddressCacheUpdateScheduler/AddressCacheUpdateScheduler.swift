@@ -47,10 +47,10 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     /// Lock used for synchronizing member access.
     private let nslock = NSLock()
 
-    private let apiContext: MullvadApiContext
+    private let apiContext: ApiContext
 
     /// Designated initializer
-    init(backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying, apiContext: MullvadApiContext) {
+    init(backgroundTaskProvider: BackgroundTaskProviding, apiProxy: APIQuerying, apiContext: ApiContext) {
         self.backgroundTaskProvider = backgroundTaskProvider
         self.apiProxy = apiProxy
         self.apiContext = apiContext
@@ -88,7 +88,7 @@ final class AddressCacheUpdateScheduler: @unchecked Sendable {
     }
 
     func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) {
-        apiContext.context.updateAddressCache()
+        apiContext.updateAddressCache()
         recordUpdateRequestTime()
     }
 
