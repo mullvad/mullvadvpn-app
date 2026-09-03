@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -237,11 +236,9 @@ class ManagementService(
     private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
-    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.mapNotNull {
-        it.countries
-    }
+    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.map { it.countries }
 
-    val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.mapNotNull {
+    val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.map {
         it.wireguardEndpointData
     }
 
