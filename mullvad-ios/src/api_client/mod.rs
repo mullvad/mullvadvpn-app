@@ -179,16 +179,16 @@ struct DomainFrontingConfigContext {
 /// Creates a [`SwiftDomainFrontingConfig`] that owns copies of the provided strings.
 ///
 /// # Safety
-///
-/// Both `front` and `proxy_host` must be pointers to null-terminated strings.
-/// The pointers only need to be valid for the duration of this call.
+/// - `front` and `proxy_host` must uphold all safety invariants as required by [CStr::from_ptr].
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn new_domain_fronting_config(
     front: *const c_char,
     proxy_host: *const c_char,
 ) -> SwiftDomainFrontingConfig {
     let ctx = DomainFrontingConfigContext {
+        // SAFETY: See function docs.
         front: unsafe { get_string(front) },
+        // SAFETY: See function docs.
         proxy_host: unsafe { get_string(proxy_host) },
     };
     SwiftDomainFrontingConfig(Box::into_raw(Box::new(ctx)))
