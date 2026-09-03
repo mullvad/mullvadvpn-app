@@ -33,74 +33,39 @@ mod storekit;
 mod swift_data;
 
 #[uniffi::export(with_foreign)]
-pub trait ApiContextCallback: Send + Sync {
-    fn access_method_change(&self, context: Arc<dyn ApiContextCallbackContext>, uuid: Vec<u8>);
+pub trait AccessMethodChangeCallback: Send + Sync {
+    fn access_method_changed_to(&self, uuid: Vec<u8>);
 }
-
-#[uniffi::export(with_foreign)]
-pub trait ApiContextCallbackContext: Send + Sync {}
 
 #[derive(uniffi::Object)]
 pub struct ApiContext {
     api_client: Runtime<IOSAddressCacheBacking>,
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
+    access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
 }
 #[uniffi::export]
 impl ApiContext {
-    #[uniffi::constructor]
-    pub fn new_tls_disabled(
-        host: String,
-        address: String,
-        domain: String,
-        bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
-        settings_provider: Arc<SwiftAccessMethodSettingsContext>,
-        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
-        access_method_change_context: Option<Arc<dyn ApiContextCallbackContext>>,
-    ) -> Self {
-        Self::new_inner(
-            host,
-            address,
-            domain,
-            #[cfg(feature = "api-override")]
-            true,
-            bridge_provider,
-            settings_provider,
-            access_method_change_callback,
-            access_method_change_context,
-        )
-    }
-
     #[uniffi::constructor]
     pub fn new(
         host: String,
         address: String,
         domain: String,
+        disable_tls: bool,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
-        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
-        access_method_change_context: Option<Arc<dyn ApiContextCallbackContext>>,
-    ) -> Self {
-        #[cfg(feature = "api-override")]
-        return Self::new_inner(
-            host,
-            address,
-            domain,
-            false,
-            bridge_provider,
-            settings_provider,
-            access_method_change_callback,
-            access_method_change_context,
-        );
-        #[cfg(not(feature = "api-override"))]
+        access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
+    ) -> Arc<Self> {
+        _ = disable_tls;
         Self::new_inner(
             host,
             address,
             domain,
+            #[cfg(feature = "api-override")]
+            disable_tls,
             bridge_provider,
             settings_provider,
-            access_method_change_callback,
-            access_method_change_context,
+            access_method_change_listeners,
         )
     }
 }
@@ -112,9 +77,8 @@ impl ApiContext {
         #[cfg(feature = "api-override")] disable_tls: bool,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
-        access_method_change_callback: Option<Arc<dyn ApiContextCallback>>,
-        access_method_change_context: Option<Arc<dyn ApiContextCallbackContext>>,
-    ) -> Self {
+        access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
+    ) -> Arc<Self> {
         // The iOS client provides a different default endpoint based on its configuration
         // Debug and Release builds use the standard endpoints
         // Staging builds will use the staging endpoint
@@ -134,26 +98,6 @@ impl ApiContext {
 
         tokio_handle.clone().block_on(async move {
             let (tx, mut rx) = mpsc::unbounded::<(AccessMethodEvent, oneshot::Sender<()>)>();
-
-            if let Some(callback) = access_method_change_callback
-                && let Some(context) = access_method_change_context
-            {
-                tokio::spawn(async move {
-                    while let Some((event, _sender)) = rx.next().await {
-                        let AccessMethodEvent::New {
-                            setting,
-                            connection_mode: _,
-                            endpoint: _,
-                        } = event
-                        else {
-                            continue;
-                        };
-                        let uuid = setting.get_id();
-                        let uuid_bytes = uuid.as_bytes().to_vec();
-                        callback.access_method_change(context.clone(), uuid_bytes);
-                    }
-                });
-            }
 
             // It is imperative that the REST runtime is created within an async context, otherwise
             // ApiAvailability panics.
@@ -183,11 +127,35 @@ impl ApiContext {
             .expect("Could now spawn AccessModeSelector");
             let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
-            ApiContext {
+            let context = Arc::new(ApiContext {
                 api_client,
                 rest_client,
                 access_mode_handler,
-            }
+                access_method_change_listeners,
+            });
+
+            tokio::spawn({
+                let context = context.clone();
+                async move {
+                    while let Some((event, _sender)) = rx.next().await {
+                        let AccessMethodEvent::New {
+                            setting,
+                            connection_mode: _,
+                            endpoint: _,
+                        } = event
+                        else {
+                            continue;
+                        };
+                        let uuid = setting.get_id();
+                        let uuid_bytes = uuid.as_bytes().to_vec();
+                        for callback in &context.access_method_change_listeners {
+                            callback.access_method_changed_to(uuid_bytes.clone());
+                        }
+                    }
+                }
+            });
+
+            context
         })
     }
 }
