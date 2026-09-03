@@ -26,11 +26,13 @@ defaults:
     shell: bash
 
 jobs:
+  # Only the device target is built. It differs from aarch64-apple-ios-sim just in
+  # target_abi and target_env, plus the simulator's wider target_feature baseline,
+  # and no crate in this repo branches on any of those.
   build-ios:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [aarch64-apple-ios, aarch64-apple-ios-sim]
+    env:
+      TARGET: aarch64-apple-ios
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -46,20 +48,19 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
-        run: rustup target add ${{ matrix.target }}
+        run: rustup target add "$TARGET"
 
       - name: Build and test crates
         # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
         #       handy.
         run: |
-          time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target ${{ matrix.target }}
+          time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target "$TARGET"
           time ci/cargo-ci.sh test --verbose --lib $PACKAGES
 
   clippy-check-ios:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        target: [aarch64-apple-ios, aarch64-apple-ios-sim]
+    env:
+      TARGET: aarch64-apple-ios
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
@@ -71,10 +72,10 @@ jobs:
 
       - name: Install Rust
         run: |
-          rustup target add ${{ matrix.target }}
+          rustup target add "$TARGET"
           rustup component add clippy
 
       - name: Clippy check
         run: |
-          time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target ${{ matrix.target }}
-          time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target ${{ matrix.target }}
+          time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target "$TARGET"
+          time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
