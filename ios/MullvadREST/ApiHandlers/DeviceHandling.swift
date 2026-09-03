@@ -23,7 +23,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Device, Swift.Error>
+    ) async throws -> Device
 
     func getDevices(
         accountNumber: String,
@@ -34,7 +34,7 @@ public protocol DeviceHandling: Sendable {
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<[Device], Swift.Error>
+    ) async throws -> [Device]
 
     func createDevice(
         accountNumber: String,
@@ -47,7 +47,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         request: CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Device, Swift.Error>
+    ) async throws -> Device
 
     func deleteDevice(
         accountNumber: String,
@@ -60,7 +60,7 @@ public protocol DeviceHandling: Sendable {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Bool, Swift.Error>
+    ) async throws -> Bool
 
     func rotateDeviceKey(
         accountNumber: String,
@@ -75,5 +75,5 @@ public protocol DeviceHandling: Sendable {
         identifier: String,
         publicKey: WireGuard.PublicKey,
         retryStrategy: REST.RetryStrategy,
-    ) async -> Result<Device, Swift.Error>
+    ) async throws -> Device
 }
