@@ -5,8 +5,8 @@ use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
     tun::{IpRecv, MtuWatcher},
 };
-use std::{io, net::IpAddr};
-use talpid_types::net::{ALLOWED_IN_TUNNEL_LAN_NETS, ALLOWED_LAN_NETS};
+use std::io;
+use talpid_types::net::is_ip_allowed_in_tunnel;
 
 /// Wraps an [`IpRecv`] and drops any packet destined for the local network. Packets that we can't
 /// read a destination address from at all are dropped as well.
@@ -29,7 +29,7 @@ impl<R: IpRecv> IpRecv for LanFilter<R> {
 
         Ok(
             packets.filter(|packet: &Packet<Ip>| match packet.destination() {
-                Some(destination) => is_allowed_in_tunnel(destination),
+                Some(destination) => is_ip_allowed_in_tunnel(destination),
                 None => false,
             }),
         )
@@ -38,12 +38,4 @@ impl<R: IpRecv> IpRecv for LanFilter<R> {
     fn mtu(&self) -> MtuWatcher {
         self.inner.mtu()
     }
-}
-
-/// Whether `address` may be reached through the tunnel.
-fn is_allowed_in_tunnel(address: IpAddr) -> bool {
-    !ALLOWED_LAN_NETS.iter().any(|net| net.contains(address))
-        || ALLOWED_IN_TUNNEL_LAN_NETS
-            .iter()
-            .any(|net| net.contains(address))
 }
