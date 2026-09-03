@@ -18,7 +18,26 @@ pub type Sha256Bytes = [u8; 32];
 
 /// The relay list digest (Sha256 hash as a hex string).
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
+#[serde(try_from = "String")]
 pub struct RelayListDigest(String);
+
+impl TryFrom<String> for RelayListDigest {
+    type Error = String;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        if value.len() != 64 {
+            return Err(format!(
+                "Digest must be 64 characters long, got {}",
+                value.len()
+            ));
+        }
+        if !value.chars().all(|c| c.is_ascii_hexdigit()) {
+            return Err("Digest must contain only valid hexadecimal characters".to_string());
+        }
+
+        Ok(RelayListDigest(value.to_lowercase()))
+    }
+}
 
 impl RelayListDigest {
     pub fn new(digest: Sha256Bytes) -> Self {
