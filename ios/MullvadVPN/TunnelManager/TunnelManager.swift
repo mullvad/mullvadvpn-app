@@ -466,30 +466,32 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let operation = UpdateDeviceDataOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            devicesProxy: devicesProxy
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { completion in
-            completionHandler?(completion.error)
+        let interactor = TunnelInteractorProxy(self)
+        Task {
+            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+                completionHandler?(InvalidDeviceStateError())
+                return
+            }
+            let result = await devicesProxy.getDevice(
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
+                retryStrategy: .default
+            ).tryMap { device -> StoredDeviceData in
+                switch interactor.deviceState {
+                case .loggedIn(let storedAccount, var storedDevice):
+                    storedDevice.update(from: device)
+                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                    interactor.setDeviceState(newDeviceState, persist: true)
+                    return storedDevice
+                default:
+                    throw InvalidDeviceStateError()
+                }
+            }
+            if let error = result.error {
+                interactor.handleRestError(error)
+            }
+            completionHandler?(result.error)
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update device data",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
     }
 
     func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {

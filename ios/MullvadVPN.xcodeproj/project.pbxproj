@@ -204,7 +204,6 @@
 		583832292AC3DF1300EA2071 /* PacketTunnelActorCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832282AC3DF1300EA2071 /* PacketTunnelActorCommand.swift */; };
 		5838322B2AC3EF9600EA2071 /* EventChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838322A2AC3EF9600EA2071 /* EventChannel.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
-		58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227226E22A160035F7C2 /* StorePaymentObserver.swift */; };
 		584D26C6270C8741004EA533 /* SettingsDNSTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */; };
 		5859A55529CD9DD900F66591 /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 5859A55429CD9DD800F66591 /* changes.txt */; };
@@ -910,7 +909,6 @@
 		A9A5FA222ACB05160083449F /* TunnelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA5326CE49F600283BF8 /* TunnelObserver.swift */; };
 		A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
 		A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5803B4B12940A48700C23744 /* TunnelStore.swift */; };
-		A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */; };
 		A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */; };
 		A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
 		A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */; };
@@ -1981,7 +1979,6 @@
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		5840BE34279EDB16002836BA /* OperationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationError.swift; sourceTree = "<group>"; };
 		5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultBlockOperation.swift; sourceTree = "<group>"; };
-		58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateDeviceDataOperation.swift; sourceTree = "<group>"; };
 		5846227226E22A160035F7C2 /* StorePaymentObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentObserver.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		584D0111299134AB00531822 /* Version.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Version.xcconfig; sourceTree = "<group>"; };
@@ -3422,7 +3419,6 @@
 				A9E0317D2ACC32920095D843 /* TunnelStatusBlockObserver.swift */,
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				A9E031762ACB08950095D843 /* BackgroundTaskProvider.swift */,
-				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
 				A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */,
 				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
 			);
@@ -6514,7 +6510,6 @@
 				F052964D2FAE1A2D00B1C5BE /* MultihopMigrationTrackerFactory.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				44A515302FF2C68D00FFFB82 /* TopSlideTransition.swift in Sources */,
-				A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */,
 				A9A5FA272ACB05160083449F /* VPNConnectionProtocol.swift in Sources */,
 				F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				A9A5FA282ACB05160083449F /* WgKeyRotation.swift in Sources */,
@@ -7097,7 +7092,6 @@
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
 				7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */,
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
-				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,
 				44AFC7BF3007E4D6001C905F /* MullvadButtonStyle.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
