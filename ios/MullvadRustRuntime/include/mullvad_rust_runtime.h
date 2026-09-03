@@ -67,20 +67,29 @@ typedef struct SwiftRetryStrategy {
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
-  char *etag;
   uint16_t status_code;
   char *error_description;
   char *server_response_code;
   bool success;
+  int64_t sigsum_timestamp;
+  char *sigsum_digest;
 } SwiftMullvadApiResponse;
 
 typedef struct CompletionCookie {
   void *inner;
 } CompletionCookie;
 
+typedef struct MockEndpoint {
+  char *path;
+  uintptr_t response_code;
+  char *response_body;
+} MockEndpoint;
+
 typedef struct SwiftServerMock {
   const void *server_ptr;
-  const void *mock_ptr;
+  const void *mocks_ptr;
+  uintptr_t mocks_len;
+  uintptr_t mocks_capacity;
   uint16_t port;
 } SwiftServerMock;
 
@@ -356,16 +365,19 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
  * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
  * by calling `mullvad_api_init_new`.
  *
- * `etag` must be a pointer to a null terminated string.
- *
  * `retry_strategy` must have been created by a call to either of the following functions
  * `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
+ *
+ * `digest` must point to a null terminated string representing a 64 byte hex encoded valid checksum consisting of 32 bytes, or null if not used.
+ *
+ * `digest_timestamp` should be a valid UTC timestamp in non-leap milliseconds since the Unix epoch, or 0 if not used.
  *
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const char *etag);
+                                                const char *digest,
+                                                int64_t digest_timestamp);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be started.
@@ -564,19 +576,37 @@ void mullvad_api_cstring_drop(char *cstr_ptr);
 /**
  * # Safety
  *
- * `method` must be a pointer to a null terminated string representing the http method.
- *
- * `path` must be a pointer to a null terminated string representing the url path.
+ * `path` must be a pointer to a utf-8 null terminated string representing the url path.
  *
  * `response_code` must be a usize representing the http response code.
  *
- * `response_body` must be a pointer to a null terminated string representing the body.
+ * `response_body` must be a pointer to a utf-8 null terminated string representing the body.
+ *
+ * This must be used in conjuction with [mullvad_api_mock_get] and subsequently [mullvad_api_mock_drop]
+ * to make sure it is properly dropped.
+ */
+struct MockEndpoint mullvad_api_mock_create_endpoint(const char *path,
+                                                     uintptr_t response_code,
+                                                     const char *response_body);
+
+/**
+ * # Safety
+ *
+ * `endpoints` must be a pointer to an array of [MockEndpoint]s.
+ *
+ * `endpoint_count` must be a usize matching the length of the array
+ *
+ * Each [MockEndpoint] must fulfill the following:
+ * - `path` must be a pointer to a utf-8 null terminated string representing the url path.
+ *
+ * - `response_code` must be a usize representing the http response code.
+ *
+ * - `response_body` must be a pointer to a utf-8 null terminated string representing the body.
  *
  * This function is safe.
  */
-struct SwiftServerMock mullvad_api_mock_get(const char *path,
-                                            uintptr_t response_code,
-                                            const uint8_t *response_body);
+struct SwiftServerMock mullvad_api_mock_get(const struct MockEndpoint *endpoints,
+                                            uintptr_t endpoint_count);
 
 /**
  * # Safety

@@ -27,8 +27,12 @@ public class MullvadApiResponse {
         return Data(UnsafeBufferPointer(start: body, count: Int(response.body_size)))
     }
 
-    public var etag: String? {
-        response.etag.map { String(cString: $0) }
+    public var digest: String? {
+        response.sigsum_digest.map { String(cString: $0) }
+    }
+
+    public var timestamp: Int64 {
+        response.sigsum_timestamp
     }
 
     public var errorDescription: String? {

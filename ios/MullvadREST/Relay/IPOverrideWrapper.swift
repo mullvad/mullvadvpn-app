@@ -24,7 +24,11 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
         let cache = try relayCache.read()
         let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: cache.relays)
 
-        return CachedRelays(relays: relayResponse, updatedAt: cache.updatedAt)
+        return CachedRelays(
+            digest: cache.digest,
+            timestamp: cache.timestamp,
+            relays: relayResponse,
+            updatedAt: cache.updatedAt)
     }
 
     public func readPrebundledRelays() throws -> CachedRelays {
@@ -32,7 +36,8 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
         let relayResponse = apply(overrides: ipOverrideRepository.fetchAll(), to: prebundledRelays.relays)
 
         return CachedRelays(
-            etag: prebundledRelays.etag,
+            digest: prebundledRelays.digest,
+            timestamp: prebundledRelays.timestamp,
             relays: relayResponse,
             updatedAt: prebundledRelays.updatedAt,
         )

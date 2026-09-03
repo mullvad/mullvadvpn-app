@@ -37,26 +37,36 @@ class RelayListCacheTests: XCTestCase {
         let relayJSONData = try ServerRelaysResponseStubs.sampleRelaysJSONWithUnknownField()
         let relayJSON = String(data: relayJSONData, encoding: .utf8)!
 
+        let timestampJSONData = ServerRelaysResponseStubs.sampleRelaysDigest
+        let timestampJSON = String(data: timestampJSONData, encoding: .utf8)!
+
         // 1. Mock the relay list endpoint with our JSON containing unknown fields.
-        let mock = MullvadApiMock.get(
-            path: "/app/v1/relays",
-            responseCode: 200,
-            responseData: relayJSON
-        )
+        let mock = MullvadApiMock.get([
+            (
+                path: "/trl/v1/timestamps/latest",
+                responseCode: 200,
+                responseData: timestampJSON
+            ),
+            (
+                path: "/trl/v1/data/\(ServerRelaysResponseStubs.digest)",
+                responseCode: 200,
+                responseData: relayJSON
+            ),
+        ])
         let apiProxy = try makeApiProxy(port: mock.port)
 
         // 2. Fetch relays through the API proxy (exercises the full Rust FFI path).
         let result: Result<REST.ServerRelaysCacheResponse, Error> =
             await withCheckedContinuation { continuation in
                 _ = apiProxy.getRelays(
-                    etag: nil,
+                    sigsum: nil,
                     retryStrategy: .noRetry
                 ) { result in
                     continuation.resume(returning: result)
                 }
             }
 
-        guard case let .newContent(etag, rawData) = try result.get() else {
+        guard case let .newContent(_, _, rawData) = try result.get() else {
             XCTFail("Expected .newContent response")
             return
         }
@@ -71,7 +81,7 @@ class RelayListCacheTests: XCTestCase {
         let fileCache = FileCache<StoredRelays>(fileURL: fileURL)
         let relayCache = RelayCache(fileCache: fileCache)
 
-        let storedRelays = try StoredRelays(etag: etag, rawData: rawData, updatedAt: Date())
+        let storedRelays = try StoredRelays(rawData: rawData, updatedAt: Date())
         try relayCache.write(record: storedRelays)
 
         // 4. Read back from a fresh FileCache (forces disk round-trip, no in-memory cache).
