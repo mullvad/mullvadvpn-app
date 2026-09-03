@@ -65,3 +65,19 @@ gradlePlugin {
         }
     }
 }
+
+configurations
+    .matching { it.name == "kotlinAbiValidationCompatClasspath" }
+    .configureEach {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "org.jetbrains.kotlin") {
+                    // We want to force the project's Kotlin version here because otherwise the
+                    // version wil be the latest published version within the KGP-declared version
+                    // range [2.4.0-Beta2, 2.5.0).
+                    useVersion(libs.versions.kotlin.asProvider().get())
+                    because("Set the Kotlin ABI classpath to the project's Kotlin version.")
+                }
+            }
+        }
+    }
