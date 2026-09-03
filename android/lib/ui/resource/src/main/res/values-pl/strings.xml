@@ -72,7 +72,7 @@
     <string name="automatic_entry_description">Po wybraniu tej opcji aplikacja automatycznie wybiera losowy serwer, priorytetowo traktując serwery bliższe lokalizacji wyjścia, aby zapewnić lepszą wydajność.</string>
     <string name="automatic_entry_info_first_paragraph">Wybiera odpowiednią lokalizację na podstawie lokalizacji wyjścia, biorąc pod uwagę szereg różnych czynników, takich jak odległość, dostawca i obciążenie serwera.</string>
     <string name="automatic_entry_warning">Uwaga: spowoduje to zignorowanie ustawień filtrowania serwera używanego jako punkt wejścia.</string>
-    <string name="automatic_with_country">Automatycznie (%1$s%2$s)</string>
+    <string name="automatic_with_country">Automatycznie (%1$s)</string>
     <string name="back">Wstecz</string>
     <string name="back_with_icon">%1$s Wstecz</string>
     <string name="block_ads_title">Reklamy</string>

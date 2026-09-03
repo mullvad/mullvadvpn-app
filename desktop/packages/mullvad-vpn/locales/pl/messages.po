@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2026-09-03 06:40\n"
+"PO-Revision-Date: 2026-09-03 07:50\n"
 
 msgid "%(amount)d more..."
 msgstr "Jeszcze %(amount)d"
@@ -3215,7 +3215,7 @@ msgid "Auto-connect is called Always-on VPN in the Android system settings and i
 msgstr "Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu."
 
 msgid "Automatic (%s)"
-msgstr "Automatycznie (%s%s)"
+msgstr "Automatycznie (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "Automatycznie połącz przy uruchamianiu urządzenia."
