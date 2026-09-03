@@ -96,6 +96,7 @@ import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListUiState
+import net.mullvad.mullvadvpn.feature.location.impl.navigation.navigateFromFilterChip
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
@@ -149,6 +150,7 @@ private fun PreviewSelectLocationScreen(
             onRecentsToggleEnableClick = {},
             removeOwnershipFilter = {},
             removeProviderFilter = {},
+            onFilterChipNavigate = {},
             onSelectRelayList = {},
             onRefreshRelayList = {},
             scrollToItem = {},
@@ -371,6 +373,8 @@ fun SelectLocation(navigator: Navigator) {
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onFilterClick =
             dropUnlessResumed { filterTarget -> navigator.navigate(FilterNavKey(filterTarget)) },
+        onFilterChipNavigate =
+            dropUnlessResumed { filterChip -> navigator.navigateFromFilterChip(filterChip) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onSelectRelayList = vm::selectRelayList,
@@ -411,6 +415,7 @@ fun SelectLocationScreen(
     onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
     removeProviderFilter: (filterTarget: RelayHopType) -> Unit,
+    onFilterChipNavigate: (FilterChip) -> Unit,
     onSelectRelayList: (RelayHopType) -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
@@ -555,6 +560,7 @@ fun SelectLocationScreen(
                             scrollToItem(relayListType to relayItem)
                         },
                         onFilterClick = onFilterClick,
+                        onFilterChipNavigate = onFilterChipNavigate,
                     )
 
                     relayListContent(state.value.relayListType, bottomMarginList)
@@ -826,6 +832,7 @@ private fun SelectionContainer(
     onSelectRelayList: (RelayHopType) -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
+    onFilterChipNavigate: (FilterChip) -> Unit,
     scrollToRelayItem: (RelayListType, RelayItem) -> Unit,
 ) {
 
@@ -947,6 +954,7 @@ private fun SelectionContainer(
                     entryFilteringEnabled || relayListType.hopType() == RelayHopType.EXIT,
                 onRemoveOwnershipFilter = { removeOwnershipFilter() },
                 onRemoveProviderFilter = { removeProviderFilter() },
+                onFilterNavigate = onFilterChipNavigate,
             )
         }
     }

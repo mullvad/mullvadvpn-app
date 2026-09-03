@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.filter.api)
     implementation(projects.lib.feature.location.api)
+    implementation(projects.lib.feature.anticensorship.api)
 
     implementation(libs.compose.constrainlayout)
     implementation(libs.koin.compose)

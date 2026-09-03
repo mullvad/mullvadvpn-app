@@ -21,19 +21,19 @@ import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
 @Preview
 @Composable
 private fun PreviewEnabledMullvadFilterChip() = PreviewColumn {
-    MullvadFilterChip(text = "Providers: 10", onRemoveClick = {}, enabled = true)
+    MullvadFilterChip(text = "Providers: 10", onClick = {}, enabled = true)
 }
 
 @Preview
 @Composable
 private fun PreviewDisabledMullvadFilterChip() = PreviewColumn {
-    MullvadFilterChip(text = "Providers: 17", onRemoveClick = {}, enabled = false)
+    MullvadFilterChip(text = "Providers: 17", onClick = {}, enabled = false)
 }
 
 @Preview
 @Composable
 private fun PreviewInactiveMullvadFilterChip() = PreviewColumn {
-    MullvadFilterChip(text = "Providers: 17", onRemoveClick = {}, enabled = true, active = false)
+    MullvadFilterChip(text = "Providers: 17", onClick = {}, enabled = true, active = false)
 }
 
 @Composable
@@ -43,8 +43,9 @@ fun MullvadFilterChip(
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
     iconColor: Color = MaterialTheme.colorScheme.onPrimary,
     text: String,
-    onRemoveClick: () -> Unit,
-    enabled: Boolean,
+    onClick: () -> Unit,
+    showCrossIcon: Boolean = false,
+    enabled: Boolean = true,
     active: Boolean = true,
 ) {
     InputChip(
@@ -67,10 +68,10 @@ fun MullvadFilterChip(
                 selected = false,
             ),
         selected = false,
-        onClick = onRemoveClick,
+        onClick = onClick,
         label = { Text(text = text, style = MaterialTheme.typography.labelLarge) },
         trailingIcon =
-            if (enabled) {
+            if (showCrossIcon) {
                 {
                     Icon(
                         imageVector = Icons.Rounded.Clear,

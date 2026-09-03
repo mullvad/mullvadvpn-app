@@ -19,8 +19,21 @@ fun shouldFilterByQuic(isQuicEnabled: Boolean, relayListType: RelayListType) =
         is RelayListType.Multihop -> isQuicEnabled && relayListType.hopType == RelayHopType.ENTRY
     }
 
-fun shouldFilterByLwo(isLwoEnable: Boolean, relayListType: RelayListType) =
+fun shouldFilterByLwo(isLwoEnabled: Boolean, relayListType: RelayListType) =
     when (relayListType) {
-        RelayListType.Single -> isLwoEnable
-        is RelayListType.Multihop -> isLwoEnable && relayListType.hopType == RelayHopType.ENTRY
+        RelayListType.Single -> isLwoEnabled
+        is RelayListType.Multihop -> isLwoEnabled && relayListType.hopType == RelayHopType.ENTRY
+    }
+
+fun shouldFilterByShadowsocks(
+    isShadowsocksEnabled: Boolean,
+    isShadowsocksPortOutsideOfStandardRange: Boolean,
+    relayListType: RelayListType,
+) =
+    when (relayListType) {
+        RelayListType.Single -> isShadowsocksEnabled && isShadowsocksPortOutsideOfStandardRange
+        is RelayListType.Multihop ->
+            isShadowsocksEnabled &&
+                isShadowsocksPortOutsideOfStandardRange &&
+                relayListType.hopType == RelayHopType.ENTRY
     }

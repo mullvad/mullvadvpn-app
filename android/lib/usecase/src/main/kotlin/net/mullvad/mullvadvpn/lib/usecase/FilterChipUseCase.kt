@@ -1,16 +1,21 @@
 package net.mullvad.mullvadvpn.lib.usecase
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isLwoEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isQuicEnabled
+import net.mullvad.mullvadvpn.lib.common.util.isShadowsocksEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
+import net.mullvad.mullvadvpn.lib.common.util.shadowSocksPort
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByDaita
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByLwo
 import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByQuic
+import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByShadowsocks
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Port
+import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -18,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.hopType
 import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 typealias ModelOwnership = Ownership
@@ -27,6 +33,7 @@ class FilterChipUseCase(
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
     private val multihopInEffectUseCase: MultihopInEffectUseCase,
+    private val relayListRepository: RelayListRepository,
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
@@ -35,7 +42,14 @@ class FilterChipUseCase(
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
             multihopInEffectUseCase(),
-        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopInEffect ->
+            relayListRepository.shadowsocksPortRanges,
+        ) {
+            selectedOwnership,
+            selectedProviders,
+            providerOwnership,
+            settings,
+            multihopInEffect,
+            shadowsocksPortRanges ->
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedProviders,
@@ -43,6 +57,7 @@ class FilterChipUseCase(
                 settings = settings,
                 relayListType = relayListType,
                 multihopInEffect = multihopInEffect,
+                shadowsocksPortRanges = shadowsocksPortRanges,
             )
         }
 
@@ -53,6 +68,7 @@ class FilterChipUseCase(
         settings: Settings?,
         relayListType: RelayListType,
         multihopInEffect: MultihopInEffectStatus,
+        shadowsocksPortRanges: List<PortRange>,
     ): List<FilterChip> {
 
         // Do not show any entry filters for when needed multihop.
@@ -109,6 +125,18 @@ class FilterChipUseCase(
             ) {
                 add(FilterChip.Lwo)
             }
+            val shadowsocksPort = settings?.shadowSocksPort()?.getOrNull()
+            if (
+                shadowsocksPort != null &&
+                    shouldFilterByShadowsocks(
+                        isShadowsocksEnabled = settings.isShadowsocksEnabled(),
+                        isShadowsocksPortOutsideOfStandardRange =
+                            shadowsocksPortRanges.none { it.contains(shadowsocksPort) },
+                        relayListType = relayListType,
+                    )
+            ) {
+                add(FilterChip.Shadowsocks(shadowsocksPort))
+            }
         }
     }
 }
@@ -130,6 +158,11 @@ sealed interface FilterChip {
     data class Provider(val count: Int) : FilterChip {
         override val type: Type
             get() = Type.Relay
+    }
+
+    data class Shadowsocks(val port: Port) : FilterChip {
+        override val type: Type
+            get() = Type.Setting
     }
 
     data object Daita : FilterChip {
