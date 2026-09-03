@@ -30,8 +30,8 @@ struct DevicesProxyStub: DeviceHandling {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Device, Swift.Error> {
-        deviceResult
+    ) async throws -> Device {
+        try deviceResult.get()
     }
 
     func getDevices(
@@ -51,8 +51,8 @@ struct DevicesProxyStub: DeviceHandling {
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<[Device], Swift.Error> {
-        deviceResult.map { [$0] }
+    ) async throws -> [Device] {
+        try deviceResult.map { [$0] }.get()
     }
 
     func createDevice(
@@ -69,8 +69,8 @@ struct DevicesProxyStub: DeviceHandling {
         accountNumber: String,
         request: CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Device, Swift.Error> {
-        deviceResult
+    ) async throws -> Device {
+        try deviceResult.get()
     }
 
     func deleteDevice(
@@ -87,8 +87,8 @@ struct DevicesProxyStub: DeviceHandling {
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy
-    ) async -> Result<Bool, Swift.Error> {
-        .success(true)
+    ) async throws -> Bool {
+        true
     }
 
     func rotateDeviceKey(
@@ -107,7 +107,7 @@ struct DevicesProxyStub: DeviceHandling {
         identifier: String,
         publicKey: WireGuard.PublicKey,
         retryStrategy: REST.RetryStrategy,
-    ) async -> Result<Device, Swift.Error> {
-        deviceResult
+    ) async throws -> Device {
+        try deviceResult.get()
     }
 }
