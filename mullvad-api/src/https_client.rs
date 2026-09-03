@@ -1,7 +1,7 @@
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    domain_fronting::DomainFrontingAddr,
+    domain_fronting::DfConfigResolved,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
@@ -93,7 +93,7 @@ pub(crate) enum InnerConnectionMode {
     /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
     /// Connect to the destination via domain fronting.
-    DomainFronting(DomainFrontingAddr),
+    DomainFronting(DfConfigResolved),
 }
 
 impl InnerConnectionMode {
