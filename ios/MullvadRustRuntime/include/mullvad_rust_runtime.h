@@ -175,9 +175,7 @@ void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
  * Creates a [`SwiftDomainFrontingConfig`] that owns copies of the provided strings.
  *
  * # Safety
- *
- * Both `front` and `proxy_host` must be pointers to null-terminated strings.
- * The pointers only need to be valid for the duration of this call.
+ * - `front` and `proxy_host` must uphold all safety invariants as required by [CStr::from_ptr].
  */
 struct SwiftDomainFrontingConfig new_domain_fronting_config(const char *front,
                                                             const char *proxy_host);

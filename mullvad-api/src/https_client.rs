@@ -1,11 +1,11 @@
-use crate::proxy::DomainFrontingConfig;
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
+    domain_fronting::DfConfigResolved,
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
 };
-use domain_fronting::ProxyConnection;
+use domain_fronting::client::ProxyConnection;
 use futures::FutureExt;
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
 #[cfg(target_os = "android")]
@@ -23,6 +23,7 @@ use shadowsocks::{
     crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
 };
+use std::ops::Deref;
 #[cfg(target_os = "android")]
 use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
@@ -43,6 +44,7 @@ use tokio::{
     sync::Notify,
     time::timeout,
 };
+use tokio_rustls::rustls::KeyLogFile;
 use tower::Service;
 use tracing::{Instrument, Level, instrument, trace_span};
 
@@ -91,7 +93,7 @@ pub(crate) enum InnerConnectionMode {
     /// See [`mullvad_encrypted_dns_proxy`] for how the proxy works.
     EncryptedDnsProxy(EncryptedDNSConfig),
     /// Connect to the destination via domain fronting.
-    DomainFronting(DomainFrontingConfig),
+    DomainFronting(DfConfigResolved),
 }
 
 impl InnerConnectionMode {
@@ -192,27 +194,37 @@ impl InnerConnectionMode {
                 .await
             }
             InnerConnectionMode::DomainFronting(config) => {
-                let front = config.domain_fronting.front().to_owned();
-                let proxy_host = config.domain_fronting.proxy_host().to_owned();
-                let session_header_key = config.domain_fronting.session_header_key().to_owned();
-                let make_proxy_stream = |tcp_stream| async {
-                    let tls_stream = cdn_tls_connect(tcp_stream, &front).await?;
-                    let forwarder =
-                        ProxyConnection::from_stream(tls_stream, proxy_host, session_header_key)
-                            .await
-                            .map_err(std::io::Error::other)?;
-                    Ok(forwarder)
+                let use_http2 = crate::domain_fronting::USE_HTTP2;
+                let domain_fronting = &config.config();
+                let connect_tls = async || {
+                    let tcp_stream = HttpsConnector::open_socket(
+                        config.addr,
+                        #[cfg(target_os = "android")]
+                        socket_bypass_tx.clone(),
+                    )
+                    .await?;
+                    cdn_tls_connect(tcp_stream, domain_fronting.front_host(), use_http2).await
                 };
-                Self::connect_proxied(
-                    config.addr,
-                    hostname,
-                    make_proxy_stream,
-                    #[cfg(target_os = "android")]
-                    socket_bypass_tx,
-                    #[cfg(any(feature = "api-override", test))]
-                    disable_tls,
-                )
-                .await
+
+                let proxy = if use_http2 {
+                    let stream = connect_tls().await?;
+                    ProxyConnection::http2_from_stream(stream, domain_fronting)
+                        .await
+                        .map_err(std::io::Error::other)?
+                } else {
+                    let (stream1, stream2) = future::try_join(connect_tls(), connect_tls()).await?;
+                    ProxyConnection::http1_1_from_streams(stream1, stream2, domain_fronting)
+                        .await
+                        .map_err(std::io::Error::other)?
+                };
+
+                #[cfg(any(feature = "api-override", test))]
+                if disable_tls {
+                    return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+                }
+
+                let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+                Ok(ApiConnection::new(Box::new(tls_stream)))
             }
         }
     }
@@ -258,6 +270,18 @@ impl InnerConnectionMode {
         let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
         Ok(ApiConnection::new(Box::new(tls_stream)))
     }
+
+    /// How long a connection may sit idle before it should be evicted.
+    pub const fn idle_timeout(&self) -> Duration {
+        let default = Duration::from_secs(60);
+        match self {
+            InnerConnectionMode::Direct => default,
+            InnerConnectionMode::Shadowsocks(..) => default,
+            InnerConnectionMode::Socks5(..) => default,
+            InnerConnectionMode::EncryptedDnsProxy(..) => default,
+            InnerConnectionMode::DomainFronting(..) => crate::domain_fronting::IDLE_TIMEOUT,
+        }
+    }
 }
 
 /// Establish a TLS connection to the CDN without certificate verification.
@@ -269,6 +293,7 @@ impl InnerConnectionMode {
 async fn cdn_tls_connect(
     stream: TcpStream,
     front_domain: &str,
+    http2: bool,
 ) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
     use std::sync::LazyLock;
     use tokio_rustls::rustls::{self, client::danger, pki_types};
@@ -322,7 +347,21 @@ async fn cdn_tls_connect(
         )
     });
 
-    let connector = tokio_rustls::TlsConnector::from(Arc::clone(&CDN_TLS_CONFIG));
+    static CDN_TLS_CONFIG_HTTP2: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
+        let mut config = CDN_TLS_CONFIG.deref().clone();
+        Arc::make_mut(&mut config)
+            .alpn_protocols
+            .push("h2".as_bytes().to_vec());
+        Arc::make_mut(&mut config).key_log = Arc::new(KeyLogFile::new()) as Arc<_>;
+        config
+    });
+
+    let config = if http2 {
+        &CDN_TLS_CONFIG_HTTP2
+    } else {
+        &CDN_TLS_CONFIG
+    };
+    let connector = tokio_rustls::TlsConnector::from(Arc::clone(config));
     let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
     connector.connect(server_name, stream).await

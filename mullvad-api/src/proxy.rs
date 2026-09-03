@@ -17,6 +17,8 @@ use tokio::{
 };
 use tracing::{Level, instrument};
 
+use crate::domain_fronting::DfConfigResolved;
+
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
 pub trait ConnectionModeProvider: Send {
@@ -77,30 +79,7 @@ pub enum ProxyConfig {
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
-    DomainFronting(DomainFrontingConfig),
-}
-
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct DomainFrontingConfig {
-    pub addr: SocketAddr,
-    pub domain_fronting: domain_fronting::DomainFronting,
-}
-
-impl DomainFrontingConfig {
-    /// Resolve a domain fronting configuration by performing DNS lookup on the front domain.
-    #[instrument(level = Level::TRACE, ret)]
-    pub async fn resolve(
-        front: String,
-        proxy_host: String,
-        session_header_key: String,
-    ) -> Result<Self, domain_fronting::Error> {
-        let df = domain_fronting::DomainFronting::new(front, proxy_host, session_header_key);
-        let proxy_config = df.proxy_config().await?;
-        Ok(Self {
-            addr: proxy_config.addr,
-            domain_fronting: df,
-        })
-    }
+    DomainFronting(DfConfigResolved),
 }
 
 impl ProxyConfig {
