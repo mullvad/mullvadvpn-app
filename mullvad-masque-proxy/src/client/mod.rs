@@ -780,10 +780,10 @@ fn new_connect_request(
 /// neither is at risk from an intercepting proxy.
 pub fn default_tls_config() -> Arc<rustls::ClientConfig> {
     static TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let provider = Arc::new(rustls::crypto::aws_lc_rs::default_provider());
         let mut config = rustls::ClientConfig::builder_with_provider(provider.clone())
             .with_protocol_versions(&[&rustls::version::TLS13])
-            .expect("ring crypt-prover should support TLS 1.3")
+            .expect("aws-lc-rs crypto provider should support TLS 1.3")
             .dangerous()
             .with_custom_certificate_verifier(Arc::new(AcceptAnyServerCertificate { provider }))
             .with_no_client_auth();

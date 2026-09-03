@@ -24,12 +24,13 @@ pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
 
 static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
     let config = {
-        let mut config =
-            ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
-                .with_protocol_versions(&[&rustls::version::TLS13])
-                .expect("ring crypt-prover should support TLS 1.3")
-                .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
-                .with_no_client_auth();
+        let mut config = ClientConfig::builder_with_provider(Arc::new(
+            rustls::crypto::aws_lc_rs::default_provider(),
+        ))
+        .with_protocol_versions(&[&rustls::version::TLS13])
+        .expect("aws-lc-rs crypto provider should support TLS 1.3")
+        .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
+        .with_no_client_auth();
         // This assumes that the server hello/certificates will include certificate for the domain.
         config.enable_sni = false;
         config

@@ -13,6 +13,8 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 reqwest = { workspace = true }
+rustls = { workspace = true, features = ["aws-lc-rs", "std"] }
+rustls-pki-types = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { version = "1", features = ["full"] }

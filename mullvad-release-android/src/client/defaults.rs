@@ -1,3 +1,4 @@
+use rustls_pki_types::{CertificateDer, pem::PemObject};
 use std::sync::LazyLock;
 
 /// Default URL for the `releases`-API.
@@ -12,7 +13,7 @@ pub const METADATA_URL: &str = "https://releases.mullvad.net/android/metadata/";
 /// trusted when fetching version metadata.
 ///
 /// This is the Let's Encrypt root-certificate.
-pub static PINNED_CERTIFICATE: LazyLock<reqwest::Certificate> = LazyLock::new(|| {
+pub static PINNED_CERTIFICATE: LazyLock<CertificateDer<'static>> = LazyLock::new(|| {
     const CERT_BYTES: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
-    reqwest::Certificate::from_pem(CERT_BYTES).expect("invalid cert")
+    CertificateDer::from_pem_slice(CERT_BYTES).expect("invalid cert")
 });
