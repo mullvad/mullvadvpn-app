@@ -192,7 +192,7 @@ impl AppVersionProxy {
             .and_then(|tag| match tag.to_str() {
                 Ok(tag) => Some(tag.to_string()),
                 Err(_) => {
-                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
+                    tracing::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
                     None
                 }
             })

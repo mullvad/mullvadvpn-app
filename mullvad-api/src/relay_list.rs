@@ -72,7 +72,7 @@ impl RelayListProxy {
 
             match prev_etag {
                 Some(_) if response.status() == StatusCode::NOT_MODIFIED => {
-                    log::trace!("Relay list API returned 304 - not modified");
+                    tracing::trace!("Relay list API returned 304 - not modified");
                     Ok(None)
                 }
                 _ => {
@@ -80,13 +80,13 @@ impl RelayListProxy {
                     let etag = Self::extract_etag(&response);
                     let relay_list: ServerRelayList =
                         response.deserialize().await.inspect_err(|_err| {
-                            log::error!("Failed to deserialize API response of relay list")
+                            tracing::error!("Failed to deserialize API response of relay list")
                         })?;
 
                     match etag {
                         Some(etag) => Ok(Some(relay_list.cache(etag))),
                         None => {
-                            log::trace!("Relay list API response did not contain an etag");
+                            tracing::trace!("Relay list API response did not contain an etag");
                             Ok(Some(relay_list.uncacheable()))
                         }
                     }
@@ -188,7 +188,7 @@ impl ServerRelayList {
                         country.cities.push(location_to_city(&location, city_code));
                     }
                     None => {
-                        log::error!("Bad location code:{}", code);
+                        tracing::error!("Bad location code:{}", code);
                         continue;
                     }
                 }
