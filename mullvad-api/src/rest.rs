@@ -638,18 +638,7 @@ impl RequestFactory {
         path: &str,
         body: Vec<u8>,
     ) -> Result<Request<Full<Bytes>>> {
-        let body_length = body.len();
-        let body = Full::new(Bytes::from(body));
-        let mut request = self.hyper_request(path, method, body)?;
-
-        let headers = request.headers_mut();
-        // TODO: pretty sure hyper sets CONTENT_LENGTH automatically
-        headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
-        headers.insert(
-            header::CONTENT_TYPE,
-            HeaderValue::from_static("application/json"),
-        );
-
+        let request = hyper_request_json_bytes(&self.service.host, path, method, body)?;
         Ok(Request::new(request, self.service.clone()).timeout(self.default_timeout))
     }
 
@@ -659,8 +648,8 @@ impl RequestFactory {
         path: &str,
         body: &S,
     ) -> Result<Request<Full<Bytes>>> {
-        let json_body = serde_json::to_vec(&body)?;
-        self.json_request_with_bytes(method, path, json_body)
+        let body = serde_json::to_vec(&body)?;
+        self.json_request_with_bytes(method, path, body)
     }
 
     fn hyper_request<B>(&self, path: &str, method: Method, body: B) -> Result<http::Request<B>> {
@@ -685,6 +674,27 @@ pub(crate) fn hyper_request<B>(
             HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
         )
         .body(body)?;
+    Ok(request)
+}
+
+pub(crate) fn hyper_request_json_bytes(
+    host: &str,
+    path: &str,
+    method: Method,
+    body: Vec<u8>,
+) -> Result<http::Request<Full<Bytes>>> {
+    let body_length = body.len();
+    let body = Full::new(Bytes::from(body));
+    let mut request = hyper_request(host, path, method, body)?;
+
+    let headers = request.headers_mut();
+    // TODO: pretty sure hyper sets CONTENT_LENGTH automatically
+    headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
+    headers.insert(
+        header::CONTENT_TYPE,
+        HeaderValue::from_static("application/json"),
+    );
+
     Ok(request)
 }
 
