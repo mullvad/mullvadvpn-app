@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.component.text.FirstBaselineAlignedIconAndText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFilterChip
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -36,10 +37,12 @@ private fun PreviewFilterActiveEntryContainer() {
                         FilterChip.Ownership(Ownership.MullvadOwned),
                         FilterChip.Provider(2),
                         FilterChip.Daita,
+                        FilterChip.Shadowsocks(Port(50_000)),
                     ),
                 relayFiltersActive = false,
                 onRemoveOwnershipFilter = {},
                 onRemoveProviderFilter = {},
+                onFilterNavigate = {},
             )
         }
     }
@@ -60,6 +63,7 @@ private fun PreviewFilterInactiveEntryContainer() {
                 relayFiltersActive = true,
                 onRemoveOwnershipFilter = {},
                 onRemoveProviderFilter = {},
+                onFilterNavigate = {},
             )
         }
     }
@@ -72,6 +76,7 @@ fun FilterContainer(
     relayFiltersActive: Boolean,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onFilterNavigate: (FilterChip) -> Unit,
 ) {
     Column(modifier = modifier) {
         FilterRow(
@@ -79,6 +84,7 @@ fun FilterContainer(
             relayFiltersActive = relayFiltersActive,
             onRemoveOwnershipFilter = onRemoveOwnershipFilter,
             onRemoveProviderFilter = onRemoveProviderFilter,
+            onFilterChipNavigate = onFilterNavigate,
         )
 
         val showInactiveFiltersInfo =
@@ -104,6 +110,7 @@ fun FilterRow(
     relayFiltersActive: Boolean,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onFilterChipNavigate: (FilterChip) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Row(
@@ -126,11 +133,16 @@ fun FilterRow(
                         active = relayFiltersActive,
                         onRemoveClick = onRemoveProviderFilter,
                     )
-                is FilterChip.Daita -> DaitaFilterChip()
+                is FilterChip.Shadowsocks ->
+                    ShadowsocksFilterChip(
+                        port = it.port,
+                        onClick = { onFilterChipNavigate(it) },
+                    )
+                is FilterChip.Daita -> DaitaFilterChip { onFilterChipNavigate(it) }
+                is FilterChip.Quic -> QuicFilterChip { onFilterChipNavigate(it) }
+                is FilterChip.Lwo -> LwoFilterChip { onFilterChipNavigate(it) }
                 is FilterChip.Entry -> EntryFilterChip()
                 is FilterChip.Exit -> ExitFilterChip()
-                is FilterChip.Quic -> QuicFilterChip()
-                is FilterChip.Lwo -> LwoFilterChip()
             }
         }
         Spacer(modifier = Modifier.width(Dimens.smallPadding))
@@ -141,8 +153,9 @@ fun FilterRow(
 private fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit, active: Boolean) {
     MullvadFilterChip(
         text = stringResource(id = R.string.number_of_providers, providers),
-        onRemoveClick = onRemoveClick,
+        onClick = onRemoveClick,
         enabled = true,
+        showCrossIcon = true,
         active = active,
     )
 }
@@ -151,18 +164,27 @@ private fun ProviderFilterChip(providers: Int, onRemoveClick: () -> Unit, active
 private fun OwnershipFilterChip(ownership: Ownership, onRemoveClick: () -> Unit, active: Boolean) {
     MullvadFilterChip(
         text = stringResource(ownership.stringResources()),
-        onRemoveClick = onRemoveClick,
+        onClick = onRemoveClick,
         enabled = true,
+        showCrossIcon = true,
         active = active,
     )
 }
 
 @Composable
-private fun DaitaFilterChip() {
+private fun ShadowsocksFilterChip(port: Port, onClick: () -> Unit) {
+    MullvadFilterChip(
+        text = stringResource(R.string.shadowsocks_port, port.value),
+        onClick = onClick,
+        enabled = true,
+    )
+}
+
+@Composable
+private fun DaitaFilterChip(onClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.daita),
-        onRemoveClick = {},
-        enabled = false,
+        onClick = onClick,
     )
 }
 
@@ -170,7 +192,7 @@ private fun DaitaFilterChip() {
 private fun EntryFilterChip() {
     MullvadFilterChip(
         text = stringResource(id = R.string.entry),
-        onRemoveClick = {},
+        onClick = {},
         enabled = false,
     )
 }
@@ -179,23 +201,22 @@ private fun EntryFilterChip() {
 private fun ExitFilterChip() {
     MullvadFilterChip(
         text = stringResource(id = R.string.exit),
-        onRemoveClick = {},
+        onClick = {},
         enabled = false,
     )
 }
 
 @Composable
-private fun QuicFilterChip() {
+private fun QuicFilterChip(onClick: () -> Unit) {
     MullvadFilterChip(
         text = stringResource(id = R.string.quic),
-        onRemoveClick = {},
-        enabled = false,
+        onClick = onClick,
     )
 }
 
 @Composable
-private fun LwoFilterChip() {
-    MullvadFilterChip(text = stringResource(id = R.string.lwo), onRemoveClick = {}, enabled = false)
+private fun LwoFilterChip(onClick: () -> Unit) {
+    MullvadFilterChip(text = stringResource(id = R.string.lwo), onClick = onClick)
 }
 
 private fun Ownership.stringResources(): Int =

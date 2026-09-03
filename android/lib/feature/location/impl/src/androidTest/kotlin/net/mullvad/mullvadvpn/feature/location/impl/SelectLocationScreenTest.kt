@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -88,6 +89,7 @@ class SelectLocationScreenTest {
         onEditCustomLists: () -> Unit = {},
         removeOwnershipFilter: (RelayHopType) -> Unit = {},
         removeProviderFilter: (RelayHopType) -> Unit = {},
+        onFilterChipNavigate: (FilterChip) -> Unit = {},
         onSelectRelayList: (RelayHopType) -> Unit = {},
         onSelectAutomaticEntry: () -> Unit = {},
         onAutomaticInfoClick: () -> Unit = {},
@@ -108,6 +110,7 @@ class SelectLocationScreenTest {
                 onFilterClick = onFilterClick,
                 removeOwnershipFilter = removeOwnershipFilter,
                 removeProviderFilter = removeProviderFilter,
+                onFilterChipNavigate = onFilterChipNavigate,
                 onSelectRelayList = onSelectRelayList,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,

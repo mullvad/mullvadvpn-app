@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
+import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -48,6 +49,7 @@ class SearchLocationScreenTest {
         onSearchInputChanged: (String) -> Unit = {},
         onRemoveOwnershipFilter: (RelayHopType) -> Unit = {},
         onRemoveProviderFilter: (RelayHopType) -> Unit = {},
+        onFilterChipNavigate: (FilterChip) -> Unit = {},
         onSelectAutomaticEntry: () -> Unit = {},
         onAutomaticInfoClick: () -> Unit = {},
         onGoBack: () -> Unit = {},
@@ -64,6 +66,7 @@ class SearchLocationScreenTest {
                 onAutomaticInfoClick = onAutomaticInfoClick,
                 onGoBack = onGoBack,
                 navigateToBottomSheet = onUpdateBottomSheetState,
+                onFilterChipNavigate = onFilterChipNavigate,
             )
         }
     }
