@@ -15,7 +15,7 @@ use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
-const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(

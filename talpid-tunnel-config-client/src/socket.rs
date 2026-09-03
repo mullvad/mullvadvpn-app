@@ -1,11 +1,5 @@
 //! A TCP stream configured for reliability over throughput.
 //!
-//! The socket is configured with:
-//! - Low MSS (prevents MTU fragmentation)
-//! - TCP_NODELAY
-//! - TCP keepalives (detect dead connections quickly)
-//! - TCP_USER_TIMEOUT on Linux (kernel gives up if data isn't ACKed in time)
-//!
 //! On non-Windows targets the MSS is lowered via `setsockopt`. On Windows
 //! this doesn't work, so the MTU is temporarily lowered instead — see
 //! `talpid-wireguard/src/ephemeral.rs`.
@@ -21,9 +15,6 @@ const KEEPALIVE_TIME: Duration = Duration::from_secs(1);
 
 /// Time between keepalive probes.
 const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(1);
-
-/// Number of unacknowledged keepalive probes before giving up.
-const KEEPALIVE_RETRIES: u32 = 10;
 
 pub struct TcpSocket {
     socket: TokioTcpSocket,
@@ -73,7 +64,14 @@ impl std::os::windows::io::AsSocket for TcpSocket {
     }
 }
 
-/// Set TCP parameters that prioritize reliability and low latency over throughput.
+/// Set TCP parameters that prioritize reliability.
+///
+/// This sets various platform specific parameters to make the ephemeral peer handshake
+/// more reliable under poor network conditions.
+///
+/// We do this by increasing retransmissions and tuning timeout parameters, so that
+/// the session is kept alive for longer if progress is made, or shorter for dead
+/// connections.
 fn set_reliability_params(socket: &TokioTcpSocket) {
     // Send small gRPC frames immediately.
     if let Err(e) = socket.set_nodelay(true) {
@@ -81,13 +79,75 @@ fn set_reliability_params(socket: &TokioTcpSocket) {
     }
 
     let sock_ref = socket2::SockRef::from(socket);
+    // Increase keepalive frequency. This only affects the connection
+    // when no data is being sent, i.e. after sending the request and
+    // while waiting for the response.
     let keepalive = socket2::TcpKeepalive::new()
         .with_time(KEEPALIVE_TIME)
-        .with_interval(KEEPALIVE_INTERVAL)
-        .with_retries(KEEPALIVE_RETRIES);
+        .with_interval(KEEPALIVE_INTERVAL);
     if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
         log::error!("Failed to set TCP keepalive on tunnel config socket: {e}");
     }
+
+    #[cfg(target_os = "linux")]
+    set_linux_reliability_params(socket);
+}
+
+/// Sets the following TCP options to increase reliability:
+///
+/// - `TCP_RTO_MAX_MS` sets an upper bound on time between retries for unAck'ed data.
+/// - `TCP_SYNCNT` sets the number of retries for the `SYN` packet, i.e. handshake inits.
+/// - `TCP_USER_TIMEOUT` sets a timeout on ACKs for transmitted data, but only comes into
+///   effect after the handshake is complete.
+///
+/// Together with the keepalives, which only prove the connection when no data is exchanged,
+/// they should cover the three phases: handshake, sending the `EphemeralPeerRequestV1` and
+/// receiving the `EphemeralPeerResponseV1`.
+#[cfg(target_os = "linux")]
+fn set_linux_reliability_params(socket: &TokioTcpSocket) {
+    use nix::sys::socket::sockopt::TcpUserTimeout;
+
+    // SYN retransmits before aborting the handshake. Default is 6.
+    const TCP_SYNCNT_VALUE: u32 = 10;
+
+    // Cap on the retransmit timeout. Default is 120 seconds.
+    // Only support on Linux 6.15+; older kernels return `ENOPROTOOPT`.
+    const TCP_RTO_MAX_MS_VALUE: u32 = 1_000;
+
+    // The default values of these parameters cause handshakes to time out
+    // after ~127 s. The new parameters lower this to ~10 seconds.
+
+    // Progress-based deadline (ms) for the established phase: measured from
+    // the oldest unACK'ed data, so it advances on ACK progress and only fires
+    // when there is none. Set below the outer 30 s app timeout.
+    const USER_TIMEOUT_MS: u32 = 12_000;
+
+    if let Err(e) = nix::sys::socket::setsockopt(socket, sockopt::TcpSyncnt, &TCP_SYNCNT_VALUE) {
+        log::error!("Failed to set TCP_SYNCNT on tunnel config socket: {e}");
+    }
+
+    if let Err(e) =
+        nix::sys::socket::setsockopt(socket, sockopt::TcpRtoMaxMs, &TCP_RTO_MAX_MS_VALUE)
+    {
+        log::debug!("Failed to set TCP_RTO_MAX_MS on tunnel config socket: {e}");
+    }
+
+    if let Err(e) = nix::sys::socket::setsockopt(socket, TcpUserTimeout, &USER_TIMEOUT_MS) {
+        log::error!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
+    }
+}
+
+/// nix 0.31 sockopt types for `TCP_SYNCNT` and `TCP_RTO_MAX_MS`.
+#[cfg(target_os = "linux")]
+mod sockopt {
+    use nix::{getsockopt_impl, setsockopt_impl, sockopt_impl};
+
+    sockopt_impl!(TcpSyncnt, Both, libc::IPPROTO_TCP, libc::TCP_SYNCNT, u32);
+
+    // Requires Linux 6.15+ and is not yet exposed by libc.
+    const TCP_RTO_MAX_MS: libc::c_int = 44;
+
+    sockopt_impl!(TcpRtoMaxMs, Both, libc::IPPROTO_TCP, TCP_RTO_MAX_MS, u32);
 }
 
 /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
