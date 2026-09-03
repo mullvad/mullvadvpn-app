@@ -59,6 +59,7 @@ const fn v6(address: Ipv6Addr, prefix: u8) -> IpNetwork {
 }
 
 /// Whether `ip` should be an allowed remote address in the VPN tunnel.
+#[inline]
 pub fn is_ip_allowed_in_tunnel(ip: IpAddr) -> bool {
     ALLOWED_IN_TUNNEL_LAN_NETS
         .iter()
