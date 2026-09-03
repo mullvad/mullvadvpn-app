@@ -6,10 +6,6 @@ description = "Common base structures for talpid"
 repository.workspace = true
 license.workspace = true
 
-[[bench]]
-harness = false
-name = "allowed_nets"
-
 [dependencies]
 base64 = "0.22.0"
 ipnetwork = { workspace = true, features = ["serde"] }
@@ -23,7 +19,6 @@ x25519-dalek = { version = "2.0.1", features = ["getrandom", "static_secrets", "
 zeroize = { workspace = true }
 
 [dev-dependencies]
-criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
 insta = { workspace = true }
 
 [target.'cfg(target_os = "android")'.dependencies]

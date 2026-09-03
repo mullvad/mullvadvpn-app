@@ -6037,7 +6037,6 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64",
- "criterion",
  "insta",
  "ipnetwork",
  "itertools 0.14.0",
