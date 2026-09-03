@@ -16,12 +16,11 @@ pub const ALLOWED_LAN_NETS: [IpNetwork; 6] = [
 /// [`ALLOWED_LAN_NETS`] covers the entire private address space, but a handful of those addresses
 /// are Mullvad's own and only exist on the other side of the tunnel. Traffic to them must keep
 /// working when LAN traffic is dropped on the tunnel interface.
-pub const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 3] = [
+pub const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 2] = [
     // The relay IPv4 gateway. Hosts the DNS resolver, the tunnel config service used for DAITA and
-    // PQ key exchange, and connectivity check pings.
-    v4(Ipv4Addr::new(10, 64, 0, 1), 32),
-    // SOCKS proxies.
-    v4(Ipv4Addr::new(10, 124, 0, 0), 23),
+    // PQ key exchange, and connectivity check pings. Generous to avoid restricting potential future
+    // ranges.
+    v4(Ipv4Addr::new(10, 0, 0, 0), 8),
     // The relay IPv6 gateway.
     v6(
         Ipv6Addr::new(0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0, 0, 0, 0),
@@ -57,4 +56,37 @@ const fn v4(address: Ipv4Addr, prefix: u8) -> IpNetwork {
 // Short-hand for `IpNetwork::V6(Ipv6Network::new_checked(address, prefix).unwrap())`.
 const fn v6(address: Ipv6Addr, prefix: u8) -> IpNetwork {
     IpNetwork::V6(Ipv6Network::new_checked(address, prefix).unwrap())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_in_tunnel_nets() {
+        fn is_ip_allowed(ip: Ipv4Addr) -> bool {
+            ALLOWED_IN_TUNNEL_LAN_NETS
+                .iter()
+                .any(|net| net.contains(ip.into()))
+                || !ALLOWED_LAN_NETS.iter().any(|net| net.contains(ip.into()))
+        }
+
+        // - IPv4 gateway/DNS: 10.64.0.1
+        // - SOCKS proxies: 10.124.0.0/23
+        // - Possible future range: 10.128.0.1
+        let must_allow: Vec<Ipv4Addr> = ["10.64.0.1", "10.128.0.1", "10.124.0.2", "100.64.0.1"]
+            .iter()
+            .map(|ip| ip.parse().unwrap())
+            .collect();
+
+        for ip in must_allow {
+            assert!(is_ip_allowed(ip), "{ip} must be allowed in tunnel");
+        }
+
+        let must_disallow = "192.168.1.1".parse().unwrap();
+        assert!(
+            !is_ip_allowed(must_disallow),
+            "{must_disallow} must not be allowed in tunnel"
+        );
+    }
 }
