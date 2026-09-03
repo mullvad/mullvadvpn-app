@@ -9,7 +9,7 @@ export function useIsLocationSelectorExpanded(): boolean {
     return false;
   }
 
-  if (scrollTop > 20) {
+  if (scrollTop > 30) {
     return false;
   }
 

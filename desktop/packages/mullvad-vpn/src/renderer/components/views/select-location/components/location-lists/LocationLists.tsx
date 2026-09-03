@@ -26,9 +26,8 @@ function LocationsListsImpl() {
 
   return (
     <>
-      {showRecentLocations && <RecentLocations />}
-
       <FlexColumn gap="large">
+        {showRecentLocations && <RecentLocations />}
         {showCustomListLocationLists && <CustomListLocations />}
         {showCountryLocations && <CountryLocations />}
         {showNoSearchResult && <NoSearchResult />}
