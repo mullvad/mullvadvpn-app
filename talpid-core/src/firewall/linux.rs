@@ -914,6 +914,7 @@ impl<'a> PolicyBatch<'a> {
             (&self.forward_chain, Direction::Out, End::Dst),
         ];
 
+        // Accept: Tunnel => LAN / Private IP ranges that *should* be reachable in the tunnel.
         for (chain, direction, end) in ends {
             for net in ALLOWED_IN_TUNNEL_LAN_NETS {
                 let mut rule = Rule::new(chain);
@@ -931,6 +932,7 @@ impl<'a> PolicyBatch<'a> {
             (&self.forward_chain, Direction::In, End::Src),
         ];
 
+        // Drop: LAN <=> Tunnel / Multicast ranges + LAN Sharing ranges.
         for (chain, direction, end) in ends {
             let multicast_nets = (end == End::Dst).then_some(&ALLOWED_LAN_MULTICAST_NETS);
             let nets = ALLOWED_LAN_NETS.iter().chain(
