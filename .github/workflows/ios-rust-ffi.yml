@@ -52,10 +52,14 @@ jobs:
         #       handy, so this takes no --target.
         run: time ci/cargo-ci.sh test --verbose --lib -p mullvad-ios -p mullvad-api
 
-      - name: Clippy check
+      - name: Clippy check (no features)
         shell: bash
         run: |
           time ci/cargo-ci.sh clippy --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
             --target "$TARGET"
+
+      - name: Clippy check (all features)
+        shell: bash
+        run: |
           time ci/cargo-ci.sh clippy --all-targets --all-features -p mullvad-ios -p mullvad-api \
             --target "$TARGET"
