@@ -90,7 +90,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsState as ModelDnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint as ModelEndpoint
 import net.mullvad.mullvadvpn.lib.model.EntryRecent as ModelEntryRecent
 import net.mullvad.mullvadvpn.lib.model.ErrorState as ModelErrorState
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.*
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ExitRecent as ModelExitRecent
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator as ModelFeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation as ModelGeoIpLocation
@@ -176,7 +176,7 @@ private fun TunnelState.Disconnecting.toDomain(): ModelTunnelState.Disconnecting
 private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
     val otherAlwaysOnAppError = error_state.let {
         if (it?.other_always_on_app_error != null) {
-            OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
+            ErrorStateCause.OtherAlwaysOnApp(it.other_always_on_app_error.app_name)
         } else {
             null
         }
@@ -184,7 +184,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidDnsServers = error_state.let { error ->
         if (error?.invalid_dns_servers_error != null) {
-            InvalidDnsServers(
+            ErrorStateCause.InvalidDnsServers(
                 addresses =
                     error.invalid_dns_servers_error.ip_addrs.toList().map {
                         InetAddress.getByName(it)
@@ -197,7 +197,7 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
     val invalidIpv6Config = error_state.let { error ->
         if (error?.invalid_ipv6_config_error != null) {
-            InvalidIpv6Config(
+            ErrorStateCause.InvalidIpv6Config(
                 addresses = error.invalid_ipv6_config_error.addrs,
                 routes = error.invalid_ipv6_config_error.routes,
                 dnsServers = error.invalid_ipv6_config_error.dns,
@@ -306,31 +306,33 @@ internal fun AfterDisconnect.toDomain(): ModelActionAfterDisconnect =
 
 @Suppress("CyclomaticComplexMethod")
 internal fun ErrorState.toDomain(
-    otherAlwaysOnApp: OtherAlwaysOnApp?,
-    invalidDnsServers: InvalidDnsServers?,
-    invalidIpv6Config: InvalidIpv6Config?,
+    otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
+    invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
+    invalidIpv6Config: ErrorStateCause.InvalidIpv6Config?,
 ): ModelErrorState =
     ModelErrorState(
         cause =
             when (cause) {
-                ErrorState.Cause.AUTH_FAILED -> AuthFailed(auth_failed_error.toDomain())
-                ErrorState.Cause.IPV6_UNAVAILABLE -> Ipv6Unavailable
+                ErrorState.Cause.AUTH_FAILED ->
+                    ErrorStateCause.AuthFailed(auth_failed_error.toDomain())
+                ErrorState.Cause.IPV6_UNAVAILABLE -> ErrorStateCause.Ipv6Unavailable
                 ErrorState.Cause.SET_FIREWALL_POLICY_ERROR if policy_error != null ->
                     policy_error.toDomain()
-                ErrorState.Cause.SET_DNS_ERROR -> DnsError
-                ErrorState.Cause.START_TUNNEL_ERROR -> StartTunnelError
+                ErrorState.Cause.SET_DNS_ERROR -> ErrorStateCause.DnsError
+                ErrorState.Cause.START_TUNNEL_ERROR -> ErrorStateCause.StartTunnelError
                 ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    TunnelParameterError(parameter_error.toDomain())
-                ErrorState.Cause.IS_OFFLINE -> IsOffline
-                ErrorState.Cause.SPLIT_TUNNEL_ERROR -> StartTunnelError
+                    ErrorStateCause.TunnelParameterError(parameter_error.toDomain())
+                ErrorState.Cause.IS_OFFLINE -> ErrorStateCause.IsOffline
+                ErrorState.Cause.SPLIT_TUNNEL_ERROR -> ErrorStateCause.StartTunnelError
                 ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
                 ErrorState.Cause.CREATE_TUNNEL_DEVICE,
-                ErrorState.Cause.NOT_PREPARED -> NotPrepared
+                ErrorState.Cause.NOT_PREPARED -> ErrorStateCause.NotPrepared
                 ErrorState.Cause.OTHER_ALWAYS_ON_APP -> otherAlwaysOnApp!!
-                ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN -> OtherLegacyAlwaysOnApp
+                ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN ->
+                    ErrorStateCause.OtherLegacyAlwaysOnApp
                 ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
                 ErrorState.Cause.INVALID_IPV6_CONFIG -> invalidIpv6Config!!
-                ErrorState.Cause.SET_FIREWALL_POLICY_ERROR -> StartTunnelError
+                ErrorState.Cause.SET_FIREWALL_POLICY_ERROR -> ErrorStateCause.StartTunnelError
             },
         isBlocking = blocking_error != null,
     )
@@ -343,9 +345,10 @@ private fun ErrorState.AuthFailedError.toDomain(): ModelAuthFailedError =
         ErrorState.AuthFailedError.TOO_MANY_CONNECTIONS -> ModelAuthFailedError.TooManyConnections
     }
 
-internal fun ErrorState.FirewallPolicyError.toDomain(): FirewallPolicyError =
+internal fun ErrorState.FirewallPolicyError.toDomain(): ErrorStateCause.FirewallPolicyError =
     when (type) {
-        ErrorState.FirewallPolicyError.ErrorType.GENERIC -> FirewallPolicyError.Generic
+        ErrorState.FirewallPolicyError.ErrorType.GENERIC ->
+            ErrorStateCause.FirewallPolicyError.Generic
         ErrorState.FirewallPolicyError.ErrorType.LOCKED ->
             throw IllegalArgumentException("Unrecognized firewall policy error")
     }
