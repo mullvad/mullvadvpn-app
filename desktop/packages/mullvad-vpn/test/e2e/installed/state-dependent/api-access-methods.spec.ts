@@ -47,7 +47,7 @@ test('App should display access methods', async () => {
   await navigateToAccessMethods();
 
   const accessMethods = page.getByTestId('access-method');
-  await expect(accessMethods).toHaveCount(3);
+  await expect(accessMethods).toHaveCount(4);
 
   const direct = accessMethods.first();
   const bridges = accessMethods.nth(1);
