@@ -7,7 +7,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-static FLUSH_TIMEOUT: Duration = Duration::from_secs(5);
+const FLUSH_TIMEOUT: Duration = Duration::from_secs(10);
+const FLUSH_WARN_THRESHOLD: Duration = Duration::from_secs(4);
 static DNSAPI_HANDLE: OnceLock<DnsApi> = OnceLock::new();
 
 const MAX_CONCURRENT_FLUSHES: usize = 5;
@@ -65,7 +66,7 @@ impl DnsApi {
             // SAFETY: this function is trivially safe to call
             let result = if unsafe { (DnsFlushResolverCache)() } {
                 let elapsed = begin.elapsed();
-                if elapsed >= FLUSH_TIMEOUT {
+                if elapsed >= FLUSH_WARN_THRESHOLD {
                     log::warn!(
                         "Flushing system DNS cache took {} seconds",
                         elapsed.as_secs()

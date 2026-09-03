@@ -55,11 +55,7 @@ impl DnsMonitorT for DnsMonitor {
 
     fn reset(&mut self) -> Result<(), Error> {
         if let Some(guid) = self.current_guid.take() {
-            let mut result = set_dns(&guid, &[]);
-            if self.should_flush {
-                result = result.and(flush_dns_cache());
-            }
-            return result;
+            return set_dns(&guid, &[]);
         }
         Ok(())
     }
