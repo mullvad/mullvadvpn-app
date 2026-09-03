@@ -32,7 +32,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
     private let tunnelSettingsListener = TunnelSettingsListener()
 
-    var apiContext: MullvadApiContext!
+    var apiContext: ApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
@@ -252,8 +252,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             methods: accessMethodRepository.fetchAll()
         )
 
-        // swift-format-ignore: NeverUseForceTry
-        apiContext = try! MullvadApiContext(
+        apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
