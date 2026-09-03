@@ -1,7 +1,7 @@
 use mullvad_api::{
     AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
-    proxy::{ApiConnectionMode, DomainFrontingConfig, ProxyConfig},
+    proxy::{ApiConnectionMode, ProxyConfig},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
@@ -40,8 +40,6 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
         Ok(())
     }
 }
-
-const SESSION_HEADER: &str = "X-Mullvad-Session";
 
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
