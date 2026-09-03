@@ -934,6 +934,7 @@ impl<'a> PolicyBatch<'a> {
 
         // Drop: LAN <=> Tunnel / Multicast ranges + LAN Sharing ranges.
         for (chain, direction, end) in ends {
+            // For outgoing traffic
             let multicast_nets = (end == End::Dst).then_some(&ALLOWED_LAN_MULTICAST_NETS);
             let nets = ALLOWED_LAN_NETS.iter().chain(
                 multicast_nets
