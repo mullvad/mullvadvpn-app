@@ -26,9 +26,9 @@ defaults:
     shell: bash
 
 jobs:
-  # Only the device target is built. It differs from aarch64-apple-ios-sim just in
-  # target_abi and target_env, plus the simulator's wider target_feature baseline,
-  # and no crate in this repo branches on any of those.
+  # Linting shares this job with the build so that clippy runs against the target
+  # directory the build just populated. The tests are a separate job: they run
+  # against the host, so they cannot reuse anything built for the iOS target.
   build-ios:
     runs-on: macos-latest
     env:
@@ -48,34 +48,36 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
-        run: rustup target add "$TARGET"
-
-      - name: Build and test crates
-        # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
-        #       handy.
         run: |
-          time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target "$TARGET"
-          time ci/cargo-ci.sh test --verbose --lib $PACKAGES
+          rustup target add "$TARGET"
+          rustup component add clippy
 
-  clippy-check-ios:
+      - name: Build crates
+        run: time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target "$TARGET"
+
+      - name: Clippy check (no features)
+        run: time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target "$TARGET"
+
+      - name: Clippy check (all features)
+        run: time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
+
+  # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
+  #       handy, so this takes no --target.
+  test-ios-crates:
     runs-on: macos-latest
-    env:
-      TARGET: aarch64-apple-ios
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 --recursive ios/wireguard-apple
 
       - name: Install Protoc
         uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Rust
-        run: |
-          rustup target add "$TARGET"
-          rustup component add clippy
-
-      - name: Clippy check
-        run: |
-          time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target "$TARGET"
-          time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
+      - name: Test crates
+        run: time ci/cargo-ci.sh test --verbose --lib $PACKAGES
