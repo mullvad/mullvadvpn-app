@@ -521,7 +521,6 @@ impl IntoFuture for Request<Full<Bytes>> {
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + Sync>>;
 
     fn into_future(self) -> Self::IntoFuture {
-        // TODO: avoid extra clone
         Box::pin(async move { self.service.clone().dispatch(self).await })
     }
 }
