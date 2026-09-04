@@ -34,6 +34,11 @@ Line wrap the file at 100 chars.                                              Th
 - Stop removing leftover Wintun adapters during installation. Wintun dropped support for adapter
   pools, so this has not been necessary since 2022.5-beta1.
 
+### Fixed
+#### Windows
+- Wait for the tunnel routes to become usable, and retry the connection to the tunnel config
+  service if the tunnel is not ready yet. This may help with connection failures that occur
+  immediately after the tunnel is set up, when using quantum-resistant tunnels or DAITA.
 
 ## [2026.5-beta1] - 2026-08-31
 ### Added
