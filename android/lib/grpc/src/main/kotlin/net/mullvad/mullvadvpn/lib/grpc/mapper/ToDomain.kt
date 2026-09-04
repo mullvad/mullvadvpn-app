@@ -561,15 +561,6 @@ internal fun CustomDnsOptions.toDomain() =
 internal fun AppVersionInfo.toDomain(): ModelAppVersionInfo =
     ModelAppVersionInfo(supported = supported, suggestedUpgrade = suggested_upgrade?.version)
 
-/*internal fun ConnectivityState.toDomain(): GrpcConnectivityState =
-when (this) {
-    ConnectivityState.CONNECTING -> GrpcConnectivityState.Connecting
-    ConnectivityState.READY -> GrpcConnectivityState.Ready
-    ConnectivityState.IDLE -> GrpcConnectivityState.Idle
-    ConnectivityState.TRANSIENT_FAILURE -> GrpcConnectivityState.TransientFailure
-    ConnectivityState.SHUTDOWN -> GrpcConnectivityState.Shutdown
-}*/
-
 internal fun RelayList.toDomain(): ModelRelayList =
     ModelRelayList(countries.toDomain(), endpoint_data!!.toDomain())
 
