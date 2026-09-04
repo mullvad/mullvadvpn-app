@@ -465,31 +465,29 @@ final class TunnelManager: @unchecked Sendable {
         _ = try await setAccount(action: .delete(accountNumber))
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let operation = UpdateDeviceDataOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            devicesProxy: devicesProxy
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { completion in
-            completionHandler?(completion.error)
+    func updateDeviceData() async throws {
+        let interactor = TunnelInteractorProxy(self)
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            throw InvalidDeviceStateError()
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update device data",
-                cancelUponExpiration: true
+        do {
+            let device = try await devicesProxy.getDevice(
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
+                retryStrategy: .default
             )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
+            switch interactor.deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                interactor.setDeviceState(newDeviceState, persist: true)
+            default:
+                throw InvalidDeviceStateError()
+            }
+        } catch {
+            interactor.handleRestError(error)
+            throw error
+        }
     }
 
     func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {

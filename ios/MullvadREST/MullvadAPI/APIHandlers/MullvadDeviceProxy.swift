@@ -46,6 +46,20 @@ extension REST {
             )
         }
 
+        func getDevice(
+            accountNumber: String,
+            identifier: String,
+            retryStrategy: REST.RetryStrategy
+        ) async throws -> Device {
+            try await executeRequest(
+                .getDevice(
+                    retryStrategy,
+                    accountNumber: accountNumber,
+                    identifier: identifier
+                )
+            )
+        }
+
         func getDevices(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
@@ -60,6 +74,18 @@ extension REST {
                 request: .getDevices(retryStrategy, accountNumber: accountNumber),
                 responseHandler: responseHandler,
                 completionHandler: completion
+            )
+        }
+
+        func getDevices(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy
+        ) async throws -> [Device] {
+            try await executeRequest(
+                .getDevices(
+                    retryStrategy,
+                    accountNumber: accountNumber
+                )
             )
         }
 
@@ -81,6 +107,20 @@ extension REST {
             )
         }
 
+        func createDevice(
+            accountNumber: String,
+            request: CreateDeviceRequest,
+            retryStrategy: REST.RetryStrategy
+        ) async throws -> Device {
+            try await executeRequest(
+                .createDevice(
+                    retryStrategy,
+                    accountNumber: accountNumber,
+                    request: request
+                )
+            )
+        }
+
         func deleteDevice(
             accountNumber: String,
             identifier: String,
@@ -99,6 +139,20 @@ extension REST {
                     completion(.success(true))
                 }
             }
+        }
+
+        func deleteDevice(
+            accountNumber: String,
+            identifier: String,
+            retryStrategy: REST.RetryStrategy
+        ) async throws -> Bool {
+            try await executeRequest(
+                .deleteDevice(
+                    retryStrategy,
+                    accountNumber: accountNumber,
+                    identifier: identifier
+                )
+            )
         }
 
         func rotateDeviceKey(
@@ -125,6 +179,22 @@ extension REST {
             )
         }
 
+        func rotateDeviceKey(
+            accountNumber: String,
+            identifier: String,
+            publicKey: WireGuard.PublicKey,
+            retryStrategy: REST.RetryStrategy,
+        ) async throws -> Device {
+            try await executeRequest(
+                .rotateDeviceKey(
+                    retryStrategy,
+                    accountNumber: accountNumber,
+                    identifier: identifier,
+                    publicKey: publicKey
+                )
+            )
+        }
+
         private func createNetworkOperation<Success: Any>(
             request: APIRequest,
             responseHandler: RustResponseHandler<Success>,
@@ -143,6 +213,21 @@ extension REST {
             operationQueue.addOperation(networkOperation)
 
             return networkOperation
+        }
+
+        private func executeRequest<Success: Sendable & Decodable>(
+            _ request: APIRequest
+        ) async throws -> Success {
+            let task = MullvadApiNetworkTask(
+                name: request.name,
+                request: request,
+                transportProvider: transportProvider,
+                responseHandler: rustResponseHandler(
+                    decoding: Success.self,
+                    with: responseDecoder
+                )
+            )
+            return try await task.startRequest().get()
         }
     }
 }

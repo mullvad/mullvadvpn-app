@@ -26,6 +26,14 @@ struct DevicesProxyStub: DeviceHandling {
         return AnyCancellable()
     }
 
+    func getDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> Device {
+        try deviceResult.get()
+    }
+
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
@@ -40,6 +48,13 @@ struct DevicesProxyStub: DeviceHandling {
         return AnyCancellable()
     }
 
+    func getDevices(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> [Device] {
+        try deviceResult.map { [$0] }.get()
+    }
+
     func createDevice(
         accountNumber: String,
         request: CreateDeviceRequest,
@@ -48,6 +63,14 @@ struct DevicesProxyStub: DeviceHandling {
     ) -> Cancellable {
         completion(deviceResult)
         return AnyCancellable()
+    }
+
+    func createDevice(
+        accountNumber: String,
+        request: CreateDeviceRequest,
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> Device {
+        try deviceResult.get()
     }
 
     func deleteDevice(
@@ -60,6 +83,14 @@ struct DevicesProxyStub: DeviceHandling {
         return AnyCancellable()
     }
 
+    func deleteDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy
+    ) async throws -> Bool {
+        true
+    }
+
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
@@ -69,5 +100,14 @@ struct DevicesProxyStub: DeviceHandling {
     ) -> Cancellable {
         completion(deviceResult)
         return AnyCancellable()
+    }
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: WireGuard.PublicKey,
+        retryStrategy: REST.RetryStrategy,
+    ) async throws -> Device {
+        try deviceResult.get()
     }
 }
