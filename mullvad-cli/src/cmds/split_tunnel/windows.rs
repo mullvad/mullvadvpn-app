@@ -1,40 +1,11 @@
 use anyhow::Result;
-use std::{
-    ffi::OsStr,
-    path::{Path, PathBuf},
-};
+use std::{ffi::OsStr, path::Path};
 
-use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
+use crate::cmds::split_tunnel::shared::SplitTunnel;
+
 use super::super::BooleanOption;
-
-/// Set options for applications to exclude from the tunnel.
-#[derive(Subcommand, Debug)]
-pub enum SplitTunnel {
-    /// Display the split tunnel status and apps
-    Get {
-        /// List processes that are currently being excluded, as well as whether they are
-        /// excluded because of their executable paths or because they're subprocesses of
-        /// such processes
-        #[arg(long)]
-        list_processes: bool,
-    },
-
-    /// Enable or disable split tunnel
-    Set { policy: BooleanOption },
-
-    /// Manage applications to exclude from the tunnel
-    #[clap(subcommand)]
-    App(App),
-}
-
-#[derive(Subcommand, Debug)]
-pub enum App {
-    Add { path: PathBuf },
-    Remove { path: PathBuf },
-    Clear,
-}
 
 impl SplitTunnel {
     pub async fn handle(self) -> Result<()> {
@@ -76,35 +47,6 @@ impl SplitTunnel {
                 Ok(())
             }
             SplitTunnel::App(subcmd) => Self::app(subcmd).await,
-        }
-    }
-
-    async fn app(subcmd: App) -> Result<()> {
-        match subcmd {
-            App::Add { path } => {
-                MullvadProxyClient::new()
-                    .await?
-                    .add_split_tunnel_app(path)
-                    .await?;
-                println!("Added path to excluded apps list");
-                Ok(())
-            }
-            App::Remove { path } => {
-                MullvadProxyClient::new()
-                    .await?
-                    .remove_split_tunnel_app(path)
-                    .await?;
-                println!("Stopped excluding app from tunnel");
-                Ok(())
-            }
-            App::Clear => {
-                MullvadProxyClient::new()
-                    .await?
-                    .clear_split_tunnel_apps()
-                    .await?;
-                println!("Stopped excluding all apps");
-                Ok(())
-            }
         }
     }
 }

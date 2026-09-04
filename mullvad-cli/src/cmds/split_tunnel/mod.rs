@@ -10,4 +10,4 @@ mod imp;
 #[path = "macos.rs"]
 mod imp;
 
-pub use imp::*;
+pub mod shared;
