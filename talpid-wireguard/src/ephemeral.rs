@@ -40,6 +40,10 @@ pub async fn config_ephemeral_peers(
     log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
     try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
 
+    // A route on an interface that is not connected cannot be used, and we are about to connect
+    // to the config service through the tunnel.
+    wait_for_connected_interface(&iface_name).await;
+
     config_ephemeral_peers_inner(
         tunnel,
         config,
@@ -54,6 +58,71 @@ pub async fn config_ephemeral_peers(
     try_set_ipv4_mtu(&iface_name, config.mtu);
 
     Ok(())
+}
+
+/// Waits briefly for the tunnel IPv4 interface to report itself as connected. Logs if it is not
+/// already connected, since that means we were about to use a tunnel that Windows had not
+/// finished plumbing.
+///
+/// A route on an interface that is not connected cannot be used, so the connect that follows
+/// would be routed out some other interface and blocked by the firewall, surfacing as WSAEACCES.
+/// Whether that is what actually happens to the config service connect is not established -- the
+/// log line is here to tell us.
+///
+/// This never fails the tunnel: it is a diagnostic, and the connection is attempted either way.
+#[cfg(target_os = "windows")]
+async fn wait_for_connected_interface(alias: &str) {
+    use talpid_windows::net::{AddressFamily, get_ip_interface_entry, luid_from_alias};
+
+    /// How long to wait for the interface to report itself as connected.
+    const CONNECTED_CHECK_TIMEOUT: Duration = Duration::from_millis(500);
+    /// How long to wait between those checks.
+    const CONNECTED_CHECK_INTERVAL: Duration = Duration::from_millis(10);
+
+    let luid = match luid_from_alias(alias) {
+        Ok(luid) => luid,
+        Err(error) => {
+            log::error!("Failed to obtain tunnel interface LUID: {error}");
+            return;
+        }
+    };
+
+    let start = Instant::now();
+    let mut was_disconnected = false;
+
+    loop {
+        match get_ip_interface_entry(AddressFamily::Ipv4, &luid) {
+            Ok(row) if row.Connected => {
+                if was_disconnected {
+                    log::debug!(
+                        "Tunnel IP interface became connected after {:?}",
+                        start.elapsed()
+                    );
+                }
+                return;
+            }
+            Ok(_) => {
+                if !was_disconnected {
+                    log::debug!("Tunnel IP interface is not connected yet");
+                    was_disconnected = true;
+                }
+            }
+            Err(error) => {
+                log::error!("Failed to obtain tunnel IP interface: {error}");
+                return;
+            }
+        }
+
+        if start.elapsed() >= CONNECTED_CHECK_TIMEOUT {
+            log::warn!(
+                "Tunnel IP interface is still not connected after {:?}",
+                start.elapsed()
+            );
+            return;
+        }
+
+        tokio::time::sleep(CONNECTED_CHECK_INTERVAL).await;
+    }
 }
 
 #[cfg(windows)]
