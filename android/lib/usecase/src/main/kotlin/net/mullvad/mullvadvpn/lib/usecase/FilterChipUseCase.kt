@@ -118,7 +118,7 @@ class FilterChipUseCase(
         }
     }
 
-    fun shouldShowFilterByFeature(
+    private fun shouldShowFilterByFeature(
         isFeatureEnabled: Boolean,
         isWhenNeededMultihopEnabled: Boolean,
         relayListType: RelayListType,
