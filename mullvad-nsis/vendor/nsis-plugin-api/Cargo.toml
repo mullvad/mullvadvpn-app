@@ -26,12 +26,9 @@ autobenches = false
 name = "nsis_plugin_api"
 path = "src/lib.rs"
 
-[dependencies.nsis-fn]
-path = "../nsis-fn"
-
-[dependencies.windows-sys]
-version = "0.61.2"
-features = [
+[target."cfg(windows)".dependencies]
+nsis-fn = { path = "../nsis-fn" }
+windows-sys = { workspace = true, features = [
   "Win32_Foundation",
   "Win32_Globalization",
   "Win32_Security",
@@ -41,4 +38,7 @@ features = [
   "Win32_UI_Controls",
   "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
-]
+] }
+
+[lints]
+workspace = true

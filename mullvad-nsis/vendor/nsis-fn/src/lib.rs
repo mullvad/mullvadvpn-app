@@ -8,7 +8,7 @@ struct NsisFn {
 }
 
 impl Parse for NsisFn {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: syn::parse::ParseStream<'_>) -> syn::Result<Self> {
         let func: ItemFn = input.parse()?;
         Ok(Self { func })
     }

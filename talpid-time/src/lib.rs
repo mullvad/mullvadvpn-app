@@ -11,6 +11,11 @@ mod inner;
 
 #[cfg(feature = "test")]
 mod inner {
+    // HACK: Import `nix` to avoid triggering `cargo::unused_dependencies` lint.
+    // If <https://github.com/rust-lang/cargo/issues/13157> is accepted and implemented we can
+    // revise this hack.
+    #[cfg(unix)]
+    use nix as _;
     /// Use mockable time for tests
     pub use tokio::time::Instant;
 }

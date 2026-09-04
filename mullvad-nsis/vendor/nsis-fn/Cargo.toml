@@ -34,3 +34,6 @@ quote = "1"
 [dependencies.syn]
 version = "2"
 features = ["full"]
+
+[lints]
+workspace = true
