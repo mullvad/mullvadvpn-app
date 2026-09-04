@@ -1,10 +1,12 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  GotaTunActorTests.swift
-//  PacketTunnelCoreTests
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Emīls on 2026-08-13.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 import MullvadTypes
 import Network
@@ -26,9 +28,13 @@ final class GotaTunActorTests: XCTestCase {
         settingsReader: SettingsReaderProtocol = SettingsReaderStub.staticConfiguration(),
         relaySelector: RelaySelectorProtocol = RelaySelectorStub.nonFallible(),
         defaultPathObserver: GotaTunPathObserverFake = GotaTunPathObserverFake(),
-        blockedStateErrorMapper: BlockedStateErrorMapperProtocol = BlockedStateErrorMapperStub()
+        blockedStateErrorMapper: BlockedStateErrorMapperProtocol = BlockedStateErrorMapperStub(),
+        clock: TestClock = TestClock(),
+        timings: GotaTunActorTimings = GotaTunActorTimings()
     ) -> GotaTunActor {
         GotaTunActor(
+            timings: timings,
+            clock: clock,
             providerDelegate: providerDelegate,
             settingsReader: settingsReader,
             relaySelector: relaySelector,
@@ -633,6 +639,266 @@ final class GotaTunActorTests: XCTestCase {
         await waitFor(actor, until: { $0.isConnected }, while: { await pathObserver.updatePath(.satisfied) })
 
         XCTAssertEqual(factory.adaptersCreated.count, 2)
+    }
+
+    // MARK: - Key rotation
+
+    func testKeyRotationTriggersReconnect() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(adapterFactory: factory, clock: clock, timings: timings)
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 1)
+
+        actor.notifyKeyRotation(date: Date())
+        await actor.drainEvents()
+        XCTAssertEqual(factory.adaptersCreated.count, 1, "Must not reconnect before the key has propagated")
+
+        await clock.waitForSleepers()
+        let states = await collectStates(from: actor, count: 3) {
+            Task { await clock.advance(by: timings.wgKeyPropagationDelay) }
+        }
+
+        XCTAssertEqual(states.map(\.name), ["Connected", "Reconnecting", "Connected"])
+        XCTAssertEqual(factory.adaptersCreated.count, 2, "Should have created a new adapter for key rotation")
+    }
+
+    func testKeyRotationKeepsPriorKeyUntilPropagated() async throws {
+        let priorKey = WireGuard.PrivateKey()
+        let rotatedKey = WireGuard.PrivateKey()
+        // The app persists the new key before notifying the tunnel, so a read after the
+        // notification already returns the rotated key.
+        var hasRotated = false
+        let settingsReader = SettingsReaderStub {
+            Settings(
+                privateKey: hasRotated ? rotatedKey : priorKey,
+                interfaceAddresses: [
+                    IPAddressRange(from: "127.0.0.1/32")!,
+                    IPAddressRange(from: "fc00::1/128")!,
+                ],
+                tunnelSettings: LatestTunnelSettings()
+            )
+        }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+        XCTAssertEqual(factory.adaptersCreated[0].lastConfig?.privateKey, priorKey.rawValue)
+
+        hasRotated = true
+        actor.notifyKeyRotation(date: Date())
+        await actor.drainEvents()
+
+        await collectStates(from: actor, count: 3) {
+            actor.reconnect(to: .random, reconnectReason: .userInitiated)
+        }
+        XCTAssertEqual(
+            factory.adaptersCreated[1].lastConfig?.privateKey, priorKey.rawValue,
+            "Reconnects during the propagation window must keep using the prior key")
+        XCTAssertEqual(
+            factory.adaptersCreated[1].lastConfig?.clientPublicKey, priorKey.publicKey.rawValue,
+            "The obfuscator's client public key must match the connection key, not the settings key")
+
+        await clock.waitForSleepers()
+        await collectStates(from: actor, count: 3) {
+            Task { await clock.advance(by: timings.wgKeyPropagationDelay) }
+        }
+        XCTAssertEqual(factory.adaptersCreated[2].lastConfig?.privateKey, rotatedKey.rawValue)
+    }
+
+    func testErrorStateDuringKeyRotationEndsRotation() async throws {
+        let priorKey = WireGuard.PrivateKey()
+        let rotatedKey = WireGuard.PrivateKey()
+        var hasRotated = false
+        let settingsReader = SettingsReaderStub {
+            Settings(
+                privateKey: hasRotated ? rotatedKey : priorKey,
+                interfaceAddresses: [
+                    IPAddressRange(from: "127.0.0.1/32")!,
+                    IPAddressRange(from: "fc00::1/128")!,
+                ],
+                tunnelSettings: LatestTunnelSettings()
+            )
+        }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let pathObserver = GotaTunPathObserverFake()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            defaultPathObserver: pathObserver
+        )
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+
+        hasRotated = true
+        actor.notifyKeyRotation(date: Date())
+        await actor.drainEvents()
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .offline }, while: { await pathObserver.updatePath(.unsatisfied) })
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await pathObserver.updatePath(.satisfied) })
+        XCTAssertEqual(
+            factory.adaptersCreated[1].lastConfig?.privateKey, rotatedKey.rawValue,
+            "Reconnecting after an error state must use the rotated key, not the stale prior key")
+    }
+
+    func testKeyRotationDatePropagatesToObservedState() async throws {
+        let actor = makeActor()
+        let rotationDate = Date()
+
+        await waitFor(actor, until: { $0.isConnected }, while: { await actor.start(options: launchOptions) })
+        let beforeRotation = await actor.observedState
+        XCTAssertNil(beforeRotation.connectionState?.lastKeyRotation)
+
+        actor.notifyKeyRotation(date: rotationDate)
+        await actor.drainEvents()
+
+        // The app compares this against its own record to decide whether to reload device state.
+        let afterRotation = await actor.observedState
+        XCTAssertEqual(afterRotation.connectionState?.lastKeyRotation, rotationDate)
+    }
+
+    // MARK: - Cascading errors
+
+    func testCascadingErrorsWithRecovery() async throws {
+        // Settings unreadable for the first two attempts (e.g. device locked at boot), then readable.
+        // Should retry automatically via the boot recovery timer, with no adapter created until settings
+        // are actually readable.
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            guard readAttempts > 2 else { throw POSIXError(.EPERM) }
+            return Settings(
+                privateKey: WireGuard.PrivateKey(),
+                interfaceAddresses: [
+                    IPAddressRange(from: "127.0.0.1/32")!,
+                    IPAddressRange(from: "fc00::1/128")!,
+                ],
+                tunnelSettings: LatestTunnelSettings()
+            )
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .deviceLocked }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceLocked }, while: { await actor.start(options: launchOptions) })
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 1)
+
+        await clock.waitForSleepers()
+        await clock.advance(by: timings.bootRecoveryPeriodicity)
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 2)
+        XCTAssertEqual(factory.adaptersCreated.count, 0, "No adapter while settings are unreadable")
+
+        await clock.waitForSleepers()
+        await waitFor(
+            actor, until: { $0.isConnected },
+            while: {
+                Task { await clock.advance(by: timings.bootRecoveryPeriodicity) }
+            })
+
+        XCTAssertEqual(readAttempts, 3, "Should have retried settings read until it succeeded")
+        XCTAssertEqual(factory.adaptersCreated.count, 1, "Adapter should only be created once settings are readable")
+    }
+
+    func testNonAutoRestartableErrorDoesNotRetry() async throws {
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            throw POSIXError(.EPERM)
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .readSettings }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .readSettings }, while: { await actor.start(options: launchOptions) })
+
+        await actor.drainEvents()
+        XCTAssertEqual(clock.sleeperCount, 0, "No recovery timer should be armed")
+
+        // Span many recovery periods instantly; nothing should be scheduled to act on them.
+        await clock.advance(by: timings.bootRecoveryPeriodicity * 20)
+        await actor.drainEvents()
+
+        XCTAssertEqual(readAttempts, 1, "readSettings is not auto-restartable and must not be retried")
+        XCTAssertEqual(factory.adaptersCreated.count, 0)
+    }
+
+    func testRecoveryStopsWhenReasonBecomesNonRestartable() async throws {
+        var readAttempts = 0
+        let settingsReader = SettingsReaderStub {
+            readAttempts += 1
+            throw POSIXError(.EPERM)
+        }
+        let errorMapper = BlockedStateErrorMapperStub { _ in .deviceLocked }
+        let factory = GotaTunAdapterFactoryStub(outcome: .connected())
+        let clock = TestClock()
+        let timings = GotaTunActorTimings()
+        let actor = makeActor(
+            adapterFactory: factory,
+            settingsReader: settingsReader,
+            blockedStateErrorMapper: errorMapper,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceLocked }, while: { await actor.start(options: launchOptions) })
+        await actor.drainEvents()
+        XCTAssertEqual(readAttempts, 1)
+
+        // Each period wakes the recovery timer exactly once. The timer is replaced on every
+        // cycle, so wait for the new one to arm before advancing again.
+        for expectedAttempts in 2...4 {
+            await clock.waitForSleepers()
+            await clock.advance(by: timings.bootRecoveryPeriodicity)
+            await actor.drainEvents()
+            XCTAssertEqual(readAttempts, expectedAttempts, "deviceLocked should be retried once per recovery period")
+        }
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceRevoked },
+            while: {
+                actor.setErrorState(reason: .deviceRevoked)
+            })
+
+        await actor.drainEvents()
+        XCTAssertEqual(clock.sleeperCount, 0, "Recovery timer must be cancelled")
+
+        await clock.advance(by: timings.bootRecoveryPeriodicity * 20)
+        await actor.drainEvents()
+
+        XCTAssertEqual(readAttempts, 4, "Recovery must stop once the reason is not restartable")
     }
 
     // MARK: - Stop during connection
