@@ -4,8 +4,9 @@ import { useStyledRef } from '../../utility-hooks';
 import { getSlides } from './utils/get-slides';
 
 type CarouselContextextProps = {
+  disableScroll: boolean;
   slideIndex: number;
-  setSlideIndex: React.Dispatch<React.SetStateAction<number>>;
+  onSlideIndexChange: (slideIndex: number) => void;
   numberOfSlides: number;
   carouselRef: React.RefObject<HTMLDivElement | null>;
   slidesRef: React.RefObject<HTMLDivElement | null>;
@@ -26,16 +27,26 @@ export const useCarouselContext = (): CarouselContextextProps => {
   return context;
 };
 
-type CarouselProviderProps = React.PropsWithChildren;
+export type CarouselProviderProps = React.PropsWithChildren<{
+  disableScroll?: boolean;
+  slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
+}>;
 
-export function CarouselProvider({ children }: CarouselProviderProps) {
+export function CarouselProvider({
+  children,
+  disableScroll: disableScrollProp,
+  slideIndex: slideIndexProp,
+  onSlideIndexChange: onSlideIndexChangeProp,
+}: CarouselProviderProps) {
   const carouselRef = React.useRef<HTMLDivElement | null>(null);
   const slidesRef = useStyledRef<HTMLDivElement>();
   const nextButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const prevButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const firstIndicatorRef = React.useRef<HTMLButtonElement | null>(null);
   const lastIndicatorRef = React.useRef<HTMLButtonElement | null>(null);
-  const [slideIndex, setSlideIndex] = React.useState(0);
+
+  const [slideIndex, setSlideIndex] = React.useState(slideIndexProp ?? 0);
   const [slides, setSlides] = React.useState<HTMLElement[]>([]);
 
   React.useLayoutEffect(() => {
@@ -45,8 +56,9 @@ export function CarouselProvider({ children }: CarouselProviderProps) {
   return (
     <CarouselContextext.Provider
       value={{
-        slideIndex,
-        setSlideIndex,
+        disableScroll: disableScrollProp ?? false,
+        slideIndex: slideIndexProp ?? slideIndex,
+        onSlideIndexChange: onSlideIndexChangeProp ?? setSlideIndex,
         numberOfSlides: slides.length,
         carouselRef,
         slidesRef,

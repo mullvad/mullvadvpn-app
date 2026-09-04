@@ -8,10 +8,12 @@ import { LocationSelectorProvider } from './LocationSelectorContext';
 export type LocationSelectorPositions = 'top' | 'middle' | 'bottom';
 export type LocationSelectorVariant = 'primary' | 'secondary';
 
+export type LocationSelectorSelectedItem = 'entry' | 'exit';
+
 export type LocationSelectorProps = React.PropsWithChildren<{
   expanded?: boolean;
-  selectedItem?: string;
-  onSelectedItemChange?: (itemId: string) => void;
+  selectedItem?: LocationSelectorSelectedItem;
+  onSelectedItemChange?: (itemId: LocationSelectorSelectedItem) => void;
   variant: LocationSelectorVariant;
 }>;
 

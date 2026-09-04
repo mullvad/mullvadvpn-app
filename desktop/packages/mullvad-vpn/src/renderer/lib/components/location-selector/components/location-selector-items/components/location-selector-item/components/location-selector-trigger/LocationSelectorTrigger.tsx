@@ -37,9 +37,18 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
     [inputRef, triggerRef],
   );
 
-  const handleMouseDown = React.useCallback(() => {
-    inputRef.current?.focus();
-  }, [inputRef]);
+  const handleMouseDown = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      // Move focus to the input when trigger is clicked, if it does not already
+      // have the focus, as that would make it always run its focus logic on
+      // mouse clicks.
+      if (document.activeElement !== inputRef.current) {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    },
+    [inputRef],
+  );
 
   const tabIndex = inputRef.current === document.activeElement ? -1 : 0;
 
