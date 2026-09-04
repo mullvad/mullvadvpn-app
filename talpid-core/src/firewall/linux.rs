@@ -925,23 +925,11 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        let ends = [
-            (&self.out_chain, Direction::Out, End::Dst),
-            (&self.forward_chain, Direction::Out, End::Dst),
-            (&self.in_chain, Direction::In, End::Src),
-            (&self.forward_chain, Direction::In, End::Src),
-        ];
-
         // Drop: LAN <=> Tunnel / Multicast ranges + LAN Sharing ranges.
         for (chain, direction, end) in ends {
-            // For outgoing traffic
-            let multicast_nets = (end == End::Dst).then_some(&ALLOWED_LAN_MULTICAST_NETS);
-            let nets = ALLOWED_LAN_NETS.iter().chain(
-                multicast_nets
-                    .into_iter()
-                    .flatten()
-                    .filter(|net| net.is_ipv4()),
-            );
+            let nets = ALLOWED_LAN_NETS
+                .iter()
+                .chain(ALLOWED_LAN_MULTICAST_NETS.iter());
 
             for net in nets {
                 let mut rule = Rule::new(chain);
