@@ -18,9 +18,10 @@ const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(1);
 
 /// Number of unacknowledged keepalive probes before giving up.
 ///
-/// NOTE: only effective on macOS. On Linux this is overridden by
-/// `TCP_USER_TIMEOUT` and it is a noop on Windows.
-const KEEPALIVE_RETRIES: u32 = 3;
+/// Together with the one-second idle time and interval, this gives an
+/// unresponsive peer roughly eleven seconds to recover. On Linux,
+/// `TCP_USER_TIMEOUT` takes precedence.
+const KEEPALIVE_RETRIES: u32 = 10;
 
 /// TCP socket with parameters that prioritize reliability.
 ///
@@ -39,7 +40,7 @@ impl TcpSocket {
         let socket = TokioTcpSocket::new_v4()?;
         // Send small gRPC frames immediately.
         if let Err(e) = socket.set_nodelay(true) {
-            log::warn!("Failed to set TCP_NODELAY on tunnel config socket: {e}");
+            log_socket_option_error("TCP_NODELAY", e);
         }
 
         let sock_ref = socket2::SockRef::from(&socket);
@@ -51,7 +52,7 @@ impl TcpSocket {
             .with_interval(KEEPALIVE_INTERVAL)
             .with_retries(KEEPALIVE_RETRIES);
         if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
-            log::warn!("Failed to set TCP keepalive on tunnel config socket: {e}");
+            log_socket_option_error("TCP keepalive", e);
         }
 
         #[cfg(unix)]
@@ -104,8 +105,7 @@ impl std::os::windows::io::AsSocket for TcpSocket {
 ///
 /// - `TCP_RTO_MAX_MS` sets an upper bound on time between retries for unAck'ed data.
 /// - `TCP_SYNCNT` sets the number of retries for the `SYN` packet, i.e. handshake inits.
-/// - `TCP_USER_TIMEOUT` sets a timeout on ACKs for transmitted data, but only comes into
-///   effect after the handshake is complete.
+/// - `TCP_USER_TIMEOUT` bounds how long transmitted data may remain unACK'ed.
 ///
 /// Together with the keepalives, which only prove the connection when no data is exchanged,
 /// they should cover the three phases: handshake, sending the `EphemeralPeerRequestV1` and
@@ -114,39 +114,31 @@ impl std::os::windows::io::AsSocket for TcpSocket {
 fn set_linux_reliability_params(socket: &TokioTcpSocket) {
     use nix::sys::socket::sockopt::TcpUserTimeout;
 
-    // SYN retransmits before aborting the handshake. Default is 6.
+    // SYN retransmits before aborting the handshake. The default is 6. Keep this above
+    // the default so that the one-second RTO cap does not exhaust the retry count before
+    // TCP_USER_TIMEOUT.
     const TCP_SYNCNT_VALUE: u32 = 10;
 
     // Cap on the retransmit timeout. Default is 120 seconds.
-    // Only support on Linux 6.15+; older kernels return `ENOPROTOOPT`.
+    // Only supported on Linux 6.15+.
     const TCP_RTO_MAX_MS_VALUE: u32 = 1_000;
 
-    // The default values of these parameters cause handshakes to time out
-    // after ~127 s. The new parameters lower this to ~10 seconds.
+    // On Linux 6.15+, TCP_SYNCNT and the RTO cap allow roughly ten rapid SYN
+    // retransmissions. On older kernels, TCP_USER_TIMEOUT bounds the handshake.
 
-    // Progress-based deadline (ms) for the established phase: measured from
-    // the oldest unACK'ed data, so it advances on ACK progress and only fires
-    // when there is none. Set below the outer 30 s app timeout.
+    // Progress-based deadline (ms) for unACK'ed data: measured from the oldest
+    // unACK'ed data, so it advances on ACK progress and only fires when there is
+    // none. On older Linux kernels, this does not apply to the TCP handshake.
     const USER_TIMEOUT_MS: u32 = 12_000;
 
-    if let Err(e) = nix::sys::socket::setsockopt(socket, sockopt::TcpSyncnt, &TCP_SYNCNT_VALUE) {
-        log::warn!("Failed to set TCP_SYNCNT on tunnel config socket: {e}");
-    }
-
-    if let Err(e) =
-        nix::sys::socket::setsockopt(socket, sockopt::TcpRtoMaxMs, &TCP_RTO_MAX_MS_VALUE)
-    {
-        log::debug!("Failed to set TCP_RTO_MAX_MS on tunnel config socket: {e}");
-    }
-
-    if let Err(e) = nix::sys::socket::setsockopt(socket, TcpUserTimeout, &USER_TIMEOUT_MS) {
-        log::warn!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
-    }
+    set_socket_option(socket, linux_sockopt::TcpSyncnt, &TCP_SYNCNT_VALUE);
+    set_socket_option(socket, linux_sockopt::TcpRtoMaxMs, &TCP_RTO_MAX_MS_VALUE);
+    set_socket_option(socket, TcpUserTimeout, &USER_TIMEOUT_MS);
 }
 
 /// nix 0.31 sockopt types for `TCP_SYNCNT` and `TCP_RTO_MAX_MS`.
 #[cfg(target_os = "linux")]
-mod sockopt {
+mod linux_sockopt {
     use nix::{getsockopt_impl, setsockopt_impl, sockopt_impl};
 
     sockopt_impl!(TcpSyncnt, Both, libc::IPPROTO_TCP, libc::TCP_SYNCNT, u32);
@@ -161,43 +153,36 @@ mod sockopt {
 ///
 /// - `TCP_CONNECTIONTIMEOUT`: timeout (seconds) for the handshake phase.
 /// - `TCP_RXT_CONNDROPTIME`: time (seconds) after which a connection is dropped
-///   if retransmissions keep failing. Unlike Linux's `TCP_USER_TIMEOUT`, this
-///   is a flat timer. It does not reset on progress. Keepalives (with retries)
+///   during a retransmission episode. ACK progress resets the episode. Keepalives
 ///   cover the idle wait for the response.
 #[cfg(target_os = "macos")]
 fn set_macos_reliability_params(socket: &TokioTcpSocket) {
-    use nix::sys::socket::{setsockopt, sockopt};
-
     // Handshake timeout (seconds). Default is system-wide (net.inet.tcp.keepinit,
     // ~75 s). Set lower to fail fast on a dead relay.
     const TCP_CONNECTIONTIMEOUT_VALUE: u32 = 10;
 
-    // Flat deadline (seconds) for retransmit storms in the established phase.
-    // Drops the connection after this many seconds of failed retransmits.
+    // Deadline (seconds) for a retransmission episode in the established phase.
+    // ACK progress resets the episode.
     const TCP_RXT_CONNDROPTIME_VALUE: u32 = 12;
 
-    if let Err(e) = setsockopt(
+    set_socket_option(
         socket,
-        sockopt::TcpConnectionTimeout,
+        macos_sockopt::TcpConnectionTimeout,
         &TCP_CONNECTIONTIMEOUT_VALUE,
-    ) {
-        log::warn!("Failed to set TCP_CONNECTIONTIMEOUT on tunnel config socket: {e}");
-    }
+    );
 
-    if let Err(e) = setsockopt(
+    set_socket_option(
         socket,
-        sockopt::TcpRxtConnDropTime,
+        macos_sockopt::TcpRxtConnDropTime,
         &TCP_RXT_CONNDROPTIME_VALUE,
-    ) {
-        log::warn!("Failed to set TCP_RXT_CONNDROPTIME on tunnel config socket: {e}");
-    }
+    );
 }
 
 /// nix 0.31 does not expose sockopt types for `TCP_CONNECTIONTIMEOUT` or
 /// `TCP_RXT_CONNDROPTIME`. Neither constant is in libc, so they are declared
 /// locally.
 #[cfg(target_os = "macos")]
-mod sockopt {
+mod macos_sockopt {
     use nix::{getsockopt_impl, setsockopt_impl, sockopt_impl};
 
     // From <netinet/tcp.h> on macOS.
@@ -221,6 +206,41 @@ mod sockopt {
     );
 }
 
+/// Set a nix socket option, logging unsupported options quietly while
+/// surfacing invalid values and other unexpected failures.
+#[cfg(unix)]
+fn set_socket_option<F, O>(socket: &F, option: O, value: &O::Val)
+where
+    F: std::os::fd::AsFd,
+    O: nix::sys::socket::SetSockOpt + std::fmt::Debug,
+{
+    if let Err(error) = option.set(socket, value) {
+        log_socket_option_error(&format!("{option:?}"), error);
+    }
+}
+
+/// Log unavailable socket options quietly while surfacing invalid values and
+/// other unexpected failures.
+fn log_socket_option_error(option: &str, error: impl Into<io::Error>) {
+    let error = error.into();
+    if error.raw_os_error().is_some_and(unsupported_socket_option) {
+        log::debug!("Socket option {option} is not supported: {error}");
+    } else {
+        log::warn!("Failed to set socket option {option}: {error}");
+    }
+}
+
+#[cfg(unix)]
+fn unsupported_socket_option(code: i32) -> bool {
+    code == libc::ENOPROTOOPT || code == libc::EOPNOTSUPP
+}
+
+#[cfg(windows)]
+fn unsupported_socket_option(code: i32) -> bool {
+    use windows_sys::Win32::Networking::WinSock::{WSAENOPROTOOPT, WSAEOPNOTSUPP};
+    code == WSAENOPROTOOPT || code == WSAEOPNOTSUPP
+}
+
 /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
 /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
 /// we cannot lower it further. This causes the outer packets to be dropped. Also, MTU detection
@@ -232,13 +252,11 @@ const CONFIG_CLIENT_MTU: u16 = 576;
 
 #[cfg(unix)]
 fn try_set_tcp_sock_mtu(sock: &impl std::os::fd::AsFd) {
-    use nix::sys::socket::{setsockopt, sockopt::TcpMaxSeg};
+    use nix::sys::socket::sockopt::TcpMaxSeg;
 
     let mss = u32::from(desired_mss());
     log::debug!("Tunnel config TCP socket MSS: {mss}");
-    if let Err(e) = setsockopt(sock, TcpMaxSeg, &mss) {
-        log::warn!("Failed to set MSS on tunnel config TCP socket: {e}");
-    };
+    set_socket_option(sock, TcpMaxSeg, &mss);
 }
 
 #[cfg(unix)]

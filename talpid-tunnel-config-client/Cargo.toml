@@ -28,7 +28,7 @@ prost = { workspace = true }
 # ml-kem still depends on rand_core 0.6 as of ml-kem 0.21
 rand_core = { version = "0.6", features = ["getrandom"] }
 sha2 = { workspace = true }
-socket2 = { workspace = true}
+socket2 = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }

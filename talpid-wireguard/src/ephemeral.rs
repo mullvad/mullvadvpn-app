@@ -18,7 +18,9 @@ use tokio::sync::Mutex as AsyncMutex;
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 
 #[cfg(windows)]
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
+// Match the socket-level no-progress windows used on Linux and macOS. Later
+// attempts give a responsive-but-slow server progressively more time.
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(12);
 
 #[cfg(windows)]
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
@@ -269,14 +271,17 @@ async fn request_ephemeral_peer(
 ) -> std::result::Result<EphemeralPeer, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
-    // Windows uses an exponential backup retry strategy, as we can't set socket
-    // parameters to time out when no progress is made.
+    // Windows uses an exponential backoff retry strategy.
     #[cfg(windows)]
     let timeout = std::cmp::min(
         MAX_PSK_EXCHANGE_TIMEOUT,
         INITIAL_PSK_EXCHANGE_TIMEOUT
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
     );
+    // On other platforms, we rely on TCP parameters for the timeout, and this
+    // servers only as an upper bound. We do this as the kernel level timeouts
+    // are reset we receive ACK's, allowing for longer attemps when when progress
+    // is being made.
     #[cfg(not(windows))]
     let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
 
