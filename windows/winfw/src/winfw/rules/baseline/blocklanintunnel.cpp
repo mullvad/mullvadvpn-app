@@ -16,7 +16,14 @@ namespace rules::baseline
 namespace
 {
 
-const auto WEIGHT = wfp::FilterBuilder::WeightClass::Max;
+//
+// The permit filters have to outrank the block filters, since both match the private ranges that
+// are reachable in the tunnel. Filters that share a weight class are ordered by BFE based on how
+// specific their conditions are, and the block filters have more conditions than the permit
+// filters, so relying on the same class for both makes the block filters win.
+//
+const auto PERMIT_WEIGHT = wfp::FilterBuilder::WeightClass::Max;
+const auto BLOCK_WEIGHT = wfp::FilterBuilder::WeightClass::Class14;
 
 } // anonymous namespace
 
@@ -45,7 +52,7 @@ bool BlockLanInTunnel::applyIpv4(IObjectInstaller &objectInstaller) const
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 		.sublayer(MullvadGuids::SublayerBaseline())
-		.weight(WEIGHT)
+		.weight(PERMIT_WEIGHT)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
@@ -68,7 +75,7 @@ bool BlockLanInTunnel::applyIpv4(IObjectInstaller &objectInstaller) const
 	filterBuilder
 		.key(MullvadGuids::Filter_Baseline_BlockLanInTunnel_Outbound_Ipv4())
 		.name(L"Block outbound connections to the LAN on tunnel interface (IPv4)")
-		.weight(WEIGHT)
+		.weight(BLOCK_WEIGHT)
 		.block();
 
 	conditionBuilder.reset();
@@ -100,7 +107,7 @@ bool BlockLanInTunnel::applyIpv6(IObjectInstaller &objectInstaller) const
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
 		.sublayer(MullvadGuids::SublayerBaseline())
-		.weight(WEIGHT)
+		.weight(PERMIT_WEIGHT)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
@@ -124,7 +131,7 @@ bool BlockLanInTunnel::applyIpv6(IObjectInstaller &objectInstaller) const
 		.key(MullvadGuids::Filter_Baseline_BlockLanInTunnel_Outbound_Ipv6())
 		.name(L"Block outbound connections to the LAN on tunnel interface (IPv6)")
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.weight(WEIGHT)
+		.weight(BLOCK_WEIGHT)
 		.block();
 
 	conditionBuilder.reset();
