@@ -34,7 +34,9 @@ let
           (builtins.getAttr "platforms-android-${compileSdkVersion}-${compileSdkMinorVersion}" sdkPkgs)
           (builtins.getAttr "build-tools-${builtins.replaceStrings [ "." ] [ "-" ] buildToolsVersion}" sdkPkgs)
           (builtins.getAttr "ndk-${builtins.replaceStrings [ "." ] [ "-" ] ndkVersion}" sdkPkgs)
-          cmdline-tools-latest
+          # Pin command line tools to version 22 due to version 23 introducing nix breaking changes.
+          # https://github.com/tadfisher/android-nixpkgs/issues/134
+          cmdline-tools-22-0
           platform-tools
         ]
       );
