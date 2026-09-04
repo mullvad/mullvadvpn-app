@@ -40,20 +40,21 @@ use gotatun::tun::{
 };
 
 mod conversions;
+mod lan_filter;
 mod obfuscation;
 mod source_filter;
 
 use conversions::to_gotatun_peer;
+use lan_filter::LanFilter;
 use source_filter::SourceFilter;
 
 type TransportFactory = MaybeObfuscatingTransportFactory;
 
-type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, SourceFilter<GotaTunDevice>)>;
-type ExitDevice = Device<(
-    UdpChannelFactory,
-    GotaTunDevice,
-    SourceFilter<GotaTunDevice>,
-)>;
+/// Everything read from the TUN device passes both filters before it enters the tunnel.
+type TunRx = LanFilter<SourceFilter<GotaTunDevice>>;
+
+type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, TunRx)>;
+type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, TunRx)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
 type EntryDevice = Device<(TransportFactory, TunChannelTx, TunChannelRx)>;
@@ -516,7 +517,7 @@ async fn create_devices(
                 entry_mtu,
             );
 
-            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
+            let tun_rx = LanFilter::new(SourceFilter::new(tun_dev.clone(), source_v4, source_v6));
             let exit_device = DeviceBuilder::new()
                 .with_udp(udp_channels)
                 .with_ip_pair(tun_dev, tun_rx)
@@ -543,7 +544,7 @@ async fn create_devices(
         } else {
             // Singlehop setup
 
-            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
+            let tun_rx = LanFilter::new(SourceFilter::new(tun_dev.clone(), source_v4, source_v6));
             let device = DeviceBuilder::new()
                 .with_udp(factory)
                 .with_ip_pair(tun_dev, tun_rx)

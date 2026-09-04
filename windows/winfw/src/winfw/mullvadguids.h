@@ -53,6 +53,12 @@ public:
 	static const GUID &Filter_Baseline_PermitVpnTunnel_ExitIp();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_BlockExitIp();
 
+	static const GUID &Filter_Baseline_BlockLanInTunnel_PermitMullvad_Outbound_Ipv4();
+	static const GUID &Filter_Baseline_BlockLanInTunnel_Outbound_Ipv4();
+	static const GUID &Filter_Baseline_BlockLanInTunnel_PermitMullvad_Outbound_Ipv6();
+	static const GUID &Filter_Baseline_BlockLanInTunnel_Outbound_Ipv6();
+	static const GUID &Filter_Baseline_BlockLanInTunnel_Inbound_Ipv6();
+
 	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv4_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv6_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnelService_Ipv4_2();

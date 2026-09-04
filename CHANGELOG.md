@@ -64,6 +64,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
 
+### Security
+- Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+
 
 ## [2026.5-beta1] - 2026-08-31
 ### Added
