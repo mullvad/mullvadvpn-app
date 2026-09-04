@@ -55,7 +55,6 @@ public:
 
 	static const GUID &Filter_Baseline_BlockLanInTunnel_PermitMullvad_Outbound_Ipv4();
 	static const GUID &Filter_Baseline_BlockLanInTunnel_Outbound_Ipv4();
-	static const GUID &Filter_Baseline_BlockLanInTunnel_Inbound_Ipv4();
 	static const GUID &Filter_Baseline_BlockLanInTunnel_PermitMullvad_Outbound_Ipv6();
 	static const GUID &Filter_Baseline_BlockLanInTunnel_Outbound_Ipv6();
 	static const GUID &Filter_Baseline_BlockLanInTunnel_Inbound_Ipv6();

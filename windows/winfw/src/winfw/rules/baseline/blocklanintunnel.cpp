@@ -82,30 +82,7 @@ bool BlockLanInTunnel::applyIpv4(IObjectInstaller &objectInstaller) const
 		conditionBuilder.add_condition(ConditionIp::Remote(network));
 	}
 
-	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
-	{
-		return false;
-	}
-
-	//
-	// #3 Block inbound connections from the LAN.
-	//
-
-	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_BlockLanInTunnel_Inbound_Ipv4())
-		.name(L"Block inbound connections from the LAN on tunnel interface (IPv4)")
-		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
-
-
-	wfp::ConditionBuilder inboundConditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4);
-
-	inboundConditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-
-	for (const auto &network : g_ipv4LanNets) {
-		inboundConditionBuilder.add_condition(ConditionIp::Remote(network));
-	}
-
-	return objectInstaller.addFilter(filterBuilder, inboundConditionBuilder);
+	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
 
 bool BlockLanInTunnel::applyIpv6(IObjectInstaller &objectInstaller) const
@@ -157,30 +134,11 @@ bool BlockLanInTunnel::applyIpv6(IObjectInstaller &objectInstaller) const
 	for (const auto &network : g_ipv6LanNets) {
 		conditionBuilder.add_condition(ConditionIp::Remote(network));
 	}
-
-	if (!objectInstaller.addFilter(filterBuilder, conditionBuilder))
-	{
-		return false;
+	for (const auto &network : g_ipv6MulticastNets) {
+		conditionBuilder.add_condition(ConditionIp::Remote(network));
 	}
 
-	//
-	// #3 Block inbound connections from the LAN.
-	//
-
-	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_BlockLanInTunnel_Inbound_Ipv6())
-		.name(L"Block inbound connections from the LAN on tunnel interface (IPv6)")
-		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
-
-	wfp::ConditionBuilder inboundConditionBuilder(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V6);
-
-	inboundConditionBuilder.add_condition(ConditionInterface::Alias(m_tunnelInterfaceAlias));
-
-	for (const auto &network : g_ipv6LanNets) {
-		inboundConditionBuilder.add_condition(ConditionIp::Remote(network));
-	}
-
-	return objectInstaller.addFilter(filterBuilder, inboundConditionBuilder);
+	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }
 
 }

@@ -451,20 +451,6 @@ const GUID &MullvadGuids::Filter_Baseline_BlockLanInTunnel_Outbound_Ipv4()
 }
 
 //static
-const GUID &MullvadGuids::Filter_Baseline_BlockLanInTunnel_Inbound_Ipv4()
-{
-	static const GUID g =
-	{
-		0x58e4817d,
-		0x3ddd,
-		0x469d,
-		{ 0xbc, 0x45, 0x2b, 0x80, 0xe7, 0x55, 0x5c, 0x7f }
-	};
-
-	return g;
-}
-
-//static
 const GUID &MullvadGuids::Filter_Baseline_BlockLanInTunnel_PermitMullvad_Outbound_Ipv6()
 {
 	static const GUID g =
@@ -487,20 +473,6 @@ const GUID &MullvadGuids::Filter_Baseline_BlockLanInTunnel_Outbound_Ipv6()
 		0xa8f2,
 		0x4067,
 		{ 0xb5, 0x38, 0xf3, 0x36, 0x12, 0x9b, 0x20, 0xa0 }
-	};
-
-	return g;
-}
-
-//static
-const GUID &MullvadGuids::Filter_Baseline_BlockLanInTunnel_Inbound_Ipv6()
-{
-	static const GUID g =
-	{
-		0x393ab675,
-		0x3376,
-		0x4a3a,
-		{ 0xa2, 0x42, 0xd2, 0x55, 0xab, 0x8f, 0xbf, 0xd5 }
 	};
 
 	return g;
