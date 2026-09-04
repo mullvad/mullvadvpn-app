@@ -128,7 +128,7 @@ fn set_linux_reliability_params(socket: &TokioTcpSocket) {
 
     // Progress-based deadline (ms) for unACK'ed data: measured from the oldest
     // unACK'ed data, so it advances on ACK progress and only fires when there is
-    // none. On older Linux kernels, this does not apply to the TCP handshake.
+    // none. On Linux kernels older than 4.19, this does not apply to the TCP handshake.
     const USER_TIMEOUT_MS: u32 = 12_000;
 
     set_socket_option(socket, linux_sockopt::TcpSyncnt, &TCP_SYNCNT_VALUE);
