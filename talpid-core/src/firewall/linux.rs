@@ -925,7 +925,7 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
-        // Drop: LAN <=> Tunnel / Multicast ranges + LAN Sharing ranges.
+        // Drop: LAN => Tunnel / Multicast ranges + LAN Sharing ranges.
         for (chain, direction, end) in ends {
             let nets = ALLOWED_LAN_NETS
                 .iter()
