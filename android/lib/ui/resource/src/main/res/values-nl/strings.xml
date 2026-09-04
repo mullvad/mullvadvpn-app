@@ -19,7 +19,6 @@
     <string name="add_to_list">Toevoegen aan lijst</string>
     <string name="added_to_your_account">%1$s is toegevoegd aan uw account.</string>
     <string name="adding_method">Methode toevoegen ...</string>
-    <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all">Alles</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="all_locations">Alle locaties</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Voer een geldige poort op de externe server in</string>
     <string name="port">Poort</string>
     <string name="port_x">Poort: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Om zeker te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige geactiveerde versie, voert de app automatisch versiecontroles uit. Hierbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij voor gebruikte appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat.</string>
-    <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="privacy_policy_lower_case">privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>

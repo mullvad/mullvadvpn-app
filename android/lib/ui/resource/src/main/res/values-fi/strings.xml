@@ -19,7 +19,6 @@
     <string name="add_to_list">Lisää luetteloon</string>
     <string name="added_to_your_account">%1$s lisättiin tilillesi.</string>
     <string name="adding_method">Lisätään menetelmää...</string>
-    <string name="agree_and_continue">Hyväksy ja jatka</string>
     <string name="all">Kaikki</string>
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="all_locations">Kaikki sijainnit</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
     <string name="port">Portti</string>
     <string name="port_x">Portti: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta.</string>
-    <string name="privacy_disclaimer_title">Tietosuoja</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
     <string name="privacy_policy_lower_case">tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>

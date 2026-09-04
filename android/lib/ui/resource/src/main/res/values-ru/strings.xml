@@ -19,7 +19,6 @@
     <string name="add_to_list">Добавить в список</string>
     <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="adding_method">Добавление метода...</string>
-    <string name="agree_and_continue">Согласиться и продолжить</string>
     <string name="all">Все</string>
     <string name="all_applications">Все приложения</string>
     <string name="all_locations">Все местоположения</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
     <string name="port">Порт</string>
     <string name="port_x">Порт: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Если используется функция раздельного туннелирования, то приложение запрашивает в системе список всех установленных приложений. Этот список запрашивается только на  экране настройки раздельного туннелирования. Список установленных приложений никогда не передается за пределы устройства.</string>
-    <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="privacy_policy_lower_case">политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>

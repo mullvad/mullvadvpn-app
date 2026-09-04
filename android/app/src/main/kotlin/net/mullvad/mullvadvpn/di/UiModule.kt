@@ -126,7 +126,6 @@ import net.mullvad.mullvadvpn.lib.usecase.inappnotification.NewDeviceNotificatio
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.inappnotification.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
-import net.mullvad.mullvadvpn.screen.privacy.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.screen.splash.SplashViewModel
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -353,7 +352,6 @@ val uiModule = module {
     viewModel { params -> CustomDnsDialogViewModel(navArgs = params.get(), get(), get(), get()) }
     viewModel { params -> CustomPortDialogViewModel(navArgs = params.get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
-    viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
         SelectLocationViewModel(
             relayListFilterRepository = get(),
@@ -382,7 +380,7 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel { SplashViewModel(get(), get(), get(), get()) }
+    viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }

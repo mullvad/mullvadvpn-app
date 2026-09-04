@@ -19,7 +19,6 @@
     <string name="add_to_list">Legg til i listen</string>
     <string name="added_to_your_account">%1$s ble lagt til kontoen din.</string>
     <string name="adding_method">Legger til metoden ...</string>
-    <string name="agree_and_continue">Godta og fortsett</string>
     <string name="all">Alle</string>
     <string name="all_applications">Alle applikasjoner</string>
     <string name="all_locations">Alle steder</string>
@@ -413,9 +412,6 @@
     <string name="please_enter_a_valid_remote_server_port">Skriv inn en gyldig ekstern server-port</string>
     <string name="port">Port</string>
     <string name="port_x">Port: %1$s</string>
-    <string name="privacy_disclaimer_body_first_paragraph">For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg.</string>
-    <string name="privacy_disclaimer_body_second_paragraph">Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten.</string>
-    <string name="privacy_disclaimer_title">Personvern</string>
     <string name="privacy_policy_label">Retningslinjer for personvern</string>
     <string name="privacy_policy_lower_case">retningslinjer for personvern</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>

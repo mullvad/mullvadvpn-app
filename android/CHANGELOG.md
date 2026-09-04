@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 
+### Removed
+- Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
+  The privacy policy can still be reached from Settings.
+
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added

@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.page.AccountPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
-import net.mullvad.mullvadvpn.test.common.page.PrivacyPage
 import net.mullvad.mullvadvpn.test.common.page.WelcomePage
 import net.mullvad.mullvadvpn.test.common.page.dismissStorePasswordPromptIfShown
 import net.mullvad.mullvadvpn.test.common.page.on
@@ -55,7 +54,6 @@ class BaselineProfileGenerator {
 
             val app = AppInteractor(device, targetApplication)
 
-            ignoreNotFound { on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() } }
             ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
             on<LoginPage> { clickCreateAccount() }
             device.dismissStorePasswordPromptIfShown()

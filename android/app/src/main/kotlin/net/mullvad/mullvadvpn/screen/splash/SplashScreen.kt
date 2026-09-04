@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.screen.navigation.PrivacyDisclaimerNavKey
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -49,8 +48,6 @@ fun Splash(navigator: Navigator) {
                 navigator.navigate(ConnectNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToLogin ->
                 navigator.navigate(LoginNavKey(), clearBackStack = true)
-            SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
-                navigator.navigate(PrivacyDisclaimerNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToRevoked ->
                 navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToOutOfTime ->
