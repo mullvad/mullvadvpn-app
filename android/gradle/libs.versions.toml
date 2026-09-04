@@ -67,6 +67,7 @@ ktfmt = "0.27.0"
 ktor = "3.5.2"
 leakcanary = "2.14"
 mockk = "1.14.11"
+okttp = "5.4.0"
 play-publisher = "4.1.1"
 play-services-location = "21.4.0"
 profileinstaller = "1.4.1"
@@ -77,6 +78,7 @@ annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
 material = "1.14.0"
 rust-android = "0.10.1"
+wire = "6.4.7"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -179,6 +181,9 @@ protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", ve
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okttp" }
+wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
+wire-grpc = { group = "com.squareup.wire", name = "wire-grpc-client", version.ref = "wire" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
@@ -215,3 +220,5 @@ mullvad-android-library-instrumented-test = { id = "mullvad.android-library-inst
 mullvad-kotlin-toolchain = { id = "mullvad.kotlin-toolchain" }
 mullvad-utilities = { id = "mullvad.utilities" }
 mullvad-unit-test = { id = "mullvad.unit-test" }
+wire = { id = "com.squareup.wire", version.ref = "wire" }
+wire-proto-patcher = { id = "mullvad.wire-proto-patcher" }

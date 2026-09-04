@@ -76,9 +76,8 @@ class MullvadAppViewModel(
             // If we are started we want to show the overlay if we are not connected to daemon
             when (serviceState) {
                 GrpcConnectivityState.Connecting,
-                GrpcConnectivityState.Shutdown,
-                GrpcConnectivityState.TransientFailure,
-                GrpcConnectivityState.Idle -> DaemonState.Show
+                GrpcConnectivityState.Closed,
+                GrpcConnectivityState.Failed -> DaemonState.Show
                 GrpcConnectivityState.Ready -> DaemonState.Hidden.Connected
             }
         } else {

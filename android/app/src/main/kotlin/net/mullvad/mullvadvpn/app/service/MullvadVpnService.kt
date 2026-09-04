@@ -218,9 +218,6 @@ class MullvadVpnService : TalpidVpnService() {
         Logger.i("Shutdown MullvadDaemon")
         MullvadDaemon.shutdown()
 
-        Logger.i("Enter Idle")
-        managementService.enterIdle()
-
         Logger.i("Shutdown complete")
     }
 
