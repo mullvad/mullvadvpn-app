@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {
+  type LiftedConstraint,
   MultihopMode,
   type RelayLocation,
   wrapConstraint,
@@ -20,19 +21,22 @@ export function useMultihop() {
       entryLocation,
       exitLocation,
     }: {
-      multihop: MultihopMode;
-      entryLocation?: RelayLocation;
+      multihop?: MultihopMode;
+      entryLocation?: LiftedConstraint<RelayLocation>;
       exitLocation?: RelayLocation;
     }) => {
       try {
         await relaySettingsUpdater((settings) => {
+          if (multihop) {
+            settings.wireguardConstraints.multihop = multihop;
+          }
           if (entryLocation) {
             settings.wireguardConstraints.entryLocation = wrapConstraint(entryLocation);
           }
           if (exitLocation) {
             settings.location = wrapConstraint(exitLocation);
           }
-          settings.wireguardConstraints.multihop = multihop;
+
           return settings;
         });
       } catch (error) {
@@ -43,5 +47,8 @@ export function useMultihop() {
     [relaySettingsUpdater],
   );
 
-  return { multihop, setMultihop };
+  const entryLocation = normalRelaySettings?.wireguard.entryLocation;
+  const exitLocation = normalRelaySettings?.location;
+
+  return { multihop, setMultihop, entryLocation, exitLocation };
 }

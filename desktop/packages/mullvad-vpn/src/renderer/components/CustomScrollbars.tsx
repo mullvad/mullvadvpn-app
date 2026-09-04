@@ -24,6 +24,7 @@ const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
+  height: '100%',
   '&&::-webkit-scrollbar': {
     display: 'none',
   },

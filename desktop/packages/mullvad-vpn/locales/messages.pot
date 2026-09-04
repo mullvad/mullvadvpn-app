@@ -53,6 +53,9 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+msgid "Always"
+msgstr ""
+
 msgid "Any"
 msgstr ""
 
@@ -172,6 +175,9 @@ msgstr ""
 msgid "Filters"
 msgstr ""
 
+msgid "Go back"
+msgstr ""
+
 #. Button label for system settings.
 msgid "Go to System Settings"
 msgstr ""
@@ -200,12 +206,18 @@ msgstr ""
 msgid "less than a day left"
 msgstr ""
 
+msgid "Magic multihop"
+msgstr ""
+
 #. This refers to the multihop setting in the VPN settings view. This is
 #. displayed when the feature is on.
 msgid "Multihop"
 msgstr ""
 
 msgid "Name"
+msgstr ""
+
+msgid "Never"
 msgstr ""
 
 msgid "New list"
@@ -315,6 +327,9 @@ msgid "Use"
 msgstr ""
 
 msgid "Username"
+msgstr ""
+
+msgid "When needed"
 msgstr ""
 
 #. Text for screen readers to describe the LWO settings navigation button.
@@ -432,6 +447,16 @@ msgstr ""
 #. the button which obscures the account number.
 msgctxt "accessibility"
 msgid "Hide account number"
+msgstr ""
+
+#. Accessibility label for illustration of multihop entry set to automatic.
+msgctxt "accessibility"
+msgid "Illustration showing multihop entry set to automatic"
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "accessibility"
+msgid "Illustration showing separate filters for entry and exit locations"
 msgstr ""
 
 #. Alt text for an illustration showing VPN traffic with DAITA.
@@ -797,6 +822,11 @@ msgstr ""
 
 msgctxt "app-info-view"
 msgid "Enable to get notified when new beta versions of the app are released."
+msgstr ""
+
+#. Label for migrated settings list item.
+msgctxt "app-info-view"
+msgid "Migrated settings"
 msgstr ""
 
 msgctxt "app-info-view"
@@ -1412,6 +1442,10 @@ msgctxt "in-app-notifications"
 msgid "Click here to install update."
 msgstr ""
 
+msgctxt "in-app-notifications"
+msgid "Click here to read more"
+msgstr ""
+
 #. Notification subtitle when the installer failed.
 msgctxt "in-app-notifications"
 msgid "Click here to retry"
@@ -1495,6 +1529,10 @@ msgctxt "in-app-notifications"
 msgid "READY TO INSTALL UPDATE"
 msgstr ""
 
+msgctxt "in-app-notifications"
+msgid "RESOLVE CONNECTION ISSUES"
+msgstr ""
+
 #. Accessibility label for the button to retry download of the installer.
 msgctxt "in-app-notifications"
 msgid "Retry download of the installer"
@@ -1508,6 +1546,18 @@ msgstr ""
 #. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "SETTINGS MIGRATED"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "Some of your settings have been migrated, please review the changes."
 msgstr ""
 
 #. Notification subtitle when the installer verification failed.
@@ -1821,6 +1871,156 @@ msgstr ""
 #. %(portRanges)s - will be replaced with a comma-separated list of port ranges
 msgctxt "lwo-settings-view"
 msgid "Valid ranges: %(portRanges)s"
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "\"Direct only\" removed"
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Attention: With the \"Automatic\" location, filters are ignored for the entry server."
+msgstr ""
+
+#. Label for button that changes the multihop mode to "when needed" in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Change to \"When needed\""
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Filters can now be set separately for entry and exit locations"
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop entry set to \"Automatic\""
+msgstr ""
+
+#. Description of the new multihop mode "Never".
+msgctxt "migrated-settings-view"
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr ""
+
+#. Description of the new multihop mode "Always".
+msgctxt "migrated-settings-view"
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Multihop is now split into three mode: When needed, Always, and Never. This gives you more flexibility with your connection preferences."
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "New multihop modes"
+msgstr ""
+
+#. Description shown in migration wizard when there are no migrations available.
+msgctxt "migrated-settings-view"
+msgid "No settings migrations are available."
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Separate filters"
+msgstr ""
+
+#. Label for button that changes the multihop entry server to automatic in migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Set entry to \"Automatic\""
+msgstr ""
+
+#. Title for the migration view
+msgctxt "migrated-settings-view"
+msgid "Settings migration"
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop entry"
+msgstr ""
+
+#. Title shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Suggested multihop mode"
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The DAITA sub-setting \"Direct only\" has been removed and simplified to avoid blocking connections. Instead with DAITA enabled, you make this option with the multihop setting."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "The multihop mode \"Always\" now features an \"Automatic\" location for the entry server selection."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr ""
+
+msgctxt "migrated-settings-view"
+msgid "This will be indicated by the symbol: <img></img>"
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to \"When needed\"."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to \"Automatic\"."
+msgstr ""
+
+#. Description of the new multihop mode "When needed".
+msgctxt "migrated-settings-view"
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically enable multihop via a different entry server."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"Always\" or \"Never\" you must manually select a DAITA server."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When multihop is set to \"When needed\" the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr ""
+
+#. Instructions shown in one step of a migration wizard.
+msgctxt "migrated-settings-view"
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr ""
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Always”."
+msgstr ""
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “Never”."
+msgstr ""
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “Off” to “When needed”."
+msgstr ""
+
+msgctxt "migrated-settings-view"
+msgid "Your multihop setting was migrated from “On” to “Always”."
 msgstr ""
 
 #. Title label in navigation bar
@@ -3177,9 +3377,6 @@ msgstr ""
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
-msgid "Attention: In this mode, filters are ignored for the additional server."
-msgstr ""
-
 msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
 msgstr ""
 
@@ -3223,9 +3420,6 @@ msgid "Change to “When needed”"
 msgstr ""
 
 msgid "Clear input"
-msgstr ""
-
-msgid "Click here to read more"
 msgstr ""
 
 msgid "Collapse"
@@ -3510,9 +3704,6 @@ msgstr ""
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
-msgid "Migrated settings"
-msgstr ""
-
 msgid "More actions"
 msgstr ""
 
@@ -3525,13 +3716,7 @@ msgstr ""
 msgid "Multihop is disabled"
 msgstr ""
 
-msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
-msgstr ""
-
 msgid "Multihop is enabled"
-msgstr ""
-
-msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
 msgstr ""
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
@@ -3547,9 +3732,6 @@ msgid "Name was changed to %s"
 msgstr ""
 
 msgid "Navigate"
-msgstr ""
-
-msgid "New multihop modes"
 msgstr ""
 
 msgid "Next %1$s"
@@ -3708,9 +3890,6 @@ msgstr ""
 msgid "Send email"
 msgstr ""
 
-msgid "Separate filters"
-msgstr ""
-
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr ""
 
@@ -3753,12 +3932,6 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
-msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
-msgstr ""
-
-msgid "Some of your settings have been migrated, please review the changes."
-msgstr ""
-
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr ""
 
@@ -3766,9 +3939,6 @@ msgid "Submit"
 msgstr ""
 
 msgid "Suggested action"
-msgstr ""
-
-msgid "Suggested multihop entry"
 msgstr ""
 
 msgid "System network settings"
@@ -3841,9 +4011,6 @@ msgid "This is already set as current"
 msgstr ""
 
 msgid "This might be due to censorship or network issues. Please try to:"
-msgstr ""
-
-msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
 msgstr ""
 
 msgid "Time added"
@@ -3999,9 +4166,6 @@ msgstr ""
 msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
 msgstr ""
 
-msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
-msgstr ""
-
 msgid "WireGuard port"
 msgstr ""
 
@@ -4024,9 +4188,6 @@ msgid "You will lose access to this account on all devices."
 msgstr ""
 
 msgid "You will lose your remaining"
-msgstr ""
-
-msgid "Your current filters were applied to both entry and exit locations."
 msgstr ""
 
 msgid "Your device"

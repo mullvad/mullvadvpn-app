@@ -775,6 +775,14 @@ export default class AppRenderer {
     );
   };
 
+  public setDismissedSettingsMigrations = (): void => {
+    IpcRendererEventChannel.settings.dismissedSettingsMigrations();
+  };
+
+  public setDisplayedSettingsMigrations = (): void => {
+    IpcRendererEventChannel.settings.displayedSettingsMigrations();
+  };
+
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
   }

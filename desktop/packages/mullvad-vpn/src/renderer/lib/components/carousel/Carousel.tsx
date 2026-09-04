@@ -6,9 +6,15 @@ import { CarouselProvider, useCarouselContext } from './CarouselContext';
 import { CarouselControls, CarouselSlides } from './components';
 import { useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
-export const StyledCarousel = styled.section``;
-
 export type CarouselProps = React.ComponentPropsWithRef<'section'>;
+
+export const StyledCarousel = styled.section`
+  width: 100%;
+`;
+
+export const StyledFlex = styled(Flex)`
+  width: 100%;
+`;
 
 function CarouselImpl({ children, ...props }: CarouselProps) {
   const handleKeyboardNavigation = useHandleKeyboardNavigation();
@@ -23,9 +29,7 @@ function CarouselImpl({ children, ...props }: CarouselProps) {
       aria-roledescription="carousel"
       tabIndex={-1}
       {...props}>
-      <Flex flexDirection="column" gap="medium">
-        {children}
-      </Flex>
+      <StyledFlex flexDirection="column">{children}</StyledFlex>
     </StyledCarousel>
   );
 }

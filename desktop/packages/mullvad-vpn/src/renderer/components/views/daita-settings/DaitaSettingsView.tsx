@@ -1,4 +1,5 @@
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
@@ -6,12 +7,17 @@ import { DaitaSetting } from '../../../features/daita/components';
 import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
+import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { HeaderTitle } from '../../SettingsHeader';
+
+const StyledCarouselControls = styled(Carousel.Controls)`
+  margin-top: ${spacings.medium};
+`;
 
 export function DaitaSettingsView() {
   const { pop } = useHistory();
@@ -24,122 +30,120 @@ export function DaitaSettingsView() {
 
           <NavigationScrollbars>
             <View.Content>
-              <FlexColumn gap="medium">
-                <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
-                  <HeaderTitle>{strings.daita}</HeaderTitle>
-                  <FlexColumn gap="large">
-                    <Carousel
-                      aria-label={
-                        // TRANSLATORS: Accessibility label for a carousel that explains the DAITA feature to the user.
-                        messages.pgettext('accessibility', 'DAITA information carousel')
-                      }>
-                      <Carousel.Slides>
-                        <Carousel.Slides.Slide>
-                          <Carousel.Slides.Slide.Image
-                            source="daita-off-illustration"
-                            alt={
-                              // TRANSLATORS: Alt text for an illustration showing VPN traffic without DAITA.
+              <View.Container horizontalMargin="medium" flexDirection="column" gap="medium">
+                <HeaderTitle>{strings.daita}</HeaderTitle>
+                <FlexColumn gap="large">
+                  <Carousel
+                    aria-label={
+                      // TRANSLATORS: Accessibility label for a carousel that explains the DAITA feature to the user.
+                      messages.pgettext('accessibility', 'DAITA information carousel')
+                    }>
+                    <Carousel.Slides>
+                      <Carousel.Slides.Slide>
+                        <Carousel.Slides.Slide.Image
+                          source="daita-off-illustration"
+                          alt={
+                            // TRANSLATORS: Alt text for an illustration showing VPN traffic without DAITA.
+                            messages.pgettext(
+                              'accessibility',
+                              'Illustration showing VPN traffic without DAITA',
+                            )
+                          }
+                        />
+                        <Carousel.Slides.Slide.TextGroup>
+                          <Carousel.Slides.Slide.Text variant="labelTinySemiBold">
+                            {messages.pgettext(
+                              // TRANSLATORS: Information to the user that with this setting enabled their network and device's battery life will be
+                              // TRANSLATORS: affected negatively.
+                              'wireguard-settings-view',
+                              'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.',
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                          <Carousel.Slides.Slide.Text>
+                            {sprintf(
                               messages.pgettext(
-                                'accessibility',
-                                'Illustration showing VPN traffic without DAITA',
-                              )
-                            }
-                          />
-                          <Carousel.Slides.Slide.TextGroup>
-                            <Carousel.Slides.Slide.Text variant="labelTinySemiBold">
-                              {messages.pgettext(
-                                // TRANSLATORS: Information to the user that with this setting enabled their network and device's battery life will be
-                                // TRANSLATORS: affected negatively.
+                                // TRANSLATORS: Information to the user what the DAITA setting does.
+                                // TRANSLATORS: Available placeholders:
+                                // TRANSLATORS: %(daita)s - Will be replaced with DAITA
+                                // TRANSLATORS: %(daitaFull)s - Will be replaced with Defence against AI-guided Traffic Analysis
                                 'wireguard-settings-view',
-                                'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.',
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                            <Carousel.Slides.Slide.Text>
-                              {sprintf(
-                                messages.pgettext(
-                                  // TRANSLATORS: Information to the user what the DAITA setting does.
-                                  // TRANSLATORS: Available placeholders:
-                                  // TRANSLATORS: %(daita)s - Will be replaced with DAITA
-                                  // TRANSLATORS: %(daitaFull)s - Will be replaced with Defence against AI-guided Traffic Analysis
-                                  'wireguard-settings-view',
-                                  '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
-                                ),
-                                { daita: strings.daita, daitaFull: strings.daitaFull },
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                            <Carousel.Slides.Slide.Text>
-                              {messages.pgettext(
+                                '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
+                              ),
+                              { daita: strings.daita, daitaFull: strings.daitaFull },
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                          <Carousel.Slides.Slide.Text>
+                            {messages.pgettext(
+                              // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
+                              'wireguard-settings-view',
+                              'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                        </Carousel.Slides.Slide.TextGroup>
+                      </Carousel.Slides.Slide>
+                      <Carousel.Slides.Slide>
+                        <Carousel.Slides.Slide.Image
+                          source="daita-on-illustration"
+                          alt={
+                            // TRANSLATORS: Alt text for an illustration showing VPN traffic with DAITA.
+                            messages.pgettext(
+                              'accessibility',
+                              'Illustration showing VPN traffic with DAITA enabled',
+                            )
+                          }
+                        />
+                        <Carousel.Slides.Slide.TextGroup>
+                          <Carousel.Slides.Slide.Text>
+                            {sprintf(
+                              messages.pgettext(
                                 // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
                                 'wireguard-settings-view',
-                                'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                          </Carousel.Slides.Slide.TextGroup>
-                        </Carousel.Slides.Slide>
-                        <Carousel.Slides.Slide>
-                          <Carousel.Slides.Slide.Image
-                            source="daita-on-illustration"
-                            alt={
-                              // TRANSLATORS: Alt text for an illustration showing VPN traffic with DAITA.
+                                'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
+                              ),
+                              { daita: strings.daita },
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                          <Carousel.Slides.Slide.Text>
+                            {sprintf(
                               messages.pgettext(
-                                'accessibility',
-                                'Illustration showing VPN traffic with DAITA enabled',
-                              )
-                            }
-                          />
-                          <Carousel.Slides.Slide.TextGroup>
-                            <Carousel.Slides.Slide.Text>
-                              {sprintf(
-                                messages.pgettext(
-                                  // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
-                                  'wireguard-settings-view',
-                                  'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
-                                ),
-                                { daita: strings.daita },
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                            <Carousel.Slides.Slide.Text>
-                              {sprintf(
-                                messages.pgettext(
-                                  // TRANSLATORS: Information to the user what the DAITA setting does.
-                                  // TRANSLATORS: Available placeholders:
-                                  // TRANSLATORS: %(daita)s - Will be replaced with DAITA
-                                  'wireguard-settings-view',
-                                  '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
-                                ),
-                                { daita: strings.daita },
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                            <Carousel.Slides.Slide.Text>
-                              {sprintf(
-                                messages.pgettext(
-                                  // TRANSLATORS: Information to the user that DAITA is not available on all servers, however in the background the multihop
-                                  // TRANSLATORS: feature is used automatically which enables the use of DAITA with any server.
-                                  // TRANSLATORS: Available placeholders:
-                                  // TRANSLATORS: %(daita)s - Will be replaced with DAITA
-                                  'wireguard-settings-view',
-                                  'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
-                                ),
-                                { daita: strings.daita },
-                              )}
-                            </Carousel.Slides.Slide.Text>
-                          </Carousel.Slides.Slide.TextGroup>
-                        </Carousel.Slides.Slide>
-                      </Carousel.Slides>
-                      <Carousel.Controls>
-                        <Carousel.Controls.Indicators />
-                        <Carousel.Controls.ControlGroup>
-                          <Carousel.Controls.PrevButton />
-                          <Carousel.Controls.NextButton />
-                        </Carousel.Controls.ControlGroup>
-                      </Carousel.Controls>
-                    </Carousel>
-                    <FlexColumn>
-                      <DaitaSetting />
-                    </FlexColumn>
+                                // TRANSLATORS: Information to the user what the DAITA setting does.
+                                // TRANSLATORS: Available placeholders:
+                                // TRANSLATORS: %(daita)s - Will be replaced with DAITA
+                                'wireguard-settings-view',
+                                '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
+                              ),
+                              { daita: strings.daita },
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                          <Carousel.Slides.Slide.Text>
+                            {sprintf(
+                              messages.pgettext(
+                                // TRANSLATORS: Information to the user that DAITA is not available on all servers, however in the background the multihop
+                                // TRANSLATORS: feature is used automatically which enables the use of DAITA with any server.
+                                // TRANSLATORS: Available placeholders:
+                                // TRANSLATORS: %(daita)s - Will be replaced with DAITA
+                                'wireguard-settings-view',
+                                'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
+                              ),
+                              { daita: strings.daita },
+                            )}
+                          </Carousel.Slides.Slide.Text>
+                        </Carousel.Slides.Slide.TextGroup>
+                      </Carousel.Slides.Slide>
+                    </Carousel.Slides>
+                    <StyledCarouselControls>
+                      <Carousel.Controls.Indicators />
+                      <Carousel.Controls.ControlGroup>
+                        <Carousel.Controls.PrevButton />
+                        <Carousel.Controls.NextButton />
+                      </Carousel.Controls.ControlGroup>
+                    </StyledCarouselControls>
+                  </Carousel>
+                  <FlexColumn>
+                    <DaitaSetting />
                   </FlexColumn>
-                </View.Container>
-              </FlexColumn>
+                </FlexColumn>
+              </View.Container>
             </View.Content>
           </NavigationScrollbars>
         </NavigationContainer>
