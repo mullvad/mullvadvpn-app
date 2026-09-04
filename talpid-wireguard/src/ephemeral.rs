@@ -279,9 +279,9 @@ async fn request_ephemeral_peer(
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
     );
     // On other platforms, we rely on TCP parameters for the timeout, and this
-    // servers only as an upper bound. We do this as the kernel level timeouts
-    // are reset we receive ACK's, allowing for longer attemps when when progress
-    // is being made.
+    // serves only as an upper bound. We do this as the kernel level timeouts
+    // are reset when we receive ACK's, allowing for longer attempts when when
+    // progress is being made.
     #[cfg(not(windows))]
     let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
 
