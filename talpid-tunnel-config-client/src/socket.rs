@@ -16,6 +16,20 @@ const KEEPALIVE_TIME: Duration = Duration::from_secs(1);
 /// Time between keepalive probes.
 const KEEPALIVE_INTERVAL: Duration = Duration::from_secs(1);
 
+/// Number of unacknowledged keepalive probes before giving up.
+///
+/// NOTE: only effective on macOS. On Linux this is overridden by
+/// `TCP_USER_TIMEOUT` and it is a noop on Windows.
+const KEEPALIVE_RETRIES: u32 = 3;
+
+/// TCP socket with parameters that prioritize reliability.
+///
+/// This has various platform specific parameters to make the ephemeral peer handshake
+/// more reliable under poor network conditions.
+///
+/// This is achieved by increasing retransmissions and tuning timeout parameters, so that
+/// the session is kept alive for longer if progress is made, or shorter for dead
+/// connections.
 pub struct TcpSocket {
     socket: TokioTcpSocket,
 }
@@ -23,9 +37,31 @@ pub struct TcpSocket {
 impl TcpSocket {
     pub fn new() -> io::Result<Self> {
         let socket = TokioTcpSocket::new_v4()?;
+        // Send small gRPC frames immediately.
+        if let Err(e) = socket.set_nodelay(true) {
+            log::warn!("Failed to set TCP_NODELAY on tunnel config socket: {e}");
+        }
+
+        let sock_ref = socket2::SockRef::from(&socket);
+        // Increase keepalive frequency. This only affects the connection
+        // when no data is being sent, i.e. after sending the request and
+        // while waiting for the response.
+        let keepalive = socket2::TcpKeepalive::new()
+            .with_time(KEEPALIVE_TIME)
+            .with_interval(KEEPALIVE_INTERVAL)
+            .with_retries(KEEPALIVE_RETRIES);
+        if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
+            log::warn!("Failed to set TCP keepalive on tunnel config socket: {e}");
+        }
+
         #[cfg(unix)]
         try_set_tcp_sock_mtu(&socket);
-        set_reliability_params(&socket);
+
+        #[cfg(target_os = "linux")]
+        set_linux_reliability_params(&socket);
+
+        #[cfg(target_os = "macos")]
+        set_macos_reliability_params(&socket);
         Ok(Self { socket })
     }
 
@@ -64,35 +100,6 @@ impl std::os::windows::io::AsSocket for TcpSocket {
     }
 }
 
-/// Set TCP parameters that prioritize reliability.
-///
-/// This sets various platform specific parameters to make the ephemeral peer handshake
-/// more reliable under poor network conditions.
-///
-/// We do this by increasing retransmissions and tuning timeout parameters, so that
-/// the session is kept alive for longer if progress is made, or shorter for dead
-/// connections.
-fn set_reliability_params(socket: &TokioTcpSocket) {
-    // Send small gRPC frames immediately.
-    if let Err(e) = socket.set_nodelay(true) {
-        log::error!("Failed to set TCP_NODELAY on tunnel config socket: {e}");
-    }
-
-    let sock_ref = socket2::SockRef::from(socket);
-    // Increase keepalive frequency. This only affects the connection
-    // when no data is being sent, i.e. after sending the request and
-    // while waiting for the response.
-    let keepalive = socket2::TcpKeepalive::new()
-        .with_time(KEEPALIVE_TIME)
-        .with_interval(KEEPALIVE_INTERVAL);
-    if let Err(e) = sock_ref.set_tcp_keepalive(&keepalive) {
-        log::error!("Failed to set TCP keepalive on tunnel config socket: {e}");
-    }
-
-    #[cfg(target_os = "linux")]
-    set_linux_reliability_params(socket);
-}
-
 /// Sets the following TCP options to increase reliability:
 ///
 /// - `TCP_RTO_MAX_MS` sets an upper bound on time between retries for unAck'ed data.
@@ -123,7 +130,7 @@ fn set_linux_reliability_params(socket: &TokioTcpSocket) {
     const USER_TIMEOUT_MS: u32 = 12_000;
 
     if let Err(e) = nix::sys::socket::setsockopt(socket, sockopt::TcpSyncnt, &TCP_SYNCNT_VALUE) {
-        log::error!("Failed to set TCP_SYNCNT on tunnel config socket: {e}");
+        log::warn!("Failed to set TCP_SYNCNT on tunnel config socket: {e}");
     }
 
     if let Err(e) =
@@ -133,7 +140,7 @@ fn set_linux_reliability_params(socket: &TokioTcpSocket) {
     }
 
     if let Err(e) = nix::sys::socket::setsockopt(socket, TcpUserTimeout, &USER_TIMEOUT_MS) {
-        log::error!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
+        log::warn!("Failed to set TCP_USER_TIMEOUT on tunnel config socket: {e}");
     }
 }
 
@@ -148,6 +155,70 @@ mod sockopt {
     const TCP_RTO_MAX_MS: libc::c_int = 44;
 
     sockopt_impl!(TcpRtoMaxMs, Both, libc::IPPROTO_TCP, TCP_RTO_MAX_MS, u32);
+}
+
+/// Sets the following macOS-specific TCP options to increase reliability:
+///
+/// - `TCP_CONNECTIONTIMEOUT`: timeout (seconds) for the handshake phase.
+/// - `TCP_RXT_CONNDROPTIME`: time (seconds) after which a connection is dropped
+///   if retransmissions keep failing. Unlike Linux's `TCP_USER_TIMEOUT`, this
+///   is a flat timer. It does not reset on progress. Keepalives (with retries)
+///   cover the idle wait for the response.
+#[cfg(target_os = "macos")]
+fn set_macos_reliability_params(socket: &TokioTcpSocket) {
+    use nix::sys::socket::{setsockopt, sockopt};
+
+    // Handshake timeout (seconds). Default is system-wide (net.inet.tcp.keepinit,
+    // ~75 s). Set lower to fail fast on a dead relay.
+    const TCP_CONNECTIONTIMEOUT_VALUE: u32 = 10;
+
+    // Flat deadline (seconds) for retransmit storms in the established phase.
+    // Drops the connection after this many seconds of failed retransmits.
+    const TCP_RXT_CONNDROPTIME_VALUE: u32 = 12;
+
+    if let Err(e) = setsockopt(
+        socket,
+        sockopt::TcpConnectionTimeout,
+        &TCP_CONNECTIONTIMEOUT_VALUE,
+    ) {
+        log::warn!("Failed to set TCP_CONNECTIONTIMEOUT on tunnel config socket: {e}");
+    }
+
+    if let Err(e) = setsockopt(
+        socket,
+        sockopt::TcpRxtConnDropTime,
+        &TCP_RXT_CONNDROPTIME_VALUE,
+    ) {
+        log::warn!("Failed to set TCP_RXT_CONNDROPTIME on tunnel config socket: {e}");
+    }
+}
+
+/// nix 0.31 does not expose sockopt types for `TCP_CONNECTIONTIMEOUT` or
+/// `TCP_RXT_CONNDROPTIME`. Neither constant is in libc, so they are declared
+/// locally.
+#[cfg(target_os = "macos")]
+mod sockopt {
+    use nix::{getsockopt_impl, setsockopt_impl, sockopt_impl};
+
+    // From <netinet/tcp.h> on macOS.
+    const TCP_CONNECTIONTIMEOUT: libc::c_int = 0x20;
+    const TCP_RXT_CONNDROPTIME: libc::c_int = 0x80;
+
+    sockopt_impl!(
+        TcpConnectionTimeout,
+        Both,
+        libc::IPPROTO_TCP,
+        TCP_CONNECTIONTIMEOUT,
+        u32
+    );
+
+    sockopt_impl!(
+        TcpRxtConnDropTime,
+        Both,
+        libc::IPPROTO_TCP,
+        TCP_RXT_CONNDROPTIME,
+        u32
+    );
 }
 
 /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
@@ -166,7 +237,7 @@ fn try_set_tcp_sock_mtu(sock: &impl std::os::fd::AsFd) {
     let mss = u32::from(desired_mss());
     log::debug!("Tunnel config TCP socket MSS: {mss}");
     if let Err(e) = setsockopt(sock, TcpMaxSeg, &mss) {
-        log::error!("Failed to set MSS on tunnel config TCP socket: {e}");
+        log::warn!("Failed to set MSS on tunnel config TCP socket: {e}");
     };
 }
 

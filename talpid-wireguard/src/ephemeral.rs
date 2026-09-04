@@ -15,7 +15,13 @@ use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
-const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(30);
+const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
+
+#[cfg(windows)]
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
+
+#[cfg(windows)]
+const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
@@ -263,6 +269,15 @@ async fn request_ephemeral_peer(
 ) -> std::result::Result<EphemeralPeer, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
+    // Windows uses an exponential backup retry strategy, as we can't set socket
+    // parameters to time out when no progress is made.
+    #[cfg(windows)]
+    let timeout = std::cmp::min(
+        MAX_PSK_EXCHANGE_TIMEOUT,
+        INITIAL_PSK_EXCHANGE_TIMEOUT
+            .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
+    );
+    #[cfg(not(windows))]
     let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
 
     // TCP socket with extra reliability settings
