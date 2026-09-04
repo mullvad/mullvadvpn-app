@@ -234,6 +234,7 @@ val uiModule = module {
             providerToOwnershipsUseCase = get(),
             settingsRepository = get(),
             multihopInEffectUseCase = get(),
+            relayListRepository = get(),
         )
     }
     single { DeleteCustomDnsUseCase(get()) }

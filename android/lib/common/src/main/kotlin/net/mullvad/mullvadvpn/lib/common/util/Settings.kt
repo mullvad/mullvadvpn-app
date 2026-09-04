@@ -27,6 +27,9 @@ fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == Ob
 
 fun Settings.isLwoEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Lwo
 
+fun Settings.isShadowsocksEnabled() =
+    obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Shadowsocks
+
 fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
 fun Settings.isDaitaEnabled() = daitaSettings().enabled

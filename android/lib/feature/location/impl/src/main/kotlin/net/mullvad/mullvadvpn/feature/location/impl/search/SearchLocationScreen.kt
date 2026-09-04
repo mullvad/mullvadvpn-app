@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.EmptyRelayListText
 import net.mullvad.mullvadvpn.feature.location.impl.FilterRow
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
+import net.mullvad.mullvadvpn.feature.location.impl.navigation.navigateFromFilterChip
 import net.mullvad.mullvadvpn.feature.location.impl.relayListContent
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
@@ -89,6 +90,7 @@ private fun PreviewSearchLocationScreen(
             onSelectAutomaticEntry = {},
             onAutomaticInfoClick = {},
             navigateToBottomSheet = {},
+            onFilterChipNavigate = {},
             onGoBack = {},
         )
     }
@@ -189,6 +191,8 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
+        onFilterChipNavigate =
+            dropUnlessResumed { filterChip -> navigator.navigateFromFilterChip(filterChip) },
         navigateToBottomSheet =
             dropUnlessResumed { sheetState ->
                 navigator.navigate(LocationBottomSheetNavKey(sheetState))
@@ -209,6 +213,7 @@ fun SearchLocationScreen(
     onSearchInputChanged: (String) -> Unit,
     onRemoveOwnershipFilter: (filterTarget: RelayHopType) -> Unit,
     onRemoveProviderFilter: (filterTarget: RelayHopType) -> Unit,
+    onFilterChipNavigate: (FilterChip) -> Unit,
     onGoBack: () -> Unit,
     navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
@@ -256,6 +261,7 @@ fun SearchLocationScreen(
                         onRemoveProviderFilter = {
                             onRemoveProviderFilter(state.value.relayListType.hopType())
                         },
+                        onFilterChipNavigate = onFilterChipNavigate,
                     )
                 }
                 when (state) {
@@ -309,6 +315,7 @@ private fun LazyListScope.filterRow(
     filters: List<FilterChip>,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
+    onFilterChipNavigate: (FilterChip) -> Unit,
 ) {
     if (filters.isNotEmpty()) {
         item {
@@ -317,6 +324,7 @@ private fun LazyListScope.filterRow(
                 relayFiltersActive = true,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
+                onFilterChipNavigate = onFilterChipNavigate,
             )
         }
     }
