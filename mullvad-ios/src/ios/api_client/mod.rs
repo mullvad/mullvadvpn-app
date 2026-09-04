@@ -102,6 +102,13 @@ struct ForeignPtr {
 unsafe impl Send for ForeignPtr {}
 
 /// Called by Swift to set the available access methods
+/// # SAFETY
+///
+/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+/// by calling `mullvad_ios_init_new`.
+///
+/// `settings_wrapper`must point to a valid instance of `SwiftAccessMethodSettingsWrapper`. A `SwiftAccessMethodSettingsWrapper`
+/// is created by calling `init_access_method_settings_wrapper`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_update_access_methods(
     api_context: SwiftApiContext,
@@ -180,7 +187,7 @@ pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: Swi
 /// This function is safe.
 #[cfg(feature = "api-override")]
 #[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_new_tls_disabled(
+pub unsafe extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
@@ -189,16 +196,19 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
-    mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        true,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    )
+    // Safety: see notes above
+    unsafe {
+        mullvad_api_init_inner(
+            host,
+            address,
+            domain,
+            true,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        )
+    }
 }
 
 /// # Safety
@@ -222,7 +232,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 ///
 /// This function is safe.
 #[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_new(
+pub unsafe extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
@@ -231,27 +241,30 @@ pub extern "C" fn mullvad_api_init_new(
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
-    #[cfg(feature = "api-override")]
-    return mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        false,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    );
-    #[cfg(not(feature = "api-override"))]
-    mullvad_api_init_inner(
-        host,
-        address,
-        domain,
-        bridge_provider,
-        settings_provider,
-        access_method_change_callback,
-        access_method_change_context,
-    )
+    // SAFETY: See notes above
+    unsafe {
+        #[cfg(feature = "api-override")]
+        return mullvad_api_init_inner(
+            host,
+            address,
+            domain,
+            false,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        );
+        #[cfg(not(feature = "api-override"))]
+        mullvad_api_init_inner(
+            host,
+            address,
+            domain,
+            bridge_provider,
+            settings_provider,
+            access_method_change_callback,
+            access_method_change_context,
+        )
+    }
 }
 
 /// # Safety
@@ -267,7 +280,7 @@ pub extern "C" fn mullvad_api_init_new(
 ///
 /// This function is safe.
 #[unsafe(no_mangle)]
-pub extern "C" fn mullvad_api_init_inner(
+pub unsafe extern "C" fn mullvad_api_init_inner(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
