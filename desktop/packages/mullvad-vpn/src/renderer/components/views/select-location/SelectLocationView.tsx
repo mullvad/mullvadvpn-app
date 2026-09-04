@@ -23,6 +23,7 @@ import {
   SelectLocationViewProvider,
   useSelectLocationViewContext,
 } from './SelectLocationViewContext';
+import { shouldLocationSelectorExpand } from './utils';
 
 const StyledHeaderMaxHeightContainer = styled.div<{ $height: number; $previousHeight: number }>`
   ${({ $height, $previousHeight }) => css`
@@ -56,8 +57,9 @@ const StyledHeaderContainer = styled.div`
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
-  const { setScrollTop, scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { locationType, isolatedItem } = useSelectLocationViewContext();
+  const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { locationType, isolatedItem, setIsLocationSelectorExpanded } =
+    useSelectLocationViewContext();
   const [slideIndex, setSlideIndex] = React.useState(locationType === LocationType.entry ? 0 : 1);
   const [changingSlide, setChangingSlide] = React.useState(false);
 
@@ -74,9 +76,10 @@ export function SelectLocationViewImpl() {
 
   const handleScroll = React.useCallback(
     (event: IScrollEvent) => {
-      setScrollTop(event.scrollTop);
+      const shouldExpand = shouldLocationSelectorExpand(event.scrollTop);
+      setIsLocationSelectorExpanded(shouldExpand);
     },
-    [setScrollTop],
+    [setIsLocationSelectorExpanded],
   );
 
   const {
