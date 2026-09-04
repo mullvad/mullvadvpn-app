@@ -3551,7 +3551,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-leak-checker"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -3598,7 +3598,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-masque-proxy"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "anyhow",
  "bytes",

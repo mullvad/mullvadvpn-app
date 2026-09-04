@@ -21,7 +21,7 @@ pub async fn start(
 
     let result = async {
         let mut state = state.capture.lock().await;
-        state.start(label).await?;
+        state.start(label)?;
         log::info!("Started capture for label {label}");
         Ok(())
     }
