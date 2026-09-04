@@ -129,6 +129,8 @@ function newConfig() {
       target: [],
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
       extraResources: [
+        { from: buildAssets('shell-completions/_mullvad.ps1'), to: '.' },
+        { from: buildAssets('shell-completions/mullvad.nu'), to: '.' },
         { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad.exe')), to: '.' },
         {
           from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-problem-report.exe')),
