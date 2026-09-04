@@ -112,6 +112,8 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
             return .invalidConfig(message)
         case let .Internal(message):
             return .internalError(message)
+        case let .BindSockets(message):
+            return .internalError(message)
         }
     }
 }

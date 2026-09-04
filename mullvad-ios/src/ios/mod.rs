@@ -1,8 +1,8 @@
 #![cfg(any(target_os = "ios", target_os = "tvos"))]
 
-// uniffi scaffolding for the gotatun FFI. Gated to `ios` to match the gotatun FFI
+// uniffi scaffolding for the FFI. Gated to `ios` to match the FFI
 // module; the rest of the crate's FFI uses cbindgen and is unaffected.
-uniffi::setup_scaffolding!("mullvad_gotatun");
+uniffi::setup_scaffolding!("mullvad_uniffi");
 
 pub mod api_client;
 pub mod ephemeral_peer_proxy;
