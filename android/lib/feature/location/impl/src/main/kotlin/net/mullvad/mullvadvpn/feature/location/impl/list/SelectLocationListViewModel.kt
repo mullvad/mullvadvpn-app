@@ -93,7 +93,7 @@ class SelectLocationListViewModel(
             selectedLocationUseCase(),
             _expandedItems,
         ) { filteredCountries, customLists, recents, selectedItem, expandedItems ->
-            // If we have no locations we have an empty relay list and we should show an error
+            // If we have no locations we have an empty relay list, and we should show an error
             if (filteredCountries.countries.isEmpty()) {
                 emptyLocationsRelayListItems(
                     relayListType = relayListType,
