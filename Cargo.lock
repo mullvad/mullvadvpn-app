@@ -3695,6 +3695,7 @@ dependencies = [
  "chrono",
  "clap",
  "hex",
+ "mullvad-tls-client",
  "mullvad-update",
  "mullvad-version",
  "reqwest",
@@ -3792,8 +3793,6 @@ dependencies = [
  "rand 0.9.4",
  "rand_core 0.6.4",
  "reqwest",
- "rustls",
- "rustls-pki-types",
  "serde",
  "serde_json",
  "sha2",
@@ -3801,7 +3800,6 @@ dependencies = [
  "thiserror 2.0.19",
  "tokio",
  "vec1",
- "webpki-roots",
  "zeroize",
 ]
 

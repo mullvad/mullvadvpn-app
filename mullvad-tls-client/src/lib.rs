@@ -74,6 +74,30 @@ pub fn doh_resolvers() -> &'static ClientConfig {
     public_roots_config()
 }
 
+/// TLS configuration for GitHub, which serves the changelog for a release.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn github() -> &'static ClientConfig {
+    public_roots_config()
+}
+
+/// TLS configuration for the host serving app installers, which the signed
+/// version metadata names. It is a content delivery network rather than ours,
+/// so none of the pinned configurations reach it.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn app_installers() -> &'static ClientConfig {
+    public_roots_config()
+}
+
 /// The configuration every third party is reached with. These hosts are not
 /// ours, so the floor is set by what they can be relied on to support rather
 /// than by what we would prefer.
