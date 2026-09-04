@@ -120,13 +120,10 @@
 		44A262492D6373D300085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262462D6373D300085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A2624B2D6373E000085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; };
 		44A262512D63742B00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624E2D63742B00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		44A262532D63743A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262522D63743A00085380 /* WireGuardKitTypes */; };
 		44A262572D63744400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262562D63744400085380 /* WireGuardKitTypes */; };
 		44A2625B2D63744A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; };
 		44A2625D2D63744A00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		44A2625F2D63745000085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625E2D63745000085380 /* WireGuardKitTypes */; };
 		44A262632D63745700085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262622D63745700085380 /* WireGuardKitTypes */; };
-		44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262662D63745C00085380 /* WireGuardKitTypes */; };
 		44A2626B2D63746400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; };
 		44A2626D2D63746400085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A515302FF2C68D00FFFB82 /* TopSlideTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A5152F2FF2C68800FFFB82 /* TopSlideTransition.swift */; };
@@ -417,7 +414,7 @@
 		58D2241A294C90380029F5F8 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 58D22419294C90380029F5F8 /* Logging */; };
 		58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		58D22422294C921B0029F5F8 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
-		58D22426294C92750029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; platformFilter = ios; };
+		58D22426294C92750029F5F8 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58D22435294C975B0029F5F8 /* Operations.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223A5294C8A480029F5F8 /* Operations.framework */; platformFilter = ios; };
 		58DDA18F2ABC32380039C360 /* Timings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DDA18E2ABC32380039C360 /* Timings.swift */; };
 		58DF28A52417CB4B00E836B0 /* StorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */; };
@@ -816,7 +813,7 @@
 		A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48682C36BF3900DCB94C /* TunnelProvider.swift */; };
 		A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D02B108D1B00F416EB /* TransportLayer.swift */; };
 		A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A557F42B7E3E5C0017ADA8 /* EphemeralPeerReceiver.swift */; };
-		A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; platformFilter = ios; };
+		A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		A91E26E02E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26DF2E7BE41F00440AB8 /* ShadowsocksCacheCleaner.swift */; };
 		A91E26E22E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91E26E12E7BE4B300440AB8 /* ShadowsocksCacheCleanerTests.swift */; };
@@ -1780,6 +1777,16 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F938CE093048219D00E568EE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -1811,7 +1818,6 @@
 		01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPageTests.swift; sourceTree = "<group>"; };
 		01CBA33F302CA3C800D41B65 /* TunnelProviderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderDelegate.swift; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
-		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
 		01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPVersionSettings.swift; sourceTree = "<group>"; };
 		01FFF95E2F0BE13900BDAF45 /* SelectedEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedEndpoint.swift; sourceTree = "<group>"; };
 		01FFF9602F0BE14E00BDAF45 /* ObfuscationMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethod.swift; sourceTree = "<group>"; };
@@ -1977,7 +1983,6 @@
 		583FE00B29C0C7FD006E85F9 /* ModalPresentationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPresentationConfiguration.swift; sourceTree = "<group>"; };
 		583FE01129C0F99A006E85F9 /* PresentationControllerDismissalInterceptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresentationControllerDismissalInterceptor.swift; sourceTree = "<group>"; };
 		584023212A406BF5007B27AC /* TunnelObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscator.swift; sourceTree = "<group>"; };
-		584023282A407F5F007B27AC /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		5840BE34279EDB16002836BA /* OperationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationError.swift; sourceTree = "<group>"; };
 		5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultBlockOperation.swift; sourceTree = "<group>"; };
@@ -2535,7 +2540,6 @@
 		A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortSettingsViewModel.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
-		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
 		A95745D6301B510800382CE3 /* QuantumResistanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceView.swift; sourceTree = "<group>"; };
@@ -2575,7 +2579,6 @@
 		A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListPage.swift; sourceTree = "<group>"; };
 		A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadPostQuantum+Stubs.swift"; sourceTree = "<group>"; };
 		A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelayCacheTracker+Stubs.swift"; sourceTree = "<group>"; };
-		A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerBuilderTests.swift; sourceTree = "<group>"; };
 		A9D96B192A8247C100A5C673 /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		A9D9A4C02C36D53C004088DD /* MullvadRustRuntimeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadRustRuntimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2883,7 +2886,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A959E2412D75F39A00F95DDB /* MullvadTypes.framework in Frameworks */,
-				44A2625F2D63745000085380 /* WireGuardKitTypes in Frameworks */,
 				58FE25BB2AA72188003D1918 /* MullvadLogging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2953,7 +2955,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44A262532D63743A00085380 /* WireGuardKitTypes in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3013,7 +3014,6 @@
 				F09035B32FAB708D004635A3 /* SystemConfiguration.framework in Frameworks */,
 				014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */,
 				A9173C372C36CD2B00F6A08C /* MullvadTypes.framework in Frameworks */,
-				44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */,
 				0107F42D2F5F62950012451B /* MullvadSettings.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3836,10 +3836,6 @@
 			isa = PBXGroup;
 			children = (
 				F09035B22FAB708D004635A3 /* SystemConfiguration.framework */,
-				A9C75BC12C2D8C9E00B4CDF5 /* libmullvad_ios.a */,
-				A944F2712B8E02E800473F4C /* libmullvad_ios.a */,
-				584023282A407F5F007B27AC /* libmullvad_ios.a */,
-				01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -5554,7 +5550,6 @@
 			);
 			name = MullvadSettings;
 			packageProductDependencies = (
-				44A2625E2D63745000085380 /* WireGuardKitTypes */,
 			);
 			productName = Settings;
 			productReference = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */;
@@ -5705,12 +5700,9 @@
 			buildRules = (
 			);
 			dependencies = (
-				44A262402D5CFA0F00085380 /* PBXTargetDependency */,
-				44A2623E2D5CF9FD00085380 /* PBXTargetDependency */,
 			);
 			name = MullvadTypes;
 			packageProductDependencies = (
-				44A262522D63743A00085380 /* WireGuardKitTypes */,
 			);
 			productName = MullvadTypes;
 			productReference = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */;
@@ -5838,6 +5830,7 @@
 				A992DA192C24709F00DE7CE5 /* Sources */,
 				A992DA1A2C24709F00DE7CE5 /* Frameworks */,
 				A992DA1B2C24709F00DE7CE5 /* Resources */,
+				F938CE093048219D00E568EE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -5848,7 +5841,6 @@
 			);
 			name = MullvadRustRuntime;
 			packageProductDependencies = (
-				44A262662D63745C00085380 /* WireGuardKitTypes */,
 			);
 			productName = MullvadRustRuntime;
 			productReference = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */;
@@ -7617,14 +7609,6 @@
 			target = 58FBDA9722A519BC00EB69A3 /* WireGuardGoBridge */;
 			targetProxy = 06D9844928F99056003AABE9 /* PBXContainerItemProxy */;
 		};
-		44A2623E2D5CF9FD00085380 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 44A2623D2D5CF9FD00085380 /* WireGuardKitTypes */;
-		};
-		44A262402D5CFA0F00085380 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 44A2623F2D5CFA0F00085380 /* WireGuardKit */;
-		};
 		58153074294CBE8B00D1702E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
@@ -7718,7 +7702,6 @@
 		};
 		58D22429294C92750029F5F8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilter = ios;
 			target = 58D223D4294C8E5E0029F5F8 /* MullvadTypes */;
 			targetProxy = 58D22428294C92750029F5F8 /* PBXContainerItemProxy */;
 		};
@@ -7892,6 +7875,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -7930,6 +7915,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/release";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -8063,11 +8050,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Settings";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -8101,11 +8089,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Settings";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -8564,11 +8553,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -8600,11 +8591,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -8636,11 +8629,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
@@ -8672,11 +8666,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
@@ -9189,6 +9184,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -9253,11 +9250,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Staging;
@@ -9289,11 +9288,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Staging;
@@ -9388,11 +9388,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Settings";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -9534,6 +9535,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -9544,13 +9547,14 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -9582,6 +9586,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -9592,12 +9598,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -9629,6 +9636,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/release";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -9639,11 +9648,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -9675,6 +9685,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/release";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -9685,11 +9697,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadRustRuntime";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -10027,6 +10040,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos/release";
+				"LIBRARY_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/../target/aarch64-apple-tvos-sim/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -10091,11 +10106,13 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadTypes";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = MockRelease;
@@ -10127,11 +10144,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadLogging";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSION_INFO_PREFIX = "";
 			};
 			name = MockRelease;
@@ -10226,11 +10244,12 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).Settings";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -10728,16 +10747,6 @@
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
-		44A2623D2D5CF9FD00085380 /* WireGuardKitTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKitTypes;
-		};
-		44A2623F2D5CFA0F00085380 /* WireGuardKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKit;
-		};
 		44A262412D6373B400085380 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
@@ -10763,11 +10772,6 @@
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
-		44A262522D63743A00085380 /* WireGuardKitTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKitTypes;
-		};
 		44A262562D63744400085380 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
@@ -10778,17 +10782,7 @@
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;
 		};
-		44A2625E2D63745000085380 /* WireGuardKitTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKitTypes;
-		};
 		44A262622D63745700085380 /* WireGuardKitTypes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
-			productName = WireGuardKitTypes;
-		};
-		44A262662D63745C00085380 /* WireGuardKitTypes */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 44A2623A2D5CF6C900085380 /* XCLocalSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKitTypes;

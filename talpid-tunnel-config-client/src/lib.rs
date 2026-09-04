@@ -1,22 +1,22 @@
 use gotatun::device::daita;
 use proto::PostQuantumRequestV1;
 use std::fmt;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::SocketAddr;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::{IpAddr, Ipv4Addr};
 use std::time::Instant;
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 use tonic::transport::Channel;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use tonic::transport::Endpoint;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use tower::service_fn;
 use zeroize::Zeroize;
 
 mod hqc;
 mod ml_kem;
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 pub mod socket;
 
 #[expect(clippy::allow_attributes)]
@@ -52,9 +52,9 @@ pub enum Error {
         field: &'static str,
         value: f64,
     },
-    #[cfg(target_os = "ios")]
+    #[cfg(any(target_os = "ios", target_os = "tvos"))]
     TcpConnectionOpen,
-    #[cfg(target_os = "ios")]
+    #[cfg(any(target_os = "ios", target_os = "tvos"))]
     UnableToCreateRuntime,
 }
 
@@ -87,9 +87,9 @@ impl std::fmt::Display for Error {
                 )
             }
             MissingDaitaResponse => "Expected DAITA configuration in response".fmt(f),
-            #[cfg(target_os = "ios")]
+            #[cfg(any(target_os = "ios", target_os = "tvos"))]
             TcpConnectionOpen => "Failed to open TCP connection".fmt(f),
-            #[cfg(target_os = "ios")]
+            #[cfg(any(target_os = "ios", target_os = "tvos"))]
             UnableToCreateRuntime => "Unable to create iOS PQ PSK runtime".fmt(f),
         }
     }
@@ -122,7 +122,7 @@ pub struct DaitaSettings {
 }
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 pub async fn request_ephemeral_peer(
     service_address: Ipv4Addr,
     parent_pubkey: PublicKey,
@@ -287,6 +287,7 @@ const fn get_platform() -> proto::DaitaPlatform {
         target_os = "macos"   => { DaitaPlatform::MacosWgGo }
         target_os = "android" => { DaitaPlatform::AndroidWgGo }
         target_os = "ios"     => { DaitaPlatform::IosWgGo }
+        target_os = "tvos"    => { DaitaPlatform::IosWgGo }
     };
     PLATFORM
 }
@@ -323,7 +324,7 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 ///
 /// On non-Windows platforms the connection is made with a socket where the MSS
 /// value has been specifically lowered, to avoid MTU issues. See the `socket` module.
-#[cfg(not(target_os = "ios"))]
+#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 async fn connect_relay_config_client(
     ip: Ipv4Addr,
     socket: &socket::TcpSocket,
