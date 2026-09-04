@@ -682,7 +682,6 @@ class ManagementService(
                         UnknownCustomListError(it)
                     }
                 }
-                NameAlreadyExists(customList.name)
             }
 
     suspend fun deleteCustomList(id: CustomListId): Either<DeleteCustomListError, Unit> =
@@ -927,8 +926,6 @@ class ManagementService(
     suspend fun updateRelayLocations(): Either<UpdateRelayLocationsError, Unit> =
         Either.catch { grpc.UpdateRelayLocations().execute(Unit) }
             .mapLeft(UpdateRelayLocationsError::Unknown)
-
-    // .mapEmpty()
 
     suspend fun setMultihopAndEntryLocation(
         mode: MultihopMode,
