@@ -634,6 +634,20 @@ impl WireguardMonitor {
             talpid_windows::net::add_ip_address_for_interface(luid, *address)
                 .map_err(|error| CloseMsg::SetupError(Error::SetIpAddressesError(error)))?;
         }
+
+        // Wait for the addresses to become usable. Until they are, they cannot be selected as
+        // source addresses, so connections made this early may be routed out another interface and
+        // blocked (WSAEACCES). Suspected, not confirmed: they are normally usable right away.
+        talpid_windows::net::wait_for_addresses(luid, addresses.to_vec())
+            .await
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to wait for tunnel IP addresses")
+                );
+                CloseMsg::SetupError(Error::IpInterfacesError)
+            })?;
+
         Ok(())
     }
 
