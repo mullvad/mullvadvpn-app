@@ -550,9 +550,9 @@
         <target state="final">Переключиться на «%@»</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Для смены языка требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi.</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">Удалить все переопределения?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">Очистить поле ввода текста</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">При отключении недавнего выбора также будет очищена история.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Для отключения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">Включение функции «%1$@» уменьшает количество проблем при использовании режима «%2$@» как по Wi-Fi, так и через мобильную сеть.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">Для включения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">У нас возникли некоторые проблемы, пожалуйста, попробуйте позже</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">Мы можем уведомить вас о выходе обновления, чтобы вы могли отключить эту функцию или отключиться от VPN перед обновлением. Параметры уведомлений можно изменить в системных настройках.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">включении DAITA</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">ошибка</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">

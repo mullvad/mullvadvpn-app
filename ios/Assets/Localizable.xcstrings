@@ -8301,7 +8301,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: hierdoor worden de filterinstellingen voor de inkomende server die automatisch wordt geselecteerd, genegeerd."
+            "value" : "Let op: hierdoor worden de filterinstellingen voor de ingangsserver die automatisch wordt geselecteerd, genegeerd."
           }
         },
         "pl" : {
@@ -8679,7 +8679,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: met de locatie \"%@\" worden filters voor de inkomende server genegeerd."
+            "value" : "Let op: met de locatie \"%@\" worden filters voor de ingangsserver genegeerd."
           }
         },
         "pl" : {
@@ -8805,7 +8805,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: met de locatie \"Automatisch\" worden ingeschakelde filters voor de inkomende server genegeerd."
+            "value" : "Let op: met de locatie \"Automatisch\" worden ingeschakelde filters voor de ingangsserver genegeerd."
           }
         },
         "pl" : {
@@ -13461,7 +13461,129 @@
       }
     },
     "Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-      "comment" : "Fixed disconnect warning when changing language in settings"
+      "comment" : "Fixed disconnect warning when changing language in settings",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ændring af sprog kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Ändern der Sprache erfordert einen Neustart der VPN-Verbindung, wodurch Ihre Verbindung unterbrochen und Ihr Traffic offengelegt wird. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para cambiar de idioma, es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kielen vaihtaminen edellyttää VPN-yhteyden käynnistämistä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le changement de langue nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per cambiare lingua è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "言語を変更するにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언어를 변경하려면 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဘာသာစကားပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å endre språk krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het wijzigen van de taal vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiana języka wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alterar o idioma requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для смены языка требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du byter språk måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การเปลี่ยนภาษาจำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dili değiştirmek VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для зміни мови потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要更改语言，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "變更語言必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Changing language will disconnect you from the VPN and restart the app" : {
       "comment" : "Footer text in the settings screen that explains the impact of changing the app's language.",
@@ -14712,7 +14834,129 @@
     },
     "Clear text" : {
       "comment" : "An accessibility label for the clear button in the text field.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryd tekst"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar texto"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tyhjennä teksti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer le texte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella testo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキストをクリア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 지우기"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "စာသားကို ရှင်းရန်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fjern tekst"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekst wissen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyczyść tekst"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar texto"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить поле ввода текста"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rensa texten"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้างข้อความ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metni temizle"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистити текст"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除文本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除文字"
+          }
+        }
+      }
     },
     "Clearing the imported overrides changes the server IPs, in the Select location view, back to default." : {
       "localizations" : {
@@ -21557,7 +21801,128 @@
       }
     },
     "Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktivering af \"%@\" kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Deaktivieren von „%@“ erfordert einen Neustart der VPN-Verbindung. Die Verbindung wird dabei kurz unterbrochen, und Ihr Traffic ist nicht geschützt. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para deshabilitar «%@», es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos \"%@\" poistetaan käytöstä, VPN-yhteys on käynnistettävä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La désactivation de « %@ » nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per disattivare \"%@\" è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を無効にするにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 비활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@“ ကို ပိတ်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å deaktivere «%@» krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het uitschakelen van \"%@\" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączenie funkcji „%@” wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativar \"%@\" requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для отключения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du inaktiverar \"%@\" måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การปิดใช้งาน \"%@\" จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” özelliğini devre dışı bırakmak VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб вимкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要禁用“%@”，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Disabling recents will also clear history." : {
       "localizations" : {
@@ -24918,7 +25283,128 @@
       }
     },
     "Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivering af \"%@\" kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Aktivieren von „%@“ erfordert einen Neustart der VPN-Verbindung. Die Verbindung wird dabei kurz unterbrochen, und Ihr Traffic ist nicht geschützt. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para habilitar «%@», es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos \"%@\" otetaan käyttöön, VPN-yhteys on käynnistettävä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'activation de « %@ » nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per attivare \"%@\" è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を有効にするにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@“ ကို ဖွင့်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å aktivere «%@» krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het inschakelen van \"%@\" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włączenie funkcji „%@” wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativar \"%@\" requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для включения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du aktiverar \"%@\" måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การเปิดใช้งาน \"%@\" จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” özelliğini etkinleştirmek VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб увімкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要启用“%@”，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." : {
       "comment" : "Variables are 'Local network sharing' and 'Force all apps', respectively",
@@ -26803,7 +27289,129 @@
     },
     "fail" : {
       "comment" : "A label describing a failed action.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislykkedes"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fehlgeschlagen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "error"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "epäonnistunut"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "échec"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "errore"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失敗"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실패"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "မအောင်မြင်ပါ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislyktes"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislukt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niepowodzenie"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "erro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ошибка"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "misslyckades"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้มเหลว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "başarısız"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не вдалось"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失败"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失敗"
+          }
+        }
+      }
     },
     "Failed to change mode" : {
       "comment" : "Message displayed in the action sheet when changing the multihop mode fails.",
@@ -42793,7 +43401,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-ingang ingesteld op \"Automatisch\""
+            "value" : "Multihopingang ingesteld op \"Automatisch\""
           }
         },
         "pl" : {
@@ -43167,7 +43775,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop is ingeschakeld. Uw verbinding wordt via een inkomende server geleid voordat deze via de geselecteerde locatie eruit gaat."
+            "value" : "Multihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat."
           }
         },
         "pl" : {
@@ -43335,7 +43943,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Для подвійного входу тепер доступні три режими: за необхідності, завжди й ніколи. Це дозволяє гнучкіше налаштовувати параметри підключення."
+            "value" : "Подвійний VPN має три режими: «За потреби», «Завжди» і «Ніколи». Це дає вам більше можливостей налаштувати параметри з’єднання відповідно до своїх потреб."
           }
         },
         "zh-Hans" : {
@@ -43417,7 +44025,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-modus"
+            "value" : "Multihopmodus"
           }
         },
         "pl" : {
@@ -43459,7 +44067,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу"
+            "value" : "Режим подвійного VPN"
           }
         },
         "zh-Hans" : {
@@ -43543,7 +44151,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-modus gewijzigd"
+            "value" : "Multihopmodus gewijzigd"
           }
         },
         "pl" : {
@@ -43585,7 +44193,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу змінено"
+            "value" : "Режим подвійного VPN змінено"
           }
         },
         "zh-Hans" : {
@@ -43835,7 +44443,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного входу доступні три режими: за необхідності, завжди й ніколи."
+            "value" : "Режим подвійного VPN спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного VPN доступні три режими: за необхідності, завжди й ніколи."
           }
         },
         "zh-Hans" : {
@@ -45161,7 +45769,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nieuwe multihop-modussen"
+            "value" : "Nieuwe multihopmodussen"
           }
         },
         "pl" : {
@@ -45203,7 +45811,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нові режими подвійного входу"
+            "value" : "Нові режими подвійного VPN"
           }
         },
         "zh-Hans" : {
@@ -63846,7 +64454,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aanbevolen multihop-ingang"
+            "value" : "Aanbevolen multihopingang"
           }
         },
         "pl" : {
@@ -66826,7 +67434,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihop-instelling."
+            "value" : "De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihopinstelling."
           }
         },
         "pl" : {
@@ -67074,7 +67682,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De inkomende en uitgaande servers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie."
+            "value" : "De ingangs- en uitgangsservers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie."
           }
         },
         "pl" : {
@@ -67324,7 +67932,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De multihop-modus \"Altijd\" beschikt nu over een locatie \"Automatisch\" voor de selectie van de ingangsserver."
+            "value" : "De multihopmodus \"Altijd\" beschikt nu over een locatie \"Automatisch\" voor de selectie van de ingangsserver."
           }
         },
         "pl" : {
@@ -67366,7 +67974,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У режимі подвійного входу «Завжди» для сервера входу тепер доступна опція «Автоматично»."
+            "value" : "У режимі подвійного VPN «Завжди» для сервера входу тепер доступна опція «Автоматично»."
           }
         },
         "zh-Hans" : {
@@ -69480,7 +70088,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У цьому режимі застосунок за необхідності автоматично використовує подвійний вхід через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням."
+            "value" : "У цьому режимі застосунок за необхідності автоматично використовує подвійний VPN через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням."
           }
         },
         "zh-Hans" : {
@@ -70812,7 +71420,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihop-modus in te stellen op \"%@\"."
+            "value" : "Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihopmodus in te stellen op \"%@\"."
           }
         },
         "pl" : {
@@ -70854,7 +71462,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного входу значення «%@»."
+            "value" : "Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного VPN значення «%@»."
           }
         },
         "zh-Hans" : {
@@ -70938,7 +71546,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihop-ingangsserver in te stellen op \"%@\"."
+            "value" : "Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihopingangsserver in te stellen op \"%@\"."
           }
         },
         "pl" : {
@@ -71684,7 +72292,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om handmatig een inkomende server te selecteren, stelt u de multihop-modus in op \"%@\"."
+            "value" : "Om handmatig een ingangsserver te selecteren, stelt u de multihopmodus in op \"%@\"."
           }
         },
         "pl" : {
@@ -77907,7 +78515,129 @@
     },
     "We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." : {
       "comment" : "Alert message explaining the purpose of the notification.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan sende dig en notifikation, når en opdatering er tilgængelig, så du kan deaktivere denne funktion eller afbryde forbindelsen inden opdatering. Dette kan ændres når som helst i systemindstillingerne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir können Ihnen eine Benachrichtigung senden, sobald ein Update verfügbar ist, damit Sie diese Funktion deaktivieren oder die Verbindung trennen können, bevor das Update durchgeführt wird. Sie können dies jederzeit in den Systemeinstellungen anpassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podemos enviarle una notificación cuando haya una actualización disponible: así podrá deshabilitar esta característica o desconectarse antes de actualizar. Puede cambiar esta opción en la configuración del sistema en cualquier momento."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voimme lähettää sinulle ilmoituksen kun päivitys on saatavilla, jotta voit poistaa ominaisuuden käytöstä tai katkaista yhteyden ennen päivittämistä. Voit muuttaa tätä milloin tahansa järjestelmäasetuksissa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous pouvons vous envoyer une notification quand une mise à jour est disponible, afin que vous puissiez désactiver cette fonctionnalité ou vous déconnecter avant d'effectuer la mise à jour. Cela peut être modifié à tout moment dans les paramètres du système."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possiamo inviarti una notifica quando è disponibile un aggiornamento, così potrai disattivare questa funzionalità o disconnetterti prima di aggiornare. Puoi modificare questa impostazione in qualsiasi momento nelle impostazioni di sistema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新前にこの機能を無効にしたり、接続を切断したりできるよう、更新がある場合に通知を送信することがあります。この設定はシステム設定からいつでも変更できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 전에 본 기능을 비활성화하거나 연결을 해제할 수 있도록 업데이트가 준비되었을 때 알림을 전송할 수 있습니다. 이 설정은 시스템 설정에서 언제든지 변경할 수 있습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို ပိတ်နိုင်ရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်ရန် အပ်ဒိတ်ရရှိချိန်တွင် အသိပေးချက်တစ်စောင် သင့်ထံ ပေးပို့နိုင်ပါသည်။ စနစ်ဆက်တင်များတွင် ဤလုပ်ဆောင်ချက်ကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan sende deg et varsel når en oppdatering er tilgjengelig, slik at du kan deaktivere denne funksjonen eller koble fra før oppdateringen gjennomføres. Dette kan endres når som helst i systeminnstillingene."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We kunnen u een melding sturen wanneer een update beschikbaar is, zodat u deze functie kunt uitschakelen of de verbinding kunt verbreken voordat de update wordt uitgevoerd. U kunt dit op elk moment aanpassen in de systeeminstellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby umożliwić Ci wyłączenie tej funkcji lub rozłączenie się przed aktualizacją, możemy wysłać Ci powiadomienie o dostępnej aktualizacji. Ustawienie to można zmienić w dowolnym momencie w ustawieniach systemowych."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podemos enviar-lhe uma notificação quando houver uma atualização disponível, para poder desativar esta funcionalidade ou desligar antes de fazer a atualização. Esta opção pode ser alterada a qualquer momento nas definições do sistema."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мы можем уведомить вас о выходе обновления, чтобы вы могли отключить эту функцию или отключиться от VPN перед обновлением. Параметры уведомлений можно изменить в системных настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan skicka en avisering när det finns en uppdatering så att du kan inaktivera den här funktionen eller koppla från innan uppdateringen. Du kan när som helst ändra det i systeminställningarna."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เราสามารถส่งการแจ้งเตือนเมื่อมีการอัปเดต เพื่อให้คุณสามารถปิดใช้งานคุณสมบัตินี้หรือตัดการเชื่อมต่อก่อนทำการอัปเดตได้ คุณสามารถเปลี่ยนแปลงสิ่งนี้ได้ตลอดเวลาในการตั้งค่าระบบ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir güncelleme kullanıma sunulduğunda size bildirim gönderebiliriz. Böylece güncellemeden önce bu özelliği devre dışı bırakabilir veya bağlantınızı kesebilirsiniz. Bu seçeneği istediğiniz zaman sistem ayarlarından değiştirebilirsiniz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ми можемо надіслати вам сповіщення, коли стане доступним оновлення, щоб ви могли вимкнути цю функцію або від’єднатися перед оновленням. Цей параметр можна будь-коли змінити в системних налаштуваннях."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有可用更新时，我们会向您发送通知，以便您可以在更新前禁用此功能或断开连接。您也可以随时在系统设置中更改此设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當有可用的更新時，我們可以傳送通知給您，以便您在更新前停用此功能或中斷連線。此設定隨時可在系統設定中變更。"
+          }
+        }
+      }
     },
     "We will look into this." : {
       "localizations" : {
@@ -80964,7 +81694,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "U heeft momenteel ingangsfilters toegepast. Als u de locatie \"Automatisch\" selecteert, negeert de app de filterinstellingen voor de inkomende server."
+            "value" : "U heeft momenteel ingangsfilters toegepast. Als u de locatie \"Automatisch\" selecteert, negeert de app de filterinstellingen voor de ingangsserver."
           }
         },
         "pl" : {
@@ -82961,7 +83691,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uw multihop-instelling is gemigreerd van \"%1$@\" naar \"%2$@\"."
+            "value" : "Uw multihopinstelling is gemigreerd van \"%1$@\" naar \"%2$@\"."
           }
         },
         "pl" : {

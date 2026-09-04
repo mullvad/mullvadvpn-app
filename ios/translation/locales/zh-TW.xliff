@@ -550,9 +550,9 @@
         <target state="final">變更為「%@」</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">變更語言必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">要清除所有覆寫嗎？</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">清除文字</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">停用「最近使用」也會一併清除歷史紀錄。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">停用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">無論使用 Wi-Fi 或行動網路，啟用 %1$@ 已證實可減少使用 %2$@ 時遇到的問題。</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">啟用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">我們遇到一些問題，請稍後再試</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">當有可用的更新時，我們可以傳送通知給您，以便您在更新前停用此功能或中斷連線。此設定隨時可在系統設定中變更。</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">啟用 DAITA</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">失敗</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">

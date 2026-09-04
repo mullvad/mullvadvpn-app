@@ -550,9 +550,9 @@
         <target state="final">"%@"(으)로 변경</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">언어를 변경하려면 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요.</target>
         <note>Fixed disconnect warning when changing language in settings</note>
       </trans-unit>
       <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
@@ -600,9 +600,9 @@
         <target state="final">모든 재정의를 지우시겠습니까?</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Clear text" xml:space="preserve">
+      <trans-unit id="Clear text" xml:space="preserve" approved="yes">
         <source>Clear text</source>
-        <target state="needs-translation">Clear text</target>
+        <target state="final">텍스트 지우기</target>
         <note from="auto-generated">An accessibility label for the clear button in the text field.</note>
       </trans-unit>
       <trans-unit id="Clearing the imported overrides changes the server IPs, in the Select location view, back to default." xml:space="preserve" approved="yes">
@@ -890,9 +890,9 @@
         <target state="final">최근 항목을 비활성화하면 내역 또한 삭제됩니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">"%@" 비활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Discard changes" xml:space="preserve" approved="yes">
@@ -1010,9 +1010,9 @@
         <target state="final">%1$@ 기능을 활성화하면 WiFi를 사용하든 핸드폰 네트워크를 사용하든 관계 없이 %2$@ 사용 시 발생하는 문제의 수가 줄어드는 것으로 나타났습니다.</target>
         <note>Variables are 'Local network sharing' and 'Force all apps', respectively</note>
       </trans-unit>
-      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+      <trans-unit id="Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
         <source>Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="needs-translation">Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <target state="final">"%@" 활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -3145,9 +3145,9 @@
         <target state="final">문제가 발생했습니다. 나중에 다시 시도해 주세요</target>
         <note/>
       </trans-unit>
-      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve">
+      <trans-unit id="We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." xml:space="preserve" approved="yes">
         <source>We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</source>
-        <target state="needs-translation">We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings.</target>
+        <target state="final">업데이트 전에 본 기능을 비활성화하거나 연결을 해제할 수 있도록 업데이트가 준비되었을 때 알림을 전송할 수 있습니다. 이 설정은 시스템 설정에서 언제든지 변경할 수 있습니다.</target>
         <note from="auto-generated">Alert message explaining the purpose of the notification.</note>
       </trans-unit>
       <trans-unit id="We will look into this." xml:space="preserve" approved="yes">
@@ -3398,9 +3398,9 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">DAITA 활성화</target>
         <note from="auto-generated">Text that appears in a warning banner when a user's connection will be blocked due to a change in their settings.</note>
       </trans-unit>
-      <trans-unit id="fail" xml:space="preserve">
+      <trans-unit id="fail" xml:space="preserve" approved="yes">
         <source>fail</source>
-        <target state="needs-translation">fail</target>
+        <target state="final">실패</target>
         <note from="auto-generated">A label describing a failed action.</note>
       </trans-unit>
       <trans-unit id="iOS features known to be affected:" xml:space="preserve" approved="yes">
