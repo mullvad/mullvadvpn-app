@@ -136,6 +136,13 @@ extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
  * Called by Swift to set the available access methods
+ * # SAFETY
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_ios_init_new`.
+ *
+ * `settings_wrapper`must point to a valid instance of `SwiftAccessMethodSettingsWrapper`. A `SwiftAccessMethodSettingsWrapper`
+ * is created by calling `init_access_method_settings_wrapper`.
  */
 void mullvad_api_update_access_methods(struct SwiftApiContext api_context,
                                        struct SwiftAccessMethodSettingsWrapper settings_wrapper);

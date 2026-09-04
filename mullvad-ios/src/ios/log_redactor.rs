@@ -229,7 +229,7 @@ pub unsafe extern "C" fn log_redactor_free_string(ptr: *mut libc::c_char) {
 /// - `redactor` must be a valid pointer returned by `create_log_redactor`.
 /// - `input` must be a valid pointer to a null-terminated UTF-8 string.
 #[unsafe(no_mangle)]
-pub extern "C" fn log_redactor_add_custom_string(
+pub unsafe extern "C" fn log_redactor_add_custom_string(
     redactor: *mut LogRedactor,
     input: *const libc::c_char,
 ) {
