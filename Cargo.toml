@@ -105,7 +105,11 @@ reqwest = { version = "0.12.23", default-features = false, features = [
   "rustls-tls-webpki-roots-no-provider"
 ] }
 rtnetlink = "0.21.0"
-rustls = { version = "0.23", default-features = false }
+# `prefer-post-quantum` is a rustls default that `default-features = false`
+# would otherwise drop. It puts X25519MLKEM768 first among the key exchange
+# groups, so every client that does not pin its own groups offers the hybrid
+# ahead of the classical ones and gets it wherever the server agrees.
+rustls = { version = "0.23", default-features = false, features = ["prefer-post-quantum"] }
 rustls-pki-types = "1.13.1"
 safelog = "0.8.2"
 serde = "1.0.204"
