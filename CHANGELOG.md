@@ -59,6 +59,11 @@ Line wrap the file at 100 chars.                                              Th
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
 
+#### Windows
+- Wait for the tunnel routes to become usable, and retry the connection to the tunnel config
+  service if the tunnel is not ready yet. This may help with connection failures that occur
+  immediately after the tunnel is set up, when using quantum-resistant tunnels or DAITA.
+
 ### Security
 #### macOS
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
