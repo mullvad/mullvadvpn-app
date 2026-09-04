@@ -143,6 +143,15 @@ All API connections use TLS 1.3 with certificate pinning. The app comes bundled 
 with servers having a valid certificate issued to `api.mullvad.net` and signed with this
 bundled certificate.
 
+#### Tunnel
+
+The networks that "Allow LAN" permits outside the tunnel are blocked *on* the tunnel interface,
+with some exceptions where private ranges are used to communicate with relays, SOCKS proxies, etc.
+Current exceptions:
+
+* `10.0.0.0/8`, and
+* `fc00:bbbb:bbbb:bb01::/64`.
+
 ### Disconnected
 
 This is the default state that the `mullvad-daemon` starts in when the device boots, unless
