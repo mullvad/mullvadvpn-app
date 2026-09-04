@@ -1,5 +1,5 @@
-//! Drop packets read from the TUN device that are destined for the local network, except for
-//! [`ALLOWED_IN_TUNNEL_LAN_NETS`].
+//! Drop packets read from the TUN device that are destined for the local network, unless allowed by
+//! [`is_ip_allowed_in_tunnel`].
 
 use gotatun::{
     packet::{Ip, Packet, PacketBufPool},
