@@ -36,6 +36,22 @@ enum FeatureType {
     #if NEVER_IN_PRODUCTION
         case gotaTun
     #endif
+
+    /// Accessibility identifier of the chip representing this feature, where one is needed
+    /// to tell the chip apart from its label.
+    var accessibilityId: AccessibilityIdentifier? {
+        switch self {
+        case .obfuscation:
+            .obfuscationFeatureIndicator
+        #if NEVER_IN_PRODUCTION
+            case .gotaTun:
+                nil
+        #endif
+        case .daita, .multihop, .quantumResistance, .dns, .ipOverrides, .includeAllNetworks, .localNetworkSharing,
+            .ipVersion:
+            nil
+        }
+    }
 }
 
 struct DaitaFeature: ChipFeature {
@@ -88,25 +104,47 @@ struct ObfuscationFeature: ChipFeature {
     let settings: LatestTunnelSettings
     let state: ObservedState
 
-    var actualObfuscationMethod: ObfuscationMethod {
-        state.connectionState.map { $0.obfuscationMethod } ?? .off
+    /// The obfuscation method in use, or `nil` while it is still undetermined.
+    ///
+    /// The setting names the method up front unless it is `.automatic`, in which case the relay
+    /// selector picks one per connection attempt and we have to wait for the tunnel to report it.
+    private var method: WireGuardObfuscationState? {
+        guard case .automatic = settings.wireGuardObfuscation.state else {
+            return settings.wireGuardObfuscation.state
+        }
+        return state.connectionState.map { connectionState -> WireGuardObfuscationState in
+            switch connectionState.obfuscationMethod {
+            case .off:
+                .off
+            case .udpOverTcp:
+                .udpOverTcp
+            case .shadowsocks:
+                .shadowsocks
+            case .quic:
+                .quic
+            case .lwo:
+                .lwo
+            }
+        }
     }
 
     var isEnabled: Bool {
-        actualObfuscationMethod.isEnabled
-    }
-
-    var isAutomatic: Bool {
-        settings.wireGuardObfuscation.state == .automatic
+        method?.isEnabled ?? false
     }
 
     var name: String {
-        // This just currently says "Obfuscation".
-        // To add an automaticity indicator (a trailing " (automatic)"
-        // or a colour/border style or whatever), use the `isAutomatic` field.
-        // To say what type of obfuscation it is,
-        // we can look at `actualObfuscationMethod`
-        NSLocalizedString("Obfuscation", comment: "")
+        switch method {
+        case .udpOverTcp, .on:
+            NSLocalizedString("UDP-over-TCP", comment: "")
+        case .shadowsocks:
+            NSLocalizedString("Shadowsocks", comment: "")
+        case .quic:
+            NSLocalizedString("QUIC", comment: "")
+        case .lwo:
+            NSLocalizedString("LWO", comment: "")
+        case .automatic, .off, nil:
+            ""
+        }
     }
 }
 

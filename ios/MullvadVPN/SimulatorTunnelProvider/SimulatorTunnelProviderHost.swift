@@ -204,7 +204,8 @@
                         remotePort: selectedRelays.entry?.endpoint.socketAddress.port
                             ?? selectedRelays.exit.endpoint.socketAddress.port,
                         isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
-                        isDaitaEnabled: settings.daita.isEnabled
+                        isDaitaEnabled: settings.daita.isEnabled,
+                        obfuscationMethod: selectedRelays.obfuscation
                     )
                 )
             } catch {
@@ -229,7 +230,8 @@
                         remotePort: selectedRelays.entry?.endpoint.socketAddress.port
                             ?? selectedRelays.exit.endpoint.socketAddress.port,
                         isPostQuantum: settings.tunnelQuantumResistance.isEnabled,
-                        isDaitaEnabled: settings.daita.isEnabled
+                        isDaitaEnabled: settings.daita.isEnabled,
+                        obfuscationMethod: selectedRelays.obfuscation
                     )
                 )
             } catch {
