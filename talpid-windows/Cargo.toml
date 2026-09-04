@@ -23,6 +23,7 @@ features = ["Win32_Storage", "Win32_Storage_FileSystem"]
 
 [target."cfg(windows)".dependencies]
 futures = { workspace = true }
+log = { workspace = true }
 socket2 = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }

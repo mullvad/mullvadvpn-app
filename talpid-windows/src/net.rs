@@ -7,6 +7,7 @@ use std::{
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
+    panic::RefUnwindSafe,
     ptr::NonNull,
     sync::{Arc, Mutex},
     time::{Duration, Instant},
@@ -14,15 +15,14 @@ use std::{
 use talpid_types::win32_err;
 use windows_sys::{
     Win32::{
-        Foundation::{ERROR_NOT_FOUND, HANDLE},
+        Foundation::{ERROR_NOT_FOUND, HANDLE, WIN32_ERROR},
         NetworkManagement::{
             IpHelper::{
                 ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
-                CreateUnicastIpAddressEntry, FreeMibTable, GetUnicastIpAddressEntry,
-                GetUnicastIpAddressTable, InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW,
-                MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE, MibAddInstance,
-                SetIpInterfaceEntry,
+                CreateUnicastIpAddressEntry, FreeMibTable, GetUnicastIpAddressTable,
+                InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
+                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
@@ -39,7 +39,6 @@ use windows_sys::{
 pub type Result<T> = std::result::Result<T, Error>;
 
 const DAD_CHECK_TIMEOUT: Duration = Duration::from_secs(5);
-const DAD_CHECK_INTERVAL: Duration = Duration::from_millis(100);
 
 /// Errors returned by some functions in this module.
 #[derive(thiserror::Error, Debug)]
@@ -73,6 +72,10 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Error waiting on IP interfaces")]
     StartIpInterfaceNotify(#[source] io::Error),
+
+    /// Failed to start unicast address check.
+    #[error("Error waiting on unicast IP addresses")]
+    StartUnicastAddressNotify(#[source] io::Error),
 
     /// Interface check failed.
     #[cfg(windows)]
@@ -145,18 +148,22 @@ impl AddressFamily {
     }
 }
 
-type InnerCallback = Box<Mutex<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>>;
+type InnerCallback<T> = Box<Mutex<dyn FnMut(&T, i32) + Send + 'static>>;
 
-/// Context for [`notify_ip_interface_change`]. When it is dropped,
-/// the callback is unregistered.
-pub struct IpNotifierHandle {
-    callback: Option<NonNull<InnerCallback>>,
+/// The callback function passed to the `Notify*Change` functions. `T` is the row type that the
+/// notification carries.
+type ChangeCallback<T> = unsafe extern "system" fn(*const core::ffi::c_void, *const T, i32);
+
+/// Context for [`notify_ip_interface_change`] and [`notify_unicast_ip_address_change`].
+/// When it is dropped, the callback is unregistered.
+pub struct IpNotifierHandle<T: 'static> {
+    callback: Option<NonNull<InnerCallback<T>>>,
     handle: Option<NonNull<core::ffi::c_void>>,
 }
 
-unsafe impl Send for IpNotifierHandle {}
+unsafe impl<T> Send for IpNotifierHandle<T> {}
 
-impl Drop for IpNotifierHandle {
+impl<T> Drop for IpNotifierHandle<T> {
     fn drop(&mut self) {
         #[cfg(not(test))]
         use windows_sys::Win32::NetworkManagement::IpHelper::CancelMibChangeNotify2;
@@ -175,26 +182,56 @@ impl Drop for IpNotifierHandle {
             .expect("callback is Some until drop is called");
         let callback = callback.as_ptr();
         // SAFETY:
-        // - Callback was constructed in `notify_ip_interface_change` using `Box::into_raw`.
+        // - Callback was constructed in `register_change_notifier` using `Box::into_raw`.
         // - `CancelMibChangeNotify2` ensures that the callback is removed, so we can safely take ownership.
-        let _inner_callback: Box<InnerCallback> = unsafe { Box::from_raw(callback) };
+        let _inner_callback: Box<InnerCallback<T>> = unsafe { Box::from_raw(callback) };
     }
 }
 
-unsafe extern "system" fn outer_callback(
+unsafe extern "system" fn outer_callback<T: RefUnwindSafe>(
     context: *const std::ffi::c_void,
-    row: *const MIB_IPINTERFACE_ROW,
+    row: *const T,
     notify_type: i32,
 ) {
-    // SAFETY: `context` is a valid pointer to an `InnerCallback` constructed in `notify_ip_interface_change`.
+    // SAFETY: `context` is a valid pointer to an `InnerCallback` constructed in `register_change_notifier`.
     // `outer_callback` is never called after `CancelMibChangeNotify2` has completed, and `CancelMibChangeNotify2`
     // blocks until the function returns if it is currently being called.
-    let cb = unsafe { &*context.cast::<InnerCallback>() };
+    let cb = unsafe { &*context.cast::<InnerCallback<T>>() };
     // SAFETY: `row` is set when type is not `MibInitialNotification`, which we do not use.
     let row = unsafe { &*row };
     _ = std::panic::catch_unwind(|| {
-        cb.lock().expect("NotifyIpInterfaceChange mutex poisoned")(row, notify_type)
+        cb.lock().expect("notification mutex poisoned")(row, notify_type)
     });
+}
+
+/// Registers `callback` to be invoked for every notification delivered by the `Notify*Change`
+/// function that `register` calls. `register` is handed the callback function and context pointer
+/// to register, along with the out pointer for the notification handle.
+fn register_change_notifier<T: RefUnwindSafe + 'static>(
+    callback: impl FnMut(&T, i32) + Send + 'static,
+    register: impl FnOnce(ChangeCallback<T>, *const core::ffi::c_void, *mut HANDLE) -> WIN32_ERROR,
+) -> io::Result<IpNotifierHandle<T>> {
+    // Box mutex because fat pointer
+    let callback = Box::new(Mutex::new(callback)) as Box<Mutex<_>>;
+    let callback: Box<InnerCallback<T>> = Box::new(callback);
+    let callback = NonNull::new(Box::into_raw(callback)).unwrap();
+
+    let mut handle = HANDLE::default();
+
+    if let Err(error) = win32_err!(register(
+        outer_callback::<T>,
+        callback.as_ptr().cast(),
+        &raw mut handle,
+    )) {
+        // SAFETY: The callback was never registered, so we still have sole ownership of it.
+        drop(unsafe { Box::from_raw(callback.as_ptr()) });
+        return Err(error);
+    }
+
+    Ok(IpNotifierHandle {
+        callback: Some(callback),
+        handle: Some(NonNull::new(handle).expect("non-null because registration succeeded")),
+    })
 }
 
 /// Registers a callback function that is invoked when an interface is added, removed,
@@ -202,38 +239,58 @@ unsafe extern "system" fn outer_callback(
 pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>(
     callback: T,
     family: Option<AddressFamily>,
-) -> io::Result<IpNotifierHandle> {
-    // Box mutex because fat pointer
-    let callback = Box::new(Mutex::new(callback)) as Box<Mutex<_>>;
-    let callback: Box<InnerCallback> = Box::new(callback);
-    let callback = NonNull::new(Box::into_raw(callback)).unwrap();
-
+) -> io::Result<IpNotifierHandle<MIB_IPINTERFACE_ROW>> {
     #[cfg(not(test))]
     use windows_sys::Win32::NetworkManagement::IpHelper::NotifyIpInterfaceChange;
 
     #[cfg(test)]
     use tests::fake_notify_ip_interface_change as NotifyIpInterfaceChange;
 
-    let mut handle = HANDLE::default();
+    register_change_notifier(callback, |callback, context, handle| {
+        // SAFETY: `context` points at the boxed callback owned by the returned handle, which does
+        // not free it until `CancelMibChangeNotify2` has returned, so it outlives every callback.
+        unsafe {
+            NotifyIpInterfaceChange(
+                af_family_from_family(family),
+                Some(callback),
+                context,
+                false,
+                handle,
+            )
+        }
+    })
+}
 
-    win32_err!(unsafe {
-        NotifyIpInterfaceChange(
-            af_family_from_family(family),
-            Some(outer_callback),
-            callback.as_ptr().cast(),
-            false,
-            &raw mut handle,
-        )
-    })?;
+/// Registers a callback function that is invoked when a unicast IP address is added, removed,
+/// or changed.
+///
+/// Note that the row passed to `callback` contains incomplete data. Use
+/// [`get_unicast_ip_address_entry`] to obtain the current state of the address.
+pub fn notify_unicast_ip_address_change<
+    T: FnMut(&MIB_UNICASTIPADDRESS_ROW, i32) + Send + 'static,
+>(
+    callback: T,
+    family: Option<AddressFamily>,
+) -> io::Result<IpNotifierHandle<MIB_UNICASTIPADDRESS_ROW>> {
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::NotifyUnicastIpAddressChange;
 
-    let context = IpNotifierHandle {
-        callback: Some(callback),
-        handle: Some(
-            NonNull::new(handle).expect("non-null because NotifyIpInterfaceChange succeeded"),
-        ),
-    };
+    #[cfg(test)]
+    use tests::fake_notify_unicast_ip_address_change as NotifyUnicastIpAddressChange;
 
-    Ok(context)
+    register_change_notifier(callback, |callback, context, handle| {
+        // SAFETY: `context` points at the boxed callback owned by the returned handle, which does
+        // not free it until `CancelMibChangeNotify2` has returned, so it outlives every callback.
+        unsafe {
+            NotifyUnicastIpAddressChange(
+                af_family_from_family(family),
+                Some(callback),
+                context,
+                false,
+                handle,
+            )
+        }
+    })
 }
 
 /// Returns information about a network IP interface.
@@ -309,9 +366,9 @@ pub fn wait_for_interfaces_sync(
     }
 }
 
-enum StartNotifyResult {
+enum StartNotifyResult<T: 'static> {
     AlreadyExist,
-    Waiting(IpNotifierHandle),
+    Waiting(IpNotifierHandle<T>),
 }
 
 /// Begins to wait until the specified IP interfaces have attached to a given network interface.
@@ -325,7 +382,7 @@ fn start_wait_for_interfaces(
     ipv4: bool,
     ipv6: bool,
     on_found: impl FnOnce() + Send + 'static,
-) -> io::Result<StartNotifyResult> {
+) -> io::Result<StartNotifyResult<MIB_IPINTERFACE_ROW>> {
     struct FoundInterfaces {
         ipv4: bool,
         ipv6: bool,
@@ -381,51 +438,203 @@ fn start_wait_for_interfaces(
     Ok(StartNotifyResult::Waiting(handle))
 }
 
-/// Wait for addresses to be usable on an network adapter.
-pub async fn wait_for_addresses(luid: NET_LUID_LH) -> Result<()> {
-    // Obtain unicast IP addresses
-    let mut unicast_rows: Vec<MIB_UNICASTIPADDRESS_ROW> = get_unicast_table(None)
-        .map_err(Error::ObtainUnicastAddress)?
-        .into_iter()
-        .filter(|row| unsafe { row.InterfaceLuid.Value == luid.Value })
-        .collect();
-    if unicast_rows.is_empty() {
-        return Err(Error::NoUnicastAddress);
-    }
-
-    let (tx, rx) = futures::channel::oneshot::channel();
-    let mut addr_check_thread = move || {
-        // Poll DAD status using GetUnicastIpAddressEntry
-        // https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-createunicastipaddressentry
-
-        let deadline = Instant::now() + DAD_CHECK_TIMEOUT;
-        while Instant::now() < deadline {
-            let mut ready = true;
-
-            for row in &mut unicast_rows {
-                win32_err!(unsafe { GetUnicastIpAddressEntry(row) })
-                    .map_err(Error::ObtainUnicastAddress)?;
-                if row.DadState == IpDadStateTentative {
-                    ready = false;
-                    break;
-                }
-                if row.DadState != IpDadStatePreferred {
-                    return Err(Error::DadStateError(DadStateError::from(row.DadState)));
-                }
-            }
-
-            if ready {
-                return Ok(());
-            }
-            std::thread::sleep(DAD_CHECK_INTERVAL);
-        }
-
-        Err(Error::DeviceReadyTimeout)
+/// Returns the current state of the unicast address `address` on the interface `luid`.
+pub fn get_unicast_ip_address_entry(
+    luid: NET_LUID_LH,
+    address: IpAddr,
+) -> io::Result<MIB_UNICASTIPADDRESS_ROW> {
+    let mut row = MIB_UNICASTIPADDRESS_ROW {
+        InterfaceLuid: luid,
+        Address: inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0)),
+        ..Default::default()
     };
+
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::GetUnicastIpAddressEntry;
+
+    #[cfg(test)]
+    use tests::fake_get_unicast_ip_address_entry as GetUnicastIpAddressEntry;
+
+    win32_err!(unsafe { GetUnicastIpAddressEntry(&raw mut row) })?;
+    Ok(row)
+}
+
+/// Returns whether an address in the given DAD state is ready to be used, or an error if
+/// duplicate address detection has failed for it.
+#[expect(non_upper_case_globals)]
+fn address_is_ready(state: NL_DAD_STATE) -> Result<bool> {
+    match state {
+        IpDadStatePreferred => Ok(true),
+        IpDadStateTentative => Ok(false),
+        state => Err(Error::DadStateError(DadStateError::from(state))),
+    }
+}
+
+/// Waits until all of `addresses` have been added to the interface `luid` and are usable, i.e.
+/// until duplicate address detection has completed for each of them.
+///
+/// This blocks for at most `timeout`.
+pub fn wait_for_addresses_sync(
+    luid: NET_LUID_LH,
+    addresses: &[IpAddr],
+    timeout: Duration,
+) -> Result<()> {
+    let (tx, rx) = std::sync::mpsc::sync_channel(1);
+
+    let on_ready = move |result| {
+        let _ = tx.send(result);
+    };
+    match start_wait_for_addresses(luid, addresses, on_ready)? {
+        StartNotifyResult::AlreadyExist => Ok(()),
+        StartNotifyResult::Waiting(_handle) => {
+            let start = Instant::now();
+            let result = rx
+                .recv_timeout(timeout)
+                .unwrap_or(Err(Error::DeviceReadyTimeout));
+            log::debug!(
+                "Waited {:?} for duplicate address detection: {}",
+                start.elapsed(),
+                if result.is_ok() { "done" } else { "failed" },
+            );
+            result
+        }
+    }
+}
+
+/// Waits until all of `addresses` have been added to the interface `luid` and are usable, i.e.
+/// until duplicate address detection has completed for each of them.
+///
+/// This waits for at most [`DAD_CHECK_TIMEOUT`].
+pub async fn wait_for_addresses(luid: NET_LUID_LH, addresses: Vec<IpAddr>) -> Result<()> {
+    let (tx, rx) = futures::channel::oneshot::channel();
+    // The wait blocks on a notification, so it is moved off of the async runtime.
     std::thread::spawn(move || {
-        let _ = tx.send(addr_check_thread());
+        let _ = tx.send(wait_for_addresses_sync(luid, &addresses, DAD_CHECK_TIMEOUT));
     });
     rx.await.map_err(|_| Error::UnicastSenderDropped)?
+}
+
+/// Begins to wait until all of `addresses` have been added to the interface `luid` and have
+/// completed duplicate address detection.
+///
+/// `StartNotifyResult::AlreadyExist` is returned if all of them are already preferred.
+///
+/// Otherwise, on success, `on_ready` is called when the remaining addresses have been added and
+/// become preferred, or as soon as duplicate address detection fails for one of them.
+/// The wait is cancelled if the returned handle is dropped.
+fn start_wait_for_addresses(
+    luid: NET_LUID_LH,
+    addresses: &[IpAddr],
+    on_ready: impl FnOnce(Result<()>) + Send + 'static,
+) -> Result<StartNotifyResult<MIB_UNICASTIPADDRESS_ROW>> {
+    /// Why an address is not usable yet.
+    #[derive(Debug)]
+    enum Pending {
+        /// The address has not been added to the interface yet.
+        Missing(IpAddr),
+        /// The address exists, but duplicate address detection has not completed.
+        Tentative(IpAddr),
+    }
+
+    impl Pending {
+        const fn address(&self) -> &IpAddr {
+            let (Pending::Missing(address) | Pending::Tentative(address)) = self;
+            address
+        }
+    }
+
+    // Addresses that are not usable yet. Both missing and tentative addresses are waited for, so
+    // that an address that has not been plumbed at all is not mistaken for a ready one.
+    let pending: Arc<Mutex<Vec<Pending>>> = Arc::new(Mutex::new(vec![]));
+
+    let mut on_ready = Some(on_ready);
+    let pending2 = pending.clone();
+    let expected = addresses.to_vec();
+
+    let handle = notify_unicast_ip_address_change(
+        move |row, notification_type| {
+            // SAFETY: This is always valid as a `u64`.
+            if unsafe { row.InterfaceLuid.Value != luid.Value } {
+                return;
+            }
+            let Ok(address) = try_socketaddr_from_inet_sockaddr(row.Address) else {
+                return;
+            };
+            let address = address.ip();
+
+            if notification_type == MibAddInstance && !expected.contains(&address) {
+                log::debug!("Unexpected address added to the tunnel interface: {address}");
+                return;
+            }
+
+            let mut pending = pending2.lock().unwrap();
+            if !pending.iter().any(|pending| pending.address() == &address) {
+                return;
+            }
+
+            // The row handed to the callback contains incomplete data, so the current state of the
+            // address has to be queried separately.
+            let ready = match get_unicast_ip_address_entry(luid, address) {
+                Ok(row) => address_is_ready(row.DadState),
+                // The address is not there (yet). Keep waiting for it to be added.
+                Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => return,
+                Err(error) => Err(Error::ObtainUnicastAddress(error)),
+            };
+
+            let result = match ready {
+                Ok(true) => {
+                    pending.retain(|pending| pending.address() != &address);
+                    if !pending.is_empty() {
+                        return;
+                    }
+                    Ok(())
+                }
+                // Added, but still tentative. Keep waiting.
+                Ok(false) => return,
+                // Duplicate address detection failed. Give up immediately.
+                Err(error) => Err(error),
+            };
+
+            if let Some(on_ready) = on_ready.take() {
+                on_ready(result);
+            }
+        },
+        None,
+    )
+    .map_err(Error::StartUnicastAddressNotify)?;
+
+    // Check the current state while holding the lock, so that the callback cannot observe an empty
+    // set of pending addresses and discard a change that we have not seen yet.
+    //
+    // NOTE: This guard must be declared after `handle`, so that it is released first on the early
+    // returns below. Dropping `handle` waits for any in-flight callback, which may be blocked on
+    // this very lock.
+    let mut pending = pending.lock().unwrap();
+
+    for &address in addresses {
+        match get_unicast_ip_address_entry(luid, address) {
+            Ok(row) => {
+                if !address_is_ready(row.DadState)? {
+                    pending.push(Pending::Tentative(address));
+                }
+            }
+            Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => {
+                pending.push(Pending::Missing(address));
+            }
+            Err(error) => return Err(Error::ObtainUnicastAddress(error)),
+        }
+    }
+
+    if pending.is_empty() {
+        return Ok(StartNotifyResult::AlreadyExist);
+    }
+
+    log::debug!(
+        "Waiting for tunnel addresses to become usable: {:?}",
+        *pending
+    );
+
+    Ok(StartNotifyResult::Waiting(handle))
 }
 
 /// Returns the first unicast IP address for the given interface.
@@ -617,8 +826,8 @@ impl fmt::Display for AddressFamily {
 mod tests {
     use std::sync::LazyLock;
 
-    use windows_sys::Win32::{
-        Foundation::WIN32_ERROR, NetworkManagement::IpHelper::PIPINTERFACE_CHANGE_CALLBACK,
+    use windows_sys::Win32::NetworkManagement::IpHelper::{
+        PIPINTERFACE_CHANGE_CALLBACK, PUNICAST_IPADDRESS_CHANGE_CALLBACK,
     };
 
     use super::*;
@@ -719,6 +928,118 @@ mod tests {
         unsafe { *notificationhandle = h as *mut core::ffi::c_void };
 
         0
+    }
+
+    struct AddressSettings {
+        expected_luid: NET_LUID_LH,
+        /// DAD state reported by [`fake_get_unicast_ip_address_entry`] for each address.
+        /// Addresses that are absent here are reported as `ERROR_NOT_FOUND`.
+        dad_states: Vec<(IpAddr, NL_DAD_STATE)>,
+        /// Replaces `dad_states` just before notifications are delivered. This models addresses
+        /// that are plumbed after the wait has already begun.
+        dad_states_on_notify: Option<Vec<(IpAddr, NL_DAD_STATE)>>,
+        /// Addresses to deliver `MibAddInstance` notifications for.
+        send_add_event_for_addresses: Vec<IpAddr>,
+        sleep_duration: Option<Duration>,
+    }
+
+    impl Default for AddressSettings {
+        fn default() -> Self {
+            AddressSettings {
+                expected_luid: NET_LUID_LH { Value: 1 },
+                dad_states: vec![],
+                dad_states_on_notify: None,
+                send_add_event_for_addresses: vec![],
+                sleep_duration: None,
+            }
+        }
+    }
+
+    static ADDRESS_SETTINGS: LazyLock<Mutex<AddressSettings>> =
+        LazyLock::new(|| Mutex::new(AddressSettings::default()));
+
+    pub unsafe fn fake_notify_unicast_ip_address_change(
+        family: u16,
+        callback: PUNICAST_IPADDRESS_CHANGE_CALLBACK,
+        callercontext: *const core::ffi::c_void,
+        initialnotification: bool,
+        notificationhandle: *mut HANDLE,
+    ) -> WIN32_ERROR {
+        assert_eq!(family, AF_UNSPEC);
+        assert!(!initialnotification);
+
+        struct Context {
+            callback: PUNICAST_IPADDRESS_CHANGE_CALLBACK,
+            callercontext: *const core::ffi::c_void,
+        }
+        unsafe impl Send for Context {}
+        let ctx = Context {
+            callback,
+            callercontext,
+        };
+
+        let thread = std::thread::spawn(move || {
+            let ctx = ctx;
+
+            if let Some(duration) = ADDRESS_SETTINGS.lock().unwrap().sleep_duration {
+                std::thread::sleep(duration);
+            }
+
+            let cb = ctx.callback.unwrap();
+
+            // Do not hold the lock while invoking the callback: it queries the address state.
+            let (luid, addresses) = {
+                let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+                if let Some(dad_states) = settings.dad_states_on_notify.take() {
+                    settings.dad_states = dad_states;
+                }
+                (
+                    settings.expected_luid,
+                    settings.send_add_event_for_addresses.clone(),
+                )
+            };
+
+            for address in addresses {
+                // Only the address and LUID are populated, mirroring the incomplete row that
+                // Windows hands to the callback.
+                let row = MIB_UNICASTIPADDRESS_ROW {
+                    InterfaceLuid: luid,
+                    Address: inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0)),
+                    ..MIB_UNICASTIPADDRESS_ROW::default()
+                };
+                // SAFETY: Caller provided valid cb.
+                unsafe { cb(ctx.callercontext, &raw const row, MibAddInstance) };
+            }
+        });
+
+        let h = Box::into_raw(Box::new(NotifyHandle { handle: thread }));
+        // SAFETY: Valid receiver for a `c_void` pointer.
+        unsafe { *notificationhandle = h as *mut core::ffi::c_void };
+
+        0
+    }
+
+    pub unsafe fn fake_get_unicast_ip_address_entry(
+        row: *mut MIB_UNICASTIPADDRESS_ROW,
+    ) -> WIN32_ERROR {
+        // SAFETY: The caller passes an initialized row containing an address and LUID.
+        let address = try_socketaddr_from_inet_sockaddr(unsafe { (*row).Address })
+            .unwrap()
+            .ip();
+
+        let settings = ADDRESS_SETTINGS.lock().unwrap();
+        match settings
+            .dad_states
+            .iter()
+            .find(|(candidate, _)| candidate == &address)
+        {
+            Some(&(_, dad_state)) => {
+                // SAFETY: See above.
+                unsafe { (*row).DadState = dad_state };
+                0
+            }
+            None => ERROR_NOT_FOUND,
+        }
     }
 
     pub unsafe fn fake_cancel_mib_change_notify2(notificationhandle: HANDLE) -> WIN32_ERROR {
@@ -823,5 +1144,82 @@ mod tests {
 
         let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
         wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+    }
+
+    const ADDR_V4: IpAddr = IpAddr::V4(Ipv4Addr::new(10, 64, 0, 2));
+    const ADDR_V6: IpAddr = IpAddr::V6(Ipv6Addr::new(0xfc00, 0, 0, 0, 0, 0, 0, 2));
+
+    /// Test [`wait_for_addresses_sync`] using mocked notifications.
+    // This can be tested with miri:
+    //
+    // ```rust
+    // cargo +nightly miri test -p talpid-windows -- test_wait_for_addresses_sync
+    // ```
+    #[test]
+    fn test_wait_for_addresses_sync() {
+        let _guard = NOTIFY_LOCK.blocking_lock();
+
+        let luid = ADDRESS_SETTINGS.lock().unwrap().expected_luid;
+
+        // The addresses are already preferred
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+            settings.dad_states = vec![
+                (ADDR_V4, IpDadStatePreferred),
+                (ADDR_V6, IpDadStatePreferred),
+            ];
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4, ADDR_V6], Duration::from_secs(1)).unwrap();
+
+        // The addresses have not been added yet, and show up preferred later on
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+            settings.sleep_duration = Some(Duration::from_millis(10));
+            settings.dad_states_on_notify = Some(vec![
+                (ADDR_V4, IpDadStatePreferred),
+                (ADDR_V6, IpDadStatePreferred),
+            ]);
+            settings.send_add_event_for_addresses = vec![ADDR_V4, ADDR_V6];
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4, ADDR_V6], Duration::from_secs(1)).unwrap();
+
+        // The address is added, but remains tentative
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+            settings.dad_states_on_notify = Some(vec![(ADDR_V4, IpDadStateTentative)]);
+            settings.send_add_event_for_addresses = vec![ADDR_V4];
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4], Duration::from_millis(50)).unwrap_err();
+
+        // Only one of the two addresses is ever added
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+            settings.dad_states_on_notify = Some(vec![(ADDR_V4, IpDadStatePreferred)]);
+            settings.send_add_event_for_addresses = vec![ADDR_V4];
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4, ADDR_V6], Duration::from_millis(50)).unwrap_err();
+
+        // Duplicate address detection fails
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+            settings.dad_states_on_notify = Some(vec![(ADDR_V4, IpDadStateDuplicate)]);
+            settings.send_add_event_for_addresses = vec![ADDR_V4];
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4], Duration::from_secs(1)).unwrap_err();
+
+        // The address is never added at all
+        {
+            let mut settings = ADDRESS_SETTINGS.lock().unwrap();
+            *settings = AddressSettings::default();
+        }
+        wait_for_addresses_sync(luid, &[ADDR_V4], Duration::from_millis(10)).unwrap_err();
+
+        // Waiting for no addresses at all succeeds immediately
+        wait_for_addresses_sync(luid, &[], Duration::from_millis(1)).unwrap();
     }
 }
