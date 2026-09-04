@@ -6515,7 +6515,128 @@
       }
     },
     "Anti-censorship" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-censur"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-Zensur"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anticensura"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sensuurinesto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-censure"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anticensura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検閲回避"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검열 방지"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antisensur"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-censuur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciwdziałanie cenzurze"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-censura"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обход цензуры"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anti-censur"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การป้องกันการเซ็นเซอร์"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sansürü önleme"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обхід цензури"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "反审查"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "反審查"
+          }
+        }
+      }
     },
     "Any" : {
       "localizations" : {
@@ -8570,7 +8691,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: hierdoor worden de filterinstellingen voor de inkomende server die automatisch wordt geselecteerd, genegeerd."
+            "value" : "Let op: hierdoor worden de filterinstellingen voor de ingangsserver die automatisch wordt geselecteerd, genegeerd."
           }
         },
         "pl" : {
@@ -8588,7 +8709,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Внимание: фильтры не будут применяться к автоматически выбранному серверу входа."
+            "value" : "Внимание: настройки фильтров не будут применяться к автоматически выбранному серверу входа."
           }
         },
         "sv" : {
@@ -8948,7 +9069,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: met de locatie \"%@\" worden filters voor de inkomende server genegeerd."
+            "value" : "Let op: met de locatie \"%@\" worden filters voor de ingangsserver genegeerd."
           }
         },
         "pl" : {
@@ -9074,7 +9195,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let op: met de locatie \"Automatisch\" worden ingeschakelde filters voor de inkomende server genegeerd."
+            "value" : "Let op: met de locatie \"Automatisch\" worden ingeschakelde filters voor de ingangsserver genegeerd."
           }
         },
         "pl" : {
@@ -13857,7 +13978,129 @@
       }
     },
     "Changing language requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-      "comment" : "Fixed disconnect warning when changing language in settings"
+      "comment" : "Fixed disconnect warning when changing language in settings",
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ændring af sprog kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Ändern der Sprache erfordert einen Neustart der VPN-Verbindung, wodurch Ihre Verbindung unterbrochen und Ihr Traffic offengelegt wird. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para cambiar de idioma, es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kielen vaihtaminen edellyttää VPN-yhteyden käynnistämistä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le changement de langue nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per cambiare lingua è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "言語を変更するにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언어를 변경하려면 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဘာသာစကားပြောင်းပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å endre språk krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het wijzigen van de taal vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmiana języka wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alterar o idioma requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для смены языка требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du byter språk måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การเปลี่ยนภาษาจำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dili değiştirmek VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для зміни мови потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要更改语言，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "變更語言必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Changing language will disconnect you from the VPN and restart the app" : {
       "comment" : "Footer text in the settings screen that explains the impact of changing the app's language.",
@@ -15233,7 +15476,129 @@
     },
     "Clear text" : {
       "comment" : "An accessibility label for the clear button in the text field.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ryd tekst"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Text löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar texto"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tyhjennä teksti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer le texte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella testo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキストをクリア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "텍스트 지우기"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "စာသားကို ရှင်းရန်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fjern tekst"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekst wissen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyczyść tekst"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar texto"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить поле ввода текста"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rensa texten"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้างข้อความ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metni temizle"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистити текст"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除文本"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除文字"
+          }
+        }
+      }
     },
     "Clearing the imported overrides changes the server IPs, in the Select location view, back to default." : {
       "localizations" : {
@@ -22707,7 +23072,128 @@
       }
     },
     "Disabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktivering af \"%@\" kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Deaktivieren von „%@“ erfordert einen Neustart der VPN-Verbindung. Die Verbindung wird dabei kurz unterbrochen, und Ihr Traffic ist nicht geschützt. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para deshabilitar «%@», es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos \"%@\" poistetaan käytöstä, VPN-yhteys on käynnistettävä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La désactivation de « %@ » nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per disattivare \"%@\" è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を無効にするにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 비활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@“ ကို ပိတ်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å deaktivere «%@» krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het uitschakelen van \"%@\" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączenie funkcji „%@” wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativar \"%@\" requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для отключения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du inaktiverar \"%@\" måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การปิดใช้งาน \"%@\" จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” özelliğini devre dışı bırakmak VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб вимкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要禁用“%@”，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Disabling recents will also clear history." : {
       "localizations" : {
@@ -23951,7 +24437,129 @@
     },
     "Do you want to remove the saved account number?" : {
       "comment" : "Confirmation alert message when the user wants to remove the saved account number.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vil du fjerne det gemte kontonummer?"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchten Sie die gespeicherte Kontonummer entfernen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quiere eliminar el número de cuenta guardado?"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Haluatko poistaa tallennetun tilin numeron?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voulez-vous supprimer le numéro de compte enregistré ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi rimuovere il numero di account salvato?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存済みのアカウント番号を削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장된 계정 번호를 삭제하고 싶으신가요?"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သိမ်းထားသည့် အကောင့်နံပါတ်ကို ဖြုတ်လိုပါသလား။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vil du fjerne det lagrede kontonummeret?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wilt u het opgeslagen accountnummer verwijderen?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy chcesz usunąć zapisany numer konta?"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quer remover o número de conta guardado?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить сохраненный номер учетной записи?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vill du ta bort det sparade kontonumret?"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณต้องการลบหมายเลขบัญชีที่บันทึกไว้หรือไม่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kayıtlı hesap numarasını kaldırmak istiyor musunuz?"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вилучити збережений номер облікового запису?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是否要移除已保存的帐号？"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要移除已儲存的帳號嗎？"
+          }
+        }
+      }
     },
     "Don’t have an account number?" : {
       "extractionState" : "stale",
@@ -26325,7 +26933,128 @@
       }
     },
     "Enabling “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktivering af \"%@\" kræver, at VPN-forbindelsen genstartes, hvilket vil afbryde din forbindelse og kortvarigt eksponere din trafik. For at forhindre dette skal du aktivere Flytilstand manuelt og slå Wi-Fi fra, inden du fortsætter."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Aktivieren von „%@“ erfordert einen Neustart der VPN-Verbindung. Die Verbindung wird dabei kurz unterbrochen, und Ihr Traffic ist nicht geschützt. Sie können das verhindern, indem Sie den Flugzeugmodus manuell aktivieren und die WLAN-Verbindung deaktivieren, bevor Sie fortfahren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para habilitar «%@», es necesario reiniciar la conexión VPN, lo que le desconectará y expondrá brevemente su tráfico. Para evitarlo, habilite de forma manual el modo Avión y desactive la conexión wifi antes de continuar."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jos \"%@\" otetaan käyttöön, VPN-yhteys on käynnistettävä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi. Voit estää tämän ottamalla lentotilan käyttöön manuaalisesti ja poistamalla WiFi-yhteyden käytöstä ennen kuin jatkat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'activation de « %@ » nécessite de redémarrer la connexion VPN, ce qui vous déconnectera et exposera brièvement votre trafic. Pour empêcher cela, activez manuellement le mode avion et désactivez le Wi-Fi avant de continuer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per attivare \"%@\" è necessario riavviare la connessione VPN. La connessione verrà interrotta e il traffico sarà brevemente esposto. Per evitarlo, attiva manualmente la modalità aereo e disattiva il Wi-Fi prima di continuare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を有効にするにはVPN接続の再起動が必要となるため、一時的に接続が切断され、通信が保護されなくなります。これを防ぐには、続行する前に手動で機内モードを有効にし、Wi-Fiをオフにしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\"%@\" 활성화에는 VPN 연결 재시작이 필요하며, 재시작할 경우 연결이 끊기고 일시적으로 트래픽이 노출됩니다. 이를 방지하려면 계속하기 전에 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@“ ကို ဖွင့်ပါက VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ အင်တာနက်ပေါ်သို့ ကူးလူးနေသော သင့်ဒေတာတို့ကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Å aktivere «%@» krever at VPN-tilkoblingen startes på nytt, noe som kobler deg fra og eksponerer trafikken din i en kort periode. For å forhindre dette må du aktivere flymodus manuelt og slå av Wi-Fi før du fortsetter."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het inschakelen van \"%@\" vereist het herstarten van de VPN-verbinding. De verbinding wordt dan kort onderbroken en uw verkeer wordt blootgesteld. Om dit te voorkomen, kunt u handmatig de vliegtuigmodus inschakelen en wifi uitschakelen voordat u doorgaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Włączenie funkcji „%@” wymaga ponownego uruchomienia połączenia VPN, co spowoduje rozłączenie i na krótko ujawni Twój ruch sieciowy. Aby temu zapobiec, przed kontynuowaniem ręcznie włącz tryb samolotowy i wyłącz Wi-Fi."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativar \"%@\" requer o reinício da ligação VPN, que desliga e expõe temporariamente o seu tráfego. Para evitar esta situação, ative manualmente o modo de avião e desligue o Wi-Fi antes de continuar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Для включения функции «%@» требуется перезапустить VPN-соединение. При этом VPN отключится, и ваш трафик на короткое время останется без защиты. Чтобы этого избежать, перед продолжением вручную включите авиарежим и отключите Wi-Fi."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om du aktiverar \"%@\" måste VPN-anslutningen startas om, vilket kopplar bort dig och exponerar din trafik tillfälligt. Om du vill undvika detta kan du aktivera flygplansläget manuellt och inaktivera wifi innan du fortsätter."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การเปิดใช้งาน \"%@\" จำเป็นต้องรีสตาร์ทการเชื่อมต่อ VPN ซึ่งจะทำให้การเชื่อมต่อหลุดและอาจทำให้การรับส่งข้อมูลรั่วไหลชั่วคราว โปรดเปิดโหมดเครื่องบินและปิด Wi-Fi ด้วยตนเองก่อนดำเนินการต่อเพื่อป้องกันไม่ให้เกิดกรณีนี้ขึ้น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” özelliğini etkinleştirmek VPN bağlantısının yeniden başlatılmasını gerektirdiği için bağlantınız kesilir ve trafiğiniz kısa süreliğine korumasız kalır. Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleştirin ve Wi-Fi’yi kapatın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щоб увімкнути «%@» потрібно перезапустити VPN-з’єднання, що призведе до відключення і короткочасної вразливості вашого трафіку. Щоб цього уникнути, вручну увімкніть режим «У літаку» та вимкніть Wi-Fi перед продовженням."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要启用“%@”，需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟用「%@」必須重新啟動 VPN 連線。這會中斷連線，並讓您的網路流量短暫暴露在外。為避免這種情況，請先手動啟用飛航模式並關閉 Wi-Fi，再繼續操作。"
+          }
+        }
+      }
     },
     "Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are using WiFi or a cellular network." : {
       "comment" : "Variables are 'Local network sharing' and 'Force all apps', respectively",
@@ -28334,7 +29063,129 @@
     },
     "fail" : {
       "comment" : "A label describing a failed action.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislykkedes"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "fehlgeschlagen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "error"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "epäonnistunut"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "échec"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "errore"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失敗"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실패"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "မအောင်မြင်ပါ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislyktes"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mislukt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "niepowodzenie"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "erro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ошибка"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "misslyckades"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ล้มเหลว"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "başarısız"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "не вдалось"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失败"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "失敗"
+          }
+        }
+      }
     },
     "Failed to change mode" : {
       "comment" : "Message displayed in the action sheet when changing the multihop mode fails.",
@@ -30413,7 +31264,7 @@
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Подробнее — в нашей статье в блоге"
+            "value" : "Подробнее — в нашей статье в блоге"
           }
         },
         "sv" : {
@@ -41151,7 +42002,129 @@
     },
     "Log in" : {
       "comment" : "Button to log in.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log på"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmelden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirjaudu sisään"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accedi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログイン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဝင်ရောက်ရန်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logg inn"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aanmelden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaloguj się"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sessão"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Войти"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logga in"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เข้าสู่ระบบ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oturum aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Увійти"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登入"
+          }
+        }
+      }
     },
     "Log out" : {
       "localizations" : {
@@ -43638,7 +44611,128 @@
       }
     },
     "Method" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metode"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Methode"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Método"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Méthode"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metodo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方式"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방법"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "နည်းလမ်း"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metode"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Methode"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metoda"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Método"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Метод"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metod"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "วิธี"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yöntem"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Метод"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方法"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "方式"
+          }
+        }
+      }
     },
     "Method settings" : {
       "comment" : "Title of a view controller that allows the user to configure the settings of a specific access method.",
@@ -44829,7 +45923,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-ingang ingesteld op \"Automatisch\""
+            "value" : "Multihopingang ingesteld op \"Automatisch\""
           }
         },
         "pl" : {
@@ -45203,7 +46297,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop is ingeschakeld. Uw verbinding wordt via een inkomende server geleid voordat deze via de geselecteerde locatie eruit gaat."
+            "value" : "Multihop is ingeschakeld. Uw verbinding wordt via een ingangsserver geleid voordat deze via de geselecteerde locatie eruit gaat."
           }
         },
         "pl" : {
@@ -45371,7 +46465,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Для подвійного входу тепер доступні три режими: за необхідності, завжди й ніколи. Це дозволяє гнучкіше налаштовувати параметри підключення."
+            "value" : "Подвійний VPN має три режими: «За потреби», «Завжди» і «Ніколи». Це дає вам більше можливостей налаштувати параметри з’єднання відповідно до своїх потреб."
           }
         },
         "zh-Hans" : {
@@ -45453,7 +46547,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-modus"
+            "value" : "Multihopmodus"
           }
         },
         "pl" : {
@@ -45495,7 +46589,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу"
+            "value" : "Режим подвійного VPN"
           }
         },
         "zh-Hans" : {
@@ -45579,7 +46673,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multihop-modus gewijzigd"
+            "value" : "Multihopmodus gewijzigd"
           }
         },
         "pl" : {
@@ -45621,7 +46715,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу змінено"
+            "value" : "Режим подвійного VPN змінено"
           }
         },
         "zh-Hans" : {
@@ -45871,7 +46965,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Режим подвійного входу спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного входу доступні три режими: за необхідності, завжди й ніколи."
+            "value" : "Режим подвійного VPN спрямовує ваш трафік на один сервер WireGuard, після чого виводить його через інший, що ускладнює відстежування. Це збільшує затримку, але також підвищує рівень анонімності в Інтернеті. Для подвійного VPN доступні три режими: за необхідності, завжди й ніколи."
           }
         },
         "zh-Hans" : {
@@ -47197,7 +48291,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nieuwe multihop-modussen"
+            "value" : "Nieuwe multihopmodussen"
           }
         },
         "pl" : {
@@ -47239,7 +48333,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нові режими подвійного входу"
+            "value" : "Нові режими подвійного VPN"
           }
         },
         "zh-Hans" : {
@@ -49245,7 +50339,128 @@
       }
     },
     "None" : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguno"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ei mitään"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "なし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "없음"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "မရှိ"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нет"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inget"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่มี"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiçbiri"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Немає"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無"
+          }
+        }
+      }
     },
     "Norway" : {
       "localizations" : {
@@ -51125,7 +52340,129 @@
     },
     "Or" : {
       "comment" : "A separator between the login button and the \"Or\" text.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eller"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oder"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O bien"
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tai"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ou"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oppure"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "または"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "또는"
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "သို့မဟုတ်"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eller"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "of"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lub"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ou"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "или"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "eller"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "หรือ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya da"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Або"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "或者"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "還是"
+          }
+        }
+      }
     },
     "Osaka" : {
       "localizations" : {
@@ -53857,7 +55194,128 @@
       }
     },
     "Please note that these methods do not improve performance, and may increase system utilization and battery consumption." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte beachten Sie, dass diese Methoden die Leistung nicht verbessern und möglicherweise zu einem höheren Verbrauch von Systemressourcen und Akku führen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tenga en cuenta que estos métodos no mejoran el rendimiento, y podrían aumentar el uso del sistema y el consumo de batería."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huomioithan, että nämä tavat eivät paranna suorituskykyä ja saattavat lisätä järjestelmän ja akun käyttöä."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez noter que ces méthodes n'améliorent pas la performance et pourraient augmenter l'utilisation du système et la consommation de batterie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni presente che questi metodi non migliorano le prestazioni e potrebbero aumentare l'utilizzo del sistema e il consumo della batteria."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 방법들은 성능을 개선하지 않으며 시스템 활용과 배터리 소모가 늘어날 수 있습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်အသုံးပြုမှုနှင့် ဘက်ထရီသုံးစွဲမှုကို တိုးစေနိုင်ကြောင်း သတိပြုပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vær oppmerksom på at disse metodene ikke forbedrer ytelsen og kan øke systemutnyttelsen og batteriforbruket."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor hoger verbruik van systeembronnen en batterij."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pamiętaj, że metody te nie poprawiają wydajności i mogą zwiększyć obciążenie systemu oraz zużycie baterii."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tenha em atenção que estes métodos não melhoram o desempenho e podem aumentar a utilização do sistema e o consumo da bateria."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพการทำงาน แต่อาจเพิ่มการใช้งานระบบและการใช้งานแบตเตอรี่ได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ve pil tüketimini artırabileceğini lütfen göz önünde bulundurun."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Зауважте, що ці методи не покращують продуктивності й можуть збільшити навантаження на систему та споживання заряду батареї."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。"
+          }
+        }
+      }
     },
     "Please select a compatible location after %@." : {
       "comment" : "Variable refers to enabling DAITA, changing multihop mode or selecting an obfuscation method",
@@ -57467,7 +58925,129 @@
     },
     "Removing the saved account number from this device cannot be undone." : {
       "comment" : "Alert message when the user is prompted to remove the saved account number.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hvis du fjerner det gemte kontonummer fra denne enhed, kan du ikke fortryde det."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Entfernen der gespeicherten Kontonummer von diesem Gerät kann nicht rückgängig gemacht werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La eliminación del número de cuenta guardado de este dispositivo no se puede deshacer."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallennetun tilin numeron poistamista tältä laitteelta ei voi kumota."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le numéro de compte enregistré de cet appareil est irréversible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La rimozione del numero di account salvato da questo dispositivo non può essere annullata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスから保存済みのアカウント番号を削除すると、元には戻せません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 장치에서 저장된 계정 번호를 삭제하면 되돌릴 수 없습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ဤစက်မှ အကောင့်နံပါတ်ကို ဖြုတ်ပြီးသွားလျှင် ပြန်ယူ၍မရပါ။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hvis du fjerner det lagrede kontonummeret fra denne enheten, kan det ikke angres."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als u het opgeslagen accountnummer van dit apparaat verwijdert, kan dat niet ongedaan worden gemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usunięcia zapisanego numeru konta z tego urządzenia nie można cofnąć."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A remoção do número de conta guardado deste dispositivo não pode ser anulada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удаление с этого устройства сохраненного номера учетной записи нельзя будет отменить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det går inte att ångra borttagningen av det sparade kontonumret från den här enheten."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การลบหมายเลขบัญชีที่บันทึกไว้จากอุปกรณ์นี้ไม่สามารถย้อนกลับได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kayıtlı hesap numarası bu cihazdan kaldırıldığında işlem geri alınamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вилучення збереженого номера облікового запису з пристрою не можна скасувати."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从此设备移除已保存的帐号的操作无法撤消。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "從此裝置移除已儲存的帳號後，將無法復原。"
+          }
+        }
+      }
     },
     "Removing the saved account number from this device cannot be undone.\nDo you want to remove the saved account number?" : {
       "extractionState" : "stale",
@@ -65769,7 +67349,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aanbevolen multihop-ingang"
+            "value" : "Aanbevolen multihopingang"
           }
         },
         "pl" : {
@@ -68749,7 +70329,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihop-instelling."
+            "value" : "De DAITA-subinstelling \"Alleen rechtstreeks\" is verwijderd en vereenvoudigd om te voorkomen dat verbindingen worden geblokkeerd. In plaats daarvan stelt u, wanneer DAITA is ingeschakeld, deze optie in via de multihopinstelling."
           }
         },
         "pl" : {
@@ -68997,7 +70577,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De inkomende en uitgaande servers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie."
+            "value" : "De ingangs- en uitgangsservers kunnen niet hetzelfde zijn. Wijzig een van de twee in een nieuwe server of locatie."
           }
         },
         "pl" : {
@@ -69247,7 +70827,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De multihop-modus \"Altijd\" beschikt nu over een locatie \"Automatisch\" voor de selectie van de ingangsserver."
+            "value" : "De multihopmodus \"Altijd\" beschikt nu over een locatie \"Automatisch\" voor de selectie van de ingangsserver."
           }
         },
         "pl" : {
@@ -69289,7 +70869,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У режимі подвійного входу «Завжди» для сервера входу тепер доступна опція «Автоматично»."
+            "value" : "У режимі подвійного VPN «Завжди» для сервера входу тепер доступна опція «Автоматично»."
           }
         },
         "zh-Hans" : {
@@ -69681,7 +71261,128 @@
       }
     },
     "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works." : {
-
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disse metoder kan være nyttige i situationer, hvor du er blokeret fra at nå Mullvad. Når \"Automatisk\" er valgt, vil appen forsøge alle metoder, indtil en virker."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Methoden können nützlich sein, wenn Sie daran gehindert werden, Mullvad zu erreichen. Wenn „Automatisch“ ausgewählt ist, probiert die App alle Methoden aus, bis eine funktioniert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos métodos podrían utilizarse en situaciones en las que tiene bloqueado el acceso a Mullvad. Cuando se selecciona «Automático», la aplicación intentará todos los métodos hasta que funcione alguno."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces méthodes peuvent servir dans les situations où il vous est empêché d'atteindre Mullvad. Quand « Automatique » est sélectionné, l'application essaiera toutes les méthodes jusqu'à ce que l'une d'entre elles fonctionne."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi metodi potrebbero essere utili in situazioni in cui non riesci a raggiungere Mullvad. Selezionando \"Automatico\", l'app tenterà tutti i metodi finché uno non funziona."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 방법들은 Mullvad 사용이 차단된 경우에 유용합니다. \"자동\"을 선택하면 통하는 방법이 있을 때까지 모든 방법을 시도합니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mullvad သို့ ဆက်သွယ်၍ မရစေရန် ပိတ်ဆို့ထားသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ \"အော်တိုမက်တစ်\" ကို ရွေးချယ်လိုက်သောအခါ အက်ပ်သည် နည်းလမ်းတစ်ခု အလုပ်လုပ်သည်အထိ နည်းလမ်းအားလုံးကို ကြိုးစားလုပ်ဆောင်ပါလိမ့်မည်။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disse metodene kan være nyttige i situasjoner der du er blokkert fra å nå Mullvad. Når «Automatisk» er valgt, vil appen prøve alle metodene helt til en av dem fungerer."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze methoden kunnen nuttig zijn in situaties waarin de toegang tot Mullvad is geblokkeerd. Als \"Automatisch\" is geselecteerd, zal de app alle methoden proberen totdat er een werkt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metody te mogą być przydatne w sytuacjach, gdy masz zablokowany dostęp do Mullvad. Po wybraniu opcji „Automatycznie” aplikacja będzie próbować wszystkich metod, dopóki jedna z nich nie zadziała."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estes métodos podem ser úteis em situações em que esteja impedido de aceder à Mullvad. Quando está selecionado \"Automático\", a aplicação tentará todos os métodos até que um funcione."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dessa metoder kan vara användbara i situationer där du blockeras från att nå Mullvad. När \"Automatiskt\" är valt försöker appen med alla metoder tills en fungerar."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı olabilir. \"Otomatik\" seçeneği ayarlandığında uygulama yöntemlerden biri çalışana dek tüm yöntemleri dener."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ці методи можуть бути корисними в ситуаціях, коли у вас заблоковано доступ до Mullvad. Якщо вибрано «Автоматично», застосунок намагатиметься використовувати всі методи, доки один із них не спрацює."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些方法在您无法连接到 Mullvad 时可能会有所帮助。选择“自动”时，应用将尝试所有方法，直到其中一种方法生效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會依序嘗試所有方式，直到其中一種成功為止。"
+          }
+        }
+      }
     },
     "These settings can be changed at any time" : {
       "comment" : "Text displayed in a notification when a user enables notifications for the first time.",
@@ -71282,7 +72983,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У цьому режимі застосунок за необхідності автоматично використовує подвійний вхід через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням."
+            "value" : "У цьому режимі застосунок за необхідності автоматично використовує подвійний VPN через додатковий сервер, щоб забезпечити сумісність поточних налаштувань із вибраним розташуванням."
           }
         },
         "zh-Hans" : {
@@ -72614,7 +74315,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihop-modus in te stellen op \"%@\"."
+            "value" : "Om te voorkomen dat u wordt geblokkeerd, raden we u aan uw multihopmodus in te stellen op \"%@\"."
           }
         },
         "pl" : {
@@ -72656,7 +74357,7 @@
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного входу значення «%@»."
+            "value" : "Щоб уникнути блокування, рекомендуємо встановити для режиму подвійного VPN значення «%@»."
           }
         },
         "zh-Hans" : {
@@ -72740,7 +74441,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihop-ingangsserver in te stellen op \"%@\"."
+            "value" : "Om te voorkomen dat u de ingangsserver handmatig moet wijzigen, raden we u aan de multihopingangsserver in te stellen op \"%@\"."
           }
         },
         "pl" : {
@@ -73486,7 +75187,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om handmatig een inkomende server te selecteren, stelt u de multihop-modus in op \"%@\"."
+            "value" : "Om handmatig een ingangsserver te selecteren, stelt u de multihopmodus in op \"%@\"."
           }
         },
         "pl" : {
@@ -80330,7 +82031,129 @@
     },
     "We can send you a notification when an update is available so that you can disable this feature or disconnect before updating. This can be changed at any time in system settings." : {
       "comment" : "Alert message explaining the purpose of the notification.",
-      "isCommentAutoGenerated" : true
+      "isCommentAutoGenerated" : true,
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan sende dig en notifikation, når en opdatering er tilgængelig, så du kan deaktivere denne funktion eller afbryde forbindelsen inden opdatering. Dette kan ændres når som helst i systemindstillingerne."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir können Ihnen eine Benachrichtigung senden, sobald ein Update verfügbar ist, damit Sie diese Funktion deaktivieren oder die Verbindung trennen können, bevor das Update durchgeführt wird. Sie können dies jederzeit in den Systemeinstellungen anpassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podemos enviarle una notificación cuando haya una actualización disponible: así podrá deshabilitar esta característica o desconectarse antes de actualizar. Puede cambiar esta opción en la configuración del sistema en cualquier momento."
+          }
+        },
+        "fi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voimme lähettää sinulle ilmoituksen kun päivitys on saatavilla, jotta voit poistaa ominaisuuden käytöstä tai katkaista yhteyden ennen päivittämistä. Voit muuttaa tätä milloin tahansa järjestelmäasetuksissa."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous pouvons vous envoyer une notification quand une mise à jour est disponible, afin que vous puissiez désactiver cette fonctionnalité ou vous déconnecter avant d'effectuer la mise à jour. Cela peut être modifié à tout moment dans les paramètres du système."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possiamo inviarti una notifica quando è disponibile un aggiornamento, così potrai disattivare questa funzionalità o disconnetterti prima di aggiornare. Puoi modificare questa impostazione in qualsiasi momento nelle impostazioni di sistema."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新前にこの機能を無効にしたり、接続を切断したりできるよう、更新がある場合に通知を送信することがあります。この設定はシステム設定からいつでも変更できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 전에 본 기능을 비활성화하거나 연결을 해제할 수 있도록 업데이트가 준비되었을 때 알림을 전송할 수 있습니다. 이 설정은 시스템 설정에서 언제든지 변경할 수 있습니다."
+          }
+        },
+        "my" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို ပိတ်နိုင်ရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်ရန် အပ်ဒိတ်ရရှိချိန်တွင် အသိပေးချက်တစ်စောင် သင့်ထံ ပေးပို့နိုင်ပါသည်။ စနစ်ဆက်တင်များတွင် ဤလုပ်ဆောင်ချက်ကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။"
+          }
+        },
+        "nb" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan sende deg et varsel når en oppdatering er tilgjengelig, slik at du kan deaktivere denne funksjonen eller koble fra før oppdateringen gjennomføres. Dette kan endres når som helst i systeminnstillingene."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We kunnen u een melding sturen wanneer een update beschikbaar is, zodat u deze functie kunt uitschakelen of de verbinding kunt verbreken voordat de update wordt uitgevoerd. U kunt dit op elk moment aanpassen in de systeeminstellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby umożliwić Ci wyłączenie tej funkcji lub rozłączenie się przed aktualizacją, możemy wysłać Ci powiadomienie o dostępnej aktualizacji. Ustawienie to można zmienić w dowolnym momencie w ustawieniach systemowych."
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podemos enviar-lhe uma notificação quando houver uma atualização disponível, para poder desativar esta funcionalidade ou desligar antes de fazer a atualização. Esta opção pode ser alterada a qualquer momento nas definições do sistema."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Мы можем уведомить вас о выходе обновления, чтобы вы могли отключить эту функцию или отключиться от VPN перед обновлением. Параметры уведомлений можно изменить в системных настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vi kan skicka en avisering när det finns en uppdatering så att du kan inaktivera den här funktionen eller koppla från innan uppdateringen. Du kan när som helst ändra det i systeminställningarna."
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เราสามารถส่งการแจ้งเตือนเมื่อมีการอัปเดต เพื่อให้คุณสามารถปิดใช้งานคุณสมบัตินี้หรือตัดการเชื่อมต่อก่อนทำการอัปเดตได้ คุณสามารถเปลี่ยนแปลงสิ่งนี้ได้ตลอดเวลาในการตั้งค่าระบบ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir güncelleme kullanıma sunulduğunda size bildirim gönderebiliriz. Böylece güncellemeden önce bu özelliği devre dışı bırakabilir veya bağlantınızı kesebilirsiniz. Bu seçeneği istediğiniz zaman sistem ayarlarından değiştirebilirsiniz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ми можемо надіслати вам сповіщення, коли стане доступним оновлення, щоб ви могли вимкнути цю функцію або від’єднатися перед оновленням. Цей параметр можна будь-коли змінити в системних налаштуваннях."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有可用更新时，我们会向您发送通知，以便您可以在更新前禁用此功能或断开连接。您也可以随时在系统设置中更改此设置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當有可用的更新時，我們可以傳送通知給您，以便您在更新前停用此功能或中斷連線。此設定隨時可在系統設定中變更。"
+          }
+        }
+      }
     },
     "We will look into this." : {
       "localizations" : {
@@ -83774,7 +85597,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "U heeft momenteel ingangsfilters toegepast. Als u de locatie \"Automatisch\" selecteert, negeert de app de filterinstellingen voor de inkomende server."
+            "value" : "U heeft momenteel ingangsfilters toegepast. Als u de locatie \"Automatisch\" selecteert, negeert de app de filterinstellingen voor de ingangsserver."
           }
         },
         "pl" : {
@@ -85771,7 +87594,7 @@
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uw multihop-instelling is gemigreerd van \"%1$@\" naar \"%2$@\"."
+            "value" : "Uw multihopinstelling is gemigreerd van \"%1$@\" naar \"%2$@\"."
           }
         },
         "pl" : {
