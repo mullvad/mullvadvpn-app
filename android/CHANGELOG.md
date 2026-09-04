@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+- Fix relay list and custom lists not being sorted using locale-aware collation.
+
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added
