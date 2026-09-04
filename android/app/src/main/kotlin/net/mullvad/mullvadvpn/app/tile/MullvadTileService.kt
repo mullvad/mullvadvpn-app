@@ -8,6 +8,9 @@ import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import co.touchlab.kermit.Logger
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -50,12 +53,12 @@ class MullvadTileService : TileService() {
     override fun onClick() {
         // Workaround for the reported bug: https://issuetracker.google.com/issues/236862865
         suspend fun isUnlockStatusPropagatedWithinTimeout(
-            unlockTimeoutMillis: Long,
-            unlockCheckDelayMillis: Long,
+            unlockTimeout: Duration,
+            unlockCheckDelay: Duration,
         ): Boolean {
-            return withTimeoutOrNull(unlockTimeoutMillis) {
+            return withTimeoutOrNull(unlockTimeout) {
                 while (isLocked) {
-                    delay(unlockCheckDelayMillis)
+                    delay(unlockCheckDelay)
                 }
                 return@withTimeoutOrNull true
             } ?: false
@@ -65,8 +68,8 @@ class MullvadTileService : TileService() {
             runBlocking {
                 val isUnlockStatusPropagated =
                     isUnlockStatusPropagatedWithinTimeout(
-                        unlockTimeoutMillis = 1000L,
-                        unlockCheckDelayMillis = 100L,
+                        unlockTimeout = 1.seconds,
+                        unlockCheckDelay = 100.milliseconds,
                     )
 
                 if (isUnlockStatusPropagated) {
@@ -88,8 +91,7 @@ class MullvadTileService : TileService() {
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun toggleTunnel() {
-        val isSetup = applicationContext.prepareVpnSafe().isRight()
-        // TODO This logic should be more advanced, we should ensure user has an account setup etc.
+        val isSetup = isSetup()
         if (isSetup) {
             Logger.i("TileService: VPN service is setup")
 
@@ -104,7 +106,7 @@ class MullvadTileService : TileService() {
                         }
                 }
 
-            // Always start as foreground, e.g if app is dead we won't be allowed to start if not
+            // Always start as foreground, e.g. if app is dead we won't be allowed to start if not
             // in foreground.
             startForegroundService(intent)
         } else {
@@ -147,54 +149,73 @@ class MullvadTileService : TileService() {
             ) { tunnelState, connectionState ->
                 tunnelState to connectionState
             }
-            .debounce(TUNNEL_STATE_DEBOUNCE_MS)
-            .map { (tunnelState, connectionState) -> mapToTileState(tunnelState, connectionState) }
+            .debounce(TUNNEL_STATE_DEBOUNCE)
+            .map { (tunnelState, connectionState) ->
+                mapToTileState(
+                    tunnelState = tunnelState,
+                    connectionState = connectionState,
+                    isSetup = isSetup(),
+                )
+            }
             .collect { updateTileState(it) }
     }
 
     private fun mapToTileState(
         tunnelState: TunnelState,
         connectionState: GrpcConnectivityState,
-    ): Int {
+        isSetup: Boolean,
+    ): TileState {
+        if (!isSetup) {
+            return TileState.Unavailable(
+                subtitle = resources.getString(R.string.disconnected_vpn_permission_error)
+            )
+        }
+
         return if (connectionState == GrpcConnectivityState.Ready) {
             when (tunnelState) {
-                is TunnelState.Disconnected -> Tile.STATE_INACTIVE
-                is TunnelState.Connecting -> Tile.STATE_ACTIVE
-                is TunnelState.Connected -> Tile.STATE_ACTIVE
+                is TunnelState.Disconnected ->
+                    TileState.Inactive(subtitle = resources.getString(R.string.disconnected))
+                is TunnelState.Connecting ->
+                    TileState.Active(subtitle = resources.getString(R.string.connecting))
+                is TunnelState.Connected ->
+                    TileState.Active(subtitle = resources.getString(R.string.connected))
                 is TunnelState.Disconnecting -> {
                     if (tunnelState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
-                        Tile.STATE_ACTIVE
+                        TileState.Active(subtitle = resources.getString(R.string.disconnecting))
                     } else {
-                        Tile.STATE_INACTIVE
+                        TileState.Inactive(subtitle = resources.getString(R.string.disconnecting))
                     }
                 }
 
                 is TunnelState.Error -> {
                     if (tunnelState.errorState.isBlocking) {
-                        Tile.STATE_ACTIVE
+                        TileState.Active(subtitle = resources.getString(R.string.blocking_internet))
                     } else {
-                        Tile.STATE_INACTIVE
+                        TileState.Inactive(subtitle = resources.getString(R.string.critical_error))
                     }
                 }
             }
         } else {
-            Tile.STATE_INACTIVE
+            TileState.Inactive(subtitle = resources.getString(R.string.disconnected))
         }
     }
 
-    private fun updateTileState(newState: Int) {
+    private fun updateTileState(newState: TileState) {
         qsTile?.apply {
-            if (newState == Tile.STATE_ACTIVE) {
-                state = Tile.STATE_ACTIVE
-                icon = securedIcon
-                label = resources.getString(R.string.app_name)
-                setSubtitleIfSupported(resources.getText(R.string.connected))
-            } else {
-                state = Tile.STATE_INACTIVE
-                icon = unsecuredIcon
-                label = resources.getString(R.string.app_name)
-                setSubtitleIfSupported(resources.getText(R.string.disconnected))
-            }
+            state =
+                when (newState) {
+                    is TileState.Active -> Tile.STATE_ACTIVE
+                    is TileState.Inactive -> Tile.STATE_INACTIVE
+                    is TileState.Unavailable -> Tile.STATE_UNAVAILABLE
+                }
+            icon =
+                when (newState) {
+                    is TileState.Active -> securedIcon
+                    is TileState.Inactive -> unsecuredIcon
+                    is TileState.Unavailable -> unsecuredIcon
+                }
+            label = resources.getString(R.string.app_name)
+            setSubtitleIfSupported(newState.subtitle)
             updateTile()
         }
     }
@@ -205,7 +226,12 @@ class MullvadTileService : TileService() {
         }
     }
 
+    // TODO This logic should be more advanced, we should ensure user has an account setup etc.
+    private fun isSetup(): Boolean {
+        return applicationContext.prepareVpnSafe().isRight()
+    }
+
     companion object {
-        private const val TUNNEL_STATE_DEBOUNCE_MS = 300L
+        private val TUNNEL_STATE_DEBOUNCE = 300.milliseconds
     }
 }
