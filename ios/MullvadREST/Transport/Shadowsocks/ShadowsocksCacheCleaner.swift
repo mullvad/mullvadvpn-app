@@ -12,8 +12,9 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-public class ShadowsocksCacheCleaner: MullvadAccessMethodChangeListening {
+public class ShadowsocksCacheCleaner: MullvadAccessMethodChangeListening, @unchecked Sendable {
     let cache: ShadowsocksConfigurationCacheProtocol
+    let lock = NSLock()
     var lastChangedUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
 
     public init(cache: ShadowsocksConfigurationCacheProtocol) {
@@ -21,9 +22,11 @@ public class ShadowsocksCacheCleaner: MullvadAccessMethodChangeListening {
     }
 
     public func accessMethodChangedTo(_ uuid: UUID) {
-        if lastChangedUUID == AccessMethodRepository.bridgeId {
-            try? cache.clear()
+        lock.withLock {
+            if lastChangedUUID == AccessMethodRepository.bridgeId {
+                try? cache.clear()
+            }
+            lastChangedUUID = uuid
         }
-        lastChangedUUID = uuid
     }
 }

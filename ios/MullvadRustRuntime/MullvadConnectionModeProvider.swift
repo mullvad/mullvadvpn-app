@@ -10,7 +10,7 @@
 
 import MullvadTypes
 
-public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -> SwiftAccessMethodSettingsWrapper {
+public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -> SwiftAccessMethodSettingsContext {
     let validShadowsocksCiphers = ShadowsocksCipherService().getCiphers()
 
     // 1. Get all the built in access methods, it is expected that they are always available
@@ -31,71 +31,69 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
         return !defaultMethods.contains($0.proxyConfiguration)
     }
 
+    // TODO: REMOVE UNWRAPS
     // 3. Convert the builtin access methods
-    let directMethodRaw = convertAccessMethod(accessMethod: directMethod)
-    let bridgesMethodRaw = convertAccessMethod(accessMethod: bridgesMethod)
-    let encryptedDNSMethodRaw = convertAccessMethod(accessMethod: encryptedDNSMethod)
+    let direct = convertAccessMethod(accessMethod: directMethod)!
+    let bridges = convertAccessMethod(accessMethod: bridgesMethod)!
+    let encryptedDNS = convertAccessMethod(accessMethod: encryptedDNSMethod)!
 
     // 4. Convert the custom access methods (all takes different parameters)
-    var rawCustomMethods = customMethods.map { convertAccessMethod(accessMethod: $0) }
+    let convertedCustomMethods = customMethods.map { convertAccessMethod(accessMethod: $0)! }
 
     // 5. Reunite them all in one, and pass it to rust
-    let customMethodCount = rawCustomMethods.count
-    return rawCustomMethods.withUnsafeMutableBufferPointer(
-        {
-            init_access_method_settings_wrapper(
-                directMethodRaw,
-                bridgesMethodRaw,
-                encryptedDNSMethodRaw,
-                $0.baseAddress!,
-                UInt(customMethodCount)
-            )
-        }
+    return initAccessMethodSettingsWrapper(
+        direct: direct,
+        bridges: bridges,
+        encryptedDns: encryptedDNS,
+        custom: convertedCustomMethods,
     )
 }
 
-public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeMutableRawPointer? {
+public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> AccessMethodSettingWrapper? {
     switch accessMethod.proxyConfiguration {
     case .direct, .bridges, .encryptedDNS:
-        return convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            nil
+        return convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: accessMethod.kind(),
         )
     case let .shadowsocks(configuration):
-        let serverAddress = configuration.server.rawValue.map { $0 }
-        let shadowsocksConfiguration = new_shadowsocks_access_method_setting(
-            serverAddress,
-            UInt(serverAddress.count),
-            configuration.port,
-            configuration.password,
-            configuration.cipher
-        )
-        let shadowsocksMethodRaw = convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            shadowsocksConfiguration
+        let serverAddress = configuration.server.rawValue
+        guard
+            let shadowsocksConfiguration = newShadowsocksAccessMethodSetting(
+                address: serverAddress,
+                port: configuration.port,
+                password: configuration.password,
+                cipher: configuration.cipher
+            )
+        else {
+            return nil
+        }
+        let shadowsocksMethodRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: .kindShadowsocks(shadowsocksConfiguration),
         )
         return shadowsocksMethodRaw
     case let .socks5(configuration):
-        let serverAddress = configuration.server.rawValue.map { $0 }
-        let socks5Configuration = new_socks5_access_method_setting(
-            serverAddress,
-            UInt(serverAddress.count),
-            configuration.port,
-            configuration.credential?.username,
-            configuration.credential?.password
-        )
-        let socks5MethodRaw = convert_builtin_access_method_setting(
-            accessMethod.id.uuidString,
-            accessMethod.name,
-            accessMethod.isEnabled,
-            accessMethod.kind(),
-            socks5Configuration
+        let serverAddress = configuration.server.rawValue
+        guard
+            let socks5Configuration = newSocks5AccessMethodSetting(
+                address: serverAddress,
+                port: configuration.port,
+                username: configuration.credential?.username,
+                password: configuration.credential?.password
+            )
+        else {
+            return nil
+        }
+        let socks5MethodRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: accessMethod.id.uuidString,
+            name: accessMethod.name,
+            isEnabled: accessMethod.isEnabled,
+            methodKind: .kindSocks5Local(socks5Configuration),
         )
         return socks5MethodRaw
     }
@@ -104,13 +102,12 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
 fileprivate
     extension PersistentAccessMethod
 {
-    func kind() -> UInt8 {
+    func kind() -> SwiftAccessMethodKind {
         switch kind {
-        case .direct: UInt8(KindDirect.rawValue)
-        case .bridges: UInt8(KindBridge.rawValue)
-        case .encryptedDNS: UInt8(KindEncryptedDnsProxy.rawValue)
-        case .shadowsocks: UInt8(KindShadowsocks.rawValue)
-        case .socks5: UInt8(KindSocks5Local.rawValue)
+        case .direct: .kindDirect
+        case .bridges: .kindBridge
+        case .encryptedDNS: .kindEncryptedDnsProxy
+        case _: fatalError()
         }
     }
 }

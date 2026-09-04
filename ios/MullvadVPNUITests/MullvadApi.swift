@@ -28,53 +28,58 @@ private struct DeviceResponse: Decodable {
     let name: String
 }
 
+private final class ShadowsocksProviderNil: ShadowsocksBridgeProvider {
+    func bridge() -> MullvadRustRuntime.ShadowsocksWrapper? {
+        nil
+    }
+}
+
 /// - Warning: Do not change the `apiAddress` or the `hostname` after the time `MullvadApi.init` has been invoked.
 class MullvadApi {
-    private let context: SwiftApiContext
+    private let context: ApiContext
 
     private static let logger = Logger(label: "MullvadApi")
 
     init(apiAddress: String, hostname: String) throws {
         Self.logger.debug("Initializing MullvadApi with address: \(apiAddress), hostname: \(hostname)")
-        let directRaw = convert_builtin_access_method_setting(
-            UUID().uuidString, "Direct", true, UInt8(KindDirect.rawValue), nil
-        )
+        let direct = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: UUID().uuidString,
+            name: "Direct",
+            isEnabled: true,
+            methodKind: .kindDirect)
         // Bridges and EncryptedDNS must be disabled because the shadowsocks bridge provider
         // is initialized with a nil loader. If Direct fails and the access method selector
         // falls back to Bridges, it will dereference the nil pointer and SIGABRT.
-        let bridgesRaw = convert_builtin_access_method_setting(
-            UUID().uuidString, "Bridges", false, UInt8(KindBridge.rawValue), nil
+        let bridges = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: UUID().uuidString,
+            name: "Bridges",
+            isEnabled: false,
+            methodKind: .kindBridge)
+        let encryptedDNSRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: UUID().uuidString,
+            name: "EncryptedDNS",
+            isEnabled: false,
+            methodKind: .kindEncryptedDnsProxy
         )
-        let encryptedDNSRaw = convert_builtin_access_method_setting(
-            UUID().uuidString,
-            "EncryptedDNS",
-            false,
-            UInt8(
-                KindEncryptedDnsProxy.rawValue
-            ),
-            nil
-        )
-        let settingsWrapper = init_access_method_settings_wrapper(
-            directRaw, bridgesRaw, encryptedDNSRaw, nil, 0
-        )
-        let bridgeProvider = SwiftShadowsocksLoaderWrapper(
-            _0: SwiftShadowsocksLoaderWrapperContext(shadowsocks_loader: nil)
-        )
-        context = mullvad_api_init_inner(
-            hostname,
-            apiAddress,
-            hostname,
-            false,
-            bridgeProvider,
-            settingsWrapper,
-            nil,
-            nil
-        )
+        let settingsWrapper = initAccessMethodSettingsWrapper(
+            direct: direct!,
+            bridges: bridges!,
+            encryptedDns: encryptedDNSRaw!,
+            custom: [])
+        let bridgeProvider = ShadowsocksProviderNil()
+        context = ApiContext(
+            host: hostname,
+            address: apiAddress,
+            domain: hostname,
+            disableTls: false,
+            bridgeProvider: bridgeProvider,
+            settingsProvider: settingsWrapper,
+            accessMethodChangeListeners: [])
     }
 
     func createAccount() throws -> String {
         let response = try makeRequest { strategy in
-            mullvad_ios_create_account(context, strategy)
+            context.createAccount(retryStrategy: strategy)
         }
         let data = try requireBody(response)
         return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
@@ -82,26 +87,25 @@ class MullvadApi {
 
     func delete(account: String) throws {
         _ = try makeRequest { strategy in
-            mullvad_ios_delete_account(context, strategy, account)
+            context.deleteAccount(retryStrategy: strategy, accountNumber: account)
         }
     }
 
     func addDevice(forAccount: String, publicKey: Data) throws {
-        _ = try publicKey.withUnsafeBytes { ptr -> MullvadApiResponse in
-            try makeRequest { strategy in
-                mullvad_ios_create_device(
-                    context,
-                    strategy,
-                    forAccount,
-                    ptr.baseAddress!.assumingMemoryBound(to: UInt8.self)
-                )
-            }
+        try makeRequest { strategy in
+            context.createDevice(
+                retryStrategy: strategy,
+                accountNumber: forAccount,
+                publicKey: publicKey
+            )
         }
     }
 
     func getExpiry(forAccount: String) throws -> UInt64 {
         let response = try makeRequest { strategy in
-            let handle = mullvad_ios_get_account(context, strategy, forAccount)
+            let handle = context.getAccount(
+                retryStrategy: strategy,
+                accountNumber: forAccount)
             return handle
         }
         let data = try requireBody(response)
@@ -113,40 +117,40 @@ class MullvadApi {
 
     func listDevices(forAccount: String) throws -> [Device] {
         let response = try makeRequest { strategy in
-            mullvad_ios_get_devices(context, strategy, forAccount)
+            context.getDevices(
+                retryStrategy: strategy,
+                accountNumber: forAccount)
         }
         let data = try requireBody(response)
         let deviceResponses = try JSONDecoder().decode([DeviceResponse].self, from: data)
-        return deviceResponses.compactMap { d in
+        return deviceResponses.compactMap { (d: DeviceResponse) -> Device? in
             guard let uuid = UUID(uuidString: d.id) else { return nil }
             return Device(name: d.name, id: uuid)
         }
     }
 
-    private func requireBody(_ response: MullvadApiResponse) throws -> Data {
-        guard response.success, let data = response.body else {
-            throw MullvadApiError(description: response.errorDescription ?? "Request failed")
+    private func requireBody(_ response: ApiResponse) throws -> Data {
+        guard response.success(), let data = response.body() else {
+            throw MullvadApiError(description: response.errorDescription() ?? "Request failed")
         }
         return data
     }
 
     @discardableResult
     private func makeRequest(
-        _ call: (SwiftRetryStrategy) -> SwiftCancelHandle
-    ) throws -> MullvadApiResponse {
+        _ call: (RetryStrategy) -> RequestCancelHandle
+    ) throws -> ApiResponse {
         let semaphore = DispatchSemaphore(value: 0)
-        nonisolated(unsafe) var apiResponse: MullvadApiResponse?
+        nonisolated(unsafe) var apiResponse: ApiResponse?
 
         let completion = MullvadApiCompletion { response in
             apiResponse = response
             semaphore.signal()
         }
-        let cookie = Unmanaged.passRetained(completion).toOpaque()
-        let strategy = mullvad_api_retry_strategy_constant(3, 1)
+        let strategy = mullvadApiRetryStrategyConstant(maxRetries: 3, delaySec: 1)
         var handle = call(strategy)
-        mullvad_api_start_task(handle, cookie)
+        handle.startTask(completionCookie: completion)
         semaphore.wait()
-        mullvad_api_cancel_task_drop(handle)
 
         guard let response = apiResponse else {
             throw MullvadApiError(description: "No response received")

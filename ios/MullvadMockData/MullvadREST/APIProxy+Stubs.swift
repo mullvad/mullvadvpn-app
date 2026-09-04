@@ -10,6 +10,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 
 struct APIProxyStubError: Error {}

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use mullvad_api::{
     AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
@@ -10,9 +12,7 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use crate::api_client::swift_data::SwiftData;
-
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+use crate::api_client::{access_method_settings::ShadowsocksBridgeProvider, swift_data::SwiftData};
 
 unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
@@ -41,12 +41,11 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
     }
 }
 
-#[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     domain: String,
     state: EncryptedDnsProxyState,
-    bridge_provider: SwiftShadowsocksLoaderWrapper,
+    bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
     address_cache: AddressCache<IOSAddressCacheBacking>,
 }
 
@@ -55,7 +54,7 @@ impl SwiftAccessMethodResolver {
         endpoint: ApiEndpoint,
         domain: String,
         state: EncryptedDnsProxyState,
-        bridge_provider: SwiftShadowsocksLoaderWrapper,
+        bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         address_cache: AddressCache<IOSAddressCacheBacking>,
     ) -> Self {
         Self {
@@ -77,8 +76,8 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
         let connection_mode = match access_method {
             AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
             AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                let bridge = self.bridge_provider.get_bridges()?;
-                let proxy = CustomProxy::Shadowsocks(bridge);
+                let socket = self.bridge_provider.bridge()?.0.clone();
+                let proxy = CustomProxy::Shadowsocks(socket);
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {

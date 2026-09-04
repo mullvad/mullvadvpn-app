@@ -1,51 +1,31 @@
-use libc::c_char;
 use mullvad_api::{
     DevicesProxy,
     rest::{self, MullvadRestHandle},
 };
 
+use crate::api_client::{ApiContext, retry_strategy::mullvad_api_retry_strategy_never};
+
 use super::{
-    SwiftApiContext,
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request, do_request_with_empty_body, get_string,
-    response::SwiftMullvadApiResponse,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
+    cancellation::RequestCancelHandle, do_request, do_request_with_empty_body,
+    response::ApiResponse, retry_strategy::RetryStrategy,
 };
-use std::ptr;
+use std::sync::Arc;
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::PublicKey;
 
-/// Get device info via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_ios_init_new`.
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_device(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
-    identifier: *const c_char,
-) -> SwiftCancelHandle {
-    // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
-    let account_number = unsafe { get_string(account_number) };
-    // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
-    let identifier = unsafe { get_string(identifier) };
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_device_inner(
+#[uniffi::export]
+impl ApiContext {
+    /// Get device info via the Mullvad API client.
+    pub fn get_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match get_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -53,92 +33,61 @@ pub unsafe extern "C" fn mullvad_ios_get_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-    .into_swift()
-}
+            },
+        )
+    }
 
-/// Get devices info via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// the `account_number` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_devices(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
-) -> SwiftCancelHandle {
-    // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
-    let account_number = unsafe { get_string(account_number) };
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_devices_inner(
+    /// Get devices info via the Mullvad API client.
+    pub fn get_devices(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match get_devices_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-    .into_swift()
-}
+            },
+        )
+    }
 
-/// create device via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_create_device(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
-    public_key: *const u8,
-) -> SwiftCancelHandle {
-    // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
-    let account_number = unsafe { get_string(account_number) };
-    // Safety: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-    let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };
+    /// create device via the Mullvad API client.
+    pub fn create_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        public_key: &[u8],
+    ) -> Arc<RequestCancelHandle> {
+        let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+            return RequestCancelHandle::new(
+                self,
+                Arc::new(mullvad_api_retry_strategy_never()),
+                async |_, _, completion_handler| {
+                    completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
+                },
+            );
+        };
 
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_create_device_inner(
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match create_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -146,47 +95,26 @@ pub unsafe extern "C" fn mullvad_ios_create_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-    .into_swift()
-}
+            },
+        )
+    }
 
-/// delete device via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_delete_device(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
-    identifier: *const c_char,
-) -> SwiftCancelHandle {
-    // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
-    let account_number = unsafe { get_string(account_number) };
-    // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
-    let identifier = unsafe { get_string(identifier) };
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_delete_device_inner(
+    /// Delete device via the Mullvad API client.
+    pub fn delete_device(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match delete_device_inner(
                 api_context.rest_handle(),
                 retry_strategy,
                 account_number,
@@ -194,76 +122,63 @@ pub unsafe extern "C" fn mullvad_ios_delete_device(
             )
             .await
             {
-                Ok(response) => completion_handler.finish(response),
+                Ok(response) => completion_handler.finish(Arc::new(response)),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
                 }
-            }
-        },
-    )
-    .into_swift()
+            },
+        )
+    }
+
+    /// Rotate device key via the Mullvad API client.
+    pub fn rotate_device_key(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        account_number: String,
+        identifier: String,
+        public_key: &[u8],
+    ) -> Arc<RequestCancelHandle> {
+        let Ok(pub_key): Result<[u8; 32], _> = public_key.try_into() else {
+            return RequestCancelHandle::new(
+                self,
+                Arc::new(mullvad_api_retry_strategy_never()),
+                async |_, _, completion_handler| {
+                    completion_handler.finish(Arc::new(ApiResponse::other("bad public key size")));
+                },
+            );
+        };
+
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                match rotate_device_key_inner(
+                    api_context.rest_handle(),
+                    retry_strategy,
+                    account_number,
+                    identifier,
+                    PublicKey::from(pub_key),
+                )
+                .await
+                {
+                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    }
+                }
+            },
+        )
+    }
 }
 
-/// rotate device key via the Mullvad API client.
-///
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// the `account_number` must be a pointer to a null terminated string.
-/// the `identifier` must be a pointer to a null terminated string.
-/// the `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_rotate_device_key(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    account_number: *const c_char,
-    identifier: *const c_char,
-    public_key: *const u8,
-) -> SwiftCancelHandle {
-    // SAFETY: The caller must guarantee that `account_number` is a valid C string pointer
-    let account_number = unsafe { get_string(account_number) };
-    // SAFETY: The caller must guarantee that `identifier` is a valid C string pointer
-    let identifier = unsafe { get_string(identifier) };
-    // SAFETY: `public_key` pointer must be a valid pointer to 32 unsigned bytes.
-    let pub_key: [u8; 32] = unsafe { ptr::read(public_key as *const [u8; 32]) };
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_rotate_device_key_inner(
-                api_context.rest_handle(),
-                retry_strategy,
-                account_number,
-                identifier,
-                PublicKey::from(pub_key),
-            )
-            .await
-            {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
-                }
-            }
-        },
-    )
-    .into_swift()
-}
-
-async fn mullvad_ios_get_device_inner(
+async fn get_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
     identifier: String,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = DevicesProxy::new(rest_client);
 
     let future_factory = || api.get_response(account_number.clone(), identifier.clone());
@@ -271,11 +186,11 @@ async fn mullvad_ios_get_device_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_get_devices_inner(
+async fn get_devices_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = DevicesProxy::new(rest_client);
 
     let future_factory = || api.list_response(account_number.clone());
@@ -283,12 +198,12 @@ async fn mullvad_ios_get_devices_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_delete_device_inner(
+async fn delete_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
     identifier: String,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = DevicesProxy::new(rest_client);
 
     let future_factory = || api.remove(account_number.clone(), identifier.clone());
@@ -296,13 +211,13 @@ async fn mullvad_ios_delete_device_inner(
     do_request_with_empty_body(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_rotate_device_key_inner(
+async fn rotate_device_key_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
     identifier: String,
     pub_key: wireguard::PublicKey,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = DevicesProxy::new(rest_client);
 
     let future_factory =
@@ -311,12 +226,12 @@ async fn mullvad_ios_rotate_device_key_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_create_device_inner(
+async fn create_device_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account_number: String,
     pub_key: wireguard::PublicKey,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = DevicesProxy::new(rest_client);
 
     let future_factory = || api.create_response(account_number.clone(), pub_key.clone());

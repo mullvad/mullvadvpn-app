@@ -107,7 +107,7 @@ class RelayListCacheTests: XCTestCase {
 
         let accessMethodsRepository = AccessMethodRepositoryStub.stub
 
-        let context = try MullvadApiContext(
+        let context = ApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
             domain: REST.encryptedDNSHostname,

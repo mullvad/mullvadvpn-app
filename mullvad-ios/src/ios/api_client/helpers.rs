@@ -1,28 +1,21 @@
 use std::{
-    ffi::{CString, c_char, c_void},
+    ffi::CString,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Arc,
 };
 
 use shadowsocks::crypto::available_ciphers;
 use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher, Socks5Remote, SocksAuth};
 
-use super::get_string;
-
 /// Constructs a new IP address from a pointer containing bytes representing an IP address.
 ///
 /// SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
-pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<IpAddr> {
-    match addr_len {
-        4 => {
-            // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
-            Some(Ipv4Addr::new(bytes[0], bytes[1], bytes[2], bytes[3]).into())
-        }
+pub(crate) fn parse_ip_addr(addr: &[u8]) -> Option<IpAddr> {
+    match addr.len() {
+        4 => Some(Ipv4Addr::new(addr[0], addr[1], addr[2], addr[3]).into()),
         16 => {
-            // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
-            let bytes = unsafe { std::slice::from_raw_parts(addr, addr_len) };
             let mut addr_arr = [0u8; 16];
-            addr_arr.as_mut_slice().copy_from_slice(bytes);
+            addr_arr.as_mut_slice().copy_from_slice(addr);
 
             Some(Ipv6Addr::from(addr_arr).into())
         }
@@ -33,76 +26,44 @@ pub(crate) unsafe fn parse_ip_addr(addr: *const u8, addr_len: usize) -> Option<I
     }
 }
 
+#[derive(uniffi::Object)]
+pub struct ShadowsocksWrapper(pub Shadowsocks);
 /// Converts parameters into a boxed `Shadowsocks` configuration that is safe
 /// to send across the FFI boundary
-///
-/// # SAFETY
-/// `address` must be a pointer to at least `address_len` bytes.
-/// `c_password` and `c_cipher` must be pointers to null terminated strings
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
-    address: *const u8,
-    address_len: usize,
+#[uniffi::export]
+pub fn new_shadowsocks_access_method_setting(
+    address: Vec<u8>,
     port: u16,
-    c_password: *const c_char,
-    c_cipher: *const c_char,
-) -> *mut c_void {
-    let endpoint: SocketAddr =
-        // SAFETY: `addr` pointer must be non-null, aligned, and point to at least addr_len bytes
-        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
-            SocketAddr::new(ip_address, port)
-        } else {
-            return std::ptr::null_mut();
-        };
+    password: String,
+    cipher: String,
+) -> Option<Arc<ShadowsocksWrapper>> {
+    let endpoint: SocketAddr = SocketAddr::new(parse_ip_addr(&address)?, port);
 
-    // SAFETY: `c_password` pointer must be a valid C string pointer
-    let password = unsafe { get_string(c_password) };
-    // SAFETY: `c_cipher` pointer must be a valid C string pointer
-    let cipher = unsafe { get_string(c_cipher) };
-    let cipher = ShadowsocksCipher::new(&cipher).unwrap();
+    let cipher = ShadowsocksCipher::new(&cipher).ok()?;
 
     let shadowsocks_configuration = Shadowsocks::new(endpoint, cipher, password);
 
-    Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void
+    Some(Arc::new(ShadowsocksWrapper(shadowsocks_configuration)))
 }
 
+#[derive(uniffi::Object)]
+pub struct Socks5RemoteWrapper(pub Socks5Remote);
 /// Converts parameters into a boxed `Socks5Remote` configuration that is safe
 ///
 /// to send across the FFI boundary
-///
-/// # SAFETY
-/// `address` must be a pointer to at least `address_len` bytes.
-/// `c_username` and `c_password` must be pointers to null terminated strings, or null
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn new_socks5_access_method_setting(
-    address: *const u8,
-    address_len: usize,
+#[uniffi::export]
+pub fn new_socks5_access_method_setting(
+    address: Vec<u8>,
     port: u16,
-    c_username: *const c_char,
-    c_password: *const c_char,
-) -> *mut c_void {
-    let endpoint: SocketAddr =
-        // SAFETY: caller guarantees that `address` is valid for at least `address_len` bytes
-        if let Some(ip_address) = unsafe { parse_ip_addr(address, address_len) } {
-            SocketAddr::new(ip_address, port)
-        } else {
-            return std::ptr::null_mut();
-        };
+    username: Option<String>,
+    password: Option<String>,
+) -> Option<Arc<Socks5RemoteWrapper>> {
+    let endpoint: SocketAddr = SocketAddr::new(parse_ip_addr(&address)?, port);
 
-    let auth = {
-        if c_username.is_null() || c_password.is_null() {
-            None
-        } else {
-            // SAFETY: The caller must guarantee that `c_username` is a valid C string pointer
-            let username = unsafe { get_string(c_username) };
-            // SAFETY: The caller must guarantee that `c_password` is a valid C string pointer
-            let password = unsafe { get_string(c_password) };
-            SocksAuth::new(username, password).ok()
-        }
-    };
+    let auth = SocksAuth::new(username.unwrap_or_default(), password.unwrap_or_default()).ok();
 
     let socks5_configuration = Socks5Remote { endpoint, auth };
-    Box::into_raw(Box::new(socks5_configuration)) as *mut c_void
+    Some(Arc::new(Socks5RemoteWrapper(socks5_configuration)))
 }
 
 #[unsafe(no_mangle)]

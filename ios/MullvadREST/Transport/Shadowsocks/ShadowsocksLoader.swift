@@ -9,10 +9,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 
-public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsocksBridgeProviding, Sendable {
+public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, ShadowsocksBridgeProvider, Sendable {
     let cache: ShadowsocksConfigurationCacheProtocol
     let relaySelector: ShadowsocksRelaySelectorProtocol
     let settingsUpdater: SettingsUpdater
@@ -55,8 +56,13 @@ public final class ShadowsocksLoader: ShadowsocksLoaderProtocol, SwiftShadowsock
         }
     }
 
-    public func bridge() -> ShadowsocksConfiguration? {
-        try? load()
+    public func bridge() -> ShadowsocksWrapper? {
+        guard let data = try? load() else { return nil }
+        return newShadowsocksAccessMethodSetting(
+            address: data.address.rawValue,
+            port: data.port,
+            password: data.password,
+            cipher: data.cipher)
     }
 
     private func addObservers() {
