@@ -14,8 +14,15 @@ import MullvadSettings
 import NetworkExtension
 import UIKit
 
+#if NEVER_IN_PRODUCTION
+    typealias AppResetManager = AppResetManagerReal
+#else
+    typealias AppResetManager = AppResetManagerNoOp
+#endif
+
+
 @MainActor
-final class AppResetManager {
+final class AppResetManagerReal {
     private let launchArguments: LaunchArguments
     private let tunnelManager: TunnelManager
     private let settingsManager: SettingsManager
@@ -152,6 +159,17 @@ final class AppResetManager {
             }
         #endif
     }
+}
+
+@MainActor
+final class AppResetManagerNoOp {
+    init(
+        launchArguments: LaunchArguments,
+        tunnelManager: TunnelManager,
+        settingsManager: SettingsManager
+    ) {}
+
+    func start() {}
 }
 
 extension UITestSettingsKey {
