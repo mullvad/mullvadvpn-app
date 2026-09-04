@@ -145,9 +145,9 @@ bundled certificate.
 
 #### Tunnel
 
-The networks that "Allow LAN" permits outside the tunnel are blocked *on* the tunnel interface,
-with some exceptions where private ranges are used to communicate with relays, SOCKS proxies, etc.
-Current exceptions:
+The networks that "Allow LAN" permits outside the tunnel are blocked outbound *on* the tunnel
+interface, with some exceptions where private ranges are used to communicate with relays, SOCKS
+proxies, etc. Current exceptions:
 
 * `10.0.0.0/8`, and
 * `fc00:bbbb:bbbb:bb01::/64`.
