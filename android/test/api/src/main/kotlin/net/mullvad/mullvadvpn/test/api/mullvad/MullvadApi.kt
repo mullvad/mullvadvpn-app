@@ -27,10 +27,12 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.api.misc.KermitLogger
+import net.mullvad.mullvadvpn.test.api.misc.systemTrustManager
 
 class MullvadApi(private val baseDomain: String) {
     private val client: HttpClient =
         HttpClient(CIO) {
+            engine { https { trustManager = systemTrustManager() } }
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             install(Resources)
             install(Logging) {

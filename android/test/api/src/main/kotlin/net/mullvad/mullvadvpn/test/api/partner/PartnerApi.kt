@@ -24,10 +24,12 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.api.misc.KermitLogger
+import net.mullvad.mullvadvpn.test.api.misc.systemTrustManager
 
 class PartnerApi(base64AuthCredentials: String, private val baseDomain: String) {
     private val client: HttpClient =
         HttpClient(CIO) {
+            engine { https { trustManager = systemTrustManager() } }
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             install(Logging) {
                 logger = KermitLogger()

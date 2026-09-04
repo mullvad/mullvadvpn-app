@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.api.misc.KermitLogger
+import net.mullvad.mullvadvpn.test.api.misc.systemTrustManager
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 
 class RelayApi(billingFlavor: String, private val baseDomain: String) {
@@ -24,6 +25,7 @@ class RelayApi(billingFlavor: String, private val baseDomain: String) {
 
     private val client: HttpClient =
         HttpClient(CIO) {
+            engine { https { trustManager = systemTrustManager() } }
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             install(Logging) {
                 logger = KermitLogger()
