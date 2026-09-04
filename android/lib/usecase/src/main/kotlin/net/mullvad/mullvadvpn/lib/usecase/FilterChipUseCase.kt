@@ -6,13 +6,11 @@ import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isLwoEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isQuicEnabled
 import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByDaita
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByLwo
-import net.mullvad.mullvadvpn.lib.common.util.shouldFilterByQuic
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.hopType
@@ -91,8 +89,8 @@ class FilterChipUseCase(
                 add(FilterChip.Provider(providerCountFilter))
             }
             if (
-                shouldFilterByDaita(
-                    isDaitaEnabled = settings?.isDaitaEnabled() == true,
+                shouldShowFilterByFeature(
+                    isFeatureEnabled = settings?.isDaitaEnabled() == true,
                     isWhenNeededMultihopEnabled = settings?.isWhenNeededMultihop() == true,
                     relayListType = relayListType,
                 )
@@ -100,17 +98,36 @@ class FilterChipUseCase(
                 add(FilterChip.Daita)
             }
             if (
-                shouldFilterByQuic(settings?.isQuicEnabled() == true, relayListType = relayListType)
+                shouldShowFilterByFeature(
+                    isFeatureEnabled = settings?.isQuicEnabled() == true,
+                    isWhenNeededMultihopEnabled = settings?.isWhenNeededMultihop() == true,
+                    relayListType = relayListType,
+                )
             ) {
                 add(FilterChip.Quic)
             }
             if (
-                shouldFilterByLwo(settings?.isLwoEnabled() == true, relayListType = relayListType)
+                shouldShowFilterByFeature(
+                    isFeatureEnabled = settings?.isLwoEnabled() == true,
+                    isWhenNeededMultihopEnabled = settings?.isWhenNeededMultihop() == true,
+                    relayListType = relayListType,
+                )
             ) {
                 add(FilterChip.Lwo)
             }
         }
     }
+
+    private fun shouldShowFilterByFeature(
+        isFeatureEnabled: Boolean,
+        isWhenNeededMultihopEnabled: Boolean,
+        relayListType: RelayListType,
+    ) =
+        when (relayListType) {
+            RelayListType.Single -> isFeatureEnabled && !isWhenNeededMultihopEnabled
+            is RelayListType.Multihop ->
+                isFeatureEnabled && relayListType.hopType == RelayHopType.ENTRY
+        }
 }
 
 sealed interface FilterChip {
