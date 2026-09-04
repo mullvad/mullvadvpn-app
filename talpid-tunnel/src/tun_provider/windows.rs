@@ -5,6 +5,9 @@ use tun::{self, AbstractDeviceExt};
 use tun::{AbstractDevice, AsyncDevice, Configuration};
 use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 
+/// Maximum time to wait for the tunnel IP addresses to complete duplicate address detection.
+const WAIT_FOR_ADDRESSES_TIMEOUT: Duration = Duration::from_secs(5);
+
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -31,6 +34,10 @@ pub enum Error {
     /// Timeout waiting for IP interfaces
     #[error("Error waiting for IP interfaces")]
     WaitForInterfaces(#[source] talpid_windows::net::Error),
+
+    /// Timeout waiting for the tunnel IP addresses to become usable
+    #[error("Error waiting for tunnel IP addresses")]
+    WaitForAddresses(#[source] talpid_windows::net::Error),
 
     /// Failed to configure IP interfaces
     #[error("Failed to configure MTU and metric")]
@@ -104,6 +111,20 @@ impl WindowsTunProvider {
         }
 
         tunnel_device.set_up(true)?;
+
+        // Wait for the addresses to become usable. Until they are, they cannot be selected as
+        // source addresses, so connections made this early may be routed out another interface and
+        // blocked (WSAEACCES). Suspected, not confirmed: they are normally usable right away.
+        // TODO: Like the interface wait above, this isn't cancellable by the user or TSM.
+        let luid = NET_LUID_LH {
+            Value: tunnel_device.dev.tun_luid(),
+        };
+        talpid_windows::net::wait_for_addresses_sync(
+            luid,
+            &self.config.addresses,
+            WAIT_FOR_ADDRESSES_TIMEOUT,
+        )
+        .map_err(Error::WaitForAddresses)?;
 
         Ok(WindowsTun(tunnel_device))
     }
