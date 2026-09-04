@@ -41,5 +41,8 @@ tonic-prost-build = { workspace = true, features = ["transport"] }
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["socket"] }
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { workspace = true, features = ["Win32_Networking_WinSock"] }
+
 [lints]
 workspace = true
