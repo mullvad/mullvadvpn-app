@@ -1,12 +1,12 @@
 import { LocationType } from '../../../../../features/locations/types';
 import { LocationSelector } from '../../../../../lib/components/location-selector';
-import { useIsLocationSelectorExpanded } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { SelectLocationSelectorDeviceRow } from '../select-location-selector-device-row';
 import { SelectLocationSelectorInternetRow } from '../select-location-selector-internet-row';
 import { SelectLocationSelectorEntryItem, SelectLocationSelectorExitItem } from './components';
 import {
   useHandleSelectedItemChange,
+  useIsExpanded,
   useLocationSelectorVariant,
   useShowSelectLocationSelectorEntryItem,
   useShowSelectLocationSelectorExitItem,
@@ -14,8 +14,9 @@ import {
 
 export function SelectLocationSelector() {
   const { locationType } = useSelectLocationViewContext();
-  const expanded = useIsLocationSelectorExpanded();
+
   const handleSelectedItemChange = useHandleSelectedItemChange();
+  const isExpanded = useIsExpanded();
 
   const selectedItem = locationType === LocationType.entry ? 'entry' : 'exit';
 
@@ -27,7 +28,7 @@ export function SelectLocationSelector() {
     <LocationSelector
       selectedItem={selectedItem}
       onSelectedItemChange={handleSelectedItemChange}
-      expanded={expanded}
+      expanded={isExpanded}
       variant={variant}>
       <SelectLocationSelectorDeviceRow />
       <LocationSelector.Items>
