@@ -15,8 +15,14 @@ use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
-const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
+
+#[cfg(windows)]
+// Match the socket-level no-progress windows used on Linux and macOS. Later
+// attempts give a responsive-but-slow server progressively more time.
+const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(12);
+
+#[cfg(windows)]
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 #[cfg(windows)]
@@ -265,11 +271,19 @@ async fn request_ephemeral_peer(
 ) -> std::result::Result<EphemeralPeer, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
+    // Windows uses an exponential backoff retry strategy.
+    #[cfg(windows)]
     let timeout = std::cmp::min(
         MAX_PSK_EXCHANGE_TIMEOUT,
         INITIAL_PSK_EXCHANGE_TIMEOUT
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
     );
+    // On other platforms, we rely on TCP parameters for the timeout, and this
+    // serves only as an upper bound. We do this as the kernel level timeouts
+    // are reset when we receive ACK's, allowing for longer attempts when
+    // progress is being made.
+    #[cfg(not(windows))]
+    let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
 
     // TCP socket with extra reliability settings
     let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
@@ -287,24 +301,18 @@ async fn request_ephemeral_peer(
         &tcp_socket,
     );
 
-    let ephemeral = match tokio::time::timeout(timeout, request_future).await {
-        Ok(result) => result
-            .map_err(Error::EphemeralPeerNegotiationError)
-            .map_err(CloseMsg::SetupError)?,
-        Err(_) => {
-            let elapsed = start_time.elapsed();
-            log::warn!(
-                "Timeout while negotiating ephemeral peer \
-                 (retry {retry_attempt}, timeout {timeout:?}, PQ={enable_pq}, \
-                 DAITA={enable_daita}, elapsed {elapsed:?})"
-            );
-            if let Some(info) = tcp_socket.query_tcp_info() {
-                log::warn!("{info:?}");
-            }
-
-            return Err(CloseMsg::EphemeralPeerNegotiationTimeout);
-        }
+    let msg = match tokio::time::timeout(timeout, request_future).await {
+        Ok(Ok(ephemeral)) => return Ok(ephemeral),
+        Ok(Err(err)) => CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(err)),
+        Err(_) => CloseMsg::EphemeralPeerNegotiationTimeout,
     };
-
-    Ok(ephemeral)
+    let elapsed = start_time.elapsed();
+    log::warn!(
+        "Ephemeral peer negotiation failed after {elapsed:?}\
+        (retry {retry_attempt}, PQ={enable_pq}, DAITA={enable_daita})"
+    );
+    if let Some(info) = tcp_socket.query_tcp_info() {
+        log::warn!("{info:?}");
+    }
+    Err(msg)
 }
