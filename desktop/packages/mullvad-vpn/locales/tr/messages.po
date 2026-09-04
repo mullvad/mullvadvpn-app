@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2026-07-10 07:35\n"
+"PO-Revision-Date: 2026-09-03 06:40\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -141,9 +141,6 @@ msgstr "Sil"
 msgid "Delete list"
 msgstr "Listeyi sil"
 
-msgid "Direct only"
-msgstr "Yalnızca doğrudan"
-
 msgid "Disable"
 msgstr "Devre dışı bırak"
 
@@ -174,10 +171,6 @@ msgstr "Etkinleştir"
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
 
-#. A toggle that refers to the setting "Direct only".
-msgid "Enable direct only"
-msgstr "\"Yalnızca doğrudan\" seçeneğini etkinleştir"
-
 #. Error message shown trying to login but the app fails
 #. to fetch the list of registered devices.
 msgid "Failed to fetch list of devices"
@@ -195,6 +188,9 @@ msgstr "Sistem Ayarlarına Git"
 
 msgid "Got it!"
 msgstr "Anladım!"
+
+msgid "Guide"
+msgstr "Kılavuz"
 
 msgid "Import"
 msgstr "İçe aktar"
@@ -293,17 +289,13 @@ msgstr "Konumları veya sunucuları arayın"
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
 
-#. Text for button that sets a location as entry relay when button is disabled.
-msgid "Set as multihop entry"
-msgstr "Çoklu geçiş girişi olarak ayarla"
-
-#. Text for button that sets a location as entry relay
-msgid "Set as multihop entry (incompatible)"
-msgstr "Çoklu geçiş girişi olarak ayarla (uyumlu değil)"
+#. Text for button that sets a location as entry relay.
+msgid "Set as entry"
+msgstr "Giriş olarak ayarla"
 
 #. Text for button that sets a location as exit relay
-msgid "Set as multihop exit"
-msgstr "Çoklu geçiş çıkışı olarak ayarla"
+msgid "Set as exit"
+msgstr "Çıkış olarak ayarla"
 
 msgid "Settings"
 msgstr "Ayarlar"
@@ -1045,17 +1037,15 @@ msgctxt "connect-container"
 msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
-#. This is used as a feature indicator to show that DAITA is enabled through
-#. multihop.
-#. Available placeholders:
-#. %(DAITA)s - Is a non-translatable feature "DAITA"
-msgctxt "connect-view"
-msgid "%(DAITA)s: Multihop"
-msgstr "%(DAITA)s: Çoklu geçiş"
-
 msgctxt "connect-view"
 msgid "Active features"
 msgstr "Aktif özellikler"
+
+#. This is used as a feature indicator to show that multihop is used
+#. to enable the connection.
+msgctxt "connect-view"
+msgid "Automatic multihop"
+msgstr "Otomatik çoklu geçiş"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -2081,6 +2071,12 @@ msgctxt "select-location-view"
 msgid "All locations"
 msgstr "Tüm konumlar"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Always".
+msgctxt "select-location-view"
+msgid "Always"
+msgstr "Her zaman"
+
 #. Message shown in the custom list section when the user has at least one custom list.
 #. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
@@ -2091,11 +2087,6 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Özel listeler"
 
-#. Used in button to disable multihop.
-msgctxt "select-location-view"
-msgid "Disable multihop"
-msgstr "Çoklu geçişi devre dışı bırak"
-
 msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr "Son filtreleri devre dışı bırak"
@@ -2104,11 +2095,6 @@ msgstr "Son filtreleri devre dışı bırak"
 msgctxt "select-location-view"
 msgid "Empty"
 msgstr "Boş"
-
-#. Used in button to enable multihop.
-msgctxt "select-location-view"
-msgid "Enable multihop"
-msgstr "Çoklu geçişi etkinleştir"
 
 msgctxt "select-location-view"
 msgid "Enable recents"
@@ -2126,6 +2112,17 @@ msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr "Filtrelendi:"
 
+#. Title for a menu with items for the Multihop mode setting options.
+msgctxt "select-location-view"
+msgid "Multihop mode"
+msgstr "Çoklu geçiş modu"
+
+#. Label for a menu option to change the Multihop mode setting
+#. option to "Never".
+msgctxt "select-location-view"
+msgid "Never"
+msgstr "Asla"
+
 #. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
 msgid "No recent selection history"
@@ -2137,10 +2134,6 @@ msgstr "Son seçim geçmişi yok"
 msgctxt "select-location-view"
 msgid "Obfuscation: %(obfuscation)s"
 msgstr "Gizleme: %(obfuscation)s"
-
-msgctxt "select-location-view"
-msgid "Open %(daita)s settings"
-msgstr "%(daita)s ayarlarını aç"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -2163,9 +2156,11 @@ msgctxt "select-location-view"
 msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr "%(visibleRelays)s/%(totalRelays)s gösteriliyor"
 
+#. Label for a menu option to change the Multihop mode setting
+#. option to "When needed".
 msgctxt "select-location-view"
-msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
-msgstr "%(multihop)s için giriş sunucusu şu anda %(daita)s tarafından geçersiz kılınıyor. Bir giriş sunucusu seçmek için lütfen önce \"%(directOnly)s\"' seçeneğini etkinleştirin veya \"%(daita)s\" seçeneğini devre dışı bırakın."
+msgid "When needed"
+msgstr "Gerektiğinde"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -2238,6 +2233,12 @@ msgctxt "settings-import"
 msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
 msgstr "Bu sınırlamadan kaçınmak için Konum Seç görünümündeki varsayılan sunucu adreslerini geçersiz kılan yeni IP adreslerine sahip bir dosyayı veya metni (destek ekibimiz tarafından sağlanır) içe aktarabilirsiniz."
 
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Always" option is selected.
+msgctxt "settings-view"
+msgid "Always"
+msgstr "Her zaman"
+
 #. Navigation button to the 'API access methods' view
 msgctxt "settings-view"
 msgid "API access"
@@ -2251,6 +2252,12 @@ msgstr "Uygulama bilgileri"
 msgctxt "settings-view"
 msgid "Multihop"
 msgstr "Çoklu geçiş"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "Never" option is selected.
+msgctxt "settings-view"
+msgid "Never"
+msgstr "Asla"
 
 #. Title label in navigation bar
 msgctxt "settings-view"
@@ -2276,6 +2283,12 @@ msgstr "Kullanıcı arayüzü ayarları"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN ayarları"
+
+#. Display name of the currently selected option for the Multihop mode setting
+#. when the "When needed" option is selected.
+msgctxt "settings-view"
+msgid "When needed"
+msgstr "Gerektiğinde"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -2714,6 +2727,10 @@ msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Kumar"
 
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Bağlanamıyorsanız ana bilgisayar adı yerine IP adresini kullanmayı deneyebilirsiniz. Bir alt ağa veya özel ağ adres aralığına bağlanmak istiyorsanız statik yönlendirme ekleme kılavuzumuzu izleyebilirsiniz."
+
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
 msgid "In-tunnel IPv6"
@@ -2854,21 +2871,19 @@ msgctxt "wireguard-settings-view"
 msgid "%(wireGuard)s port"
 msgstr "%(wireGuard)s portu"
 
+#. Label for the Multihop mode setting's option to always use the multihop
+#. feature.
+msgctxt "wireguard-settings-view"
+msgid "Always"
+msgstr "Her zaman"
+
 msgctxt "wireguard-settings-view"
 msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr "Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın."
 
 msgctxt "wireguard-settings-view"
-msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
-msgstr "\"%(directOnly)s\" seçeneğini etkinleştirdiğinizde %(daita)s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir."
-
-msgctxt "wireguard-settings-view"
 msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
 msgstr "Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür."
-
-msgctxt "wireguard-settings-view"
-msgid "Cancel"
-msgstr "İptal et"
 
 #. Title for device IP version setting.
 msgctxt "wireguard-settings-view"
@@ -2883,6 +2898,11 @@ msgctxt "wireguard-settings-view"
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
 msgstr "Bu işlemi, kuantum güvenli bir algoritma kullanarak ek bir anahtar değişimi gerçekleştirip sonucu WireGuard’ın standart şifrelemesine karıştırarak yapar."
 
+#. Title for Multihop mode setting.
+msgctxt "wireguard-settings-view"
+msgid "Mode"
+msgstr "Mod"
+
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
 #. the VPN tunnel.
@@ -2895,17 +2915,14 @@ msgid "Multihop"
 msgstr "Çoklu geçiş"
 
 msgctxt "wireguard-settings-view"
-msgid "Multihop is being used to enable DAITA for your selected location"
-msgstr "Seçtiğiniz konumda DAITA'yı etkinleştirmek için Çoklu Geçiş kullanılıyor"
-
-msgctxt "wireguard-settings-view"
 msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
 msgstr "Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır."
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
+#. Label for the Multihop mode setting's option to never use the multihop
+#. feature.
 msgctxt "wireguard-settings-view"
-msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
-msgstr "%(daita)s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir."
+msgid "Never"
+msgstr "Asla"
 
 msgctxt "wireguard-settings-view"
 msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
@@ -2971,12 +2988,21 @@ msgctxt "wireguard-settings-view"
 msgid "Valid ranges: %(portRanges)s"
 msgstr "Geçerli aralıklar: %(portRanges)s"
 
+#. Label for the Multihop mode setting's option to use the multihop
+#. feature when it is needed.
+msgctxt "wireguard-settings-view"
+msgid "When needed"
+msgstr "Gerektiğinde"
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor."
 
 msgid "%1$d out of %2$d"
 msgstr "%1$d / %2$d"
+
+msgid "%1$s Back"
+msgstr "%1$s Geri"
 
 msgid "%1$s more..."
 msgstr "%1$s tane daha..."
@@ -3134,6 +3160,9 @@ msgstr "Her zaman açık VPN %s uygulamasına atandı"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Her zaman açık VPN diğer VPN'e atandı"
 
+msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
+msgstr "Şu anda, bağlantının çalışmasını sağlamak için gerektiğinde bir giriş sunucusu otomatik olarak seçiliyor. Giriş sunucusunu manuel olarak seçmek için lütfen çoklu geçiş modunu “Her zaman” olarak değiştirin."
+
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için"
 
@@ -3158,11 +3187,23 @@ msgstr "En az bir yöntemin etkinleştirilmesi gerekiyor"
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun."
 
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr "Dikkat: Bu modda ek sunucu için filtreler dikkate alınmaz."
+
+msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
+msgstr "Dikkat: Bu işlem, giriş noktası olarak kullanılan sunucunun filtre ayarlarını yoksayacaktır."
+
+msgid "Attention: With the “Automatic” location, filters are ignored for the entry server."
+msgstr "Dikkat: “Otomatik” konum seçeneği kullanıldığında giriş sunucusu için uygulanan filtreler yoksayılır."
+
 msgid "Auto-connect & Lockdown mode"
 msgstr "Otomatik bağlantı ve Kilitleme modu"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
+
+msgid "Automatic (%s)"
+msgstr "Otomatik (%s)"
 
 msgid "Automatically connect on device start-up."
 msgstr "Cihaz başlatıldığında otomatik bağlan."
@@ -3188,8 +3229,14 @@ msgstr "Bağlanamıyor musunuz?"
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "Android cihazınızdaki Mullvad VPN uygulamasının başlığını ve simgesini değiştirin. Bu işlem, Mullvad VPN ile ilgili bildirimlerin simgesini değiştirmeyecektir."
 
+msgid "Change to “When needed”"
+msgstr "“Gerektiğinde” olarak değiştir"
+
 msgid "Clear input"
 msgstr "Girişi temizle"
+
+msgid "Click here to read more"
+msgstr "Daha fazla bilgi için buraya tıklayın"
 
 msgid "Collapse"
 msgstr "Daralt"
@@ -3236,6 +3283,9 @@ msgstr "Özel DNS sunucu adresleri (%1$s) geçersiz"
 msgid "DNS settings"
 msgstr "DNS ayarları"
 
+msgid "DNS settings might not go into effect immediately."
+msgstr "DNS ayarları hemen etkili olmayabilir."
+
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" silinsin mi\"?"
 
@@ -3259,6 +3309,9 @@ msgstr "Doğrudan"
 
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr "Bu ayarı etkinleştirmek için yukarıdaki \"%s\" seçeneklerinin tümünü devre dışı bırakın."
+
+msgid "Disable multihop"
+msgstr "Çoklu geçişi devre dışı bırak"
 
 msgid "Discard"
 msgstr "İptal et"
@@ -3287,9 +3340,6 @@ msgstr "Listeleri düzenle"
 msgid "Edit locations"
 msgstr "Konumları düzenle"
 
-msgid "Enable %1$s"
-msgstr "%1$s ayarını etkinleştir"
-
 msgid "Enable all & retry"
 msgstr "Tümünü etkinleştir ve tekrar dene"
 
@@ -3311,11 +3361,17 @@ msgstr "Hesap numarası rakamlarını girin"
 msgid "Enter an account number"
 msgstr "Bir hesap numarası girin"
 
+msgid "Entry filter"
+msgstr "Giriş filtresi"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Giriş aktarıcısı çıkış aktarıcısıyla aynı"
 
 msgid "Excluded applications"
 msgstr "Hariç tutulan uygulamalar"
+
+msgid "Exit filter"
+msgstr "Çıkış filtresi"
 
 msgid "Expand"
 msgstr "Genişlet"
@@ -3343,6 +3399,12 @@ msgstr "Geçerli olarak ayarlanamadı - Bilinmeyen neden"
 
 msgid "File"
 msgstr "Dosya"
+
+msgid "Filters are overridden when using an automatic location"
+msgstr "Otomatik konum kullanıldığında filtreler geçersiz kılınır"
+
+msgid "Filters can now be set separately for entry and exit locations."
+msgstr "Filtreler artık giriş ve çıkış konumları için ayrı ayrı ayarlanabilir."
 
 msgid "For details, please see our %s."
 msgstr "Ayrıntılar için lütfen %s sayfamıza göz atın."
@@ -3391,6 +3453,12 @@ msgstr "Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü t�
 
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr "Bu adımlar işe yaramazsa, lütfen aşağıdaki düğmeyi kullanarak destek ekibine bir e-posta gönderin. Anonimleştirilmiş kayıtlar otomatik olarak eklenerek gönderilir."
+
+msgid "If you have any issues"
+msgstr "Sorun yaşarsanız"
+
+msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
+msgstr "Mevcut konumunuz sansürü aşma yöntemi, filtreler ve/veya DAITA gibi tercihlerinizi desteklemiyorsa bu konuma uyumlu bir sunucu üzerinden bağlanmak için çoklu geçiş otomatik olarak kullanılır. Bu durum %1$s simgesiyle gösterilir."
 
 msgid "Import new overrides by"
 msgstr "Şuradaki yeni geçersiz kılmaları içe aktar"
@@ -3452,17 +3520,35 @@ msgstr "Oturum aç"
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr "Cihazın her zaman VPN tünelinde olduğundan emin olun."
 
+msgid "Migrated settings"
+msgstr "Taşınan ayarlar"
+
 msgid "More actions"
 msgstr "Diğer işlemler"
 
 msgid "Mullvad services unavailable"
 msgstr "Mullvad hizmetleri kullanılamıyor"
 
+msgid "Multihop entry set to “Automatic”"
+msgstr "Çoklu geçiş girişi \"Otomatik\" olarak ayarlandı"
+
 msgid "Multihop is disabled"
 msgstr "Çoklu geçiş devre dışı"
 
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr "Çoklu geçiş devre dışı. Bağlantı kurmak için seçtiğiniz konumun tüm etkin ayarları desteklemesi gerekir."
+
 msgid "Multihop is enabled"
 msgstr "Çoklu geçiş etkin"
+
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr "Çoklu geçiş etkin. Bağlantınız, seçilen konum üzerinden çıkış yapmadan önce bir giriş sunucusu üzerinden yönlendirilir."
+
+msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
+msgstr "Çoklu geçiş artık üç moda ayrıldı: Gerektiğinde, Her zaman ve Asla.\\nBu sayede bağlantı tercihlerinizi daha esnek bir şekilde ayarlamanızı sağlar."
+
+msgid "Multihop when needed"
+msgstr "Gerektiğinde çoklu geçiş"
 
 msgid "Name is already taken."
 msgstr "İsim zaten kullanılıyor."
@@ -3472,6 +3558,12 @@ msgstr "Ad, %s olarak değiştirildi"
 
 msgid "Navigate"
 msgstr "Git"
+
+msgid "New multihop modes"
+msgstr "Yeni çoklu geçiş modları"
+
+msgid "Next %1$s"
+msgstr "İleri %1$s"
 
 msgid "No Android app store installed, could not open link"
 msgstr "Android uygulama mağazası yüklü olmadığından bağlantı açılamadı"
@@ -3532,6 +3624,9 @@ msgstr "İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın"
 
 msgid "Patch not matching specification"
 msgstr "Yama spesifikasyonla eşleşmiyor"
+
+msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
+msgstr "Çıkış konumunuza göre uygun bir konum seçer. Bu seçim; mesafe, sağlayıcı ve sunucu yükü gibi çeşitli etkenlere göre yapılır."
 
 msgid "Please enter a message"
 msgstr "Lütfen bir mesaj girin"
@@ -3611,6 +3706,9 @@ msgstr "Geçersiz kılmaları sıfırla"
 msgid "Reset to default"
 msgstr "Varsayılana sıfırla"
 
+msgid "Resolve connection issues"
+msgstr "Bağlantı sorunlarını gider"
+
 msgid "Restart your device"
 msgstr "Cihazınızı yeniden başlatın"
 
@@ -3620,14 +3718,35 @@ msgstr "Ara"
 msgid "Send email"
 msgstr "E-posta gönder"
 
+msgid "Separate filters"
+msgstr "Ayrı filtreler"
+
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d."
+
+msgid "Set as multihop entry"
+msgstr "Çoklu geçiş girişi olarak ayarla"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Çoklu geçiş girişi olarak ayarla (uyumlu değil)"
+
+msgid "Set as multihop exit"
+msgstr "Çoklu geçiş çıkışı olarak ayarla"
 
 msgid "Set as multihop exit (incompatible)"
 msgstr "Çoklu geçiş çıkışı olarak ayarla (uyumlu değil)"
 
+msgid "Set entry to “Automatic”"
+msgstr "Girişi “Otomatik” olarak ayarla"
+
+msgid "Set multihop to “Always”"
+msgstr "Çoklu geçişi “Her zaman” olarak ayarla"
+
 msgid "Set port"
 msgstr "Portu ayarla"
+
+msgid "Settings Migrated"
+msgstr "Ayarlar Aktarıldı"
 
 msgid "Share…"
 msgstr "Paylaş…"
@@ -3644,11 +3763,26 @@ msgstr "Mevcut VPN tünelinin durumunu gösterir"
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir"
 
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr "Ayarlarınızdan bazıları taşındı. Lütfen değişiklikleri gözden geçirin ve sorunları giderin."
+
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr "Ayarlarınızdan bazıları taşındı. Lütfen değişiklikleri gözden geçirin."
+
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr "Satın alma işleminizi doğrularken bir sorun oluştu. Lütfen destek ekibiyle iletişime geçin."
 
 msgid "Submit"
 msgstr "Gönder"
+
+msgid "Suggested action"
+msgstr "Önerilen işlem"
+
+msgid "Suggested multihop entry"
+msgstr "Önerilen çoklu geçiş girişi"
+
+msgid "System network settings"
+msgstr "Sistem ağ ayarları"
 
 msgid "TCP"
 msgstr "TCP"
@@ -3667,6 +3801,9 @@ msgstr "Topluluğumuzun bir parçası olduğunuz için teşekkür ederiz.\\nGizl
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
+
+msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
+msgstr "DAITA'nın \"Yalnızca doğrudan\" alt ayarı kaldırıldı ve bağlantıların engellenmesini önlemek için yapı basitleştirildi. Bunun yerine DAITA etkinken bu seçimi çoklu geçiş ayarı üzerinden yapabilirsiniz."
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
 msgstr "VPN ayarlarındaki \"IPv6\" seçeneğini etkinleştirmediğiniz sürece IPv6 DNS sunucusu çalışmaz."
@@ -3692,6 +3829,9 @@ msgstr "Uygulama, Mullvad API'ye erişemediği için giriş yapılamıyor."
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr "VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu etkinleşmez."
 
+msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
+msgstr "Çoklu geçişteki “Her zaman” modu artık giriş sunucusu seçimi için \"Otomatik\" konum seçeneğini içeriyor."
+
 msgid "The selected %s port is not supported, please change it under"
 msgstr "Seçilen %s portu desteklenmiyor, lütfen portu değiştirin:"
 
@@ -3713,17 +3853,29 @@ msgstr "Bu, zaten geçerli olarak ayarlı yöntemdir"
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr "Bu, sansür veya ağ sorunlarından kaynaklanıyor olabilir. Lütfen şunları deneyin:"
 
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr "Bu mod, mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmas için gerektiğinde uygulamanın ek bir sunucu üzerinden otomatik olarak çoklu geçiş kullanmasına olanak tanır."
+
 msgid "Time added"
 msgstr "Süre eklendi"
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
 msgstr "Konumları bir listeye eklemek için kalem simgesine dokunun veya bir ülkeye, şehre ya da sunucuya uzun basın."
 
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”."
+msgstr "Bağlantınızın engellenmesini önlemek için çoklu geçiş modunu “Gerektiğinde” olarak ayarlamanızı öneririz."
+
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to “Automatic”."
+msgstr "Giriş sunucusunu manuel olarak değiştirmek zorunda kalmamak için çoklu geçiş giriş sunucusunu “Otomatik” olarak ayarlamanızı öneririz."
+
 msgid "To create a custom list press the \"+\""
 msgstr "Özel bir liste oluşturmak için “+” simgesine dokunun"
 
 msgid "To delete your Mullvad VPN account, please enter your account number below."
 msgstr "Mullvad VPN hesabınızı silmek için lütfen aşağıya hesap numaranızı girin."
+
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the %1$s symbol."
+msgstr "Mevcut ayarlarınızın seçtiğiniz konumla uyumlu çalışmasını sağlamak ve bağlantınızın engellenmesini önlemek için uygulama, farklı bir giriş sunucusu üzerinden otomatik olarak çoklu geçiş yapabilir.\\nBu durum %1$s simgesiyle gösterilir."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
@@ -3733,6 +3885,9 @@ msgstr "VPN'i aç/kapat"
 
 msgid "Too many attempts, please try again later"
 msgstr "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin."
+
+msgid "Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings."
+msgstr "Mullvad’ın DNS ayarlarıyla çakışabileceği için Özel DNS’i %s bölümünden kapatın."
 
 msgid "UDP"
 msgstr "UDP"
@@ -3848,6 +4003,15 @@ msgstr "Hava durumu"
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr "Hoş geldiniz, bu cihazın yeni adı artık <b>%s</b>."
 
+msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
+msgstr "Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir."
+
+msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr "Çoklu geçiş ayarı \"Her zaman\" veya \"Asla\" olarak belirlendiğinde bir DAITA sunucusunu manuel olarak seçmeniz gerekir."
+
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr "Seçildiğinde uygulama otomatik olarak rastgele bir sunucu seçer ve daha iyi performans için çıkış konumuna daha yakın olanlara öncelik verir."
+
 msgid "WireGuard port"
 msgstr "WireGuard portu"
 
@@ -3872,11 +4036,29 @@ msgstr "Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz."
 msgid "You will lose your remaining"
 msgstr "Kalan bakiyenizi kaybedeceksiniz"
 
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr "Mevcut filtreleriniz hem giriş hem de çıkış konumlarına uygulandı."
+
 msgid "Your device"
 msgstr "Cihazınız"
 
+msgid "Your device (%s)"
+msgstr "Cihazınız (%s)"
+
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr "Son satın alma işleminiz hâlâ doğrulanıyor. Başka bir hesaba giriş yapmak doğrulamanın başarısız olmasına neden olur. Yine de çıkış yapmak istiyor musunuz?"
+
+msgid "Your multihop setting was migrated from “Off” to “Always”"
+msgstr "Çoklu geçiş ayarınız “Kapalı” yerine “Her zaman” olarak ayarlandı"
+
+msgid "Your multihop setting was migrated from “Off” to “Never”"
+msgstr "Çoklu geçiş ayarınız “Kapalı” yerine “Asla” olarak ayarlandı"
+
+msgid "Your multihop setting was migrated from “Off” to “When needed”"
+msgstr "Çoklu geçiş ayarınız “Kapalı” yerine “Gerektiğinde” olarak ayarlandı"
+
+msgid "Your multihop setting was migrated from “On” to “Always”"
+msgstr "Çoklu geçiş ayarınız “Açık” yerine “Her zaman” olarak ayarlandı"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" oluşturuldu"
@@ -3898,6 +4080,12 @@ msgstr "gizlilik politikası"
 
 msgid "read more here"
 msgstr "buradan daha fazla bilgi edinin"
+
+msgid "via %1$s, %2$s"
+msgstr "%1$s, %2$s üzerinden"
+
+msgid "“Direct Only” removed"
+msgstr "“Yalnızca doğrudan” seçimi kaldırıldı"
 
 msgid "%d day"
 msgid_plural "%d days"
