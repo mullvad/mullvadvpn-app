@@ -280,7 +280,7 @@ async fn request_ephemeral_peer(
     );
     // On other platforms, we rely on TCP parameters for the timeout, and this
     // serves only as an upper bound. We do this as the kernel level timeouts
-    // are reset when we receive ACK's, allowing for longer attempts when when
+    // are reset when we receive ACK's, allowing for longer attempts when
     // progress is being made.
     #[cfg(not(windows))]
     let timeout = MAX_PSK_EXCHANGE_TIMEOUT;
