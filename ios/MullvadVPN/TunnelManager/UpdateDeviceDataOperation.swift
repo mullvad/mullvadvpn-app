@@ -16,24 +16,26 @@ import MullvadTypes
 import Operations
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked Sendable {
-    private let interactor: TunnelInteractor
     private let devicesProxy: DeviceHandling
+    private let deviceState: @Sendable () -> DeviceState
+    private let onUpdateAccount: @Sendable (DeviceState) -> Void
 
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
-        devicesProxy: DeviceHandling
+        devicesProxy: DeviceHandling,
+        deviceState: @escaping @Sendable () -> DeviceState,
+        onUpdateAccount: @escaping @Sendable (DeviceState) -> Void
     ) {
-        self.interactor = interactor
         self.devicesProxy = devicesProxy
-
-        super.init(dispatchQueue: dispatchQueue)
+        self.deviceState = deviceState
+        self.onUpdateAccount = onUpdateAccount
+        super.init(dispatchQueue: dispatchQueue, completionQueue: nil, completionHandler: nil)
     }
 
     override func main() {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = deviceState() else {
             finish(result: .failure(InvalidDeviceStateError()))
             return
         }
@@ -57,11 +59,11 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked S
 
     private func didReceiveDeviceResponse(result: Result<Device, Error>) {
         let result = result.tryMap { device -> StoredDeviceData in
-            switch interactor.deviceState {
+            switch deviceState() {
             case .loggedIn(let storedAccount, var storedDevice):
                 storedDevice.update(from: device)
                 let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                interactor.setDeviceState(newDeviceState, persist: true)
+                onUpdateAccount(newDeviceState)
 
                 return storedDevice
 
@@ -69,11 +71,6 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked S
                 throw InvalidDeviceStateError()
             }
         }
-
-        if let error = result.error {
-            interactor.handleRestError(error)
-        }
-
         finish(result: result)
     }
 }

@@ -80,6 +80,8 @@ final class TunnelManager: @unchecked Sendable {
 
     private let settingsManager: SettingsManager
 
+    private var accountManager: AccountManager!
+
     // MARK: - Initialization
 
     init(
@@ -103,6 +105,16 @@ final class TunnelManager: @unchecked Sendable {
         self.relaySelector = relaySelector
         self.settingsManager = settingsManager
 
+        self.accountManager = AccountManager(
+            operationQueue: operationQueue,
+            internalQueue: internalQueue,
+            interactor: AccountManagerInteractor(manager: self),
+            backgroundTaskProvider: backgroundTaskProvider,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
+            category: OperationCategory.deviceStateUpdate.category
+        )
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(applicationDidBecomeActive),
@@ -115,6 +127,82 @@ final class TunnelManager: @unchecked Sendable {
         #if NOT_PRODUCTION_PERMANENT
             relayCacheTracker.addObserver(self)
         #endif
+    }
+
+    // MARK: - Account
+
+    func setNewAccount() async throws -> StoredAccountData {
+        try await setAccount(action: .new)!
+    }
+
+    func setExistingAccount(accountNumber: String) async throws -> StoredAccountData {
+        try await setAccount(action: .existing(accountNumber))!
+    }
+
+    func unsetAccount(isRemovingProfile: Bool = true) async {
+        do {
+            _ = try await setAccount(action: .unset)
+            unsetTunnelConfiguration(isRemovingProfile: isRemovingProfile)
+        } catch {
+            logger.debug("Failed to unset account: \(error.description)")
+        }
+    }
+
+    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+        _ = accountManager.updateDeviceData { [weak self] error in
+            guard let self else { return }
+            if let error {
+                self.handleRestError(error)
+                completionHandler?(.failure(error))
+            } else {
+                completionHandler?(.success(()))
+            }
+        }
+    }
+
+    func deleteAccount(accountNumber: String) async throws {
+        _ = try await setAccount(action: .delete(accountNumber))
+        removeLastUsedAccount()
+        unsetTunnelConfiguration()
+    }
+
+    private func setAccount(
+        action: SetAccountAction,
+        completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
+    ) {
+        accountManager.setAccount(action: action) { [weak self] result in
+            guard let self else { return }
+            self.startOrStopPeriodicPrivateKeyRotation()
+            completionHandler(result)
+        }
+    }
+
+    private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
+        try await withCheckedThrowingContinuation { continuation in
+            setAccount(action: action) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {
+        accountManager.rotatePrivateKey { [weak self] result in
+            guard let self else { return }
+
+            updatePrivateKeyRotationTimer()
+
+            switch result {
+            case .success:
+                guard let tunnel else { return }
+                _ = tunnel.notifyKeyRotation { result in
+                    Task { @MainActor in
+                        completionHandler(result.error)
+                    }
+                }
+            case .failure(let error):
+                handleRestError(error)
+            }
+        }
     }
 
     // MARK: - Periodic private key rotation
@@ -169,7 +257,7 @@ final class TunnelManager: @unchecked Sendable {
             let timer = DispatchSource.makeTimerSource(queue: .main)
 
             timer.setEventHandler { [weak self] in
-                _ = self?.rotatePrivateKey { _ in
+                _ = self?.accountManager.rotatePrivateKey { _ in
                     // no-op
                 }
             }
@@ -372,163 +460,6 @@ final class TunnelManager: @unchecked Sendable {
                 self.stopTunnel(isOnDemandEnabled: true)
             }
         }
-    }
-
-    func setNewAccount() async throws -> StoredAccountData {
-        try await setAccount(action: .new)!
-    }
-
-    func setExistingAccount(accountNumber: String) async throws -> StoredAccountData {
-        try await setAccount(action: .existing(accountNumber))!
-    }
-
-    private func setAccount(
-        action: SetAccountAction,
-        completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
-    ) {
-        let operation = SetAccountOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
-            action: action,
-            setLastUsedAccount: settingsManager.setLastUsedAccount
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { [weak self] result in
-            guard let self else { return }
-            startOrStopPeriodicPrivateKeyRotation()
-
-            completionHandler(result)
-        }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: action.taskName,
-                cancelUponExpiration: true
-            ))
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.manageTunnel.category)
-        )
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
-        )
-
-        // Unsetting (ie. logging out) or deleting the account should cancel all other
-        // currently ongoing activity.
-        switch action {
-        case .unset, .delete:
-            operationQueue.cancelAllOperations()
-        default:
-            break
-        }
-
-        operationQueue.addOperation(operation)
-    }
-
-    private func setAccount(action: SetAccountAction) async throws -> StoredAccountData? {
-        try await withCheckedThrowingContinuation { continuation in
-            setAccount(action: action) { result in
-                continuation.resume(with: result)
-            }
-        }
-    }
-
-    func unsetAccount(isRemovingProfile: Bool = true) async {
-        do {
-            _ = try await setAccount(action: .unset(isRemovingProfile: isRemovingProfile))
-        } catch {
-            logger.debug("Failed to unset account: \(error.description)")
-        }
-    }
-
-    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        let interactor = AccountInteractor(
-            tunnelManager: self,
-            accountsProxy: accountsProxy,
-            apiProxy: apiProxy,
-            deviceProxy: devicesProxy
-        )
-
-        Task {
-            completionHandler?(await interactor.updateAccountData())
-        }
-    }
-
-    func deleteAccount(accountNumber: String) async throws {
-        _ = try await setAccount(action: .delete(accountNumber))
-    }
-
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        let operation = UpdateDeviceDataOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            devicesProxy: devicesProxy
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { completion in
-            completionHandler?(completion.error)
-        }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update device data",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
-    }
-
-    func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {
-        let operation = RotateKeyOperation(
-            dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self),
-            devicesProxy: devicesProxy
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { [weak self] result in
-            guard let self else { return }
-            MainActor.assumeIsolated {
-                self.updatePrivateKeyRotationTimer()
-
-                let error = result.error
-                if let error {
-                    self.handleRestError(error)
-                }
-
-                completionHandler(error)
-            }
-        }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Rotate private key",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(
-            MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category)
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
     }
 
     func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)? = nil) {
@@ -1214,7 +1145,7 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    private func unsetTunnelConfiguration(completion: @escaping @Sendable () -> Void) {
+    private func unsetTunnelConfiguration(isRemovingProfile: Bool = true, completion: (@Sendable () -> Void)? = nil) {
         // Tell the caller to unsubscribe from VPN status notifications.
         prepareForVPNConfigurationDeletion()
 
@@ -1225,8 +1156,8 @@ final class TunnelManager: @unchecked Sendable {
         }
 
         // Finish immediately if tunnel provider is not set.
-        guard let tunnel else {
-            completion()
+        guard let tunnel, isRemovingProfile else {
+            completion?()
             return
         }
 
@@ -1243,7 +1174,7 @@ final class TunnelManager: @unchecked Sendable {
 
                 setTunnel(nil, shouldRefreshTunnelState: false)
 
-                completion()
+                completion?()
             }
         }
     }
@@ -1435,3 +1366,46 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         }
     }
 #endif
+
+extension TunnelManager {
+    /// Adapter exposing the narrow slice of `TunnelManager`
+    /// that `AccountManager` needs.
+    fileprivate struct AccountManagerInteractor: AccountManagerTunnelInteractor {
+        private weak var manager: TunnelManager?
+
+        init(manager: TunnelManager) {
+            self.manager = manager
+        }
+
+        var deviceState: DeviceState {
+            manager?.deviceState ?? .loggedOut
+        }
+
+        func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+            manager?.setDeviceState(deviceState, persist: persist)
+        }
+
+        func setLastUsedAccount(_ accountNumber: String) {
+            guard let manager else { return }
+
+            manager.logger.debug("Store last used account.")
+
+            do {
+                try manager.settingsManager.setLastUsedAccount(accountNumber)
+            } catch {
+                manager.logger.error(
+                    error: error,
+                    message: "Failed to store last used account number."
+                )
+            }
+        }
+
+        func unsetTunnelConfiguration() {
+            manager?.unsetTunnelConfiguration()
+        }
+
+        func removeLastUsedAccount() {
+            manager?.removeLastUsedAccount()
+        }
+    }
+}
