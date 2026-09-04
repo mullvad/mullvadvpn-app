@@ -26,11 +26,15 @@ permissions: {}
 jobs:
   swift-format:
     name: Run swift format lint
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - uses: swift-actions/setup-swift@7ca6abe6b3b0e8b5421b88be48feee39cbf52c6a  # v2.4.0
+        with:
+          swift-version: "6.2"
 
       - name: Run swift format lint
         run: ./format.sh lint -s
@@ -48,23 +52,27 @@ jobs:
 
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
+        with:
+          ios_rust_target: aarch64-apple-ios
 
       - name: Build for ui tests
         run: |
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+          set -o pipefail && \
+          env NSUnbufferedIO=YES \
+          xcodebuild CODE_SIGNING_ALLOWED=NO \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll \
           -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
           -disableAutomaticPackageResolution \
           -allowProvisioningUpdates \
-          -destination "platform=iOS Simulator,name=iPhone 17" \
+          -destination "generic/platform=iOS" \
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
   test:
     name: Unit tests
-    runs-on: macos-26-xlarge
+    runs-on: macos-26
     timeout-minutes: 30
     env:
       SOURCE_PACKAGES_PATH: .spm
