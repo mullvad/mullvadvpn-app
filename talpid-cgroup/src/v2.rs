@@ -100,10 +100,15 @@ impl CGroup2 {
         let pid_str = CStr::from_bytes_until_nul(&pid_buf).expect("buf contains null");
 
         // Write PID to `cgroup.procs`.
-        nix::unistd::write(&self.procs, pid_str.to_bytes())
-            .with_context(|| anyhow!("Failed to add process {pid} to cgroup2"))?;
-
-        Ok(())
+        match nix::unistd::write(&self.procs, pid_str.to_bytes()) {
+            Ok(_) => Ok(()),
+            // The kernel rejects PIDs that don't name a live process. Report this separately, so
+            // that callers can tell it apart from a genuine failure to write.
+            Err(Errno::ESRCH) => Err(Error::NoSuchProcess(pid)),
+            Err(error) => Err(error)
+                .with_context(|| anyhow!("Failed to add process {pid} to cgroup2"))
+                .map_err(Error::from),
+        }
     }
 
     /// List all PIDs in this cgroup2.
@@ -125,6 +130,16 @@ impl CGroup2 {
             })
             .collect();
         Ok(pids)
+    }
+
+    /// Move every process in this cgroup2 into `dest`, emptying this cgroup2.
+    ///
+    /// Processes that exit before they can be moved are ignored, since they are already out of
+    /// this cgroup2. A process that cannot be moved for any other reason does not prevent the
+    /// remaining ones from being moved, but the error is returned once they have all been tried.
+    pub fn move_pids_to(&mut self, dest: &CGroup2) -> Result<(), Error> {
+        let pids = self.list_pids()?;
+        crate::move_pids(pids, |pid| dest.add_pid(pid))
     }
 
     /// Get the inode of the cgroup2
