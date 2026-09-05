@@ -4,12 +4,14 @@ on:
   pull_request:
     paths:
       - .github/workflows/ios-rust-ffi.yml
-      - clippy.toml
       - 'ci/cargo-ci.sh'
+      - clippy.toml
       - Cargo.lock
       - Cargo.toml
-      - '**/*.rs'
+      - 'mullvad-api/**/'
       - 'mullvad-ios/**'
+      - 'mullvad-types/**'
+      - 'tunnel-obfuscation/**'
   workflow_dispatch:
 
 concurrency:
