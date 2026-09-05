@@ -8,6 +8,9 @@ use mullvad_types::{
         Udp2TcpObfuscationSettings, WireguardPortSettings,
     },
 };
+use talpid_types::net::proxy::Socks5Proxy as TalpidSocks5Proxy;
+
+use super::proxies::{Socks5LocalAdd, Socks5RemoteAdd};
 
 #[derive(Subcommand, Debug)]
 pub enum AntiCensorship {
@@ -51,6 +54,23 @@ pub enum SetCommands {
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
+
+    /// Relay the tunnel through a SOCKS5 proxy. Any anti-censorship method is applied on top of
+    /// it, and only those that can be are allowed alongside a proxy.
+    #[clap(subcommand)]
+    Socks5(Socks5Proxy),
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum Socks5Proxy {
+    /// Relay through a SOCKS5 proxy running on localhost
+    Local(Socks5LocalAdd),
+
+    /// Relay through a remote SOCKS5 proxy
+    Remote(Socks5RemoteAdd),
+
+    /// Stop relaying through a SOCKS5 proxy
+    Off,
 }
 
 impl AntiCensorship {
@@ -58,7 +78,8 @@ impl AntiCensorship {
         match self {
             AntiCensorship::Get => {
                 let mut rpc = MullvadProxyClient::new().await?;
-                let obfuscation_settings = rpc.get_settings().await?.obfuscation_settings;
+                let settings = rpc.get_settings().await?;
+                let obfuscation_settings = settings.obfuscation_settings;
                 println!("mode: {}", obfuscation_settings.selected_obfuscation);
                 println!("udp2tcp settings: {}", obfuscation_settings.udp2tcp);
                 println!("shadowsocks settings: {}", obfuscation_settings.shadowsocks);
@@ -67,6 +88,13 @@ impl AntiCensorship {
                     obfuscation_settings.wireguard_port
                 );
                 println!("lwo settings: {}", obfuscation_settings.lwo);
+                println!(
+                    "socks5 proxy: {}",
+                    match settings.tunnel_options.wireguard.socks5_proxy {
+                        Some(proxy) => proxy.to_string(),
+                        None => "off".to_string(),
+                    }
+                );
                 Ok(())
             }
             AntiCensorship::Set(subcmd) => Self::set(subcmd).await,
@@ -124,6 +152,16 @@ impl AntiCensorship {
                     ..current_settings
                 })
                 .await?;
+            }
+            SetCommands::Socks5(proxy) => {
+                let proxy = match proxy {
+                    Socks5Proxy::Local(add) => Some(TalpidSocks5Proxy::Local(add.into())),
+                    Socks5Proxy::Remote(add) => {
+                        Some(TalpidSocks5Proxy::Remote(add.try_into()?))
+                    }
+                    Socks5Proxy::Off => None,
+                };
+                rpc.set_wireguard_socks5_proxy(proxy).await?;
             }
         }
 

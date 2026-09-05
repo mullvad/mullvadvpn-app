@@ -41,6 +41,7 @@ use gotatun::tun::{
 
 mod conversions;
 mod obfuscation;
+mod socks5;
 mod source_filter;
 
 use conversions::to_gotatun_peer;
@@ -479,12 +480,10 @@ async fn create_devices(
     ) -> Result<Devices, gotatun::device::Error> {
         let factory = MaybeObfuscatingTransportFactory::from_settings(
             optimize_buffer_size,
-            config
-                .obfuscation_settings()
-                .as_ref()
-                .and_then(|settings| settings.single()),
+            config.obfuscation_settings().as_ref(),
+            config.proxy.clone(),
             bypass,
-        );
+        )?;
         // The addresses assigned to the tun device, i.e. the only source addresses we accept
         // packets from. See [SourceFilter].
         let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {

@@ -335,6 +335,24 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    async fn set_wireguard_socks5_proxy(
+        &self,
+        request: Request<types::Socks5ProxySettings>,
+    ) -> ServiceResult<()> {
+        let proxy = request
+            .into_inner()
+            .proxy
+            .map(talpid_types::net::proxy::Socks5Proxy::try_from)
+            .transpose()
+            .map_err(map_protobuf_type_err)?;
+
+        log::debug!("set_wireguard_socks5_proxy({proxy:?})");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardSocks5Proxy(tx, proxy))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
     async fn set_quantum_resistant_tunnel(
         &self,
         request: Request<types::QuantumResistantState>,

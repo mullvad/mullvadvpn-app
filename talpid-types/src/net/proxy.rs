@@ -1,7 +1,11 @@
 use crate::net::Endpoint;
 use safelog::Sensitive;
 use serde::{Deserialize, Serialize};
-use std::{fmt, net::SocketAddr, str::FromStr};
+use std::{
+    fmt,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    str::FromStr,
+};
 
 use super::TransportProtocol;
 
@@ -62,6 +66,68 @@ impl CustomProxy {
                 endpoint: Endpoint::from_socket_address(settings.endpoint, TransportProtocol::Tcp),
                 proxy_type: ProxyType::Shadowsocks,
             },
+        }
+    }
+}
+
+/// A SOCKS5 proxy to relay tunnel traffic through, using `UDP ASSOCIATE`.
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum Socks5Proxy {
+    Local(Socks5Local),
+    Remote(Socks5Remote),
+}
+
+impl Socks5Proxy {
+    /// The address to open the SOCKS5 control connection to.
+    pub fn proxy_addr(&self) -> SocketAddr {
+        match self {
+            Socks5Proxy::Local(settings) => {
+                SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), settings.local_port)
+            }
+            Socks5Proxy::Remote(settings) => settings.endpoint,
+        }
+    }
+
+    pub fn auth(&self) -> Option<&SocksAuth> {
+        match self {
+            Socks5Proxy::Local(_) => None,
+            Socks5Proxy::Remote(settings) => settings.auth.as_ref(),
+        }
+    }
+
+    /// The endpoint that traffic actually leaves the machine for.
+    ///
+    /// For a local proxy this is not the proxy itself, but wherever the proxy forwards to -- for
+    /// instance the server of a VLESS client that exposes a SOCKS5 front-end. It cannot be
+    /// derived from the SOCKS5 protocol, which is why [`Socks5Local`] carries it.
+    pub fn next_hop_endpoint(&self) -> Endpoint {
+        match self {
+            Socks5Proxy::Local(settings) => settings.remote_endpoint,
+            Socks5Proxy::Remote(settings) => {
+                Endpoint::from_socket_address(settings.endpoint, TransportProtocol::Tcp)
+            }
+        }
+    }
+}
+
+impl fmt::Display for Socks5Proxy {
+    /// Note that this says only whether credentials are configured, never what they are, since it
+    /// may end up in a log.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Socks5Proxy::Local(settings) => write!(
+                f,
+                "localhost:{}, forwarding to {}",
+                settings.local_port, settings.remote_endpoint
+            ),
+            Socks5Proxy::Remote(settings) => {
+                write!(f, "{}", settings.endpoint)?;
+                match settings.auth {
+                    Some(_) => f.write_str(" (authenticated)"),
+                    None => Ok(()),
+                }
+            }
         }
     }
 }

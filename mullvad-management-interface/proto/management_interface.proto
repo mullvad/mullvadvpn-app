@@ -56,6 +56,7 @@ service ManagementService {
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetUserspaceWireguard(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetWireguardSocks5Proxy(Socks5ProxySettings) returns (google.protobuf.Empty) {}
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -525,6 +526,17 @@ message CustomProxy {
   }
 }
 
+// A SOCKS5 proxy to relay tunnel traffic through.
+message Socks5Proxy {
+  oneof proxy {
+    Socks5Local local = 1;
+    Socks5Remote remote = 2;
+  }
+}
+
+// An unset `proxy` means that no proxy is used.
+message Socks5ProxySettings { Socks5Proxy proxy = 1; }
+
 message AccessMethod {
   message Direct {}
   message Bridges {}
@@ -704,6 +716,8 @@ message TunnelOptions {
   // Force userspace WireGuard.
   // This option does not apply to Android or macOS.
   bool userspace = 7;
+  // SOCKS5 proxy to relay the tunnel through, if any.
+  Socks5Proxy socks5_proxy = 8;
 }
 
 message DefaultDnsOptions {

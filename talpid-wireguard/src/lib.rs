@@ -6,7 +6,7 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::Future;
-use obfuscation::ObfuscatorHandle;
+use obfuscation::{ObfuscationSettings, ObfuscatorHandle};
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 #[cfg(windows)]
@@ -186,7 +186,10 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let require_userspace_wireguard = params.use_userspace_wg() || *FORCE_USERSPACE_WIREGUARD;
+        // The SOCKS5 transport sits in GotaTun's UDP stack, so relaying through a proxy is only
+        // possible with userspace WireGuard.
+        let require_userspace_wireguard =
+            params.use_userspace_wg() || params.proxy.is_some() || *FORCE_USERSPACE_WIREGUARD;
         let userspace_obfuscation = obfuscation::userspace_transport_available(params)
             && !*FORCE_LOCAL_SOCKET_OBFUSCATION
             && !*FORCE_KERNEL_WIREGUARD;
@@ -1093,20 +1096,23 @@ fn get_obfuscator(
     close_obfs_sender: &sync_mpsc::Sender<CloseMsg>,
     bypass: &Arc<dyn SocketBypass>,
 ) -> Result<Option<ObfuscatorHandle>> {
-    let Some(obfuscation_settings) = config.obfuscation_settings() else {
+    let obfuscation_settings = config.obfuscation_settings();
+
+    // Both the obfuscation and the SOCKS5 encapsulation add bytes to every packet -- the former
+    // whether it is applied inline or behind a local socket -- so make room for them before
+    // deciding which of the two obfuscation modes to set up.
+    if params.options.mtu.is_none() {
+        let obfuscation_overhead = obfuscation_settings
+            .as_ref()
+            .map(ObfuscationSettings::packet_overhead)
+            .unwrap_or(0);
+        let overhead = obfuscation_overhead.saturating_add(config.socks5_packet_overhead());
+        config.mtu = clamp_tunnel_mtu(params, config.mtu.saturating_sub(overhead));
+    }
+
+    let Some(obfuscation_settings) = obfuscation_settings else {
         return Ok(None);
     };
-
-    // The obfuscation adds this to every packet whether it is applied inline or behind a local
-    // socket, so make room for it before deciding which of the two to set up.
-    if params.options.mtu.is_none() {
-        config.mtu = clamp_tunnel_mtu(
-            params,
-            config
-                .mtu
-                .saturating_sub(obfuscation_settings.packet_overhead()),
-        );
-    }
 
     if userspace_obfuscation {
         log::debug!("Using inline obfuscation");

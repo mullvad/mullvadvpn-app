@@ -49,6 +49,7 @@ impl CustomTunnelEndpoint {
                 options,
                 generic_options: tunnel_options.generic,
                 obfuscation: None,
+                proxy: None,
             }
         };
         Ok(parameters)

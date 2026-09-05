@@ -101,6 +101,11 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
             enable_ipv6: options.generic.enable_ipv6,
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             userspace: options.wireguard.userspace,
+            socks5_proxy: options
+                .wireguard
+                .socks5_proxy
+                .clone()
+                .map(proto::Socks5Proxy::from),
         }
     }
 }
@@ -237,6 +242,10 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     FromProtobufTypeError::invalid_argument("missing daita settings"),
                 )?,
                 userspace: options.userspace,
+                socks5_proxy: options
+                    .socks5_proxy
+                    .map(net::proxy::Socks5Proxy::try_from)
+                    .transpose()?,
             },
             generic: net::GenericTunnelOptions {
                 enable_ipv6: options.enable_ipv6,
