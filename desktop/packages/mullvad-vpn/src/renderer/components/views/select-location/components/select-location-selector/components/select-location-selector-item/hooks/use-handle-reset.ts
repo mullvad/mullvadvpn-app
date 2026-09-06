@@ -11,10 +11,8 @@ export function useHandleReset() {
 
   const handleReset = React.useCallback(() => {
     setIsolatedItem(undefined);
-    React.startTransition(() => {
-      reset();
-      setSearchTerm('');
-    });
+    reset();
+    setSearchTerm('');
   }, [reset, setIsolatedItem, setSearchTerm]);
 
   return handleReset;
