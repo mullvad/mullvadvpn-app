@@ -16,9 +16,7 @@ export function NoSearchResult() {
   const { searchTerm, setSearchTerm } = useSelectLocationViewContext();
 
   const handleClearSearch = React.useCallback(() => {
-    React.startTransition(() => {
-      setSearchTerm('');
-    });
+    setSearchTerm('');
   }, [setSearchTerm]);
 
   return (
