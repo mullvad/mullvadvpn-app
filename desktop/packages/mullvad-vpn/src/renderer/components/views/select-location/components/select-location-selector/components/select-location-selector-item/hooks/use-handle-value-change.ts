@@ -14,15 +14,13 @@ export function useHandleValueChange() {
     (id: LocationSelectorSelectedItem, value: string) => {
       handleOnValueChange(value);
 
-      React.startTransition(() => {
-        if (value.length >= 2) {
-          setSearchTerm(value);
-          setIsolatedItem(id);
-        } else {
-          setSearchTerm('');
-          setIsolatedItem(undefined);
-        }
-      });
+      if (value.length >= 2) {
+        setSearchTerm(value);
+        setIsolatedItem(id);
+      } else {
+        setSearchTerm('');
+        setIsolatedItem(undefined);
+      }
     },
     [handleOnValueChange, setSearchTerm, setIsolatedItem],
   );
