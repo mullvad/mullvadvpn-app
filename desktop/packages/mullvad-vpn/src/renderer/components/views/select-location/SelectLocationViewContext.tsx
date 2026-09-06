@@ -13,7 +13,7 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   isolatedItem: LocationSelectorSelectedItem | undefined;
-  setIsolatedItem: React.Dispatch<React.SetStateAction<LocationSelectorSelectedItem | undefined>>;
+  setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
   isLocationSelectorExpanded: boolean;
   setIsLocationSelectorExpanded: (value: boolean) => void;
 };
@@ -38,10 +38,23 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { multihop } = useMultihop();
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [isolatedItem, setIsolatedItem] = React.useState<LocationSelectorSelectedItem | undefined>(
-    undefined,
-  );
+
+  const [isolatedItem, stateSetIsolatedItem] = React.useState<
+    LocationSelectorSelectedItem | undefined
+  >(undefined);
+  const setIsolatedItem = React.useCallback((value: LocationSelectorSelectedItem | undefined) => {
+    React.startTransition(() => {
+      stateSetIsolatedItem(value);
+    });
+  }, []);
+
+  const [searchTerm, stateSetSearchTerm] = React.useState('');
+  const setSearchTerm = React.useCallback((value: string) => {
+    React.startTransition(() => {
+      stateSetSearchTerm(value);
+    });
+  }, []);
+
   const [isLocationSelectorExpanded, setIsLocationSelectorExpanded] = React.useState(true);
 
   const locationType = React.useMemo(() => {
@@ -53,10 +66,19 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     return LocationType.exit;
   }, [locationTypeSelector, multihop]);
 
+  const setLocationType = React.useCallback(
+    (value: LocationType) => {
+      React.startTransition(() => {
+        setSelectLocationView(value);
+      });
+    },
+    [setSelectLocationView],
+  );
+
   const value = React.useMemo(
     () => ({
       locationType,
-      setLocationType: setSelectLocationView,
+      setLocationType,
       searchTerm,
       setSearchTerm,
       isolatedItem,
@@ -64,7 +86,15 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       isLocationSelectorExpanded,
       setIsLocationSelectorExpanded,
     }),
-    [locationType, setSelectLocationView, searchTerm, isolatedItem, isLocationSelectorExpanded],
+    [
+      locationType,
+      setLocationType,
+      searchTerm,
+      setSearchTerm,
+      isolatedItem,
+      setIsolatedItem,
+      isLocationSelectorExpanded,
+    ],
   );
 
   return (
