@@ -4,6 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CountryLocation } from '../country-location';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
@@ -17,6 +18,9 @@ export function CountryLocations() {
   const descriptionId = React.useId();
 
   const showFilterText = visibleRelays !== totalRelays;
+
+  const { searchTerm } = useSelectLocationViewContext();
+  const countryLocationsKey = searchTerm ? `country-locations-${searchTerm}` : 'country-locations';
 
   return (
     <FlexColumn
@@ -50,7 +54,7 @@ export function CountryLocations() {
           </SectionTitle.Text>
         )}
       </SectionTitle>
-      <FlexColumn>
+      <FlexColumn key={countryLocationsKey}>
         {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;
