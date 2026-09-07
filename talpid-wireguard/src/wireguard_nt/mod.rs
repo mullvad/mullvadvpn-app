@@ -21,7 +21,10 @@ use std::{
     path::Path,
     pin::Pin,
     ptr,
-    sync::{Arc, LazyLock, Mutex},
+    sync::{
+        Arc, LazyLock, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use talpid_tunnel_config_client::DaitaSettings;
@@ -41,6 +44,8 @@ use windows_sys::{
 };
 
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
+/// The adapter that is kept alive between connections. See [`WgNtAdapter::open`].
+static CACHED_ADAPTER: Mutex<Option<Arc<WgNtAdapter>>> = Mutex::new(None);
 static ADAPTER_TYPE: LazyLock<U16CString> =
     LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
 static ADAPTER_ALIAS: LazyLock<U16CString> =
@@ -133,6 +138,22 @@ pub enum Error {
     /// Error listening to tunnel IP interfaces
     #[error("Failed to wait on tunnel IP interfaces")]
     IpInterfaces(#[source] io::Error),
+
+    /// Failed to set an IP address on the tunnel device
+    #[error("Failed to set IP address")]
+    SetIp(#[source] net::Error),
+
+    /// Failed to remove an IP address that is no longer in use
+    #[error("Failed to remove a stale IP address")]
+    RemoveIp(#[source] net::Error),
+
+    /// Failed to list the IP addresses of the tunnel device
+    #[error("Failed to list the addresses of the tunnel device")]
+    ListIps(#[source] net::Error),
+
+    /// Timeout waiting for the tunnel IP addresses to become usable
+    #[error("Failed to wait for tunnel IP addresses")]
+    WaitForAddresses(#[source] net::Error),
 
     /// Failed to set MTU and metric on tunnel device
     #[error("Failed to set tunnel interface MTU")]
@@ -401,7 +422,6 @@ struct WgInterface {
 /// See `WIREGUARD_ADAPTER_LOG_STATE` at <https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h>.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C)]
-#[expect(dead_code)]
 enum WgAdapterState {
     Down = 0,
     Up = 1,
@@ -437,8 +457,7 @@ impl WgNtTunnel {
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
         let logger_handle = LoggerHandle::new(dll, log_path)?;
-        let device = WgNtAdapter::create(dll, &ADAPTER_ALIAS, &ADAPTER_TYPE, Some(ADAPTER_GUID))
-            .map_err(Error::CreateTunnelDevice)?;
+        let device = WgNtAdapter::open(dll).map_err(Error::CreateTunnelDevice)?;
 
         let interface_name = device.name().map_err(Error::ObtainAlias)?.to_string_lossy();
 
@@ -449,13 +468,11 @@ impl WgNtTunnel {
             );
         }
         device.set_config(config)?;
-        let device2 = Arc::new(device);
-        let device = Some(device2.clone());
 
-        let setup_future = setup_ip_listener(
-            device2.clone(),
+        let setup_future = setup_tunnel_device(
+            device.clone(),
             u32::from(config.mtu),
-            config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()),
+            config.tunnel.addresses.clone(),
         );
         let setup_handle = tokio::spawn(async move {
             let _ = done_tx
@@ -465,7 +482,7 @@ impl WgNtTunnel {
 
         Ok(WgNtTunnel {
             config: Arc::new(Mutex::new(config.clone())),
-            device,
+            device: Some(device),
             interface_name,
             setup_handle,
             _logger_handle: logger_handle,
@@ -474,15 +491,36 @@ impl WgNtTunnel {
 
     fn stop_tunnel(&mut self) {
         self.setup_handle.abort();
-        let _ = self.device.take();
+        if let Some(device) = self.device.take() {
+            device.park();
+        }
     }
 }
 
-async fn setup_ip_listener(device: Arc<WgNtAdapter>, mtu: u32, has_ipv6: bool) -> Result<()> {
+/// Configure the tunnel IP interfaces and bring the adapter up.
+///
+/// The adapter is discarded rather than reused if this fails, since it is then in an unknown
+/// state.
+async fn setup_tunnel_device(
+    device: Arc<WgNtAdapter>,
+    mtu: u32,
+    addresses: Vec<IpAddr>,
+) -> Result<()> {
+    setup_tunnel_device_inner(&device, mtu, addresses)
+        .await
+        .inspect_err(|error| {
+            log::warn!("Discarding the tunnel adapter after a failure: {error}");
+            device.mark_broken();
+        })
+}
+
+async fn setup_tunnel_device_inner(
+    device: &WgNtAdapter,
+    mtu: u32,
+    addresses: Vec<IpAddr>,
+) -> Result<()> {
+    let has_ipv6 = addresses.iter().any(|address| address.is_ipv6());
     let luid = device.luid();
-    let luid = NET_LUID_LH {
-        Value: unsafe { luid.Value },
-    };
 
     log::debug!("Waiting for tunnel IP interfaces to arrive");
     net::wait_for_interfaces(luid, true, has_ipv6)
@@ -497,9 +535,28 @@ async fn setup_ip_listener(device: Arc<WgNtAdapter>, mtu: u32, has_ipv6: bool) -
     )
     .map_err(Error::SetTunnelMtu)?;
 
+    device.configure_addresses(luid, &addresses)?;
+
     device
         .set_state(WgAdapterState::Up)
-        .map_err(Error::EnableTunnel)
+        .map_err(Error::EnableTunnel)?;
+
+    // Wait for the addresses to become usable. Until they are, they cannot be selected as source
+    // addresses, so connections made this early may be routed out another interface and blocked
+    // (WSAEACCES). Suspected, not confirmed: they are normally usable right away.
+    net::wait_for_addresses(luid, addresses)
+        .await
+        .map_err(Error::WaitForAddresses)
+}
+
+/// Destroy the adapter that is being kept alive for the next connection, if there is one.
+///
+/// Used to make sure that only one tunnel adapter exists at a time, since the userspace tunnel
+/// implementation creates an adapter of its own with the same name.
+pub fn close_cached_adapter() {
+    if CACHED_ADAPTER.lock().unwrap().take().is_some() {
+        log::debug!("Destroyed the cached WireGuard adapter");
+    }
 }
 
 impl Drop for WgNtTunnel {
@@ -553,6 +610,13 @@ impl Drop for LoggerHandle {
 struct WgNtAdapter {
     dll_handle: &'static WgNtDll,
     handle: RawHandle,
+    /// The addresses that have been added to the adapter, so that they can be removed again.
+    ///
+    /// Only addresses added here are ever removed. Addresses that Windows assigns by itself, such
+    /// as link-local ones, are left alone.
+    configured_addresses: Mutex<Vec<IpAddr>>,
+    /// Whether the adapter may be reused by the next connection. See [`Self::mark_broken`].
+    reusable: AtomicBool,
 }
 
 impl fmt::Debug for WgNtAdapter {
@@ -567,14 +631,70 @@ unsafe impl Send for WgNtAdapter {}
 unsafe impl Sync for WgNtAdapter {}
 
 impl WgNtAdapter {
+    /// Return the adapter that the previous connection left behind, or create a new one.
+    ///
+    /// Creating the adapter is the slowest part of setting up the tunnel. Closing the handle that
+    /// `WireGuardCreateAdapter` returned removes the adapter, so the handle itself is what is kept
+    /// around by [`Self::park`].
+    fn open(dll_handle: &'static WgNtDll) -> io::Result<Arc<Self>> {
+        if let Some(adapter) = CACHED_ADAPTER.lock().unwrap().take() {
+            log::debug!("Reusing the existing WireGuard adapter");
+            return Ok(adapter);
+        }
+        Self::create(
+            dll_handle,
+            &ADAPTER_ALIAS,
+            &ADAPTER_TYPE,
+            Some(ADAPTER_GUID),
+        )
+    }
+
     fn create(
         dll_handle: &'static WgNtDll,
         name: &U16CStr,
         tunnel_type: &U16CStr,
         requested_guid: Option<GUID>,
-    ) -> io::Result<Self> {
+    ) -> io::Result<Arc<Self>> {
         let handle = dll_handle.create_adapter(name, tunnel_type, requested_guid)?;
-        Ok(Self { dll_handle, handle })
+        Ok(Arc::new(Self {
+            dll_handle,
+            handle,
+            configured_addresses: Mutex::new(vec![]),
+            reusable: AtomicBool::new(true),
+        }))
+    }
+
+    /// Keep the adapter alive so that the next connection can reuse it, unless it may be in a bad
+    /// state.
+    ///
+    /// The WireGuard config, including the private key, is discarded and the adapter is brought
+    /// down first, so that a parked adapter can neither pass traffic nor hold on to any keys.
+    fn park(self: Arc<Self>) {
+        if !self.reusable.load(Ordering::Relaxed) {
+            log::debug!("Destroying the WireGuard adapter instead of reusing it");
+            return;
+        }
+        if let Err(error) = self.clear_config() {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to clear the WireGuard config")
+            );
+            return;
+        }
+        if let Err(error) = self.set_state(WgAdapterState::Down) {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to disable the WireGuard adapter")
+            );
+            return;
+        }
+        *CACHED_ADAPTER.lock().unwrap() = Some(self);
+    }
+
+    /// Prevent the adapter from being reused, because an operation on it has failed and it may be
+    /// in a bad state. It is destroyed by [`Self::park`] instead.
+    fn mark_broken(&self) {
+        self.reusable.store(false, Ordering::Relaxed);
     }
 
     fn name(&self) -> io::Result<U16CString> {
@@ -588,12 +708,57 @@ impl WgNtAdapter {
     }
 
     fn set_config(&self, config: &Config) -> Result<()> {
-        let config_buffer = serialize_config(config)?;
+        self.write_config(&serialize_config(config)?)
+    }
+
+    /// Remove the private key and every peer from the adapter, so that it cannot pass any traffic.
+    fn clear_config(&self) -> Result<()> {
+        let header = WgInterface {
+            flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
+            listen_port: 0,
+            private_key: [0u8; WIREGUARD_KEY_LENGTH],
+            public_key: [0u8; WIREGUARD_KEY_LENGTH],
+            peers_count: 0,
+        };
+        self.write_config(as_uninit_byte_slice(&header))
+    }
+
+    fn write_config(&self, config: &[MaybeUninit<u8>]) -> Result<()> {
         unsafe {
             self.dll_handle
-                .set_config(self.handle, config_buffer.as_ptr(), config_buffer.len())
-                .map_err(Error::SetWireGuardConfig)
+                .set_config(self.handle, config.as_ptr(), config.len())
         }
+        .map_err(Error::SetWireGuardConfig)
+        .inspect_err(|_| self.mark_broken())
+    }
+
+    /// Give the tunnel device exactly the addresses in `addresses`.
+    ///
+    /// A reused adapter still has the addresses of the previous connection, and adding an address
+    /// that is already configured fails, so the addresses that are no longer wanted have to be
+    /// removed first.
+    fn configure_addresses(&self, luid: NET_LUID_LH, addresses: &[IpAddr]) -> Result<()> {
+        let mut configured_addresses = self.configured_addresses.lock().unwrap();
+
+        for address in configured_addresses.iter() {
+            if !addresses.contains(address) {
+                net::delete_ip_address_for_interface(luid, *address).map_err(Error::RemoveIp)?;
+            }
+        }
+
+        // The adapter may also have addresses that we did not add ourselves, either because it
+        // outlived a previous daemon or because Windows assigned them.
+        let existing = net::get_ip_addresses_for_interface(luid).map_err(Error::ListIps)?;
+
+        for address in addresses {
+            if !existing.contains(address) {
+                net::add_ip_address_for_interface(luid, *address).map_err(Error::SetIp)?;
+            }
+        }
+
+        *configured_addresses = addresses.to_vec();
+
+        Ok(())
     }
 
     #[expect(clippy::type_complexity)]
@@ -610,6 +775,7 @@ impl WgNtAdapter {
 
     fn set_state(&self, state: WgAdapterState) -> io::Result<()> {
         unsafe { self.dll_handle.set_adapter_state(self.handle, state) }
+            .inspect_err(|_| self.mark_broken())
     }
 
     fn set_logging(&self, state: WireGuardAdapterLogState) -> io::Result<()> {
