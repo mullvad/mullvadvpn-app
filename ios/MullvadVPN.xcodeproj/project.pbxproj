@@ -82,6 +82,9 @@
 		0E64F2F65442F45A89B82589 /* RustLoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D702C13944A82CAF175A4443 /* RustLoggingTests.swift */; };
 		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
+		440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
+		440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
+		440866A9304B5E6500EEDEFE /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870842D809C980038972F /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
@@ -160,7 +163,6 @@
 		580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */; };
 		580D6B922AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
-		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */; };
 		581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2722A1E227D0046ED47 /* RESTTypes.swift */; };
@@ -254,7 +256,6 @@
 		5878A27B2909649A0096FC88 /* CustomOverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27A2909649A0096FC88 /* CustomOverlayRenderer.swift */; };
 		5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27C2909657C0096FC88 /* RevokedDeviceInteractor.swift */; };
 		5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */; };
-		587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
 		587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */; };
 		587A5E522ADD7569003A70F1 /* ObservedState+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A5E512ADD7569003A70F1 /* ObservedState+Extensions.swift */; };
 		587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753A2666467500DEF7E9 /* NotificationBannerView.swift */; };
@@ -860,9 +861,7 @@
 		A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201E22B51A93C00EF8C96 /* SettingsPage.swift */; };
 		A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
-		A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
 		A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
-		A9A5F9E62ACB05160083449F /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
 		A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		A9A5F9ED2ACB05160083449F /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -1840,6 +1839,8 @@
 		06FAE67A28F83CA50033DD93 /* DeviceHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceHandling.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
+		440866A5304AFED900EEDEFE /* ActionThrottle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionThrottle.swift; sourceTree = "<group>"; };
+		440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
 		440DA5C4300540F10057069A /* MullvadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButton.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
@@ -1905,7 +1906,6 @@
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
-		58138E60294871C600684F0C /* DeviceDataThrottling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataThrottling.swift; sourceTree = "<group>"; };
 		58165EBD2A262CBB00688EAD /* WgKeyRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgKeyRotationTests.swift; sourceTree = "<group>"; };
 		581813A028E09DBB002817DE /* NoCancelledDependenciesCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoCancelledDependenciesCondition.swift; sourceTree = "<group>"; };
 		581813A228E09DCD002817DE /* NoFailedDependenciesCondition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFailedDependenciesCondition.swift; sourceTree = "<group>"; };
@@ -2040,7 +2040,6 @@
 		5878A27A2909649A0096FC88 /* CustomOverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomOverlayRenderer.swift; sourceTree = "<group>"; };
 		5878A27C2909657C0096FC88 /* RevokedDeviceInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceInteractor.swift; sourceTree = "<group>"; };
 		5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayoutBuilder.swift"; sourceTree = "<group>"; };
-		587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDataThrottling.swift; sourceTree = "<group>"; };
 		58799A352A84FC9F007BE51F /* PingerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingerProtocol.swift; sourceTree = "<group>"; };
 		587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderHost.swift; sourceTree = "<group>"; };
 		587A5E512ADD7569003A70F1 /* ObservedState+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObservedState+Extensions.swift"; sourceTree = "<group>"; };
@@ -3352,6 +3351,7 @@
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
 				7AFE63342EE31BA800D27DC7 /* CustomErrorDescriptionProtocol.swift */,
 				016EE0432F8640B00035B25C /* DaitaConfiguration.swift */,
+				440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */,
 				586168682976F6BD00EF8598 /* DisplayError.swift */,
 				7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
@@ -3786,13 +3786,12 @@
 		583FE02829C1B079006E85F9 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				440866A5304AFED900EEDEFE /* ActionThrottle.swift */,
 				7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */,
-				587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */,
 				5802EBC42A8E44AC00E5CE4C /* AppRoutes.swift */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
-				58138E60294871C600684F0C /* DeviceDataThrottling.swift */,
 				582AE30F2440A6CA00E6733A /* InputTextFormatter.swift */,
 				7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */,
 				58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */,
@@ -6392,10 +6391,8 @@
 				A9A5FA372ACB052D0083449F /* ApplicationTarget.swift in Sources */,
 				A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */,
 				A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */,
-				A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */,
 				A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */,
 				7AEC2F6B302C998100B988B6 /* AccountInteractor.swift in Sources */,
-				A9A5F9E62ACB05160083449F /* DeviceDataThrottling.swift in Sources */,
 				7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */,
 				A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */,
 				F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */,
@@ -6467,6 +6464,7 @@
 				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
+				440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */,
 				7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */,
 				44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */,
 				A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */,
@@ -6743,7 +6741,6 @@
 				7ACC21612FEE855300DB25F5 /* RelayFilterView.swift in Sources */,
 				7ACC21622FEE855300DB25F5 /* RelayFilterItem.swift in Sources */,
 				7A7636072FBF1DA70075DC0E /* MultihopValidator.swift in Sources */,
-				587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */,
 				58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
@@ -6778,6 +6775,7 @@
 				587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
+				440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */,
 				F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */,
 				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
@@ -6906,7 +6904,6 @@
 				7A0EAE9E2D01BCBF00D3EB8B /* View+Size.swift in Sources */,
 				F02BFFC92ED5BBF4007CEA69 /* RecentsInteractor.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
-				58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */,
 				7A6389ED2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift in Sources */,
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
 				A9A60ED42DF6E5AC00CD9C3D /* UIHostingRootController.swift in Sources */,
@@ -7285,6 +7282,7 @@
 				016EE0442F8640B00035B25C /* DaitaConfiguration.swift in Sources */,
 				016EE0422F8540B00035B25C /* IPAddressRange.swift in Sources */,
 				01FFF95F2F0BE13900BDAF45 /* SelectedEndpoint.swift in Sources */,
+				440866A9304B5E6500EEDEFE /* Date+Extensions.swift in Sources */,
 				44EC6C5A2E3BB3F60087F54A /* PersistentProxyConfiguration.swift in Sources */,
 				016EE03C2F8524EB0035B25C /* WireGuardKey.swift in Sources */,
 				A98207EF2D9192A300654558 /* ShadowsocksBridgeProviding.swift in Sources */,
