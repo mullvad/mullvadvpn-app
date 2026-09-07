@@ -20,7 +20,7 @@ struct SettingsMigrationWizardView<ViewModel: SettingsMigrationWizardViewModelPr
         VStack(spacing: 0.0) {
             MullvadPaginationView(
                 pages: viewModel.items.map { stateViewModel in
-                    MullvadStateView(viewModel: stateViewModel)
+                    MullvadNoticeView(viewModel: stateViewModel)
                 }, currentPage: $currentPage
             )
             .padding(.top, 8.0)
@@ -58,7 +58,7 @@ struct SettingsMigrationWizardView<ViewModel: SettingsMigrationWizardViewModelPr
 // MARK: - Mock ViewModel
 
 final class MockMultihopMigrationWizardViewModel: SettingsMigrationWizardViewModelProtocol {
-    var items: [StateViewModel] {
+    var items: [NoticeViewModel] {
         let changes: [Change] = [
             Change(path: .automatic),
             Change(path: .uniqueFilter),
@@ -72,9 +72,9 @@ final class MockMultihopMigrationWizardViewModel: SettingsMigrationWizardViewMod
         return changes.map { change in
             let descriptor = SettingsUpdateDescriptor(change: change)
 
-            return StateViewModel(
+            return NoticeViewModel(
                 style: .info,
-                title: MullvadStateView.TextItem(
+                title: MullvadNoticeView.TextItem(
                     text: descriptor.title,
                     style: .headline()
                 ),

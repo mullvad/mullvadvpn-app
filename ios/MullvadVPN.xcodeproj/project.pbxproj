@@ -987,7 +987,7 @@
 		F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */; };
 		F0077EEE2C52844800DAB2AA /* KeyExchangingResultStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */; };
 		F00C8C4B2FC7264A00B760BB /* MigratedVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00C8C4A2FC7264A00B760BB /* MigratedVersion.swift */; };
-		F00C8C4D2FC9DBAD00B760BB /* MullvadStateView+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */; };
+		F00C8C4D2FC9DBAD00B760BB /* MullvadNoticeView+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00C8C4C2FC9DBA200B760BB /* MullvadNoticeView+Preview.swift */; };
 		F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */; };
 		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
@@ -1013,7 +1013,7 @@
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
-		F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087C2F9275F800DEB09C /* MullvadStateView.swift */; };
+		F049087E2F9275F800DEB09C /* MullvadNoticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087C2F9275F800DEB09C /* MullvadNoticeView.swift */; };
 		F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087D2F9275F800DEB09C /* ResizableImageView.swift */; };
 		F04908892F97AA3800DEB09C /* MullvadPaginationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908882F97AA3400DEB09C /* MullvadPaginationView.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
@@ -2611,7 +2611,7 @@
 		F00481562FE0081800D145AF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLocationsCoordinator.swift; sourceTree = "<group>"; };
 		F00C8C4A2FC7264A00B760BB /* MigratedVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigratedVersion.swift; sourceTree = "<group>"; };
-		F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadStateView+Preview.swift"; sourceTree = "<group>"; };
+		F00C8C4C2FC9DBA200B760BB /* MullvadNoticeView+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadNoticeView+Preview.swift"; sourceTree = "<group>"; };
 		F00FEA192E9FC0A600F7EC6C /* RecentConnectionsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepository.swift; sourceTree = "<group>"; };
 		F00FEA1D2E9FCF2D00F7EC6C /* RecentConnections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnections.swift; sourceTree = "<group>"; };
 		F00FEA1F2E9FCF7C00F7EC6C /* RecentConnectionsRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -2644,7 +2644,7 @@
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
 		F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogModel.swift; sourceTree = "<group>"; };
-		F049087C2F9275F800DEB09C /* MullvadStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadStateView.swift; sourceTree = "<group>"; };
+		F049087C2F9275F800DEB09C /* MullvadNoticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadNoticeView.swift; sourceTree = "<group>"; };
 		F049087D2F9275F800DEB09C /* ResizableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableImageView.swift; sourceTree = "<group>"; };
 		F04908882F97AA3400DEB09C /* MullvadPaginationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadPaginationView.swift; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
@@ -3658,7 +3658,7 @@
 				F96D04EA2EC317EC004A4D48 /* MullvadListSectionHeader.swift */,
 				F04908882F97AA3400DEB09C /* MullvadPaginationView.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
-				F049087C2F9275F800DEB09C /* MullvadStateView.swift */,
+				F049087C2F9275F800DEB09C /* MullvadNoticeView.swift */,
 				F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */,
 				F00C8C4E2FC9DBBA00B760BB /* Previews */,
 				F049087D2F9275F800DEB09C /* ResizableImageView.swift */,
@@ -4997,7 +4997,7 @@
 		F00C8C4E2FC9DBBA00B760BB /* Previews */ = {
 			isa = PBXGroup;
 			children = (
-				F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */,
+				F00C8C4C2FC9DBA200B760BB /* MullvadNoticeView+Preview.swift */,
 			);
 			path = Previews;
 			sourceTree = "<group>";
@@ -6753,7 +6753,7 @@
 				7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */,
-				F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */,
+				F049087E2F9275F800DEB09C /* MullvadNoticeView.swift in Sources */,
 				F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
@@ -6850,7 +6850,7 @@
 				F0F9397F2FD8121000AF42D7 /* MigratedSettingsObserver.swift in Sources */,
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
-				F00C8C4D2FC9DBAD00B760BB /* MullvadStateView+Preview.swift in Sources */,
+				F00C8C4D2FC9DBAD00B760BB /* MullvadNoticeView+Preview.swift in Sources */,
 				A95745D7301B510800382CE3 /* QuantumResistanceView.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				7A460F9F2F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,

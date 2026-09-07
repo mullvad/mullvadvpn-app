@@ -34,11 +34,11 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         return nil
     }
 
-    var description: [MullvadStateView.TextItem] {
+    var description: [MullvadNoticeView.TextItem] {
         switch action.kind {
         case .multihopWhenNeeded:
             return [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: String(
                         format: NSLocalizedString(
                             """
@@ -49,7 +49,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                     style: .secondary()
                 ),
 
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location.
@@ -59,7 +59,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                     style: .secondary()
                 ),
 
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         Attention: In this mode, filters are ignored for the additional server.
@@ -72,7 +72,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
 
         case .automaticEntry:
             return [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: String(
                         format: NSLocalizedString(
                             """
@@ -83,7 +83,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                     style: .secondary()
                 ),
 
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.
@@ -93,7 +93,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                     style: .secondary()
                 ),
 
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: String(
                         format: NSLocalizedString(
                             """
@@ -107,7 +107,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    func makeState(for kind: MullvadStateView.ActionState.Kind) -> MullvadStateView.ActionState {
+    func makeState(for kind: MullvadNoticeView.ActionState.Kind) -> MullvadNoticeView.ActionState {
         switch kind {
         case .idle:
             idle
@@ -120,10 +120,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var idle: MullvadStateView.ActionState {
+    private var idle: MullvadNoticeView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .idle,
                 message: String(
                     format: NSLocalizedString(
@@ -134,7 +134,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .idle,
                 message: String(
                     format: NSLocalizedString(
@@ -151,10 +151,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var loading: MullvadStateView.ActionState {
+    private var loading: MullvadNoticeView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .loading,
                 message: NSLocalizedString(
                     "Changing mode...",
@@ -162,7 +162,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .loading,
                 message: NSLocalizedString(
                     "Setting entry...",
@@ -171,10 +171,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var success: MullvadStateView.ActionState {
+    private var success: MullvadNoticeView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .success,
                 message: NSLocalizedString(
                     "Multihop mode changed",
@@ -182,7 +182,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .success,
                 message: String(
                     format: NSLocalizedString(
@@ -191,10 +191,10 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    private var failure: MullvadStateView.ActionState {
+    private var failure: MullvadNoticeView.ActionState {
         switch action.kind {
         case .multihopWhenNeeded:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .success,
                 message: NSLocalizedString(
                     "Failed to change mode",
@@ -202,7 +202,7 @@ struct MultihopActionDescriptor: SettingsMigrationPresentable {
                 ))
 
         case .automaticEntry:
-            MullvadStateView.ActionState(
+            MullvadNoticeView.ActionState(
                 kind: .success,
                 message: String(
                     format: NSLocalizedString(
