@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "net.mullvad.mullvadvpn.lib.model"
 
-    kotlin{
+    kotlin {
         compilerOptions {
             // Arrow Optics emits explicit visibility modifiers, so we exclude this check.
             freeCompilerArgs.add("-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled")
