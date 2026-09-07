@@ -24,6 +24,7 @@ mod account;
 mod api;
 mod cancellation;
 mod device;
+mod geoip;
 pub(super) mod helpers;
 mod mock;
 mod problem_report;
