@@ -163,6 +163,8 @@ final class AppResetManagerReal {
 
 @MainActor
 final class AppResetManagerNoOp {
+    var onAppReady: (@Sendable @MainActor () -> Void)?
+
     init(
         launchArguments: LaunchArguments,
         tunnelManager: TunnelManager,
