@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 API_ENDPOINT="api.mullvad.net"
 RELAYS_FILE="MullvadREST/Assets/relays.json"
 
