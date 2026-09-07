@@ -129,6 +129,28 @@ impl WindowsTunProvider {
         self.configured_addresses.clear();
     }
 
+    /// Remove the IP addresses that were added to the adapter, keeping the adapter itself alive.
+    ///
+    /// The tunnel addresses do not depend on which tunnel implementation is used, and Windows only
+    /// lets one interface have a given address, so an idle adapter must not hold on to them. The
+    /// adapter is destroyed, which also releases the addresses, if they cannot be removed.
+    pub fn release_addresses(&mut self) {
+        let Some(luid) = self.adapter.as_ref().map(|adapter| adapter.get_luid()) else {
+            return;
+        };
+
+        for address in std::mem::take(&mut self.configured_addresses) {
+            if let Err(error) = talpid_windows::net::delete_ip_address_for_interface(luid, address)
+            {
+                log::warn!(
+                    "Discarding the tunnel adapter, as an address could not be removed: {error}"
+                );
+                self.close_adapter();
+                return;
+            }
+        }
+    }
+
     fn open_tun_inner(&mut self) -> Result<WindowsTun, Error> {
         let has_ipv4 = self.config.addresses.iter().any(|addr| addr.is_ipv4());
         let has_ipv6 = self.config.addresses.iter().any(|addr| addr.is_ipv6());
