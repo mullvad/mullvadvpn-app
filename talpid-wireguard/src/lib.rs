@@ -228,6 +228,16 @@ impl WireguardMonitor {
             &bypass,
         )?;
 
+        // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
+        // precaution in case the interface gets broken in some way. Creating a new interface
+        // is cheap compared to being unable to connect.
+        #[cfg(target_os = "windows")]
+        if args.retry_attempt > 0 {
+            log::debug!("Creating a new tunnel adapter, since the previous attempt failed");
+            args.tun_provider.lock().unwrap().close_adapter();
+            wireguard_nt::close_cached_adapter();
+        }
+
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
         let tunnel = Self::open_tunnel(
