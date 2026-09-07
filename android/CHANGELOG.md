@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
+### Fixed
+- Fix the sorting of the location list in English being incorrect.
+
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added
