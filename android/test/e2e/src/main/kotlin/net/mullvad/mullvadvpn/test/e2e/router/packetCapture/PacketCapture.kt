@@ -4,7 +4,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -18,6 +18,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
@@ -59,9 +60,9 @@ class PacketCapture {
 }
 
 private fun defaultHttpClient(): HttpClient =
-    HttpClient(CIO) {
+    HttpClient(OkHttp) {
         defaultRequest { url("http://${InstrumentationRegistry.getArguments().getRaasHost()}") }
-        engine { requestTimeout = REQUEST_TIMEOUT_MS }
+        engine { config { callTimeout(REQUEST_TIMEOUT) } }
 
         install(ContentNegotiation) {
             json(
@@ -126,4 +127,4 @@ data class PacketCaptureResult(val streams: List<Stream>, val pcap: ByteArray)
 @Serializable data class StartCaptureRequestJson(val label: PacketCaptureSession)
 
 // 30 seconds timeout, double the default timeout
-private const val REQUEST_TIMEOUT_MS = 30000L
+private val REQUEST_TIMEOUT = 30.seconds
