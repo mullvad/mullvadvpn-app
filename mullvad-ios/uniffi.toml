@@ -7,3 +7,9 @@ generate_module_map = false
 # Records as immutable `let` fields.
 generate_immutable_records = true
 generate_codable_conformance = true
+
+[bindings.swift.custom_types.UniIpAddr]
+type_name = "AnyIPAddress"
+imports = ["MullvadTypes"]
+lift = "AnyIPAddress({})!"
+lower = "{}.debugDescription"
