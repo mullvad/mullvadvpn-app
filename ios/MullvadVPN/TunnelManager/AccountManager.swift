@@ -44,6 +44,9 @@ struct AccountManager: Sendable {
                 interactor.deviceState
             },
             onUpdateAccount: { deviceState in
+                if let accountNumber = deviceState.accountData?.number {
+                    interactor.setLastUsedAccount(accountNumber)
+                }
                 interactor.setDeviceState(deviceState, persist: true)
             }
         )
