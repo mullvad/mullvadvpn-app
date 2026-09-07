@@ -71,12 +71,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .onAppear {
                 scrollToCurrentSelection(scrollProxy)
             }
-            .onChange(of: viewModel.isRecentsEnabled) {
-                scrollToCurrentSelection(scrollProxy)
-            }
-            .onChange(of: viewModel.multihopContext) {
-                scrollToCurrentSelection(scrollProxy)
-            }
             .onChange(of: viewModel.searchText) { oldValue, newValue in
                 scrollToCurrentSelection(scrollProxy)
             }
