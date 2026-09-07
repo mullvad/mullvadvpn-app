@@ -690,13 +690,13 @@ impl WireguardMonitor {
                 // Tunnel was shut down early
                 CloseMsg::SetupError(Error::IpInterfacesError)
             })?
-            .map_err(|error| {
+            .inspect_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to configure tunnel interface")
                 );
-                CloseMsg::SetupError(Error::IpInterfacesError)
-            })?;
+            })
+            .map_err(|_| CloseMsg::SetupError(Error::IpInterfacesError))?;
 
         // TODO: The LUID can be obtained directly.
         let luid = talpid_windows::net::luid_from_alias(iface_name).map_err(|error| {
@@ -707,6 +707,20 @@ impl WireguardMonitor {
             talpid_windows::net::add_ip_address_for_interface(luid, *address)
                 .map_err(|error| CloseMsg::SetupError(Error::SetIpAddressesError(error)))?;
         }
+
+        // Wait for the addresses to become usable. Until they are, they cannot be selected as
+        // source addresses, so connections made this early may be routed out another interface and
+        // blocked (WSAEACCES). Suspected, not confirmed: they are normally usable right away.
+        talpid_windows::net::wait_for_addresses(luid, addresses.to_vec())
+            .await
+            .inspect_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to wait for tunnel IP addresses")
+                );
+            })
+            .map_err(|_| CloseMsg::SetupError(Error::IpInterfacesError))?;
+
         Ok(())
     }
 

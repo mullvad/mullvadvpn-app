@@ -320,6 +320,99 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     }
 }
 
+/// Connects to the config service at `addr`.
+#[cfg(not(any(target_os = "windows", target_os = "ios")))]
+async fn connect_to_config_service(
+    socket: socket::TcpSocket,
+    addr: SocketAddr,
+) -> std::io::Result<tokio::net::TcpStream> {
+    socket.connect(addr).await
+}
+
+// TODO: Remove this if waiting for the tunnel addresses turns out to be enough on its own. The
+// retry is here because we do not know that it is, and it hides the symptom rather than fixing it
+// -- if the logs stop showing retries that succeed, it has nothing left to do.
+/// Connects to the config service at `addr`, retrying briefly for as long as the firewall blocks
+/// the connection.
+///
+/// The tunnel is configured very shortly before this runs, and we suspect that a connection made
+/// before it is ready is blocked instead of being routed through the tunnel, which surfaces as
+/// WSAEACCES. A connection that only succeeds on a retry would confirm it, so every attempt is
+/// logged.
+#[cfg(target_os = "windows")]
+async fn connect_to_config_service(
+    socket: socket::TcpSocket,
+    addr: SocketAddr,
+) -> std::io::Result<tokio::net::TcpStream> {
+    use std::time::Duration;
+
+    /// How long to keep retrying.
+    const RETRY_TIMEOUT: Duration = Duration::from_secs(1);
+    /// How long to wait between those retries.
+    const RETRY_INTERVAL: Duration = Duration::from_millis(50);
+
+    let start = Instant::now();
+    let mut attempts = 0u32;
+    let mut last_error = None;
+
+    loop {
+        attempts += 1;
+        let error = match socket.try_clone()?.connect(addr).await {
+            Ok(stream) => {
+                if let Some(err) = last_error {
+                    log::warn!(
+                        "Connection to {addr} succeeded on attempt {attempts} after {:?}. \
+                         Earlier attempts failed with: {err}",
+                        start.elapsed(),
+                    );
+                }
+                return Ok(stream);
+            }
+            Err(error) => error,
+        };
+
+        if !tunnel_not_ready_error(&error) {
+            return Err(error);
+        }
+
+        if start.elapsed() >= RETRY_TIMEOUT {
+            log::warn!(
+                "Giving up on {addr} after {attempts} failed attempts over {:?}: {error}",
+                start.elapsed(),
+            );
+            return Err(error);
+        }
+
+        log::debug!("Connection to {addr} failed, retrying: {error}");
+        last_error = Some(error);
+
+        tokio::time::sleep(RETRY_INTERVAL).await;
+    }
+}
+
+/// Returns whether `error` means the tunnel was not ready, and might succeed on a retry.
+#[cfg(target_os = "windows")]
+fn tunnel_not_ready_error(error: &std::io::Error) -> bool {
+    use windows_sys::Win32::Networking::WinSock::{
+        WSAEACCES, WSAEADDRNOTAVAIL, WSAEHOSTUNREACH, WSAENETUNREACH,
+    };
+
+    let Some(raw_err) = error.raw_os_error() else {
+        return false;
+    };
+
+    matches!(
+        raw_err,
+        // Blocked by the firewall, because the connection was not classified against the tunnel.
+        WSAEACCES |
+        // No source address on the tunnel interface is usable yet.
+        WSAEADDRNOTAVAIL |
+        // No route through the tunnel yet.
+        WSAENETUNREACH |
+        WSAEHOSTUNREACH
+    )
+}
+
 /// Create a new `RelayConfigService` connected to the given IP.
 ///
 /// On non-Windows platforms the connection is made with a socket where the MSS
@@ -340,7 +433,7 @@ async fn connect_relay_config_client(
             let clone = socket.try_clone();
             async move {
                 let socket = clone?;
-                let stream = socket.connect(addr).await?;
+                let stream = connect_to_config_service(socket, addr).await?;
                 Ok::<_, std::io::Error>(TokioIo::new(stream))
             }
         }))
