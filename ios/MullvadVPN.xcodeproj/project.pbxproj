@@ -81,6 +81,7 @@
 		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
 		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
 		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		389AA3A1305406EB0005C57C /* BridgeTypes+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 389AA3A0305406E60005C57C /* BridgeTypes+Extensions.swift */; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
@@ -1868,6 +1869,7 @@
 		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
 		38693EC430458CF000BC154A /* mullvad_uniffi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = mullvad_uniffi.swift; path = generated/mullvad_uniffi.swift; sourceTree = "<group>"; };
 		38693EC630458CFD00BC154A /* mullvad_uniffi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = mullvad_uniffi.h; path = include/mullvad_uniffi.h; sourceTree = "<group>"; };
+		389AA3A0305406E60005C57C /* BridgeTypes+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BridgeTypes+Extensions.swift"; sourceTree = "<group>"; };
 		440870812D7A00B00038972F /* UIImage+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Assets.swift"; sourceTree = "<group>"; };
 		440DA5C4300540F10057069A /* MullvadButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButton.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
@@ -4960,6 +4962,7 @@
 		A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXGroup;
 			children = (
+				389AA3A0305406E60005C57C /* BridgeTypes+Extensions.swift */,
 				F0A607C42FAA0A4B00094833 /* Array+String.swift */,
 				A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */,
 				A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */,
@@ -7534,6 +7537,7 @@
 				F0A607C52FAA0A4B00094833 /* Array+String.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,
 				A96D0B452D675F0400DD6C59 /* MullvadConnectionModeProvider.swift in Sources */,
+				389AA3A1305406EB0005C57C /* BridgeTypes+Extensions.swift in Sources */,
 				4491AC7B2ECF5FE4005789DF /* MullvadAddressCacheKeychainStore.swift in Sources */,
 				7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */,
 				01D13C212F11130500EC63DE /* RustLogging.swift in Sources */,
