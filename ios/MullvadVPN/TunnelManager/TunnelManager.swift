@@ -466,8 +466,7 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func updateDeviceData() async throws {
-        let interactor = TunnelInteractorProxy(self)
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+        guard case let .loggedIn(accountData, deviceData) = deviceState else {
             throw InvalidDeviceStateError()
         }
         do {
@@ -476,16 +475,16 @@ final class TunnelManager: @unchecked Sendable {
                 identifier: deviceData.identifier,
                 retryStrategy: .default
             )
-            switch interactor.deviceState {
+            switch deviceState {
             case .loggedIn(let storedAccount, var storedDevice):
                 storedDevice.update(from: device)
                 let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                interactor.setDeviceState(newDeviceState, persist: true)
+                setDeviceState(newDeviceState, persist: true)
             default:
                 throw InvalidDeviceStateError()
             }
         } catch {
-            interactor.handleRestError(error)
+            handleRestError(error)
             throw error
         }
     }
