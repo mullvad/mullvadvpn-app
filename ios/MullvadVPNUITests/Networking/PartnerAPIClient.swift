@@ -9,6 +9,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadREST
 import XCTest
 
 class PartnerAPIClient {
@@ -25,8 +26,8 @@ class PartnerAPIClient {
     /// - Parameters:
     ///   - accountNumber: Account number
     ///   - days: Number of days to add. Needs to be between 1 and 31.
-    func addTime(accountNumber: String, days: Int) -> Date {
-        let jsonResponse = sendRequest(
+    func addTime(accountNumber: String, days: Int) async -> Date {
+        let jsonResponse = await sendRequest(
             method: "POST",
             endpoint: "accounts/\(accountNumber)/extend",
             jsonObject: ["days": "\(days)"]
@@ -46,8 +47,8 @@ class PartnerAPIClient {
         return newExpiryDate
     }
 
-    func createAccount() -> String {
-        let jsonResponse = sendRequest(method: "POST", endpoint: "accounts", jsonObject: nil)
+    func createAccount() async -> String {
+        let jsonResponse = await sendRequest(method: "POST", endpoint: "accounts", jsonObject: nil)
 
         guard let accountNumber = jsonResponse["id"] as? String else {
             XCTFail("Failed to read created account number")
@@ -57,70 +58,59 @@ class PartnerAPIClient {
         return accountNumber
     }
 
-    func deleteAccount(accountNumber: String) {
-        _ = sendRequest(method: "DELETE", endpoint: "accounts/\(accountNumber)", jsonObject: nil)
+    func deleteAccount(accountNumber: String) async {
+        _ = await sendRequest(method: "DELETE", endpoint: "accounts/\(accountNumber)", jsonObject: nil)
     }
 
-    private func sendRequest(method: String, endpoint: String, jsonObject: [String: Any]?) -> [String: Any] {
-        let url = baseURL.appendingPathComponent(endpoint)
-        var request = URLRequest(url: url)
-        request.httpMethod = method
+    private func sendRequest(method: String, endpoint: String, jsonObject: [String: Any]?) async -> [String: Any] {
+        var request = URLRequest(url: baseURL.appendingPathComponent(endpoint))
         request.setValue("Basic \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = method
 
-        nonisolated(unsafe) var jsonResponse: [String: Any] = [:]
-
-        do {
-            if let jsonObject = jsonObject {
-                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                request.httpBody = try JSONSerialization.data(withJSONObject: jsonObject, options: [])
+        if let jsonObject {
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: jsonObject)
+            } catch {
+                XCTFail("Failed to serialize JSON object")
+                return [:]
             }
-        } catch {
-            XCTFail("Failed to serialize JSON object")
-            return [:]
         }
 
-        let completionHandlerInvokedExpectation = XCTestExpectation(
-            description: "Completion handler for the request is invoked"
-        )
+        let retryStrategy = REST.RetryStrategy.default
+        let delayIterator = retryStrategy.makeDelayIterator()
 
-        nonisolated(unsafe) var requestError: Error?
-
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            requestError = error
-
-            guard let data = data,
-                let response = response as? HTTPURLResponse,
-                error == nil
-            else {
-                XCTFail("Error: \(error?.localizedDescription ?? "Unknown error")")
-                completionHandlerInvokedExpectation.fulfill()
-                return
+        for attempt in 0...retryStrategy.maxRetryCount {
+            if let result = try? await attemptRequest(request) {
+                return result
             }
 
-            if 200...204 ~= response.statusCode {
-                print("Request successful")
-                do {
-                    if data.isEmpty {
-                        // Not all requests return JSON data
-                        jsonResponse = [:]
-                    } else {
-                        jsonResponse = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-                    }
-                } catch {
-                    XCTFail("Failed to deserialize JSON response")
-                }
-            } else {
-                XCTFail("Request failed with status code \(response.statusCode)")
-            }
+            guard attempt < retryStrategy.maxRetryCount else { break }
 
-            completionHandlerInvokedExpectation.fulfill()
+            if let delay = delayIterator.next() {
+                try? await Task.sleep(for: delay)
+            }
         }
 
-        task.resume()
-        let waitResult = XCTWaiter().wait(for: [completionHandlerInvokedExpectation], timeout: 5)
-        XCTAssertEqual(waitResult, .completed, "Waiting for partner API request expectation did not complete in time")
-        XCTAssertNil(requestError)
+        XCTFail("\(method) \(endpoint) failed after \(retryStrategy.maxRetryCount + 1) attempt(s)")
+        return [:]
+    }
 
-        return jsonResponse
+    private func attemptRequest(_ request: URLRequest) async throws -> [String: Any]? {
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard
+            let response = response as? HTTPURLResponse,
+            200...204 ~= response.statusCode
+        else {
+            print("Response error: \(response.description)")
+            throw URLError(.badServerResponse)
+        }
+
+        return if data.isEmpty {
+            [:]
+        } else {
+            try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        }
     }
 }

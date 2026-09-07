@@ -10,7 +10,7 @@
 
 import XCTest
 
-class TestRouterAPIClient {
+class TestRouterAPIClient: @unchecked Sendable {
     static let baseURL = URL(string: Bundle(for: FirewallClient.self).infoDictionary?["FirewallApiBaseURL"] as! String)!
 
     /// Gets the IP address of the device under test

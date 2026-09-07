@@ -74,49 +74,49 @@ class BaseUITestCase: XCTestCase {
     }
 
     /// Get an account number with time. If an account with time is specified in the configuration file that account will be used, else a temporary account will be created if partner API token has been configured.
-    func getAccountWithTime() -> String {
+    func getAccountWithTime() async -> String {
         if let configuredAccountWithTime = bundleHasTimeAccountNumber, !configuredAccountWithTime.isEmpty {
             return configuredAccountWithTime
         } else {
             let partnerAPIClient = PartnerAPIClient()
-            let accountNumber = partnerAPIClient.createAccount()
-            _ = partnerAPIClient.addTime(accountNumber: accountNumber, days: 1)
+            let accountNumber = await partnerAPIClient.createAccount()
+            _ = await partnerAPIClient.addTime(accountNumber: accountNumber, days: 1)
             return accountNumber
         }
     }
 
     /// Delete temporary account with time if a temporary account was used
-    func deleteTemporaryAccountWithTime(accountNumber: String) {
+    func deleteTemporaryAccountWithTime(accountNumber: String) async {
         if bundleHasTimeAccountNumber?.isEmpty == true {
-            PartnerAPIClient().deleteAccount(accountNumber: accountNumber)
+            await PartnerAPIClient().deleteAccount(accountNumber: accountNumber)
         }
     }
 
     /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
-    func createTemporaryAccountWithoutTime() -> String {
+    func createTemporaryAccountWithoutTime() async -> String {
         if let partnerApiToken, !partnerApiToken.isEmpty {
             let partnerAPIClient = PartnerAPIClient()
-            return partnerAPIClient.createAccount()
+            return await partnerAPIClient.createAccount()
         } else {
             return mullvadAPIWrapper.createAccount()
         }
     }
 
     /// Get an account number without time. If an account without time  is specified in the configuration file that account will be used, else a temporary account will be created.
-    func getAccountWithoutTime() -> String {
+    func getAccountWithoutTime() async -> String {
         if let configuredAccountWithoutTime = bundleNoTimeAccountNumber, !configuredAccountWithoutTime.isEmpty {
             return configuredAccountWithoutTime
         } else {
             let partnerAPIClient = PartnerAPIClient()
-            let accountNumber = partnerAPIClient.createAccount()
+            let accountNumber = await partnerAPIClient.createAccount()
             return accountNumber
         }
     }
 
     /// Delete temporary account withoiut time if a temporary account was used
-    func deleteTemporaryAccountWithoutTime(accountNumber: String) {
+    func deleteTemporaryAccountWithoutTime(accountNumber: String) async {
         if bundleNoTimeAccountNumber?.isEmpty == true {
-            PartnerAPIClient().deleteAccount(accountNumber: accountNumber)
+            await PartnerAPIClient().deleteAccount(accountNumber: accountNumber)
         }
     }
 
