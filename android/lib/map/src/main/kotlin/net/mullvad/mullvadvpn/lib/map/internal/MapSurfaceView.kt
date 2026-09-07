@@ -19,7 +19,7 @@ internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
             field = value
         }
 
-    private val observer = LifecycleEventObserver { source, event ->
+    private val observer = LifecycleEventObserver { _, event ->
         when (event) {
             Lifecycle.Event.ON_RESUME -> onResume()
             Lifecycle.Event.ON_PAUSE -> onPause()
