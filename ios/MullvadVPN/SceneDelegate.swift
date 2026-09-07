@@ -23,8 +23,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private var isSceneConfigured = false
 
     private var appCoordinator: ApplicationCoordinator?
-    private var accountDataThrottling: AccountDataThrottling?
-    private var deviceDataThrottling: DeviceDataThrottling?
+    private var accountUpdateThrottle: ActionThrottle?
+    private var deviceUpdateThrottle: ActionThrottle?
 
     private var tunnelObserver: TunnelObserver?
 
@@ -45,6 +45,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     }
 
     // MARK: - Private
+
+    private let accountDataDefaultWaitInterval = Duration.minutes(1)
+    private let accountDataExpiredWaitInterval = Duration.seconds(10)
+    private let deviceDataDefaultWaitInterval = Duration.minutes(1)
+    private let accountCloseToExpiryDays = 4
 
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
@@ -68,8 +73,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         isSceneConfigured = true
         disableAnimationsIfNeeded()
 
-        accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
-        deviceDataThrottling = DeviceDataThrottling(tunnelManager: tunnelManager)
+        accountUpdateThrottle = ActionThrottle(
+            waitInterval: { [self, tunnelManager] now in
+                let isExpired = (tunnelManager.deviceState.accountData?.isExpired) ?? true
+                return isExpired ? accountDataExpiredWaitInterval : accountDataDefaultWaitInterval
+            },
+            action: { [tunnelManager] in
+                tunnelManager.updateAccountData()
+            })
+        deviceUpdateThrottle = ActionThrottle(
+            waitInterval: deviceDataDefaultWaitInterval,
+            action: { [tunnelManager] in
+                try? await tunnelManager.updateDeviceData()
+            })
         refreshLoginMetadata(forceUpdate: true)
 
         appCoordinator = ApplicationCoordinator(
@@ -145,37 +161,44 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     /**
      Refresh login metadata (account and device data) potentially throttling refresh requests based on recency of
      the last issued request.
-
+    
      Account data is always refreshed when either settings or account are presented on screen, otherwise only when close
      to or past expiry.
-
+    
      Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
-
+    
      For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
      `DeviceDataThrottling` types.
      */
     private func refreshLoginMetadata(forceUpdate: Bool) {
-        let condition: AccountDataThrottling.Condition
+        let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
+        let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
+        let isCloseToExpiry =
+            (tunnelManager.deviceState.accountData?.daysUntilExpiry).map { $0 < accountCloseToExpiryDays } ?? false
 
-        if forceUpdate {
-            condition = .always
-        } else {
-            let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
-            let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
+        let shouldUpdateDeviceData = tunnelManager.deviceState.isLoggedIn
+        let shouldUpdateAccountData =
+            tunnelManager.deviceState.accountData != nil
+            && (forceUpdate || isPresentingSettings || isPresentingAccount || isCloseToExpiry)
 
-            condition = isPresentingSettings || isPresentingAccount ? .always : .whenCloseToExpiryAndBeyond
+        Task {
+            if shouldUpdateDeviceData {
+                await deviceUpdateThrottle?.requestAction(force: forceUpdate)
+            }
+            if shouldUpdateAccountData {
+                await accountUpdateThrottle?.requestAction(force: true)
+            }
         }
-
-        accountDataThrottling?.requestUpdate(condition: condition)
-        deviceDataThrottling?.requestUpdate(forceUpdate: forceUpdate)
     }
 
     /**
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        accountDataThrottling?.reset()
-        deviceDataThrottling?.reset()
+        Task {
+            await accountUpdateThrottle?.reset()
+            await deviceUpdateThrottle?.reset()
+        }
     }
 
     // MARK: - UIWindowSceneDelegate
