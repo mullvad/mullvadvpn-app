@@ -292,12 +292,11 @@ tasks
 kotlin {
     compilerOptions {
         allWarningsAsErrors = true
-        freeCompilerArgs =
-            listOf(
-                // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn",
-                "-XXLanguage:+WhenGuards",
-            )
+        freeCompilerArgs.addAll(
+            // Opt-in option for Koin annotation of KoinComponent.
+            "-opt-in=kotlin.RequiresOptIn",
+            "-XXLanguage:+WhenGuards",
+        )
     }
 }
 
