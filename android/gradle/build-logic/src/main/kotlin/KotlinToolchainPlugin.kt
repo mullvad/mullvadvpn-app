@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import utilities.libs
 
 private val COMPILER_ARGS = listOf("-Wextra")
@@ -26,7 +27,8 @@ class KotlinToolchainPlugin : Plugin<Project> {
                     compilerOptions { freeCompilerArgs.addAll(COMPILER_ARGS) }
                 }
             }
-            plugins.withType(KotlinBasePluginWrapper::class.java) {
+
+            plugins.withType(KotlinPluginWrapper::class.java) {
                 extensions.configure<KotlinJvmProjectExtension> {
                     compilerOptions { freeCompilerArgs.addAll(COMPILER_ARGS) }
                 }
