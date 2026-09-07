@@ -100,11 +100,6 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to set up IP interfaces")]
     IpInterfacesError,
-
-    /// Failed to set IP addresses on WireGuard interface
-    #[cfg(target_os = "windows")]
-    #[error("Failed to set IP addresses on WireGuard interface")]
-    SetIpAddressesError(#[source] talpid_windows::net::Error),
 }
 
 impl Error {
@@ -282,8 +277,7 @@ impl WireguardMonitor {
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
             if !userspace_wireguard {
-                Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
-                    .await?;
+                Self::wait_for_device_setup(setup_done_rx).await?;
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
@@ -675,10 +669,10 @@ impl WireguardMonitor {
         AllowedTunnelTraffic::All
     }
 
+    /// Wait for the tunnel device to be configured, including its IP addresses, by
+    /// [`wireguard_nt`].
     #[cfg(windows)]
-    async fn add_device_ip_addresses(
-        iface_name: &str,
-        addresses: &[std::net::IpAddr],
+    async fn wait_for_device_setup(
         mut setup_done_rx: mpsc::Receiver<std::result::Result<(), BoxedError>>,
     ) -> std::result::Result<(), CloseMsg> {
         use futures::StreamExt;
@@ -694,29 +688,6 @@ impl WireguardMonitor {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to configure tunnel interface")
-                );
-            })
-            .map_err(|_| CloseMsg::SetupError(Error::IpInterfacesError))?;
-
-        // TODO: The LUID can be obtained directly.
-        let luid = talpid_windows::net::luid_from_alias(iface_name).map_err(|error| {
-            log::error!("Failed to obtain tunnel interface LUID: {}", error);
-            CloseMsg::SetupError(Error::IpInterfacesError)
-        })?;
-        for address in addresses {
-            talpid_windows::net::add_ip_address_for_interface(luid, *address)
-                .map_err(|error| CloseMsg::SetupError(Error::SetIpAddressesError(error)))?;
-        }
-
-        // Wait for the addresses to become usable. Until they are, they cannot be selected as
-        // source addresses, so connections made this early may be routed out another interface and
-        // blocked (WSAEACCES). Suspected, not confirmed: they are normally usable right away.
-        talpid_windows::net::wait_for_addresses(luid, addresses.to_vec())
-            .await
-            .inspect_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to wait for tunnel IP addresses")
                 );
             })
             .map_err(|_| CloseMsg::SetupError(Error::IpInterfacesError))?;
@@ -738,8 +709,12 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
+        // Both implementations keep their tunnel adapter alive between connections, and both
+        // adapters have the same name, so destroy the one that is not about to be used.
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
+
+            wireguard_nt::close_cached_adapter();
 
             let tunnel = runtime
                 .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
@@ -747,6 +722,8 @@ impl WireguardMonitor {
             Ok(tunnel)
         } else {
             log::debug!("Using kernel WireGuard implementation");
+
+            tun_provider.lock().unwrap().close_adapter();
 
             wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
