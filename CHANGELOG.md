@@ -43,6 +43,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Reuse the tunnel adapter when reconnecting instead of creating a new one every time. This saves
   around 0.2 s when reconnecting.
+- Rename the tunnel adapter used by GotaTun to "Mullvad GotaTun". Both it and the "Mullvad" adapter
+  used by WireGuardNT are now kept alive between connections, so they cannot share a name.
 - Make the timestamps embedded in the Rust Windows binaries + winfw.dll deterministic.
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.

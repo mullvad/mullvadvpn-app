@@ -709,12 +709,8 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        // Both implementations keep their tunnel adapter alive between connections, and both
-        // adapters have the same name, so destroy the one that is not about to be used.
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
-
-            wireguard_nt::close_cached_adapter();
 
             let tunnel = runtime
                 .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
@@ -722,8 +718,6 @@ impl WireguardMonitor {
             Ok(tunnel)
         } else {
             log::debug!("Using kernel WireGuard implementation");
-
-            tun_provider.lock().unwrap().close_adapter();
 
             wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
