@@ -9,6 +9,7 @@ pub mod ephemeral_peer_proxy;
 pub mod log_redactor;
 pub mod logging;
 pub mod tunnel_obfuscator_proxy;
+pub mod type_bridges;
 pub mod wireguard_key;
 
 // --- iOS FFI glue (Swift interop) ---
