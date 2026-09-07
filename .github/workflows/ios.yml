@@ -104,6 +104,21 @@ jobs:
           echo "ARTIFACTS_DIR=artifacts" >> "$GITHUB_ENV"
         working-directory: ios/
 
+      - name: Build for unit tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNCI \
+            -destination "generic/platform=iOS Simulator" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -disableAutomaticPackageResolution \
+            -derivedDataPath derived-data \
+            -resultBundlePath "${ARTIFACTS_DIR}/xcode-build-report-${{ github.run_id }}.xcresult" \
+            -showBuildTimingSummary \
+            build-for-testing 2>&1 | tee "${ARTIFACTS_DIR}/raw-xcodebuild-output.log" | xcbeautify
+        working-directory: ios/
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
@@ -112,10 +127,11 @@ jobs:
             -testPlan MullvadVPNCI \
             -destination "platform=iOS Simulator,name=iPhone 17" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -derivedDataPath derived-data \
             -disableAutomaticPackageResolution \
             -allowProvisioningUpdates \
-            -resultBundlePath "${ARTIFACTS_DIR}/xcode-test-report.xcresult" \
-            test 2>&1 | xcbeautify
+            -resultBundlePath "${ARTIFACTS_DIR}/xcode-test-report-${{ github.run_id }}.xcresult" \
+            test-without-building 2>&1 | xcbeautify
         working-directory: ios/
 
       - name: Store test report artifact
