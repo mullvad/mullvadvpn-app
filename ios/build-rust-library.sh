@@ -91,7 +91,7 @@ for arch in $ARCHS; do
             OUT_DIR_TMP="$CONFIGURATION_BUILD_DIR/generated"
 
             echo "Building libmullvad_ios for $TARGET..."
-            time "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            time "$HOME"/.cargo/bin/cargo build -vv $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
 
             MODIFIED_DATE=$(date -r "$LIB")
             CACHED="no-checksum"

@@ -36,6 +36,35 @@ runs:
       run: rustup target add ${{ inputs.ios_rust_target }}
       shell: bash
 
+    # Each workflow gets its own cache, so the nightly run that populates it
+    # builds exactly the artifacts that workflow needs. `cargo clippy` and
+    # `cargo doc` only emit metadata, while `cargo build` and `cargo test`
+    # emit compiled libraries, and cargo keys the two under different
+    # fingerprints, so a shared cache would serve one of them useless entries.
+    - name: Derive Rust cache key from the calling workflow
+      id: rust-cache-key
+      shell: bash
+      run: |
+        # GITHUB_WORKFLOW_REF contains owner/repo/.github/workflows/name.yml@refs/...
+        path="${GITHUB_WORKFLOW_REF%%@*}"            # Strip trailing @refs/...
+        echo "key=${path##*/}" >> "$GITHUB_OUTPUT"   # Keep just the workflow filename
+
+    - name: Setup Rust cache
+      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
+      with:
+        shared-key: ${{ steps.rust-cache-key.outputs.key }}
+        # `cache-bin` causes `~/.cargo/bin/rustup` to be deleted for self-hosted runners
+        # See https://github.com/Swatinem/rust-cache/issues/16
+        cache-bin: false
+        # Useful if the workspace contains libraries that are only updated sporadically.
+        cache-workspace-crates: true
+        # Only save the cache when on main, where the scheduled runs populate it.
+        # Uploading caches are expensive. Branches can only see caches from
+        # their own branch and the default branch. So uploading in branches
+        # costs a lot of time and does not give much benefit
+        # TODO: uncomment upon merge
+        # save-if: ${{ github.ref == 'refs/heads/main' }}
+
     - name: Update brew's internal repository
       run: brew update
       shell: bash
