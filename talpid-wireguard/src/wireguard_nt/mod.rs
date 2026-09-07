@@ -671,11 +671,19 @@ impl WgNtAdapter {
     /// Keep the adapter alive so that the next connection can reuse it, unless it may be in a bad
     /// state.
     ///
-    /// The WireGuard config, including the private key, is discarded and the adapter is brought
-    /// down first, so that a parked adapter can neither pass traffic nor hold on to any keys.
+    /// The IP addresses and the WireGuard config, including the private key, are discarded and the
+    /// adapter is brought down first, so that a parked adapter can neither pass traffic nor hold
+    /// on to any keys or addresses.
     fn park(self: Arc<Self>) {
         if !self.reusable.load(Ordering::Relaxed) {
             log::debug!("Destroying the WireGuard adapter instead of reusing it");
+            return;
+        }
+        if let Err(error) = self.release_addresses() {
+            log::warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to remove the tunnel IP addresses")
+            );
             return;
         }
         if let Err(error) = self.clear_config() {
@@ -761,6 +769,21 @@ impl WgNtAdapter {
         }
 
         *configured_addresses = addresses.to_vec();
+
+        Ok(())
+    }
+
+    /// Remove the IP addresses that were added to the adapter.
+    ///
+    /// The tunnel addresses do not depend on which tunnel implementation is used, and Windows only
+    /// lets one interface have a given address, so an idle adapter must not hold on to them.
+    fn release_addresses(&self) -> Result<()> {
+        let luid = self.luid();
+        let mut configured_addresses = self.configured_addresses.lock().unwrap();
+
+        for address in configured_addresses.drain(..) {
+            net::delete_ip_address_for_interface(luid, address).map_err(Error::RemoveIp)?;
+        }
 
         Ok(())
     }
