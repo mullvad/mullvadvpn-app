@@ -84,9 +84,13 @@ final class EventChannelTests: XCTestCase {
     }
 }
 
-extension AsyncSequence {
+extension AsyncSequence where Self: Sendable, Element: Sendable {
     func collect() async rethrows -> [Element] {
-        try await reduce(into: [Element]()) { $0.append($1) }
+        var result = [Element]()
+        for try await element in self {
+            result.append(element)
+        }
+        return result
     }
 }
 
