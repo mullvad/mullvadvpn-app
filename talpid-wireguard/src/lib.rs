@@ -729,6 +729,11 @@ impl WireguardMonitor {
         } else {
             log::debug!("Using kernel WireGuard implementation");
 
+            // The wintun adapter is kept alive between connections, and it holds the very
+            // addresses that this tunnel is about to configure. A wireguard-nt adapter releases
+            // them when it is parked, so there is nothing to do in the other direction.
+            tun_provider.lock().unwrap().release_addresses();
+
             wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
                 .map_err(Error::TunnelError)
