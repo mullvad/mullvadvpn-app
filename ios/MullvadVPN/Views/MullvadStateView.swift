@@ -127,7 +127,7 @@ extension MullvadStateViewStyle.TextStyle {
 private enum Layout {
     static let topPadding: CGFloat = 0
     static let horizontalPadding: CGFloat = 16
-    static let buttonHorizontalPadding: CGFloat = 8
+    static let buttonHorizontalPadding: CGFloat = 24
     static let bottomPadding: CGFloat = 24
     static let sectionSpacing: CGFloat = 24
     static let bannerSpacing: CGFloat = 16
