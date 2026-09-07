@@ -95,6 +95,18 @@ runs:
         brew install ripgrep
       shell: bash
 
+    - name: Enable detailed timing reporting
+      shell: bash
+      run: |
+        sudo defaults write com.apple.dt.Xcode ExplainWhyBuildCommandsAreRun -bool true
+
+        # Show every build command in the build report / log
+        sudo defaults write com.apple.dt.Xcode IDEBuildShowAllCommands -bool true
+
+        # Let you see build report / timing data more aggressively
+        sudo defaults write com.apple.dt.Xcode IDEBetaBuildSystemUseStandardError -bool true
+      working-directory: ios/
+
     - name: Setup Xcode
       uses: maxim-lobanov/setup-xcode@v1
       with:
