@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.api.relay
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -23,7 +23,7 @@ class RelayApi(billingFlavor: String, private val baseDomain: String) {
     private val relayProvider = RelayProvider(billingFlavor)
 
     private val client: HttpClient =
-        HttpClient(CIO) {
+        HttpClient(OkHttp) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             install(Logging) {
                 logger = KermitLogger()
