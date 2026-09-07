@@ -44,7 +44,7 @@ jobs:
 
       - name: Run swift format lint
         run: nix develop --command ./format.sh lint -s
-        working-directory: ios
+        working-directory: ios/
 
   ui-test-build:
     name: Build for ui tests (staging)
@@ -61,11 +61,27 @@ jobs:
         with:
           ios_rust_target: aarch64-apple-ios
 
+      - name: Record toolchain
+        id: toolchain
+        run: |
+          echo "id=$(xcodebuild -version | sed -e 's/[^[:alnum:]_-]/-/g' | tr '\n' '-' | sed 's/-$//')" >> "$GITHUB_OUTPUT"
+
+      - name: Restore cached build artifacts
+        id: cache-xcodebuild-artifacts
+        uses: actions/cache/restore@v6
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+        with:
+          key: artifacts-${{ steps.toolchain.outputs.id }}-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          path: |
+            ios/derived-data/CompilationCache.noindex
+
       - name: Build for ui tests
         run: |
           set -o pipefail && \
           env NSUnbufferedIO=YES \
-          xcodebuild CODE_SIGNING_ALLOWED=NO \
+          xcodebuild \
+          CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO \
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll \
@@ -73,8 +89,16 @@ jobs:
           -disableAutomaticPackageResolution \
           -allowProvisioningUpdates \
           -destination "generic/platform=iOS" \
-          clean build-for-testing 2>&1 | xcbeautify
+          -derivedDataPath derived-data \
+          build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
+
+      - name: Save CompilationCache
+        uses: actions/cache/save@v6
+        with:
+          key: artifacts-${{ steps.toolchain.outputs.id }}-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          path: |
+            ios/derived-data/CompilationCache.noindex
 
   test:
     name: Unit tests
@@ -89,6 +113,68 @@ jobs:
       - name: Setup project
         uses: ./.github/actions/ios/setup-project-toolchain
 
+      - name: Record toolchain
+        id: toolchain
+        run: |
+          echo "id=$(xcodebuild -version | sed -e 's/[^[:alnum:]_-]/-/g' | tr '\n' '-' | sed 's/-$//')" >> "$GITHUB_OUTPUT"
+
+      - name: Build unit tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -derivedDataPath derived-data \
+            clean 2>&1 | xcbeautify
+        working-directory: ios/
+
+      - name: Restore cached build artifacts
+        id: cache-xcodebuild-artifacts
+        uses: actions/cache/restore@v6
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
+        with:
+          key: artifacts-${{ steps.toolchain.outputs.id }}-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          path: |
+            ios/derived-data/CompilationCache.noindex
+
+      - name: Enable detailed output reporting
+        shell: bash
+        run: |
+          sudo defaults write com.apple.dt.Xcode ExplainWhyBuildCommandsAreRun -bool true
+
+          # Show every build command in the build report / log
+          sudo defaults write com.apple.dt.Xcode IDEBuildShowAllCommands -bool true
+
+          # Let you see build report / timing data more aggressively
+          sudo defaults write com.apple.dt.Xcode IDEBetaBuildSystemUseStandardError -bool true
+        working-directory: ios/
+
+      - name: Build for unit tests
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNCI \
+            -destination "platform=iOS Simulator,name=iPhone 17" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            -disableAutomaticPackageResolution \
+            -allowProvisioningUpdates \
+            -derivedDataPath derived-data \
+            -resultBundlePath build-report.xcresult \
+            build-for-testing 2>&1 | tee raw-xcodebuild-output.log | xcbeautify
+        working-directory: ios/
+
+      - name: Upload raw build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcodebuild-build-details-${{ github.run_id }}
+          path: |
+            ios/raw-xcodebuild-output.log
+            ios/build-report.xcresult
+          compression-level: 0
+
       - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
@@ -99,6 +185,7 @@ jobs:
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -disableAutomaticPackageResolution \
             -allowProvisioningUpdates \
+            -derivedDataPath derived-data \
             -resultBundlePath xcode-test-report \
             test 2>&1 | xcbeautify
         working-directory: ios/
@@ -106,6 +193,13 @@ jobs:
       - name: Archive test report
         if: always()
         run: zip -r test-report.zip ios/xcode-test-report.xcresult
+
+      - name: Save CompilationCache
+        uses: actions/cache/save@v6
+        with:
+          key: artifacts-${{ steps.toolchain.outputs.id }}-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
+          path: |
+            ios/derived-data/CompilationCache.noindex
 
       - name: Store test report artifact
         if: always()
