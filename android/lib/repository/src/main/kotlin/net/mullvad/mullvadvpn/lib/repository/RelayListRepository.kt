@@ -38,7 +38,7 @@ class RelayListRepository(
         combine(managementService.relayCountries, translationRepository.translations) {
                 countries,
                 translations ->
-                countries.translateRelays(translations)
+                countries.translateRelays(translations).sortLocations()
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), emptyList())
 
@@ -49,25 +49,27 @@ class RelayListRepository(
             return this
         }
 
-        return Every.list<RelayItem.Location.Country>()
-            .modify(this) { country ->
-                country.copy {
-                    RelayItem.Location.Country.name set translations.lookup(country.name)
+        return Every.list<RelayItem.Location.Country>().modify(this) { country ->
+            country.copy {
+                RelayItem.Location.Country.name set translations.lookup(country.name)
 
-                    val cityTraversal = RelayItem.Location.Country.cities.every(Every.list())
+                val cityTraversal = RelayItem.Location.Country.cities.every(Every.list())
 
-                    cityTraversal.name transform { translations.lookup(it) }
-                    cityTraversal.countryName transform { translations.lookup(it) }
+                cityTraversal.name transform { translations.lookup(it) }
+                cityTraversal.countryName transform { translations.lookup(it) }
 
-                    val relayTraversal = cityTraversal.relays.every(Every.list())
+                val relayTraversal = cityTraversal.relays.every(Every.list())
 
-                    relayTraversal.cityName transform { translations.lookup(it) }
-                    relayTraversal.countryName transform { translations.lookup(it) }
-
-                    RelayItem.Location.Country.cities transform { cities -> cities.sortedByName() }
-                }
+                relayTraversal.cityName transform { translations.lookup(it) }
+                relayTraversal.countryName transform { translations.lookup(it) }
             }
-            .sortedByName()
+        }
+    }
+
+    private fun List<RelayItem.Location.Country>.sortLocations(): List<RelayItem.Location.Country> {
+        return this.sortedByName().map { country ->
+            country.copy { RelayItem.Location.Country.cities set country.cities.sortedByName() }
+        }
     }
 
     val wireguardEndpointData: StateFlow<WireguardEndpointData> =
