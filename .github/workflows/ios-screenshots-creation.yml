@@ -50,8 +50,24 @@ jobs:
         run: bundle exec fastlane snapshot --cloned_source_packages_path "$SOURCE_PACKAGES_PATH"
         working-directory: ios
 
+      - name: Determine artifact name
+        id: artifact-name
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          SHA: ${{ github.sha }}
+        run: |
+          if [ "$REF_TYPE" = "tag" ]; then
+            name="$REF_NAME"
+          else
+            name="${HEAD_REF:-$REF_NAME}-$(date -u +%Y%m%d)-${SHA:0:7}"
+          fi
+          # Artifact names may not contain path separators or other reserved characters.
+          echo "name=ios-screenshots-$(echo "$name" | tr '/\\:<>|*?"' '-')" >> "$GITHUB_OUTPUT"
+
       - name: Upload screenshot artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
-          name: ios-screenshots
+          name: ${{ steps.artifact-name.outputs.name }}
           path: ios/Screenshots
