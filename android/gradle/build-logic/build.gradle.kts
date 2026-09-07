@@ -3,6 +3,13 @@ plugins {
     alias(libs.plugins.ktfmt)
 }
 
+kotlin {
+    compilerOptions {
+        allWarningsAsErrors = true
+        freeCompilerArgs.add("-Wextra")
+    }
+}
+
 ktfmt {
     kotlinLangStyle()
     maxWidth.set(100)
