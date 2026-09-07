@@ -359,10 +359,10 @@ async fn connect_to_config_service(
         attempts += 1;
         let error = match socket.try_clone()?.connect(addr).await {
             Ok(stream) => {
-                if let Some(name) = last_error {
+                if let Some(err) = last_error {
                     log::warn!(
-                        "Connection to {addr} succeeded on attempt {attempts} after {:?}, \
-                         having failed with {name}",
+                        "Connection to {addr} succeeded on attempt {attempts} after {:?}. \
+                         Earlier attempts failed with: {err}",
                         start.elapsed(),
                     );
                 }
@@ -371,49 +371,46 @@ async fn connect_to_config_service(
             Err(error) => error,
         };
 
-        // Anything else means we reached the network and got an answer, so there is nothing to
-        // wait for.
-        let Some(name) = tunnel_not_ready_error(&error) else {
+        if !tunnel_not_ready_error(&error) {
             return Err(error);
-        };
-        last_error = Some(name);
+        }
 
         if start.elapsed() >= RETRY_TIMEOUT {
             log::warn!(
-                "Connection to {addr} failed with {name} on all {attempts} attempts over {:?}. \
-                 Giving up",
+                "Giving up on {addr} after {attempts} failed attempts over {:?}: {error}",
                 start.elapsed(),
             );
             return Err(error);
         }
 
-        log::debug!("Connection to {addr} failed with {name}. Retrying");
+        log::debug!("Connection to {addr} failed, retrying: {error}");
+        last_error = Some(error);
+
         tokio::time::sleep(RETRY_INTERVAL).await;
     }
 }
 
-/// Returns the name of `error` if it means the tunnel was not ready to carry the connection,
-/// rather than the connection having genuinely failed.
-///
-/// `WSAETIMEDOUT` and `WSAECONNREFUSED` are deliberately not in this set. Both mean the packets
-/// went somewhere and something answered, so retrying only delays a real failure. A connect that
-/// times out also takes far longer than the retry window on its own.
+/// Returns whether `error` means the tunnel was not ready, and might succeed on a retry.
 #[cfg(target_os = "windows")]
-fn tunnel_not_ready_error(error: &std::io::Error) -> Option<&'static str> {
+fn tunnel_not_ready_error(error: &std::io::Error) -> bool {
     use windows_sys::Win32::Networking::WinSock::{
         WSAEACCES, WSAEADDRNOTAVAIL, WSAEHOSTUNREACH, WSAENETUNREACH,
     };
 
-    match error.raw_os_error()? {
+    let Some(raw_err) = error.raw_os_error() else {
+        return false;
+    };
+
+    matches!(
+        raw_err,
         // Blocked by the firewall, because the connection was not classified against the tunnel.
-        WSAEACCES => Some("WSAEACCES"),
+        WSAEACCES |
         // No source address on the tunnel interface is usable yet.
-        WSAEADDRNOTAVAIL => Some("WSAEADDRNOTAVAIL"),
+        WSAEADDRNOTAVAIL |
         // No route through the tunnel yet.
-        WSAENETUNREACH => Some("WSAENETUNREACH"),
-        WSAEHOSTUNREACH => Some("WSAEHOSTUNREACH"),
-        _ => None,
-    }
+        WSAENETUNREACH |
+        WSAEHOSTUNREACH
+    )
 }
 
 /// Create a new `RelayConfigService` connected to the given IP.
