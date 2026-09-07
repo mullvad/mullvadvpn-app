@@ -72,6 +72,7 @@ pub async fn config_ephemeral_peers(
 /// This never fails the tunnel: it is a diagnostic, and the connection is attempted either way.
 #[cfg(target_os = "windows")]
 async fn wait_for_connected_interface(alias: &str) {
+    use talpid_types::ErrorExt;
     use talpid_windows::net::{AddressFamily, get_ip_interface_entry, luid_from_alias};
 
     /// How long to wait for the interface to report itself as connected.
@@ -82,7 +83,10 @@ async fn wait_for_connected_interface(alias: &str) {
     let luid = match luid_from_alias(alias) {
         Ok(luid) => luid,
         Err(error) => {
-            log::error!("Failed to obtain tunnel interface LUID: {error}");
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to obtain tunnel interface LUID")
+            );
             return;
         }
     };
