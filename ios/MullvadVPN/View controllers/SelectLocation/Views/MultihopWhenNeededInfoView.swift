@@ -6,8 +6,8 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
     @State private var multihopWarningAlert: MullvadAlert?
 
     var body: some View {
-        MullvadStateView(
-            viewModel: StateViewModel(
+        MullvadNoticeView(
+            viewModel: NoticeViewModel(
                 style: .custom(.init(image: Image.mullvadIconMultihopWhenNeeded)),
                 title: .init(
                     text: NSLocalizedString(
@@ -23,7 +23,7 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                     )
                 ],
                 actions: [
-                    MullvadStateView.ActionItem(
+                    MullvadNoticeView.ActionItem(
                         style: .primary,
                         state: .init(
                             kind: .idle,
