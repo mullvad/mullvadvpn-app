@@ -75,7 +75,7 @@ struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObserva
                     userInteraction: .enabledWithoutHighlight,
                     accessibilityIdentifier: .daitaSwitch,
                     leading: {
-                        itemFactory.leading(for: .generic(title: "Enable"))
+                        itemFactory.leading(for: .generic(title: NSLocalizedString("Enable", comment: "")))
                     },
                     trailing: {
                         itemFactory.trailing(for: .toggle(isOn: daitaIsEnabled, isDisabled: false))

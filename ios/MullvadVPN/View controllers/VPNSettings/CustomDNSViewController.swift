@@ -44,19 +44,20 @@ class CustomDNSViewController: UITableViewController {
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
 
         let editButtonTopMargin: CGFloat = 8
+        let editButtonBottomMargin: CGFloat = 24
         let footerView = UIView(
             frame: .init(
                 x: 0,
                 y: 0,
                 width: tableView.frame.width,
-                height: UIMetrics.Button.minimumTappableAreaSize.height + editButtonTopMargin
+                height: UIMetrics.Button.minimumTappableAreaSize.height + editButtonTopMargin + editButtonBottomMargin
             ))
         footerView.addConstrainedSubviews([editButton]) {
             editButton.pinEdgesToSuperview(
                 .init([
                     .top(editButtonTopMargin),
                     .leading(UIMetrics.contentInsets.left),
-                    .bottom(0),
+                    .bottom(editButtonBottomMargin),
                     .trailing(UIMetrics.contentInsets.right),
                 ]))
         }
