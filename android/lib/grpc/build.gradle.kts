@@ -16,7 +16,16 @@ android {
         }
     }
 
-    kotlin { compilerOptions { freeCompilerArgs.add("-XXLanguage:+WhenGuards") } }
+    kotlin {
+        compilerOptions {
+            // Protobuf and gRPC Kotlin generators emits explicit visibility modifiers,
+            // so we exclude that check.
+            freeCompilerArgs.addAll(
+                "-XXLanguage:+WhenGuards",
+                "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+            )
+        }
+    }
 }
 
 protobuf {

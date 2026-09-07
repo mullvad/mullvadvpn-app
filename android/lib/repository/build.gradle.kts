@@ -9,6 +9,14 @@ android {
     namespace = "net.mullvad.mullvadvpn.lib.repository"
 
     buildFeatures { buildConfig = true }
+
+    kotlin {
+        compilerOptions {
+            // Protobuf Kotlin generator emits explicit visibility modifiers,
+            // so we exclude that check.
+            freeCompilerArgs.add("-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled")
+        }
+    }
 }
 
 protobuf {
