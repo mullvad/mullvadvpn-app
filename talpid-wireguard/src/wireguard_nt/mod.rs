@@ -46,8 +46,14 @@ use windows_sys::{
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
 /// The adapter that is kept alive between connections. See [`WgNtAdapter::open`].
 static CACHED_ADAPTER: Mutex<Option<Arc<WgNtAdapter>>> = Mutex::new(None);
+/// Tunnel adapter type. Unlike the alias, this does not have to be unique. It ends up in the
+/// description of the network adapter.
 static ADAPTER_TYPE: LazyLock<U16CString> =
     LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
+/// Tunnel adapter name.
+///
+/// This must differ from the name of the wintun adapter, since both adapters are kept alive
+/// between connections and Windows requires interface names to be unique.
 static ADAPTER_ALIAS: LazyLock<U16CString> =
     LazyLock::new(|| U16CString::from_str("Mullvad").unwrap());
 
@@ -547,16 +553,6 @@ async fn setup_tunnel_device_inner(
     net::wait_for_addresses(luid, addresses)
         .await
         .map_err(Error::WaitForAddresses)
-}
-
-/// Destroy the adapter that is being kept alive for the next connection, if there is one.
-///
-/// Used to make sure that only one tunnel adapter exists at a time, since the userspace tunnel
-/// implementation creates an adapter of its own with the same name.
-pub fn close_cached_adapter() {
-    if CACHED_ADAPTER.lock().unwrap().take().is_some() {
-        log::debug!("Destroyed the cached WireGuard adapter");
-    }
 }
 
 impl Drop for WgNtTunnel {

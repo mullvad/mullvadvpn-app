@@ -7,8 +7,14 @@ use tun::{AbstractDevice, AsyncDevice, Configuration};
 use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 use wintun_bindings::Adapter;
 
-/// Tunnel adapter name
-const ADAPTER_NAME: &str = "Mullvad";
+/// Tunnel adapter name.
+///
+/// This must differ from the name of the wireguard-nt adapter, since both adapters are kept alive
+/// between connections and Windows requires interface names to be unique.
+const ADAPTER_NAME: &str = "Mullvad GotaTun";
+/// Tunnel adapter type. Unlike the name, this does not have to be unique. It ends up in the
+/// description of the network adapter.
+const ADAPTER_TYPE: &str = "Mullvad";
 /// Tunnel adapter GUID.
 /// Reuse the same ID, if possible. This prevents Windows from thinking it's a
 /// "new network".
@@ -192,7 +198,7 @@ impl WindowsTunProvider {
         // SAFETY: `wintun_path` refers to the wintun.dll shipped with the app.
         let wintun =
             unsafe { wintun_bindings::load_from_path(&wintun_path) }.map_err(Error::LoadWintun)?;
-        let adapter = Adapter::create(&wintun, ADAPTER_NAME, ADAPTER_NAME, Some(ADAPTER_GUID))
+        let adapter = Adapter::create(&wintun, ADAPTER_NAME, ADAPTER_TYPE, Some(ADAPTER_GUID))
             .map_err(Error::CreateAdapter)?;
 
         self.adapter = Some(adapter);
