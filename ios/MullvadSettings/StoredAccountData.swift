@@ -25,6 +25,11 @@ public struct StoredAccountData: Codable, Equatable, Sendable {
         expiry <= Date()
     }
 
+    /// The number of whole days until expiry, rounded to 0. May be negative.
+    public var daysUntilExpiry: Int {
+        Calendar.current.dateComponents([.day], from: Date(), to: expiry).day ?? 0
+    }
+
     public init(identifier: String, number: String, expiry: Date) {
         self.identifier = identifier
         self.number = number
