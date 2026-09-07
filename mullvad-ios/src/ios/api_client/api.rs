@@ -142,10 +142,9 @@ pub unsafe extern "C" fn mullvad_ios_get_relays(
         api_context,
         retry_strategy,
         async move |api_context, retry_strategy, completion_handler| {
-            let mut bytes = [0u8; 32];
             let digest = if let Some(digest) = digest {
-                match hex::decode_to_slice(&digest, &mut bytes) {
-                    Ok(_) => Some(RelayListDigest::new(bytes)),
+                match RelayListDigest::try_from(digest) {
+                    Ok(digest) => Some(digest),
                     Err(err) => {
                         log::error!("bad relay digest: {err:?}");
                         completion_handler.finish(SwiftMullvadApiResponse::cancelled());
