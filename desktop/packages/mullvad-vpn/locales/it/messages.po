@@ -196,6 +196,9 @@ msgstr "Vai a Impostazioni di sistema"
 msgid "Got it!"
 msgstr "Ok!"
 
+msgid "Guide"
+msgstr "Guida"
+
 msgid "Import"
 msgstr "Importa"
 
@@ -2713,6 +2716,10 @@ msgstr "Inserisci IP"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Gioco d'azzardo"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Se non riesci a connetterti, puoi provare a usare l'indirizzo IP anziché il nome host. Se vuoi connetterti a una sottorete o a un intervallo di indirizzi di una rete privata, puoi seguire la nostra guida per aggiungere una route statica."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

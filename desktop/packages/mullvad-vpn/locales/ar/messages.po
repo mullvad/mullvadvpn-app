@@ -220,6 +220,9 @@ msgstr "الانتقال إلى إعدادات النظام"
 msgid "Got it!"
 msgstr "حسنًا!"
 
+msgid "Guide"
+msgstr "دليل الإرشادات"
+
 msgid "Import"
 msgstr "استيراد"
 
@@ -2737,6 +2740,10 @@ msgstr "أدخل IP"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "المقامرة"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "إذا تعذر عليك الاتصال، يمكنك محاولة استخدام عنوان IP بدلاً من اسم المضيف. وإذا أردت الاتصال بشبكة فرعية أو بنطاق عناوين شبكة خاصة، يمكنك اتباع دليلنا لإضافة مسار ثابت."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

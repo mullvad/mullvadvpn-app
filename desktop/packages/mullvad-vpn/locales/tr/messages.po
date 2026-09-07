@@ -196,6 +196,9 @@ msgstr "Sistem Ayarlarına Git"
 msgid "Got it!"
 msgstr "Anladım!"
 
+msgid "Guide"
+msgstr "Kılavuz"
+
 msgid "Import"
 msgstr "İçe aktar"
 
@@ -2713,6 +2716,10 @@ msgstr "IP'yi girin"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Kumar"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Bağlanamıyorsanız ana bilgisayar adı yerine IP adresini kullanmayı deneyebilirsiniz. Bir alt ağa veya özel ağ adres aralığına bağlanmak istiyorsanız statik yönlendirme ekleme kılavuzumuzu izleyebilirsiniz."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

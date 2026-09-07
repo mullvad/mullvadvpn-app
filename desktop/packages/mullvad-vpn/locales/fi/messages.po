@@ -196,6 +196,9 @@ msgstr "Siirry järjestelmäasetuksiin"
 msgid "Got it!"
 msgstr "Selvä!"
 
+msgid "Guide"
+msgstr "Opas"
+
 msgid "Import"
 msgstr "Tuo"
 
@@ -2713,6 +2716,10 @@ msgstr "Anna IP-osoite"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Uhkapelaaminen"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Jos et saa yhteyttä muodostettua, voit kokeilla IP-osoitetta isäntänimen sijaan. Jos haluat muodostaa yhteyden aliverkkoon tai yksityisen verkon osoitealueeseen, seuraa oppaamme ohjeita staattisen reitin lisäämisestä."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

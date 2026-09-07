@@ -208,6 +208,9 @@ msgstr "Перейти до налаштувань системи"
 msgid "Got it!"
 msgstr "Зрозуміло!"
 
+msgid "Guide"
+msgstr "Посібник"
+
 msgid "Import"
 msgstr "Імпортувати"
 
@@ -2725,6 +2728,10 @@ msgstr "Введіть IP-адресу"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "Азартні ігри"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "Якщо не вдається підключитися, спробуйте використати IP-адресу замість імені хоста. Якщо ви хочете підключитися до підмережі або діапазону адрес приватної мережі, скористайтеся нашим посібником, щоб додати статичний маршрут."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

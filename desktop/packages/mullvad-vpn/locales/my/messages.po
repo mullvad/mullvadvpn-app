@@ -190,6 +190,9 @@ msgstr "System Settings သို့ သွားရန်"
 msgid "Got it!"
 msgstr "ရပါပြီ။"
 
+msgid "Guide"
+msgstr "လမ်းညွှန်"
+
 msgid "Import"
 msgstr "ထည့်ရန်"
 
@@ -2707,6 +2710,10 @@ msgstr "IP ဖြည့်ပါ"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "လောင်းကစား"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "ချိတ်ဆက်၍ မရနိုင်ပါက လက်ခံဆောင်ရွက်သူအမည်အစား IP လိပ်စာကို သုံး၍ ကြိုးစားကြည့်နိုင်ပါသည်။ ကွန်ရက်အခွဲ သို့မဟုတ် သီးသန့်ကွန်ရက်လိပ်စာ အပိုင်းအခြားနှင့် ချိတ်ဆက်လိုပါက ကျွန်ုပ်တို့၏ ပုံသေလမ်းကြောင်း ထည့်ပုံ လမ်းညွှန်အတိုင်း လုပ်ဆောင်နိုင်ပါသည်။"
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

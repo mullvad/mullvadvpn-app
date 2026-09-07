@@ -196,6 +196,9 @@ msgstr "رفتن به تنظیمات سیستم"
 msgid "Got it!"
 msgstr "فهمیدم!"
 
+msgid "Guide"
+msgstr "راهنما"
+
 msgid "Import"
 msgstr "وارد کردن"
 
@@ -2713,6 +2716,10 @@ msgstr "IP را وارد کنید"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "شرط‌بندی"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "اگر نمی‌توانید متصل شوید، می‌توانید به جای نام میزبان از آدرس IP استفاده کنید. اگر می‌خواهید به یک زیرشبکه یا محدوده آدرس شبکه خصوصی متصل شوید، می‌توانید راهنمای ما را برای افزودن یک مسیر ثابت دنبال کنید."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"

@@ -190,6 +190,9 @@ msgstr "시스템 설정으로 이동"
 msgid "Got it!"
 msgstr "확인!"
 
+msgid "Guide"
+msgstr "가이드"
+
 msgid "Import"
 msgstr "가져오기"
 
@@ -2707,6 +2710,10 @@ msgstr "IP 입력"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "도박"
+
+msgctxt "vpn-settings-view"
+msgid "If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route."
+msgstr "연결이 되지 않는 경우 호스트 이름 대신 IP 주소를 사용해 시도할 수 있습니다. 서브넷 또는 비공개 네트워크 주소 범위로 연결하고 싶은 경우 가이드를 따라 정적 경로를 추가할 수 있습니다."
 
 #. Title of in-tunnel IPv6 setting.
 msgctxt "vpn-settings-view"
