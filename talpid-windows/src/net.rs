@@ -148,6 +148,8 @@ impl AddressFamily {
     }
 }
 
+/// A user-provided callback function passed called from a raw `Notify*Change` callback
+/// function. `T` is type that the notification carries.
 type InnerCallback<T> = Box<Mutex<dyn FnMut(&T, i32) + Send + 'static>>;
 
 /// The callback function passed to the `Notify*Change` functions. `T` is the row type that the
