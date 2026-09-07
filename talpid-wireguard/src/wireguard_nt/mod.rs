@@ -555,6 +555,14 @@ async fn setup_tunnel_device_inner(
         .map_err(Error::WaitForAddresses)
 }
 
+/// Destroy the adapter that is kept alive for the next connection, if there is one. A new adapter
+/// is created by the next [`WgNtTunnel::start_tunnel`].
+pub fn close_cached_adapter() {
+    if CACHED_ADAPTER.lock().unwrap().take().is_some() {
+        log::debug!("Destroyed the cached WireGuard adapter");
+    }
+}
+
 impl Drop for WgNtTunnel {
     fn drop(&mut self) {
         self.stop_tunnel();
