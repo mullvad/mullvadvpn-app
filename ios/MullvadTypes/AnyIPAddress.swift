@@ -12,7 +12,7 @@ import Foundation
 import Network
 
 /// Container type that holds either `IPv4Address` or `IPv6Address`.
-public enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConvertible {
+public enum AnyIPAddress: IPAddress, Codable, Equatable, Hashable, CustomDebugStringConvertible {
     case ipv4(IPv4Address)
     case ipv6(IPv6Address)
 
