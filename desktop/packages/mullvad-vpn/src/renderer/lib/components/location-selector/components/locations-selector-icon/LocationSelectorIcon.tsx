@@ -83,7 +83,7 @@ export function LocationSelectorIcon({
   const backgroundColor = colors[backgroundColorProp];
 
   return (
-    <StyledLocationSelectorIcon>
+    <StyledLocationSelectorIcon aria-hidden>
       <StyledLine $position={position} $horizontalOffset={horizontalOffset} $visible={expanded} />
       <StyledIconBackground $color={backgroundColor} $horizontalOffset={horizontalOffset} />
       <StyledIcon size="small" $horizontalOffset={horizontalOffset} {...props} />
