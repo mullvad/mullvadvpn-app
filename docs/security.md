@@ -143,6 +143,10 @@ All API connections use TLS 1.3 with certificate pinning. The app comes bundled 
 with servers having a valid certificate issued to `api.mullvad.net` and signed with this
 bundled certificate.
 
+TLS session tickets are disabled. Resuming a session identifies the client to the server as one
+it has served before, which would let the Mullvad API server link connections made from different
+tunnels and different network locations.
+
 #### Tunnel
 
 The networks that "Allow LAN" permits outside the tunnel are blocked outbound *on* the tunnel

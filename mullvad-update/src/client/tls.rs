@@ -42,5 +42,8 @@ pub fn build_client_config(
             .expect("aws-lc-rs crypto provider should support default TLS versions")
     };
 
-    builder.with_root_certificates(roots).with_no_client_auth()
+    let mut config = builder.with_root_certificates(roots).with_no_client_auth();
+    // Disable TLS tickets to reduce ability to track clients over time
+    config.resumption = rustls::client::Resumption::disabled();
+    config
 }

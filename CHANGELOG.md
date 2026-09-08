@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
 - Do not show dialog when rendering the map fails due to disabled GPU acceleration.
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
+- Disable TLS session tickets to reduce the ability to track clients over time.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.

@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
+- Disable TLS session tickets to reduce the ability to track clients over time.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.

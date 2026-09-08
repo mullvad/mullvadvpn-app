@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
+- Disable TLS session tickets to reduce the ability to track clients over time.
 
 ### Added
 - Show obfuscation type in connection view.

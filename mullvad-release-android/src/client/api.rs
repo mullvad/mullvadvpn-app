@@ -64,12 +64,14 @@ impl HttpVersionInfoProvider {
         roots
             .add(defaults::PINNED_CERTIFICATE.clone())
             .expect("pinned certificate should be a valid trust anchor");
-        let tls_config =
+        let mut tls_config =
             ClientConfig::builder_with_provider(Arc::new(aws_lc_rs::default_provider()))
                 .with_protocol_versions(&[&rustls::version::TLS13])
                 .expect("aws-lc-rs crypto provider should support TLS 1.3")
                 .with_root_certificates(roots)
                 .with_no_client_auth();
+        // Disable TLS tickets to reduce ability to track clients over time
+        tls_config.resumption = rustls::client::Resumption::disabled();
         let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
 
         // Resolve name without DNS

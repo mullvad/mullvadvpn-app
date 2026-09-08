@@ -129,9 +129,12 @@ fn client_config_tls12() -> ClientConfig {
     let root_store = rustls::RootCertStore {
         roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
     };
-    ClientConfig::builder()
+    let mut config = ClientConfig::builder()
         .with_root_certificates(root_store)
-        .with_no_client_auth()
+        .with_no_client_auth();
+    // Disable TLS tickets to reduce ability to track clients over time
+    config.resumption = rustls::client::Resumption::disabled();
+    config
 }
 
 #[cfg(test)]

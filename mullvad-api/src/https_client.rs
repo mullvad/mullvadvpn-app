@@ -309,12 +309,13 @@ async fn cdn_tls_connect(
     }
 
     static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        Arc::new(
-            rustls::ClientConfig::builder()
-                .dangerous()
-                .with_custom_certificate_verifier(Arc::new(NoCertVerification))
-                .with_no_client_auth(),
-        )
+        let mut config = rustls::ClientConfig::builder()
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(NoCertVerification))
+            .with_no_client_auth();
+        // Disable TLS tickets to reduce ability to track clients over time
+        config.resumption = rustls::client::Resumption::disabled();
+        Arc::new(config)
     });
 
     let connector = tokio_rustls::TlsConnector::from(Arc::clone(&CDN_TLS_CONFIG));
