@@ -24,6 +24,7 @@ import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
+import okhttp3.ConnectionSpec
 import org.junit.jupiter.api.fail
 
 @JvmInline
@@ -62,7 +63,12 @@ class PacketCapture {
 private fun defaultHttpClient(): HttpClient =
     HttpClient(OkHttp) {
         defaultRequest { url("http://${InstrumentationRegistry.getArguments().getRaasHost()}") }
-        engine { config { callTimeout(REQUEST_TIMEOUT) } }
+        engine {
+            config {
+                connectionSpecs(listOf(ConnectionSpec.CLEARTEXT))
+                callTimeout(REQUEST_TIMEOUT)
+            }
+        }
 
         install(ContentNegotiation) {
             json(
