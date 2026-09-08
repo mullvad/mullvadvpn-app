@@ -17,23 +17,15 @@ import MullvadTypes
 actor ActionThrottle {
 
     /// A function that returns the current wait interval. The current time is passed to it.
-    let waitInterval: ((Date) -> Duration)
+    let waitInterval: Duration
     /// The action to carry out.
     let action: (() async -> Void)
-
-    init(
-        waitInterval: @escaping @Sendable (Date) -> Duration,
-        action: @escaping @Sendable () async -> Void
-    ) {
-        self.waitInterval = waitInterval
-        self.action = action
-    }
 
     init(
         waitInterval: Duration,
         action: @escaping @Sendable () async -> Void
     ) {
-        self.waitInterval = { _ in waitInterval }
+        self.waitInterval = waitInterval
         self.action = action
     }
 
@@ -49,8 +41,7 @@ actor ActionThrottle {
             return
         }
 
-        let interval = waitInterval(now)
-        let nextDue = lastUpdate + interval
+        let nextDue = lastUpdate + waitInterval
 
         if now >= nextDue {
             run(now: now)
