@@ -63,8 +63,14 @@ jobs:
           else
             name="${HEAD_REF:-$REF_NAME}-$(date -u +%Y%m%d)-${SHA:0:7}"
           fi
+          stripped_name=$(printf '%s' "$name" | \
+                                  sed -e 's/[^[:alnum:]_-]/-/g' \
+                                    -e 's/--*/-/g' \
+                                    -e 's/^-//' \
+                                    -e 's/-$//')
+
           # Artifact names may not contain path separators or other reserved characters.
-          echo "name=ios-screenshots-$(echo "$name" | tr '/\\:<>|*?"' '-')" >> "$GITHUB_OUTPUT"
+          echo "name=ios-screenshots-${stripped_name}" >> "$GITHUB_OUTPUT"
 
       - name: Upload screenshot artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
