@@ -41,24 +41,24 @@ struct SettingsUpdateDescriptor: SettingsMigrationPresentable {
         }
     }
 
-    var description: [MullvadStateView.TextItem] {
+    var description: [MullvadNoticeView.TextItem] {
         switch change.path {
         case .none:
             []
         case .updatedMultiHop:
             [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         Multihop is now split into three modes: When needed, Always, and Never. \
                         This gives you more flexibility with your connection preferences.
                         """, comment: ""),
                     style: .secondary()),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: String(
                         format: NSLocalizedString("Your multihop setting was migrated from “%@” to “%@”.", comment: ""),
                         "\(change.before!)", "\(change.after!)"), style: .primary(.none)),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: (change.after as? MultihopStateV2)?.description ?? "",
                     style: .primary(
                         .bold,
@@ -67,39 +67,39 @@ struct SettingsUpdateDescriptor: SettingsMigrationPresentable {
                             leading: 0,
                             bottom: 0,
                             trailing: 0))),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: (change.after as? MultihopStateV2)?.comment ?? "",
                     symbols: (change.after as? MultihopStateV2)?.symbols ?? [],
                     style: .secondary()),
             ]
         case .uniqueFilter:
             [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         "Filters can now be set separately for entry and exit locations.", comment: ""),
                     style: .secondary(.none)),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         "Your current filters were applied to both entry and exit locations.", comment: ""),
                     style: .primary(.none)),
             ]
         case .directOnlyRemoved:
             [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. \
                         Instead, with DAITA enabled, you make this option with the multihop setting.
                         """, comment: ""),
                     style: .secondary()),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         When multihop is set to “When needed” the app might use an additional server to make sure you connect \
                         to your selected location using DAITA.
                         """, comment: ""),
                     style: .secondary()),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         "When multihop is set to “Always” or “Never” you must manually select a DAITA server.",
                         comment: ""),
@@ -107,13 +107,13 @@ struct SettingsUpdateDescriptor: SettingsMigrationPresentable {
             ]
         case .automatic:
             [
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         The multihop mode “Always” now features an “Automatic” location for the entry server selection.
                         """, comment: ""),
                     style: .secondary()),
-                MullvadStateView.TextItem(
+                MullvadNoticeView.TextItem(
                     text: NSLocalizedString(
                         """
                         When selected, the app automatically picks a random server, prioritizing \

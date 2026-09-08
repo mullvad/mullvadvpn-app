@@ -13,5 +13,5 @@ import SwiftUI
 protocol SettingsMigrationPresentable {
     var title: String { get }
     var banner: Image? { get }
-    var description: [MullvadStateView.TextItem] { get }
+    var description: [MullvadNoticeView.TextItem] { get }
 }

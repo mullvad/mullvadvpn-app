@@ -14,15 +14,15 @@ import MullvadSettings
 import SwiftUI
 
 protocol SettingsMigrationWizardViewModelProtocol: ObservableObject {
-    var items: [StateViewModel] { get }
+    var items: [NoticeViewModel] { get }
 }
 
 final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelProtocol {
-    var items: [StateViewModel] = []
+    var items: [NoticeViewModel] = []
 
     private var tunnelManager: TunnelManager
     private var settings: LatestTunnelSettings
-    private var actionItem: MullvadStateView.ActionItem
+    private var actionItem: MullvadNoticeView.ActionItem
 
     private var actionDescriptor: MultihopActionDescriptor?
     private var tunnelObserver: TunnelBlockObserver?
@@ -42,16 +42,16 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
     ) {
         self.tunnelManager = tunnelManager
         self.settings = tunnelManager.settings
-        self.actionItem = MullvadStateView.ActionItem(style: .primary, state: .init(kind: .idle, message: ""))
+        self.actionItem = MullvadNoticeView.ActionItem(style: .primary, state: .init(kind: .idle, message: ""))
 
         let changeItems = output.changes.map { change in
             let descriptor = SettingsUpdateDescriptor(
                 change: change
             )
 
-            return StateViewModel(
+            return NoticeViewModel(
                 style: .info,
-                title: MullvadStateView.TextItem(
+                title: MullvadNoticeView.TextItem(
                     text: descriptor.title,
                     style: .headline()
                 ),
@@ -60,7 +60,7 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
             )
         }
 
-        let actionItems: [StateViewModel] =
+        let actionItems: [NoticeViewModel] =
             output.action.map { suggestedAction in
                 let descriptor = MultihopActionDescriptor(action: suggestedAction)
                 self.actionDescriptor = descriptor
@@ -85,9 +85,9 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
                 }
 
                 return [
-                    StateViewModel(
+                    NoticeViewModel(
                         style: .info,
-                        title: MullvadStateView.TextItem(
+                        title: MullvadNoticeView.TextItem(
                             text: descriptor.title,
                             style: .headline()
                         ),

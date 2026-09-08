@@ -9,120 +9,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import SwiftUI
 
-// MARK: - Text Style
-enum MullvadStateViewStyle {}
-
-extension MullvadStateViewStyle {
-    enum TextEmphasis {
-        case none
-        case bold
-        case italic
-        case boldItalic
-
-        fileprivate var isBold: Bool {
-            switch self {
-            case .bold, .boldItalic:
-                true
-            default:
-                false
-            }
-        }
-
-        fileprivate var isItalic: Bool {
-            switch self {
-            case .italic, .boldItalic:
-                true
-            default:
-                false
-            }
-        }
-    }
-
-    // MARK: - Text Style
-    struct TextStyle {
-        let emphasis: TextEmphasis
-        let font: Font
-        let color: Color
-        let alignment: TextAlignment
-        let padding: EdgeInsets
-
-        init(
-            emphasis: TextEmphasis = .none,
-            font: Font,
-            color: Color,
-            alignment: TextAlignment = .leading,
-            padding: EdgeInsets = EdgeInsets(
-                top: 0,
-                leading: 0,
-                bottom: 16,
-                trailing: 0
-            )
-        ) {
-            self.emphasis = emphasis
-            self.font = font
-            self.color = color
-            self.alignment = alignment
-            self.padding = padding
-        }
-    }
-}
-
-extension MullvadStateViewStyle.TextStyle {
-    static func headline(
-        _ emphasis: MullvadStateViewStyle.TextEmphasis = .bold,
-        font: Font = .mullvadLarge,
-        alignment: TextAlignment = .center,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        Self(
-            emphasis: emphasis,
-            font: font,
-            color: .mullvadTextPrimary,
-            alignment: alignment,
-            padding: padding
-        )
-    }
-
-    static func primary(
-        _ emphasis: MullvadStateViewStyle.TextEmphasis = .none,
-        font: Font = .mullvadSmall,
-        alignment: TextAlignment = .leading,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        Self(
-            emphasis: emphasis,
-            font: font,
-            color: .mullvadTextPrimary,
-            alignment: alignment,
-            padding: padding
-        )
-    }
-
-    static func secondary(
-        _ emphasis: MullvadStateViewStyle.TextEmphasis = .none,
-        font: Font = .mullvadSmall,
-        alignment: TextAlignment = .leading,
-        padding: EdgeInsets = Self.defaultPadding
-    ) -> Self {
-        Self(
-            emphasis: emphasis,
-            font: font,
-            color: .mullvadTextSecondary,
-            alignment: alignment,
-            padding: padding
-        )
-    }
-
-    fileprivate static var defaultPadding: EdgeInsets {
-        return EdgeInsets(
-            top: 0,
-            leading: 0,
-            bottom: 16,
-            trailing: 0
-        )
-    }
-}
-
 // MARK: - Layout
 private enum Layout {
     static let topPadding: CGFloat = 0
@@ -134,22 +20,22 @@ private enum Layout {
 }
 
 // MARK: - State View Model
-final class StateViewModel: Identifiable, ObservableObject {
+final class NoticeViewModel: Identifiable, ObservableObject {
     let id = UUID()
-    @Published var style: MullvadStateView.Style
-    let title: MullvadStateView.TextItem
+    @Published var style: MullvadNoticeView.Style
+    let title: MullvadNoticeView.TextItem
     let banner: Image?
-    let details: [MullvadStateView.TextItem]
-    let explanation: MullvadStateView.TextItem?
-    let actions: [MullvadStateView.ActionItem]
+    let details: [MullvadNoticeView.TextItem]
+    let explanation: MullvadNoticeView.TextItem?
+    let actions: [MullvadNoticeView.ActionItem]
 
     init(
-        style: MullvadStateView.Style,
-        title: MullvadStateView.TextItem,
+        style: MullvadNoticeView.Style,
+        title: MullvadNoticeView.TextItem,
         banner: Image? = nil,
-        details: [MullvadStateView.TextItem] = [],
-        explanation: MullvadStateView.TextItem? = nil,
-        actions: [MullvadStateView.ActionItem] = []
+        details: [MullvadNoticeView.TextItem] = [],
+        explanation: MullvadNoticeView.TextItem? = nil,
+        actions: [MullvadNoticeView.ActionItem] = []
     ) {
         self.style = style
         self.title = title
@@ -161,8 +47,8 @@ final class StateViewModel: Identifiable, ObservableObject {
 }
 
 // MARK: - Main State View
-struct MullvadStateView: View {
-    @ObservedObject var viewModel: StateViewModel
+struct MullvadNoticeView: View {
+    @ObservedObject var viewModel: NoticeViewModel
     @State private var actionHeight: CGFloat = 0
 
     var body: some View {
@@ -213,7 +99,7 @@ struct MullvadStateView: View {
     }
 }
 
-extension MullvadStateView {
+extension MullvadNoticeView {
     struct CustomImage: Equatable {
         let id: UUID = UUID()
         let image: Image
@@ -234,7 +120,7 @@ extension MullvadStateView {
         let id = UUID()
         let text: String
         var symbols: [Image] = []
-        let style: MullvadStateViewStyle.TextStyle
+        let style: MullvadNoticeView.Style.Text
     }
 
     // MARK: - Action State
@@ -291,12 +177,126 @@ extension MullvadStateView {
             self.onTap = onTap
         }
     }
+}
 
+// MARK: - Text Style
+
+extension MullvadNoticeView.Style {
+    // MARK: - Text Style
+    struct Text {
+        enum Emphasis {
+            case none
+            case bold
+            case italic
+            case boldItalic
+        }
+
+        let emphasis: Emphasis
+        let font: Font
+        let color: Color
+        let alignment: TextAlignment
+        let padding: EdgeInsets
+
+        init(
+            emphasis: Emphasis = .none,
+            font: Font,
+            color: Color,
+            alignment: TextAlignment = .leading,
+            padding: EdgeInsets = EdgeInsets(
+                top: 0,
+                leading: 0,
+                bottom: 16,
+                trailing: 0
+            )
+        ) {
+            self.emphasis = emphasis
+            self.font = font
+            self.color = color
+            self.alignment = alignment
+            self.padding = padding
+        }
+    }
+}
+
+extension MullvadNoticeView.Style.Text {
+    static func headline(
+        _ emphasis: MullvadNoticeView.Style.Text.Emphasis = .bold,
+        font: Font = .mullvadLarge,
+        alignment: TextAlignment = .center,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextPrimary,
+            alignment: alignment,
+            padding: padding
+        )
+    }
+
+    static func primary(
+        _ emphasis: MullvadNoticeView.Style.Text.Emphasis = .none,
+        font: Font = .mullvadSmall,
+        alignment: TextAlignment = .leading,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextPrimary,
+            alignment: alignment,
+            padding: padding
+        )
+    }
+
+    static func secondary(
+        _ emphasis: MullvadNoticeView.Style.Text.Emphasis = .none,
+        font: Font = .mullvadSmall,
+        alignment: TextAlignment = .leading,
+        padding: EdgeInsets = Self.defaultPadding
+    ) -> Self {
+        Self(
+            emphasis: emphasis,
+            font: font,
+            color: .mullvadTextSecondary,
+            alignment: alignment,
+            padding: padding
+        )
+    }
+
+    fileprivate static var defaultPadding: EdgeInsets {
+        return EdgeInsets(
+            top: 0,
+            leading: 0,
+            bottom: 16,
+            trailing: 0
+        )
+    }
+}
+
+extension MullvadNoticeView.Style.Text.Emphasis {
+    fileprivate var isBold: Bool {
+        switch self {
+        case .bold, .boldItalic:
+            true
+        default:
+            false
+        }
+    }
+
+    fileprivate var isItalic: Bool {
+        switch self {
+        case .italic, .boldItalic:
+            true
+        default:
+            false
+        }
+    }
 }
 
 // MARK: - Action Button
 private struct ActionButton: View {
-    @ObservedObject var action: MullvadStateView.ActionItem
+    @ObservedObject var action: MullvadNoticeView.ActionItem
     @ScaledMetric private var baseSize: CGFloat = 24.0
 
     var body: some View {
@@ -326,7 +326,7 @@ private struct ActionButton: View {
 // MARK: - Styled Text View
 
 private struct StyledTextView: View {
-    let item: MullvadStateView.TextItem
+    let item: MullvadNoticeView.TextItem
 
     var body: some View {
         textContent
@@ -365,7 +365,7 @@ private struct StyledTextView: View {
 }
 
 private struct TextStyleModifier: ViewModifier {
-    let style: MullvadStateViewStyle.TextStyle
+    let style: MullvadNoticeView.Style.Text
 
     func body(content: Content) -> some View {
         content
@@ -382,7 +382,7 @@ private struct TextStyleModifier: ViewModifier {
 }
 
 private struct EmphasisModifier: ViewModifier {
-    let style: MullvadStateViewStyle.TextStyle
+    let style: MullvadNoticeView.Style.Text
 
     func body(content: Content) -> some View {
         switch style {
@@ -419,7 +419,7 @@ extension TextAlignment {
 
 // MARK: - State Icon View
 private struct StateView: View {
-    let state: MullvadStateView.Style
+    let state: MullvadNoticeView.Style
 
     private let size = 48.0
 
@@ -462,5 +462,5 @@ private struct StateView: View {
 }
 
 #Preview() {
-    MullvadStateViewPreviewWrapper()
+    MullvadNoticeViewPreviewWrapper()
 }
