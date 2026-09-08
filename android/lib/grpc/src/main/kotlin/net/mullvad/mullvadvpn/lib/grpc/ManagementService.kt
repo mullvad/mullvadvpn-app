@@ -163,9 +163,9 @@ import net.mullvad.mullvadvpn.lib.model.wireguardPort
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
-import safe_wrappers.SafeBoolValue
-import safe_wrappers.SafeStringValue
-import safe_wrappers.SafeUInt32Value
+import wire_wrappers.WireBoolValue
+import wire_wrappers.WireStringValue
+import wire_wrappers.WireUInt32Value
 
 @Suppress("TooManyFunctions", "LargeClass")
 class ManagementService(
@@ -537,7 +537,7 @@ class ManagementService(
             .mapLeft(SetWireguardMtuError::Unknown)
 
     suspend fun resetWireguardMtu(): Either<SetWireguardMtuError, Unit> =
-        Either.catch { grpc.SetWireguardMtu().execute(SafeUInt32Value()) }
+        Either.catch { grpc.SetWireguardMtu().execute(WireUInt32Value()) }
             .onLeft { Logger.e("Reset wireguard mtu error") }
             .mapLeft(SetWireguardMtuError::Unknown)
 
@@ -968,11 +968,11 @@ class ManagementService(
             .onLeft { Logger.e("Clear migration message error") }
             .mapLeft(ClearMigrationMessageError::Unknown)
 
-    private fun Boolean.toBoolValue() = SafeBoolValue(this)
+    private fun Boolean.toBoolValue() = WireBoolValue(this)
 
-    private fun String.toStringValue() = SafeStringValue(this)
+    private fun String.toStringValue() = WireStringValue(this)
 
-    private fun Int.toUInt32Value() = SafeUInt32Value(this)
+    private fun Int.toUInt32Value() = WireUInt32Value(this)
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(
         f: (GrpcException) -> C

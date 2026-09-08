@@ -25,6 +25,7 @@ android {
 
 wireProtoPatcher {
     protoSourceDir.set(file("${rootProject.projectDir}/../mullvad-management-interface/proto"))
+    wireWrappersProtoFile.set(file("${projectDir}/src/main/proto/wire_wrappers.proto"))
 }
 
 wire {
