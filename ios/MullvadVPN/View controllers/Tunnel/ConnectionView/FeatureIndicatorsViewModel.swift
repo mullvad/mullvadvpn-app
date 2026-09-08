@@ -36,7 +36,6 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
             .connected, .pendingReconnect:
             features = [
                 DaitaFeature(state: tunnelState, settings: tunnelSettings),
-                QuantumResistanceFeature(state: tunnelState),
                 MultihopFeature(state: tunnelState, settings: tunnelSettings),
                 ObfuscationFeature(settings: tunnelSettings, state: observedState),
                 DNSFeature(settings: tunnelSettings),
@@ -44,6 +43,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
                 IncludeAllNetworksFeature(settings: tunnelSettings),
                 LocalNetworkSharingFeature(settings: tunnelSettings),
                 IPVersionFeature(state: tunnelState),
+                QuantumResistanceFeature(state: tunnelState),
             ]
 
         case .error, .waitingForConnectivity:
