@@ -19,7 +19,7 @@
   "testTargets" : [
     {
       "selectedTests" : [
-        "ScreenshotTests\/testTakeScreenshotOfAQuantumSecuredConnection()",
+        "ScreenshotTests\/testTakeScreenshotOfQuantumSecuredConnection()",
         "ScreenshotTests\/testTakeScreenshotOfAccount()",
         "ScreenshotTests\/testTakeScreenshotOfCustomListSelected()",
         "ScreenshotTests\/testTakeScreenshotOfDNSSettings()",
