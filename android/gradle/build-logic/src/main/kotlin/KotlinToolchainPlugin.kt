@@ -1,9 +1,15 @@
+import com.android.build.gradle.api.AndroidBasePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import utilities.libs
+
+private val COMPILER_ARGS = listOf("-Wextra")
 
 class KotlinToolchainPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -13,6 +19,18 @@ class KotlinToolchainPlugin : Plugin<Project> {
             plugins.withType(KotlinBasePluginWrapper::class.java) {
                 extensions.configure<KotlinProjectExtension> {
                     jvmToolchain(libs.findVersion("jvm-toolchain").get().toString().toInt())
+                }
+            }
+
+            plugins.withType(AndroidBasePlugin::class.java) {
+                extensions.configure<KotlinAndroidProjectExtension> {
+                    compilerOptions { freeCompilerArgs.addAll(COMPILER_ARGS) }
+                }
+            }
+
+            plugins.withType(KotlinPluginWrapper::class.java) {
+                extensions.configure<KotlinJvmProjectExtension> {
+                    compilerOptions { freeCompilerArgs.addAll(COMPILER_ARGS) }
                 }
             }
         }

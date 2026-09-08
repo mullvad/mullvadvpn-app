@@ -5,7 +5,16 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android { namespace = "net.mullvad.mullvadvpn.lib.model" }
+android {
+    namespace = "net.mullvad.mullvadvpn.lib.model"
+
+    kotlin {
+        compilerOptions {
+            // Arrow Optics emits explicit visibility modifiers, so we exclude this check.
+            freeCompilerArgs.add("-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled")
+        }
+    }
+}
 
 dependencies {
     implementation(libs.kotlinx.serialization.json)
