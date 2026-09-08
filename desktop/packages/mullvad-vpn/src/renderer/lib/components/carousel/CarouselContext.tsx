@@ -56,23 +56,31 @@ export function CarouselProvider({
     setSlides(getSlides(slidesRef.current));
   }, [slidesRef]);
 
-  return (
-    <CarouselContextext.Provider
-      value={{
-        disableScroll: disableScrollProp ?? false,
-        slideIndex: slideIndexProp ?? slideIndex,
-        onSlideIndexChange: onSlideIndexChangeProp ?? setSlideIndex,
-        onSlideSettled,
-        numberOfSlides: slides.length,
-        carouselRef,
-        slidesRef,
-        nextButtonRef,
-        prevButtonRef,
-        firstIndicatorRef,
-        lastIndicatorRef,
-        slides,
-      }}>
-      {children}
-    </CarouselContextext.Provider>
+  const value = React.useMemo(
+    () => ({
+      disableScroll: disableScrollProp ?? false,
+      slideIndex: slideIndexProp ?? slideIndex,
+      onSlideIndexChange: onSlideIndexChangeProp ?? setSlideIndex,
+      onSlideSettled,
+      numberOfSlides: slides.length,
+      carouselRef,
+      slidesRef,
+      nextButtonRef,
+      prevButtonRef,
+      firstIndicatorRef,
+      lastIndicatorRef,
+      slides,
+    }),
+    [
+      disableScrollProp,
+      onSlideIndexChangeProp,
+      onSlideSettled,
+      slideIndex,
+      slideIndexProp,
+      slides,
+      slidesRef,
+    ],
   );
+
+  return <CarouselContextext.Provider value={value}>{children}</CarouselContextext.Provider>;
 }
