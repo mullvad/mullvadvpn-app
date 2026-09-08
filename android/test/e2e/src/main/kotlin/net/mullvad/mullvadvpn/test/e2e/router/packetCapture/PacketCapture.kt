@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
+import android.security.NetworkSecurityPolicy
 import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
@@ -24,7 +25,6 @@ import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
 import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
-import okhttp3.ConnectionSpec
 import org.junit.jupiter.api.fail
 
 @JvmInline
@@ -65,7 +65,6 @@ private fun defaultHttpClient(): HttpClient =
         defaultRequest { url("http://${InstrumentationRegistry.getArguments().getRaasHost()}") }
         engine {
             config {
-                connectionSpecs(listOf(ConnectionSpec.CLEARTEXT))
                 callTimeout(REQUEST_TIMEOUT)
             }
         }
