@@ -56,12 +56,43 @@ class IncludeAllNetworksPage: Page {
     }
 
     @discardableResult func goToLastPage() -> Self {
-        let containerView = app.scrollViews[.settingsInfoView]
-        containerView.swipeLeft()
-        containerView.swipeLeft()
-        containerView.swipeLeft()
+        let pages = pageContainer()
+
+        guard let position = pageIndicatorPosition() else { return self }
+
+        for _ in position.page..<position.pageCount {
+            pages.swipeLeft()
+        }
+
+        let lastPosition = pageIndicatorPosition()
+        XCTAssertEqual(lastPosition?.page, lastPosition?.pageCount, "Failed to swipe to the last page")
 
         return self
+    }
+
+    /// The element to swipe to page through the info pages.
+    ///
+    /// From iOS 27 the pages are a collection view nested in the scroll view, and swiping the scroll view
+    /// itself does not page it.
+    private func pageContainer() -> XCUIElement {
+        let scrollView = app.scrollViews[.settingsInfoView]
+        let collectionView = scrollView.collectionViews.firstMatch
+
+        return collectionView.exists ? collectionView : scrollView
+    }
+
+    /// Reads the page indicator - used to determine when to stop scrolling
+    private func pageIndicatorPosition() -> (page: Int, pageCount: Int)? {
+        let numbers = (app.pageIndicators.firstMatch.value as? String)?
+            .components(separatedBy: " ")
+            .compactMap { Int($0) }
+
+        guard let numbers, numbers.count == 2 else {
+            XCTFail("Failed to read page indicator")
+            return nil
+        }
+
+        return (numbers[0], numbers[1])
     }
 
     @discardableResult func verifyIncludeAllNetworksSwitchIsDisabled() -> Self {
