@@ -69,7 +69,10 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Install system dependencies  # Needed to build test-manager, and is not included in the app container.
-        run: apt update && apt install -y pkg-config libssl-dev libpcap-dev
+        # HACK: Acquire::Check-Valid-Until=false skips validity check of release file,
+        # The container image is currently using Debian 11, which EOL'd on 31 august, for which apt will no
+        # longer apply updates for this repository.
+        run: apt -o Acquire::Check-Valid-Until=false update && apt install -y pkg-config libssl-dev libpcap-dev
 
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
