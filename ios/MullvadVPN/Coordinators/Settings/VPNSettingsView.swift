@@ -143,7 +143,7 @@ struct VPNSettingsView: View {
                 leading: {
                     itemFactory.leading(
                         for: .generic(
-                            title: "WireGuard port",
+                            title: NSLocalizedString("WireGuard port", comment: ""),
                             isSelected: false
                         )
                     )
