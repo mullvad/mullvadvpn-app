@@ -11,11 +11,13 @@ android {
 
     kotlin {
         compilerOptions {
-            // Protobuf and gRPC Kotlin generators emits explicit visibility modifiers,
-            // so we exclude that check.
-            freeCompilerArgs.addAll("-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled")
-            // This is due to a warning in the generated code from Wire.
-            allWarningsAsErrors = false
+            // Wire protobuf generator emits some warnings that we can not fix,
+            // so we exclude those in the check.
+            freeCompilerArgs.addAll(
+                "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+                "-Xwarning-level=CAN_BE_VAL_DELAYED_INITIALIZATION:disabled",
+                "-Xwarning-level=UNNECESSARY_NOT_NULL_ASSERTION:disabled",
+            )
         }
     }
 }
