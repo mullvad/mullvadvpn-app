@@ -1,6 +1,4 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import dev.detekt.gradle.Detekt
-import dev.detekt.gradle.DetektCreateBaselineTask
 import utilities.PreBuildTask
 import utilities.appVersionProvider
 import utilities.isNonStableVersion
@@ -72,37 +70,6 @@ buildscript {
             classpath("$prebuilt:macos-x86_64@tar.gz")
         }
     }
-}
-
-detekt {
-    val baselineFile = file("$rootDir/config/detekt-baseline.xml")
-    val configFile = files("$rootDir/config/detekt.yml")
-    val projectSource = file(projectDir)
-
-    buildUponDefaultConfig = true
-    allRules = false
-    config.setFrom(configFile)
-    source.setFrom(projectSource)
-    parallel = true
-    ignoreFailures = false
-    autoCorrect = true
-    baseline = baselineFile
-
-    dependencies { detektPlugins(project(":test:detekt")) }
-}
-
-val detektExcludedPaths =
-    listOf("**/build/**", "**/mullvad_daemon/management_interface/**", ".gradle/**")
-
-tasks.withType<Detekt>().configureEach {
-    dependsOn(":test:detekt:assemble")
-    // Ignore generated files from the build directory, e.g files created by ksp.
-    exclude(detektExcludedPaths)
-}
-
-tasks.withType<DetektCreateBaselineTask>().configureEach {
-    // Ignore generated files from the build directory, e.g files created by ksp.
-    exclude(detektExcludedPaths)
 }
 
 allprojects {
