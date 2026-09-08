@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 
 use ipnetwork::IpNetwork;
-use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
+use talpid_types::net::{ALLOWED_IN_TUNNEL_LAN_NETS, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 
 pub fn main() {
     generate_allowed_nets_cpp_header(&mut std::io::stdout()).unwrap()
@@ -25,6 +25,13 @@ fn generate_allowed_nets_cpp_header(mut w: impl Write) -> io::Result<()> {
             .partition(|net| net.is_ipv4());
     generate_ip_network_cpp_definitions(&mut w, "g_ipv4MulticastNets", &ipv4_multicast_nets)?;
     generate_ip_network_cpp_definitions(&mut w, "g_ipv6MulticastNets", &ipv6_multicast_nets)?;
+
+    let (ipv4_in_tunnel_nets, ipv6_in_tunnel_nets): (Vec<IpNetwork>, _) =
+        ALLOWED_IN_TUNNEL_LAN_NETS
+            .iter()
+            .partition(|net| net.is_ipv4());
+    generate_ip_network_cpp_definitions(&mut w, "g_ipv4InTunnelLanNets", &ipv4_in_tunnel_nets)?;
+    generate_ip_network_cpp_definitions(&mut w, "g_ipv6InTunnelLanNets", &ipv6_in_tunnel_nets)?;
 
     Ok(())
 }

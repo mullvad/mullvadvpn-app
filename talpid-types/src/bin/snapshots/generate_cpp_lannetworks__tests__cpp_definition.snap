@@ -32,3 +32,11 @@ static const wfp::IpNetwork g_ipv6MulticastNets[] = {
 	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff04, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
 	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xff05, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 }), 16),
 };
+
+static const wfp::IpNetwork g_ipv4InTunnelLanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal({ 10, 0, 0, 0 }), 8),
+};
+
+static const wfp::IpNetwork g_ipv6InTunnelLanNets[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal6({ 0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0x0000, 0x0000, 0x0000, 0x0000 }), 64),
+};

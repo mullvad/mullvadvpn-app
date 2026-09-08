@@ -214,6 +214,8 @@ quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3
 shadowsocks.opt-level = 3
 shadowsocks-crypto.opt-level = 3
+talpid-types.opt-level = 3
+talpid-wireguard.opt-level = 3
 tunnel-obfuscation.opt-level = 3
 udp-over-tcp.opt-level = 3
 
