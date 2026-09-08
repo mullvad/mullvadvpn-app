@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
-import android.security.NetworkSecurityPolicy
 import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
@@ -63,11 +62,7 @@ class PacketCapture {
 private fun defaultHttpClient(): HttpClient =
     HttpClient(OkHttp) {
         defaultRequest { url("http://${InstrumentationRegistry.getArguments().getRaasHost()}") }
-        engine {
-            config {
-                callTimeout(REQUEST_TIMEOUT)
-            }
-        }
+        engine { config { callTimeout(REQUEST_TIMEOUT) } }
 
         install(ContentNegotiation) {
             json(
