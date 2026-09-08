@@ -30,7 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Show obfuscation type in connection view.
 
-## [2026.5]
+## [2026.5 - 2026-09-08]
 ### Fixed
 - Locale-aware sorting of relay list on iOS.
 
