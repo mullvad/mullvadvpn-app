@@ -141,7 +141,7 @@ Linux all applications running as root are able to reach the API in blocking sta
 All API connections use TLS 1.3 with certificate pinning. The app comes bundled with the
 [Let's encrypt root certificate](../mullvad-api/le_root_cert.pem) and only accepts connections
 with servers having a valid certificate issued to `api.mullvad.net` and signed with this
-bundled certificate.
+bundled certificate. The post-quantum X25519MLKEM768 key exchange is required.
 
 TLS session tickets are disabled. Resuming a session identifies the client to the server as one
 it has served before, which would let the Mullvad API server link connections made from different
