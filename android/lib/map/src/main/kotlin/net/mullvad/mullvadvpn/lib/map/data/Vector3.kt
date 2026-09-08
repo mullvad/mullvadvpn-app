@@ -74,7 +74,7 @@ fun Vector3.rotateAroundY(degrees: Float): Vector3 {
 
 fun Vector3.toLatLong(): LatLong {
     // phi
-    val lat = acos(y / Sphere.RADIUS)
+    val lat = acos((y / Sphere.RADIUS).coerceIn(-1f, 1f))
 
     // theta
     val lon = atan2(x, z)
