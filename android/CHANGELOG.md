@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix the sorting of the location list in English being incorrect.
+- Fix a rare crash that occured when interacting with the map.
 
 
 ## [android/2026.9-beta1] - 2026-08-20
