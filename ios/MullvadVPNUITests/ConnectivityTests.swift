@@ -16,12 +16,12 @@ class ConnectivityTests: LoggedOutUITestCase {
     let firewallAPIClient = FirewallClient()
 
     /// Verifies that the app still functions when API has been blocked
-    func testAPIConnectionViaBridges() throws {
+    func testAPIConnectionViaBridges() async throws {
         firewallAPIClient.removeRules()
-        let hasTimeAccountNumber = getAccountWithTime()
+        let hasTimeAccountNumber = await getAccountWithTime()
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
             self.firewallAPIClient.removeRules()
         }
 
@@ -36,10 +36,10 @@ class ConnectivityTests: LoggedOutUITestCase {
     }
 
     /// Get the app into a blocked state by connecting to a relay then applying a filter which don't find this relay, then verify that app can still communicate by logging out and verifying that the device was successfully removed
-    func testAPIReachableWhenBlocked() throws {
-        let hasTimeAccountNumber = getAccountWithTime()
+    func testAPIReachableWhenBlocked() async throws {
+        let hasTimeAccountNumber = await getAccountWithTime()
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
         // Setup. Enter blocked state by connecting to relay and applying filter which relay isn't part of.
@@ -94,12 +94,12 @@ class ConnectivityTests: LoggedOutUITestCase {
     }
 
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
-    func testAppStillFunctioningWhenAPIDown() throws {
-        let hasTimeAccountNumber = getAccountWithTime()
+    func testAppStillFunctioningWhenAPIDown() async throws {
+        let hasTimeAccountNumber = await getAccountWithTime()
         let customAccessMethodName = "Disable-access-dummy"
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
         login(accountNumber: hasTimeAccountNumber)
@@ -163,16 +163,16 @@ class ConnectivityTests: LoggedOutUITestCase {
             .verifyFailIconShown()
     }
 
-    func testIfLocalNetworkSharingIsBlocking() throws {
+    func testIfLocalNetworkSharingIsBlocking() async throws {
         let skipReason = """
             This test is currently skipped since there is no way to allow local network access for UI tests.
             Since its blocked by the system, there is no way of testing the `Local network sharing` switch.
             Non of these solutions worked: https://developer.apple.com/forums/thread/668729
             """
         try XCTSkipIf(true, skipReason)
-        let hasTimeAccountNumber = getAccountWithTime()
+        let hasTimeAccountNumber = await getAccountWithTime()
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
         login(accountNumber: hasTimeAccountNumber)

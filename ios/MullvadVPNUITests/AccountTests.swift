@@ -22,9 +22,9 @@ class AccountTests: LoggedOutUITestCase {
         mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
-    func testCreateAccountWithLastUsedAccount() throws {
+    func testCreateAccountWithLastUsedAccount() async throws {
         // Setup
-        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+        let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
 
         // Teardown
         addTeardownBlock {
@@ -51,8 +51,8 @@ class AccountTests: LoggedOutUITestCase {
         self.mullvadAPIWrapper.deleteAccount(accountNumber)
     }
 
-    func testDeleteAccount() throws {
-        let accountNumber = createTemporaryAccountWithoutTime()
+    func testDeleteAccount() async throws {
+        let accountNumber = await createTemporaryAccountWithoutTime()
         login(accountNumber: accountNumber)
 
         OutOfTimePage(app)
@@ -76,9 +76,9 @@ class AccountTests: LoggedOutUITestCase {
             .verifyFailIconShown()
     }
 
-    func testCanNotRemoveCurrentDevice() throws {
+    func testCanNotRemoveCurrentDevice() async throws {
         // Setup
-        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+        let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
 
         // Teardown
         addTeardownBlock {
@@ -100,10 +100,10 @@ class AccountTests: LoggedOutUITestCase {
             .verifyCurrentDeviceCannotBeRemoved()
     }
 
-    func testRemoveOtherDevice() throws {
+    func testRemoveOtherDevice() async throws {
         let otherDevicesCount = 2
         // Setup
-        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+        let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
         mullvadAPIWrapper.addDevices(otherDevicesCount, account: temporaryAccountNumber)
 
         // Teardown
@@ -136,11 +136,11 @@ class AccountTests: LoggedOutUITestCase {
     }
 
     /// Verify logging in works. Will retry x number of times since login request sometimes time out.
-    func testLogin() throws {
-        let hasTimeAccountNumber = getAccountWithTime()
+    func testLogin() async throws {
+        let hasTimeAccountNumber = await getAccountWithTime()
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
         login(accountNumber: hasTimeAccountNumber)
@@ -149,7 +149,7 @@ class AccountTests: LoggedOutUITestCase {
             .verifyDeviceLabelShown()
     }
 
-    func testLoginWithIncorrectAccountNumber() throws {
+    func testLoginWithIncorrectAccountNumber() async throws {
         LoginPage(app)
             .tapAccountNumberTextField()
             .enterText("0000000000000000")
@@ -158,9 +158,9 @@ class AccountTests: LoggedOutUITestCase {
             .waitForPageToBeShown()  // Verify still on login page
     }
 
-    func testLoginToAccountWithTooManyDevices() throws {
+    func testLoginToAccountWithTooManyDevices() async throws {
         // Setup
-        let temporaryAccountNumber = createTemporaryAccountWithoutTime()
+        let temporaryAccountNumber = await createTemporaryAccountWithoutTime()
         mullvadAPIWrapper.addDevices(5, account: temporaryAccountNumber)
 
         // Teardown
@@ -177,8 +177,8 @@ class AccountTests: LoggedOutUITestCase {
         OutOfTimePage(app)
     }
 
-    func testLogOut() throws {
-        let newAccountNumber = createTemporaryAccountWithoutTime()
+    func testLogOut() async throws {
+        let newAccountNumber = await createTemporaryAccountWithoutTime()
         login(accountNumber: newAccountNumber)
         XCTAssertEqual(try mullvadAPIWrapper.getDevices(newAccountNumber).count, 1, "Account has one device")
 
@@ -194,11 +194,11 @@ class AccountTests: LoggedOutUITestCase {
         mullvadAPIWrapper.deleteAccount(newAccountNumber)
     }
 
-    func testTimeLeft() throws {
-        let hasTimeAccountNumber = getAccountWithTime()
+    func testTimeLeft() async throws {
+        let hasTimeAccountNumber = await getAccountWithTime()
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
         }
 
         login(accountNumber: hasTimeAccountNumber)

@@ -12,12 +12,12 @@ import XCTest
 
 @available(iOS 26.0, *)
 class PaymentTests: LoggedOutUITestCase {
-    func testMakeInAppPurchaseOnAccountScreen() throws {
-        let accountNumberWithTime = getAccountWithTime()
+    func testMakeInAppPurchaseOnAccountScreen() async throws {
+        let accountNumberWithTime = await getAccountWithTime()
         let accountExpiry = try mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
+            await self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
         }
 
         login(accountNumber: accountNumberWithTime)
@@ -40,11 +40,11 @@ class PaymentTests: LoggedOutUITestCase {
         try verifyAccountUpdated(accountNumber: accountNumberWithTime, accountExpiry: accountExpiry)
     }
 
-    func testMakeInAppPurchaseOnWelcomeScreen() throws {
+    func testMakeInAppPurchaseOnWelcomeScreen() async throws {
         let accountNumber = createAndLogInToNewAccount()
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: accountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: accountNumber)
         }
 
         HeaderBar(app)
@@ -65,11 +65,11 @@ class PaymentTests: LoggedOutUITestCase {
         SetUpAccountCompletedPage(app)
     }
 
-    func testMakeInAppPurchaseOnOutOfTimeScreen() throws {
+    func testMakeInAppPurchaseOnOutOfTimeScreen() async throws {
         let accountNumber = createAndLogInToNewAccount()
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: accountNumber)
+            await self.deleteTemporaryAccountWithTime(accountNumber: accountNumber)
         }
 
         // Relaunch to get to out-of-time view.
@@ -93,16 +93,16 @@ class PaymentTests: LoggedOutUITestCase {
             .verifyDeviceLabelShown()
     }
 
-    func testInAppPurchaseWithRestoreOnFailedReceiptUpload() throws {
+    func testInAppPurchaseWithRestoreOnFailedReceiptUpload() async throws {
         try XCTSkipIf(true, "This test is too unreliable to run in CI for now")
         let firewallAPIClient = FirewallClient()
         firewallAPIClient.removeRules()
 
-        let accountNumberWithTime = getAccountWithTime()
+        let accountNumberWithTime = await getAccountWithTime()
         let accountExpiry = try mullvadAPIWrapper.getAccountExpiry(accountNumberWithTime)
 
         addTeardownBlock {
-            self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
+            await self.deleteTemporaryAccountWithTime(accountNumber: accountNumberWithTime)
             firewallAPIClient.removeRules()
         }
 
