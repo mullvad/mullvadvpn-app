@@ -99,6 +99,8 @@ static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
     // The server certificate covers the relevant am.i.mullvad.net hostnames; SNI is omitted
     // so the destination subdomain is not visible in the ClientHello.
     config.enable_sni = false;
+    // Disable TLS tickets to reduce ability to track clients over time
+    config.resumption = rustls::client::Resumption::disabled();
     config
 });
 

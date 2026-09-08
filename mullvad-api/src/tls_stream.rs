@@ -39,6 +39,8 @@ static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
             .with_no_client_auth();
         // This assumes that the server hello/certificates will include certificate for the domain.
         config.enable_sni = false;
+        // Disable TLS tickets to reduce ability to track clients over time
+        config.resumption = rustls::client::Resumption::disabled();
         config
     };
     Arc::new(config)
