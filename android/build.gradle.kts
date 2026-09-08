@@ -73,6 +73,17 @@ buildscript {
             classpath("$prebuilt:macos-x86_64@tar.gz")
         }
     }
+
+    // These depencies are added by the Wire plugin, but they are not needed for our build so we
+    // exclude them.
+    // Unfortunately, this is not possible to do using libs.version.toml
+    // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
+    configurations.classpath {
+        exclude(group = "it.krzeminski", module = "snakeyaml-engine-kmp-jvm")
+        exclude(group = "it.krzeminski", module = "snakeyaml-engine-kmp")
+        exclude(group = "io.outfoxx", module = "swiftpoet")
+        exclude(group = "com.squareup.wire", module = "wire-swift-generator")
+    }
 }
 
 detekt {
