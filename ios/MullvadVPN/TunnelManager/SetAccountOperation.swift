@@ -23,7 +23,7 @@ enum SetAccountAction {
     case existing(String)
 
     /// Unset account.
-    case unset(isRemovingProfile: Bool)
+    case unset
 
     /// Delete account.
     case delete(String)
@@ -39,28 +39,28 @@ enum SetAccountAction {
 }
 
 class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Sendable {
-    private let interactor: TunnelInteractor
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
-    private let setLastUsedAccount: @Sendable (String) throws -> Void
+    private let deviceState: @Sendable () -> DeviceState
+    private let onUpdateAccount: @Sendable (DeviceState) -> Void
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
 
     init(
         dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
         action: SetAccountAction,
-        setLastUsedAccount: @escaping @Sendable (String) throws -> Void
+        deviceState: @escaping @Sendable () -> DeviceState,
+        onUpdateAccount: @escaping @Sendable (DeviceState) -> Void
     ) {
-        self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.action = action
-        self.setLastUsedAccount = setLastUsedAccount
+        self.onUpdateAccount = onUpdateAccount
+        self.deviceState = deviceState
 
         super.init(dispatchQueue: dispatchQueue)
     }
@@ -83,8 +83,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
                 }
             }
 
-        case .unset(let isRemovingProfile):
-            startLogoutFlow(isRemovingProfile: isRemovingProfile) { [self] in
+        case .unset:
+            startLogoutFlow { [self] in
                 finish(result: .success(nil))
             }
 
@@ -113,14 +113,16 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
      Does nothing if device is already logged out.
      */
     private func startLogoutFlow(isRemovingProfile: Bool = true, completion: @escaping @Sendable () -> Void) {
-        switch interactor.deviceState {
+        switch deviceState() {
         case let .loggedIn(accountData, deviceData):
             deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
-                unsetDeviceState(isRemovingProfile: isRemovingProfile, completion: completion)
+                onUpdateAccount(.loggedOut)
+                completion()
             }
 
         case .revoked:
-            unsetDeviceState(completion: completion)
+            onUpdateAccount(.loggedOut)
+            completion()
 
         case .loggedOut:
             completion()
@@ -167,10 +169,8 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
-                interactor.removeLastUsedAccount()
-                unsetDeviceState {
-                    completion(result)
-                }
+                onUpdateAccount(.loggedOut)
+                completion(result)
             } else {
                 completion(result)
             }
@@ -191,9 +191,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     ) {
         do {
             let accountData = try result.get()
-
-            storeLastUsedAccount(accountNumber: accountData.number)
-
             createDevice(accountNumber: accountData.number) { [self] result in
                 completion(
                     result.map { newDevice in
@@ -204,18 +201,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
             }
         } catch {
             completion(.failure(error))
-        }
-    }
-
-    /// Store last used account number in settings.
-    /// Errors are ignored but logged.
-    private func storeLastUsedAccount(accountNumber: String) {
-        logger.debug("Store last used account.")
-
-        do {
-            try setLastUsedAccount(accountNumber)
-        } catch {
-            logger.error(error: error, message: "Failed to store last used account number.")
         }
     }
 
@@ -239,7 +224,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         )
 
         // Transition device state to logged in.
-        interactor.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)
+        onUpdateAccount(.loggedIn(accountData, storedDeviceData))
     }
 
     /// Create new account and produce `StoredAccountData` upon success.
@@ -355,46 +340,6 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         }
 
         tasks.append(task)
-    }
-
-    /**
-     Transitions device state into logged out state by performing the following tasks:
-
-     1. Prepare tunnel manager for removal of VPN configuration. In response tunnel manager stops processing VPN status
-        notifications coming from VPN configuration.
-     2. Reset device staate to logged out and persist it.
-     3. Remove VPN configuration and release an instance of `Tunnel` object.
-     */
-    private func unsetDeviceState(isRemovingProfile: Bool = true, completion: @escaping @Sendable () -> Void) {
-        // Reset tunnel and device state.
-        interactor.updateTunnelStatus { tunnelStatus in
-            tunnelStatus = TunnelStatus()
-            tunnelStatus.state = .disconnected
-        }
-        interactor.setDeviceState(.loggedOut, persist: true)
-
-        // Finish immediately if tunnel provider is not set.
-        guard let tunnel = interactor.tunnel, isRemovingProfile else {
-            completion()
-            return
-        }
-
-        // Tell the caller to unsubscribe from VPN status notifications.
-        interactor.prepareForVPNConfigurationDeletion()
-
-        // Remove VPN configuration.
-        tunnel.removeFromPreferences { [self] error in
-            dispatchQueue.async { [self] in
-                // Ignore error but log it.
-                if let error {
-                    logger.error(error: error, message: "Failed to remove VPN configuration.")
-                }
-
-                interactor.setTunnel(nil, shouldRefreshTunnelState: false)
-
-                completion()
-            }
-        }
     }
 
     /// Create new private key and create new device via API.
