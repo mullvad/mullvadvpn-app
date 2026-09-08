@@ -10,9 +10,8 @@ export function useHandleSelectEntryLocation() {
 
   const handleSelectEntryLocation = React.useCallback(
     async (entryLocation: AnyLocation) => {
-      await selectEntryRelayLocation(entryLocation.details);
-      // Scroll and isolated item is reset in the LocationListSlide component
       setLocationType(LocationType.exit);
+      await selectEntryRelayLocation(entryLocation.details);
       setIsolatedItem(undefined);
       setSearchTerm('');
     },
