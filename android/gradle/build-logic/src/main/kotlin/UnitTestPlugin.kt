@@ -8,6 +8,7 @@ class UnitTestPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "mullvad.kotlin-toolchain")
+            apply(plugin = "mullvad.detekt-config")
             apply(plugin = "de.mannodermaus.android-junit5")
             dependencies {
                 "testImplementation"(project(":lib:common-test"))
