@@ -28,7 +28,10 @@ in
   }
   {
     name = "GRADLE_OPTS";
-    value = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${buildToolsVersion}/aapt2";
+    value = builtins.concatStringsSep " " [
+      "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${buildToolsVersion}/aapt2"
+      "-Dorg.gradle.project.android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE"
+    ];
   }
   {
     name = "ANDROID_HOME";
