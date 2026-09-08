@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.5-beta2] - 2026-09-08
 ### Changed
 - Do not show dialog when rendering the map fails due to disabled GPU acceleration.
 
