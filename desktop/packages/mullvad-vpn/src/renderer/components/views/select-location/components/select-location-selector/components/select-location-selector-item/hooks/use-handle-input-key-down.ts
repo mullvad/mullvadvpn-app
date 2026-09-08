@@ -6,11 +6,8 @@ import { useFocusFirstFocusableHeading } from './use-focus-first-focusable-headi
 import { useHandleReset } from './use-handle-reset';
 
 export function useHandleInputKeyDown() {
-  const {
-    id,
-    textField: { value },
-  } = useSelectLocationSelectorItemContext();
-  const { setIsolatedItem, searchTerm, setSearchTerm } = useSelectLocationViewContext();
+  const { id } = useSelectLocationSelectorItemContext();
+  const { setIsolatedItem, searchTerm } = useSelectLocationViewContext();
   const handleReset = useHandleReset();
   const focusFirstFocusableHeading = useFocusFirstFocusableHeading();
 
@@ -19,7 +16,6 @@ export function useHandleInputKeyDown() {
       if (event.key === 'Enter') {
         event.preventDefault();
         if (searchTerm) {
-          setSearchTerm(value);
           focusFirstFocusableHeading();
           setIsolatedItem(id);
         }
@@ -30,14 +26,6 @@ export function useHandleInputKeyDown() {
         handleReset();
       }
     },
-    [
-      searchTerm,
-      setSearchTerm,
-      value,
-      focusFirstFocusableHeading,
-      setIsolatedItem,
-      id,
-      handleReset,
-    ],
+    [searchTerm, focusFirstFocusableHeading, setIsolatedItem, id, handleReset],
   );
 }
