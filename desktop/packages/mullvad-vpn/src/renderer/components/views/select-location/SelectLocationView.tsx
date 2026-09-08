@@ -1,9 +1,8 @@
+import { AnimatePresence, type AnimationDefinition } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { LocationType } from '../../../features/locations/types';
 import { usePrevious } from '../../../hooks';
-import { Carousel } from '../../../lib/components/carousel';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
@@ -17,6 +16,7 @@ import {
   SelectLocationSelector,
   SpacePreAllocationView,
 } from './components';
+import { LocationSlide } from './components/location-slide/LocationSlide';
 import { useMeasureExpandedLocationSelector, useMeasureIsolatedLocationSelector } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
@@ -60,17 +60,8 @@ export function SelectLocationViewImpl() {
   const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
   const { locationType, isolatedItem, setIsLocationSelectorExpanded } =
     useSelectLocationViewContext();
-  const [slideIndex, setSlideIndex] = React.useState(locationType === LocationType.entry ? 0 : 1);
-  const [changingSlide, setChangingSlide] = React.useState(false);
 
-  React.useLayoutEffect(() => {
-    setChangingSlide(true);
-    setSlideIndex(locationType === LocationType.entry ? 0 : 1);
-  }, [locationType]);
-
-  const handleSlideSettled = React.useCallback(() => {
-    setChangingSlide(false);
-  }, []);
+  const [showScrollbar, setShowScrolllbar] = React.useState(true);
 
   const onClose = React.useCallback(() => history.pop(), [history]);
 
@@ -93,6 +84,21 @@ export function SelectLocationViewImpl() {
   const height = isolatedItem ? isolatedElementHeight : expandedElementHeight;
   const previousHeight = usePrevious(height);
 
+  const handleAnimationStart = React.useCallback(
+    (definition: AnimationDefinition) => {
+      if (typeof definition === 'object' && 'opacity' in definition) {
+        if (definition.opacity === 0) {
+          setShowScrolllbar(false);
+        }
+      }
+    },
+    [setShowScrolllbar],
+  );
+
+  const handleExitComplete = React.useCallback(() => {
+    setShowScrolllbar(true);
+  }, []);
+
   return (
     <View backgroundColor="darkBlue">
       {singlehopElement}
@@ -103,7 +109,8 @@ export function SelectLocationViewImpl() {
           <NavigationScrollbars
             ref={scrollViewRef}
             onScroll={handleScroll}
-            scrollPadding={`${height}px 0 0 0`}>
+            trackPadding={{ x: 0, y: height }}
+            showScrollIndicators={showScrollbar}>
             <StyledHeaderMaxHeightContainer $height={height} $previousHeight={previousHeight}>
               <StyledHeaderContainer>
                 <SelectLocationHeader>
@@ -114,24 +121,13 @@ export function SelectLocationViewImpl() {
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container horizontalMargin="medium" flexDirection="column">
-                  <Carousel
-                    disableScroll
-                    slideIndex={slideIndex}
-                    onSlideIndexChange={setSlideIndex}
-                    onSlideSettled={handleSlideSettled}>
-                    <Carousel.Slides>
-                      <Carousel.Slides.Slide key="entry">
-                        {(changingSlide || locationType === LocationType.entry) && (
-                          <LocationLists type={LocationType.entry} />
-                        )}
-                      </Carousel.Slides.Slide>
-                      <Carousel.Slides.Slide key="exit">
-                        {(changingSlide || locationType === LocationType.exit) && (
-                          <LocationLists type={LocationType.exit} />
-                        )}
-                      </Carousel.Slides.Slide>
-                    </Carousel.Slides>
-                  </Carousel>
+                  <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
+                    <LocationSlide
+                      key={`${locationType}-location-lists`}
+                      onAnimationStart={handleAnimationStart}>
+                      <LocationLists type={locationType} />
+                    </LocationSlide>
+                  </AnimatePresence>
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
