@@ -69,6 +69,7 @@ interface IProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  showScrollIndicators?: boolean;
 }
 
 interface IState {
@@ -256,9 +257,13 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      showScrollIndicators,
       ...otherProps
     } = this.props;
-    const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
+    const showScrollbars =
+      showScrollIndicators !== undefined
+        ? showScrollIndicators
+        : this.state.canScroll && this.state.showScrollIndicators;
 
     return (
       <StyledCustomScrollbars {...otherProps}>
