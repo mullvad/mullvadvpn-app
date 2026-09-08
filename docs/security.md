@@ -143,6 +143,10 @@ All API connections use TLS 1.3 with certificate pinning. The app comes bundled 
 with servers having a valid certificate issued to `api.mullvad.net` and signed with this
 bundled certificate.
 
+TLS session tickets are disabled. Resuming a session identifies the client to the server as one
+it has served before, which would let the Mullvad API server link connections made from different
+tunnels and different network locations.
+
 ### Disconnected
 
 This is the default state that the `mullvad-daemon` starts in when the device boots, unless

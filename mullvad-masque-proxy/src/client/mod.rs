@@ -788,6 +788,8 @@ pub fn default_tls_config() -> Arc<rustls::ClientConfig> {
             .with_custom_certificate_verifier(Arc::new(AcceptAnyServerCertificate { provider }))
             .with_no_client_auth();
         config.alpn_protocols = vec![b"h3".to_vec()];
+        // Disable TLS tickets to reduce ability to track clients over time
+        config.resumption = rustls::client::Resumption::disabled();
         Arc::new(config)
     });
 
