@@ -20,11 +20,14 @@ import java.io.IOException
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +38,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.DaemonEvent
@@ -257,18 +261,24 @@ class ManagementService(
 
     private suspend fun subscribeEvents() =
         withContext(ioDispatcher) {
-            launch {
+            while (isActive) {
                 try {
-                    val channel = grpc.EventsListen().executeIn(this, Unit)
-                    channel.receiveAsFlow().collect(::handleEvent)
+                    // Coroutine scope is used to make sure that both the event listener and the
+                    // initial state fetch are done before it will loop again.
+                    // Since the event listener is listening until the coroutine is canceled, this
+                    // will only happen if an exception is thrown.
+                    coroutineScope {
+                        launch {
+                            val channel = grpc.EventsListen().executeIn(this, Unit)
+                            channel.receiveAsFlow().collect(::handleEvent)
+                        }
+
+                        getInitialServiceState()
+                    }
                 } catch (e: IOException) {
-                    Logger.e("EventsListen failed", e)
+                    Logger.e("Failed to fetch subscribe to events", e)
+                    delay(SUBSCRIBE_EVENTS_ERROR_DELAY)
                 }
-            }
-            try {
-                getInitialServiceState()
-            } catch (e: IOException) {
-                Logger.e("Failed to fetch initial service state", e)
             }
         }
 
@@ -414,17 +424,16 @@ class ManagementService(
             .onLeft { Logger.e("Get account history error") }
             .mapLeft(GetAccountHistoryError::Unknown)
 
-    private suspend fun getInitialServiceState() {
-        withContext(ioDispatcher) {
-            awaitAll(
-                async { _mutableTunnelState.update { getTunnelState() } },
-                async { _mutableDeviceState.update { getDeviceState() } },
-                async { _mutableSettings.update { getSettings() } },
-                async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
-                async { _mutableRelayList.update { getRelayList() } },
-                async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } },
-            )
-        }
+    private suspend fun CoroutineScope.getInitialServiceState() {
+        Logger.d { "Fetching initial service state" }
+        awaitAll(
+            async { _mutableTunnelState.update { getTunnelState() } },
+            async { _mutableDeviceState.update { getDeviceState() } },
+            async { _mutableSettings.update { getSettings() } },
+            async { _mutableVersionInfo.update { getVersionInfo().getOrNull() } },
+            async { _mutableRelayList.update { getRelayList() } },
+            async { _mutableCurrentAccessMethod.update { getCurrentApiAccessMethod() } },
+        )
     }
 
     suspend fun getAccountData(
@@ -1012,7 +1021,9 @@ class ManagementService(
     private fun GrpcException.isTooManyRequests() = grpcMessage == TOO_MANY_REQUESTS
 
     companion object {
-        const val TOO_MANY_REQUESTS = "429 Too Many Requests"
+        private const val TOO_MANY_REQUESTS = "429 Too Many Requests"
+
+        private val SUBSCRIBE_EVENTS_ERROR_DELAY = 3.seconds
     }
 }
 
