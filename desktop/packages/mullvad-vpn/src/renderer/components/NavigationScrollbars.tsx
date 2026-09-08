@@ -10,6 +10,8 @@ export interface NavigationScrollbarsProps {
   onScroll?: (value: IScrollEvent) => void;
   className?: string;
   fillContainer?: boolean;
+  trackPadding?: { x: number; y: number };
+  showScrollIndicators?: boolean;
   children?: React.ReactNode;
 }
 
@@ -81,6 +83,8 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
       ref={combinedRefs}
       className={props.className}
       fillContainer={props.fillContainer}
+      trackPadding={props.trackPadding}
+      showScrollIndicators={props.showScrollIndicators}
       onScroll={handleScroll}>
       {props.children}
     </CustomScrollbars>
