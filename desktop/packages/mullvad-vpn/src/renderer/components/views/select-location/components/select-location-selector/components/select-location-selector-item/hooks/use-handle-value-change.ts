@@ -13,13 +13,16 @@ export function useHandleValueChange() {
   const handleValueChange = React.useCallback(
     (id: LocationSelectorSelectedItem, value: string) => {
       handleOnValueChange(value);
+      if (value.length > 0) {
+        setIsolatedItem(id);
+      } else {
+        setIsolatedItem(undefined);
+      }
 
       if (value.length >= 2) {
         setSearchTerm(value);
-        setIsolatedItem(id);
       } else {
         setSearchTerm('');
-        setIsolatedItem(undefined);
       }
     },
     [handleOnValueChange, setSearchTerm, setIsolatedItem],
