@@ -4,8 +4,8 @@ on:
   pull_request:
     paths:
       - .github/workflows/ios-rust-ffi.yml
-      - clippy.toml
       - 'ci/cargo-ci.sh'
+      - clippy.toml
       - Cargo.lock
       - Cargo.toml
       - '**/*.rs'
@@ -26,10 +26,64 @@ defaults:
     shell: bash
 
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.result.outputs.run }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Get changed files
+        id: changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          files=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files?per_page=100" \
+            --paginate \
+            --jq '.[].filename' | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Print changed files
+        run: |
+          echo 'Changed files:'
+          printf '%s\n' ${{ steps.changed.outputs.files }}
+
+      - name: Detect affected packages
+        id: affected
+        uses: robertrautenbach/rust-affected@a2b1ce76c640d9f9ef261a39221fd45a8fbf8227  # v4.0.3
+        with:
+          changed_files: ${{ steps.changed.outputs.files }}
+          force_triggers: |
+            .github/workflows/ios-rust-ffi.yml
+            ci/cargo-ci.sh
+            clippy.toml
+            Cargo.lock
+            Cargo.toml
+
+      - name: Decide whether to run
+        id: result
+        run: |
+          if [[ ${{ steps.affected.outputs.force_all }} == true ]] || \
+             grep -q "mullvad-ios" <<< '${{ steps.affected.outputs.changed_crates }}' || \
+             grep -q "mullvad-ios" <<< '${{ steps.affected.outputs.affected_binary_members }}' || \
+             grep -q "mullvad-api" <<< '${{ steps.affected.outputs.affected_binary_members }}'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   # Linting shares this job with the build so that clippy runs against the target
   # directory the build just populated. The tests are a separate job: they run
   # against the host, so they cannot reuse anything built for the iOS target.
   build-ios:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     runs-on: macos-latest
     env:
       TARGET: aarch64-apple-ios
@@ -64,6 +118,8 @@ jobs:
   # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
   #       handy, so this takes no --target.
   test-ios-crates:
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
     runs-on: macos-latest
     steps:
       - name: Checkout repository
