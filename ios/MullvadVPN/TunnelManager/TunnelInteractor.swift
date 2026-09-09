@@ -20,7 +20,7 @@ protocol TunnelInteractor {
     var tunnel: (any TunnelProtocol)? { get }
     var backgroundTaskProvider: BackgroundTaskProviding { get }
 
-    func getPersistentTunnels() -> [any TunnelProtocol]
+    func getPersistentTunnel() -> (any TunnelProtocol)?
     func createNewTunnel() -> any TunnelProtocol
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool)
 
