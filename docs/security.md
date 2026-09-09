@@ -110,6 +110,7 @@ The following network traffic is allowed or blocked independent of state:
      * `172.16.0.0/12`
      * `192.168.0.0/16`
      * `169.254.0.0/16` (Link-local IPv4 range)
+     * `100.64.0.0/10` (Shared address space, RFC 6598. Used by Tailscale)
      * `fe80::/10` (Link-local IPv6 range)
      * `fc00::/7` (Unique local address (ULA) range)
    * Outgoing to any IP in globally unroutable multicast networks, meaning these:
