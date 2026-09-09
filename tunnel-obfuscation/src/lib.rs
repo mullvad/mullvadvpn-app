@@ -77,19 +77,6 @@ impl Settings {
             Settings::Lwo(s) => s.packet_overhead(),
         }
     }
-
-    /// The address that the obfuscator talks to.
-    ///
-    /// This is the obfuscation server, not the WireGuard relay behind it, except for the
-    /// protocols where they are one and the same.
-    pub fn remote_endpoint(&self) -> SocketAddr {
-        match self {
-            Settings::Udp2Tcp(s) => s.peer,
-            Settings::Shadowsocks(s) => s.shadowsocks_endpoint,
-            Settings::Quic(s) => s.quic_endpoint(),
-            Settings::Lwo(s) => s.server_addr,
-        }
-    }
 }
 
 /// Create an [ObfuscatedTransport] that obfuscates and deobfuscates packets in place where the

@@ -497,8 +497,12 @@ async fn create_devices(
         obfuscation: Option<RunningObfuscation>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory =
-            MaybeObfuscatingTransportFactory::new(optimize_buffer_size, obfuscation, bypass);
+        let factory = MaybeObfuscatingTransportFactory::new(
+            optimize_buffer_size,
+            obfuscation,
+            config.entry_peer.endpoint,
+            bypass,
+        );
         // The addresses assigned to the tun device, i.e. the only source addresses we accept
         // packets from. See [SourceFilter].
         let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {

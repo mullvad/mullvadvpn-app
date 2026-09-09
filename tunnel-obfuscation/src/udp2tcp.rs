@@ -71,8 +71,6 @@ pub struct Udp2Tcp {
     /// Keeps the TCP socket excluded from tunnel traffic.
     _bypass: BypassGuard,
 
-    peer: SocketAddr,
-
     packet_overhead: u16,
 }
 
@@ -115,7 +113,6 @@ impl Udp2Tcp {
             incoming: Mutex::new(incoming),
             _forwarder: AbortOnDropHandle::new(forwarder),
             _bypass,
-            peer,
             packet_overhead: settings.packet_overhead(),
         })
     }
@@ -139,10 +136,6 @@ impl ObfuscatedTransport for Udp2Tcp {
             .await
             .ok_or_else(stopped)?;
         copy_datagram(&datagram, buf)
-    }
-
-    fn endpoint(&self) -> SocketAddr {
-        self.peer
     }
 
     fn packet_overhead(&self) -> u16 {
