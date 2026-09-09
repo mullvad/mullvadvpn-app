@@ -10,6 +10,12 @@
   ],
   "defaultOptions" : {
     "defaultTestExecutionTimeAllowance" : 60,
+    "environmentVariableEntries" : [
+      {
+        "key" : "LIBDISPATCH_COOPERATIVE_POOL_STRICT",
+        "value" : "1"
+      }
+    ],
     "targetForVariableExpansion" : {
       "containerPath" : "container:MullvadVPN.xcodeproj",
       "identifier" : "58CE5E5F224146200008646E",
