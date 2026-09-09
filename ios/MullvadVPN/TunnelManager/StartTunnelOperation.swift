@@ -108,8 +108,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             @escaping @Sendable (Result<any TunnelProtocol, Error>)
             -> Void
     ) {
-        let persistentTunnels = interactor.getPersistentTunnels()
-        let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
+        let tunnel = interactor.getPersistentTunnel() ?? interactor.createNewTunnel()
         let configuration = TunnelConfiguration(
             includeAllNetworks: interactor.settings.includeAllNetworks.includeAllNetworksIsEnabled,
             excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
