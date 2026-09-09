@@ -29,8 +29,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
         let settingsResult = readSettings()
         let deviceStateResult = readDeviceState()
 
-        let persistentTunnels = interactor.getPersistentTunnels()
-        let tunnel = persistentTunnels.first
+        let tunnel = interactor.getPersistentTunnel()
         let settings = settingsResult.flattenValue()
         let deviceState = deviceStateResult.flattenValue()
 

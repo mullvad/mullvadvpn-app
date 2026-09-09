@@ -25,9 +25,7 @@ final class APITransportMonitor: APITransportProviderProtocol {
     }
 
     func makeTransport() -> APITransportProtocol? {
-        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
-            tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
-        }
+        let tunnel = tunnelStore.getPersistentTunnel()
 
         return if let tunnel, shouldRouteThroughTunnel(tunnel: tunnel) {
             PacketTunnelAPITransport(tunnel: tunnel)
