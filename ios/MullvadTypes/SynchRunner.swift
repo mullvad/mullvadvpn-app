@@ -9,6 +9,55 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 extension FileCache {
+    public actor BridgeExecutor<T: Sendable> {
+        public nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+        // must only be accessed after semaphore has signalled
+        nonisolated(unsafe) private var result: T? = nil
+        // must only be accessed after semaphore has signalled
+        nonisolated(unsafe) private var error: Error? = nil
+
+        private let queue: DispatchSerialQueue = DispatchSerialQueue(label: "com.mullvad.vpn.bridge.executor")
+
+        // The DispatchSemaphore ensures that @unchecked Sendable is safe.
+        @available(*, noasync)
+        public static nonisolated func run(
+            _ closure: @escaping @Sendable () async throws -> T
+        ) throws -> T {
+            let bridge = BridgeExecutor()
+            let semaphore = DispatchSemaphore(value: 0)
+
+
+            bridge.queue.async {
+                Task {
+                    await bridge.execute(closure)
+                    semaphore.signal()
+                }
+            }
+
+            semaphore.wait()
+            if let err = bridge.error {
+                throw err
+            }
+            guard let result = bridge.result else {
+                throw fatalError("Semaphore signaled without a result")
+            }
+            return result
+        }
+
+        //
+        private func execute(_ closure: @Sendable () async throws -> T) async {
+            do {
+               result = try await closure()
+            } catch {
+                self.error = error
+            }
+
+        }
+    }
+
     /// Wraps asynchronous tasks and runs them synchronously. Used in synchronous shims
     /// in FileCache and related files. Can be removed once those shims are removed.
     ///
@@ -24,7 +73,7 @@ extension FileCache {
     /// - Warning:
     /// Calling this from anything backed by an the default executor, eg. MainActor, will
     /// very likely lead to a deadlock.
-    public final class SynchRunner<T: Sendable>: @unchecked Sendable {
+    private final class SynchRunner<T: Sendable>: @unchecked Sendable {
         private var result: Result<T, any Error>?
 
         // The DispatchSemaphore ensures that @unchecked Sendable is safe.
