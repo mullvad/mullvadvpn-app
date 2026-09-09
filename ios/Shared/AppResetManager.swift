@@ -20,7 +20,6 @@ import UIKit
     typealias AppResetManager = AppResetManagerNoOp
 #endif
 
-
 @MainActor
 final class AppResetManagerReal {
     private let launchArguments: LaunchArguments
