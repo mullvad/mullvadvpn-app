@@ -89,6 +89,7 @@ class FilteredRelayListUseCase(
                 .distinctUntilChanged()
                 .map {
                     // We expect this to always work
+                    @Suppress("UnsafeCallOnNullableType")
                     managementService.partitionRelays(it).getOrNull()!!
                 },
             relayListRepository.relayList,

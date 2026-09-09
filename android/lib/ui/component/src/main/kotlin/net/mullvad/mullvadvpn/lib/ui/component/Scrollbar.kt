@@ -199,6 +199,7 @@ fun Modifier.drawVerticalScrollbar(
         }
     }
 
+@Suppress("LongParameterList")
 private fun DrawScope.drawScrollbar(
     orientation: Orientation,
     reverseDirection: Boolean,

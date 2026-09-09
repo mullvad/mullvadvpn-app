@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -67,9 +66,9 @@ class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val newDeviceRepository: NewDeviceRepository,
     private val internetAvailableUseCase: InternetAvailableUseCase,
-    private val scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
-    private val accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher,
+    scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
+    accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
     private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
@@ -122,7 +121,7 @@ class LoginViewModel(
 
     private fun createAccount() {
         _loginState.value = LoginState.Loading.CreatingAccount
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(ioDispatcher) {
             accountRepository
                 .createAccount()
                 .fold(
@@ -141,7 +140,7 @@ class LoginViewModel(
             return
         }
         _loginState.value = LoginState.Loading.LoggingIn
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(ioDispatcher) {
             val uiState =
                 // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
                 // loading indicator
@@ -163,7 +162,7 @@ class LoginViewModel(
     private fun onSuccessfulLogin() {
         newDeviceRepository.newDeviceCreated()
 
-        viewModelScope.launch(dispatcher) {
+        viewModelScope.launch(ioDispatcher) {
             // Find if user is out of time
             val isOutOfTimeDeferred = async {
                 accountRepository.accountData

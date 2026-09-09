@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+@Suppress("UnsafeCallOnNullableType")
 val FilterSelectedActive: ImageVector
     get() {
         if (_FilterSelectedActive != null) {

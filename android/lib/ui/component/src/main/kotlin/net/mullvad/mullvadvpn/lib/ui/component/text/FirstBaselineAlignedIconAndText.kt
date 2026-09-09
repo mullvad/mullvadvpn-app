@@ -55,8 +55,6 @@ fun FirstBaselineAlignedIconAndText(
     textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
-    val textStyle = MaterialTheme.typography.bodyMedium
-
     val density = LocalDensity.current
 
     // Calculate vertical offset using the exact scaled font size.

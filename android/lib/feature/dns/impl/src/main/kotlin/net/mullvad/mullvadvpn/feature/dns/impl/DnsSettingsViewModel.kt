@@ -49,7 +49,7 @@ sealed interface DnsSettingsSideEffect {
 
 @Suppress("TooManyFunctions")
 class DnsSettingsViewModel(
-    private val isModal: Boolean,
+    isModal: Boolean,
     private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {

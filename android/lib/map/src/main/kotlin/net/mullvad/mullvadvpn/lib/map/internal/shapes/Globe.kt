@@ -109,6 +109,7 @@ internal class Globe(resources: Resources) {
         )
     }
 
+    @Suppress("LongParameterList")
     private fun drawBufferElements(
         projectionMatrix: FloatArray,
         modelViewMatrix: FloatArray,

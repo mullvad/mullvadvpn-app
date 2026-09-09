@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 fun ProductDetails.toPaymentProduct(productIdToStatus: Map<String, PaymentStatus?>) =
     PaymentProduct(
         productId = ProductId(this.productId),
-        price = ProductPrice(this.oneTimePurchaseOfferDetails?.formattedPrice ?: ""),
+        price = ProductPrice(this.oneTimePurchaseOfferDetails?.formattedPrice.orEmpty()),
         productIdToStatus[this.productId],
     )
 

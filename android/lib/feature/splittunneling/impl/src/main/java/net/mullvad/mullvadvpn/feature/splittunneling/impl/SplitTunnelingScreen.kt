@@ -140,11 +140,11 @@ fun SplitTunnelingScreen(
             }
         },
         actions = { SearchButton(onClick = navigateToSearch, enabled = state.enabled()) },
-    ) { modifier ->
+    ) { contentModifier ->
         val lazyListState = rememberLazyListState()
         LazyColumn(
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = lazyListState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -258,6 +258,7 @@ private fun LazyListScope.appList(
     spacer()
 }
 
+@Suppress("LongParameterList")
 internal fun LazyListScope.appItems(
     apps: List<AppItem>,
     focusManager: FocusManager,
@@ -274,6 +275,7 @@ internal fun LazyListScope.appItems(
         val packageName = listItem.packageName
         var icon by retain(packageName) { mutableStateOf<IconState>(IconState.Loading) }
         LaunchedEffect(packageName) {
+            @Suppress("InjectDispatcher")
             launch(Dispatchers.IO) {
                 val drawable = onResolveIcon(packageName)
                 icon =

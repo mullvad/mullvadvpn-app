@@ -31,7 +31,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                             name = it.name.value,
                             serverIp = data.ip,
                             port = data.port.toString(),
-                            password = data.password ?: "",
+                            password = data.password.orEmpty(),
                             cipher = data.cipher,
                             username = "",
                         )
@@ -51,8 +51,8 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                             serverIp = data.ip,
                             port = data.port.toString(),
                             enableAuthentication = data.auth != null,
-                            username = data.auth?.username ?: "",
-                            password = data.auth?.password ?: "",
+                            username = data.auth?.username.orEmpty(),
+                            password = data.auth?.password.orEmpty(),
                         )
                     },
                 isTestingApiAccessMethod = true,

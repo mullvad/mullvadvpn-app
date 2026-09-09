@@ -93,7 +93,7 @@ class SelectPortViewModel(
             updatePort(port)
                 .onLeft { Logger.e("Select shadowsocks port error $it") }
                 .onRight {
-                    val presets = uiState.value.contentOrNull()?.presetPorts ?: emptyList()
+                    val presets = uiState.value.contentOrNull()?.presetPorts.orEmpty()
                     if (port is Constraint.Only && port.value !in presets) {
                         initialOrCustomPort.update { port.getOrNull() }
                     }

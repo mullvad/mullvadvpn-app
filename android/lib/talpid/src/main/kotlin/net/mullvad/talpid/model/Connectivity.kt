@@ -4,13 +4,13 @@ import android.net.LinkAddress
 import java.net.Inet4Address
 import java.net.Inet6Address
 
-sealed class Connectivity {
-    data class Online(val ipAvailability: IpAvailability) : Connectivity()
+sealed interface Connectivity {
+    data class Online(val ipAvailability: IpAvailability) : Connectivity
 
-    data object Offline : Connectivity()
+    data object Offline : Connectivity
 
     // Required by jni
-    data object PresumeOnline : Connectivity()
+    data object PresumeOnline : Connectivity
 
     companion object {
         fun fromIpAvailability(ipv4: Boolean, ipv6: Boolean) =

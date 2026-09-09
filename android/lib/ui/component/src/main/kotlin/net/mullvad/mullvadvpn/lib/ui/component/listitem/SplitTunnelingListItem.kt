@@ -154,12 +154,12 @@ private fun BoxScope.Icon(iconState: IconState, isEnabled: Boolean) {
     }
 }
 
-sealed class IconState {
-    object Loading : IconState()
+sealed interface IconState {
+    object Loading : IconState
 
-    data class Icon(val drawable: Drawable) : IconState()
+    data class Icon(val drawable: Drawable) : IconState
 
-    object NoIcon : IconState() // Icon not found or icon too large
+    object NoIcon : IconState // Icon not found or icon too large
 }
 
 private val iconSize: Dp = 24.dp

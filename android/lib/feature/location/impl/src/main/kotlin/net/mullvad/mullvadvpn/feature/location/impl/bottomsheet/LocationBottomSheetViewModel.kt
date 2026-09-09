@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.feature.location.impl.bottomsheet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCas
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class LocationBottomSheetViewModel(
-    private val locationBottomSheetState: LocationBottomSheetState,
+    locationBottomSheetState: LocationBottomSheetState,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val hopSelectionUseCase: HopSelectionUseCase,
@@ -54,6 +54,7 @@ class LocationBottomSheetViewModel(
     private val selectAndEnableMultihopUseCase: SelectAndEnableMultihopUseCase,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val multihopInEffectUseCase: MultihopInEffectUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
     canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -85,7 +86,8 @@ class LocationBottomSheetViewModel(
                                             .firstOrNull {
                                                 it.id == locationBottomSheetState.customListId
                                             }
-                                            ?.name ?: ""
+                                            ?.name
+                                            .orEmpty()
                                     ),
                             )
                         )
@@ -140,7 +142,7 @@ class LocationBottomSheetViewModel(
         onError: (ModifyMultihopError, MultihopChange) -> Unit,
         onUpdateMultihop: (UndoChangeMultihopAction) -> Unit,
     ) {
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = ioDispatcher) {
             val previousEntry =
                 wireguardConstraintsRepository.wireguardConstraints.value
                     ?.entryLocation
@@ -178,7 +180,7 @@ class LocationBottomSheetViewModel(
         onRelayItemError: (SelectRelayItemError) -> Unit,
         onUpdateMultihop: (UndoChangeMultihopAction) -> Unit,
     ) {
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch(context = ioDispatcher) {
             val previousExit = hopSelectionUseCase().first().exit()?.getOrNull()
             val isMultihopActive = isMultihopActive()
             if (isMultihopActive) {

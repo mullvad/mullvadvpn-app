@@ -59,7 +59,7 @@ class ReportProblemViewModel(
     private val mullvadProblemReporter: ProblemReportRepository,
     private val problemReportRepository: ProblemReportRepository,
     accountRepository: AccountRepository,
-    private val isPlayBuild: Boolean,
+    isPlayBuild: Boolean,
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
@@ -89,7 +89,7 @@ class ReportProblemViewModel(
                 descriptionError ->
                 ReportProblemUiState(
                     sendingState = sendingState,
-                    email = userReport.email ?: "",
+                    email = userReport.email.orEmpty(),
                     description = userReport.description,
                     showIncludeAccountId = accountData != null,
                     includeAccountId = includeAccountToken,

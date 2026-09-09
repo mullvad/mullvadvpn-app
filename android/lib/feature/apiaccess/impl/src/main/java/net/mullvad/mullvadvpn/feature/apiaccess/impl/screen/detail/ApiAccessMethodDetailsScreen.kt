@@ -338,9 +338,13 @@ private fun Actions(onDeleteAccessMethod: () -> Unit) {
 
 @Composable
 private fun ApiAccessMethodDetailsUiState.name(): String =
-    (this as? ApiAccessMethodDetailsUiState.Content)?.apiAccessMethodSetting?.toDisplayName() ?: ""
+    (this as? ApiAccessMethodDetailsUiState.Content)
+        ?.apiAccessMethodSetting
+        ?.toDisplayName()
+        .orEmpty()
 
 private fun ApiAccessMethodDetailsUiState.name(resources: Resources): String =
     (this as? ApiAccessMethodDetailsUiState.Content)
         ?.apiAccessMethodSetting
-        ?.toDisplayName(resources = resources) ?: ""
+        ?.toDisplayName(resources = resources)
+        .orEmpty()

@@ -62,10 +62,10 @@ fun MullvadFeatureChip(
         onClick = onClick,
         label = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                icon?.let { icon ->
+                icon?.let {
                     Icon(
                         modifier = Modifier.size(Dimens.featureIndicatorIconSize),
-                        imageVector = icon,
+                        imageVector = it,
                         tint = MaterialTheme.colorScheme.onSurface,
                         contentDescription = null,
                     )

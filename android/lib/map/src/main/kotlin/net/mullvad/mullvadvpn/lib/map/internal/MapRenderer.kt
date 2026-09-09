@@ -108,7 +108,9 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         viewState.markers.forEach {
             val marker =
                 markerCache[it.colors]
-                    ?: LocationMarker(it.colors).also { markerCache.put(it.colors, it) }
+                    ?: LocationMarker(it.colors).also { marker ->
+                        markerCache.put(marker.colors, marker)
+                    }
 
             marker.draw(projectionMatrix, viewMatrix, it.latLong, it.size)
         }
@@ -226,6 +228,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
                 }
         }
 
+    @Suppress("LongParameterList")
     fun calculateDirectionVector(
         fovy: Float,
         aspectRatio: Float,

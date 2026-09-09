@@ -28,7 +28,7 @@ class AddTimeViewModel(
     private val paymentUseCase: PaymentLogic,
     private val accountRepository: AccountRepository,
     connectionProxy: ConnectionProxy,
-    private val isPlayBuild: Boolean,
+    isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<AddMoreTimeSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -151,7 +151,7 @@ class AddTimeViewModel(
         }
 }
 
-sealed class AddMoreTimeSideEffect {
+sealed interface AddMoreTimeSideEffect {
     data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) :
-        AddMoreTimeSideEffect()
+        AddMoreTimeSideEffect
 }

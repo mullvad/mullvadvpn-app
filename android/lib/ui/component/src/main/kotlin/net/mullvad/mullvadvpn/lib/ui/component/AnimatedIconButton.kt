@@ -11,15 +11,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 
-internal const val PRESS_EFFECT_TIME_SPAN: Long = 1000
+private val PRESS_EFFECT_TIME_SPAN: Duration = 1000.milliseconds
 
+@Suppress("LongParameterList")
 @Composable
 fun AnimatedIconButton(
     defaultIcon: ImageVector,
     secondaryIcon: ImageVector,
-    pressEffectDuration: Long = PRESS_EFFECT_TIME_SPAN,
+    pressEffectDuration: Duration = PRESS_EFFECT_TIME_SPAN,
     defaultIconTint: Color,
     secondaryIconTint: Color,
     contentDescription: String,

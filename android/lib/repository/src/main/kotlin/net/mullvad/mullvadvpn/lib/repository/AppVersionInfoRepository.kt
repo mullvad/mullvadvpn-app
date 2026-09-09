@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 
 class AppVersionInfoRepository(
-    private val buildVersion: BuildVersion,
+    buildVersion: BuildVersion,
     managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {

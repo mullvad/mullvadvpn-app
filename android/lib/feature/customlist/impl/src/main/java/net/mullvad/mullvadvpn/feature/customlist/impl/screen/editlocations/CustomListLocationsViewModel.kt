@@ -86,8 +86,8 @@ class CustomListLocationsViewModel(
                                     CustomListLocationsData(
                                         searchTerm = searchTerm,
                                         locations =
-                                            searchResult.matchedCountries.flatMap {
-                                                it.toRelayItems(
+                                            searchResult.matchedCountries.flatMap { country ->
+                                                country.toRelayItems(
                                                     hierarchy = Hierarchy.Parent,
                                                     isSelected = { it in selectedLocations },
                                                     isExpanded = { it in expandedLocations },
@@ -126,9 +126,7 @@ class CustomListLocationsViewModel(
             RelayListSearchResult(
                 matchedCountries = relayCountries,
                 expansionSet =
-                    initialExpands(
-                        _selectedLocations.value?.calculateLocationsToSave() ?: emptyList()
-                    ),
+                    initialExpands(_selectedLocations.value?.calculateLocationsToSave().orEmpty()),
                 highlights = emptyMap(),
             )
         }
@@ -335,7 +333,9 @@ class CustomListLocationsViewModel(
                 success.addedLocations.size == 1 && success.removedLocations.isEmpty() ->
                     CustomListActionResultData.Success.LocationAdded(
                         customListName = success.name,
-                        relayListRepository.find(success.addedLocations.first())!!.name,
+                        locationName =
+                            @Suppress("UnsafeCallOnNullableType")
+                            relayListRepository.find(success.addedLocations.first())!!.name,
                         undo = success.undo,
                     )
 
@@ -343,6 +343,7 @@ class CustomListLocationsViewModel(
                     CustomListActionResultData.Success.LocationRemoved(
                         customListName = success.name,
                         locationName =
+                            @Suppress("UnsafeCallOnNullableType")
                             relayListRepository.find(success.removedLocations.first())!!.name,
                         undo = success.undo,
                     )

@@ -20,8 +20,8 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 class DeviceRevokedViewModel(
     private val accountRepository: AccountRepository,
     private val connectionProxy: ConnectionProxy,
-    private val scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
-    private val accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
+    scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
+    accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
 ) : ViewModel() {
 
     val uiState =

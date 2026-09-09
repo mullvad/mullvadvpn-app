@@ -109,10 +109,10 @@ fun SelectLocationList(
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
+    CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { scrollSideEffect ->
         val stateActual = viewModel.uiState.first { it is Content }
         // Ensure the selected item and its parents are expanded
-        when (val id = it.relayItem.id) {
+        when (val id = scrollSideEffect.relayItem.id) {
             is CustomListId,
             is GeoLocationId.Country -> viewModel.onToggleExpand(id, expand = true)
             is GeoLocationId.City -> {
@@ -127,8 +127,10 @@ fun SelectLocationList(
         val index =
             stateActual.contentOrNull()?.relayListItems?.indexOfFirst { relayListItem ->
                 when (relayListItem) {
-                    is RelayListItem.CustomListItem -> it.relayItem.id == relayListItem.item.id
-                    is RelayListItem.GeoLocationItem -> it.relayItem.id == relayListItem.item.id
+                    is RelayListItem.CustomListItem ->
+                        scrollSideEffect.relayItem.id == relayListItem.item.id
+                    is RelayListItem.GeoLocationItem ->
+                        scrollSideEffect.relayItem.id == relayListItem.item.id
                     else -> false
                 }
             }

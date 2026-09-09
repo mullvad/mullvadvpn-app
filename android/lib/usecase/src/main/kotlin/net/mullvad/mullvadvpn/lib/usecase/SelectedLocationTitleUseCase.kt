@@ -23,7 +23,7 @@ class SelectedLocationTitleUseCase(
             relayListRepository.selectedLocation,
         ) { customLists, relayList, selectedLocation ->
             if (selectedLocation is Constraint.Only) {
-                createRelayItemTitle(selectedLocation.value, relayList, customLists ?: emptyList())
+                createRelayItemTitle(selectedLocation.value, relayList, customLists.orEmpty())
             } else {
                 null
             }

@@ -21,6 +21,7 @@ inline fun <T> Flow<T>.onFirst(crossinline action: suspend (T) -> Unit): Flow<T>
     }
 }
 
+@Suppress("LongParameterList")
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,
@@ -43,6 +44,7 @@ inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     }
 }
 
+@Suppress("LongParameterList")
 inline fun <T1, T2, T3, T4, T5, T6, T7, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,
@@ -67,6 +69,7 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, R> combine(
     }
 }
 
+@Suppress("LongParameterList")
 inline fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,
@@ -93,6 +96,7 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combine(
     }
 }
 
+@Suppress("LongParameterList")
 inline fun <T1, T2, T3, T4, T5, T6, T7, T8, T9, R> combine(
     flow: Flow<T1>,
     flow2: Flow<T2>,

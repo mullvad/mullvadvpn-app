@@ -39,6 +39,7 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                             apiAccessMethod =
                                 ApiAccessMethod.CustomProxy.Shadowsocks(
                                     "123.123.123.123",
+                                    @Suppress("UnsafeCallOnNullableType")
                                     Port.fromString("1234").getOrNull()!!,
                                     null,
                                     Cipher("aes-128-cfb"),

@@ -14,11 +14,11 @@ class BillingException(
         BillingResult.newBuilder()
             .setResponseCode(responseCode)
             .setOnPurchasesUpdatedSubResponseCode(subResponseCode)
-            .setDebugMessage(message ?: "")
+            .setDebugMessage(message.orEmpty())
             .build()
 
     fun toPurchasesResult(): PurchasesResult = PurchasesResult(toBillingResult(), emptyList())
 
     override fun toString(): String =
-        "BillingException(responseCode=$responseCode, subResponseCode=$subResponseCode, message=${message ?: ""})"
+        "BillingException(responseCode=$responseCode, subResponseCode=$subResponseCode, message=${message.orEmpty()})"
 }

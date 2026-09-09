@@ -178,6 +178,7 @@ fun SettingsScreen(
     }
 }
 
+@Suppress("LongParameterList")
 private fun LazyListScope.content(
     state: SettingsUiState,
     onVpnSettingCellClick: () -> Unit,

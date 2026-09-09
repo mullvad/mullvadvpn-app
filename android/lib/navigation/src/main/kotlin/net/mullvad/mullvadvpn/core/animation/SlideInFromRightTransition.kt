@@ -37,7 +37,7 @@ fun slideInHorizontalTransition(): Map<String, Any> = metadata {
             slideOutOfContainer(
                 animationSpec = tween(TRANSITION_DEFAULT_DURATION_MS),
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
-                targetOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
+                targetOffset = { offset -> (offset * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
             ) + fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
     }
 }

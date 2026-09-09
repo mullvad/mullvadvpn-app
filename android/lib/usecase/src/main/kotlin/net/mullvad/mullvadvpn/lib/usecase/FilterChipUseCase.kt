@@ -58,6 +58,7 @@ class FilterChipUseCase(
             )
         }
 
+    @Suppress("LongParameterList")
     private fun filterChips(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
@@ -81,19 +82,17 @@ class FilterChipUseCase(
             when (selectedConstraintProviders) {
                 is Constraint.Any -> null
                 is Constraint.Only ->
-                    selectedConstraintProviders.value
-                        .filter { providerId ->
-                            if (ownershipFilter == null) {
-                                true
-                            } else {
-                                val providerOwnerships = providerToOwnerships[providerId]
-                                // If the provider has been removed from the relay list we add it
-                                // so it is visible for the user, because we won't know what
-                                // ownerships it had.
-                                providerOwnerships?.contains(ownershipFilter) ?: true
-                            }
+                    selectedConstraintProviders.value.count { providerId ->
+                        if (ownershipFilter == null) {
+                            true
+                        } else {
+                            val providerOwnerships = providerToOwnerships[providerId]
+                            // If the provider has been removed from the relay list we add it
+                            // so it is visible for the user, because we won't know what
+                            // ownerships it had.
+                            providerOwnerships?.contains(ownershipFilter) ?: true
                         }
-                        .size
+                    }
             }
 
         return buildList {

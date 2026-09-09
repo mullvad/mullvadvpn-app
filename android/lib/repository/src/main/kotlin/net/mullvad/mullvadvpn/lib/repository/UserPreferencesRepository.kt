@@ -20,6 +20,8 @@ class UserPreferencesRepository(
     fun showAndroid16ConnectWarning(): Flow<Boolean> =
         userPreferencesStore.data.map { it.showAndroid16ConnectWarning }
 
+    // Detekt incorrectly reports that suspend is not needed.
+    @Suppress("RedundantSuspendModifier")
     suspend fun preferences(): UserPreferences = userPreferencesStore.data.first()
 
     suspend fun setHasDisplayedChangelogNotification() {

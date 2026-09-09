@@ -101,7 +101,7 @@ class ProblemReportRepository(
                     }
 
                 sendProblemReport(
-                    userEmail = userReport.email ?: "",
+                    userEmail = userReport.email.orEmpty(),
                     userMessage = userReport.description,
                     accountId =
                         if (includeAccountId) {
@@ -150,6 +150,7 @@ class ProblemReportRepository(
         pendingPurchases: Int,
     ): Boolean
 
+    @Suppress("LongParameterList")
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,

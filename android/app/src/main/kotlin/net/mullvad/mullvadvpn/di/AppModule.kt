@@ -10,6 +10,7 @@ import androidx.datastore.dataStore
 import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscationRepository
@@ -53,6 +54,7 @@ val appModule = module {
             rpcSocketFile = get(named(GRPC_SOCKET_FILE_NAMED_ARGUMENT)),
             extensiveLogging = BuildConfig.DEBUG,
             scope = MainScope(),
+            ioDispatcher = Dispatchers.IO,
         )
     }
     single { ApplicationScope.createDoNotCallUseDiInstead() }

@@ -91,7 +91,9 @@ class ManageDevicesViewModel(
                     {
                         _uiSideEffect.send(ManageDevicesSideEffect.FailedToRemoveDevice)
                         setLoadingState(deviceIdToRemove, false)
-                        deviceRepository.deviceList(accountNumber).onRight { deviceList.value = it }
+                        deviceRepository.deviceList(accountNumber).onRight { devices ->
+                            deviceList.value = devices
+                        }
                     },
                     { removeDeviceFromState(deviceIdToRemove) },
                 )

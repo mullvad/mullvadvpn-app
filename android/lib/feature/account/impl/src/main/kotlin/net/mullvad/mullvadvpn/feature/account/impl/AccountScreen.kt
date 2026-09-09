@@ -194,12 +194,12 @@ fun AccountScreen(
                 modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize(),
             ) {
                 DeviceNameRow(
-                    deviceName = state?.deviceName ?: "",
+                    deviceName = state?.deviceName.orEmpty(),
                     onManageDevicesClick = onManageDevicesClick,
                 )
 
                 AccountNumberRow(
-                    accountNumber = state?.accountNumber?.value ?: "",
+                    accountNumber = state?.accountNumber?.value.orEmpty(),
                     onCopyAccountNumber,
                 )
 
@@ -323,7 +323,7 @@ private fun PaidUntilRow(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             InformationView(
-                content = accountExpiry?.toExpiryDateString() ?: "",
+                content = accountExpiry?.toExpiryDateString().orEmpty(),
                 whenMissing = MissingPolicy.SHOW_SPINNER,
             )
             Spacer(modifier = Modifier.weight(1f))
