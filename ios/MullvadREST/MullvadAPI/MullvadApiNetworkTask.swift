@@ -44,7 +44,7 @@ extension REST {
                 return .failure(CancellationError())
             }
 
-            guard let transport = transportProvider.makeTransport() else {
+            guard let transport = await transportProvider.makeTransport() else {
                 return .failure(InternalTransportError.noTransport)
             }
 
