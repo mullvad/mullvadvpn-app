@@ -21,7 +21,9 @@ use talpid_types::{
 };
 use tokio::sync::oneshot;
 use tunnel_obfuscation::{
-    LocalSocketObfuscator, create_local_socket_obfuscator_with_bypass, lwo,
+    LocalSocketObfuscator, create_local_socket_obfuscator_with_bypass,
+    local_socket::LocalSocketRunner,
+    lwo,
     multiplexer::{self, Transport},
     quic, shadowsocks, udp2tcp,
 };
@@ -94,11 +96,14 @@ pub async fn spawn_local_socket_obfuscator(
             // of them. Have it announce its choice so that the firewall can be
             // tightened accordingly.
             selected_transport_rx = Some(selected_transport);
-            Box::new(
-                multiplexer::Multiplexer::new(bypass, settings)
-                    .await
-                    .map_err(Error::ObfuscationError)?,
-            )
+
+            // The multiplexer is an `ObfuscatedTransport` like the ones it races, so it reaches
+            // the local WireGuard instance the same way any other one does.
+            let multiplexer = multiplexer::Multiplexer::new(bypass, settings);
+            let runner = LocalSocketRunner::new(Arc::new(multiplexer))
+                .await
+                .map_err(Error::ObfuscationError)?;
+            Box::new(runner)
         }
     };
 
