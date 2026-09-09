@@ -15,7 +15,9 @@ use gotatun::{
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
 use talpid_types::net::obfuscation::LwoVersion;
-use tunnel_obfuscation::{Settings as ObfuscationSettings, create_transport};
+use tunnel_obfuscation::ObfuscatedTransport;
+
+use crate::obfuscation::RunningObfuscation;
 
 use lwo::{LwoKeys, LwoRecv, LwoSend, LwoUdpTransportFactory};
 use transport::{ObfuscatingRecv, ObfuscatingSend};
@@ -183,22 +185,22 @@ pub struct BypassingSocketFactory {
 pub enum MaybeObfuscatingTransportFactory {
     Plain(BypassingSocketFactory),
     Lwo(LwoUdpTransportFactory<BypassingSocketFactory>),
-    Transport(ObfuscationSettings, Arc<dyn SocketBypass>),
+    Transport(Arc<dyn ObfuscatedTransport>),
 }
 
 impl MaybeObfuscatingTransportFactory {
-    /// Create a transport factory from the tunnel config.
-    pub fn from_settings(
+    /// Create a transport factory with optional obfuscation.
+    pub fn new(
         optimize_buffer_size: bool,
-        settings: Option<&ObfuscationSettings>,
+        obfuscation: Option<RunningObfuscation>,
         bypass: Arc<dyn SocketBypass>,
     ) -> Self {
         let make_factory = |bypass| BypassingSocketFactory {
             bypass,
             inner: udp_socket_factory(optimize_buffer_size),
         };
-        match settings {
-            Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
+        match obfuscation {
+            Some(RunningObfuscation::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
                 inner: make_factory(bypass),
                 keys: match settings.version {
                     LwoVersion::V1 => LwoKeys::V1 {
@@ -211,7 +213,7 @@ impl MaybeObfuscatingTransportFactory {
                 },
                 endpoint: settings.server_addr,
             }),
-            Some(settings) => Self::Transport(settings.clone(), bypass),
+            Some(RunningObfuscation::Transport(transport)) => Self::Transport(transport),
 
             // Use `Self::Plain` when there is no obfuscation
             None => Self::Plain(make_factory(bypass)),
@@ -276,11 +278,8 @@ impl UdpTransportFactory for MaybeObfuscatingTransportFactory {
             }
             // The transport binds and excludes a socket of its own, so the addresses and the
             // fwmark in `params` do not apply to it.
-            Self::Transport(settings, bypass) => {
-                let transport = create_transport(Arc::clone(bypass), settings)
-                    .await
-                    .map_err(io::Error::other)?;
-                let (sv, rv) = transport::split(transport);
+            Self::Transport(transport) => {
+                let (sv, rv) = transport::split(Arc::clone(transport));
                 Ok((Send::Transport(sv), Recv::Transport(rv)))
             }
         }
