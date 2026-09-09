@@ -23,9 +23,13 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [android/2026.9-beta2] - 2026-09-09
 ### Fixed
 - Fix the sorting of the location list in English being incorrect.
 - Fix a rare crash that occured when interacting with the map.
+- Fix anti-censorship filters showing in the location list when multihop is set to when needed.
+- Fix exit hop not being clickable in the select location list if a filter chip is showing.
 
 
 ## [android/2026.9-beta1] - 2026-08-20

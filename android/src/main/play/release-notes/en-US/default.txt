@@ -1,4 +1,2 @@
-- Made the globe interactive, with support for pan, pinch-to-zoom, and fling
-- Added new multihop setting, "when needed", that will automatically multihop if required
-- Improved search in Select location
-- Filters are split into entry and exit filters
+- Fixed a rare crash when interacting with the map.
+- Fixed several issues related to the select location list.
