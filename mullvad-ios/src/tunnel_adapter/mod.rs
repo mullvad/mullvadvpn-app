@@ -119,6 +119,7 @@ const CONNECTIVITY_CHECK_INTERVAL: Duration = Duration::from_millis(200);
 /// After this long without any rx, consider the connection lost.
 /// WireGuard keepalives are typically every ~25s, so 2 minutes gives plenty of margin.
 const MONITOR_TIMEOUT: Duration = Duration::from_secs(120);
+const SLEEP_CYCLE_RESET_THRESHOLD: Duration = Duration::from_secs(120);
 
 /// Configuration for a single tunnel connection attempt.
 pub struct TunnelConfig {
@@ -181,6 +182,78 @@ pub(crate) enum TunnelAdapterChannelCommand {
     Wake,
     Suspend,
     Stop,
+}
+
+struct DeviceHolder {
+    devices: Devices,
+    last_suspended_at: Option<talpid_time::Instant>,
+    config: TunnelConfig,
+    obfuscation: Option<ObfuscationGuard>,
+}
+
+impl DeviceHolder {
+    fn new(devices: Devices, config: TunnelConfig, obfuscation: Option<ObfuscationGuard>) -> Self {
+        Self {
+            devices,
+            last_suspended_at: None,
+            config,
+            obfuscation,
+        }
+    }
+
+    async fn stop(mut self) {
+        self.devices.stop().await;
+        std::mem::drop(self.obfuscation.take());
+        self.last_suspended_at = None;
+    }
+
+    async fn handle_devices_wake(&mut self) -> Result<(), TunnelError> {
+        let now = talpid_time::Instant::now();
+        let last = self.last_suspended_at.unwrap_or(now);
+        let elapsed = last.duration_since(now);
+
+        if elapsed >= SLEEP_CYCLE_RESET_THRESHOLD {
+            std::mem::drop(self.obfuscation.take());
+
+            let final_obfuscation = IosTunnelAdapter::start_obfuscation_proxy(&self.config)
+                .await
+                .map_err(|e| TunnelError::error(format!("Final obfuscation: {e}")))?;
+            if let Some(ref guard) = final_obfuscation {
+                IosTunnelAdapter::apply_obfuscation(&mut self.config, guard.endpoint());
+                let peer_config = &mut self.config.exit_peer;
+                peer_config.endpoint = guard.endpoint;
+                let peer = IosTunnelAdapter::build_peer(peer_config);
+
+                match &self.devices {
+                    Devices::Singlehop(dev) => {
+                        dev.update_peer(peer)
+                            .await
+                            .map_err(|e| TunnelError::error(format!("TUN device: {e}")))?;
+                    }
+                    Devices::Multihop { entry, exit } => {
+                        _ = exit;
+                        entry
+                            .update_peer(peer)
+                            .await
+                            .map_err(|e| TunnelError::error(format!("TUN device: {e}")))?;
+                    }
+                };
+            }
+
+            self.obfuscation = final_obfuscation;
+        }
+        self.devices.wake().await;
+        Ok(())
+    }
+
+    async fn handle_devices_suspend(&mut self) {
+        self.last_suspended_at = Some(talpid_time::Instant::now());
+        self.devices.suspend().await;
+    }
+
+    async fn total_rx(&self) -> usize {
+        self.devices.total_rx().await
+    }
 }
 
 /// A single tunnel connection attempt.
@@ -325,10 +398,11 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
+        let mut holder = DeviceHolder::new(devices, config, final_obfuscation);
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
-        Self::monitor_connectivity(&devices, rx, stopped).await;
-        devices.stop().await;
+        Self::monitor_connectivity(&mut holder, rx, stopped).await?;
+        holder.stop().await;
         Err(TunnelError::Timeout)
     }
 
@@ -820,10 +894,10 @@ impl IosTunnelAdapter {
 
     /// Monitor an established connection. Returns when connectivity is lost or stopped.
     async fn monitor_connectivity(
-        devices: &Devices,
+        device_holder: &mut DeviceHolder,
         mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
-    ) {
+    ) -> Result<(), TunnelError> {
         let mut last_rx_bytes: usize = 0;
         let mut last_rx_time = Instant::now();
 
@@ -832,32 +906,32 @@ impl IosTunnelAdapter {
                 _ = tokio::time::sleep(Duration::from_secs(1)) => {}
                 event = rx.recv() => {
                     let Some(event) = event else {
-                        break;
+                        break Ok(());
                     };
                     match event {
                         TunnelAdapterChannelCommand::Wake => {
-                            devices.wake().await;
+                            device_holder.handle_devices_wake().await?;
                         },
                         TunnelAdapterChannelCommand::Suspend => {
-                            devices.suspend().await;
+                            device_holder.handle_devices_suspend().await;
                         },
-                        TunnelAdapterChannelCommand::Stop => return,
+                        TunnelAdapterChannelCommand::Stop => () ,
                     };
                 }
             }
 
             if stopped.load(Ordering::SeqCst) {
-                return;
+                break Ok(());
             }
 
-            let total_rx = devices.total_rx().await;
+            let total_rx = device_holder.total_rx().await;
 
             if total_rx > last_rx_bytes {
                 last_rx_bytes = total_rx;
                 last_rx_time = Instant::now();
             } else if last_rx_time.elapsed() > MONITOR_TIMEOUT {
                 log::warn!("No RX for {:?} - connection lost", last_rx_time.elapsed());
-                return;
+                break Ok(());
             }
         }
     }
