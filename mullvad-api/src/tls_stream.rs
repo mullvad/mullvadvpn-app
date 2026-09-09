@@ -1,7 +1,5 @@
-//! Provides a TLS 1.3 stream, accepting only LE for root cert.
-//! SNI is disabled. The only allowed key exchange group is the
-//! post-quantum hybrid X25519MLKEM768, so handshakes fail if the
-//! server will not negotiate it.
+//! Provides a TLS stream to the Mullvad API. See [`mullvad_tls_client::api`]
+//! for the parameters it is locked down to.
 use std::{
     io::{self, ErrorKind},
     pin::Pin,
@@ -10,56 +8,30 @@ use std::{
 };
 
 use hyper_util::client::legacy::connect::{Connected, Connection};
-use rustls_pki_types::{CertificateDer, pem::PemObject};
-use std::sync::LazyLock;
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio_rustls::{
     TlsConnector,
-    rustls::{self, ClientConfig, pki_types::ServerName},
+    rustls::{ClientConfig, pki_types::ServerName},
 };
-
-const LE_ROOT_CERT: &[u8] = include_bytes!("../le_root_cert.pem");
 
 pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
     stream: tokio_rustls::client::TlsStream<S>,
 }
-
-static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
-    // Restrict the key exchange to X25519MLKEM768. Offering only this group
-    // means the server must select it, otherwise the handshake aborts.
-    let provider = rustls::crypto::CryptoProvider {
-        kx_groups: vec![rustls::crypto::aws_lc_rs::kx_group::X25519MLKEM768],
-        ..rustls::crypto::aws_lc_rs::default_provider()
-    };
-    let config = {
-        let mut config = ClientConfig::builder_with_provider(Arc::new(provider))
-            .with_protocol_versions(&[&rustls::version::TLS13])
-            .expect("aws-lc-rs crypto provider should support TLS 1.3")
-            .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
-            .with_no_client_auth();
-        // This assumes that the server hello/certificates will include certificate for the domain.
-        config.enable_sni = false;
-        // Disable TLS tickets to reduce ability to track clients over time
-        config.resumption = rustls::client::Resumption::disabled();
-        config
-    };
-    Arc::new(config)
-});
 
 impl<S> TlsStream<S>
 where
     S: AsyncRead + AsyncWrite + Unpin,
 {
     pub async fn connect_https(stream: S, domain: &str) -> io::Result<TlsStream<S>> {
-        Self::connect_https_with_client_config(stream, domain, Arc::clone(&TLS_CONFIG)).await
+        Self::connect_https_with_client_config(stream, domain, mullvad_tls_client::api()).await
     }
 
     pub async fn connect_https_with_client_config(
         stream: S,
         domain: &str,
-        client_config: Arc<ClientConfig>,
+        client_config: &ClientConfig,
     ) -> io::Result<TlsStream<S>> {
-        let connector = TlsConnector::from(client_config);
+        let connector = TlsConnector::from(Arc::new(client_config.clone()));
 
         let host = match ServerName::try_from(domain.to_owned()) {
             Ok(n) => n,
@@ -75,19 +47,6 @@ where
 
         Ok(TlsStream { stream })
     }
-}
-
-fn read_cert_store() -> Result<rustls::RootCertStore, rustls_pki_types::pem::Error> {
-    let mut cert_store = rustls::RootCertStore::empty();
-
-    let certs = CertificateDer::pem_reader_iter(&mut std::io::BufReader::new(LE_ROOT_CERT))
-        .collect::<Result<Vec<_>, _>>()?;
-    let (num_certs_added, num_failures) = cert_store.add_parsable_certificates(certs);
-    if num_failures > 0 || num_certs_added != 1 {
-        panic!("Failed to add root cert");
-    }
-
-    Ok(cert_store)
 }
 
 impl<S> AsyncRead for TlsStream<S>
@@ -130,15 +89,5 @@ where
 {
     fn connected(&self) -> Connected {
         Connected::new()
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_cert_loading() {
-        let _certs = read_cert_store();
     }
 }

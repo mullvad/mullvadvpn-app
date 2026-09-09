@@ -3341,10 +3341,10 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
+ "mullvad-tls-client",
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "rustls-pki-types",
  "serde",
  "serde_json",
  "shadowsocks",
@@ -3714,10 +3714,9 @@ dependencies = [
  "clap",
  "mullvad-api",
  "mullvad-api-constants",
+ "mullvad-tls-client",
  "mullvad-version",
  "reqwest",
- "rustls",
- "rustls-pki-types",
  "serde",
  "serde_json",
  "tokio",
@@ -3743,6 +3742,14 @@ dependencies = [
  "tracing-subscriber",
  "windows-service",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "mullvad-tls-client"
+version = "0.0.0"
+dependencies = [
+ "rustls",
+ "rustls-pki-types",
 ]
 
 [[package]]
@@ -3779,6 +3786,7 @@ dependencies = [
  "log",
  "mockito",
  "mullvad-api-constants",
+ "mullvad-tls-client",
  "mullvad-version",
  "proptest",
  "rand 0.9.4",

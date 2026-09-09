@@ -20,6 +20,7 @@ itertools = { workspace = true }
 json-canon = "0.1"
 log = { workspace = true }
 mullvad-api-constants = { path = "../mullvad-api/mullvad-api-constants" }
+mullvad-tls-client = { path = "../mullvad-tls-client" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 # If a consumer enable the `proptest` feature, then we expose proptest generators in the public API
 proptest = { workspace = true, optional = true }
@@ -50,6 +51,9 @@ tokio = { workspace = true, features = ["fs", "macros", "test-util", "time"] }
 [features]
 default = []
 client = ["reqwest", "rustls", "rustls-pki-types", "thiserror", "tokio", "webpki-roots"]
+# Fetching metadata straight from `releases.mullvad.net`, which only the release
+# tooling does. The app goes through the API instead.
+release-tooling = ["client", "mullvad-tls-client/releases-cdn"]
 sign = ["clap", "rand_core"]
 
 [lints]

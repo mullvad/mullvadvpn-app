@@ -267,5 +267,5 @@ Reference: https://docs.travis-ci.com/user/common-build-problems/#mac-macos-sier
 # SSL pinning
 
 The iOS app utilizes SSL pinning via the `mullvad-api` client.
-Root certificates can be updated by using the source certificates shipped along with `mullvad-api` found at `../mullvad-api/le_root_cert.pem`
+Root certificates can be updated by using the source certificates shipped along with `mullvad-tls-client` found at `../mullvad-tls-client/le_root_cert.pem`
 

@@ -139,7 +139,7 @@ problem report tool are able to communicate with the API in any of the blocking 
 Linux all applications running as root are able to reach the API in blocking states.
 
 All API connections use TLS 1.3 with certificate pinning. The app comes bundled with the
-[Let's encrypt root certificate](../mullvad-api/le_root_cert.pem) and only accepts connections
+[Let's encrypt root certificate](../mullvad-tls-client/le_root_cert.pem) and only accepts connections
 with servers having a valid certificate issued to `api.mullvad.net` and signed with this
 bundled certificate. The post-quantum X25519MLKEM768 key exchange is required.
 
