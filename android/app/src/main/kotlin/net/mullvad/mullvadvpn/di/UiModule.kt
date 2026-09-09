@@ -356,9 +356,9 @@ val uiModule = module {
             accountRepository = get(),
             newDeviceRepository = get(),
             internetAvailableUseCase = get(),
-            ioDispatcher = Dispatchers.IO,
             scheduleNotificationAlarmUseCase = get(),
             accountExpiryNotificationProvider = get(),
+            ioDispatcher = Dispatchers.IO,
         )
     }
     viewModel {

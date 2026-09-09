@@ -11,10 +11,11 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
@@ -106,6 +107,7 @@ class LocationBottomSheetViewModelTest {
         MutableStateFlow<RelayItemSelection>(RelayItemSelection.Single(Constraint.Any))
     private val multihopActive = MutableStateFlow(MultihopInEffectStatus.WhenNeededInEffect)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @BeforeEach
     fun setup() {
 
@@ -138,7 +140,7 @@ class LocationBottomSheetViewModelTest {
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
                 multihopInEffectUseCase = mockMultihopInEffectUseCase,
-                ioDispatcher = Dispatchers.IO,
+                ioDispatcher = UnconfinedTestDispatcher(),
             )
     }
 
