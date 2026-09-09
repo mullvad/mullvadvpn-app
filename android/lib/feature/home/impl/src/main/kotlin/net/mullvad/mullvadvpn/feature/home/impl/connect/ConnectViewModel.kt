@@ -52,7 +52,7 @@ class ConnectViewModel(
     private val deviceRepository: DeviceRepository,
     relayListRepository: RelayListRepository,
     private val changelogRepository: ChangelogRepository,
-    private val connectionPath: ConnectionPathUseCase,
+    connectionPath: ConnectionPathUseCase,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceRepository: NewDeviceRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -62,7 +62,7 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
-    private val isPlayBuild: Boolean,
+    isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
 ) : ViewModel() {

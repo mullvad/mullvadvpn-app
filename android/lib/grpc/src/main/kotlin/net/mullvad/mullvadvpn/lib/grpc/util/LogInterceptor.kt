@@ -14,6 +14,7 @@ internal class LogInterceptor : ClientInterceptor {
         next: Channel?,
     ): ClientCall<ReqT, RespT> {
         Logger.v("Intercepted call: ${method?.fullMethodName}")
+        @Suppress("UnsafeCallOnNullableType")
         return next!!.newCall(method, callOptions)
     }
 }

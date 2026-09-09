@@ -216,8 +216,8 @@ fun DnsSettingsScreen(
                 NavigateBackIconButton(onNavigateBack = onBackClick)
             }
         },
-    ) { modifier ->
-        Box(modifier = modifier) {
+    ) { contentModifier ->
+        Box(modifier = contentModifier) {
             when (state) {
                 is Lc.Loading -> Loading()
                 is Lc.Content ->
@@ -412,6 +412,7 @@ private fun Content(
             ) { index, item ->
                 DnsListItem(
                     modifier =
+                        @Suppress("ImplicitDefaultLocale")
                         Modifier.animateItem().testTag(CUSTOM_DNS_ITEM_X_TEST_TAG.format(index)),
                     hierarchy = Hierarchy.Child1,
                     position = Position.Middle,
@@ -507,7 +508,7 @@ private fun LazyItemScope.ContentBlockersHeader(
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 private fun LazyListScope.contentBlockers(
     focusDnsBlockersRequester: FocusRequester,
     highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,

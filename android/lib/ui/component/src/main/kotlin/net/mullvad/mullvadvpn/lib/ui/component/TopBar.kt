@@ -309,9 +309,9 @@ fun MullvadTopBarWithDeviceName(
             Text(
                 modifier = Modifier.weight(1f, fill = false),
                 text =
-                    deviceName?.let {
-                        stringResource(id = R.string.top_bar_device_name, deviceName)
-                    } ?: "",
+                    deviceName
+                        ?.let { stringResource(id = R.string.top_bar_device_name, deviceName) }
+                        .orEmpty(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.labelLarge,

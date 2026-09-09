@@ -104,12 +104,12 @@ fun DaitaScreen(
                 unlessIsDetail { NavigateBackIconButton { onBackClick() } }
             }
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -153,9 +153,9 @@ private fun DescriptionPager(pagerState: PagerState) {
         state = pagerState,
         verticalAlignment = Alignment.Top,
         beyondViewportPageCount = DaitaPages.entries.size,
-    ) { page ->
+    ) { pageIndex ->
         Column(modifier = Modifier.fillMaxWidth()) {
-            val page = DaitaPages.entries[page]
+            val page = DaitaPages.entries[pageIndex]
             // Scale image to fit width up to certain width
             Image(
                 contentScale = ContentScale.FillWidth,

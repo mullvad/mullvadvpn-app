@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 /** Used by both the select location screen and search select location screen */
+@Suppress("LongParameterList")
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     relayListType: RelayListType,

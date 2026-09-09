@@ -21,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 
 class AppInfoViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
-    private val isPlayBuild: Boolean,
+    isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopMigrationRepository: MultihopMigrationRepository,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,

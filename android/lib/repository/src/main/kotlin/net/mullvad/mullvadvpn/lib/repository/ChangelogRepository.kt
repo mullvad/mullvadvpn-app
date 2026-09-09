@@ -17,7 +17,7 @@ private const val BULLET_POINT_CHAR = '-'
 class ChangelogRepository(
     private val dataProvider: ChangelogDataProvider,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val buildVersion: BuildVersion,
+    buildVersion: BuildVersion,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val hasUnreadChangelog: StateFlow<Boolean> =

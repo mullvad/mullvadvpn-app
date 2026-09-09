@@ -222,7 +222,7 @@ fun TunnelEndpoint.toInAddress(): String {
     // Finally we check for exit endpoint
     val relayEndpoint = obfuscation?.endpoint ?: entryEndpoint ?: endpoint
 
-    val host = relayEndpoint.address.address.hostAddress ?: ""
+    val host = relayEndpoint.address.address.hostAddress.orEmpty()
     val port = relayEndpoint.address.port
     val protocol = relayEndpoint.protocol
 

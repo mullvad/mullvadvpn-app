@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 
 class EditCustomListViewModel(
-    private val customListId: CustomListId,
+    customListId: CustomListId,
     customListsRepository: CustomListsRepository,
 ) : ViewModel() {
 

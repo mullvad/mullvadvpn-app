@@ -23,7 +23,7 @@ import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 
 class ServerIpOverridesViewModel(
-    private val navArgs: ServerIpOverrideNavKey,
+    navArgs: ServerIpOverrideNavKey,
     private val relayOverridesRepository: RelayOverridesRepository,
     private val contentResolver: ContentResolver,
 ) : ViewModel() {
@@ -49,10 +49,10 @@ class ServerIpOverridesViewModel(
 
     fun importFile(uri: Uri) = viewModelScope.launch {
         // Read json from file
-        val inputStream = contentResolver.openInputStream(uri)!!
-        val json = InputStreamReader(inputStream, Charsets.UTF_8).readText()
-
-        applySettingsPatch(json)
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            val json = InputStreamReader(inputStream, Charsets.UTF_8).readText()
+            applySettingsPatch(json)
+        }
     }
 
     fun importText(json: String) = viewModelScope.launch { applySettingsPatch(json) }

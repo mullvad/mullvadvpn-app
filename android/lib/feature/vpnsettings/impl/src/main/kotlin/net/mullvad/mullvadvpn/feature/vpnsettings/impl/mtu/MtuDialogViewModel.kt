@@ -25,7 +25,7 @@ class MtuDialogViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
-    private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
+    private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString().orEmpty())
     private val _inputError = MutableStateFlow<ParseMtuError?>(null)
 
     val uiState: StateFlow<MtuDialogUiState> =

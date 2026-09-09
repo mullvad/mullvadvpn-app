@@ -105,7 +105,7 @@ class ServerIpOverridesViewModelTest {
     fun `ensure import file invokes repository`() = runTest {
         // Arrange
         val uri: Uri = mockk()
-        val mockInputStream: InputStream = mockk()
+        val mockInputStream: InputStream = mockk(relaxed = true)
         every { mockContentResolver.openInputStream(uri) } returns mockInputStream
         every { any<InputStreamReader>().readText() } returns TEXT_INPUT
         coEvery { mockRelayOverridesRepository.applySettingsPatch(TEXT_INPUT) } returns Unit.right()

@@ -579,7 +579,7 @@ fun Singlehop(
             modifier =
                 Modifier.layoutId(AnimationKey.ExitError)
                     .padding(Dimens.hopSelectorErrorStartPadding, end = Dimens.tinyPadding),
-            text = errorText ?: "",
+            text = errorText.orEmpty(),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
         )
@@ -786,6 +786,7 @@ fun resolveYourDeviceText(userLocation: String?): String =
         stringResource(R.string.your_device)
     }
 
+@Suppress("LongParameterList")
 @Immutable
 class HopSelectorColors(
     val selectedContentColor: Color,

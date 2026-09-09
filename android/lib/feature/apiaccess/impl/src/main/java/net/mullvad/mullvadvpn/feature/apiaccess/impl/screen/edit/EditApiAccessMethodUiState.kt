@@ -60,7 +60,7 @@ data class EditApiAccessFormData(
                         name = name.value,
                         serverIp = customProxy.ip,
                         port = customProxy.port.toString(),
-                        password = customProxy.password ?: "",
+                        password = customProxy.password.orEmpty(),
                         cipher = customProxy.cipher,
                         username = "",
                     )
@@ -71,8 +71,8 @@ data class EditApiAccessFormData(
                         serverIp = customProxy.ip,
                         port = customProxy.port.toString(),
                         enableAuthentication = customProxy.auth != null,
-                        username = customProxy.auth?.username ?: "",
-                        password = customProxy.auth?.password ?: "",
+                        username = customProxy.auth?.username.orEmpty(),
+                        password = customProxy.auth?.password.orEmpty(),
                     )
             }
     }

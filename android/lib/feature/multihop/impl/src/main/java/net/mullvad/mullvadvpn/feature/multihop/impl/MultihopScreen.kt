@@ -84,10 +84,9 @@ fun SharedTransitionScope.Multihop(
     MultihopScreen(
         state = state,
         modifier =
-            Modifier.testTag(MULTIHOP_SCREEN_TEST_TAG).applyIfNotNull(selectedFeature) {
-                selectedFeature ->
+            Modifier.testTag(MULTIHOP_SCREEN_TEST_TAG).applyIfNotNull(selectedFeature) { feature ->
                 Modifier.sharedBounds(
-                    rememberSharedContentState(key = selectedFeature),
+                    rememberSharedContentState(key = feature),
                     animatedVisibilityScope = animatedVisibilityScope,
                 )
             },
@@ -115,12 +114,12 @@ fun MultihopScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),

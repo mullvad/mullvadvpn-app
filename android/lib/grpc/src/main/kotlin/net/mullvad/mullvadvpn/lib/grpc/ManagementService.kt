@@ -1,3 +1,7 @@
+// Detekt reports false positives here because it doesn't do type resolution on the gRPC
+// generated code.
+@file:Suppress("RedundantSuspendModifier")
+
 package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
@@ -21,8 +25,8 @@ import java.io.File
 import java.net.InetAddress
 import java.util.logging.Level
 import java.util.logging.Logger as JavaLogger
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
@@ -167,6 +171,7 @@ class ManagementService(
     rpcSocketFile: File,
     private val extensiveLogging: Boolean,
     private val scope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
     private var job: Job? = null
 
@@ -191,7 +196,7 @@ class ManagementService(
 
     private val service by lazy {
         RelaySelectorServiceGrpcKt.RelaySelectorServiceCoroutineStub(channel)
-            .withExecutor(Dispatchers.IO.asExecutor())
+            .withExecutor(ioDispatcher.asExecutor())
             .let {
                 if (extensiveLogging) {
                     it.withInterceptors(LogInterceptor())
@@ -212,7 +217,7 @@ class ManagementService(
 
     private val grpc by lazy {
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
-            .withExecutor(Dispatchers.IO.asExecutor())
+            .withExecutor(ioDispatcher.asExecutor())
             .let {
                 if (extensiveLogging) {
                     it.withInterceptors(LogInterceptor())
@@ -272,7 +277,7 @@ class ManagementService(
     fun enterIdle() = channel.enterIdle()
 
     private suspend fun subscribeEvents() =
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             launch {
                 grpc.eventsListen(Empty.getDefaultInstance()).collect { event ->
                     if (extensiveLogging) {
@@ -434,7 +439,7 @@ class ManagementService(
             .mapLeft(GetAccountHistoryError::Unknown)
 
     private suspend fun getInitialServiceState() {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             awaitAll(
                 async { _mutableTunnelState.update { getTunnelState() } },
                 async { _mutableDeviceState.update { getDeviceState() } },

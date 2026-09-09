@@ -30,7 +30,7 @@ fun stringResourceWithIcons(@StringRes id: Int, vararg icons: DescribedIcon): Ic
     val iconIds = icons.mapIndexed { index, _ -> "[[icon_id_${index + 1}]]" }
 
     // Replace all args in the string with the corresponding icon id.
-    val text = stringResource(id, *iconIds.toTypedArray())
+    @Suppress("SpreadOperator") val text = stringResource(id, *iconIds.toTypedArray())
 
     // Find all places in the text where we have an inline icon.
     val idRegex = Regex(iconIds.joinToString("|") { Regex.escape(it) })

@@ -243,7 +243,7 @@ internal fun resolveConnectivityStatus(
     }
 
 private fun RawNetworkState?.toConnectivityStatus() =
-    Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses ?: emptyList())
+    Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses.orEmpty())
 
 private fun RawNetworkState?.isVpn(): Boolean =
     this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) == false
