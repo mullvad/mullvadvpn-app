@@ -185,7 +185,11 @@ pub struct BypassingSocketFactory {
 pub enum MaybeObfuscatingTransportFactory {
     Plain(BypassingSocketFactory),
     Lwo(LwoUdpTransportFactory<BypassingSocketFactory>),
-    Transport(Arc<dyn ObfuscatedTransport>),
+    Transport {
+        transport: Arc<dyn ObfuscatedTransport>,
+        /// See [`ObfuscatingRecv`].
+        peer_endpoint: SocketAddr,
+    },
 }
 
 impl MaybeObfuscatingTransportFactory {
@@ -193,6 +197,7 @@ impl MaybeObfuscatingTransportFactory {
     pub fn new(
         optimize_buffer_size: bool,
         obfuscation: Option<RunningObfuscation>,
+        peer_endpoint: SocketAddr,
         bypass: Arc<dyn SocketBypass>,
     ) -> Self {
         let make_factory = |bypass| BypassingSocketFactory {
@@ -213,7 +218,10 @@ impl MaybeObfuscatingTransportFactory {
                 },
                 endpoint: settings.server_addr,
             }),
-            Some(RunningObfuscation::Transport(transport)) => Self::Transport(transport),
+            Some(RunningObfuscation::Transport(transport)) => Self::Transport {
+                transport,
+                peer_endpoint,
+            },
 
             // Use `Self::Plain` when there is no obfuscation
             None => Self::Plain(make_factory(bypass)),
@@ -278,8 +286,11 @@ impl UdpTransportFactory for MaybeObfuscatingTransportFactory {
             }
             // The transport binds and excludes a socket of its own, so the addresses and the
             // fwmark in `params` do not apply to it.
-            Self::Transport(transport) => {
-                let (sv, rv) = transport::split(Arc::clone(transport));
+            Self::Transport {
+                transport,
+                peer_endpoint,
+            } => {
+                let (sv, rv) = transport::split(Arc::clone(transport), *peer_endpoint);
                 Ok((Send::Transport(sv), Recv::Transport(rv)))
             }
         }
