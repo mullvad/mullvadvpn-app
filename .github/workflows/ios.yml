@@ -9,6 +9,7 @@ on:
       - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
+      - ios/flake.*
       # Rust code is generally checked in the ios-rust-ffi.yml workflow,
       # But changing the Rust compiler can affect Swift->Rust linking not detected
       # by that workflow, so we trigger the full iOS build on it.
@@ -26,14 +27,23 @@ permissions: {}
 jobs:
   swift-format:
     name: Run swift format lint
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25  # v22
+
+      # Since ubuntu 22.30, unprivileged usernamespaces are no longer allowed to map to the root user:
+      # https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces
+      - name: Relax unpriviliged user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        if: runner.os == 'Linux'
+
       - name: Run swift format lint
-        run: ./format.sh lint -s
+        run: nix develop --command ./format.sh lint -s
         working-directory: ios
 
   ui-test-build:
