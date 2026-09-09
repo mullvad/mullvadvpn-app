@@ -69,11 +69,13 @@ fn bench_multiplexer_lwo(c: &mut Criterion) {
             client_public_key: keys().0,
             selected_transport: selected_tx,
         };
-        let multiplexer = multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings)
-            .await
-            .unwrap();
-        let endpoint = multiplexer.endpoint();
-        tokio::spawn(Box::new(multiplexer).run());
+        let multiplexer = multiplexer::Multiplexer::new(Arc::new(NoopBypass), settings);
+        let runner =
+            tunnel_obfuscation::local_socket::LocalSocketRunner::new(Arc::new(multiplexer))
+                .await
+                .unwrap();
+        let endpoint = runner.endpoint();
+        tokio::spawn(Box::new(runner).run());
 
         let (wg, transport_addr) = warm_up(endpoint, &relay).await;
 
