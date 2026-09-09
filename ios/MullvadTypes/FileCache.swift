@@ -110,19 +110,19 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
     // Will be removed once all call sites have been migrated.
 
     public nonisolated func read() throws -> Content {
-        try SynchRunner.run {
+        try BridgeExecutor.run {
             try await self.read()
         }
     }
 
     public nonisolated func write(_ content: Content) throws {
-        try SynchRunner.run {
+        try BridgeExecutor.run {
             try await self.write(content)
         }
     }
 
     public nonisolated func clear() throws {
-        try SynchRunner.run {
+        try BridgeExecutor.run {
             try await self.clear()
         }
     }
