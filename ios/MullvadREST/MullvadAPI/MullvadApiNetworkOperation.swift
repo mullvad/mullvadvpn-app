@@ -60,18 +60,21 @@ extension REST {
         }
 
         override public func main() {
-            startRequest()
+            Task {
+                let transport = await transportProvider.makeTransport()
+                dispatchQueue.async { [weak self] in
+                    self?.startRequest(with: transport)
+                }
+            }
         }
 
-        func startRequest() {
+        func startRequest(with transport: (any APITransportProtocol)?) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard !isCancelled else {
                 finish(result: .failure(OperationError.cancelled))
                 return
             }
-
-            let transport = transportProvider.makeTransport()
 
             do {
                 logger.info("\(#function): using transport=\(transport?.name ?? "Unknown")")

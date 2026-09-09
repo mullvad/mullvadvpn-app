@@ -14,19 +14,18 @@ import MullvadTypes
 import NetworkExtension
 import UIKit
 
-protocol TunnelStoreProtocol: Sendable {
+protocol TunnelStoreProtocol: Sendable & Actor {
     associatedtype TunnelType: TunnelProtocol, Equatable
     func getPersistentTunnel() -> TunnelType?
     func createNewTunnel() -> TunnelType
 }
 
 /// Wrapper around system VPN tunnels.
-final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked Sendable {
+actor TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
     typealias BackgroundTaskProvidingObject = BackgroundTaskProviding & AnyObject
 
     typealias TunnelType = Tunnel
     private let logger = Logger(label: "TunnelStore")
-    private let lock = NSLock()
     private let application: BackgroundTaskProviding
 
     /// Persistent tunnels registered with the system.
@@ -39,27 +38,25 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
             object: application,
             queue: .main
         ) { [weak self] notification in
-            self?.refreshStatus()
+            Task {
+                await self?.refreshStatus()
+            }
         }
     }
 
     func getPersistentTunnel() -> TunnelType? {
-        lock.withLock {
-            persistentTunnel
-        }
+        persistentTunnel
     }
 
     private func setPersistentTunnel(from manager: TunnelProviderManagerType) {
-        lock.withLock {
-            persistentTunnel?.removeObserver(self)
-            let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
-            tunnel.addObserver(self)
+        persistentTunnel?.removeObserver(self)
+        let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
+        tunnel.addObserver(self)
 
-            self.logger.debug(
-                "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
-            )
-            persistentTunnel = tunnel
-        }
+        self.logger.debug(
+            "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+        )
+        persistentTunnel = tunnel
     }
 
     func loadPersistentTunnels() async throws {
@@ -68,20 +65,18 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     }
 
     func createNewTunnel() -> TunnelType {
-        lock.withLock {
-            let tunnelProviderManager = TunnelProviderManagerType()
-            let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
-            tunnel.addObserver(self)
+        let tunnelProviderManager = TunnelProviderManagerType()
+        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager, backgroundTaskProvider: application)
+        tunnel.addObserver(self)
 
-            logger.debug("Create new tunnel: \(tunnel.logFormat()).")
+        logger.debug("Create new tunnel: \(tunnel.logFormat()).")
 
-            return tunnel
-        }
+        return tunnel
     }
 
-    func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
-        lock.withLock {
-            handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
+    nonisolated func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
+        Task {
+            await handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
         }
     }
 
@@ -98,9 +93,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     }
 
     private func refreshStatus() {
-        lock.withLock {
-            guard let persistentTunnel else { return }
-            handleTunnelStatus(tunnel: persistentTunnel, status: persistentTunnel.status)
-        }
+        guard let persistentTunnel else { return }
+        handleTunnelStatus(tunnel: persistentTunnel, status: persistentTunnel.status)
     }
 }
