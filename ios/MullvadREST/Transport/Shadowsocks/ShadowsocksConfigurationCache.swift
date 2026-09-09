@@ -53,19 +53,19 @@ public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtoco
     // Will be removed once all call sites have been migrated.
 
     public nonisolated func read() throws -> ShadowsocksConfiguration {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
+        try FileCache<ShadowsocksConfiguration>.BridgeExecutor.run {
             try await self.read()
         }
     }
 
     public nonisolated func write(_ configuration: ShadowsocksConfiguration) throws {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
+        try FileCache<ShadowsocksConfiguration>.BridgeExecutor.run {
             try await self.write(configuration)
         }
     }
 
     public nonisolated func clear() throws {
-        try FileCache<ShadowsocksConfiguration>.SynchRunner.run {
+        try FileCache<ShadowsocksConfiguration>.BridgeExecutor.run {
             try await self.clear()
         }
     }
