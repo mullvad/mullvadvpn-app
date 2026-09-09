@@ -11,6 +11,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -137,6 +138,7 @@ class LocationBottomSheetViewModelTest {
                 customListsRelayItemUseCase = mockCustomListsRelayItemUseCase,
                 selectedLocationUseCase = mockSelectedLocationUseCase,
                 multihopInEffectUseCase = mockMultihopInEffectUseCase,
+                ioDispatcher = Dispatchers.IO,
             )
     }
 
