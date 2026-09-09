@@ -679,7 +679,10 @@ pub fn get_ip_addresses_for_interface(luid: NET_LUID_LH) -> Result<Vec<IpAddr>> 
     get_unicast_table(None)
         .map_err(Error::ObtainUnicastAddress)?
         .into_iter()
-        .filter(|row| unsafe { row.InterfaceLuid.Value == luid.Value })
+        .filter(|row| {
+            // SAFETY: This is always valid as a `u64`.
+            unsafe { row.InterfaceLuid.Value == luid.Value }
+        })
         .map(|row| Ok(try_socketaddr_from_inet_sockaddr(row.Address)?.ip()))
         .collect()
 }
@@ -687,11 +690,14 @@ pub fn get_ip_addresses_for_interface(luid: NET_LUID_LH) -> Result<Vec<IpAddr>> 
 /// Removes a unicast IP address from the given interface.
 pub fn delete_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Result<()> {
     let mut row = MIB_UNICASTIPADDRESS_ROW::default();
+    // SAFETY: `row` is a valid pointer to a zeroed `MIB_UNICASTIPADDRESS_ROW`.
     unsafe { InitializeUnicastIpAddressEntry(&raw mut row) };
 
     row.InterfaceLuid = luid;
     row.Address = inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0));
 
+    // SAFETY: `row` has been initialized with `InitializeUnicastIpAddressEntry` and populated
+    // with a valid `InterfaceLuid` and `Address`.
     win32_err!(unsafe { DeleteUnicastIpAddressEntry(&raw const row) })
         .map_err(Error::DeleteUnicastEntry)
 }
