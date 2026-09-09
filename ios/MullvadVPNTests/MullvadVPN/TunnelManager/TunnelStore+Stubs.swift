@@ -12,11 +12,15 @@ import Foundation
 import MullvadTypes
 import NetworkExtension
 
-struct TunnelStoreStub: TunnelStoreProtocol, Sendable {
+actor TunnelStoreStub: TunnelStoreProtocol, Sendable {
     typealias TunnelType = TunnelStub
     let backgroundTaskProvider: any BackgroundTaskProviding
-    func getPersistentTunnels() -> [TunnelType] {
-        []
+    func getPersistentTunnel() -> TunnelType? {
+        nil
+    }
+
+    init(backgroundTaskProvider: any BackgroundTaskProviding) {
+        self.backgroundTaskProvider = backgroundTaskProvider
     }
 
     func createNewTunnel() -> TunnelType {
@@ -24,7 +28,7 @@ struct TunnelStoreStub: TunnelStoreProtocol, Sendable {
     }
 }
 
-class DummyTunnelStatusObserver: TunnelStatusObserver {
+class DummyTunnelStatusObserver: TunnelStatusObserver, @unchecked Sendable {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {}
 }
 
