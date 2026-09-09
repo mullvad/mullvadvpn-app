@@ -22,13 +22,7 @@
 //!
 //! See the [Transport] enum.
 
-use std::{
-    collections::VecDeque,
-    io,
-    net::{Ipv4Addr, SocketAddr},
-    sync::Arc,
-    time::Duration,
-};
+use std::{collections::VecDeque, io, net::SocketAddr, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
@@ -74,9 +68,6 @@ pub struct Multiplexer {
     /// The [Mutex] is uncontended in practice.
     incoming: Mutex<mpsc::Receiver<Box<[u8]>>>,
 
-    /// Reported as the endpoint until discovery settles on a transport that has one of its own.
-    fallback_endpoint: SocketAddr,
-
     packet_overhead: u16,
 
     /// Stops discovery when this transport is dropped.
@@ -120,10 +111,6 @@ impl Multiplexer {
 
         // Use the largest transport overhead.
         let packet_overhead = packet_overhead(&transports);
-        let fallback_endpoint = transports
-            .first()
-            .map(Transport::endpoint)
-            .unwrap_or_else(|| SocketAddr::from((Ipv4Addr::UNSPECIFIED, 0)));
 
         let (outgoing, outgoing_rx) = mpsc::channel(DATAGRAM_QUEUE_LEN);
         let (incoming_tx, incoming) = mpsc::channel(DATAGRAM_QUEUE_LEN);
@@ -143,7 +130,6 @@ impl Multiplexer {
             phase,
             outgoing,
             incoming: Mutex::new(incoming),
-            fallback_endpoint,
             packet_overhead,
             _discovery_task: AbortOnDropHandle::new(discovery_task),
         }
@@ -251,13 +237,6 @@ impl ObfuscatedTransport for Multiplexer {
                     }
                 }
             }
-        }
-    }
-
-    fn endpoint(&self) -> SocketAddr {
-        match self.state() {
-            Discovery::Selected(transport) => transport.endpoint(),
-            _ => self.fallback_endpoint,
         }
     }
 
@@ -486,14 +465,6 @@ impl Transport {
         match self {
             Transport::Direct(_) => 0,
             Transport::Obfuscated(settings) => settings.packet_overhead(),
-        }
-    }
-
-    /// The address that this transport talks to.
-    pub fn endpoint(&self) -> SocketAddr {
-        match self {
-            Transport::Direct(addr) => *addr,
-            Transport::Obfuscated(settings) => settings.remote_endpoint(),
         }
     }
 }

@@ -11,7 +11,6 @@ use crate::{socket::create_remote_socket, transport::ObfuscatedTransport};
 /// Plain unobfuscated obfuscation transport.
 pub struct Direct {
     socket: BypassSocket<UdpSocket>,
-    peer: SocketAddr,
 }
 
 impl Direct {
@@ -21,7 +20,7 @@ impl Direct {
             .connect(peer)
             .await
             .map_err(crate::Error::ConnectRemoteUdp)?;
-        Ok(Self { socket, peer })
+        Ok(Self { socket })
     }
 }
 
@@ -33,10 +32,6 @@ impl ObfuscatedTransport for Direct {
 
     async fn recv(&self, buf: &mut [u8]) -> io::Result<usize> {
         self.socket.recv(buf).await
-    }
-
-    fn endpoint(&self) -> SocketAddr {
-        self.peer
     }
 
     fn packet_overhead(&self) -> u16 {
