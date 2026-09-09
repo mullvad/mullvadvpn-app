@@ -16,7 +16,8 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
   const { hasRecents, setEnabledRecents } = useRecents();
   const { multihop, setMultihop } = useMultihop();
-  const { setLocationType } = useSelectLocationViewContext();
+  const { setLocationType, setIsolatedItem, setSearchTerm, locationType } =
+    useSelectLocationViewContext();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -40,14 +41,22 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopNever = useCallback(async () => {
     await setMultihop({ multihop: 'never' });
     onOpenChange?.(false);
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setLocationType, setMultihop]);
+    if (locationType === LocationType.entry) {
+      setLocationType(LocationType.exit);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
+    }
+  }, [locationType, onOpenChange, setIsolatedItem, setLocationType, setMultihop, setSearchTerm]);
 
   const handleMultihopWhenNeeded = useCallback(async () => {
     await setMultihop({ multihop: 'when-needed' });
     onOpenChange?.(false);
-    setLocationType(LocationType.exit);
-  }, [onOpenChange, setLocationType, setMultihop]);
+    if (locationType === LocationType.entry) {
+      setLocationType(LocationType.exit);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
+    }
+  }, [locationType, onOpenChange, setIsolatedItem, setLocationType, setMultihop, setSearchTerm]);
 
   return (
     <>
