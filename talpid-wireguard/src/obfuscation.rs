@@ -1,30 +1,22 @@
 //! Glue between tunnel-obfuscation and WireGuard configurations
 
 use super::{Error, Result};
-use crate::CloseMsg;
-#[cfg(target_os = "android")]
-use std::sync::Mutex;
 use std::{
     iter,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
-    sync::{Arc, mpsc as sync_mpsc},
+    sync::Arc,
 };
 use talpid_net::bypass::{BypassToken, SocketBypass};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
-use talpid_types::{
-    ErrorExt,
-    net::{
-        obfuscation::{ObfuscatorConfig, Obfuscators},
-        wireguard::{PeerConfig, PublicKey},
-    },
+use talpid_types::net::{
+    obfuscation::{ObfuscatorConfig, Obfuscators},
+    wireguard::PublicKey,
 };
 use tokio::sync::oneshot;
 use tunnel_obfuscation::{
-    LocalSocketObfuscator, create_local_socket_obfuscator_with_bypass,
-    local_socket::LocalSocketRunner,
-    lwo,
-    multiplexer::{self, Transport},
+    ObfuscatedTransport, create_transport, lwo,
+    multiplexer::{self, Multiplexer, Transport},
     quic, shadowsocks, udp2tcp,
 };
 
@@ -57,96 +49,6 @@ impl ObfuscationSettings {
             }
         }
     }
-}
-
-/// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
-/// to point to an endpoint on localhost.
-///
-/// # Arguments
-///
-/// * close_msg_sender - channel to send close messages on failure
-/// * bypass - socket bypass for excluding obfuscator sockets from the tunnel
-pub async fn spawn_local_socket_obfuscator(
-    entry_peer: &mut PeerConfig,
-    obfuscation_settings: ObfuscationSettings,
-    close_msg_sender: sync_mpsc::Sender<CloseMsg>,
-    bypass: Arc<dyn SocketBypass>,
-) -> Result<ObfuscatorHandle> {
-    log::trace!("Obfuscation settings: {obfuscation_settings:?}");
-
-    let mut selected_transport_rx = None;
-
-    let obfuscator: Box<dyn LocalSocketObfuscator> = match obfuscation_settings {
-        ObfuscationSettings::Single(settings) => {
-            create_local_socket_obfuscator_with_bypass(bypass, &settings)
-                .await
-                .map_err(Error::ObfuscationError)?
-        }
-        ObfuscationSettings::Multiplexer {
-            transports,
-            client_public_key,
-        } => {
-            let (selected_transport_tx, selected_transport) = oneshot::channel();
-            let settings = multiplexer::Settings {
-                transports,
-                client_public_key,
-                selected_transport: selected_transport_tx,
-            };
-            // The multiplexer connects to one out of several endpoints, and only commits to one
-            // of them. Have it announce its choice so that the firewall can be
-            // tightened accordingly.
-            selected_transport_rx = Some(selected_transport);
-
-            // The multiplexer is an `ObfuscatedTransport` like the ones it races, so it reaches
-            // the local WireGuard instance the same way any other one does.
-            let multiplexer = multiplexer::Multiplexer::new(bypass, settings);
-            let runner = LocalSocketRunner::new(Arc::new(multiplexer))
-                .await
-                .map_err(Error::ObfuscationError)?;
-            Box::new(runner)
-        }
-    };
-
-    patch_endpoint(entry_peer, obfuscator.endpoint());
-
-    let obfuscation_task = tokio::spawn(async move {
-        match obfuscator.run().await {
-            Ok(_) => {
-                let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Obfuscation controller failed")
-                );
-                let _ = close_msg_sender
-                    .send(CloseMsg::ObfuscatorFailed(Error::ObfuscationError(error)));
-            }
-        }
-    });
-
-    Ok(ObfuscatorHandle {
-        obfuscation_task,
-        selected_transport_rx,
-    })
-}
-
-/// Returns `true` when the obfuscation config can be applied inline in userspace WireGuard
-/// (GotaTun), avoiding the need for a local socket obfuscator.
-///
-/// Every single obfuscation method is an `ObfuscatedTransport`, which GotaTun drives directly.
-/// The multiplexer is not: it races several transports against each other and only commits to
-/// one of them once it answers, so it is still reached over a local socket.
-pub fn userspace_transport_available(
-    params: &talpid_types::net::wireguard::TunnelParameters,
-) -> bool {
-    matches!(params.obfuscation.as_ref(), Some(Obfuscators::Single(_)))
-}
-
-/// Patch the first peer in the WireGuard configuration to use the local proxy endpoint
-fn patch_endpoint(entry_peer: &mut PeerConfig, endpoint: SocketAddr) {
-    log::trace!("Patching first WireGuard peer to become {endpoint}");
-    entry_peer.endpoint = endpoint;
 }
 
 pub fn settings_from_config(
@@ -259,36 +161,66 @@ pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> O
     }
 }
 
-/// Simple wrapper that automatically cancels the future which runs an obfuscator.
-pub struct ObfuscatorHandle {
-    obfuscation_task: tokio::task::JoinHandle<()>,
-    selected_transport_rx: Option<oneshot::Receiver<Transport>>,
+/// A running obfuscated transport.
+#[derive(Clone)]
+pub enum RunningObfuscation {
+    /// Rewrite each datagram in place on its way out, over GotaTun's own socket.
+    Lwo(lwo::Settings),
+
+    /// Carry the datagrams through this transport, which has a socket of its own.
+    Transport(Arc<dyn ObfuscatedTransport>),
 }
 
-impl ObfuscatorHandle {
-    pub fn abort(&self) {
-        self.obfuscation_task.abort();
-    }
+/// Set up the obfuscation for `settings`.
+///
+/// The [SelectedTransportRx] is `Some` only for a multiplexer, and returns the selected obfuscation
+/// type.
+pub async fn create_obfuscation(
+    settings: &ObfuscationSettings,
+    bypass: Arc<dyn SocketBypass>,
+) -> Result<(RunningObfuscation, Option<SelectedTransportRx>)> {
+    match settings {
+        // LWO is special-cased since `ObfuscatedTransport` does not support batched send/recv.
+        ObfuscationSettings::Single(tunnel_obfuscation::Settings::Lwo(settings)) => {
+            Ok((RunningObfuscation::Lwo(settings.clone()), None))
+        }
 
-    /// Notified with the transport that the obfuscator commits to.
-    ///
-    /// Only a multiplexer has a choice to make, so this is `None` for every other obfuscator.
-    pub fn take_selected_transport_rx(&mut self) -> Option<oneshot::Receiver<Transport>> {
-        self.selected_transport_rx.take()
+        ObfuscationSettings::Single(settings) => {
+            let transport = create_transport(bypass, settings)
+                .await
+                .map_err(Error::ObfuscationError)?;
+            Ok((RunningObfuscation::Transport(transport), None))
+        }
+
+        ObfuscationSettings::Multiplexer {
+            transports,
+            client_public_key,
+        } => {
+            let (selected_transport, selected_transport_rx) = oneshot::channel();
+            let multiplexer = Multiplexer::new(
+                bypass,
+                multiplexer::Settings {
+                    transports: transports.clone(),
+                    client_public_key: client_public_key.clone(),
+                    selected_transport,
+                },
+            );
+            Ok((
+                RunningObfuscation::Transport(Arc::new(multiplexer)),
+                Some(selected_transport_rx),
+            ))
+        }
     }
 }
 
-impl Drop for ObfuscatorHandle {
-    fn drop(&mut self) {
-        self.obfuscation_task.abort();
-    }
-}
+/// Told which transport a multiplexer committed to.
+pub type SelectedTransportRx = oneshot::Receiver<Transport>;
 
-/// Create the [`SocketBypass`] used for both the local socket obfuscator and the GotaTun
-/// inline obfuscation transport.
+/// Create the [`SocketBypass`] used to exclude the GotaTun inline obfuscation transport's
+/// sockets from tunnel traffic.
 pub fn create_socket_bypass(
     #[cfg(target_os = "linux")] config: &crate::config::Config,
-    #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    #[cfg(target_os = "android")] tun_provider: Arc<std::sync::Mutex<TunProvider>>,
 ) -> Arc<dyn SocketBypass> {
     Arc::new(ObfuscatorSocketBypass {
         #[cfg(target_os = "linux")]
@@ -307,7 +239,7 @@ pub struct ObfuscatorSocketBypass {
     pub fwmark: u32,
 
     #[cfg(target_os = "android")]
-    pub tun_provider: Arc<Mutex<TunProvider>>,
+    pub tun_provider: Arc<std::sync::Mutex<TunProvider>>,
 }
 
 impl SocketBypass for ObfuscatorSocketBypass {
