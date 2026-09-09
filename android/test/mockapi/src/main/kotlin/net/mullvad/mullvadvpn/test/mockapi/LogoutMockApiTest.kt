@@ -26,6 +26,8 @@ class LogoutMockApiTest : MockApiTest() {
         // Act
         app.launchAndLogIn(validAccountNumber)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         on<ConnectPage> { clickAccount() }
 
         on<AccountPage> { clickLogOut() }

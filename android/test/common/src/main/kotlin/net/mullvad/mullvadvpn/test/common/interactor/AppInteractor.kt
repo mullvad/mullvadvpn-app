@@ -56,7 +56,6 @@ class AppInteractor(
 
     fun launchAndEnsureOnLoginPage(scope: LoginPage.() -> Unit = {}) {
         launch()
-        clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<LoginPage>(scope)
     }
 

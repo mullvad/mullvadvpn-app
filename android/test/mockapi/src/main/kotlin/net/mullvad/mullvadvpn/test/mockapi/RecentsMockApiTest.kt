@@ -46,6 +46,8 @@ class RecentsMockApiTest : MockApiTest() {
         app.launchAndLogIn(validAccountNumber)
         app.applySettings(multihop = MultihopMode.NEVER)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
@@ -85,6 +87,8 @@ class RecentsMockApiTest : MockApiTest() {
 
         // Enable Multihop
         app.applySettings(multihop = MultihopMode.ALWAYS)
+
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         on<ConnectPage> {
             clickConnect()

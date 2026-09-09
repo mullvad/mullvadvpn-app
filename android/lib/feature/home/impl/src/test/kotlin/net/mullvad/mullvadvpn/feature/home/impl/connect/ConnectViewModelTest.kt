@@ -146,6 +146,7 @@ class ConnectViewModelTest {
                 relayListRepository = mockRelayListRepository,
                 connectionPath = mockConnectionPathUseCase,
                 multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
+                hasShownNotificationPromptRepository = mockk(relaxed = true),
             )
     }
 
