@@ -20,6 +20,7 @@ protocol AccountManagerTunnelInteractor: Sendable {
     func setLastUsedAccount(_ accountNumber: String)
     func unsetTunnelConfiguration()
     func removeLastUsedAccount()
+    func handleRestError(_ error: Error)
 }
 
 struct AccountManager: Sendable {
@@ -106,33 +107,30 @@ struct AccountManager: Sendable {
         return operation
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) -> Cancellable {
-        let operation = UpdateDeviceDataOperation(
-            dispatchQueue: internalQueue,
-            devicesProxy: devicesProxy,
-            deviceState: {
-                interactor.deviceState
-            },
-            onUpdateAccount: { deviceState in
-                interactor.setDeviceState(deviceState, persist: true)
+    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+        Task {
+            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+                completionHandler?(InvalidDeviceStateError())
+                return
             }
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { completion in
-            completionHandler?(completion.error)
+            do {
+                let device = try await devicesProxy.getDevice(
+                    accountNumber: accountData.number,
+                    identifier: deviceData.identifier,
+                    retryStrategy: .default
+                )
+                switch interactor.deviceState {
+                case .loggedIn(let storedAccount, var storedDevice):
+                    storedDevice.update(from: device)
+                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                    interactor.setDeviceState(newDeviceState, persist: true)
+                default:
+                    throw InvalidDeviceStateError()
+                }
+            } catch {
+                interactor.handleRestError(error)
+                completionHandler?(error)
+            }
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Update device data",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(MutuallyExclusive(category: category))
-        operationQueue.addOperation(operation)
-        return operation
     }
 }
