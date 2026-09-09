@@ -108,15 +108,23 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             @escaping @Sendable (Result<any TunnelProtocol, Error>)
             -> Void
     ) {
-        let tunnel = interactor.getPersistentTunnel() ?? interactor.createNewTunnel()
-        let configuration = TunnelConfiguration(
-            includeAllNetworks: interactor.settings.includeAllNetworks.includeAllNetworksIsEnabled,
-            excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
-        )
+        Task {
+            let tunnel: any TunnelProtocol
+            if let persistentTunnel = await interactor.getPersistentTunnel() {
+                tunnel = persistentTunnel
+            } else {
+                tunnel = await interactor.createNewTunnel()
+            }
 
-        tunnel.setConfiguration(configuration)
-        tunnel.saveToPreferences { error in
-            completionHandler(error.map { .failure($0) } ?? .success(tunnel))
+            let configuration = TunnelConfiguration(
+                includeAllNetworks: interactor.settings.includeAllNetworks.includeAllNetworksIsEnabled,
+                excludeLocalNetworks: interactor.settings.includeAllNetworks.localNetworkSharingIsEnabled
+            )
+
+            tunnel.setConfiguration(configuration)
+            tunnel.saveToPreferences { error in
+                completionHandler(error.map { .failure($0) } ?? .success(tunnel))
+            }
         }
     }
 }

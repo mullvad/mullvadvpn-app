@@ -40,47 +40,49 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
         completion: @escaping @Sendable (ProxyAPIResponse) -> Void
     ) {
         dispatchQueue.async {
-            guard let transport = self.transportProvider.makeTransport() else {
-                // Cancel old task, if there's one scheduled.
-                self.cancelRequest(identifier: proxyRequest.id)
+            Task {
+                guard let transport = await self.transportProvider.makeTransport() else {
+                    // Cancel old task, if there's one scheduled.
+                    self.cancelRequest(identifier: proxyRequest.id)
 
-                completion(
-                    ProxyAPIResponse(
-                        data: nil,
-                        error: APIError(
-                            statusCode: 0,
-                            errorDescription: REST.InternalTransportError.noTransport.errorDescription,
-                            serverResponseCode: nil
+                    completion(
+                        ProxyAPIResponse(
+                            data: nil,
+                            error: APIError(
+                                statusCode: 0,
+                                errorDescription: REST.InternalTransportError.noTransport.errorDescription,
+                                serverResponseCode: nil
+                            )
                         )
                     )
-                )
-                return
-            }
-            do {
-                let cancellable = try transport.sendRequest(proxyRequest.request) { [weak self] response in
-                    guard let self else { return }
-
-                    // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
-                    dispatchQueue.async {
-                        _ = self.removeRequest(identifier: proxyRequest.id)
-                        completion(response)
-                    }
+                    return
                 }
+                do {
+                    let cancellable = try transport.sendRequest(proxyRequest.request) { [weak self] response in
+                        guard let self else { return }
 
-                // Cancel old task, if there's one scheduled.
-                let oldTask = self.addRequest(identifier: proxyRequest.id, task: cancellable)
-                oldTask?.cancel()
-            } catch {
-                completion(
-                    ProxyAPIResponse(
-                        data: nil,
-                        error: APIError(
-                            statusCode: 0,
-                            errorDescription: error.localizedDescription,
-                            serverResponseCode: nil
+                        // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
+                        dispatchQueue.async {
+                            _ = self.removeRequest(identifier: proxyRequest.id)
+                            completion(response)
+                        }
+                    }
+
+                    // Cancel old task, if there's one scheduled.
+                    let oldTask = self.addRequest(identifier: proxyRequest.id, task: cancellable)
+                    oldTask?.cancel()
+                } catch {
+                    completion(
+                        ProxyAPIResponse(
+                            data: nil,
+                            error: APIError(
+                                statusCode: 0,
+                                errorDescription: error.localizedDescription,
+                                serverResponseCode: nil
+                            )
                         )
                     )
-                )
+                }
             }
         }
     }

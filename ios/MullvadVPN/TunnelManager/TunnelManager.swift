@@ -1284,12 +1284,12 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.backgroundTaskProvider
     }
 
-    func getPersistentTunnel() -> (any TunnelProtocol)? {
-        tunnelManager.tunnelStore.getPersistentTunnel()
+    func getPersistentTunnel() async -> (any TunnelProtocol)? {
+        await tunnelManager.tunnelStore.getPersistentTunnel()
     }
 
-    func createNewTunnel() -> any TunnelProtocol {
-        tunnelManager.tunnelStore.createNewTunnel()
+    func createNewTunnel() async -> any TunnelProtocol {
+        await tunnelManager.tunnelStore.createNewTunnel()
     }
 
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {

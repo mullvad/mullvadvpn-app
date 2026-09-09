@@ -43,11 +43,11 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
         self.tunnelStatus = TunnelStatus()
     }
 
-    func getPersistentTunnels() -> [any TunnelProtocol] {
-        return []
+    func getPersistentTunnel() async -> (any TunnelProtocol)? {
+        nil
     }
 
-    func createNewTunnel() -> any TunnelProtocol {
+    func createNewTunnel() async -> any TunnelProtocol {
         return MockTunnel(
             tunnelProvider: SimulatorTunnelProviderManager(),
             backgroundTaskProvider: backgroundTaskProvider

@@ -26,30 +26,32 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
     }
 
     override func main() {
-        let settingsResult = readSettings()
-        let deviceStateResult = readDeviceState()
+        Task {
+            let settingsResult = readSettings()
+            let deviceStateResult = readDeviceState()
 
-        let tunnel = interactor.getPersistentTunnel()
-        let settings = settingsResult.flattenValue()
-        let deviceState = deviceStateResult.flattenValue()
+            let tunnel = await interactor.getPersistentTunnel()
+            let settings = settingsResult.flattenValue()
+            let deviceState = deviceStateResult.flattenValue()
 
-        interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
-        interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
+            interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
+            interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
-        if let tunnel, deviceState == nil {
-            logger.debug("Remove orphaned VPN configuration.")
+            if let tunnel, deviceState == nil {
+                logger.debug("Remove orphaned VPN configuration.")
 
-            tunnel.removeFromPreferences { error in
-                if let error {
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to remove VPN configuration."
-                    )
+                tunnel.removeFromPreferences { error in
+                    if let error {
+                        self.logger.error(
+                            error: error,
+                            message: "Failed to remove VPN configuration."
+                        )
+                    }
+                    self.finishOperation(tunnel: nil)
                 }
-                self.finishOperation(tunnel: nil)
+            } else {
+                finishOperation(tunnel: tunnel)
             }
-        } else {
-            finishOperation(tunnel: tunnel)
         }
     }
 
