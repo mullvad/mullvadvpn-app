@@ -35,6 +35,8 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -57,6 +59,7 @@ import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
 import net.mullvad.mullvadvpn.feature.dns.impl.navigation.dnsSettingsEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
 import net.mullvad.mullvadvpn.feature.language.impl.navigation.languageEntry
 import net.mullvad.mullvadvpn.feature.lansharing.impl.navigation.localNetworkSharingEntry
@@ -123,7 +126,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        CheckNotificationPermission(serviceConnectionManager)
+        CheckNotificationPermission(serviceConnectionManager, navigationState.backStackFlow)
     }
 
     val entryProvider = entryProvider {
@@ -212,13 +215,18 @@ private fun defaultNavDisplayTransitionSpec(): ContentTransform =
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun CheckNotificationPermission(serviceConnectionManager: ServiceConnectionManager) {
+private fun CheckNotificationPermission(
+    serviceConnectionManager: ServiceConnectionManager,
+    backStackFlow: Flow<List<NavKey2>>,
+) {
     val notificationPermission =
         rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
     LaunchedEffect(Unit) {
         serviceConnectionManager.connectionState.collect {
             if (it is ServiceConnectionState.Bound) {
                 if (!notificationPermission.status.isGranted) {
+                    // Wait for the ConnectScreen to be shown before requesting permission
+                    backStackFlow.first { backstack -> backstack.lastOrNull() is ConnectNavKey }
                     notificationPermission.launchPermissionRequest()
                     cancel(
                         message =
