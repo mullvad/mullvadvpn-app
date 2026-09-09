@@ -4,25 +4,32 @@ use ipnetwork::IpNetwork;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 
 pub fn main() {
-    generate_allowed_nets_cpp_header(&mut std::io::stdout()).unwrap()
+    generate_allowed_nets_cpp_header(
+        &mut std::io::stdout(),
+        &ALLOWED_LAN_NETS,
+        &ALLOWED_LAN_MULTICAST_NETS,
+    )
+    .unwrap()
 }
 
 /// Generate a C++ header for allowed local network ranges
-fn generate_allowed_nets_cpp_header(mut w: impl Write) -> io::Result<()> {
+fn generate_allowed_nets_cpp_header(
+    mut w: impl Write,
+    lan_nets: &[IpNetwork],
+    multicast_nets: &[IpNetwork],
+) -> io::Result<()> {
     writeln!(w, "#pragma once")?;
     writeln!(w, "#include <libwfp/ipaddress.h>")?;
     writeln!(w, "#include <libwfp/ipnetwork.h>")?;
     writeln!(w)?;
 
     let (ipv4_nets, ipv6_nets): (Vec<IpNetwork>, _) =
-        ALLOWED_LAN_NETS.iter().partition(|net| net.is_ipv4());
+        lan_nets.iter().partition(|net| net.is_ipv4());
     generate_ip_network_cpp_definitions(&mut w, "g_ipv4LanNets", &ipv4_nets)?;
     generate_ip_network_cpp_definitions(&mut w, "g_ipv6LanNets", &ipv6_nets)?;
 
     let (ipv4_multicast_nets, ipv6_multicast_nets): (Vec<IpNetwork>, _) =
-        ALLOWED_LAN_MULTICAST_NETS
-            .iter()
-            .partition(|net| net.is_ipv4());
+        multicast_nets.iter().partition(|net| net.is_ipv4());
     generate_ip_network_cpp_definitions(&mut w, "g_ipv4MulticastNets", &ipv4_multicast_nets)?;
     generate_ip_network_cpp_definitions(&mut w, "g_ipv6MulticastNets", &ipv6_multicast_nets)?;
 
@@ -75,10 +82,14 @@ fn generate_ip_network_cpp_definitions(
 mod tests {
     use super::*;
 
+    /// Snapshot of the header for the unmodified upstream list. Uses `BASE_LAN_NETS` so that the
+    /// snapshot does not depend on the contents of `extra-lan-networks.txt`.
     #[test]
     fn test_cpp_definition() {
+        use talpid_types::net::BASE_LAN_NETS;
         let mut out = vec![];
-        generate_allowed_nets_cpp_header(&mut out).unwrap();
+        generate_allowed_nets_cpp_header(&mut out, &BASE_LAN_NETS, &ALLOWED_LAN_MULTICAST_NETS)
+            .unwrap();
         let out = std::str::from_utf8(&out).unwrap();
         insta::assert_snapshot!(out);
     }

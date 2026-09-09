@@ -1,0 +1,35 @@
+# Extra networks that this build of the Mullvad VPN app treats as "local".
+#
+# Everything listed here is added to the address blocks that the "Local network
+# sharing" setting allows outside the tunnel, on every platform (Linux, macOS,
+# Windows, Android). The list is compiled into the app: edit this file, rebuild
+# (or run the "Sync Tailscale LAN patch with upstream" workflow), reinstall.
+#
+# Format: one entry per line. Blank lines and anything after '#' are ignored.
+#
+#   - A single device: write just its address. You may add "/32" (IPv4) or
+#     "/128" (IPv6) yourself, but you do not have to; a bare address means
+#     exactly that one device.
+#   - A whole range: write it in CIDR notation, address/prefix. The address
+#     must be the start of the range (host bits zero), so "100.64.0.0/10" is
+#     accepted and "100.64.1.5/10" is rejected with an explanation.
+#
+# Only private, link-local, unique-local and shared (CGNAT) address space is
+# accepted. Public internet addresses are refused at build time so that a typo
+# can never exempt real internet traffic from the tunnel.
+#
+# Find a device's Tailscale address with "tailscale ip -4" on that device, or in
+# the admin console. Tailscale addresses are stable for the life of the device.
+#
+# Examples (remove the leading '#' to use one):
+#
+#   100.101.102.103                # one Tailscale device (same as 100.101.102.103/32)
+#   100.101.102.103/32             # the same device, written explicitly
+#   fd7a:115c:a1e0::1234:5678      # the same device's Tailscale IPv6 address
+#   100.81.0.0/24                  # a Tailscale IP pool you assigned in the admin console
+#   100.64.0.0/10                  # every possible Tailscale address (least strict)
+#
+# Note: Tailscale IPv6 addresses (fd7a:115c:a1e0::/48) are already inside the
+# fc00::/7 range that the unmodified app allows, so listing them is optional.
+
+100.64.0.0/10

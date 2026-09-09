@@ -66,10 +66,15 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
                         <li>172.16.0.0/12</li>
                         <li>192.168.0.0/16</li>
                         <li>169.254.0.0/16</li>
-                        <li>100.64.0.0/10</li>
                         <li>fe80::/10</li>
                         <li>fc00::/7</li>
                       </LanIpRanges>
+                    </Info.Dialog.Text>
+                    <Info.Dialog.Text>
+                      {messages.pgettext(
+                        'vpn-settings-view',
+                        'This build of the app also treats the networks listed in extra-lan-networks.txt at build time as local, for example Tailscale addresses.',
+                      )}
                     </Info.Dialog.Text>
                     <Info.Dialog.Text>
                       {messages.pgettext(

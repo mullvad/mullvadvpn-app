@@ -110,9 +110,11 @@ The following network traffic is allowed or blocked independent of state:
      * `172.16.0.0/12`
      * `192.168.0.0/16`
      * `169.254.0.0/16` (Link-local IPv4 range)
-     * `100.64.0.0/10` (Shared address space, RFC 6598. Used by Tailscale)
      * `fe80::/10` (Link-local IPv6 range)
      * `fc00::/7` (Unique local address (ULA) range)
+     * Any additional networks listed in `extra-lan-networks.txt` in the repository root at build
+       time (a modification in this fork, see `docs/fork-tailscale-lan.md`). Only private,
+       link-local, unique-local and shared (`100.64.0.0/10`) address space is accepted there.
    * Outgoing to any IP in globally unroutable multicast networks, meaning these:
      * `224.0.0.0/24` (Local subnet IPv4 multicast)
      * `239.0.0.0/8` (Administratively scoped IPv4 multicast. E.g. SSDP and mDNS)
