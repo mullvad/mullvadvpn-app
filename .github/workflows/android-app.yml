@@ -186,7 +186,7 @@ jobs:
         include:
           - gradle-task: testAllUnitTests
           - gradle-task: :test:arch:test --rerun-tasks
-          - gradle-task: detekt
+          - gradle-task: detektDebug
           - gradle-task: lint
     steps:
       - name: Checkout repository
