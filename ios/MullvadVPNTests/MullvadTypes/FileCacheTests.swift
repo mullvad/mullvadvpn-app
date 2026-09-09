@@ -315,4 +315,32 @@ class FileCacheTests: XCTestCase {
 
         wait(for: [expectation], timeout: 30)
     }
+
+    /// Async API used concurrently from the cooperative pool, which the test plan restricts to a
+    /// single thread. Every operation must complete without ever needing a second pool thread.
+    func testConcurrentAsyncAccess() async throws {
+        try JSONEncoder().encode("initial").write(to: testFileURL)
+
+        let fileCache = FileCache<String>(fileURL: testFileURL)
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for i in 0..<100 {
+                group.addTask {
+                    switch i % 4 {
+                    case 0: try await fileCache.write("value-\(i)")
+                    case 1: _ = try await fileCache.read()
+                    case 2:
+                        try? await fileCache.clear()
+                        try await fileCache.write("recovered-\(i)")
+                    default: _ = try? await fileCache.read()
+                    }
+                }
+            }
+            try await group.waitForAll()
+        }
+
+        try await fileCache.write("final")
+        let value = try await fileCache.read()
+        XCTAssertEqual(value, "final")
+    }
 }

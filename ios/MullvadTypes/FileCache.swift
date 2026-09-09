@@ -11,11 +11,20 @@
 import Foundation
 
 /// File cache able to read and write serializable content.
-public protocol FileCacheProtocol<Content> {
+public protocol FileCacheProtocol<Content>: Sendable {
     associatedtype Content: Codable & Sendable
 
+    func read() async throws -> Content
+    func write(_ content: Content) async throws
+    func clear() async throws
+
+    // Synchronous variants exist only for callers that have not been migrated to async yet.
+    // They are removed together with the RelayCache migration.
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
     func read() throws -> Content
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
     func write(_ content: Content) throws
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
     func clear() throws
 }
 
@@ -27,31 +36,23 @@ public protocol FileCacheProtocol<Content> {
 /// in-memory cache keyed by file modification time guarantees that content replaced by another
 /// process is picked up on the next read.
 ///
-/// The actor's custom `DispatchSerialQueue` executor means all blocking file I/O and JSON
-/// decode/encode happen on a single dedicated thread.
+/// The actor's `DispatchSerialQueue` executor means all blocking file I/O and JSON decode/encode
+/// happen on a dedicated GCD thread, never on the cooperative pool. Isolated methods never suspend,
+/// so synchronous callers can block on the queue through `runBlocking` without a pool thread.
 ///
 /// Multiple `FileCache` instances backed by the same file are safe — writes are atomic and each
 /// instance detects external changes through the file modification time. But we should use a shared
 /// instance instead. There is no reason for a single file to be backed by multiple file caches in the same process.
-public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
-    private enum State {
-        case fresh(content: Content, date: Date?)
-        /// A disk read is in flight. All concurrent async readers suspend on this task.
-        case refreshing(Task<(content: Content, date: Date?), any Error>)
-        case stale
-    }
+public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol, DispatchSerialQueueActor {
+    public nonisolated let queue: DispatchSerialQueue
 
     public nonisolated var unownedExecutor: UnownedSerialExecutor {
         queue.asUnownedSerialExecutor()
     }
 
-    private var cacheState: State = .stale
-    private let queue: DispatchSerialQueue
     private let fileURL: URL
-
-    /// Bumped on every write so that a stale in-flight refresh cannot overwrite a
-    /// subsequent write's update.
-    private var currentWrite = UUID()
+    private var cachedContent: Content?
+    private var contentModified: Date?
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
@@ -64,112 +65,84 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
     // MARK: - Asynchronous functions
 
     public func read() async throws -> Content {
-        switch cacheState {
-        case let .fresh(cache, lastModified):
-            if lastModified == Self.fileLastModified(at: fileURL) {
-                cache
-            } else {
-                try await refresh()
-            }
-        case let .refreshing(task):
-            try await task.value.content
-        case .stale:
-            try await refresh()
-        }
+        try readContent()
     }
 
     public func write(_ content: Content) async throws {
-        let write = bumpWrite()
+        try writeContent(content)
+    }
+
+    public func clear() async throws {
+        try clearContent()
+    }
+
+    // MARK: - Synchronous functions
+    // Only for callers that have not been migrated to async yet.
+
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
+    public nonisolated func read() throws -> Content {
+        try runBlocking { try $0.readContent() }
+    }
+
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
+    public nonisolated func write(_ content: Content) throws {
+        try runBlocking { try $0.writeContent(content) }
+    }
+
+    @available(*, noasync, message: "Use the async variant from asynchronous contexts")
+    public nonisolated func clear() throws {
+        try runBlocking { try $0.clearContent() }
+    }
+
+    // MARK: - Private
+
+    private func readContent() throws -> Content {
+        // Stat before reading, so that a concurrent replacement between the stat and the read can
+        // only mark the cache as stale and cause an extra re-read, never serve stale content.
+        let modificationTime = Self.fileLastModified(at: fileURL)
+        if let cachedContent, let contentModified, modificationTime != nil,
+            contentModified == modificationTime
+        {
+            return cachedContent
+        }
+
+        let data = try Data(contentsOf: fileURL)
+        let content = try JSONDecoder().decode(Content.self, from: data)
+
+        cachedContent = content
+        contentModified = modificationTime
+
+        return content
+    }
+
+    private func writeContent(_ content: Content) throws {
+        let data = try JSONEncoder().encode(content)
         let tempURL = fileURL.appendingPathExtension("tmp-\(UUID().uuidString)")
 
         do {
-            let data = try JSONEncoder().encode(content)
             try data.write(to: tempURL)
-            let lastModified = Self.fileLastModified(at: tempURL)
+            // The rename preserves the modification time. If another process replaces the file
+            // afterwards, the stored time no longer matches and the next read hits the disk.
+            let writtenModificationTime = Self.fileLastModified(at: tempURL)
 
             if rename(tempURL.path, fileURL.path) != 0 {
                 try? FileManager.default.removeItem(at: tempURL)
                 throw FileCacheError.renameFailed(errno)
             }
 
-            update(state: .fresh(content: content, date: lastModified), for: write)
+            cachedContent = content
+            contentModified = writtenModificationTime
         } catch {
-            update(state: .stale, for: write)
+            cachedContent = nil
+            contentModified = nil
             throw error
         }
     }
 
-    public func clear() async throws {
-        let write = bumpWrite()
+    private func clearContent() throws {
+        cachedContent = nil
+        contentModified = nil
         try FileManager.default.removeItem(at: fileURL)
-
-        update(state: .stale, for: write)
-    }
-
-    // MARK: - Synchronous shims
-    // Will be removed once all call sites have been migrated.
-
-    public nonisolated func read() throws -> Content {
-        try BridgeExecutor.run {
-            try await self.read()
-        }
-    }
-
-    public nonisolated func write(_ content: Content) throws {
-        try BridgeExecutor.run {
-            try await self.write(content)
-        }
-    }
-
-    public nonisolated func clear() throws {
-        try BridgeExecutor.run {
-            try await self.clear()
-        }
-    }
-
-    // MARK: - Private
-
-    private func refresh() async throws -> Content {
-        let write = currentWrite
-        let fileURL = fileURL
-
-        let task = Task<(content: Content, date: Date?), any Error> {
-            try await withCheckedThrowingContinuation { continuation in
-                queue.async {
-                    do {
-                        let lastModified = Self.fileLastModified(at: fileURL)
-                        let data = try Data(contentsOf: fileURL)
-                        let cache = try JSONDecoder().decode(Content.self, from: data)
-
-                        continuation.resume(returning: (cache, lastModified))
-                    } catch {
-                        continuation.resume(throwing: error)
-                    }
-                }
-            }
-        }
-
-        cacheState = .refreshing(task)
-
-        do {
-            let (cache, lastModified) = try await task.value
-            update(state: .fresh(content: cache, date: lastModified), for: write)
-            return cache
-        } catch {
-            update(state: .stale, for: write)
-            throw error
-        }
-    }
-
-    private func bumpWrite() -> UUID {
-        currentWrite = UUID()
-        return currentWrite
-    }
-
-    private func update(state: State, for write: UUID) {
-        if currentWrite == write {
-            cacheState = state
-        }
     }
 
     private static func fileLastModified(at url: URL) -> Date? {
