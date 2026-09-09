@@ -72,12 +72,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     // publisher's timer, this just junks and rebuilds the pipeline,
     // leaving the initial publisher intact.
     private func buildDeviceUpdatePipeline() {
-        deviceUpdateCancellable = deviceUpdateSubject
+        deviceUpdateCancellable =
+            deviceUpdateSubject
             .throttle(for: deviceDataDefaultWaitInterval, scheduler: RunLoop.current, latest: false)
             .sink { [tunnelManager] in
-                Task {
-                    try? await tunnelManager.updateDeviceData()
-                }
+                tunnelManager.updateAccountData()
             }
     }
 
