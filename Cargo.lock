@@ -3530,6 +3530,7 @@ dependencies = [
  "shadowsocks",
  "smoltcp",
  "talpid-future",
+ "talpid-time",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
