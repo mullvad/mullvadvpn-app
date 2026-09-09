@@ -1,8 +1,6 @@
 //! Default keys and certificates that may be used for verifying data
 
 use crate::format::key::VerifyingKey;
-#[cfg(feature = "client")]
-use rustls_pki_types::{CertificateDer, pem::PemObject};
 use std::sync::LazyLock;
 use vec1::Vec1;
 
@@ -13,17 +11,8 @@ use vec1::Vec1;
 pub const RELEASES_URL: &str = "https://api.mullvad.net/app/releases/";
 
 /// Default URL for version metadata repository.
-#[cfg(feature = "client")]
+#[cfg(feature = "release-tooling")]
 pub const METADATA_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
-
-/// Default TLS certificate to pin to.
-///
-/// This is the Let's Encrypt root-certificate.
-#[cfg(feature = "client")]
-pub static PINNED_CERTIFICATE: LazyLock<CertificateDer<'static>> = LazyLock::new(|| {
-    const CERT_BYTES: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
-    CertificateDer::from_pem_slice(CERT_BYTES).expect("invalid cert")
-});
 
 /// Pubkeys used to verify metadata from the Mullvad API (production)
 pub static TRUSTED_METADATA_SIGNING_PUBKEYS: LazyLock<Vec1<VerifyingKey>> =

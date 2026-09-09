@@ -25,6 +25,7 @@ members = [
   "mullvad-relay-selector",
   "mullvad-release-android",
   "mullvad-setup",
+  "mullvad-tls-client",
   "mullvad-types",
   "mullvad-types/intersection-derive",
   "mullvad-update",

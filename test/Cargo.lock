@@ -65,7 +65,7 @@ dependencies = [
  "hyper",
  "hyper-rustls",
  "hyper-util",
- "rustls",
+ "mullvad-tls-client",
  "serde",
  "serde_json",
  "thiserror 2.0.18",
@@ -2277,10 +2277,10 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
+ "mullvad-tls-client",
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "rustls-pki-types",
  "serde",
  "serde_json",
  "shadowsocks",
@@ -2389,6 +2389,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-tls-client"
+version = "0.0.0"
+dependencies = [
+ "rustls",
+ "rustls-pki-types",
+]
+
+[[package]]
 name = "mullvad-types"
 version = "0.0.0"
 dependencies = [
@@ -2417,6 +2425,7 @@ dependencies = [
  "json-canon",
  "log",
  "mullvad-api-constants",
+ "mullvad-tls-client",
  "mullvad-version",
  "rand 0.9.4",
  "serde",
