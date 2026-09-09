@@ -47,19 +47,19 @@ actor MockFileCache<Content: Codable & Equatable & Sendable>: FileCacheProtocol 
     // Will be removed once all call sites have been migrated.
 
     nonisolated func read() throws -> Content {
-        try FileCache<Content>.SynchRunner.run {
+        try FileCache<Content>.BridgeExecutor.run {
             try await self.read()
         }
     }
 
     nonisolated func write(_ content: Content) throws {
-        try FileCache<Content>.SynchRunner.run {
+        try FileCache<Content>.BridgeExecutor.run {
             try await self.write(content)
         }
     }
 
     nonisolated func clear() throws {
-        try FileCache<Content>.SynchRunner.run {
+        try FileCache<Content>.BridgeExecutor.run {
             try await self.clear()
         }
     }
