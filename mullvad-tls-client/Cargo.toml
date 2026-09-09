@@ -1,0 +1,19 @@
+[package]
+name = "mullvad-tls-client"
+edition.workspace = true
+rust-version.workspace = true
+description = "TLS client configuration for the Mullvad app and its tooling"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+rustls = { workspace = true, features = ["aws-lc-rs", "std"] }
+rustls-pki-types.workspace = true
+
+[features]
+# The configuration for `releases.mullvad.net`. Only the release tooling reaches
+# that host, so the app does not build it.
+releases-cdn = []
+
+[lints]
+workspace = true
