@@ -1284,8 +1284,8 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.backgroundTaskProvider
     }
 
-    func getPersistentTunnels() -> [any TunnelProtocol] {
-        tunnelManager.tunnelStore.getPersistentTunnels()
+    func getPersistentTunnel() -> (any TunnelProtocol)? {
+        tunnelManager.tunnelStore.getPersistentTunnel()
     }
 
     func createNewTunnel() -> any TunnelProtocol {
