@@ -149,7 +149,7 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        _ = accountManager.updateDeviceData { [weak self] error in
+        accountManager.updateDeviceData { [weak self] error in
             guard let self else { return }
             if let error {
                 self.handleRestError(error)
@@ -1406,6 +1406,10 @@ extension TunnelManager {
 
         func removeLastUsedAccount() {
             manager?.removeLastUsedAccount()
+        }
+
+        func handleRestError(_ error: Error) {
+            manager?.handleRestError(error)
         }
     }
 }
