@@ -23,7 +23,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber)
+        app.launchAndLogIn(validAccountNumber, acceptNotificationPermission = false)
 
         // Assert that we have too many devices
         on<TooManyDevicesPage> {
@@ -33,6 +33,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
             clickContinueWithLogin()
         }
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
     }
 }

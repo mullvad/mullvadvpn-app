@@ -68,7 +68,7 @@ class LoginMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        app.launchAndLogIn(validAccountNumber)
+        app.launchAndLogIn(validAccountNumber, acceptNotificationPermission = false)
 
         // Assert
         on<OutOfTimePage>()
