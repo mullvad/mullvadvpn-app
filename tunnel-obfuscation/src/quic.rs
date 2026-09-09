@@ -36,7 +36,6 @@ pub struct QuicTransport {
     /// Aborts the QUIC client when this transport is dropped.
     _client: AbortOnDropHandle<()>,
     _bypass: BypassGuard,
-    wireguard_endpoint: SocketAddr,
     packet_overhead: u16,
 }
 
@@ -173,7 +172,6 @@ impl QuicTransport {
             incoming_rx: Mutex::new(incoming_rx),
             _client: AbortOnDropHandle::new(client),
             _bypass,
-            wireguard_endpoint: settings.wireguard_endpoint,
             packet_overhead: settings.packet_overhead(),
         })
     }
@@ -229,10 +227,6 @@ impl ObfuscatedTransport for QuicTransport {
         }
         buf[..packet.len()].copy_from_slice(&packet);
         Ok(packet.len())
-    }
-
-    fn endpoint(&self) -> SocketAddr {
-        self.wireguard_endpoint
     }
 
     fn packet_overhead(&self) -> u16 {
