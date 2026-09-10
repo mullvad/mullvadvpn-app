@@ -231,7 +231,7 @@ internal fun ModelCustomProxy.Shadowsocks.fromDomain(): Shadowsocks =
         ip = ip,
         cipher = cipher.fromDomain(),
         port = port.value,
-        password = password ?: "",
+        password = password.orEmpty(),
     )
 
 internal fun ApiAccessMethodId.fromDomain(): UUID = UUID(value = value.toString())

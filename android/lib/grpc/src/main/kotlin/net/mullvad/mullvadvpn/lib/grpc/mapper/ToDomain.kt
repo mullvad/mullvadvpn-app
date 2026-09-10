@@ -145,6 +145,9 @@ import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings as ModelUdp2T
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints as ModelWireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 
+// For some reason Detekt 2.0-alpha6 thinks this is unreachable (probably a bug in
+// Detekt; should try removing the @Suppress when Detekt 2.0 is stable).
+@Suppress("UnreachableCode")
 internal fun TunnelState.toDomain(): ModelTunnelState =
     when {
         disconnected != null -> disconnected.toDomain()
@@ -306,7 +309,7 @@ internal fun AfterDisconnect.toDomain(): ModelActionAfterDisconnect =
         AfterDisconnect.BLOCK -> ModelActionAfterDisconnect.Block
     }
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "UnsafeCallOnNullableType")
 internal fun ErrorState.toDomain(
     otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
     invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
@@ -783,12 +786,14 @@ internal fun EntryRecent.toDomain(): ModelEntryRecent =
 internal fun ExitRecent.toDomain(): ModelExitRecent =
     ModelExitRecent(location?.toDomain()?.getOrNull() ?: error("Recent exit type must be set"))
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun RelayPartitions.toDomain() =
     ModelRelayPartitions(
         matches = matches.associate { it.relay!!.hostname to it.metadata!!.needs_other_entry },
         discards = discards.map { it.toDomain() },
     )
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun DiscardedRelay.toDomain() =
     ModelDiscardedRelay(relay!!.hostname, why = why!!.toDomain())
 
