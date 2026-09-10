@@ -20,6 +20,8 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: rustfmt
+          # `cargo fmt` does not compile anything, so there is nothing to cache.
+          rust-cache: "false"
 
       - name: Check formatting
         run: |-
