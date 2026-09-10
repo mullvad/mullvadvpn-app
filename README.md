@@ -1,3 +1,96 @@
+# Mullvad VPN fork: extra local networks (Tailscale)
+
+> This is a personal fork of the official [Mullvad VPN app](https://github.com/mullvad/mullvadvpn-app).
+> It is not affiliated with or endorsed by Mullvad. Builds from this fork are unsigned and are not
+> the official app. The unmodified upstream README follows [below](#mullvad-vpn-desktop-and-mobile-app).
+
+## What is changed
+
+The Mullvad app's "Local network sharing" setting lets traffic to private address ranges
+(`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, link-local and unique-local ranges) bypass the
+tunnel. That list is compiled into the app, and it does not include the range Tailscale uses
+(`100.64.0.0/10`), so Tailscale peers are unreachable while Mullvad is connected. This fork lets
+you add networks to that list through one text file, `extra-lan-networks.txt`, without touching
+any firewall code.
+
+- The extra networks are compiled in at build time. There is no runtime setting, on purpose:
+  every platform's firewall keeps working from a constant, and nothing on the running system can
+  widen the list.
+- The build refuses anything outside private, link-local, unique-local and shared/CGNAT
+  (`100.64.0.0/10`) address space, so a typo can never exempt public internet addresses from the
+  tunnel.
+- As shipped, the file contains `100.64.0.0/10`, which allows every possible Tailscale address.
+  You can narrow that to just your own devices (see below).
+- Everything else is upstream Mullvad, unchanged. A workflow rebases the change onto each new
+  upstream stable release so the fork does not fall behind.
+
+## Choosing which addresses to allow
+
+Edit `extra-lan-networks.txt` in the repository root. One entry per line; `#` starts a comment.
+
+- **A single device:** write just its address, for example `100.101.102.103`. You may write
+  `100.101.102.103/32` instead (or `/128` for IPv6) but you do not have to; both mean exactly that
+  one device. Find a device's Tailscale address with `tailscale ip -4` on the device or in the
+  Tailscale admin console. Addresses stay the same for the life of the device.
+- **A range:** use CIDR notation starting at the network address, for example `100.81.0.0/24` for
+  a [Tailscale IP pool](https://tailscale.com/docs/reference/ip-pool) you assigned, or
+  `100.64.0.0/10` for all of Tailscale. `100.64.1.5/10` is rejected, with a message telling you to
+  write either `100.64.1.5` or `100.64.0.0/10`.
+- Tailscale IPv6 addresses (`fd7a:115c:a1e0::/48`) are already inside the `fc00::/7` range that the
+  unmodified app allows, so listing them is optional.
+
+Be aware that `100.64.0.0/10` is also the carrier-grade NAT range that some ISPs and most mobile
+carriers use. With Local network sharing on and Tailscale stopped, traffic to other hosts in that
+range on such a network bypasses the tunnel. Listing only your devices avoids this.
+
+## How to build it
+
+### Let GitHub build it (Linux and Windows)
+
+1. Fork this repository (or use it directly if it is yours).
+2. Edit `extra-lan-networks.txt` and commit to the default branch.
+3. Open the **Actions** tab once and enable workflows. GitHub disables scheduled workflows on
+   forks until the owner does this, and pauses them again after 60 days without repository
+   activity.
+4. Run **Sync Tailscale LAN patch with upstream** from the Actions tab. It rebases the change onto
+   the newest upstream stable release, checks the file parses and the tests pass, pushes a
+   `tailscale-lan/<version>` branch, and builds:
+   - Linux `.deb` and `.rpm` packages, inside Mullvad's own build container.
+   - The Windows installer `.exe`, on a GitHub-hosted Windows runner.
+5. Download the packages from the run's artifacts and install them over the official app.
+
+The workflow also runs on its own once a day and builds whenever a new upstream release appears.
+A rebase conflict fails the run without pushing anything, and GitHub emails the repository
+owner.
+
+The Windows installer is unsigned, so SmartScreen shows a warning on first run. The kernel
+drivers it installs are Mullvad's own signed binaries from the `dist-assets/binaries` submodule.
+
+### Build locally (any platform, required for macOS)
+
+Follow the upstream [build instructions](BuildInstructions.md) to install the toolchains, then:
+
+```bash
+git submodule update --init
+./build.sh --optimize
+```
+
+The installer or packages end up in `dist/`. The extra networks are picked up automatically; on
+Windows the generated firewall header includes them as a pre-build step.
+
+## Where the change lives
+
+| File | Purpose |
+| --- | --- |
+| `extra-lan-networks.txt` | The list you edit. |
+| `talpid-types/build.rs` | Parses and validates the file at build time and generates the constant. |
+| `talpid-types/src/net/allowed_nets.rs` | Upstream's list, plus the generated extras, form `ALLOWED_LAN_NETS`. |
+| `.github/workflows/sync-tailscale-lan.yml` | Daily rebase onto upstream releases and the Linux/Windows builds. |
+| `docs/fork-tailscale-lan.md` | Longer write-up, including the security notes. |
+| `docs/security.md` | Upstream's firewall specification, with the file noted. |
+
+---
+
 # Mullvad VPN desktop and mobile app
 
 Welcome to the Mullvad VPN client app source code repository.

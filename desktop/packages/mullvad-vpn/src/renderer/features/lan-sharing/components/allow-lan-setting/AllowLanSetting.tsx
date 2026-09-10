@@ -73,6 +73,12 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
                     <Info.Dialog.Text>
                       {messages.pgettext(
                         'vpn-settings-view',
+                        'This build of the app also treats the networks listed in extra-lan-networks.txt at build time as local, for example Tailscale addresses.',
+                      )}
+                    </Info.Dialog.Text>
+                    <Info.Dialog.Text>
+                      {messages.pgettext(
+                        'vpn-settings-view',
                         'If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route.',
                       )}
                     </Info.Dialog.Text>
