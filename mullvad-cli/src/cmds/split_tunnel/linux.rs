@@ -1,29 +1,16 @@
 use anyhow::Result;
-use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
+
+use crate::cmds::split_tunnel::shared::SplitTunnel;
 
 /// Manage split tunneling. To launch applications outside the tunnel, use the program
 /// 'mullvad-exclude' instead of this command
-#[derive(Subcommand, Debug)]
-pub enum SplitTunnel {
-    /// List all processes that are excluded from the tunnel
-    List,
-    /// Add a PID to exclude from the tunnel
-    Add { pid: i32 },
-    /// Stop excluding a PID from the tunnel
-    Delete { pid: i32 },
-    /// Stop excluding all processes from the tunnel
-    Clear,
-}
-
 impl SplitTunnel {
     pub async fn handle(self) -> Result<()> {
+        let mut proxy = MullvadProxyClient::new().await?;
         match self {
             SplitTunnel::List => {
-                let pids = MullvadProxyClient::new()
-                    .await?
-                    .get_split_tunnel_processes()
-                    .await?;
+                let pids = proxy.get_split_tunnel_processes().await?;
 
                 println!("Excluded PIDs:");
                 for pid in &pids {
@@ -32,27 +19,22 @@ impl SplitTunnel {
 
                 Ok(())
             }
-            SplitTunnel::Add { pid } => {
-                MullvadProxyClient::new()
-                    .await?
-                    .add_split_tunnel_process(pid)
-                    .await?;
-                println!("Excluding process");
+            SplitTunnel::Add { pids } => {
+                for pid in pids {
+                    proxy.add_split_tunnel_process(pid).await?;
+                    println!("Excluding process {pid:?} ");
+                }
                 Ok(())
             }
-            SplitTunnel::Delete { pid } => {
-                MullvadProxyClient::new()
-                    .await?
-                    .remove_split_tunnel_process(pid)
-                    .await?;
-                println!("Stopped excluding process");
+            SplitTunnel::Delete { pids } => {
+                for pid in pids {
+                    proxy.remove_split_tunnel_process(pid).await?;
+                    println!("Stopped excluding process {pid:?}");
+                }
                 Ok(())
             }
             SplitTunnel::Clear => {
-                MullvadProxyClient::new()
-                    .await?
-                    .clear_split_tunnel_processes()
-                    .await?;
+                proxy.clear_split_tunnel_processes().await?;
                 println!("Stopped excluding all processes");
                 Ok(())
             }
