@@ -49,6 +49,7 @@ tokio = { workspace = true, features = ["fs", "macros", "test-util", "time"] }
 
 [features]
 default = []
+# Downloading, verifying and running app installers. Without it, only version metadata handling.
 client = ["reqwest", "rustls", "rustls-pki-types", "thiserror", "tokio", "webpki-roots"]
 sign = ["clap", "rand_core"]
 

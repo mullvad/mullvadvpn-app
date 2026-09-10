@@ -118,7 +118,10 @@ insta = { workspace = true, features = ["json"] }
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util"] }
 
-[target."cfg(any(unix, windows))".dependencies]
+# In-app upgrades exist on Windows and macOS only, so only they need the
+# download-and-install half of `mullvad-update`. Keep in sync with the
+# `in_app_upgrade` cfg set in `build.rs`.
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
@@ -138,6 +141,9 @@ notify = "8.0.0"
 objc2-foundation = { version = "0.3.1", features = ["NSProcessInfo", "NSString", "NSURL"] }
 objc2-service-management = { version = "0.3.1", features = ["SMAppService", "objc2"] }
 talpid-macos = { path = "../talpid-macos" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+mullvad-update = { path = "../mullvad-update" }
 
 [target."cfg(unix)".dependencies]
 nix = { workspace = true, features = ["signal", "user"] }
