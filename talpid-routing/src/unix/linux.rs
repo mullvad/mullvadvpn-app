@@ -12,7 +12,7 @@ use netlink_packet_core::{
     NetlinkPayload,
 };
 use netlink_packet_route::route::RouteFlags;
-use netlink_sys::AsyncSocket;
+use rtnetlink::sys::AsyncSocket;
 use talpid_types::ErrorExt;
 
 use futures::{
