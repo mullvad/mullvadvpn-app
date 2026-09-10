@@ -46,13 +46,30 @@ public enum ServerRelaysResponseStubs {
     }
 
     /// A digest. Same as `ServerRelaysResponseStubs.sampleRelaysDigest`.
-    public static let digest = "supervaliddigestmullvadmolemullvadmolemullvadmolemullvadmolemole"
+    public static let digest = "2f100d96f4fc831c73f01f51620ea31206da307bdc35137c2a16b984a4027331"
 
     /// Returns a parseable digest and timestamp. The digest is set to the same value as `ServerRelaysResponseStubs.digest`
     public static let sampleRelaysDigest = """
-        {"digest":"\(digest)", "timestamp":"2000-01-01T00:00:00+00:00"}
+        {"digest":"\(digest)","timestamp":"2026-09-09T11:44:11+00:00"}
 
         version=2
+        log=c03f05182be9341e33b9edd5f3f8675b08332164640203e743f4285359cace47
+        leaf=2acc6e529d374cdb3fc81fbab9af3b739314ae22d1359280f6adf570fa791b8f fe610a1197d9c9b0bfdfffa3e481faf3ca43d860196edb299e54e2b43403298a2ab78cb61c5ff297f736dfd64a482e4035b13d4c4eef83ba019f5e8a4afe9c08
+
+        size=4248
+        root_hash=3f4a936ec54da518d7e4af92cce6b5ec9646a6c9f7edf2f22217f00706681988
+        signature=b7627d0da0feb2c91963b0c62b65fa8c90ac306930cc69fdc9ac8f9d13ce0986335c52029528a141724c32c397dc9bc064d8660fa416c4db678c30afd101200a
+        cosignature=5da2b3803c2f802eed9744b74e3e4a3d31e1e77ed994ef56730d57fa52f698a5 1788954270 8342dd185f12a406828d3b7e3e2431c01ecf47403ce64d547ad39d49bed6911a85ea68824e4659b9647d45832643490e0fe0bd5ad05287d2cf2a6e2e573f7a07
+        cosignature=6bdf03b285fce48e00ff9b199cb2b77472dcc4a112f067fa5b274929cb9504e3 1788954270 f31fc919e0f69e98b411857434c7f92937a820f223a8f4f4e41b1cc3db3735a842f26d4306cba3c6da2eec1af4b38269b2017ff1187fa392398e41b6de88370f
+        cosignature=774fafee07d3b0d9399d669676440a6301db9fa8fe2140d7d352418da25144c5 1788954270 b6c72618fa0de67cad0bdd8ebb8554e58328f51f7a395c3c34b3e87a26b90f66ca09a76fae5c9e855949d61bd4e537f82fc5c3e661003b19b1a7f9519ecaa103
+
+        leaf_index=4247
+        node_hash=bccbe46bd567cf75e195d1a71a54736bb139b61922b91b9fc653e0600eb0e58a
+        node_hash=9822608a365a6cd7dd76c07a12b44a4866bc1f16e49377c56270f50c607eb210
+        node_hash=5898230443bbb8cf8bbb3d5bc4f4b7f20558a6af710539107a5f6385a87fbca2
+        node_hash=209dd8c5ade93675f0d3fae551597ed3e6f4f365d6879e7abd0f084324b1d109
+        node_hash=5120276dc8213c1571a9a40b49c0ececdda7309c1b25c376c9645b65370102b8
+        node_hash=10a472e685cb0b0af790f2d5068bb0d0ebc928dbe9c0d1e5bbe1a0f0e3c051ae
         """.data(using: .utf8)!
 
     public static let sampleRelays = REST.ServerRelaysResponse(

@@ -56,7 +56,7 @@ class RelayListCacheTests: XCTestCase {
         let apiProxy = try makeApiProxy(port: mock.port)
 
         // 2. Fetch relays through the API proxy (exercises the full Rust FFI path).
-        let result: Result<REST.ServerRelaysCacheResponse, Error> =
+        let result: Result<REST.ServerRelaysCacheResponse?, Error> =
             await withCheckedContinuation { continuation in
                 _ = apiProxy.getRelays(
                     sigsum: nil,
