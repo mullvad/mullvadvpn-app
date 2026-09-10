@@ -20,7 +20,7 @@ const StyledCustomScrollbars = styled.div({
   height: '100%',
 });
 
-const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
+export const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
