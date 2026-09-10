@@ -277,13 +277,15 @@ impl RouteManagerImpl {
 
     async fn delete_rule_if_exists(&mut self, rule: RuleMessage) -> Result<()> {
         let request = self.handle.rule().del(rule);
-        if let Err(nl_error) = request.execute().await
-            && let rtnetlink::Error::NetlinkError(err) = &nl_error
-            && err.to_io().kind() != io::ErrorKind::NotFound
-        {
-            return Err(Error::Netlink(nl_error));
-        };
-        Ok(())
+        match request.execute().await {
+            Ok(()) => Ok(()),
+            Err(rtnetlink::Error::NetlinkError(err))
+                if err.to_io().kind() != io::ErrorKind::NotFound =>
+            {
+                Err(Error::Netlink(rtnetlink::Error::NetlinkError(err)))
+            }
+            Err(err) => Err(Error::Netlink(err)),
+        }
     }
 
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
