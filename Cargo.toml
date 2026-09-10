@@ -88,10 +88,10 @@ ipnetwork = "0.21.1"
 itertools = "0.14"
 log = "0.4"
 mockito = "1.7.2"
-netlink-packet-core = "0.8.1"
-netlink-packet-route = "0.30.0"
-netlink-proto = "0.12.0"
-netlink-sys = "0.8.8"
+netlink-packet-core = "0.9.0"
+netlink-packet-route = "0.33.0"
+netlink-proto = "0.13.0"
+netlink-sys = "0.9.0"
 nix = "0.31.2"
 # TODO: if tauri publishes `nsis-plugin-api` to crates.io, remove vendored dependency.
 nsis-plugin-api = { path = "./mullvad-nsis/vendor/nsis-plugin-api" }
@@ -104,7 +104,7 @@ rand = "0.9.3"
 reqwest = { version = "0.12.23", default-features = false, features = [
   "rustls-tls-webpki-roots-no-provider"
 ] }
-rtnetlink = "0.21.0"
+rtnetlink = "0.23.0"
 # `prefer-post-quantum` is a rustls default that `default-features = false`
 # would otherwise drop. It puts X25519MLKEM768 first among the key exchange
 # groups, so every client that does not pin its own groups offers the hybrid
