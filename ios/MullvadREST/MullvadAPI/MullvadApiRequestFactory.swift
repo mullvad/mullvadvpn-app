@@ -62,8 +62,7 @@ public struct MullvadApiRequestFactory: Sendable {
         // Device Proxy
         case let .getDevice(retryStrategy, accountNumber: accountNumber, identifier):
             return MullvadApiCancellable(
-                handle: mullvadIosGetDevice(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.getDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier
@@ -71,24 +70,21 @@ public struct MullvadApiRequestFactory: Sendable {
 
         case let .getDevices(retryStrategy, accountNumber):
             return MullvadApiCancellable(
-                handle: mullvadIosGetDevices(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.getDevices(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber
                 ))
 
         case let .deleteDevice(retryStrategy, accountNumber, identifier):
             return MullvadApiCancellable(
-                handle: mullvadIosDeleteDevice(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.deleteDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier
                 ))
         case let .rotateDeviceKey(retryStrategy, accountNumber, identifier, publicKey):
             return MullvadApiCancellable(
-                handle: mullvadIosRotateDeviceKey(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.rotateDeviceKey(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     identifier: identifier,
@@ -96,8 +92,7 @@ public struct MullvadApiRequestFactory: Sendable {
                 ))
         case let .createDevice(retryStrategy, accountNumber, request):
             return MullvadApiCancellable(
-                handle: mullvadIosCreateDevice(
-                    apiContext: apiContext.context,
+                handle: apiContext.context.createDevice(
                     retryStrategy: retryStrategy.toRustStrategy(),
                     accountNumber: accountNumber,
                     publicKey: request.publicKey.rawValue
