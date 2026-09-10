@@ -276,19 +276,16 @@ impl RouteManagerImpl {
     }
 
     async fn delete_rule_if_exists(&mut self, rule: RuleMessage) -> Result<()> {
-        let mut req = NetlinkMessage::from(RouteNetlinkMessage::DelRule(rule));
-        req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
-
-        let mut response = self.handle.request(req).map_err(Error::Netlink)?;
-
-        while let Some(message) = response.next().await {
-            if let NetlinkPayload::Error(error) = message.payload
-                && error.to_io().kind() != io::ErrorKind::NotFound
+        let request = self.handle.rule().del(rule);
+        match request.execute().await {
+            Ok(()) => Ok(()),
+            Err(rtnetlink::Error::NetlinkError(err))
+                if err.to_io().kind() != io::ErrorKind::NotFound =>
             {
-                return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
+                Err(Error::Netlink(rtnetlink::Error::NetlinkError(err)))
             }
+            Err(err) => Err(Error::Netlink(err)),
         }
-        Ok(())
     }
 
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
