@@ -28,6 +28,7 @@ on:
   # Runs on main to populate and refresh the Rust cache
   schedule:
     - cron: '20 4 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
