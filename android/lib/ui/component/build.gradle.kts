@@ -8,8 +8,6 @@ android {
     namespace = "net.mullvad.mullvadvpn.lib.ui.component"
 
     buildFeatures { compose = true }
-
-    kotlin { compilerOptions { freeCompilerArgs.add("-XXLanguage:+WhenGuards") } }
 }
 
 dependencies {
