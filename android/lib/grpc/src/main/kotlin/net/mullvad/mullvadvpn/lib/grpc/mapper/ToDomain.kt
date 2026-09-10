@@ -339,7 +339,7 @@ internal fun ErrorState.toDomain(
                 ErrorState.Cause.INVALID_IPV6_CONFIG -> invalidIpv6Config!!
                 ErrorState.Cause.SET_FIREWALL_POLICY_ERROR -> ErrorStateCause.StartTunnelError
             },
-        isBlocking = blocking_error != null,
+        isBlocking = blocking_error == null,
     )
 
 private fun ErrorState.AuthFailedError.toDomain(): ModelAuthFailedError =
