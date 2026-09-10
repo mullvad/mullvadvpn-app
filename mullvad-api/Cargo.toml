@@ -58,7 +58,7 @@ talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util", "time"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))'.dependencies]
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
+mullvad-update = { path = "../mullvad-update" }
 
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
