@@ -29,6 +29,7 @@ on:
   schedule:
     - cron: '20 4 * * *'
       timezone: 'Europe/Stockholm'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
