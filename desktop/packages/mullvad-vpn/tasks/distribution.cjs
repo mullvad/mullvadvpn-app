@@ -194,8 +194,8 @@ function newConfig() {
     },
 
     deb: {
+      depends: ['libgtk-3-0', 'libnss3', 'libasound2', 'libgbm1'],
       fpm: [
-        '--no-depends',
         '--version',
         getLinuxVersion(),
         '--before-install',
