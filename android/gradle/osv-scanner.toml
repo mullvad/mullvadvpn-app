@@ -276,3 +276,15 @@ reason = "The app does not use dependency directly, it is used to compile the ap
 id = "CVE-2026-59903"  # GHSA-8c42-7qj2-3j46
 ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
+
+# Netty: SNI Routing Bypass via Fragmented TLS ClientHello Causing Fallback to Default SslContext
+[[IgnoredVulns]]
+id = "CVE-2026-75595"  # GHSA-c4c3-7fpv-j4q5
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: Fragmented ClientHello records trigger quadratic pre-handshake reassembly in default SNI parsing
+[[IgnoredVulns]]
+id = "CVE-2026-75596"  # GHSA-fccg-mwvh-qqg4
+ignoreUntil = 2026-11-01
+reason = "The app does not use netty for external http communication"
