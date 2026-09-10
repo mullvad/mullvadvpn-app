@@ -604,14 +604,10 @@ private fun SelectLocationDropdownMenu(
 
         // Keep these assets in remember so we don't change them as we animate away the dropdown
         // menu
-        var recentsItemTextId by remember {
-            mutableIntStateOf(
-                if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
-            )
+        val recentsItemTextId = remember {
+            if (recentsEnabled) R.string.disable_recents else R.string.enable_recents
         }
-        var recentsIcon by remember {
-            mutableStateOf(if (recentsEnabled) DeleteHistory else Icons.Rounded.History)
-        }
+        val recentsIcon = remember { if (recentsEnabled) DeleteHistory else Icons.Rounded.History }
         DropdownMenuItem(
             text = { Text(text = stringResource(recentsItemTextId)) },
             onClick = {
@@ -753,9 +749,9 @@ private fun RelayLists(
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, relayListType ->
-        if (relayListType is RelayListType.Multihop) {
-            onModifyMultihop(relayItem, relayListType.hopType)
+    val onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { relayItem, selectedType ->
+        if (selectedType is RelayListType.Multihop) {
+            onModifyMultihop(relayItem, selectedType.hopType)
         } else {
             onSelect(relayItem)
         }
@@ -849,12 +845,12 @@ private fun SelectionContainer(
                 fadeIn(tween(delayMillis = ANIMATION_DELAY_FADE_IN)).togetherWith(fadeOut())
             },
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
-        ) { hopSelection ->
-            when (hopSelection) {
+        ) { selection ->
+            when (selection) {
                 is HopSelection.Single ->
                     Singlehop(
                         userLocation = userLocation,
-                        exitLocation = hopSelection.relay.toDisplayName(),
+                        exitLocation = selection.relay.toDisplayName(),
                         errorText = error.errorText(RelayListType.Single),
                         expandProgress = progress,
                         filterState =
@@ -862,7 +858,7 @@ private fun SelectionContainer(
                             else FilterState.Active,
                         onFilterClick = { onFilterClick(RelayHopType.EXIT) },
                         onSelect = {
-                            hopSelection.relay?.getOrNull()?.let {
+                            selection.relay?.getOrNull()?.let {
                                 scrollToRelayItem(RelayListType.Single, it)
                             }
                         },
@@ -872,11 +868,11 @@ private fun SelectionContainer(
                     MultihopSelector(
                         userLocation = userLocation,
                         exitSelected = multihopListSelector == RelayHopType.EXIT,
-                        exitLocation = hopSelection.exit.toDisplayName(),
+                        exitLocation = selection.exit.toDisplayName(),
                         exitErrorText = error.errorText(RelayListType.Multihop(RelayHopType.EXIT)),
                         onExitClick = {
                             if (multihopListSelector == RelayHopType.EXIT) {
-                                hopSelection.exit?.getOrNull()?.let {
+                                selection.exit?.getOrNull()?.let {
                                     scrollToRelayItem(
                                         RelayListType.Multihop(RelayHopType.EXIT),
                                         it,
@@ -886,12 +882,12 @@ private fun SelectionContainer(
                                 onSelectRelayList(RelayHopType.EXIT)
                             }
                         },
-                        entryLocation = hopSelection.entry.toDisplayName(entryCountry),
+                        entryLocation = selection.entry.toDisplayName(entryCountry),
                         entryErrorText =
                             error.errorText(RelayListType.Multihop(RelayHopType.ENTRY)),
                         onEntryClick = {
                             if (multihopListSelector == RelayHopType.ENTRY) {
-                                hopSelection.entry?.getOrNull()?.let {
+                                selection.entry?.getOrNull()?.let {
                                     scrollToRelayItem(
                                         RelayListType.Multihop(RelayHopType.ENTRY),
                                         it,

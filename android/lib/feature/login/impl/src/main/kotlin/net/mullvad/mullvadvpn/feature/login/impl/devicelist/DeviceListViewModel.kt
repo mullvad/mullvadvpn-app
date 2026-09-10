@@ -41,7 +41,7 @@ class DeviceListViewModel(
     val uiState: StateFlow<DeviceListUiState> =
         combine(
                 loadingDevices,
-                deviceList.map { it.sortedBy { it.creationDate } },
+                deviceList.map { devices -> devices.sortedBy { it.creationDate } },
                 loading,
                 error,
             ) { loadingDevices, devices, loading, error ->
@@ -79,7 +79,9 @@ class DeviceListViewModel(
                     {
                         _uiSideEffect.send(DeviceListSideEffect.FailedToRemoveDevice)
                         setLoadingState(deviceIdToRemove, false)
-                        deviceRepository.deviceList(accountNumber).onRight { deviceList.value = it }
+                        deviceRepository.deviceList(accountNumber).onRight { devices ->
+                            deviceList.value = devices
+                        }
                     },
                     { removeDeviceFromState(deviceIdToRemove) },
                 )

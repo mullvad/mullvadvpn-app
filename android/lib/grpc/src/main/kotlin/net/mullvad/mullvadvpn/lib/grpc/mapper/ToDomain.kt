@@ -1,4 +1,6 @@
-@file:Suppress("TooManyFunctions")
+// UnusedPrivateFunction is suppressed because Detekt reports false positives due to extension
+// functions (toDomain) that are defined on the gRPC generated code.
+@file:Suppress("TooManyFunctions", "UnusedPrivateFunction")
 
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
@@ -13,7 +15,6 @@ import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
 import mullvad_daemon.relay_selector.RelaySelector
-import mullvad_daemon.relay_selector.metadata
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -99,7 +100,10 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
         ManagementInterface.TunnelState.StateCase.CONNECTING -> connecting.toDomain()
         ManagementInterface.TunnelState.StateCase.CONNECTED -> connected.toDomain()
         ManagementInterface.TunnelState.StateCase.DISCONNECTING -> disconnecting.toDomain()
-        ManagementInterface.TunnelState.StateCase.ERROR -> error.toDomain()
+        ManagementInterface.TunnelState.StateCase.ERROR ->
+            // For some reason Detekt 2.0-alpha6 thinks this is unreachable (probably a bug in
+            // Detekt; should try removing the @Suppress when Detekt 2.0 is stable).
+            @Suppress("UnreachableCode") error.toDomain()
         ManagementInterface.TunnelState.StateCase.STATE_NOT_SET ->
             TunnelState.Disconnected(location = disconnected.disconnectedLocation.toDomain())
     }
@@ -275,7 +279,7 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
             throw IllegalArgumentException("Unrecognized action after disconnect")
     }
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "UnsafeCallOnNullableType")
 internal fun ManagementInterface.ErrorState.toDomain(
     otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
     invalidDnsServers: ErrorStateCause.InvalidDnsServers?,

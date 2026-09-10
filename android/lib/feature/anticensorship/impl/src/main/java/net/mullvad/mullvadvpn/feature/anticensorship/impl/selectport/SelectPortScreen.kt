@@ -103,7 +103,7 @@ fun SelectPortScreen(
 ) {
 
     ScaffoldWithSmallTopBar(
-        appBarTitle = state.contentOrNull()?.title ?: "",
+        appBarTitle = state.contentOrNull()?.title.orEmpty(),
         navigationIcon = {
             unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
         },
@@ -153,6 +153,7 @@ private fun LazyListScope.content(
     }
     state.presetPorts.forEachIndexed { index, port ->
         itemWithDivider {
+            @Suppress("ImplicitDefaultLocale")
             SelectableListItem(
                 hierarchy = Hierarchy.Child1,
                 position =

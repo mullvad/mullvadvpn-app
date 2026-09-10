@@ -269,7 +269,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
     val copyToClipboard =
         createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = true)
     val onCopyToClipboard = {
-        copyToClipboard(state.accountNumber?.value ?: "", copiedAccountNumberMessage)
+        copyToClipboard(state.accountNumber?.value.orEmpty(), copiedAccountNumberMessage)
     }
 
     Row(
@@ -286,7 +286,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
                 ),
     ) {
         Text(
-            text = state.accountNumber?.value?.groupWithSpaces() ?: "",
+            text = state.accountNumber?.value?.groupWithSpaces().orEmpty(),
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.headlineSmall,
             fontFamily = FontFamily.Monospace,

@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.android.gradle.plugin)
     implementation(libs.kotlin.gradle.plugin)
     implementation(libs.android.gradle.junit5)
+    compileOnly(libs.detekt.gradle.plugin)
 }
 
 gradlePlugin {
@@ -27,6 +28,12 @@ gradlePlugin {
         register("kotlin-toolchain") {
             id = "mullvad.kotlin-toolchain"
             implementationClass = "KotlinToolchainPlugin"
+        }
+    }
+    plugins {
+        register("detekt-config") {
+            id = "mullvad.detekt-config"
+            implementationClass = "DetektConfigPlugin"
         }
     }
     plugins {

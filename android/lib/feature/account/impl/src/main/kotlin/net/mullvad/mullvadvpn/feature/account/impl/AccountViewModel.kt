@@ -121,16 +121,16 @@ class AccountViewModel(
         paymentUseCase.paymentAvailability.firstOrNull()?.status() ==
             PaymentStatus.PURCHASED_UNVERIFIED
 
-    sealed class UiSideEffect {
-        data object NavigateToLogin : UiSideEffect()
+    sealed interface UiSideEffect {
+        data object NavigateToLogin : UiSideEffect
 
-        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect()
+        data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
 
-        data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
+        data class CopyAccountNumber(val accountNumber: String) : UiSideEffect
 
-        data object GenericError : UiSideEffect()
+        data object GenericError : UiSideEffect
 
-        data object ShowLogoutPendingVerificationDialog : UiSideEffect()
+        data object ShowLogoutPendingVerificationDialog : UiSideEffect
     }
 }
 

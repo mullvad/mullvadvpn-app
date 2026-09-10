@@ -54,7 +54,7 @@ class SearchLocationViewModel(
     private val filterChipUseCase: FilterChipUseCase,
     private val selectSinglehopUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
-    private val settingsRepository: SettingsRepository,
+    settingsRepository: SettingsRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,

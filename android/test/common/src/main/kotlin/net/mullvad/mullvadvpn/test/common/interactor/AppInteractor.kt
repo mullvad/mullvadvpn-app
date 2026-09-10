@@ -10,6 +10,7 @@ import androidx.test.uiautomator.Until
 import co.touchlab.kermit.Logger
 import java.io.File
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -105,7 +106,13 @@ class AppInteractor(
                         InstrumentationRegistry.getInstrumentation().targetContext.noBackupFilesDir,
                         "rpc-socket",
                     )
-                val service = ManagementService(socket, false, this)
+                val service =
+                    ManagementService(
+                        rpcSocketFile = socket,
+                        extensiveLogging = false,
+                        scope = this,
+                        ioDispatcher = Dispatchers.IO,
+                    )
 
                 pq?.let { service.setWireguardQuantumResistant(it) }
                 obfuscationMode?.let { service.setObfuscation(it) }

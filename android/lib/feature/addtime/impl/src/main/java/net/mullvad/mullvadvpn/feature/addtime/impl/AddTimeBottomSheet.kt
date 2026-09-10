@@ -115,12 +115,12 @@ fun AddTimeBottomSheet(navigator: Navigator) {
         }
     }
 
-    val activity = LocalActivity.current
+    @Suppress("UnsafeCallOnNullableType") val activity = LocalActivity.current!!
     AddTimeBottomSheetContent(
         state = uiState,
         sheetState = sheetState,
         onPurchaseBillingProductClick = {
-            viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
+            viewModel.startBillingPayment(productId = it, activityProvider = { activity })
         },
         onSitePaymentClick = viewModel::onManageAccountClick,
         onRetryFetchProducts = viewModel::fetchPaymentAvailability,
@@ -225,13 +225,13 @@ private fun Content(
     closeSheetAndResetPurchaseState: (Boolean) -> Unit,
     navigateToProblemReport: () -> Unit,
 ) {
-    AnimatedContent(targetState = state) { state ->
+    AnimatedContent(targetState = state) { targetState ->
         Column {
-            if (state.purchaseState != null) {
+            if (targetState.purchaseState != null) {
                 PurchaseState(
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,
-                    purchaseState = state.purchaseState,
+                    purchaseState = targetState.purchaseState,
                     resetPurchaseState = resetPurchaseState,
                     closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
                     onRetryVerification = onRetryVerification,
@@ -239,8 +239,8 @@ private fun Content(
                 )
             } else {
                 Products(
-                    billingPaymentState = state.billingPaymentState,
-                    showSitePayment = state.showSitePayment,
+                    billingPaymentState = targetState.billingPaymentState,
+                    showSitePayment = targetState.showSitePayment,
                     internetBlocked = internetBlocked,
                     backgroundColor = backgroundColor,
                     onBackgroundColor = onBackgroundColor,

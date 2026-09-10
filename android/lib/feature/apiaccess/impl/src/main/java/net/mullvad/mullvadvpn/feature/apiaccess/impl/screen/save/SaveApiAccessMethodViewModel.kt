@@ -34,13 +34,13 @@ class SaveApiAccessMethodViewModel(
                 .testCustomApiAccessMethod(customProxy)
                 .fold(
                     {
-                        _uiState.update {
-                            it.copy(testingState = TestApiAccessMethodState.Result.Failure)
+                        _uiState.update { state ->
+                            state.copy(testingState = TestApiAccessMethodState.Result.Failure)
                         }
                     },
                     {
-                        _uiState.update {
-                            it.copy(testingState = TestApiAccessMethodState.Result.Successful)
+                        _uiState.update { state ->
+                            state.copy(testingState = TestApiAccessMethodState.Result.Successful)
                         }
                         save()
                     },

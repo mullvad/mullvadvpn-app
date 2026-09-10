@@ -135,7 +135,9 @@ class BillingPaymentRepository(
                         verifyPurchase(purchase)
                             .fold(
                                 { error -> error.toPurchaseResultError() },
-                                { productId -> PurchaseResult.Completed.Success(productId) },
+                                { verifiedProductId ->
+                                    PurchaseResult.Completed.Success(verifiedProductId)
+                                },
                             )
                     )
                 }

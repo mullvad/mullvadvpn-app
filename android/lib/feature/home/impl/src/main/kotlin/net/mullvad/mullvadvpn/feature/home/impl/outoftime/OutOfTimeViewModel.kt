@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.PlayPaymentLogic.Companion.VERIFICATION_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 
+@Suppress("LongParameterList")
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
@@ -40,7 +41,7 @@ class OutOfTimeViewModel(
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
     activityLifecycle: Lifecycle,
-    private val isPlayBuild: Boolean,
+    isPlayBuild: Boolean,
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<UiSideEffect>()

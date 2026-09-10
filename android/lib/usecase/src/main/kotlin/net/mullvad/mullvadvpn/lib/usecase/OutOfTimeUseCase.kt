@@ -34,6 +34,7 @@ class OutOfTimeUseCase(
             }
             .stateIn(scope, SharingStarted.Eagerly, null)
 
+    @Suppress("ArrayPrimitive")
     private fun reduce(vararg outOfTimeProperty: Boolean?): Boolean? =
         when {
             // If any advertises as out of time

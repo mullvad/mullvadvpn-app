@@ -103,12 +103,12 @@ fun LocalNetworkSharingScreen(
                 unlessIsDetail { NavigateBackIconButton { onBackClick() } }
             }
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),

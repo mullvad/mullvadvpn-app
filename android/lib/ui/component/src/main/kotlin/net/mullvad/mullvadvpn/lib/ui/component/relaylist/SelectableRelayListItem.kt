@@ -167,13 +167,6 @@ internal fun Name(name: AnnotatedString, state: RelayListItemState?, textColor: 
 }
 
 @Composable
-private fun AnnotatedString.withSuffix2(state: RelayListItemState) =
-    when (state) {
-        RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
-        RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
-    }
-
-@Composable
 private fun AnnotatedString.withSuffix(state: RelayListItemState): AnnotatedString {
     val resId =
         when (state) {

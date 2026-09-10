@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import java.net.InetAddress
 import kotlin.collections.ArrayList
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -31,6 +32,7 @@ import net.mullvad.talpid.util.resolveConnectivityStatus
 class ConnectivityListener(
     private val connectivityManager: ConnectivityManager,
     private val resolver: UnderlyingConnectivityStatusResolver,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     private lateinit var _isConnected: StateFlow<Connectivity>
     // Used by JNI
@@ -68,11 +70,11 @@ class ConnectivityListener(
                 .hasInternetConnectivity(resolver)
                 .onEach { notifyConnectivityChange(it) }
                 .stateIn(
-                    scope + Dispatchers.IO,
+                    scope + ioDispatcher,
                     SharingStarted.Eagerly,
                     // Has to happen on IO to avoid NetworkOnMainThreadException, we actually don't
                     // send any traffic just open a socket to detect the IP version.
-                    runBlocking(Dispatchers.IO) {
+                    runBlocking(ioDispatcher) {
                         resolveConnectivityStatus(
                             connectivityManager.activeRawNetworkState(),
                             resolver,

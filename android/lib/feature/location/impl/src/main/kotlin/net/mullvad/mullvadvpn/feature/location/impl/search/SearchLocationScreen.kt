@@ -232,7 +232,7 @@ fun SearchLocationScreen(
             MullvadSearchBar(
                 modifier =
                     Modifier.testTag(SEARCH_LOCATION_INPUT_TEST_TAG).focusRequester(focusRequester),
-                searchTerm = state.contentOrNull()?.searchTerm ?: "",
+                searchTerm = state.contentOrNull()?.searchTerm.orEmpty(),
                 enabled = state is Lce.Content,
                 onSearchInputChanged = onSearchInputChanged,
                 hideKeyboard = { keyboardController?.hide() },

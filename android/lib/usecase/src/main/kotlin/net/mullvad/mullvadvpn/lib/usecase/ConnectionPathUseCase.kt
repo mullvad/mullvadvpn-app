@@ -21,10 +21,10 @@ class ConnectionPathUseCase(
     operator fun invoke(): Flow<ConnectionPath> =
         combine(
             lastKnownDisconnectedLocation.lastKnownDisconnectedLocation.map {
-                it?.let {
+                it?.let { location ->
                     LatLong(
-                        Latitude.fromFloat(it.latitude.toFloat()),
-                        Longitude.fromFloat(it.longitude.toFloat()),
+                        Latitude.fromFloat(location.latitude.toFloat()),
+                        Longitude.fromFloat(location.longitude.toFloat()),
                     )
                 }
             },

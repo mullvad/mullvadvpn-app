@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.MultihopGuideMigrationHintUseCase
 
+@Suppress("LongParameterList")
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
     appVersionInfoRepository: AppVersionInfoRepository,

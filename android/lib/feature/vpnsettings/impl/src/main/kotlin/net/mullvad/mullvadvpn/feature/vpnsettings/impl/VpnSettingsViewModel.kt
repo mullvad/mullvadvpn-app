@@ -34,9 +34,9 @@ sealed interface VpnSettingsSideEffect {
 }
 
 class VpnSettingsViewModel(
-    private val navArgs: VpnSettingsNavKey,
+    navArgs: VpnSettingsNavKey,
     private val settingsRepository: SettingsRepository,
-    private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
+    systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,

@@ -28,7 +28,7 @@ class CustomPortDialogViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 
-    private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString() ?: "")
+    private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString().orEmpty())
     private val _portInputError = MutableStateFlow<ParsePortError?>(null)
 
     val uiState: StateFlow<CustomPortDialogUiState> =

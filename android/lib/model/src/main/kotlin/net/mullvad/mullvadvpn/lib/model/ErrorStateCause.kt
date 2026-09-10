@@ -2,42 +2,42 @@ package net.mullvad.mullvadvpn.lib.model
 
 import java.net.InetAddress
 
-sealed class ErrorStateCause {
-    class AuthFailed(val error: AuthFailedError) : ErrorStateCause() {
+sealed interface ErrorStateCause {
+    class AuthFailed(val error: AuthFailedError) : ErrorStateCause {
         fun isCausedByExpiredAccount(): Boolean {
             return error is AuthFailedError.ExpiredAccount
         }
     }
 
-    data object Ipv6Unavailable : ErrorStateCause()
+    data object Ipv6Unavailable : ErrorStateCause
 
-    sealed class FirewallPolicyError : ErrorStateCause() {
-        data object Generic : FirewallPolicyError()
+    sealed interface FirewallPolicyError : ErrorStateCause {
+        data object Generic : FirewallPolicyError
     }
 
-    data object DnsError : ErrorStateCause()
+    data object DnsError : ErrorStateCause
 
-    data class InvalidDnsServers(val addresses: List<InetAddress>) : ErrorStateCause()
+    data class InvalidDnsServers(val addresses: List<InetAddress>) : ErrorStateCause
 
-    data object StartTunnelError : ErrorStateCause()
+    data object StartTunnelError : ErrorStateCause
 
-    data class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
+    data class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause
 
-    data object IsOffline : ErrorStateCause()
+    data object IsOffline : ErrorStateCause
 
-    data object NotPrepared : ErrorStateCause()
+    data object NotPrepared : ErrorStateCause
 
-    data class OtherAlwaysOnApp(val appName: String) : ErrorStateCause()
+    data class OtherAlwaysOnApp(val appName: String) : ErrorStateCause
 
-    data object OtherLegacyAlwaysOnApp : ErrorStateCause()
+    data object OtherLegacyAlwaysOnApp : ErrorStateCause
 
-    data class NoRelaysMatchSelectedPort(val port: Port) : ErrorStateCause()
+    data class NoRelaysMatchSelectedPort(val port: Port) : ErrorStateCause
 
     data class InvalidIpv6Config(
         val addresses: List<String>,
         val routes: List<String>,
         val dnsServers: List<String>,
-    ) : ErrorStateCause()
+    ) : ErrorStateCause
 }
 
 sealed interface AuthFailedError {

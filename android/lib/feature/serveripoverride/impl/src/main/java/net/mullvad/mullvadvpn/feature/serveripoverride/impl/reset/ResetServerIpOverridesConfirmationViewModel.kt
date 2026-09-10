@@ -32,9 +32,9 @@ class ResetServerIpOverridesConfirmationViewModel(
     }
 }
 
-sealed class ResetServerIpOverridesConfirmationUiSideEffect {
-    data object OverridesCleared : ResetServerIpOverridesConfirmationUiSideEffect()
+sealed interface ResetServerIpOverridesConfirmationUiSideEffect {
+    data object OverridesCleared : ResetServerIpOverridesConfirmationUiSideEffect
 
     data class OverridesError(val error: ClearAllOverridesError) :
-        ResetServerIpOverridesConfirmationUiSideEffect()
+        ResetServerIpOverridesConfirmationUiSideEffect
 }

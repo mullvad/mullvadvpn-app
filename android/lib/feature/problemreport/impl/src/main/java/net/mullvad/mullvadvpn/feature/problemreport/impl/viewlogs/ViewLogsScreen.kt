@@ -85,7 +85,7 @@ fun ViewLogsScreen(state: Lc<Unit, ViewLogsUiState>, onBackClick: () -> Unit) {
             val context = LocalContext.current
             IconButton(
                 onClick = {
-                    clipboardHandle(state.contentOrNull()?.text() ?: "", clipboardToastMessage)
+                    clipboardHandle(state.contentOrNull()?.text().orEmpty(), clipboardToastMessage)
                 },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
                 enabled = state is Lc.Content,
@@ -97,7 +97,7 @@ fun ViewLogsScreen(state: Lc<Unit, ViewLogsUiState>, onBackClick: () -> Unit) {
             }
             IconButton(
                 onClick = {
-                    scope.launch { shareText(context, state.contentOrNull()?.text() ?: "") }
+                    scope.launch { shareText(context, state.contentOrNull()?.text().orEmpty()) }
                 },
                 modifier = Modifier.focusProperties { down = FocusRequester.Cancel },
                 enabled = state is Lc.Content,

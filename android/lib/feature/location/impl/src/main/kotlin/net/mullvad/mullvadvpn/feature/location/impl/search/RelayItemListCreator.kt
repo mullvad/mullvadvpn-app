@@ -1,3 +1,5 @@
+@file:Suppress("LongParameterList")
+
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.RelayMetadataMap
@@ -510,7 +512,7 @@ private fun createGeoLocationEntry(
 }
 
 internal fun RelayItemId.expandKey(parent: CustomListId? = null) =
-    (parent?.value ?: "") +
+    (parent?.value.orEmpty()) +
         when (this) {
             is CustomListId -> value
             is GeoLocationId -> code

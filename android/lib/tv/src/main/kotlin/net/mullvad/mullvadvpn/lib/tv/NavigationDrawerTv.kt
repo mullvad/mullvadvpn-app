@@ -209,7 +209,7 @@ private fun NavigationDrawerTvHeader(
         if (isExpanded) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(R.string.top_bar_device_name, deviceName ?: ""),
+                text = stringResource(R.string.top_bar_device_name, deviceName.orEmpty()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimary,
                 maxLines = 1,

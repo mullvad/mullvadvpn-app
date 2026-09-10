@@ -270,7 +270,7 @@ fun InteractiveMap(
                     detectTransformGesturesWithEnd(
                         onGestureStart = { controller.onGestureStart() },
                         onGesture = { centroid, pan, zoom ->
-                            controller.onGesture(centroid, pan, zoom, { view!!.getPosition(it) })
+                            controller.onGesture(centroid, pan, zoom) { view?.getPosition(it) }
                         },
                         onGestureEnd = { controller.onGestureEnd() },
                     )

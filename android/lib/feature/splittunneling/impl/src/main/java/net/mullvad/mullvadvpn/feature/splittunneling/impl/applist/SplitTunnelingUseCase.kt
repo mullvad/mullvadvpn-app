@@ -21,25 +21,28 @@ class SplitTunnelingUseCase(
                 splitTunnelingRepository.excludedApps,
                 splitTunnelingRepository.splitTunnelingEnabled,
                 preferencesRepository.showSystemAppsSplitTunneling(),
-            ) { allApps, exclusions, splitTunnelingEnabled, showSystemApps ->
-                val exclusions = if (splitTunnelingEnabled) exclusions else emptySet()
+            ) { allApps, exclusionSet, splitTunnelingEnabled, showSystemApps ->
+                val exclusions = if (splitTunnelingEnabled) exclusionSet else emptySet()
                 SplitApps(
                     allApps =
                         if (showSystemApps) allApps
                         else allApps.filter { !it.isSystemApp || it.packageName in exclusions },
-                    exclusions = exclusions,
+                    exclusionSet = exclusions,
                 )
             }
             .flowOn(dispatcher)
 }
 
-data class SplitApps(private val allApps: List<AppData>, private val exclusions: Set<PackageName>) {
+data class SplitApps(
+    private val allApps: List<AppData>,
+    private val exclusionSet: Set<PackageName>,
+) {
     val includedApps: List<AppData>
     val excludedApps: List<AppData>
 
     init {
         allApps
-            .partition { appData -> exclusions.contains(appData.packageName) }
+            .partition { appData -> exclusionSet.contains(appData.packageName) }
             .also { (exclusions, inclusions) ->
                 includedApps = inclusions
                 excludedApps = exclusions

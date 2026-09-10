@@ -15,6 +15,6 @@ fun Bundle.getTargetIp(): String = getString("mullvad.test.benchmark.target.ip",
 
 fun Bundle.getTargetPort(): String = getString("mullvad.test.benchmark.target.port", "5201")
 
-fun Bundle.getTargetUsername() = getString("mullvad.test.benchmark.target.username") ?: ""
+fun Bundle.getTargetUsername() = getString("mullvad.test.benchmark.target.username").orEmpty()
 
-fun Bundle.getTargetPassword() = getString("mullvad.test.benchmark.target.password") ?: ""
+fun Bundle.getTargetPassword() = getString("mullvad.test.benchmark.target.password").orEmpty()

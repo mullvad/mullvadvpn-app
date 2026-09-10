@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
+@Suppress("UnsafeCallOnNullableType")
 val DeleteHistory: ImageVector
     get() {
         if (_DeleteHistory != null) {

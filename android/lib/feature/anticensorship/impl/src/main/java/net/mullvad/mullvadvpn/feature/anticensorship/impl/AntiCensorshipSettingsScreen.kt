@@ -132,11 +132,11 @@ fun AntiCensorshipSettingsScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = lazyListState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
@@ -162,7 +162,7 @@ fun AntiCensorshipSettingsScreen(
     }
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 private fun LazyListScope.content(
     state: AntiCensorshipSettingsUiState,
     navigateToShadowSocksSettings: () -> Unit,

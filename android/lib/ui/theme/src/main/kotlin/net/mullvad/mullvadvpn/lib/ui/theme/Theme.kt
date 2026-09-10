@@ -8,56 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.theme.color.ColorDarkTokens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.ColorLightTokens
 import net.mullvad.mullvadvpn.lib.ui.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.ui.theme.dimensions.defaultDimensions
-
-private val lightColorScheme =
-    lightColorScheme(
-        primary = ColorLightTokens.Primary,
-        onPrimary = ColorLightTokens.OnPrimary,
-        primaryContainer = ColorLightTokens.PrimaryContainer,
-        onPrimaryContainer = ColorLightTokens.OnPrimaryContainer,
-        inversePrimary = ColorLightTokens.InversePrimary,
-        secondary = ColorLightTokens.Secondary,
-        onSecondary = ColorLightTokens.OnSecondary,
-        secondaryContainer = ColorLightTokens.SecondaryContainer,
-        onSecondaryContainer = ColorLightTokens.OnSecondaryContainer,
-        tertiary = ColorLightTokens.Tertiary,
-        onTertiary = ColorLightTokens.OnTertiary,
-        tertiaryContainer = ColorLightTokens.TertiaryContainer,
-        onTertiaryContainer = ColorLightTokens.OnTertiaryContainer,
-        background = ColorLightTokens.Background,
-        onBackground = ColorLightTokens.OnBackground,
-        surface = ColorLightTokens.Surface,
-        onSurface = ColorLightTokens.OnSurface,
-        surfaceVariant = ColorLightTokens.SurfaceVariant,
-        onSurfaceVariant = ColorLightTokens.OnSurfaceVariant,
-        surfaceTint = ColorLightTokens.SurfaceTint,
-        inverseSurface = ColorLightTokens.InverseSurface,
-        inverseOnSurface = ColorLightTokens.InverseOnSurface,
-        error = ColorLightTokens.Error,
-        onError = ColorLightTokens.OnError,
-        errorContainer = ColorLightTokens.ErrorContainer,
-        onErrorContainer = ColorLightTokens.OnErrorContainer,
-        outline = ColorLightTokens.Outline,
-        outlineVariant = ColorLightTokens.OutlineVariant,
-        scrim = ColorLightTokens.Scrim,
-        surfaceBright = ColorLightTokens.SurfaceBright,
-        surfaceContainer = ColorLightTokens.SurfaceContainer,
-        surfaceContainerHigh = ColorLightTokens.SurfaceContainerHigh,
-        surfaceContainerHighest = ColorLightTokens.SurfaceContainerHighest,
-        surfaceContainerLow = ColorLightTokens.SurfaceContainerLow,
-        surfaceContainerLowest = ColorLightTokens.SurfaceContainerLowest,
-        surfaceDim = ColorLightTokens.SurfaceDim,
-    )
 
 private val darkColorScheme =
     darkColorScheme(

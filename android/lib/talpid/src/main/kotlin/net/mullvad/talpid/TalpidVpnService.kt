@@ -60,7 +60,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         super.onCreate()
         connectivityListener =
             ConnectivityListener(
-                getSystemService<ConnectivityManager>()!!,
+                @Suppress("UnsafeCallOnNullableType") getSystemService<ConnectivityManager>()!!,
                 UnderlyingConnectivityStatusResolver(::protect),
             )
         connectivityListener.register(lifecycleScope)

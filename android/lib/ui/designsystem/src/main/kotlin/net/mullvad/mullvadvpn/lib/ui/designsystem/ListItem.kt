@@ -228,6 +228,7 @@ fun MullvadListItem(
 }
 
 // Based of ListItem
+@Suppress("LongParameterList")
 @Immutable
 class ListItemColors(
     val containerColorParent: Color,

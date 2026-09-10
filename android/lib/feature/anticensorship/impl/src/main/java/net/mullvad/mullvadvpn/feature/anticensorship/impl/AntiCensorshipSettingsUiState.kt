@@ -9,6 +9,7 @@ data class AntiCensorshipSettingsUiState(
     val items: List<ObfuscationSettingItem>,
 ) {
     companion object {
+        @Suppress("LongParameterList")
         fun from(
             isModal: Boolean,
             obfuscationMode: ObfuscationMode,

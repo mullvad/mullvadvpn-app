@@ -38,9 +38,7 @@ class BillingRepository(context: Context) {
         PurchasesUpdatedListener { result, purchases ->
             when (result.responseCode) {
                 BillingResponseCode.OK -> {
-                    _purchaseEvents.tryEmit(
-                        PurchaseEvent.Completed(purchases?.toList() ?: emptyList())
-                    )
+                    _purchaseEvents.tryEmit(PurchaseEvent.Completed(purchases?.toList().orEmpty()))
                 }
                 BillingResponseCode.USER_CANCELED -> {
                     _purchaseEvents.tryEmit(PurchaseEvent.UserCanceled)

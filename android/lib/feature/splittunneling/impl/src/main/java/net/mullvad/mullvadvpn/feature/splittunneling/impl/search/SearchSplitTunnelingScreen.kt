@@ -108,7 +108,7 @@ fun SearchSplitTunnelingScreen(
             LaunchedEffect(state is Lc.Content) { focusRequester.requestFocus() }
             MullvadSearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
-                searchTerm = state.contentOrNull()?.searchTerm ?: "",
+                searchTerm = state.contentOrNull()?.searchTerm.orEmpty(),
                 enabled = state is Lc.Content,
                 onSearchInputChanged = onSearchInputChanged,
                 hideKeyboard = { keyboardController?.hide() },
@@ -223,6 +223,7 @@ private fun NoAppsMatchingSearch(searchTerm: String) {
     )
 }
 
+@Suppress("LongParameterList")
 internal fun LazyListScope.searchAppItems(
     apps: List<SearchAppItem>,
     focusManager: FocusManager,
@@ -239,6 +240,7 @@ internal fun LazyListScope.searchAppItems(
         val packageName = listItem.packageName
         var icon by retain(packageName) { mutableStateOf<IconState>(IconState.Loading) }
         LaunchedEffect(packageName) {
+            @Suppress("InjectDispatcher")
             launch(Dispatchers.IO) {
                 val drawable = onResolveIcon(packageName)
                 icon =

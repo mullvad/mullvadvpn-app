@@ -200,11 +200,11 @@ fun ServerIpOverridesScreen(
                 onResetOverridesClick = onResetOverridesClick,
             )
         },
-    ) { modifier ->
+    ) { contentModifier ->
         val scrollState = rememberScrollState()
         Column(
             modifier =
-                modifier
+                contentModifier
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),

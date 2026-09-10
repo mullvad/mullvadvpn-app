@@ -351,7 +351,16 @@ val uiModule = module {
     viewModel { params -> MtuDialogViewModel(navArgs = params.get(), get()) }
     viewModel { params -> CustomDnsDialogViewModel(navArgs = params.get(), get(), get(), get()) }
     viewModel { params -> CustomPortDialogViewModel(navArgs = params.get()) }
-    viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
+    viewModel {
+        LoginViewModel(
+            accountRepository = get(),
+            newDeviceRepository = get(),
+            internetAvailableUseCase = get(),
+            scheduleNotificationAlarmUseCase = get(),
+            accountExpiryNotificationProvider = get(),
+            ioDispatcher = Dispatchers.IO,
+        )
+    }
     viewModel {
         SelectLocationViewModel(
             relayListFilterRepository = get(),
@@ -504,6 +513,7 @@ val uiModule = module {
             modifyAndEnableMultihopUseCase = get(),
             customListsRepository = get(),
             multihopInEffectUseCase = get(),
+            ioDispatcher = Dispatchers.IO,
         )
     }
     viewModel { AppIconViewModel(get()) }

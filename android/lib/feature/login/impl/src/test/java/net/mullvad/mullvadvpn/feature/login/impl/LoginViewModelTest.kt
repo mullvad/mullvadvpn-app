@@ -66,7 +66,7 @@ class LoginViewModelTest {
                 internetAvailableUseCase = connectivityUseCase,
                 scheduleNotificationAlarmUseCase = mockScheduleNotificationAlarmUseCase,
                 accountExpiryNotificationProvider = mockAccountExpiryNotificationProvider,
-                UnconfinedTestDispatcher(),
+                ioDispatcher = UnconfinedTestDispatcher(),
             )
     }
 
