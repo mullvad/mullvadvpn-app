@@ -110,7 +110,6 @@ jobs:
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
         with:
           add-job-id-key: "false"  # Preserve cache across jobs
-          cache-targets: "false"  # Only cache cargo registry
           # Only save the cache from main, where the scheduled runs populate it.
           # A cache saved during a pull_request run is scoped to that one PR and
           # unreadable by any other, so it can never repay its upload cost.
@@ -151,8 +150,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - uses: ./.github/actions/mullvad-build-env
-        with:
-          rust-cache-targets: "true"
 
       - name: Build Windows modules (x86_64)
         if: ${{ matrix.config.arch == 'x64' }}
