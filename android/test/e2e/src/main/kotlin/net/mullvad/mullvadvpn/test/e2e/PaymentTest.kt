@@ -26,7 +26,7 @@ class PaymentTest : EndToEndTest() {
     fun testInAppPurchaseForOutOfTime() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
-        app.launchAndLogIn(validTestAccountNumber)
+        app.launchAndLogIn(validTestAccountNumber, acceptNotificationPermission = false)
 
         on<OutOfTimePage> { clickAddTime() }
 
@@ -35,6 +35,7 @@ class PaymentTest : EndToEndTest() {
         device.buyGooglePlayTime()
 
         // Assert we reach the Connect page after purchase
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         device.findObjectWithTimeout(
             By.res(CONNECT_CARD_HEADER_TEST_TAG),
             timeout = VERY_LONG_TIMEOUT,
