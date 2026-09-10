@@ -8,7 +8,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import Combine
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
@@ -46,11 +45,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     // MARK: - Private
 
     // Default cooldown interval between device data requests.
-    private let deviceDataDefaultWaitInterval = RunLoop.SchedulerTimeType.Stride.seconds(60)
+    private let deviceDataDefaultWaitInterval = Duration.minutes(1)
     // Interval in days when account is considered to be close to expiry.
     private let accountCloseToExpiryDays = 4
-    private lazy var deviceUpdateThrottledSubject = PassthroughSubject<Void, Never>()
-    private var deviceUpdateCancellable: Combine.AnyCancellable?
+    private var deviceUpdateThrottle: ActionThrottle?
 
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
@@ -68,29 +66,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         tunnelManager.addObserver(tunnelObserver)
     }
 
-    private func updateDeviceDataImmediately() {
-        tunnelManager.updateAccountData()
-    }
-
-    // As there is no direct way of resetting a Combine Throttle
-    // publisher's timer, this just junks and rebuilds the pipeline,
-    // leaving the initial publisher intact.
-    private func buildDeviceUpdatePipeline() {
-        deviceUpdateCancellable =
-            deviceUpdateThrottledSubject
-            .throttle(for: deviceDataDefaultWaitInterval, scheduler: RunLoop.current, latest: false)
-            .sink { [self] in
-                self.updateDeviceDataImmediately()
-            }
-    }
-
     private func configureScene() {
         guard !isSceneConfigured else { return }
 
         isSceneConfigured = true
         disableAnimationsIfNeeded()
 
-        buildDeviceUpdatePipeline()
+        deviceUpdateThrottle = ActionThrottle(
+            waitInterval: deviceDataDefaultWaitInterval,
+            action: { [tunnelManager] in
+                tunnelManager.updateAccountData()
+            })
+
         refreshLoginMetadata(forceUpdate: true)
 
         appCoordinator = ApplicationCoordinator(
@@ -186,11 +173,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             tunnelManager.updateAccountData()
         }
         if shouldUpdateDeviceData {
-            if forceUpdate {
-                self.updateDeviceDataImmediately()
-            } else {
-                deviceUpdateThrottledSubject.send()
-            }
+            deviceUpdateThrottle?.requestAction(force: forceUpdate)
         }
     }
 
@@ -198,7 +181,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        buildDeviceUpdatePipeline()
+        deviceUpdateThrottle?.reset()
     }
 
     // MARK: - UIWindowSceneDelegate

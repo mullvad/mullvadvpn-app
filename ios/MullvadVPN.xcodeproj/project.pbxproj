@@ -85,6 +85,8 @@
 		38693EC530458CF000BC154A /* mullvad_uniffi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38693EC430458CF000BC154A /* mullvad_uniffi.swift */; };
 		38693EC730458CFD00BC154A /* mullvad_uniffi.h in Headers */ = {isa = PBXBuildFile; fileRef = 38693EC630458CFD00BC154A /* mullvad_uniffi.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
+		440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
+		440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A5304AFED900EEDEFE /* ActionThrottle.swift */; };
 		440866A9304B5E6500EEDEFE /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440866A8304B5E5E00EEDEFE /* Date+Extensions.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
 		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
@@ -3831,6 +3833,7 @@
 		583FE02829C1B079006E85F9 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				440866A5304AFED900EEDEFE /* ActionThrottle.swift */,
 				7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */,
 				5802EBC42A8E44AC00E5CE4C /* AppRoutes.swift */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
@@ -6546,6 +6549,7 @@
 				A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
+				440866A7304AFF2300EEDEFE /* ActionThrottle.swift in Sources */,
 				7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */,
 				44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */,
 				A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */,
@@ -6860,6 +6864,7 @@
 				587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
+				440866A6304AFF2300EEDEFE /* ActionThrottle.swift in Sources */,
 				F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */,
 				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
