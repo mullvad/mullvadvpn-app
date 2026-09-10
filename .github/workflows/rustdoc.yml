@@ -9,7 +9,9 @@ on:
       - "rust-toolchain.toml"
       - "rustfmt.toml"
       - "ci/cargo-ci.sh"
-
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '40 2 * * *'
   workflow_dispatch:
     inputs:
       override_container_image:
@@ -68,6 +70,10 @@ jobs:
         with:
           add-job-id-key: "false"  # Preserve cache across jobs
           cache-targets: "false"  # Only cache cargo registry
+          # Only save the cache from main, where the scheduled runs populate it.
+          # A cache saved during a pull_request run is scoped to that one PR and
+          # unreadable by any other, so it can never repay its upload cost.
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Check rust docs
         run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
