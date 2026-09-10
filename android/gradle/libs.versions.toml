@@ -49,7 +49,7 @@ dependency-versions = "0.61.0"
 detekt = "2.0.0-alpha.6"
 accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.83.1"
+grpc = "1.84.0"
 grpc-kotlin = "1.5.0"
 junit = "5.14.4"
 junit4 = "1.3.0"
