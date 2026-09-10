@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DEVICES_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
 import net.mullvad.mullvadvpn.test.mockapi.constant.RELAY_LIST_URL_PATH
+import net.mullvad.mullvadvpn.test.mockapi.constant.SIGSUM_TIMESTAMPS_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
@@ -50,6 +51,14 @@ class MockApiRouter {
             .bufferedReader()
             .readText()
 
+    private val sigsumTimestamps =
+        InstrumentationRegistry.getInstrumentation()
+            .context
+            .resources
+            .openRawResource(R.raw.trl_timestamps)
+            .bufferedReader()
+            .readText()
+
     fun setup(application: Application) {
         application.routing {
             post(AUTH_TOKEN_URL_PATH) { handleLoginRequest(call) }
@@ -57,6 +66,7 @@ class MockApiRouter {
             post(DEVICES_URL_PATH) { handleDeviceCreationRequest(call) }
             get(ACCOUNT_URL_PATH) { handleAccountInfoRequest(call) }
             post(CREATE_ACCOUNT_URL_PATH) { handleAccountCreationRequest(call) }
+            get(SIGSUM_TIMESTAMPS_URL_PATH) { handleSigsumTimestampsRequest(call) }
             get(RELAY_LIST_URL_PATH) { handleGetRelayListRequest(call) }
             get(DEVICES_ID_URL_PATH) { handleDeviceInfoRequest(call) }
             delete(DEVICES_ID_URL_PATH) { handleDeviceDeletionRequest(call) }
@@ -150,6 +160,14 @@ class MockApiRouter {
                 )
             )
         } ?: call.respondError()
+    }
+
+    private suspend fun handleSigsumTimestampsRequest(call: RoutingCall) {
+        call.respondText(
+            text = sigsumTimestamps,
+            contentType = ContentType.Application.Json,
+            status = HttpStatusCode.OK,
+        )
     }
 
     private suspend fun handleGetRelayListRequest(call: RoutingCall) {

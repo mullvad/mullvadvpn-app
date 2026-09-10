@@ -48,7 +48,6 @@ enum HTTPHeader {
     static let host = "Host"
     static let authorization = "Authorization"
     static let contentType = "Content-Type"
-    static let etag = "ETag"
     static let ifNoneMatch = "If-None-Match"
     static let userAgent = "User-Agent"
 }

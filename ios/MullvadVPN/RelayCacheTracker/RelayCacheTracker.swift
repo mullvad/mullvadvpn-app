@@ -66,7 +66,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
             #if NEVER_IN_PRODUCTION
                 // If relay list is empty with no etag, fetch on next run loop (non-production builds only)
                 // Deferred to avoid circular initialization issues with API client
-                if let cachedRelays, cachedRelays.relays.isEmpty, cachedRelays.etag == nil {
+                if let cachedRelays, cachedRelays.relays.isEmpty, cachedRelays.digest == nil {
                     DispatchQueue.main.async { [weak self] in
                         self?.logger.debug("Relay list is empty, triggering immediate fetch.")
                         _ = self?.updateRelays(completionHandler: nil)
@@ -129,14 +129,16 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
 
         let updatedRawRelayData = try REST.Coding.makeJSONEncoder().encode(updatedRelays)
         let updatedCachedRelays = try StoredRelays(
-            etag: cachedRelays.etag,
+            digest: cachedRelays.digest,
+            timestamp: cachedRelays.timestamp,
             rawData: updatedRawRelayData,
             updatedAt: cachedRelays.updatedAt
         )
 
         try cache.write(record: updatedCachedRelays)
         self.cachedRelays = CachedRelays(
-            etag: cachedRelays.etag,
+            digest: cachedRelays.digest,
+            timestamp: cachedRelays.timestamp,
             relays: updatedRelays,
             updatedAt: cachedRelays.updatedAt
         )
@@ -235,8 +237,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
-                finish(self.handleResponse(result: result))
+            var sigsum: (String, Int64)? = nil
+            if let cachedRelays, let digest = cachedRelays.digest, let timestamp = cachedRelays.timestamp {
+                sigsum = (digest, timestamp)
+            }
+            return self.apiProxy.getRelays(sigsum: sigsum, retryStrategy: .noRetry) { result in
+                // If the API gave us an okay but empty response we return it as not modified
+                finish(self.handleResponse(result: result.map({ $0 ?? .notModified })))
             }
         }
 
@@ -280,8 +287,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     {
         result.tryMap { response -> RelaysFetchResult in
             switch response {
-            case let .newContent(etag, rawData):
-                try self.storeResponse(etag: etag, rawData: rawData)
+            case let .newContent(digest, timestamp, rawData):
+                try self.storeResponse(digest: digest, timestamp: timestamp, rawData: rawData)
 
                 return .newContent
 
@@ -298,9 +305,10 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         }
     }
 
-    private func storeResponse(etag: String?, rawData: Data) throws {
+    private func storeResponse(digest: String?, timestamp: Int64?, rawData: Data) throws {
         let storedRelays = try StoredRelays(
-            etag: etag,
+            digest: digest,
+            timestamp: timestamp,
             rawData: rawData,
             updatedAt: Date()
         )
