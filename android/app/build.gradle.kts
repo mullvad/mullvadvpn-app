@@ -294,8 +294,7 @@ kotlin {
         allWarningsAsErrors = true
         freeCompilerArgs.addAll(
             // Opt-in option for Koin annotation of KoinComponent.
-            "-opt-in=kotlin.RequiresOptIn",
-            "-XXLanguage:+WhenGuards",
+            "-opt-in=kotlin.RequiresOptIn"
         )
     }
 }
