@@ -28,7 +28,14 @@ on:
       - "!rustfmt.toml"
       - "!.yamllint"
       - "!**/osv-scanner.toml"
-
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env.
+  # Keep this after the daily nightly release, so the nightly matrix job warms
+  # the toolchain that pull requests will use that day. Nightly has been landing
+  # around 01:30 UTC; check the Last-Modified header of
+  # https://static.rust-lang.org/dist/channel-rust-nightly.toml to see if it has
+  # drifted.
+  schedule:
+    - cron: '20 2 * * *'
   workflow_dispatch:
     inputs:
       override_container_image:
@@ -104,6 +111,10 @@ jobs:
         with:
           add-job-id-key: "false"  # Preserve cache across jobs
           cache-targets: "false"  # Only cache cargo registry
+          # Only save the cache from main, where the scheduled runs populate it.
+          # A cache saved during a pull_request run is scoped to that one PR and
+          # unreadable by any other, so it can never repay its upload cost.
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace

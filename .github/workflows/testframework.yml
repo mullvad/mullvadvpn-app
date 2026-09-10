@@ -28,6 +28,9 @@ on:
       - '!rustfmt.toml'
       - '!.yamllint'
       - '!**/osv-scanner.toml'
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 concurrency:
