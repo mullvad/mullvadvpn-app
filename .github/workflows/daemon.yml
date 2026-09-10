@@ -28,7 +28,10 @@ on:
       - "!rustfmt.toml"
       - "!.yamllint"
       - "!**/osv-scanner.toml"
-
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '0 5 * * *'
+      timezone: 'Europe/Stockholm'
   workflow_dispatch:
     inputs:
       override_container_image:
@@ -104,6 +107,11 @@ jobs:
         with:
           add-job-id-key: "false"  # Preserve cache across jobs
           cache-targets: "false"  # Only cache cargo registry
+          # Only save the cache when on main, where the scheduled runs populate it.
+          # Uploading caches are expensive. Branches can only see caches from
+          # their own branch and the default branch. So uploading in branches
+          # costs a lot of time and does not give much benefit
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Test crates
         run: ci/cargo-ci.sh test --workspace

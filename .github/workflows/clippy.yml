@@ -9,6 +9,10 @@ on:
       - '**/Cargo.toml'  # Lint rules defined in toml files
       - '**/*.rs'
       - '**/*.proto'
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '0 2 * * *'
+      timezone: 'Europe/Stockholm'
   workflow_dispatch:
 
 concurrency:
