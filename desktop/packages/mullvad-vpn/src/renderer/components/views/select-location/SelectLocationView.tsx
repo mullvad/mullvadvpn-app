@@ -6,7 +6,7 @@ import { usePrevious } from '../../../hooks';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
-import type { IScrollEvent } from '../../CustomScrollbars';
+import { type IScrollEvent, StyledScrollable } from '../../CustomScrollbars';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
@@ -15,6 +15,7 @@ import {
   SelectLocationHeader,
   SelectLocationSelector,
   SpacePreAllocationView,
+  StyledSelectLocationHeader,
 } from './components';
 import { LocationSlide } from './components/location-slide/LocationSlide';
 import { useMeasureExpandedLocationSelector, useMeasureIsolatedLocationSelector } from './hooks';
@@ -25,8 +26,14 @@ import {
 } from './SelectLocationViewContext';
 import { shouldLocationSelectorExpand } from './utils';
 
-const StyledHeaderMaxHeightContainer = styled.div<{ $height: number; $previousHeight: number }>`
-  ${({ $height, $previousHeight }) => css`
+const StyledView = styled(View)<{ $headerHeight: number }>`
+  ${({ $headerHeight }) => css`
+    --header-height: ${$headerHeight}px;
+  `}
+`;
+
+const StyledHeaderMaxHeightContainer = styled.div<{ $previousHeight: number }>`
+  ${({ $previousHeight }) => css`
     --transition-duration: 0.25s;
 
     pointer-events: none;
@@ -34,7 +41,7 @@ const StyledHeaderMaxHeightContainer = styled.div<{ $height: number; $previousHe
     top: 0;
     z-index: 20;
     width: 100%;
-    height: ${$height}px;
+    height: var(--header-height);
     background-color: transparent;
 
     transition: height var(--transition-duration) ease-in-out;
@@ -53,6 +60,17 @@ const StyledHeaderMaxHeightContainer = styled.div<{ $height: number; $previousHe
 const StyledHeaderContainer = styled.div`
   pointer-events: auto;
   background-color: ${colors.darkBlue};
+`;
+
+const StyledNavigationScrollbars = styled(NavigationScrollbars)`
+  & ${StyledScrollable} {
+    scroll-padding-top: var(--header-height);
+  }
+  &:has(${StyledSelectLocationHeader}:focus-within) {
+    & ${StyledScrollable} {
+      scroll-padding-top: 0;
+    }
+  }
 `;
 
 export function SelectLocationViewImpl() {
@@ -100,18 +118,18 @@ export function SelectLocationViewImpl() {
   }, []);
 
   return (
-    <View backgroundColor="darkBlue">
+    <StyledView backgroundColor="darkBlue" $headerHeight={height}>
       {singlehopElement}
       {multihopElement}
       {isolatedElement}
       <BackAction action={onClose}>
         <NavigationContainer>
-          <NavigationScrollbars
+          <StyledNavigationScrollbars
             ref={scrollViewRef}
             onScroll={handleScroll}
             trackPadding={{ x: 0, y: height }}
             showScrollIndicators={showScrollbar}>
-            <StyledHeaderMaxHeightContainer $height={height} $previousHeight={previousHeight}>
+            <StyledHeaderMaxHeightContainer $previousHeight={previousHeight}>
               <StyledHeaderContainer>
                 <SelectLocationHeader>
                   <SelectLocationSelector />
@@ -131,10 +149,10 @@ export function SelectLocationViewImpl() {
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
-          </NavigationScrollbars>
+          </StyledNavigationScrollbars>
         </NavigationContainer>
       </BackAction>
-    </View>
+    </StyledView>
   );
 }
 
