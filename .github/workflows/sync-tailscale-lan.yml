@@ -6,8 +6,9 @@
 #      desktop release tag (YYYY.N), unless a tag is given as an input.
 #   2. Applies this fork's own changes (the net diff of everything not in
 #      upstream/main) onto that tag as one commit, using a three-way merge.
-#   3. Verifies the patch survived: extra-lan-networks.txt parses, every entry
-#      ends up in the compiled list, and the talpid-types tests pass.
+#   3. Regenerates the Rust constant from extra-lan-networks.txt (so editing
+#      only the text file is enough), then verifies that it parses, every
+#      entry ends up in the compiled list, and the talpid-types tests pass.
 #   4. Pushes the result to the branch `tailscale-lan/<tag>`.
 #   5. Builds the Linux .deb/.rpm from that branch inside Mullvad's own build
 #      container, and the Windows installer .exe on a GitHub-hosted Windows
@@ -145,13 +146,13 @@ jobs:
           git log --oneline -1
           git diff --stat "refs/remotes/upstream-tags/$TAG" HEAD
 
-      - name: Verify the patch survived the rebase
+      - name: Regenerate the extra networks constant and verify
         if: steps.exists.outputs.skip != 'true'
         run: |
           set -euo pipefail
-          for f in extra-lan-networks.txt talpid-types/build.rs; do
+          for f in extra-lan-networks.txt talpid-types/src/bin/generate-extra-lan-nets.rs; do
             if [ ! -f "$f" ]; then
-              echo "::error::$f is missing after rebase"
+              echo "::error::$f is missing after applying the patch"
               exit 1
             fi
           done
@@ -159,8 +160,15 @@ jobs:
           grep -v '^\s*#' extra-lan-networks.txt | grep -v '^\s*$' || echo "(none)"
           # rustup installs the version pinned in rust-toolchain.toml on first use.
           rustup show active-toolchain
-          # Builds the crate (which parses extra-lan-networks.txt and fails on bad
-          # entries) and checks that every entry made it into ALLOWED_LAN_NETS.
+          # Parses extra-lan-networks.txt (fails on bad entries) and rewrites the
+          # Rust constant if the text file was edited without regenerating it.
+          cargo run --locked -q -p talpid-types --bin generate-extra-lan-nets
+          if ! git diff --quiet -- talpid-types/src/net/extra_lan_nets.rs; then
+            echo "extra_lan_nets.rs was out of date; including the regenerated file"
+            git add talpid-types/src/net/extra_lan_nets.rs
+            git commit -q --amend --no-edit
+          fi
+          # Checks that every entry made it into ALLOWED_LAN_NETS, among other things.
           cargo test --locked -p talpid-types
 
       - name: Push tailscale-lan branch

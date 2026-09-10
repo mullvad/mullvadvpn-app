@@ -2,8 +2,13 @@
 #
 # Everything listed here is added to the address blocks that the "Local network
 # sharing" setting allows outside the tunnel, on every platform (Linux, macOS,
-# Windows, Android). The list is compiled into the app: edit this file, rebuild
-# (or run the "Sync Tailscale LAN patch with upstream" workflow), reinstall.
+# Windows, Android). The list is compiled into the app: edit this file, then
+# either run the "Sync Tailscale LAN patch with upstream" workflow (it does the
+# rest), or for a local build run
+#
+#   cargo run -p talpid-types --bin generate-extra-lan-nets
+#
+# to refresh talpid-types/src/net/extra_lan_nets.rs, then build and reinstall.
 #
 # Format: one entry per line. Blank lines and anything after '#' are ignored.
 #

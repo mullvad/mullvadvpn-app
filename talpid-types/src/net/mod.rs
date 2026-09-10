@@ -17,6 +17,7 @@ pub mod proxy;
 pub mod wireguard;
 
 mod allowed_nets;
+pub mod extra_lan_config;
 
 pub use allowed_nets::*;
 

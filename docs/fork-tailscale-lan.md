@@ -18,28 +18,35 @@ the running system can widen the list.
    and means the same thing. For a whole range use CIDR notation starting at
    the network address, such as `100.81.0.0/24`.
 3. Remove or comment out `100.64.0.0/10` if you only want your own devices.
-4. Commit, then either run the workflow (below) or build locally.
+4. Commit, then either run the workflow (below), which regenerates the Rust
+   constant for you, or for a local build first run
+   `cargo run -p talpid-types --bin generate-extra-lan-nets` and commit the
+   updated `talpid-types/src/net/extra_lan_nets.rs` too.
 
 Find a device's Tailscale address with `tailscale ip -4` on the device or in
 the Tailscale admin console. Addresses are stable for the life of the device.
 
-The build refuses anything outside the private (`10/8`, `172.16/12`,
+The generator refuses anything outside the private (`10/8`, `172.16/12`,
 `192.168/16`), link-local, unique-local and shared/CGNAT (`100.64/10`) ranges,
 and anything with host bits set behind a prefix, with a message that says what
-to write instead. This stops a typo from exempting public internet addresses
-from the tunnel.
+to write instead. The tests apply the same rule to the generated constant.
+This stops a typo from exempting public internet addresses from the tunnel.
 
 ## How it is wired in
 
-- `talpid-types/build.rs` parses the file at build time and generates the
-  `EXTRA_LAN_NETS` constant.
+- `talpid-types/src/net/extra_lan_config.rs` parses and validates the file.
+- `talpid-types/src/bin/generate-extra-lan-nets.rs` writes the parsed list to
+  `talpid-types/src/net/extra_lan_nets.rs`, a generated file that is
+  committed. (A Cargo build script was not used on purpose: a crate can only
+  have one, and upstream adds and removes its own.)
 - `talpid-types/src/net/allowed_nets.rs` keeps upstream's six entries as
   `BASE_LAN_NETS` and defines `ALLOWED_LAN_NETS` as base plus extras. Every
   platform firewall (Linux nftables, macOS pf, Android routes, and the
   generated Windows header) reads that constant, so no firewall code changes.
-- Tests in `talpid-types` check that every entry in the file is present in
-  the compiled list. The Windows header snapshot test uses the base list, so
-  it never depends on the file's contents.
+- Tests in `talpid-types` check that the generated file matches the text
+  file and that every entry is in the compiled list and inside the permitted
+  address space. The Windows header snapshot test uses the base list, so it
+  never depends on the file's contents.
 - `docs/security.md` mentions the file. The app's own Local network sharing
   info dialog is left unchanged, so it still lists only upstream's ranges.
   That file is rewritten often upstream, and touching it made the patch

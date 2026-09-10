@@ -12,9 +12,9 @@ pub const BASE_LAN_NETS: [IpNetwork; 6] = [
     v6(Ipv6Addr::new(0xfc00, 0, 0, 0, 0, 0, 0, 0), 7),
 ];
 
-// Defines `EXTRA_LAN_NETS`, generated at build time from `extra-lan-networks.txt` in the
-// repository root. See `talpid-types/build.rs`.
-include!(concat!(env!("OUT_DIR"), "/extra_lan_nets.rs"));
+// Defines `EXTRA_LAN_NETS`, generated from `extra-lan-networks.txt` in the repository root by
+// `cargo run -p talpid-types --bin generate-extra-lan-nets`. See `extra_lan_config.rs`.
+include!("extra_lan_nets.rs");
 
 /// When "allow local network" is enabled the app will allow traffic to and from these networks.
 ///
@@ -82,39 +82,29 @@ mod tests {
         assert_eq!(ALLOWED_LAN_NETS.to_vec(), expected);
     }
 
-    /// Every entry in `extra-lan-networks.txt` must have made it into the compiled list.
-    /// This re-parses the file independently of the build script.
+    /// The generated `extra_lan_nets.rs` must match `extra-lan-networks.txt`. If this fails,
+    /// run `cargo run -p talpid-types --bin generate-extra-lan-nets` and commit the result.
     #[test]
     fn extra_lan_nets_match_file() {
-        let contents = std::fs::read_to_string(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../extra-lan-networks.txt"
-        ))
-        .expect("extra-lan-networks.txt must exist in the repository root");
+        use crate::net::extra_lan_config::{EXTRA_LAN_NETWORKS_FILE, is_permitted, parse};
 
-        let expected: Vec<IpNetwork> = contents
-            .lines()
-            .map(|line| line.split('#').next().unwrap_or("").trim())
-            .filter(|line| !line.is_empty())
-            .map(|line| {
-                // A bare address means a single host.
-                if line.contains('/') {
-                    line.parse::<IpNetwork>().map_err(|err| err.to_string())
-                } else {
-                    line.parse::<std::net::IpAddr>()
-                        .map(IpNetwork::from)
-                        .map_err(|err| err.to_string())
-                }
-                .unwrap_or_else(|err| panic!("failed to parse {line:?}: {err}"))
-            })
-            .collect();
+        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../extra-lan-networks.txt");
+        let contents = std::fs::read_to_string(path)
+            .unwrap_or_else(|err| panic!("{EXTRA_LAN_NETWORKS_FILE} must exist: {err}"));
+        let expected = parse(&contents).unwrap_or_else(|err| panic!("{path}: {err}"));
 
-        assert_eq!(EXTRA_LAN_NETS.to_vec(), expected);
-        for net in &expected {
+        assert_eq!(
+            EXTRA_LAN_NETS.to_vec(),
+            expected,
+            "extra_lan_nets.rs is out of date: run \
+             `cargo run -p talpid-types --bin generate-extra-lan-nets`"
+        );
+        for net in EXTRA_LAN_NETS {
             assert!(
-                ALLOWED_LAN_NETS.contains(net),
-                "{net} from extra-lan-networks.txt is missing from ALLOWED_LAN_NETS"
+                is_permitted(net),
+                "{net} is outside the permitted address space"
             );
+            assert!(ALLOWED_LAN_NETS.contains(&net));
         }
     }
 }

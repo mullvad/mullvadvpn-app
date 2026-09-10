@@ -72,18 +72,21 @@ Follow the upstream [build instructions](BuildInstructions.md) to install the to
 
 ```bash
 git submodule update --init
+cargo run -p talpid-types --bin generate-extra-lan-nets   # after editing extra-lan-networks.txt
 ./build.sh --optimize
 ```
 
-The installer or packages end up in `dist/`. The extra networks are picked up automatically; on
-Windows the generated firewall header includes them as a pre-build step.
+The installer or packages end up in `dist/`. The first command turns the text file into the Rust
+constant that is compiled in (and refuses bad entries); the workflow runs it for you. On Windows
+the generated firewall header includes the extra networks as a pre-build step.
 
 ## Where the change lives
 
 | File | Purpose |
 | --- | --- |
 | `extra-lan-networks.txt` | The list you edit. |
-| `talpid-types/build.rs` | Parses and validates the file at build time and generates the constant. |
+| `talpid-types/src/net/extra_lan_config.rs` | Parses and validates the file. |
+| `talpid-types/src/bin/generate-extra-lan-nets.rs` | Writes the generated `talpid-types/src/net/extra_lan_nets.rs`. |
 | `talpid-types/src/net/allowed_nets.rs` | Upstream's list, plus the generated extras, form `ALLOWED_LAN_NETS`. |
 | `.github/workflows/sync-tailscale-lan.yml` | Daily rebase onto upstream releases and the Linux/Windows builds. |
 | `docs/fork-tailscale-lan.md` | Longer write-up, including the security notes. |
