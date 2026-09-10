@@ -13,18 +13,11 @@ inputs:
     description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
     default: "${{ github.token }}"
     required: false
-  rust-cache-targets:
-    description: >-
-      Determines whether workspace `target` directories are cached. If `false`,
-      only the cargo registry will be cached. If `true`, the `target` directories
-      will be cached as well.
-    default: "false"
-    required: false
   cache-rust-targets:
     description: >-
-      Determines whether the Rust cache is set up at all. Set to `false` for jobs
-      that do not compile Rust, where restoring and saving the cache is pure
-      overhead.
+      Determines whether the Rust cache is set up. Caches both the cargo
+      registry and the workspace `target` directories. Set to `false` for jobs
+      that do not compile Rust, where the cache is pure overhead.
     default: "true"
     required: false
 runs:
@@ -58,9 +51,10 @@ runs:
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
       with:
         add-job-id-key: "false"  # Preserve cache across jobs
-        cache-directories: >-
-          ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
-        cache-targets: ${{ inputs.rust-cache-targets }}
+        # rust-cache only caches `<workspace>/target` and never reads
+        # CARGO_TARGET_DIR, so a target directory outside the workspace has to
+        # be named here. Empty, and therefore ignored, when it is unset.
+        cache-directories: ${{ env.CARGO_TARGET_DIR }}
         # `cache-bin` causes `~/.cargo/bin/rustup` to be deleted for self-hosted runners
         # See https://github.com/Swatinem/rust-cache/issues/16
         cache-bin: false
