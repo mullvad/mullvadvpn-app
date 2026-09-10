@@ -36,7 +36,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -83,8 +82,6 @@ import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
 import net.mullvad.mullvadvpn.screen.navigation.splashEntry
-import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -95,7 +92,7 @@ import org.koin.core.parameter.parametersOf
 )
 @Composable
 @Suppress("LongMethod")
-fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
+fun MullvadApp() {
     val resultStore = rememberResultStore()
     val navigationState = rememberNavigationState(SplashNavKey)
 
@@ -126,7 +123,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        CheckNotificationPermission(serviceConnectionManager, navigationState.backStackFlow)
+        CheckNotificationPermission(navigationState.backStackFlow)
     }
 
     val entryProvider = entryProvider {
@@ -215,24 +212,19 @@ private fun defaultNavDisplayTransitionSpec(): ContentTransform =
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun CheckNotificationPermission(
-    serviceConnectionManager: ServiceConnectionManager,
-    backStackFlow: Flow<List<NavKey2>>,
-) {
+private fun CheckNotificationPermission(backStackFlow: Flow<List<NavKey2>>) {
     val notificationPermission =
         rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
     LaunchedEffect(Unit) {
-        serviceConnectionManager.connectionState.collect {
-            if (it is ServiceConnectionState.Bound) {
-                if (!notificationPermission.status.isGranted) {
-                    // Wait for the ConnectScreen to be shown before requesting permission
-                    backStackFlow.first { backstack -> backstack.lastOrNull() is ConnectNavKey }
-                    notificationPermission.launchPermissionRequest()
-                    cancel(
-                        message =
-                            "We should only show one notification permission dialog per app start"
-                    )
-                }
+        backStackFlow.collect { backstack ->
+            // Wait for the ConnectScreen to be shown before requesting permission
+            if (
+                !notificationPermission.status.isGranted && backstack.lastOrNull() is ConnectNavKey
+            ) {
+                notificationPermission.launchPermissionRequest()
+                cancel(
+                    message = "We should only show one notification permission dialog per app start"
+                )
             }
         }
     }
