@@ -79,3 +79,16 @@ async fn clear_directory(path: &Path) -> Result<(), Error> {
         }
     }
 }
+
+/// Remove Mullvad VPN client logs no longer in use.
+pub async fn clear_deprecated_logs() -> anyhow::Result<()> {
+    let log_dir = mullvad_paths::get_log_dir()?;
+    for log in [
+        log_dir.join("openvpn.log"),
+        log_dir.join("openvpn.old.log"),
+        log_dir.join("wireguard.log"), // wireguard-go
+    ] {
+        fs::remove_file(log).await?;
+    }
+    Ok(())
+}
