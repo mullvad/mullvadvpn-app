@@ -12,6 +12,7 @@ use netlink_packet_core::{
     NetlinkPayload,
 };
 use netlink_packet_route::route::RouteFlags;
+use rtnetlink::RuleHandle;
 use rtnetlink::sys::AsyncSocket;
 use talpid_types::ErrorExt;
 
@@ -276,18 +277,13 @@ impl RouteManagerImpl {
     }
 
     async fn delete_rule_if_exists(&mut self, rule: RuleMessage) -> Result<()> {
-        let mut req = NetlinkMessage::from(RouteNetlinkMessage::DelRule(rule));
-        req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
-
-        let mut response = self.handle.request(req).map_err(Error::Netlink)?;
-
-        while let Some(message) = response.next().await {
-            if let NetlinkPayload::Error(error) = message.payload
-                && error.to_io().kind() != io::ErrorKind::NotFound
-            {
-                return Err(Error::Netlink(rtnetlink::Error::NetlinkError(error)));
-            }
-        }
+        let request = RuleHandle::new(self.handle.clone()).del(rule);
+        if let Err(nl_error) = request.execute().await
+            && let rtnetlink::Error::NetlinkError(err) = &nl_error
+            && err.to_io().kind() != io::ErrorKind::NotFound
+        {
+            return Err(Error::Netlink(nl_error));
+        };
         Ok(())
     }
 
