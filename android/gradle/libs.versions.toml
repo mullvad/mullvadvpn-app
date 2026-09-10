@@ -16,8 +16,8 @@ ndk = "27.3.13750724"
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
 # or here:
 # https://maven.google.com/web/index.html#com.android.tools.build:aapt2
-android-gradle-aapt = "15703166"
-android-gradle-plugin = "9.3.2"
+android-gradle-aapt = "15978811"
+android-gradle-plugin = "9.4.0"
 # Other
 android-billingclient = "9.1.0"
 androidx-activitycompose = "1.13.0"
