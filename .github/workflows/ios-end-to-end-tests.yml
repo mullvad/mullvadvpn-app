@@ -128,8 +128,8 @@ jobs:
       - name: Copy build output and project to output directory
         run: |
           mkdir -p "$JOB_OUTPUTS_DIRECTORY/derived-data"
-          cp -R ios/derived-data "$JOB_OUTPUTS_DIRECTORY"
-          rsync -a --exclude='.git' . "$JOB_OUTPUTS_DIRECTORY/mullvadvpn-app" \
+          cp -RLl ios/derived-data "$JOB_OUTPUTS_DIRECTORY/derived-data"
+          rsync -a --exclude='.git' --exclude='target' . "$JOB_OUTPUTS_DIRECTORY/mullvadvpn-app" \
             --stats --human-readable
         shell: bash
         env:
