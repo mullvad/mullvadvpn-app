@@ -162,6 +162,20 @@ The leak requires no privileges, affects both Wi-Fi and cellular, and bypasses "
   running GrapheneOS based on Android 16.
 * May 5, 2026 - The vulnerability was fixed in the GrapheneOS code base.
 
+
+### NAT traversal keep-alive traffic can leak the device IP on Android
+
+A malicious app can leak the device's real IP address by misusing an Android API that exists to aid in
+network address translation (NAT) traversal. This requires no special app permissions and can happen
+even when "Block connections without VPN" is enabled.
+As there is no foolproof mitigation for this issue it must be fixed by Android.
+We have [written a blog post](https://mullvad.net/en/blog/another-way-to-leak-traffic-on-android-has-been-discovered) with more details.
+
+#### Timeline
+
+* Aug 28, 2026 - Mullvad became aware of the issue.
+* Sep 9, 2026 - Mullvad published a blog post detailing the issue.
+
 ### Possible leaks on macOS on first start after upgrade
 
 We have found that traffic could be leaking on macOS after system updates. In this scenario the
