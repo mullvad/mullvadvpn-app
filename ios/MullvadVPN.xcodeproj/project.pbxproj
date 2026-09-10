@@ -94,6 +94,7 @@
 		4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8D2D2828A4001B13C9 /* HeaderView.swift */; };
 		4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
+		443D35B83052E9CC00D85D8B /* ActionThrottleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 443D35B73052E9C600D85D8B /* ActionThrottleTests.swift */; };
 		4449B4A02FA8DFE50030C2B3 /* UIStackView+Initializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */; };
 		4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */; };
 		4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */; };
@@ -1879,6 +1880,7 @@
 		4419AA8D2D2828A4001B13C9 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
+		443D35B73052E9C600D85D8B /* ActionThrottleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionThrottleTests.swift; sourceTree = "<group>"; };
 		4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Initializer.swift"; sourceTree = "<group>"; };
 		4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSettingsView.swift; sourceTree = "<group>"; };
 		4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSelectionNameSpace.swift; sourceTree = "<group>"; };
@@ -3184,6 +3186,7 @@
 			isa = PBXGroup;
 			children = (
 				F09E81F63020D3DB00F6F2B8 /* AccountNumberFormatterTests.swift */,
+				443D35B73052E9C600D85D8B /* ActionThrottleTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 				F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */,
 				F0E560DB2F864F5A0027B900 /* MultihopMigrationTrackerTests.swift */,
@@ -6630,6 +6633,7 @@
 				A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
 				F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */,
+				443D35B83052E9CC00D85D8B /* ActionThrottleTests.swift in Sources */,
 				E10A0002000000000000AB01 /* PacketTunnelDebugSettings.swift in Sources */,
 				F080AED7303F202F00D4DE50 /* AccountManager.swift in Sources */,
 				7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */,
