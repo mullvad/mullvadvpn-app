@@ -49,7 +49,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private let deviceDataDefaultWaitInterval = RunLoop.SchedulerTimeType.Stride.seconds(60)
     // Interval in days when account is considered to be close to expiry.
     private let accountCloseToExpiryDays = 4
-    private lazy var deviceUpdateSubject = PassthroughSubject<Void, Never>()
+    private lazy var deviceUpdateThrottledSubject = PassthroughSubject<Void, Never>()
     private var deviceUpdateCancellable: Combine.AnyCancellable?
 
     private func addTunnelObserver() {
@@ -68,15 +68,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         tunnelManager.addObserver(tunnelObserver)
     }
 
+    private func updateDeviceDataImmediately() {
+        tunnelManager.updateAccountData()
+    }
+
     // As there is no direct way of resetting a Combine Throttle
     // publisher's timer, this just junks and rebuilds the pipeline,
     // leaving the initial publisher intact.
     private func buildDeviceUpdatePipeline() {
         deviceUpdateCancellable =
-            deviceUpdateSubject
+            deviceUpdateThrottledSubject
             .throttle(for: deviceDataDefaultWaitInterval, scheduler: RunLoop.current, latest: false)
-            .sink { [tunnelManager] in
-                tunnelManager.updateAccountData()
+            .sink { [self] in
+                self.updateDeviceDataImmediately()
             }
     }
 
@@ -182,7 +186,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             tunnelManager.updateAccountData()
         }
         if shouldUpdateDeviceData {
-            deviceUpdateSubject.send()
+            if forceUpdate {
+                self.updateDeviceDataImmediately()
+            } else {
+                deviceUpdateThrottledSubject.send()
+            }
         }
     }
 
