@@ -6177,6 +6177,7 @@ dependencies = [
  "tokio",
  "tun 0.8.14",
  "windows-sys 0.61.2",
+ "wintun-bindings",
 ]
 
 [[package]]

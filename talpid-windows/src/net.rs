@@ -20,9 +20,10 @@ use windows_sys::{
             IpHelper::{
                 ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
-                CreateUnicastIpAddressEntry, FreeMibTable, GetUnicastIpAddressTable,
-                InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, SetIpInterfaceEntry,
+                CreateUnicastIpAddressEntry, DeleteUnicastIpAddressEntry, FreeMibTable,
+                GetUnicastIpAddressTable, InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW,
+                MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE, MibAddInstance,
+                SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
@@ -62,6 +63,11 @@ pub enum Error {
     #[cfg(windows)]
     #[error("Failed to create unicast IP address")]
     CreateUnicastEntry(#[source] io::Error),
+
+    /// Error returned from `DeleteUnicastIpAddressEntry`
+    #[cfg(windows)]
+    #[error("Failed to delete unicast IP address")]
+    DeleteUnicastEntry(#[source] io::Error),
 
     /// Unexpected DAD state returned for a unicast address
     #[cfg(windows)]
@@ -666,6 +672,34 @@ pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Resul
 
     win32_err!(unsafe { CreateUnicastIpAddressEntry(&raw const row) })
         .map_err(Error::CreateUnicastEntry)
+}
+
+/// Returns every unicast IP address for the given interface.
+pub fn get_ip_addresses_for_interface(luid: NET_LUID_LH) -> Result<Vec<IpAddr>> {
+    get_unicast_table(None)
+        .map_err(Error::ObtainUnicastAddress)?
+        .into_iter()
+        .filter(|row| {
+            // SAFETY: This is always valid as a `u64`.
+            unsafe { row.InterfaceLuid.Value == luid.Value }
+        })
+        .map(|row| Ok(try_socketaddr_from_inet_sockaddr(row.Address)?.ip()))
+        .collect()
+}
+
+/// Removes a unicast IP address from the given interface.
+pub fn delete_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Result<()> {
+    let mut row = MIB_UNICASTIPADDRESS_ROW::default();
+    // SAFETY: `row` is a valid pointer to a zeroed `MIB_UNICASTIPADDRESS_ROW`.
+    unsafe { InitializeUnicastIpAddressEntry(&raw mut row) };
+
+    row.InterfaceLuid = luid;
+    row.Address = inet_sockaddr_from_socketaddr(SocketAddr::new(address, 0));
+
+    // SAFETY: `row` has been initialized with `InitializeUnicastIpAddressEntry` and populated
+    // with a valid `InterfaceLuid` and `Address`.
+    win32_err!(unsafe { DeleteUnicastIpAddressEntry(&raw const row) })
+        .map_err(Error::DeleteUnicastEntry)
 }
 
 /// Sets MTU on the specified network interface identified by `luid`.
