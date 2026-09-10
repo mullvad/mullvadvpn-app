@@ -26,10 +26,10 @@ impl ApiContext {
                 match send_problem_report_inner(api_context.rest_handle(), retry_strategy, request)
                     .await
                 {
-                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Ok(response) => completion_handler.finish(response),
                     Err(err) => {
                         log::error!("{err:?}");
-                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                        completion_handler.finish(ApiResponse::rest_error(err));
                     }
                 }
             },

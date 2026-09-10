@@ -33,10 +33,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -58,10 +58,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -79,7 +79,7 @@ impl ApiContext {
                 self,
                 Arc::new(RetryStrategy::never()),
                 async |_, _, completion_handler| {
-                    completion_handler.finish(Arc::new(ApiResponse::bad_public_key_size()));
+                    completion_handler.finish(ApiResponse::bad_public_key_size());
                 },
             );
         };
@@ -95,10 +95,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -122,10 +122,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -144,7 +144,7 @@ impl ApiContext {
                 self,
                 Arc::new(RetryStrategy::never()),
                 async |_, _, completion_handler| {
-                    completion_handler.finish(Arc::new(ApiResponse::bad_public_key_size()));
+                    completion_handler.finish(ApiResponse::bad_public_key_size());
                 },
             );
         };
@@ -162,10 +162,10 @@ impl ApiContext {
                 )
                 .await
                 {
-                    Ok(response) => completion_handler.finish(Arc::new(response)),
+                    Ok(response) => completion_handler.finish(response),
                     Err(err) => {
                         log::error!("{err:?}");
-                        completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                        completion_handler.finish(ApiResponse::rest_error(err));
                     }
                 }
             },
