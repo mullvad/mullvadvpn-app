@@ -101,7 +101,7 @@ impl HandleState {
         };
 
         let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
-            completion.finish(Arc::new(ApiResponse::no_tokio_runtime()));
+            completion.finish(ApiResponse::no_tokio_runtime());
             return;
         };
 
@@ -122,11 +122,11 @@ impl HandleState {
         // TODO: should this call block until the task returns?
         // We can make it do that.
         // let _ = handle.block_on(self.task);
-        completion.finish(Arc::new(ApiResponse::cancelled()));
+        completion.finish(ApiResponse::cancelled());
     }
 }
 
 #[uniffi::export(with_foreign)]
 pub trait RequestCompletion: Send + Sync {
-    fn finish(&self, result: Arc<ApiResponse>);
+    fn finish(&self, result: ApiResponse);
 }

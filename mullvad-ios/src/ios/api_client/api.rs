@@ -24,10 +24,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -54,24 +54,24 @@ impl ApiContext {
                     );
 
                     match api_addrs_available_inner(oneshot_client, retry_strategy).await {
-                        Ok(_) => completion_handler.finish(Arc::new(ApiResponse::ok())),
+                        Ok(_) => completion_handler.finish(ApiResponse::ok()),
                         Err(err) => {
                             log::error!("{err:?}");
-                            completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                            completion_handler.finish(ApiResponse::rest_error(err));
                         }
                     }
                 }
                 Ok(None) => {
                     log::error!("Invalid access method configuration, {access_method_setting:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::access_method_error(
+                    completion_handler.finish(ApiResponse::access_method_error(
                         mullvad_api::access_mode::Error::Resolve {
                             access_method: access_method_setting.access_method,
                         },
-                    )));
+                    ));
                 }
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::access_method_error(err)));
+                    completion_handler.finish(ApiResponse::access_method_error(err));
                 }
             },
         )
@@ -94,10 +94,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )

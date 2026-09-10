@@ -130,10 +130,12 @@ class MullvadApi {
     }
 
     private func requireBody(_ response: ApiResponse) throws -> Data {
-        guard response.success(), let data = response.body() else {
-            throw MullvadApiError(description: response.errorDescription() ?? "Request failed")
+        switch response {
+        case .body(let body, _, _):
+            return body
+        case .error(_, let errorDescription, _):
+            throw MullvadApiError(description: errorDescription ?? "Request failed")
         }
-        return data
     }
 
     @discardableResult
