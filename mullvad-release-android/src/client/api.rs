@@ -1,13 +1,12 @@
 //! This module implements fetching of information about app versions
 
 use std::net::IpAddr;
-use std::sync::Arc;
 
 use super::defaults;
 use anyhow::Context;
-use rustls::{ClientConfig, RootCertStore, crypto::aws_lc_rs};
 
 use mullvad_api_constants::*;
+use mullvad_tls_client::ClientConfig;
 
 use mullvad_api::version::android::AndroidReleases;
 
@@ -33,7 +32,7 @@ impl HttpVersionInfoProvider {
     }
 
     async fn get_releases_inner(&self) -> anyhow::Result<AndroidReleases> {
-        let raw_json = Self::get(&self.url, self.resolve).await?;
+        let raw_json = Self::get(&self.url, self.resolve, mullvad_tls_client::api()).await?;
         serde_json::from_slice(&raw_json).context("Failed to deserialize Android releases")
     }
 
@@ -42,6 +41,7 @@ impl HttpVersionInfoProvider {
         Self::get(
             &format!("{}{}", defaults::METADATA_URL, "latest.json"),
             None,
+            mullvad_tls_client::releases_cdn(),
         )
         .await
         .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
@@ -56,23 +56,13 @@ impl HttpVersionInfoProvider {
     /// # Arguments
     /// `url` - URL to fetch
     /// `resolve` - Optional host to resolve (to the IP) without DNS
-    async fn get(url: &str, resolve: Option<(&'static str, IpAddr)>) -> anyhow::Result<Vec<u8>> {
-        // reqwest is built without a bundled crypto provider, so feed it a
-        // preconfigured aws-lc-rs rustls ClientConfig with TLS 1.3 enforced
-        // and the pinned certificate as the only trust anchor.
-        let mut roots = RootCertStore::empty();
-        roots
-            .add(defaults::PINNED_CERTIFICATE.clone())
-            .expect("pinned certificate should be a valid trust anchor");
-        let mut tls_config =
-            ClientConfig::builder_with_provider(Arc::new(aws_lc_rs::default_provider()))
-                .with_protocol_versions(&[&rustls::version::TLS13])
-                .expect("aws-lc-rs crypto provider should support TLS 1.3")
-                .with_root_certificates(roots)
-                .with_no_client_auth();
-        // Disable TLS tickets to reduce ability to track clients over time
-        tls_config.resumption = rustls::client::Resumption::disabled();
-        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
+    /// `tls_config` - TLS configuration for the host `url` points at
+    async fn get(
+        url: &str,
+        resolve: Option<(&'static str, IpAddr)>,
+        tls_config: &ClientConfig,
+    ) -> anyhow::Result<Vec<u8>> {
+        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config.clone());
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {

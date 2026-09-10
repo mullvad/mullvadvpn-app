@@ -1,24 +1,14 @@
 //! Minimal async client for the am.i.mullvad.net geoip endpoint.
 //!
-//! Pins the Let's Encrypt root certificate, enforces TLS 1.3 with X25519MLKEM768 only,
-//! and disables SNI.
+//! The connection is configured by [`mullvad_tls_client::api`], the same way
+//! the daemon configures its own connection check to these hosts.
 
 use bytes::Bytes;
 use http_body_util::{BodyExt, Full};
 use hyper::{Request, Uri, header};
 use hyper_util::client::legacy::Client;
-use rustls::{
-    ClientConfig,
-    pki_types::{CertificateDer, pem::PemObject},
-};
 use serde::{Deserialize, Serialize};
-use std::{
-    net::IpAddr,
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
-
-const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
+use std::{net::IpAddr, time::Duration};
 
 const USER_AGENT: &str = "mullvad-app-testing";
 
@@ -84,29 +74,9 @@ pub async fn geoip_lookup(
         .map_err(|_| Error::Timeout)?
 }
 
-/// A lazily computed TLS client config with the settings we want
-/// for TLS connections to mullvad https endpoints in general.
-static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
-    let provider = rustls::crypto::CryptoProvider {
-        kx_groups: vec![rustls::crypto::aws_lc_rs::kx_group::X25519MLKEM768],
-        ..rustls::crypto::aws_lc_rs::default_provider()
-    };
-    let mut config = ClientConfig::builder_with_provider(Arc::new(provider))
-        .with_protocol_versions(&[&rustls::version::TLS13])
-        .expect("aws-lc-rs crypto provider should support TLS 1.3")
-        .with_root_certificates(create_pinned_cert_store())
-        .with_no_client_auth();
-    // The server certificate covers the relevant am.i.mullvad.net hostnames; SNI is omitted
-    // so the destination subdomain is not visible in the ClientHello.
-    config.enable_sni = false;
-    // Disable TLS tickets to reduce ability to track clients over time
-    config.resumption = rustls::client::Resumption::disabled();
-    config
-});
-
 async fn http_get(url: Uri) -> Result<AmIMullvadResponse, Error> {
     let https = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_tls_config(CLIENT_CONFIG.clone())
+        .with_tls_config(mullvad_tls_client::api().clone())
         .https_only()
         .enable_http2()
         .build();
@@ -124,15 +94,4 @@ async fn http_get(url: Uri) -> Result<AmIMullvadResponse, Error> {
     }
     let bytes = response.into_body().collect().await?.to_bytes();
     Ok(serde_json::from_slice(&bytes)?)
-}
-
-/// Creates and returns a certificate store with the single trusted bundled CA
-fn create_pinned_cert_store() -> rustls::RootCertStore {
-    let cert = CertificateDer::from_pem_slice(LE_ROOT_CERT)
-        .expect("Bundled LE root cert PEM is malformed");
-    let mut cert_store = rustls::RootCertStore::empty();
-    cert_store
-        .add(cert)
-        .expect("Bundled LE root cert is invalid");
-    cert_store
 }

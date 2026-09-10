@@ -12,10 +12,10 @@ use crate::defaults;
 use crate::format::response::SignedResponse;
 use crate::version::{VersionInfo, VersionParameters};
 
-use super::tls::build_client_config;
 use super::version_provider::VersionInfoProvider;
 
 use mullvad_api_constants::*;
+use mullvad_tls_client::ClientConfig;
 
 /// Available platforms in the default metadata repository
 #[derive(Debug, Clone, Copy)]
@@ -53,6 +53,8 @@ pub struct HttpVersionInfoProvider {
     resolve: Option<(&'static str, IpAddr)>,
     /// If set, the response metadata will be serialized and written to this path
     dump_to_path: Option<PathBuf>,
+    /// TLS configuration for the host `url` points at
+    tls_config: &'static ClientConfig,
 }
 
 impl VersionInfoProvider for HttpVersionInfoProvider {
@@ -75,7 +77,7 @@ impl HttpVersionInfoProvider {
     /// This will fetch the metadata from `api.mullvad.net`, and reject anything except the LE root
     /// certificate. The domain name is resolved to [`API_IP_DEFAULT`] without using DNS.
     pub fn api(platform: MetaRepositoryPlatform) -> Self {
-        Self::new(defaults::RELEASES_URL, platform)
+        Self::new(defaults::RELEASES_URL, platform, mullvad_tls_client::api())
     }
 
     /// Create a repository using the base URL [defaults::METADATA_URL].
@@ -85,16 +87,26 @@ impl HttpVersionInfoProvider {
     /// likely to be stale.
     ///
     /// You most likely want to use [Self::api] instead.
+    #[cfg(feature = "release-tooling")]
     pub fn releases(platform: MetaRepositoryPlatform) -> Self {
-        Self::new(defaults::METADATA_URL, platform)
+        Self::new(
+            defaults::METADATA_URL,
+            platform,
+            mullvad_tls_client::releases_cdn(),
+        )
     }
 
     /// Return repository based on the `base_url`.
-    fn new(base_url: &str, platform: MetaRepositoryPlatform) -> Self {
+    fn new(
+        base_url: &str,
+        platform: MetaRepositoryPlatform,
+        tls_config: &'static ClientConfig,
+    ) -> Self {
         HttpVersionInfoProvider {
             url: format!("{}/{}", base_url, platform.filename()),
             resolve: Some((API_HOST_DEFAULT, API_IP_DEFAULT)),
             dump_to_path: None,
+            tls_config,
         }
     }
 
@@ -138,7 +150,7 @@ impl HttpVersionInfoProvider {
         &self,
         deserialize_fn: impl FnOnce(&[u8]) -> anyhow::Result<SignedResponse>,
     ) -> anyhow::Result<SignedResponse> {
-        let raw_json = Self::get(&self.url, self.resolve).await?;
+        let raw_json = Self::get(&self.url, self.resolve, self.tls_config).await?;
         let signed_response = deserialize_fn(&raw_json)?;
         if let Some(path) = &self.dump_to_path {
             fs::write(path, raw_json)
@@ -152,11 +164,16 @@ impl HttpVersionInfoProvider {
     ///
     /// - DNS will be used to look up the URL.
     /// - The JSON response is not signed.
+    #[cfg(feature = "release-tooling")]
     pub async fn get_latest_versions_file() -> anyhow::Result<String> {
-        Self::get(&format!("{}/latest.json", defaults::METADATA_URL), None)
-            .await
-            .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
-            .context("Failed to get latest.json file")
+        Self::get(
+            &format!("{}/latest.json", defaults::METADATA_URL),
+            None,
+            mullvad_tls_client::releases_cdn(),
+        )
+        .await
+        .and_then(|raw_json: Vec<u8>| Ok(String::from_utf8(raw_json)?))
+        .context("Failed to get latest.json file")
     }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
@@ -167,11 +184,13 @@ impl HttpVersionInfoProvider {
     /// # Arguments
     /// `url` - URL to fetch
     /// `resolve` - Optional host to resolve (to the IP) without DNS
-    async fn get(url: &str, resolve: Option<(&'static str, IpAddr)>) -> anyhow::Result<Vec<u8>> {
-        // reqwest is built without a bundled crypto provider, so feed it a
-        // preconfigured aws-lc-rs rustls ClientConfig.
-        let tls_config = build_client_config(Some(defaults::PINNED_CERTIFICATE.clone()), true);
-        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
+    /// `tls_config` - TLS configuration for the host `url` points at
+    async fn get(
+        url: &str,
+        resolve: Option<(&'static str, IpAddr)>,
+        tls_config: &ClientConfig,
+    ) -> anyhow::Result<Vec<u8>> {
+        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config.clone());
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {
@@ -257,6 +276,8 @@ mod test {
             url,
             resolve: Some(resolve),
             dump_to_path: Some(temp_dump.clone()),
+            // Unused: the mock server speaks plain http
+            tls_config: mullvad_tls_client::api(),
         };
 
         let info = info_provider

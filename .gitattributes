@@ -13,6 +13,6 @@
 # that breaks reproducible builds.
 # `-text` disables EOL conversion so every checkout embeds
 # identical bytes regardless of platform or core.autocrlf.
-mullvad-api/le_root_cert.pem -text
+mullvad-tls-client/le_root_cert.pem -text
 mullvad-update/trusted-metadata-signing-pubkeys -text
 *.manifest -text

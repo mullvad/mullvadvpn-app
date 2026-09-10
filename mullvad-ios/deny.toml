@@ -31,6 +31,7 @@ exceptions = [
   { crate = "mullvad-ios", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-logging", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-masque-proxy", allow = ["GPL-3.0-or-later"] },
+  { crate = "mullvad-tls-client", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-types", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-update", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-version", allow = ["GPL-3.0-or-later"] },
