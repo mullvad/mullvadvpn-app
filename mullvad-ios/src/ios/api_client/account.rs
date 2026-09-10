@@ -26,10 +26,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion.finish(Arc::new(response)),
+                Ok(response) => completion.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -48,10 +48,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
@@ -72,10 +72,10 @@ impl ApiContext {
             )
             .await
             {
-                Ok(response) => completion_handler.finish(Arc::new(response)),
+                Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(Arc::new(ApiResponse::rest_error(err)));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
             },
         )
