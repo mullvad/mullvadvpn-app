@@ -2787,10 +2787,6 @@ msgid "The DNS server you want to add is a private IP. You must ensure that your
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "This build of the app also treats the networks listed in extra-lan-networks.txt at build time as local, for example Tailscale addresses."
-msgstr ""
-
-msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr ""
 

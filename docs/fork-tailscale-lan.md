@@ -40,8 +40,10 @@ from the tunnel.
 - Tests in `talpid-types` check that every entry in the file is present in
   the compiled list. The Windows header snapshot test uses the base list, so
   it never depends on the file's contents.
-- `docs/security.md` and the app's Local network sharing info dialog mention
-  the file. The dialog cannot list your entries, since it is static text.
+- `docs/security.md` mentions the file. The app's own Local network sharing
+  info dialog is left unchanged, so it still lists only upstream's ranges.
+  That file is rewritten often upstream, and touching it made the patch
+  conflict on older releases.
 
 ## Things to be aware of
 
@@ -56,9 +58,11 @@ from the tunnel.
 
 ## Staying current with upstream
 
-The workflow in `.github/workflows/sync-tailscale-lan.yml` rebases the
-fork's commits onto each new upstream stable release, verifies the file
-parses and the tests pass, pushes `tailscale-lan/<tag>`, and builds:
+The workflow in `.github/workflows/sync-tailscale-lan.yml` applies the
+fork's net changes onto each new upstream stable release as one commit
+(three-way merge, so it works whether the fork's base is older or newer
+than the release), verifies the file parses and the tests pass, pushes
+`tailscale-lan/<tag>`, and builds:
 
 - Linux `.deb` and `.rpm` packages inside Mullvad's own build container.
 - The Windows installer `.exe` on a GitHub-hosted Windows runner, using the
@@ -81,5 +85,5 @@ To make it run on its own:
    Linux or Windows build.
 
 For macOS, check out `tailscale-lan/<tag>` and build locally as described in
-`BuildInstructions.md`. A rebase conflict fails the run and GitHub emails the
-repository owner; nothing is pushed in that case.
+`BuildInstructions.md`. If the patch does not apply cleanly the run fails and
+GitHub emails the repository owner; nothing is pushed in that case.

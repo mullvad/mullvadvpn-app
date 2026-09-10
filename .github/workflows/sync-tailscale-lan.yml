@@ -4,8 +4,8 @@
 # What it does, once a day (and on demand):
 #   1. Fetches upstream (mullvad/mullvadvpn-app) and picks the newest stable
 #      desktop release tag (YYYY.N), unless a tag is given as an input.
-#   2. Rebases this fork's own commits (everything not in upstream/main) onto
-#      that tag.
+#   2. Applies this fork's own changes (the net diff of everything not in
+#      upstream/main) onto that tag as one commit, using a three-way merge.
 #   3. Verifies the patch survived: extra-lan-networks.txt parses, every entry
 #      ends up in the compiled list, and the talpid-types tests pass.
 #   4. Pushes the result to the branch `tailscale-lan/<tag>`.
@@ -13,8 +13,9 @@
 #      container, and the Windows installer .exe on a GitHub-hosted Windows
 #      runner, and uploads both as workflow artifacts.
 #
-# If the rebase hits a conflict the run fails and GitHub emails the repository
-# owner; nothing is pushed. Fix the conflict locally, push, and re-run.
+# If the patch does not apply cleanly the run fails and GitHub emails the
+# repository owner; nothing is pushed. Fix the conflict locally, push, and
+# re-run.
 #
 # Notes for the fork owner:
 #   - GitHub only runs `schedule` triggers from the default branch, and it
@@ -114,7 +115,7 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Rebase fork commits onto the release tag
+      - name: Apply fork changes onto the release tag
         if: steps.exists.outputs.skip != 'true'
         env:
           TAG: ${{ steps.pick.outputs.tag }}
@@ -123,15 +124,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           base=$(git merge-base HEAD upstream/main)
-          echo "Fork commits to carry over:"
-          git log --oneline "$base..HEAD"
-          if ! git rebase --onto "refs/remotes/upstream-tags/$TAG" "$base"; then
-            git rebase --abort
-            echo "::error::Rebase onto $TAG conflicted. Rebase manually and push tailscale-lan/$TAG."
+          head=$(git rev-parse HEAD)
+          echo "Fork commits to carry over (squashed into one):"
+          git log --oneline "$base..$head"
+          echo "Files changed by the fork:"
+          git diff --stat "$base" "$head"
+          # Apply the fork's net diff on top of the tag with a three-way merge.
+          # This works whether the tag is newer or older than the commit the fork
+          # is based on, and cannot trip over intermediate commit states.
+          git checkout -q --detach "refs/remotes/upstream-tags/$TAG"
+          if ! git diff --binary "$base" "$head" | git apply -3 --index; then
+            echo "::error::The fork's changes do not apply cleanly onto $TAG. Conflicting files:"
+            git diff --name-only --diff-filter=U || true
+            echo "::error::Resolve locally and push tailscale-lan/$TAG by hand."
             exit 1
           fi
+          git commit -q -m "Apply extra local networks patch onto $TAG" \
+            -m "Squashed from fork commits $base..$head."
           echo "Result:"
-          git log --oneline "refs/remotes/upstream-tags/$TAG..HEAD"
+          git log --oneline -1
+          git diff --stat "refs/remotes/upstream-tags/$TAG" HEAD
 
       - name: Verify the patch survived the rebase
         if: steps.exists.outputs.skip != 'true'
@@ -167,12 +179,12 @@ jobs:
           echo "pushed=true" >> "$GITHUB_OUTPUT"
           echo "container_image=$(cat ./building/linux-container-image.txt)" >> "$GITHUB_OUTPUT"
           {
-            echo "## Rebased onto upstream \`${{ steps.pick.outputs.tag }}\`"
+            echo "## Applied onto upstream \`${{ steps.pick.outputs.tag }}\`"
             echo
-            echo "Pushed branch \`$BRANCH\` with these fork commits:"
+            echo "Pushed branch \`$BRANCH\`. Files changed relative to the release:"
             echo
             echo '```'
-            git log --oneline "refs/remotes/upstream-tags/${{ steps.pick.outputs.tag }}..HEAD"
+            git diff --stat "refs/remotes/upstream-tags/${{ steps.pick.outputs.tag }}" HEAD
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
