@@ -106,6 +106,7 @@ jobs:
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
         with:
           shared-key: daemon-${{ matrix.rust }}
+          cache-bin: false
           # Only save the cache when on main, where the scheduled runs populate it.
           # Uploading caches are expensive. Branches can only see caches from
           # their own branch and the default branch. So uploading in branches
