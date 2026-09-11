@@ -42,7 +42,7 @@ const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
 /// # Limitations
 ///
 /// This test only detects outbound DNS leaks in the connected state.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_leak_default(
     _: TestContext,
     rpc: ServiceClient,
@@ -65,7 +65,7 @@ pub async fn test_dns_leak_default(
 /// # Limitations
 ///
 /// This test only detects outbound DNS leaks in the connected state.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_leak_custom_public_ip(
     _: TestContext,
     rpc: ServiceClient,
@@ -97,7 +97,7 @@ pub async fn test_dns_leak_custom_public_ip(
 /// # Limitations
 ///
 /// This test only detects outbound DNS leaks in the connected state.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_leak_custom_private_ip(
     _: TestContext,
     rpc: ServiceClient,
@@ -328,7 +328,7 @@ async fn leak_test_dns(
 /// # Limitations
 ///
 /// This only examines outbound packets.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_config_default(
     _: TestContext,
     rpc: ServiceClient,
@@ -347,7 +347,7 @@ pub async fn test_dns_config_default(
 /// # Limitations
 ///
 /// This only examines outbound packets.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_config_custom_private(
     _: TestContext,
     rpc: ServiceClient,
@@ -382,7 +382,7 @@ pub async fn test_dns_config_custom_private(
 /// # Limitations
 ///
 /// This only examines outbound packets.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_dns_config_custom_public(
     _: TestContext,
     rpc: ServiceClient,
@@ -408,7 +408,7 @@ pub async fn test_dns_config_custom_public(
 
 /// Test whether the correct IPs are configured as system resolver when
 /// content blockers are enabled.
-#[test_function]
+#[test_function(priority = -1)]
 pub async fn test_content_blockers(
     _: TestContext,
     rpc: ServiceClient,
