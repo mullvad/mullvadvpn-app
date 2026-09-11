@@ -10,42 +10,44 @@
 
 import CoreLocation
 import MullvadLogging
+import MullvadRustRuntime
 import MullvadTypes
 
 public struct DefaultLocationService {
-    private let urlSession: URLSessionProtocol
     private let relayCache: CachedRelays
+    private let apiContext: ApiContext
     private let logger = Logger(label: "DefaultLocationService")
+    private let endpoint: String
 
-    public init(urlSession: URLSessionProtocol, relayCache: CachedRelays) {
-        self.urlSession = urlSession
+    public init(relayCache: CachedRelays, apiContext: ApiContext, endpoint: String = REST.amIMullvadHostname) {
         self.relayCache = relayCache
+        self.apiContext = apiContext
+        self.endpoint = endpoint
     }
 
-    public func fetchCurrentLocationIdentifier() async throws -> REST.LocationIdentifier? {
-        // Safe to unwrap since it's a constant.
-        let url = URL(string: REST.amIMullvadHostname).unsafelyUnwrapped
-
-        let serverLocation: REST.ServerLocation
-        do {
-            let data = try await urlSession.data(
-                for: URLRequest(url: url, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval))
-            serverLocation = try JSONDecoder().decode(REST.ServerLocation.self, from: data.0)
-        } catch {
-            logger.log(level: .error, "Could not fetch server location: \(error.description)")
-            return nil
-        }
-
+    public func getLocation(_ response: AmIMullvadResponse) -> REST.LocationIdentifier? {
         let mappedRelays = RelayWithLocation.locateRelays(
             relays: relayCache.relays.wireguard.relays,
             locations: relayCache.relays.locations
         )
 
         let closestRelays = RelaySelector.closestRelays(
-            to: CLLocationCoordinate2D(latitude: serverLocation.latitude, longitude: serverLocation.longitude),
+            to: CLLocationCoordinate2D(latitude: response.latitude, longitude: response.longitude),
             using: mappedRelays
         )
 
         return closestRelays.first?.relay.location
+    }
+
+    public func fetchCurrentLocationIdentifier() async throws -> REST.LocationIdentifier? {
+        guard
+            let serverLocation = await apiContext.amIMullvad(
+                address: endpoint,
+                retryStrategy: REST.RetryStrategy.noRetry.toRustStrategy())
+        else {
+            return nil
+        }
+
+        return getLocation(serverLocation)
     }
 }
