@@ -5,15 +5,17 @@ import { type AnyLocation, LocationType } from '../../../../../../features/locat
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useHandleSelectEntryLocation() {
-  const { setLocationType } = useSelectLocationViewContext();
+  const { setLocationType, setSearchTerm, setIsolatedItem } = useSelectLocationViewContext();
   const { selectEntryRelayLocation } = useRelayLocations();
 
   const handleSelectEntryLocation = React.useCallback(
     async (entryLocation: AnyLocation) => {
       setLocationType(LocationType.exit);
       await selectEntryRelayLocation(entryLocation.details);
+      setIsolatedItem(undefined);
+      setSearchTerm('');
     },
-    [selectEntryRelayLocation, setLocationType],
+    [selectEntryRelayLocation, setIsolatedItem, setLocationType, setSearchTerm],
   );
 
   return handleSelectEntryLocation;

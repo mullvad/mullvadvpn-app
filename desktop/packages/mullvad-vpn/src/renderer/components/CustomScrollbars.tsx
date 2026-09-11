@@ -20,7 +20,7 @@ const StyledCustomScrollbars = styled.div({
   height: '100%',
 });
 
-const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
+export const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
   flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
@@ -53,11 +53,10 @@ const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: bo
       'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
     opacity: props.$show ? 1 : 0,
     backgroundColor: props.$isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
-
-    // Thumb should be less transparent when track is hovered.
-    [`${StyledTrack}:hover &&`]: {
+    '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.65)',
     },
+    zIndex: 100,
   }),
 );
 
@@ -70,6 +69,7 @@ interface IProps {
   className?: string;
   fillContainer?: boolean;
   children?: React.ReactNode;
+  showScrollIndicators?: boolean;
 }
 
 interface IState {
@@ -257,9 +257,13 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      showScrollIndicators,
       ...otherProps
     } = this.props;
-    const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
+    const showScrollbars =
+      showScrollIndicators !== undefined
+        ? showScrollIndicators
+        : this.state.canScroll && this.state.showScrollIndicators;
 
     return (
       <StyledCustomScrollbars {...otherProps}>
@@ -268,15 +272,15 @@ class CustomScrollbars extends React.Component<IProps, IState> {
           $show={showScrollbars && this.state.active}
           $canScroll={this.state.canScroll}
           onMouseEnter={this.handleMouseEnter}
-          onMouseLeave={this.handleMouseLeave}>
-          <StyledThumb
-            ref={this.thumbRef}
-            $show={showScrollbars}
-            $isDragging={this.state.isDragging}
-            $wide={this.state.active}
-            onMouseDown={this.handleMouseDown}
-          />
-        </StyledTrack>
+          onMouseLeave={this.handleMouseLeave}
+        />
+        <StyledThumb
+          ref={this.thumbRef}
+          $show={showScrollbars}
+          $isDragging={this.state.isDragging}
+          $wide={this.state.active}
+          onMouseDown={this.handleMouseDown}
+        />
         <StyledScrollable
           $fillContainer={fillContainer}
           onScroll={this.onScroll}
@@ -451,7 +455,7 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   }
 
   private computeTrackLength(scrollable: HTMLElement) {
-    return scrollable.offsetHeight - (this.props.trackPadding?.y ?? 0) * 2;
+    return scrollable.offsetHeight - (this.props.trackPadding?.y ?? 0);
   }
 
   // Computes the position of child element within scrollable container
@@ -533,19 +537,25 @@ class CustomScrollbars extends React.Component<IProps, IState> {
   private updateScrollbarsHelper(updateFlags: Partial<IScrollbarUpdateContext>) {
     const scrollable = this.scrollableRef.current;
     const thumb = this.thumbRef.current;
-    if (scrollable && thumb) {
-      this.updateScrollbars(scrollable, thumb, updateFlags);
+    const track = this.trackRef.current;
+    if (scrollable && thumb && track) {
+      this.updateScrollbars(scrollable, thumb, track, updateFlags);
     }
   }
 
   private updateScrollbars(
     scrollable: HTMLElement,
     thumb: HTMLElement,
+    track: HTMLElement,
     context: Partial<IScrollbarUpdateContext>,
   ) {
     if (context.size) {
       const thumbHeight = this.computeThumbHeight(scrollable);
       thumb.style.setProperty('height', thumbHeight + 'px');
+
+      const trackHeight = this.computeTrackLength(scrollable);
+      track.style.setProperty('height', trackHeight + 'px');
+      track.style.setProperty('top', (this.props.trackPadding?.y ?? 0) + 'px');
 
       // hide thumb when there is nothing to scroll. We've had issues with scrollHeight being
       // off-by-one, to ensure this doesn't happen we subtract 1 here.
