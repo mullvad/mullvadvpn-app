@@ -81,7 +81,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             accountsProxy: appDelegate.accountsProxy,
             outgoingConnectionService: OutgoingConnectionService(
                 outgoingConnectionProxy: OutgoingConnectionProxy(
-                    urlSession: REST.makeURLSession(),
+                    apiContext: appDelegate.apiContext,
                     hostname: ApplicationConfiguration.hostName
                 )
             ),
