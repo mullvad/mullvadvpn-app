@@ -126,4 +126,4 @@ data class PacketCaptureResult(val streams: List<Stream>, val pcap: ByteArray)
 @Serializable data class StartCaptureRequestJson(val label: PacketCaptureSession)
 
 // 30 seconds timeout, double the default timeout
-private const val REQUEST_TIMEOUT_MS = 30000L
+private const val REQUEST_TIMEOUT_MS = 30_000L
