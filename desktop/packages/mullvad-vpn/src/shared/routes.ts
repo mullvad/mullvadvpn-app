@@ -35,4 +35,5 @@ export enum RoutePath {
   antiCensorship = '/settings/advanced/anti-censorship',
   wireguardPort = '/settings/advanced/wireguard-port',
   lwo = '/settings/advanced/lwo',
+  migratedSettings = '/migrated-settings',
 }

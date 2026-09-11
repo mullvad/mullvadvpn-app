@@ -5,7 +5,6 @@ import { Carousel } from '../../../carousel';
 import type { CarouselControlsProps } from '../../../carousel/components';
 import { StyledCarouselIndicators } from '../../../carousel/components/carousel-controls/components';
 import {
-  StyledWizardButtonGroup,
   WizardButtonGroup,
   WizardExitButton,
   WizardNextButton,
@@ -15,16 +14,12 @@ import {
 export type WizardControlsProps = CarouselControlsProps;
 
 export const StyledWizardControls = styled.div`
-  &:has(${StyledCarouselIndicators} + ${StyledWizardButtonGroup}) {
-    ${StyledCarouselIndicators} {
-      margin-bottom: ${spacings.small};
-    }
+  & > ${StyledCarouselIndicators}:not(:last-child) {
+    margin-bottom: ${spacings.small};
   }
 
-  & > {
-    ${StyledCarouselIndicators} {
-      justify-self: center;
-    }
+  & > ${StyledCarouselIndicators} {
+    justify-self: center;
   }
 `;
 

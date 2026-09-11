@@ -218,6 +218,8 @@ export const ipcSchema = {
     setEnableRecents: invoke<boolean, void>(),
     migrationsChange: notifyRenderer<SettingsMigration[]>(),
     clearMigrations: invoke<void, void>(),
+    dismissedSettingsMigrations: send<void>(),
+    displayedSettingsMigrations: send<void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),
