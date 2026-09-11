@@ -2258,7 +2258,7 @@ impl Daemon {
         // Shut the daemon down.
         let _ = self.tx.send(InternalDaemonEvent::TriggerShutdown(false));
 
-        self.shutdown_tasks.push(Box::pin(async move {
+        self.schedule_shutdown_task(async move {
             if let Err(e) = cleanup::clear_directories().await {
                 log::error!(
                     "{}",
@@ -2270,7 +2270,7 @@ impl Daemon {
                 .map(|error| Err(Error::FactoryResetError(error)))
                 .unwrap_or(Ok(()));
             Self::oneshot_send(tx, result, "factory_reset response");
-        }));
+        });
     }
 
     #[cfg(target_os = "windows")]
@@ -3327,7 +3327,12 @@ impl Daemon {
             let (tx, _rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::LockdownMode(LockdownMode::yes(), tx));
         }
-
+        #[cfg(not(target_os = "android"))]
+        self.schedule_shutdown_task(async move {
+            if let Err(err) = cleanup::clear_deprecated_logs().await {
+                log::trace!("{err}")
+            }
+        });
         self.disconnect_tunnel();
     }
 
@@ -3599,6 +3604,13 @@ impl Daemon {
                 e.display_chain_with_msg("Unable to save recents to settings")
             );
         }
+    }
+
+    /// Schedule tasks which will be run on Daemon shutdown.
+    #[cfg(not(target_os = "android"))]
+    fn schedule_shutdown_task(&mut self, task: impl Future<Output = ()> + Send + Sync + 'static) {
+        let task = Box::pin(task);
+        self.shutdown_tasks.push(task);
     }
 }
 
