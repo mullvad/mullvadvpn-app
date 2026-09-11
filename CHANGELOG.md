@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
+- Set tray-icon to 'connecting' on TrayIconController creation (start), when auto-connect is turned on.
+- Remove tray-icon delay and add follow-up to ensure state change.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
@@ -61,6 +63,9 @@ Line wrap the file at 100 chars.                                              Th
   pools, so this has not been necessary since 2022.5-beta1.
 
 ### Fixed
+#### Windows
+- Fix OS theme check for the monochromatic tray-icon.
+
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
