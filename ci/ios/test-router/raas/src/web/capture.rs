@@ -1,12 +1,13 @@
-use std::{collections::BTreeSet, net::IpAddr};
-
 use axum::{
     body::Body,
     extract::{Json, Path, State},
     http::{StatusCode, header},
     response::IntoResponse,
 };
+use std::{collections::BTreeSet, net::IpAddr};
 use uuid::Uuid;
+
+use crate::capture::Error;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewCapture {
@@ -21,9 +22,8 @@ pub async fn start(
 
     let result = async {
         let mut state = state.capture.lock().await;
-        state.start(label).await?;
-        log::info!("Started capture for label {label}");
-        Ok(())
+        log::info!("Starting capture for label {label}");
+        state.start(label)
     }
     .await;
 
@@ -86,7 +86,7 @@ pub async fn parse(
     }
 }
 
-fn respond_with_result(result: anyhow::Result<()>, success_code: StatusCode) -> impl IntoResponse {
+fn respond_with_result(result: Result<(), Error>, success_code: StatusCode) -> impl IntoResponse {
     match result {
         Ok(_) => (success_code, String::new()),
         Err(err) => (StatusCode::SERVICE_UNAVAILABLE, format!("{err}\n")),
