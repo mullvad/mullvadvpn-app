@@ -8,6 +8,7 @@
 #
 # podman run --rm \
 #     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
+#     -e CARGO_TARGET_DIR=/cargo-target/target \
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build ./build.sh
@@ -25,8 +26,6 @@ LABEL org.opencontainers.image.description="Mullvad VPN app Linux build containe
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 # === Define toolchain versions and paths ===
-
-ENV CARGO_TARGET_DIR=/cargo-target/target
 
 # Pinned to commit hash for tag v4.24.3
 ARG PROTOBUF_COMMIT_REF=ee1355459c9ce7ffe264bc40cfdc7b7623d37e99
