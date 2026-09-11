@@ -85,16 +85,17 @@ class TunnelCoordinator: Coordinator, Presenting {
     }
 
     func start() {
+        updateVisibility(animated: false)
+
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, _, _ in
                 self?.updateVisibility(animated: true)
             })
-
         self.tunnelObserver = tunnelObserver
 
-        tunnelManager.addObserver(tunnelObserver)
-
-        updateVisibility(animated: false)
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     private func updateVisibility(animated: Bool) {
@@ -115,8 +116,10 @@ class TunnelCoordinator: Coordinator, Presenting {
                 AlertAction(
                     title: NSLocalizedString("Disconnect", comment: ""),
                     style: .destructive,
-                    handler: { [weak self] in
-                        self?.tunnelManager.stopTunnel()
+                    handler: {
+                        Task { [weak self] in
+                            await self?.tunnelManager.stopTunnel()
+                        }
                     }
                 ),
                 AlertAction(

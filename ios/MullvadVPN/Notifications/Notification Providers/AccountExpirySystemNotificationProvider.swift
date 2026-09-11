@@ -30,6 +30,15 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         super.init()
         self.isNotificationEnabled = isNotificationEnabled
 
+        let notificationSettingsObserver = NotificationSettingsObserverBlock(didUpdateSettings: {
+            [weak self] notificationSettings in
+            guard let self else { return }
+            self.isNotificationEnabled = notificationSettings.isAccountNotificationEnabled
+        })
+
+        self.notificationSettingsObserver = notificationSettingsObserver
+        notificationSettingsUpdater.addObserver(notificationSettingsObserver)
+
         let tunnelObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.invalidate(deviceState: tunnelManager.deviceState)
@@ -46,18 +55,11 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
                 }
             }
         )
-
-        tunnelManager.addObserver(tunnelObserver)
-
-        let notificationSettingsObserver = NotificationSettingsObserverBlock(didUpdateSettings: {
-            [weak self] notificationSettings in
-            guard let self else { return }
-            self.isNotificationEnabled = notificationSettings.isAccountNotificationEnabled
-        })
-        notificationSettingsUpdater.addObserver(notificationSettingsObserver)
-
         self.tunnelObserver = tunnelObserver
-        self.notificationSettingsObserver = notificationSettingsObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     override var identifier: NotificationProviderIdentifier {

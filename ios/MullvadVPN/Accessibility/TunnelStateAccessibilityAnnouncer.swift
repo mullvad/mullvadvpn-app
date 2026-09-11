@@ -20,17 +20,6 @@ final class TunnelStateAccessibilityAnnouncer {
     private var pendingAnnouncementTask: Task<Void, Never>?
 
     init(tunnelManager: TunnelManager) {
-        let tunnelObserver = TunnelBlockObserver(
-            didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
-                let state = tunnelStatus.state
-                Task { @MainActor [weak self] in
-                    self?.handleTunnelStateChange(state)
-                }
-            }
-        )
-        self.tunnelObserver = tunnelObserver
-        tunnelManager.addObserver(tunnelObserver)
-
         // Announce current tunnel state on startup after VoiceOver finishes
         // reading the initial screen elements.
         let currentState = tunnelManager.tunnelStatus.state
@@ -41,6 +30,20 @@ final class TunnelStateAccessibilityAnnouncer {
             guard let self, let announcement = announcementString(for: currentState) else { return }
             lastAnnouncement = announcement
             UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
+
+        let tunnelObserver = TunnelBlockObserver(
+            didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
+                let state = tunnelStatus.state
+                Task { @MainActor [weak self] in
+                    self?.handleTunnelStateChange(state)
+                }
+            }
+        )
+        self.tunnelObserver = tunnelObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
         }
     }
 

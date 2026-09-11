@@ -35,7 +35,9 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         )
         self.tunnelObserver = tunnelObserver
 
-        tunnelManager.addObserver(tunnelObserver)
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     override var identifier: NotificationProviderIdentifier {

@@ -36,14 +36,19 @@ final class VPNSettingsInteractor {
                 self?.tunnelSettingsDidChange?(newSettings)
             })
         self.tunnelObserver = tunnelObserver
-        tunnelManager.addObserver(tunnelObserver)
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
-    func updateSettings(_ changes: [TunnelSettingsUpdate], completion: (@Sendable () -> Void)? = nil) {
-        tunnelManager.updateSettings(changes, completionHandler: completion)
+    func updateSettings(_ changes: [TunnelSettingsUpdate]) {
+        Task { [tunnelManager] in
+            await tunnelManager.updateSettings(changes)
+        }
     }
 
-    func setPort(_ port: UInt16?, completion: (@Sendable () -> Void)? = nil) {
+    func setPort(_ port: UInt16?) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
         if let port {
@@ -52,6 +57,8 @@ final class VPNSettingsInteractor {
             relayConstraints.port = .any
         }
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completionHandler: completion)
+        Task { [tunnelManager] in
+            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        }
     }
 }

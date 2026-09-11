@@ -23,7 +23,7 @@ public enum SettingsMigrationResult: Sendable {
     case failure(Error)
 }
 
-public struct MigrationManager {
+public struct MigrationManager: Sendable {
     private let logger = Logger(label: "MigrationManager")
     private let cacheDirectory: URL
     private let settingsManager: SettingsManager
@@ -43,11 +43,7 @@ public struct MigrationManager {
     /// This file is accessed by `NSFileCoordinator` in order to prevent multiple processes accessing at the same time.
     /// - Parameters:
     ///   - store: The store to from which settings are read and written to.
-    ///   - migrationCompleted: Completion handler called with a migration result.
-    public func migrateSettings(
-        store: SettingsStore,
-        migrationCompleted: @escaping @Sendable (SettingsMigrationResult) -> Void
-    ) {
+    public func migrateSettings(store: SettingsStore) async -> SettingsMigrationResult {
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
         var error: NSError?
 
@@ -56,55 +52,51 @@ public struct MigrationManager {
         // in a half written state.
         // The resulting effect is that only one process at a time can do settings migrations.
         // The other process will be blocked, and will have nothing to do as long as settings were successfully upgraded.
-        fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
-            let resetStoreHandler = { (result: SettingsMigrationResult) in
-                // Reset store upon failure to migrate settings.
-                if case .failure = result {
-                    settingsManager.resetStore()
+        return await withCheckedContinuation { continuation in
+            fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
+                let resetStoreHandler = { (result: SettingsMigrationResult) in
+                    // Reset store upon failure to migrate settings.
+                    if case .failure = result {
+                        settingsManager.resetStore()
+                    }
+                    continuation.resume(returning: result)
                 }
-                migrationCompleted(result)
-            }
 
-            do {
-                try upgradeSettingsToLatestVersion(
-                    store: store,
-                    migrationCompleted: migrationCompleted
-                )
-            } catch .itemNotFound as KeychainError {
-                migrationCompleted(.nothing)
-            } catch let couldNotReadKeychainError as KeychainError
-                where couldNotReadKeychainError == .interactionNotAllowed
-            {
-                migrationCompleted(.failure(couldNotReadKeychainError))
-            } catch {
-                resetStoreHandler(.failure(error))
+                do {
+                    let result = try upgradeSettingsToLatestVersion(store: store)
+                    continuation.resume(returning: result)
+                } catch .itemNotFound as KeychainError {
+                    continuation.resume(returning: .nothing)
+                } catch let couldNotReadKeychainError as KeychainError
+                    where couldNotReadKeychainError == .interactionNotAllowed
+                {
+                    continuation.resume(returning: .failure(couldNotReadKeychainError))
+                } catch {
+                    resetStoreHandler(.failure(error))
+                }
             }
         }
     }
 
-    private func upgradeSettingsToLatestVersion(
-        store: SettingsStore,
-        migrationCompleted: @escaping @Sendable (SettingsMigrationResult) -> Void
-    ) throws {
+    private func upgradeSettingsToLatestVersion(store: SettingsStore) throws -> SettingsMigrationResult {
         let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
         let settingsData = try store.read(key: SettingsKey.settings)
         let settingsVersion = try parser.parseVersion(data: settingsData)
 
         guard settingsVersion != SchemaVersion.current.rawValue else {
-            migrationCompleted(.nothing)
-            return
+            return .nothing
         }
 
         // Corrupted settings version (i.e. negative values, or downgrade from a future version) should fail
         guard var savedSchema = SchemaVersion(rawValue: settingsVersion) else {
-            migrationCompleted(
-                .failure(
-                    UnsupportedSettingsVersionError(
-                        storedVersion: settingsVersion,
-                        currentVersion: SchemaVersion.current
-                    )))
-            return
+            return .failure(
+                UnsupportedSettingsVersionError(
+                    storedVersion: settingsVersion,
+                    currentVersion: SchemaVersion.current
+                )
+            )
         }
+
         logger.info(
             "\(#function): upgrade start",
             metadata: [
@@ -126,6 +118,7 @@ public struct MigrationManager {
         // Write the latest settings back to the store
         let latestVersionPayload = try parser.producePayload(savedSettings, version: SchemaVersion.current.rawValue)
         try store.write(latestVersionPayload, for: .settings)
-        migrationCompleted(.success)
+
+        return .success
     }
 }
