@@ -226,7 +226,8 @@ mod proxy {
 
     use crate::types::{FromProtobufTypeError, proto};
     use talpid_types::net::proxy::{
-        CustomProxy, Shadowsocks, ShadowsocksCipher, Socks5Local, Socks5Remote, SocksAuth,
+        CustomProxy, Shadowsocks, ShadowsocksCipher, Socks5Local, Socks5Proxy, Socks5Remote,
+        SocksAuth,
     };
 
     impl TryFrom<proto::CustomProxy> for CustomProxy {
@@ -249,6 +250,24 @@ mod proxy {
                     ));
                 }
             })
+        }
+    }
+
+    impl TryFrom<proto::Socks5Proxy> for Socks5Proxy {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::Socks5Proxy) -> Result<Self, Self::Error> {
+            match value.proxy {
+                Some(proto::socks5_proxy::Proxy::Local(local)) => {
+                    Ok(Socks5Proxy::Local(Socks5Local::try_from(local)?))
+                }
+                Some(proto::socks5_proxy::Proxy::Remote(remote)) => {
+                    Ok(Socks5Proxy::Remote(Socks5Remote::try_from(remote)?))
+                }
+                None => Err(FromProtobufTypeError::invalid_argument(
+                    "Socks5Proxy missing proxy field",
+                )),
+            }
         }
     }
 
@@ -382,6 +401,21 @@ mod proxy {
                 port: value.endpoint.port() as u32,
                 password: value.plaintext_password().to_string(),
                 cipher: Some(cipher),
+            }
+        }
+    }
+
+    impl From<Socks5Proxy> for proto::Socks5Proxy {
+        fn from(value: Socks5Proxy) -> Self {
+            proto::Socks5Proxy {
+                proxy: Some(match value {
+                    Socks5Proxy::Local(config) => {
+                        proto::socks5_proxy::Proxy::Local(proto::Socks5Local::from(config))
+                    }
+                    Socks5Proxy::Remote(config) => {
+                        proto::socks5_proxy::Proxy::Remote(proto::Socks5Remote::from(config))
+                    }
+                }),
             }
         }
     }

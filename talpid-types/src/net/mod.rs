@@ -305,6 +305,11 @@ pub enum AllowedClients {
 
 #[cfg(unix)]
 impl AllowedClients {
+    /// Allow all clients to leak traffic to an allowed [`Endpoint`].
+    pub const fn all() -> Self {
+        AllowedClients::All
+    }
+
     pub fn allow_all(&self) -> bool {
         matches!(self, AllowedClients::All)
     }

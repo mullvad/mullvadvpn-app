@@ -10,6 +10,7 @@ pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
 pub mod socket;
+pub mod socks5;
 pub mod transport;
 pub mod udp2tcp;
 pub(crate) mod wireguard;
@@ -78,6 +79,21 @@ impl Settings {
             Settings::Shadowsocks(s) => s.packet_overhead(),
             Settings::Quic(s) => s.packet_overhead(),
             Settings::Lwo(s) => s.packet_overhead(),
+        }
+    }
+
+    /// Whether this obfuscation transforms datagrams on a socket provided by the caller, rather
+    /// than opening its own connection to the obfuscation server.
+    ///
+    /// Only these can be layered on top of another transport, such as a SOCKS5 proxy.
+    pub fn stacks_on_provided_socket(&self) -> bool {
+        match self {
+            // A pure in-place transform of each datagram.
+            Settings::Lwo(_) => true,
+            // Connects to the obfuscation server over TCP.
+            Settings::Udp2Tcp(_) => false,
+            // Bind their own UDP socket in `create_transport`.
+            Settings::Shadowsocks(_) | Settings::Quic(_) => false,
         }
     }
 }
