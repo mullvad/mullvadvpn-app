@@ -10,29 +10,28 @@
 
 import CoreLocation
 import MullvadLogging
+import MullvadRustRuntime
 import MullvadTypes
 
 public struct DefaultLocationService {
-    private let urlSession: URLSessionProtocol
     private let relayCache: CachedRelays
+    private let apiContext: ApiContext
     private let logger = Logger(label: "DefaultLocationService")
 
-    public init(urlSession: URLSessionProtocol, relayCache: CachedRelays) {
-        self.urlSession = urlSession
+    public init(relayCache: CachedRelays, apiContext: ApiContext) {
         self.relayCache = relayCache
+        self.apiContext = apiContext
     }
 
     public func fetchCurrentLocationIdentifier() async throws -> REST.LocationIdentifier? {
-        // Safe to unwrap since it's a constant.
-        let url = URL(string: REST.amIMullvadHostname).unsafelyUnwrapped
-
-        let serverLocation: REST.ServerLocation
+        let serverLocation: IAmMullvadResponse
         do {
-            let data = try await urlSession.data(
-                for: URLRequest(url: url, timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval))
-            serverLocation = try JSONDecoder().decode(REST.ServerLocation.self, from: data.0)
-        } catch {
-            logger.log(level: .error, "Could not fetch server location: \(error.description)")
+            serverLocation = try await apiContext.amIMullvad(
+                useIpv6: false,
+                hostname: REST.amIMullvadHostname,
+                retryStrategy: REST.RetryStrategy.noRetry.toRustStrategy())
+        } catch let error as ErasedError {
+            logger.error("failed to fetch location: \(error.asString())")
             return nil
         }
 

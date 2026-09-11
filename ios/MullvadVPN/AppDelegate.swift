@@ -653,7 +653,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ = try? await relayCacheTracker.updateRelays()
         guard let cachedRelays = try? relayCacheTracker.getCachedRelays() else { return }
         let locationService = DefaultLocationService(
-            urlSession: URLSession.shared, relayCache: cachedRelays)
+            relayCache: cachedRelays, apiContext: apiContext)
         let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
         let userSelectedRelays: UserSelectedRelays =
             if let country = locationIdentifier?.country {
