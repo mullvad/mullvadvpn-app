@@ -31,7 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   The privacy policy can still be reached from Settings.
 
 ### Fixed
-- Fix relay list and custom lists not being sorted using locale-aware collation.
+- Fix relay list and custom lists sorting by respecting locales.
 
 
 ## [android/2026.9-beta2] - 2026-09-09
