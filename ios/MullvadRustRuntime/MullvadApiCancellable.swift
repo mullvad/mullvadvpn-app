@@ -10,28 +10,21 @@
 
 import MullvadTypes
 
-extension SwiftCancelHandle: @retroactive @unchecked Sendable {}
-
 public final class MullvadApiCancellable: Cancellable, Sendable {
-    private let handle: SwiftCancelHandle
+    private let handle: RequestCancelHandle
 
-    public init(handle: consuming SwiftCancelHandle) {
+    public init(handle: consuming RequestCancelHandle) {
         self.handle = handle
     }
 
-    public func start(_ completion: ((MullvadApiResponse) throws -> Void)?) {
-        let completionPointer = MullvadApiCompletion { apiResponse in
+    public func start(_ completion: (@Sendable (ApiResponse) throws -> Void)?) {
+        let completionCookie = MullvadApiCompletion { apiResponse in
             try? completion?(apiResponse)
         }
-        let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
-        mullvad_api_start_task(handle, rawCompletionPointer)
-    }
-
-    deinit {
-        mullvad_api_cancel_task_drop(handle)
+        handle.startTask(completionCookie: completionCookie)
     }
 
     public func cancel() {
-        mullvad_api_cancel_task(handle)
+        handle.cancelTask()
     }
 }
