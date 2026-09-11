@@ -5,6 +5,10 @@ on:
     paths:
       - mullvad-nsis/**
       - 'ci/cargo-ci.sh'
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '0 4 * * *'
+      timezone: 'Europe/Stockholm'
   workflow_dispatch:
 
 permissions: {}

@@ -25,6 +25,11 @@ on:
       - '!.*ignore'
       - '!prepare-release.sh'
       - '!**/osv-scanner.toml'
+  # Runs on main to populate and refresh the Rust cache
+  schedule:
+    - cron: '20 4 * * *'
+      timezone: 'Europe/Stockholm'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,6 +49,10 @@ jobs:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
       MAX_BINARY_SIZE: 3370000
+      # On Windows, the checkout is on the D drive, which is very small.
+      # Moving the target directory to the C drive ensures that the runner
+      # doesn't run out of space on the D drive.
+      CARGO_TARGET_DIR: "C:/cargo-target"
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
       - name: Set git config for long paths
@@ -53,13 +62,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
+        with:
+          # Own cache key: this workflow builds a different profile and target
+          # set than the other Rust workflows.
+          shared-key: downloader.yml
+          # rust-cache always assumes the target directory is `<workspace>/target`
+          # and never reads CARGO_TARGET_DIR, so point it at the real one.
+          cache-directories: ${{ env.CARGO_TARGET_DIR }}
+          cache-bin: false
+          # Only save the cache when on main, where the scheduled runs populate it.
+          # Uploading caches are expensive. Branches can only see caches from
+          # their own branch and the default branch. So uploading in branches
+          # costs a lot of time and does not give much benefit
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
       - name: Build
         shell: bash
-        env:
-          # On Windows, the checkout is on the D drive, which is very small.
-          # Moving the target directory to the C drive ensures that the runner
-          # doesn't run out of space on the D drive.
-          CARGO_TARGET_DIR: "C:/cargo-target"
         run: ./installer-downloader/build.sh
 
       - name: Check file size
@@ -80,6 +100,19 @@ jobs:
 
       - name: Install Rust
         run: rustup target add x86_64-apple-darwin
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
+        with:
+          # Own cache key: this workflow builds a different profile and target
+          # set than the other Rust workflows.
+          shared-key: downloader.yml
+          cache-bin: false
+          # Only save the cache when on main, where the scheduled runs populate it.
+          # Uploading caches are expensive. Branches can only see caches from
+          # their own branch and the default branch. So uploading in branches
+          # costs a lot of time and does not give much benefit
+          save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Build
         run: ./installer-downloader/build.sh

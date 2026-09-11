@@ -9,6 +9,10 @@ on:
       - 'test/**/Cargo.toml'  # Lint rules defined in toml files
       - clippy.toml
       - 'ci/cargo-ci.sh'
+  # Runs on main to populate and refresh the Rust cache in mullvad-build-env
+  schedule:
+    - cron: '20 3 * * *'
+      timezone: 'Europe/Stockholm'
   workflow_dispatch:
 
 concurrency:
@@ -32,6 +36,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: clippy
+          workspaces: test
 
       - name: Clippy check
         working-directory: test
@@ -55,6 +60,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: clippy
+          workspaces: test
 
       - name: Clippy check
         working-directory: test
