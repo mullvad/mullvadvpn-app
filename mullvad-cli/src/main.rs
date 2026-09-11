@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-#[cfg(all(unix, not(target_os = "android")))]
+#[cfg(any(windows, all(unix, not(target_os = "android"))))]
 use clap::ValueEnum;
 
 mod cmds;
@@ -15,7 +15,7 @@ pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 ///
 /// NOTE: this enum as a copy of [`clap_complete::Shell`],
 /// with Nushell added.
-#[cfg(all(unix, not(target_os = "android")))]
+#[cfg(any(windows, all(unix, not(target_os = "android"))))]
 #[derive(Clone, ValueEnum, Debug)]
 enum CompletionShell {
     /// Bourne Again `SHell` (bash)
@@ -33,7 +33,7 @@ enum CompletionShell {
     Nushell,
 }
 
-#[cfg(all(unix, not(target_os = "android")))]
+#[cfg(any(windows, all(unix, not(target_os = "android"))))]
 impl CompletionShell {
     fn generate_to(self, dir: &std::path::Path) -> std::io::Result<std::path::PathBuf> {
         use clap::CommandFactory;
@@ -161,7 +161,7 @@ enum Cli {
     Version,
 
     /// Generate completion scripts for the specified shell
-    #[cfg(all(unix, not(target_os = "android")))]
+    #[cfg(any(windows, all(unix, not(target_os = "android"))))]
     #[command(hide = true)]
     ShellCompletions {
         /// The shell to generate the script for
@@ -246,7 +246,7 @@ async fn main() -> Result<()> {
         Cli::ExportSettings { file } => patch::export(file).await,
         Cli::Log(cmd) => cmd.handle().await,
 
-        #[cfg(all(unix, not(target_os = "android")))]
+        #[cfg(any(windows, all(unix, not(target_os = "android"))))]
         Cli::ShellCompletions { shell, dir } => {
             use anyhow::Context;
             // FIXME: The shell completions include hidden commands (including "shell-completions")
