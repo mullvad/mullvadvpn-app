@@ -612,15 +612,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
         // and leave user in logged out state. VPN config will be removed as well.
-        await withCheckedContinuation { continuation in
-            self.tunnelManager.loadConfiguration {
-                self.logger.debug("Finished initialization.")
-
-                NotificationManager.shared.updateNotifications()
-
-                continuation.resume(returning: ())
-            }
-        }
+        await self.tunnelManager.loadConfiguration()
+        self.logger.debug("Finished initialization.")
+        NotificationManager.shared.updateNotifications()
     }
 
     /// 1. If the app has never been launched, preload with default settings.

@@ -18,11 +18,11 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
     var isConfigurationLoaded: Bool
 
     var settings: LatestTunnelSettings
-
     var deviceState: DeviceState
-
     var onUpdateTunnelStatus: ((TunnelStatus) -> Void)?
-
+    var onSetTunnel: (((any TunnelProtocol)?, Bool) -> Void)?
+    var onSetSettings: ((LatestTunnelSettings, Bool) -> Void)?
+    var onSetDeviceState: ((DeviceState, Bool) -> Void)?
     var tunnel: (any TunnelProtocol)?
 
     var backgroundTaskProvider: BackgroundTaskProviding {
@@ -44,17 +44,18 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
     }
 
     func getPersistentTunnel() async -> (any TunnelProtocol)? {
-        nil
+        tunnel
     }
 
     func createNewTunnel() async -> any TunnelProtocol {
-        return MockTunnel(
+        MockTunnel(
             tunnelProvider: SimulatorTunnelProviderManager(),
             backgroundTaskProvider: backgroundTaskProvider
         )
     }
 
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+        onSetTunnel?(tunnel, shouldRefreshTunnelState)
         self.tunnel = tunnel
     }
 
@@ -67,11 +68,17 @@ final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
         return tunnelStatus
     }
 
-    func setConfigurationLoaded() {}
+    func setConfigurationLoaded() {
+        isConfigurationLoaded = true
+    }
 
-    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {}
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
+        onSetSettings?(settings, persist)
+        self.settings = settings
+    }
 
     func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
+        onSetDeviceState?(deviceState, persist)
         self.deviceState = deviceState
     }
 
