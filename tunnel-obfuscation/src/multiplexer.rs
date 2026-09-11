@@ -7,32 +7,28 @@
 //!
 //! ## How it works
 //!
-//! 1. **Initial Setup**: The multiplexer creates a local UDP socket that WireGuard connects to
-//! 2. **Transport Spawning**: It progressively spawns different obfuscation transports at timed
+//! 1. **Transport Spawning**: It progressively spawns different obfuscation transports at timed
 //!    intervals
-//! 3. **Traffic Fanout**: All incoming WireGuard packets are fanned out to all active transports
-//! 4. **First Response Wins**: The first transport to receive a response from the server is
+//! 2. **Traffic Fanout**: All outgoing WireGuard packets are fanned out to all active transports
+//! 3. **First Response Wins**: The first transport to receive a response from the server is
 //!    selected
-//! 5. **Connection Establishment**: Once a transport is selected, the multiplexer switches to a
-//!    direct forwarding mode between WireGuard and the selected transport
+//! 4. **Connection Establishment**: Once a transport is selected, the multiplexer steps out of the
+//!    data path and hands every datagram straight to it
+//!
+//! The multiplexer can be wrapped in a [crate::local_socket::LocalSocketRunner] if it needs to be
+//! reached through a local UDP proxy.
 //!
 //! ## Transport Types
 //!
 //! See the [Transport] enum.
 
-use std::{
-    collections::VecDeque,
-    io,
-    net::{Ipv4Addr, SocketAddr},
-    sync::Arc,
-    time::Duration,
-};
+use std::{collections::VecDeque, io, net::SocketAddr, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
 use futures::{StreamExt, stream::FuturesUnordered};
 use talpid_net::bypass::SocketBypass;
 use talpid_types::net::wireguard::PublicKey;
-use tokio::{net::UdpSocket, sync::oneshot};
+use tokio::sync::{Mutex, mpsc, oneshot, watch};
 use tokio_util::task::AbortOnDropHandle;
 
 use crate::{
@@ -47,6 +43,9 @@ const SPAWN_INTERVAL: Duration = Duration::from_secs(1);
 /// Max number of initial outgoing packets to buffer for replaying to new transports
 const MAX_INITIAL_PACKETS: usize = 100;
 
+/// Datagram queue len for send/recv during the discovery phase.
+const DATAGRAM_QUEUE_LEN: usize = 128;
+
 /// Index of a transport in the set of running transports.
 type TransportId = usize;
 
@@ -58,17 +57,32 @@ type TransportId = usize;
 /// 2. **Connected Phase**: Once a transport responds with a valid handshake response, switch to
 ///    forwarding to that transport only
 pub struct Multiplexer {
-    /// Local UDP socket that WireGuard connects to
-    client_socket: UdpSocket,
-    /// Address of the client socket that WireGuard should connect to
-    client_socket_addr: SocketAddr,
-    /// Queue of transports to spawn (in priority order)
-    pending: VecDeque<Transport>,
-    /// Public key of the local WireGuard instance.
-    client_public_key: PublicKey,
-    /// Notified with the selected transport
-    selected_transport_tx: SelectedTransportTx,
-    bypass: Arc<dyn SocketBypass>,
+    /// Which phase the multiplexer is in.
+    phase: watch::Receiver<Phase>,
+
+    /// Datagrams to fan out, drained by the discovery task while it is still racing.
+    outgoing: mpsc::Sender<Box<[u8]>>,
+
+    /// Datagrams that a raced transport received before one was selected.
+    ///
+    /// The [Mutex] is uncontended in practice.
+    incoming: Mutex<mpsc::Receiver<Box<[u8]>>>,
+
+    packet_overhead: u16,
+
+    /// Stops discovery when this transport is dropped.
+    _discovery_task: AbortOnDropHandle<()>,
+}
+
+/// Which phase the multiplexer is in.
+#[derive(Clone)]
+enum Phase {
+    /// Still trying different obfuscation transports.
+    Discovery,
+    /// This transport answered first, and carries the traffic from here on.
+    Connected(Arc<dyn ObfuscatedTransport>),
+    /// Discovery ended without selecting a transport.
+    Failed(Arc<io::Error>),
 }
 
 /// A transport that has been spawned and is being fanned out to.
@@ -83,62 +97,151 @@ struct RunningTransport {
 impl Multiplexer {
     /// Create a new multiplexer with the specified transports (obfuscators) and settings.
     ///
+    /// Discovery starts racing as soon as the first datagram is sent, and the multiplexer steps
+    /// aside once it has a winner.
+    ///
     /// # Arguments
     /// * `settings` - Configuration containing the list of transports to try and network settings
-    ///
-    /// # Returns
-    /// A new multiplexer instance ready to start obfuscation discovery
-    pub async fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> crate::Result<Self> {
-        let client_socket = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0))
-            .await
-            .map_err(crate::Error::BindLocalUdp)?;
+    pub fn new(bypass: Arc<dyn SocketBypass>, settings: Settings) -> Self {
+        let Settings {
+            transports,
+            client_public_key,
+            selected_transport,
+        } = settings;
 
-        let client_socket_addr = client_socket
-            .local_addr()
-            .map_err(crate::Error::BindLocalUdp)?;
+        // Use the largest transport overhead.
+        let packet_overhead = packet_overhead(&transports);
 
-        Ok(Self {
-            client_socket,
-            client_socket_addr,
-            pending: VecDeque::from(settings.transports),
-            client_public_key: settings.client_public_key,
-            selected_transport_tx: settings.selected_transport,
+        let (outgoing, outgoing_rx) = mpsc::channel(DATAGRAM_QUEUE_LEN);
+        let (incoming_tx, incoming) = mpsc::channel(DATAGRAM_QUEUE_LEN);
+        let (phase_tx, phase) = watch::channel(Phase::Discovery);
+
+        let discovery_task = tokio::spawn(discover(
+            outgoing_rx,
+            incoming_tx,
+            phase_tx,
+            VecDeque::from(transports),
             bypass,
-        })
+            client_public_key,
+            selected_transport,
+        ));
+
+        Self {
+            phase,
+            outgoing,
+            incoming: Mutex::new(incoming),
+            packet_overhead,
+            _discovery_task: AbortOnDropHandle::new(discovery_task),
+        }
     }
 
-    /// Run the multiplexer: discover a working transport, then forward traffic over it.
-    ///
-    /// Blocks until WireGuard sends its first packet, and then until the connection fails.
-    async fn start(self) -> io::Result<()> {
-        log::debug!("Running multiplexer obfuscation");
+    /// Which phase the multiplexer is in, as of now.
+    fn phase(&self) -> Phase {
+        self.phase.borrow().clone()
+    }
+}
 
-        let Self {
-            client_socket,
-            pending,
-            client_public_key,
-            selected_transport_tx,
-            bypass,
-            ..
-        } = self;
+/// Race the transports until one of them answers, and publish the result.
+///
+/// Whatever happens, `phase_tx` is told about it, since [Multiplexer::send] and
+/// [Multiplexer::recv] have nowhere else to learn that the race is over.
+async fn discover(
+    mut outgoing: mpsc::Receiver<Box<[u8]>>,
+    incoming: mpsc::Sender<Box<[u8]>>,
+    phase_tx: watch::Sender<Phase>,
+    pending: VecDeque<Transport>,
+    bypass: Arc<dyn SocketBypass>,
+    client_public_key: PublicKey,
+    selected_transport_tx: SelectedTransportTx,
+) {
+    log::debug!("Running multiplexer obfuscation");
 
-        // Wait for WireGuard's first packet so that we know where to send replies.
-        let wg_addr = client_socket.peek_sender().await?;
-        client_socket.connect(wg_addr).await?;
-        log::debug!("Local WireGuard instance connected from {wg_addr}");
+    let result = run_discovery(
+        &mut outgoing,
+        &incoming,
+        pending,
+        bypass,
+        &client_public_key,
+        selected_transport_tx,
+    )
+    .await;
 
-        let discovery = run_discovery(
-            &client_socket,
-            pending,
-            bypass,
-            &client_public_key,
-            selected_transport_tx,
-        );
-        let Some(transport) = discovery.await? else {
-            return Ok(());
-        };
+    let _ = phase_tx.send(match result {
+        Ok(Some(transport)) => Phase::Connected(transport),
+        Ok(None) => Phase::Failed(Arc::new(stopped())),
+        Err(err) => Phase::Failed(Arc::new(err)),
+    });
+}
 
-        run_connected(client_socket, transport).await
+fn stopped() -> io::Error {
+    io::Error::new(
+        io::ErrorKind::BrokenPipe,
+        "the multiplexer stopped before selecting a transport",
+    )
+}
+
+/// [io::Error] is not [Clone], and every caller that waited on the same failure needs one.
+fn clone_error(error: &io::Error) -> io::Error {
+    io::Error::new(error.kind(), error.to_string())
+}
+
+fn copy_datagram(datagram: &[u8], buf: &mut [u8]) -> io::Result<usize> {
+    buf.get_mut(..datagram.len())
+        .ok_or_else(|| io::Error::other("datagram does not fit in the receive buffer"))?
+        .copy_from_slice(datagram);
+    Ok(datagram.len())
+}
+
+#[async_trait]
+impl ObfuscatedTransport for Multiplexer {
+    async fn send(&self, packet: &mut [u8]) -> io::Result<()> {
+        match self.phase() {
+            // Just forward to the selected transport.
+            Phase::Connected(transport) => transport.send(packet).await,
+            Phase::Failed(err) => Err(clone_error(&err)),
+            Phase::Discovery => self
+                .outgoing
+                .send(Box::from(&packet[..]))
+                .await
+                .map_err(|_| stopped()),
+        }
+    }
+
+    async fn recv(&self, buf: &mut [u8]) -> io::Result<usize> {
+        let mut incoming = self.incoming.lock().await;
+        let mut phase = self.phase.clone();
+
+        loop {
+            // Drain any packets received during the discovery phase.
+            // This will be emptied forever when connected.
+            if let Ok(datagram) = incoming.try_recv() {
+                return copy_datagram(&datagram, buf);
+            }
+
+            let current = phase.borrow_and_update().clone();
+            match current {
+                // In the connected phase, just forward from the selected transport.
+                Phase::Connected(transport) => return transport.recv(buf).await,
+                Phase::Failed(err) => return Err(clone_error(&err)),
+                // Discovery phase
+                Phase::Discovery => {
+                    tokio::select! {
+                        biased;
+                        Some(datagram) = incoming.recv() => return copy_datagram(&datagram, buf),
+                        result = phase.changed() => {
+                            // Discovery task failed to report a result.
+                            if result.is_err() {
+                                return Err(stopped());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn packet_overhead(&self) -> u16 {
+        self.packet_overhead
     }
 }
 
@@ -149,18 +252,19 @@ impl Multiplexer {
 /// 2. Receive responses from the transports
 /// 3. Spawn new transports at timed intervals
 ///
-/// Returns the selected transport, or `None` if the local WireGuard instance went away before any
-/// transport was selected.
+/// Returns the selected transport, or `None` if the caller went away before any transport was
+/// selected.
 async fn run_discovery(
-    client_socket: &UdpSocket,
+    outgoing: &mut mpsc::Receiver<Box<[u8]>>,
+    incoming: &mpsc::Sender<Box<[u8]>>,
     mut pending: VecDeque<Transport>,
     bypass: Arc<dyn SocketBypass>,
     client_public_key: &PublicKey,
     selected_transport_tx: SelectedTransportTx,
 ) -> io::Result<Option<Arc<dyn ObfuscatedTransport>>> {
     enum Event {
-        /// A packet from the local WireGuard instance, or the error that prevented it.
-        Wireguard(io::Result<usize>),
+        /// A packet from the local WireGuard instance, or `None` if it went away.
+        Wireguard(Option<Box<[u8]>>),
         /// A packet from a running transport, deobfuscated into that transport's buffer.
         Transport(TransportId, io::Result<usize>),
         /// Time to spawn the next pending transport.
@@ -171,7 +275,6 @@ async fn run_discovery(
     let mut initial_packets: Vec<Box<[u8]>> = vec![];
     let mut handshakes = HandshakeFilter::new(client_public_key);
 
-    let mut wg_buf = vec![0u8; MAX_DATAGRAM_SIZE];
     let mut scratch = vec![0u8; MAX_DATAGRAM_SIZE];
 
     let mut spawn_timer = tokio::time::interval(SPAWN_INTERVAL);
@@ -179,7 +282,7 @@ async fn run_discovery(
     loop {
         let event = tokio::select! {
             // From local WG
-            result = client_socket.recv(&mut wg_buf) => Event::Wireguard(result),
+            packet = outgoing.recv() => Event::Wireguard(packet),
 
             // From any running transport
             (id, result) = recv_any(&mut running) => Event::Transport(id, result),
@@ -189,12 +292,12 @@ async fn run_discovery(
         };
 
         match event {
-            Event::Wireguard(Err(err)) => {
-                log::error!("Failed to receive traffic from local WireGuard instance: {err}");
+            Event::Wireguard(None) => {
+                log::debug!("The local WireGuard instance went away before a transport answered");
                 return Ok(None);
             }
-            Event::Wireguard(Ok(n)) => {
-                let packet = &wg_buf[..n];
+            Event::Wireguard(Some(packet)) => {
+                let n = packet.len();
 
                 if initial_packets.len() >= MAX_INITIAL_PACKETS {
                     // Initial packets should be handshake initiation packets, so we
@@ -202,16 +305,17 @@ async fn run_discovery(
                     // If we do, fail so we don't use excessive memory.
                     return Err(io::Error::other("Too many initial packets"));
                 }
-                initial_packets.push(Box::from(packet));
-                handshakes.record_initiation(packet);
+                handshakes.record_initiation(&packet);
 
                 // Fan out the latest WG packet to all currently spawned transports.
                 for (id, running) in running.iter().enumerate() {
-                    scratch[..n].copy_from_slice(packet);
+                    scratch[..n].copy_from_slice(&packet);
                     if let Err(err) = running.transport.send(&mut scratch[..n]).await {
                         log::error!("Failed to send packet to transport {id}: {err}");
                     }
                 }
+
+                initial_packets.push(packet);
             }
 
             Event::Transport(id, Err(err)) => {
@@ -231,7 +335,7 @@ async fn run_discovery(
                 // this transport carries a handshake, so keep fanning out.
                 Received::CookieReply => {
                     log::debug!("Forwarding cookie reply from transport {id}");
-                    client_socket.send(&running[id].buf[..n]).await?;
+                    forward(incoming, &running[id].buf[..n]).await?;
                 }
 
                 // A handshake response means this transport reached the relay, so use it from
@@ -242,7 +346,7 @@ async fn run_discovery(
                         "Selecting {:?} as the valid transport configuration",
                         selected.config
                     );
-                    client_socket.send(&selected.buf[..n]).await?;
+                    forward(incoming, &selected.buf[..n]).await?;
 
                     // Announce the selected transport, so that the firewall can be restricted to
                     // the endpoint it committed to.
@@ -321,42 +425,12 @@ async fn send_initial_packets(
     }
 }
 
-/// Switch to connected mode after a transport has been successfully selected.
-///
-/// In this mode, the multiplexer is a plain proxy between WireGuard and the selected transport.
-/// Since it is the only transport left, packets are obfuscated in place with no copies.
-///
-/// Blocks until either direction fails.
-async fn run_connected(
-    client_socket: UdpSocket,
-    transport: Arc<dyn ObfuscatedTransport>,
-) -> io::Result<()> {
-    let client_socket = Arc::new(client_socket);
-
-    let mut tx_task = AbortOnDropHandle::new(tokio::spawn({
-        let (client_socket, transport) = (Arc::clone(&client_socket), Arc::clone(&transport));
-        async move {
-            let mut buf = vec![0u8; MAX_DATAGRAM_SIZE];
-            loop {
-                let n = client_socket.recv(&mut buf).await?;
-                transport.send(&mut buf[..n]).await?;
-            }
-        }
-    }));
-
-    let mut rx_task = AbortOnDropHandle::new(tokio::spawn(async move {
-        let mut buf = vec![0u8; MAX_DATAGRAM_SIZE];
-        loop {
-            let n = transport.recv(&mut buf).await?;
-            client_socket.send(&buf[..n]).await?;
-        }
-    }));
-
-    tokio::select! {
-        Ok(result) = &mut tx_task => result,
-        Ok(result) = &mut rx_task => result,
-        else => Ok(()),
-    }
+/// Hand a datagram that discovery received back to whoever is driving the multiplexer.
+async fn forward(incoming: &mpsc::Sender<Box<[u8]>>, datagram: &[u8]) -> io::Result<()> {
+    incoming
+        .send(Box::from(datagram))
+        .await
+        .map_err(|_| stopped())
 }
 
 /// Notifies interested parties about which transport the multiplexer has committed to.
@@ -407,19 +481,6 @@ pub fn packet_overhead(transports: &[Transport]) -> u16 {
         .unwrap_or(0)
 }
 
-#[async_trait]
-impl crate::LocalSocketObfuscator for Multiplexer {
-    fn endpoint(&self) -> SocketAddr {
-        self.client_socket_addr
-    }
-
-    async fn run(self: Box<Self>) -> crate::Result<()> {
-        self.start()
-            .await
-            .map_err(crate::Error::RunMultiplexerObfuscator)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::assert_matches;
@@ -427,10 +488,17 @@ mod tests {
     use super::*;
     use crate::{
         LocalSocketObfuscator,
+        local_socket::LocalSocketRunner,
         wireguard::{handshake_initiation, handshake_response},
     };
     use talpid_net::bypass::NoopBypass;
     use talpid_types::net::obfuscation::LwoVersion;
+    use tokio::net::UdpSocket;
+
+    async fn local_socket(multiplexer: Multiplexer) -> Box<dyn LocalSocketObfuscator> {
+        let runner = LocalSocketRunner::new(Arc::new(multiplexer)).await.unwrap();
+        Box::new(runner)
+    }
 
     /// The index that the handshakes in these tests are for.
     const SESSION: u32 = 7;
@@ -463,17 +531,13 @@ mod tests {
             selected_transport: selected_tx,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings)
-            .await
-            .unwrap();
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let multiplexer = local_socket(multiplexer).await;
         let multiplexer_endpoint = multiplexer.endpoint();
 
         let client_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
-        tokio::spawn(async move {
-            let boxed_multiplexer = Box::new(multiplexer);
-            boxed_multiplexer.run().await
-        });
+        tokio::spawn(multiplexer.run());
 
         // Send a handshake initiation from client to multiplexer and verify that it is received
         let test_data = handshake_initiation(SESSION);
@@ -559,11 +623,10 @@ mod tests {
             selected_transport: selected_tx,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings)
-            .await
-            .unwrap();
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let multiplexer = local_socket(multiplexer).await;
         let multiplexer_endpoint = multiplexer.endpoint();
-        tokio::spawn(Box::new(multiplexer).run());
+        tokio::spawn(multiplexer.run());
 
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         wg_socket
@@ -630,11 +693,10 @@ mod tests {
             selected_transport: selected_tx,
         };
 
-        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings)
-            .await
-            .unwrap();
+        let multiplexer = Multiplexer::new(Arc::new(NoopBypass), settings);
+        let multiplexer = local_socket(multiplexer).await;
         let multiplexer_endpoint = multiplexer.endpoint();
-        tokio::spawn(Box::new(multiplexer).run());
+        tokio::spawn(multiplexer.run());
 
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 

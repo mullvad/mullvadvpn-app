@@ -43,9 +43,6 @@ pub enum Error {
 
     #[error("Failed to run local socket obfuscator")]
     RunLocalSocketObfuscator(#[source] io::Error),
-
-    #[error("Failed to run multiplexer")]
-    RunMultiplexerObfuscator(#[source] io::Error),
 }
 
 /// An obfuscator that a local WireGuard instance reaches over a UDP socket on localhost.

@@ -4,6 +4,7 @@ use crate::{
     Tunnel, TunnelError,
     config::Config,
     gotatun::obfuscation::MaybeObfuscatingTransportFactory,
+    obfuscation::RunningObfuscation,
     stats::{Stats, StatsMap},
 };
 use gotatun::{
@@ -82,27 +83,38 @@ pub struct GotaTun {
 
     /// Name of the tun interface.
     interface_name: String,
+
+    /// Optional obfuscation transport.
+    obfuscation: Option<RunningObfuscation>,
 }
 
 impl GotaTun {
     async fn new(
         tun_dev: AsyncDevice,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         config: Config,
         interface_name: String,
     ) -> Result<Self, TunnelError> {
         let tun_dev = GotaTunDevice::from_tun_device(tun_dev)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
-        let devices = create_devices(&config, None, tun_dev.clone(), Arc::clone(&bypass))
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
+        let devices = create_devices(
+            &config,
+            None,
+            tun_dev.clone(),
+            Arc::clone(&bypass),
+            obfuscation.clone(),
+        )
+        .await
+        .map_err(TunnelError::GotaTunDevice)?;
 
         Ok(Self {
             config,
             interface_name,
             tun_dev,
             bypass,
+            obfuscation,
             devices: Some(devices),
         })
     }
@@ -190,6 +202,7 @@ pub async fn open_gotatun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     bypass: Arc<dyn SocketBypass>,
+    obfuscation: Option<RunningObfuscation>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
 ) -> super::Result<GotaTun> {
@@ -258,7 +271,7 @@ pub async fn open_gotatun_tunnel(
     };
 
     log::trace!("passing tunnel dev to gotatun");
-    let gotatun = GotaTun::new(async_tun, bypass, config, interface_name)
+    let gotatun = GotaTun::new(async_tun, bypass, obfuscation, config, interface_name)
         .await
         .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
 
@@ -393,6 +406,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -410,6 +424,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -441,6 +456,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -450,6 +466,7 @@ impl Tunnel for GotaTun {
                     daita.as_ref(),
                     self.tun_dev.clone(),
                     Arc::clone(&self.bypass),
+                    self.obfuscation.clone(),
                 )
                 .await
                 .map_err(TunnelError::GotaTunDevice)?,
@@ -470,20 +487,20 @@ async fn create_devices(
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
     bypass: Arc<dyn SocketBypass>,
+    obfuscation: Option<RunningObfuscation>,
 ) -> Result<Devices, gotatun::device::Error> {
     async fn create_devices_inner(
         config: &Config, // TODO: do not include config to reduce confusion
         daita: Option<&DaitaSettings>,
         tun_dev: GotaTunDevice,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory = MaybeObfuscatingTransportFactory::from_settings(
+        let factory = MaybeObfuscatingTransportFactory::new(
             optimize_buffer_size,
-            config
-                .obfuscation_settings()
-                .as_ref()
-                .and_then(|settings| settings.single()),
+            obfuscation,
+            config.entry_peer.endpoint,
             bypass,
         );
         // The addresses assigned to the tun device, i.e. the only source addresses we accept
@@ -558,7 +575,16 @@ async fn create_devices(
         Ok(devices)
     }
 
-    match create_devices_inner(config, daita, tun_dev.clone(), bypass.clone(), true).await {
+    match create_devices_inner(
+        config,
+        daita,
+        tun_dev.clone(),
+        bypass.clone(),
+        obfuscation.clone(),
+        true,
+    )
+    .await
+    {
         Ok(devices) => Ok(devices),
         // Empirically, creating devices may fail when binding the UDP socket due to
         // us wanting to tweak the UDP socket buffer sizes to a larger value than
@@ -572,7 +598,7 @@ async fn create_devices(
                 && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
         {
             log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
-            create_devices_inner(config, daita, tun_dev, bypass, false).await
+            create_devices_inner(config, daita, tun_dev, bypass, obfuscation, false).await
         }
         Err(err) => Err(err),
     }

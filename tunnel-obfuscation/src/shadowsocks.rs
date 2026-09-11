@@ -32,7 +32,6 @@ pub struct Shadowsocks {
     socket: ShadowSocket,
     shadowsocks_endpoint: SocketAddr,
     wireguard_endpoint: Address,
-    wireguard_addr: SocketAddr,
     packet_overhead: u16,
 }
 
@@ -72,7 +71,6 @@ impl Shadowsocks {
             socket,
             shadowsocks_endpoint: settings.shadowsocks_endpoint,
             wireguard_endpoint: Address::SocketAddress(settings.wireguard_endpoint),
-            wireguard_addr: settings.wireguard_endpoint,
             packet_overhead: settings.packet_overhead(),
         })
     }
@@ -132,10 +130,6 @@ impl ObfuscatedTransport for Shadowsocks {
 
             return Ok(n);
         }
-    }
-
-    fn endpoint(&self) -> SocketAddr {
-        self.wireguard_addr
     }
 
     fn packet_overhead(&self) -> u16 {

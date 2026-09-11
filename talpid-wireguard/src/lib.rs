@@ -6,18 +6,17 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::Future;
-use obfuscation::ObfuscatorHandle;
+use obfuscation::{RunningObfuscation, SelectedTransportRx};
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 #[cfg(windows)]
 use std::io;
 use std::{
     convert::Infallible,
-    env,
     net::IpAddr,
     path::Path,
     pin::Pin,
-    sync::{Arc, LazyLock, mpsc as sync_mpsc},
+    sync::{Arc, mpsc as sync_mpsc},
 };
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use talpid_routing::RouteManagerHandle;
@@ -144,31 +143,21 @@ pub struct WireguardMonitor {
     event_hook: EventHook,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: connectivity::CancelToken,
-    obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
 #[cfg(not(target_os = "android"))]
 /// Overrides the preference for the kernel module for WireGuard.
-static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
-    env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+static FORCE_USERSPACE_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
 
 #[cfg(not(target_os = "android"))]
-/// Force the use of the kernel module for WireGuard, even when userspace
-/// obfuscation is available. Causes a panic if features that require userspace
-/// wireguard (i.e. GotaTun) are enabled, such as DAITA.
-static FORCE_KERNEL_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
-    env::var("TALPID_FORCE_KERNEL_WIREGUARD")
-        .map(|v| v != "0")
-        .unwrap_or(false)
-});
-
-/// Forces packets to be delivered to the obfuscator via a local socket, even when
-/// a userspace obfuscation transport is available.
-static FORCE_LOCAL_SOCKET_OBFUSCATION: LazyLock<bool> = LazyLock::new(|| {
-    env::var("TALPID_FORCE_LOCAL_SOCKET_OBFUSCATION")
+/// Force the use of the kernel module for WireGuard. Causes a panic if features that require
+/// userspace wireguard (i.e. GotaTun) are enabled, such as DAITA or any obfuscation.
+static FORCE_KERNEL_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("TALPID_FORCE_KERNEL_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
@@ -181,23 +170,22 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let require_userspace_wireguard = params.use_userspace_wg() || *FORCE_USERSPACE_WIREGUARD;
-        let userspace_obfuscation = obfuscation::userspace_transport_available(params)
-            && !*FORCE_LOCAL_SOCKET_OBFUSCATION
-            && !*FORCE_KERNEL_WIREGUARD;
+        // GotaTun applies every obfuscation method itself, so obfuscation requires it.
+        let require_userspace_wireguard =
+            params.use_userspace_wg() || params.obfuscation.is_some() || *FORCE_USERSPACE_WIREGUARD;
         assert!(
             !(*FORCE_KERNEL_WIREGUARD && require_userspace_wireguard),
-            "Cannot force kernel WireGuard when userspace is required (DAITA, etc.)"
+            "Cannot force kernel WireGuard when userspace is required (DAITA, obfuscation, etc.)"
         );
-        let userspace_wireguard = require_userspace_wireguard || userspace_obfuscation;
+        let userspace_wireguard = require_userspace_wireguard;
 
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
         let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
-        // Build obfuscation settings and optionally start a local socket obfuscator. Only the
-        // multiplexer still needs one; every single method is applied inline by GotaTun.
+        // Obfuscation is applied inline by GotaTun; all that is set up here is the room it
+        // needs in every packet, and a way to hear which endpoint a multiplexer commits to.
         let obfuscation_mtu = route_mtu;
         let mut config =
             crate::config::Config::from_parameters(params, tunnel_mtu, obfuscation_mtu)
@@ -216,17 +204,9 @@ impl WireguardMonitor {
             &config,
         );
 
-        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
-        // For userspace_obfuscation, apply_obfuscation_config returns None obfuscation is set
-        // up in `open_gotatun_tunnel`.
-        let obfuscator = get_obfuscator(
-            params,
-            &args,
-            userspace_obfuscation,
-            &mut config,
-            &close_obfs_sender,
-            &bypass,
-        )?;
+        let (obfuscation, selected_transport_rx) =
+            get_obfuscator(&args.runtime, params, &mut config, &bypass)?
+                .map_or((None, None), |(obfuscation, rx)| (Some(obfuscation), rx));
 
         // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
         // precaution in case the interface gets broken in some way. Creating a new interface
@@ -247,14 +227,13 @@ impl WireguardMonitor {
             args.resource_dir,
             args.tun_provider.clone(),
             bypass.clone(),
+            obfuscation,
             #[cfg(target_os = "windows")]
             setup_done_tx,
             userspace_wireguard,
             _log_path,
         )?;
         let iface_name = tunnel.get_interface_name();
-
-        let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
         let gateway = config.ipv4_gateway;
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
@@ -273,18 +252,13 @@ impl WireguardMonitor {
             event_hook: args.event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: cancel_token,
-            obfuscator,
         };
 
         let mut event_hook = args.event_hook.clone();
         let moved_tunnel = monitor.tunnel.clone();
-        let moved_close_obfs_sender = close_obfs_sender.clone();
-        let moved_obfuscator = monitor.obfuscator.clone();
         let detect_mtu = params.options.mtu.is_none();
         let tunnel_fut = async move {
             let tunnel = moved_tunnel;
-            let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
-            let obfuscator = moved_obfuscator;
             #[cfg(windows)]
             if !userspace_wireguard {
                 Self::wait_for_device_setup(setup_done_rx).await?;
@@ -314,17 +288,10 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let ephemeral_obfs_sender = close_obfs_sender.clone();
             if config.quantum_resistant || config.daita {
-                if let Err(e) = ephemeral::config_ephemeral_peers(
-                    &tunnel,
-                    &mut config,
-                    args.retry_attempt,
-                    obfuscator.clone(),
-                    ephemeral_obfs_sender,
-                    bypass,
-                )
-                .await
+                if let Err(e) =
+                    ephemeral::config_ephemeral_peers(&tunnel, &mut config, args.retry_attempt)
+                        .await
                 {
                     // We have received a small amount of reports about ephemeral peer nogationation
                     // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
@@ -405,7 +372,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = selected_obfuscation(&obfuscator)
+            let selected_obfuscation = selected_obfuscation(selected_transport_rx)
                 .await
                 .map_err(CloseMsg::SetupError)?;
 
@@ -496,20 +463,11 @@ impl WireguardMonitor {
             args.tun_provider.clone(),
         );
 
-        // Android always uses GotaTun (userspace WireGuard). When the obfuscation can be
-        // applied inline, skip the local socket obfuscator and let
-        // MaybeObfuscatingTransportFactory handle it directly.
-        let userspace_obfuscation =
-            obfuscation::userspace_transport_available(params) && !*FORCE_LOCAL_SOCKET_OBFUSCATION;
-
-        let obfuscator = get_obfuscator(
-            params,
-            &args,
-            userspace_obfuscation,
-            &mut config,
-            &close_obfs_sender,
-            &bypass,
-        )?;
+        // Android always uses GotaTun (userspace WireGuard), which applies the obfuscation
+        // itself. See `MaybeObfuscatingTransportFactory`.
+        let (obfuscation, selected_transport_rx) =
+            get_obfuscator(&args.runtime, params, &mut config, &bypass)?
+                .map_or((None, None), |(obfuscation, rx)| (Some(obfuscation), rx));
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
@@ -527,6 +485,7 @@ impl WireguardMonitor {
                 &config,
                 args.tun_provider.clone(),
                 Arc::clone(&bypass),
+                obfuscation,
                 args.route_manager,
                 should_negotiate_ephemeral_peer,
             ))
@@ -541,15 +500,9 @@ impl WireguardMonitor {
             event_hook: event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: cancel_token,
-            obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
         };
 
-        let moved_close_obfs_sender = close_obfs_sender.clone();
-        let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
-            let obfuscator = moved_obfuscator;
-
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             event_hook
@@ -579,17 +532,9 @@ impl WireguardMonitor {
             }
 
             if should_negotiate_ephemeral_peer {
-                let ephemeral_obfs_sender = close_obfs_sender.clone();
-
-                if let Err(e) = ephemeral::config_ephemeral_peers(
-                    &tunnel,
-                    &mut config,
-                    args.retry_attempt,
-                    obfuscator.clone(),
-                    ephemeral_obfs_sender,
-                    Arc::clone(&bypass),
-                )
-                .await
+                if let Err(e) =
+                    ephemeral::config_ephemeral_peers(&tunnel, &mut config, args.retry_attempt)
+                        .await
                 {
                     // We have received a small amount of reports about ephemeral peer nogationation
                     // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
@@ -609,7 +554,7 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = selected_obfuscation(&obfuscator)
+            let selected_obfuscation = selected_obfuscation(selected_transport_rx)
                 .await
                 .map_err(CloseMsg::SetupError)?;
             event_hook
@@ -713,6 +658,7 @@ impl WireguardMonitor {
         resource_dir: &Path,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
@@ -723,7 +669,12 @@ impl WireguardMonitor {
             log::debug!("Using userspace WireGuard implementation");
 
             let tunnel = runtime
-                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
+                .block_on(gotatun::open_gotatun_tunnel(
+                    config,
+                    tun_provider,
+                    bypass,
+                    obfuscation,
+                ))
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
@@ -746,6 +697,7 @@ impl WireguardMonitor {
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         _userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
@@ -754,7 +706,12 @@ impl WireguardMonitor {
         log::debug!("Using userspace WireGuard implementation");
 
         let tunnel = runtime
-            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
+            .block_on(gotatun::open_gotatun_tunnel(
+                config,
+                tun_provider,
+                bypass,
+                obfuscation,
+            ))
             .map(Box::new)?;
         Ok(tunnel)
     }
@@ -765,6 +722,7 @@ impl WireguardMonitor {
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
@@ -773,7 +731,12 @@ impl WireguardMonitor {
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
             let tunnel = runtime
-                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
+                .block_on(gotatun::open_gotatun_tunnel(
+                    config,
+                    tun_provider,
+                    bypass,
+                    obfuscation,
+                ))
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
@@ -791,7 +754,7 @@ impl WireguardMonitor {
                     log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
 
                     Ok(runtime
-                        .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass))
+                        .block_on(gotatun::open_gotatun_tunnel(config, tun_provider, bypass, obfuscation))
                         .map(Box::new)?)
                 })
         }
@@ -806,9 +769,8 @@ impl WireguardMonitor {
                 Ok(CloseMsg::EphemeralPeerNegotiationTimeout) | Ok(CloseMsg::PingErr) => {
                     Err(Error::TimeoutError)
                 }
-                Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
+                Ok(CloseMsg::Stop) => Ok(()),
                 Ok(CloseMsg::SetupError(error)) => Err(error),
-                Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
                 Err(_) => Ok(()),
             }
         };
@@ -1043,14 +1005,9 @@ impl WireguardMonitor {
 /// Only a multiplexer has one, so this is `Ok(None)` for every other configuration, whose tunnel
 /// parameters already describe the single transport in use.
 async fn selected_obfuscation(
-    obfuscator: &AsyncMutex<Option<ObfuscatorHandle>>,
+    selected_transport_rx: Option<SelectedTransportRx>,
 ) -> Result<Option<SelectedObfuscation>> {
-    let Some(rx) = obfuscator
-        .lock()
-        .await
-        .as_mut()
-        .and_then(ObfuscatorHandle::take_selected_transport_rx)
-    else {
+    let Some(rx) = selected_transport_rx else {
         return Ok(None);
     };
 
@@ -1085,45 +1042,31 @@ fn selected_endpoint_addr(selected: &SelectedObfuscation, config: &Config) -> Op
     }
 }
 
+/// Set up the obfuscation, and make room for it in every packet.
 fn get_obfuscator(
+    runtime: &tokio::runtime::Handle,
     params: &TunnelParameters,
-    args: &TunnelArgs<'_>,
-    userspace_obfuscation: bool,
     config: &mut Config,
-    close_obfs_sender: &sync_mpsc::Sender<CloseMsg>,
     bypass: &Arc<dyn SocketBypass>,
-) -> Result<Option<ObfuscatorHandle>> {
-    let Some(obfuscation_settings) = config.obfuscation_settings() else {
+) -> Result<Option<(RunningObfuscation, Option<SelectedTransportRx>)>> {
+    let Some(settings) = config.obfuscation_settings() else {
         return Ok(None);
     };
 
-    // The obfuscation adds this to every packet whether it is applied inline or behind a local
-    // socket, so make room for it before deciding which of the two to set up.
+    // The obfuscation adds this to every packet, so make room for it.
     if params.options.mtu.is_none() {
         config.mtu = clamp_tunnel_mtu(
             params,
-            config
-                .mtu
-                .saturating_sub(obfuscation_settings.packet_overhead()),
+            config.mtu.saturating_sub(settings.packet_overhead()),
         );
     }
 
-    if userspace_obfuscation {
-        log::debug!("Using inline obfuscation");
-        return Ok(None);
-    };
-    log::debug!("Using proxy socket obfuscation");
-
-    let obfuscator = args
-        .runtime
-        .block_on(obfuscation::spawn_local_socket_obfuscator(
-            &mut config.entry_peer,
-            obfuscation_settings,
-            close_obfs_sender.clone(),
+    runtime
+        .block_on(obfuscation::create_obfuscation(
+            &settings,
             Arc::clone(bypass),
-        ))?;
-
-    Ok(Some(obfuscator))
+        ))
+        .map(Some)
 }
 
 /// Log the tunnel stats from the current tunnel.
@@ -1179,8 +1122,6 @@ enum CloseMsg {
     EphemeralPeerNegotiationTimeout,
     PingErr,
     SetupError(Error),
-    ObfuscatorExpired,
-    ObfuscatorFailed(Error),
 }
 
 #[async_trait::async_trait]
