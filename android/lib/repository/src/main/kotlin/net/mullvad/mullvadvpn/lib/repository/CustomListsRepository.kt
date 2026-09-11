@@ -77,7 +77,6 @@ class CustomListsRepository(
         }
     }
 
-    // Sort using the default locale's collation rules rather than raw Unicode value comparison.
     private fun List<CustomList>.sortedByName() =
         this.sortedWith(compareBy(Collator.getInstance()) { it.name.value })
 }
