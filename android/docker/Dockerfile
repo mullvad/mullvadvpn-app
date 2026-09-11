@@ -4,6 +4,7 @@
 # To build using the image:
 # podman run --rm \
 #     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
+#     -e CARGO_TARGET_DIR=/cargo-target/target \
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
 #     -v /path/to/repository_root:/build:Z \
