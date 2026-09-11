@@ -13,7 +13,7 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 
-final class APITransportMonitor: APITransportProviderProtocol {
+final class APITransportMonitor: APITransportProviderProtocol, Sendable {
     private let tunnelManager: TunnelManager
     private let tunnelStore: TunnelStore
     private let requestFactory: MullvadApiRequestFactory
@@ -24,10 +24,8 @@ final class APITransportMonitor: APITransportProviderProtocol {
         self.requestFactory = requestFactory
     }
 
-    func makeTransport() -> APITransportProtocol? {
-        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
-            tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
-        }
+    func makeTransport() async -> APITransportProtocol? {
+        let tunnel = await tunnelStore.getPersistentTunnel()
 
         return if let tunnel, shouldRouteThroughTunnel(tunnel: tunnel) {
             PacketTunnelAPITransport(tunnel: tunnel)

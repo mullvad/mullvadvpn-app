@@ -185,6 +185,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
+        /// The body of this function cannot execute before
+        /// `UIApplicationDelegate.application(_:didFinishLaunchingWithOptions:)` ran to completion
+        /// because it force unwraps properties of the `UIApplicationDelegate`
+        /// This cannot race because it's only ever read and modified from within the UI execution context.
+        repeat {
+            RunLoop.main.run(until: Date())
+        } while appDelegate.doneStarting == false
+
         guard let windowScene = scene as? UIWindowScene else { return }
         let launchViewController = LaunchViewController(
             launchArguments: appDelegate.launchArguments,

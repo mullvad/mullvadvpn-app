@@ -19,7 +19,7 @@ import NetworkExtension
     typealias TunnelProviderManagerType = NETunnelProviderManager
 #endif
 
-protocol TunnelStatusObserver {
+protocol TunnelStatusObserver: Sendable {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus)
 }
 
