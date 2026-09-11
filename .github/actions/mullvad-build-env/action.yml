@@ -20,6 +20,12 @@ inputs:
       that do not compile Rust, where the cache is pure overhead.
     default: "true"
     required: false
+  workspaces:
+    description: >-
+      Which Cargo workspaces this job builds, one per line, defaulting to the
+      workspace at the repository root.
+    default: ""
+    required: false
 runs:
   using: "composite"
   steps:
@@ -64,6 +70,7 @@ runs:
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
       with:
         shared-key: ${{ steps.rust-cache-key.outputs.key }}
+        workspaces: ${{ inputs.workspaces }}
         # rust-cache only caches `<workspace>/target` and never reads
         # CARGO_TARGET_DIR, so a target directory outside the workspace has to
         # be named here. Empty, and therefore ignored, when it is unset.

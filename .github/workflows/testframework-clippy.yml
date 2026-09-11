@@ -35,6 +35,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: clippy
+          workspaces: test
 
       - name: Clippy check
         working-directory: test
@@ -58,6 +59,7 @@ jobs:
       - uses: ./.github/actions/mullvad-build-env
         with:
           rustup-components: clippy
+          workspaces: test
 
       - name: Clippy check
         working-directory: test
