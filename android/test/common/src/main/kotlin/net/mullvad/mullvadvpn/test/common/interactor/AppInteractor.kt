@@ -56,16 +56,18 @@ class AppInteractor(
 
     fun launchAndEnsureOnLoginPage(scope: LoginPage.() -> Unit = {}) {
         launch()
-        clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<LoginPage>(scope)
     }
 
-    fun launchAndLogIn(accountNumber: String) {
+    fun launchAndLogIn(accountNumber: String, acceptNotificationPermission: Boolean = true) {
         launchAndEnsureOnLoginPage {
             enterAccountNumber(accountNumber)
             clickLoginButton()
             val isGone = uiDevice.wait(Until.gone(By.res(LOGIN_TITLE_TEST_TAG)), LONG_TIMEOUT)
             assert(isGone)
+            if (acceptNotificationPermission) {
+                clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+            }
         }
     }
 

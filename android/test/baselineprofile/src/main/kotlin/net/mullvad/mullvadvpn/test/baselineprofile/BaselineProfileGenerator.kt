@@ -54,7 +54,6 @@ class BaselineProfileGenerator {
 
             val app = AppInteractor(device, targetApplication)
 
-            ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
             on<LoginPage> { clickCreateAccount() }
             device.dismissStorePasswordPromptIfShown()
             on<WelcomePage> { clickAccount() }
@@ -65,6 +64,7 @@ class BaselineProfileGenerator {
                 device.waitForStableInActiveWindow()
                 clickLoginButton()
             }
+            ignoreNotFound { app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove() }
             // Clean up for next run
             on<ConnectPage> { clickAccount() }
             on<AccountPage> { clickLogOut() }
