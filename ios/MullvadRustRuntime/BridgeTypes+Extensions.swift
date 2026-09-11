@@ -8,3 +8,16 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Network
+
+extension Ipv4Addr {
+    public func toSwift() -> IPv4Address {
+        IPv4Address(self.asString())!
+    }
+}
+
+extension Ipv6Addr {
+    public func toSwift() -> IPv6Address {
+        IPv6Address(self.asString())!
+    }
+}
