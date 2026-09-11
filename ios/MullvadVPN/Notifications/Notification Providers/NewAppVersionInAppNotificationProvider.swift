@@ -59,9 +59,10 @@ final class NewAppVersionInAppNotificationProvider:
                 invalidate()
             }
         )
-        self.tunnelObserver = tunnelObserver
 
+        self.tunnelObserver = tunnelObserver
         tunnelManager.addObserver(tunnelObserver)
+
         self.appVersionService.scheduleTimer(deadline: .now)
     }
 

@@ -207,4 +207,4 @@ protocol SettingsUpdating {
     var settings: LatestTunnelSettings { get }
 }
 
-extension TunnelManager: SettingsUpdating {}
+extension TunnelManager: @preconcurrency SettingsUpdating {}

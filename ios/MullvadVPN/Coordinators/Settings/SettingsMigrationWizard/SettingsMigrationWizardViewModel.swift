@@ -13,10 +13,12 @@ import Foundation
 import MullvadSettings
 import SwiftUI
 
+@MainActor
 protocol SettingsMigrationWizardViewModelProtocol: ObservableObject {
     var items: [StateViewModel] { get }
 }
 
+@MainActor
 final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelProtocol {
     var items: [StateViewModel] = []
 
@@ -70,18 +72,20 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
                 self.actionItem.state =
                     oldSettings == settings ? descriptor.makeState(for: .success) : descriptor.makeState(for: .idle)
 
-                actionItem.onTap = {
-                    [weak self] in
+                actionItem.onTap = { [weak self] in
                     guard let self else { return }
-                    tunnelManager.updateSettings([
-                        .multihop(settings.tunnelMultihopState),
-                        .relayConstraints(settings.relayConstraints),
-                    ])
-                    guard isVpnConnectionActive else {
-                        actionItem.state = descriptor.makeState(for: .success)
-                        return
+
+                    Task {
+                        await tunnelManager.updateSettings([
+                            .multihop(settings.tunnelMultihopState),
+                            .relayConstraints(settings.relayConstraints),
+                        ])
+                        guard isVpnConnectionActive else {
+                            actionItem.state = descriptor.makeState(for: .success)
+                            return
+                        }
+                        actionItem.state = descriptor.makeState(for: .loading)
                     }
-                    actionItem.state = descriptor.makeState(for: .loading)
                 }
 
                 return [
@@ -102,9 +106,11 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
 
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
-                guard let self, let actionDescriptor = self.actionDescriptor else { return }
-                if case .connected = tunnelStatus.state {
-                    actionItem.state = actionDescriptor.makeState(for: .success)
+                Task { @MainActor [weak self] in
+                    guard let self, let actionDescriptor = self.actionDescriptor else { return }
+                    if case .connected = tunnelStatus.state {
+                        self.actionItem.state = actionDescriptor.makeState(for: .success)
+                    }
                 }
             }
         )

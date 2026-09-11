@@ -185,6 +185,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
+        repeat {
+            RunLoop.main.run(until: Date())
+        } while appDelegate.startingSemaphore.wait(timeout: .now() + .milliseconds(20)) == .timedOut
+
         guard let windowScene = scene as? UIWindowScene else { return }
         let launchViewController = LaunchViewController(
             launchArguments: appDelegate.launchArguments,
@@ -227,9 +231,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     // MARK: - SettingsMigrationUIHandler
 
-    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+    func showMigrationError(_ error: Error) {
         guard let appCoordinator else {
-            completionHandler()
             return
         }
 
@@ -240,10 +243,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default,
-                    handler: {
-                        completionHandler()
-                    }
+                    style: .default
                 )
             ]
         )

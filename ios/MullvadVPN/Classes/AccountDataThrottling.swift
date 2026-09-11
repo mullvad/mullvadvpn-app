@@ -73,7 +73,8 @@ struct AccountDataThrottling {
         switch comparisonResult {
         case .orderedAscending, .orderedSame:
             lastUpdate = now
-            tunnelManager.updateAccountData()
+            let tunnelManager = tunnelManager
+            Task { await tunnelManager.updateAccountData() }
 
         case .orderedDescending:
             break

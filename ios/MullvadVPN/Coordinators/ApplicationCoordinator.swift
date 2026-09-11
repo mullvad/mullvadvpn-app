@@ -1095,7 +1095,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                             includeAllNetworksState: .off,
                             localNetworkSharingState: tunnelManager.settings.includeAllNetworks.localNetworkSharingState
                         )
-                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
+                        Task {
+                            await tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
+                        }
                     }
                 ),
                 AlertAction(
@@ -1234,10 +1236,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
             .negotiatingEphemeralPeer:
-            tunnelManager.reconnectTunnel(selectNewRelay: true)
+            Task { await tunnelManager.reconnectTunnel(selectNewRelay: true) }
 
         case .disconnecting, .disconnected:
-            tunnelManager.startTunnel()
+            Task { await tunnelManager.startTunnel() }
 
         case .pendingReconnect, .waitingForConnectivity(.noNetwork):
             break

@@ -73,7 +73,7 @@ final class AppResetManager {
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 guard let self else { return }
                 if tunnelStatus.observedState != .disconnected {
-                    tunnelManager.stopTunnel()
+                    Task { await tunnelManager.stopTunnel() }
                 } else if case .disconnected = tunnelStatus.observedState {
                     Task {
                         await reset()
@@ -102,7 +102,7 @@ final class AppResetManager {
             fallthrough
         default:
             resetUserDefaults()
-            resetKeychain()
+            await resetKeychain()
             isAppReady.send(true)
         }
     }
@@ -114,11 +114,11 @@ final class AppResetManager {
         await tunnelManager.unsetAccount(isRemovingProfile: false)
     }
 
-    private func resetKeychain() {
+    private func resetKeychain() async {
         let policy = launchArguments.settingsResetPolicy
         settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
         if policy.shouldReset(.settings) {
-            tunnelManager.updateSettings([.reset])
+            await tunnelManager.updateSettings([.reset])
         }
     }
 

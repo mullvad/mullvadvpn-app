@@ -21,9 +21,9 @@ import UIKit
 /// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
 private let tunnelStatusPollInterval: Duration = .milliseconds(500)
 
-/// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
+/// An actor that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager: @unchecked Sendable {
+actor TunnelManager {
     private enum OperationCategory: String, Sendable {
         case manageTunnel
         case deviceStateUpdate
@@ -45,18 +45,17 @@ final class TunnelManager: @unchecked Sendable {
     private let apiProxy: APIQuerying
 
     private let logger = Logger(label: "TunnelManager")
-    private var nslock = NSRecursiveLock()
     private let operationQueue = AsyncOperationQueue()
-    private let internalQueue = DispatchQueue(label: "TunnelManager.internalQueue")
+    // `let` is implicitly nonisolated on actors, allowing use as a custom executor in
+    // nonisolated contexts.
+    let internalQueue = DispatchSerialQueue(label: "TunnelManager.internalQueue")
 
     private var statusObserver: TunnelStatusBlockObserver?
-    private let observerList = ObserverList<TunnelObserver>()
+    nonisolated let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
 
     private var pendingNetworkPathUpdate: DispatchWorkItem?
-    private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(
-        5
-    )
+    private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(5)
 
     private var privateKeyRotationTimer: DispatchSourceTimer?
     public private(set) var isRunningPeriodicPrivateKeyRotation = false
@@ -65,13 +64,13 @@ final class TunnelManager: @unchecked Sendable {
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
 
-    private var _isConfigurationLoaded = false
-    private var _deviceState: DeviceState = .loggedOut
-    private var _tunnelSettings = LatestTunnelSettings()
+    fileprivate var _isConfigurationLoaded = false
+    fileprivate var _deviceState: DeviceState = .loggedOut
+    fileprivate var _tunnelSettings = LatestTunnelSettings()
 
-    private var _tunnel: (any TunnelProtocol)?
-    private var _tunnelStatus = TunnelStatus()
-    private var _lastNEVPNStatus: NEVPNStatus = .invalid
+    fileprivate var _tunnel: (any TunnelProtocol)?
+    fileprivate var _tunnelStatus = TunnelStatus()
+    fileprivate var _lastNEVPNStatus: NEVPNStatus = .invalid
 
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
@@ -80,7 +79,13 @@ final class TunnelManager: @unchecked Sendable {
 
     private let settingsManager: SettingsManager
 
-    private var accountManager: AccountManager!
+    nonisolated(unsafe) private var accountManager: AccountManager!
+
+    // MARK: - Custom executor
+
+    nonisolated var unownedExecutor: UnownedSerialExecutor {
+        internalQueue.asUnownedSerialExecutor()
+    }
 
     // MARK: - Initialization
 
@@ -122,7 +127,9 @@ final class TunnelManager: @unchecked Sendable {
             object: nil
         )
 
-        self.startNetworkMonitor()
+        Task { [weak self] in
+            await self?.startNetworkMonitor()
+        }
 
         #if NOT_PRODUCTION_PERMANENT
             relayCacheTracker.addObserver(self)
@@ -150,10 +157,11 @@ final class TunnelManager: @unchecked Sendable {
 
     func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
         _ = accountManager.updateDeviceData { [weak self] error in
-            guard let self else { return }
             if let error {
-                self.handleRestError(error)
-                completionHandler?(.failure(error))
+                Task { [weak self] in
+                    await self?.handleRestError(error)
+                    completionHandler?(.failure(error))
+                }
             } else {
                 completionHandler?(.success(()))
             }
@@ -171,9 +179,10 @@ final class TunnelManager: @unchecked Sendable {
         completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
     ) {
         accountManager.setAccount(action: action) { [weak self] result in
-            guard let self else { return }
-            self.startOrStopPeriodicPrivateKeyRotation()
-            completionHandler(result)
+            Task { [weak self] in
+                await self?.startOrStopPeriodicPrivateKeyRotation()
+                completionHandler(result)
+            }
         }
     }
 
@@ -185,22 +194,28 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {
-        accountManager.rotatePrivateKey { [weak self] result in
-            guard let self else { return }
+    func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) async -> Void) -> Cancellable {
+        accountManager.rotatePrivateKey { result in
+            Task { [weak self] in
+                guard let self else { return }
 
-            updatePrivateKeyRotationTimer()
+                await updatePrivateKeyRotationTimer()
 
-            switch result {
-            case .success:
-                guard let tunnel else { return }
-                _ = tunnel.notifyKeyRotation { result in
-                    Task { @MainActor in
-                        completionHandler(result.error)
-                    }
+                switch result {
+                case .success:
+                    await notifyTunnelKeyRotated(completionHandler: completionHandler)
+                case .failure(let error):
+                    await handleRestError(error)
                 }
-            case .failure(let error):
-                handleRestError(error)
+            }
+        }
+    }
+
+    private func notifyTunnelKeyRotated(completionHandler: @MainActor @escaping @Sendable (Error?) async -> Void) {
+        guard let tunnel else { return }
+        _ = tunnel.notifyKeyRotation { result in
+            Task { @MainActor in
+                await completionHandler(result.error)
             }
         }
     }
@@ -208,29 +223,25 @@ final class TunnelManager: @unchecked Sendable {
     // MARK: - Periodic private key rotation
 
     func startPeriodicPrivateKeyRotation() {
-        nslock.withLock {
-            guard !isRunningPeriodicPrivateKeyRotation, deviceState.isLoggedIn else { return }
+        guard !isRunningPeriodicPrivateKeyRotation, _deviceState.isLoggedIn else { return }
 
-            logger.debug("Start periodic private key rotation.")
+        logger.debug("Start periodic private key rotation.")
 
-            isRunningPeriodicPrivateKeyRotation = true
-            updatePrivateKeyRotationTimer()
-        }
+        isRunningPeriodicPrivateKeyRotation = true
+        updatePrivateKeyRotationTimer()
     }
 
     func stopPeriodicPrivateKeyRotation() {
-        nslock.withLock {
-            guard isRunningPeriodicPrivateKeyRotation else { return }
+        guard isRunningPeriodicPrivateKeyRotation else { return }
 
-            logger.debug("Stop periodic private key rotation.")
+        logger.debug("Stop periodic private key rotation.")
 
-            isRunningPeriodicPrivateKeyRotation = false
-            updatePrivateKeyRotationTimer()
-        }
+        isRunningPeriodicPrivateKeyRotation = false
+        updatePrivateKeyRotationTimer()
     }
 
     func startOrStopPeriodicPrivateKeyRotation() {
-        if deviceState.isLoggedIn {
+        if _deviceState.isLoggedIn {
             startPeriodicPrivateKeyRotation()
         } else {
             stopPeriodicPrivateKeyRotation()
@@ -238,37 +249,31 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func getNextKeyRotationDate() -> Date? {
-        nslock.withLock {
-            deviceState.deviceData.flatMap { WgKeyRotation(data: $0).nextRotationDate }
-        }
+        _deviceState.deviceData.flatMap { WgKeyRotation(data: $0).nextRotationDate }
     }
 
     private func updatePrivateKeyRotationTimer() {
-        nslock.withLock {
-            privateKeyRotationTimer?.cancel()
-            privateKeyRotationTimer = nil
-            nextKeyRotationDate = nil
+        privateKeyRotationTimer?.cancel()
+        privateKeyRotationTimer = nil
+        nextKeyRotationDate = nil
 
-            guard isRunningPeriodicPrivateKeyRotation,
-                let scheduleDate = getNextKeyRotationDate()
-            else { return }
-            nextKeyRotationDate = scheduleDate
+        guard isRunningPeriodicPrivateKeyRotation,
+            let scheduleDate = getNextKeyRotationDate()
+        else { return }
+        nextKeyRotationDate = scheduleDate
 
-            let timer = DispatchSource.makeTimerSource(queue: .main)
+        let timer = DispatchSource.makeTimerSource(queue: .main)
 
-            timer.setEventHandler { [weak self] in
-                _ = self?.accountManager.rotatePrivateKey { _ in
-                    // no-op
-                }
-            }
-
-            timer.schedule(wallDeadline: .now() + scheduleDate.timeIntervalSinceNow)
-            timer.activate()
-
-            privateKeyRotationTimer = timer
-
-            logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatted).")
+        timer.setEventHandler { [weak self] in
+            _ = self?.accountManager.rotatePrivateKey { _ in }
         }
+
+        timer.schedule(wallDeadline: .now() + scheduleDate.timeIntervalSinceNow)
+        timer.activate()
+
+        privateKeyRotationTimer = timer
+
+        logger.debug("Schedule next private key rotation at \(scheduleDate.logFormatted).")
     }
 
     // MARK: - Public methods
@@ -281,17 +286,17 @@ final class TunnelManager: @unchecked Sendable {
         )
         loadTunnelOperation.completionQueue = .main
         loadTunnelOperation.completionHandler = { [weak self] completion in
-            guard let self else { return }
-
             if case let .failure(error) = completion {
-                self.logger.error(
+                self?.logger.error(
                     error: error,
                     message: "Failed to load configuration."
                 )
             }
 
-            self.updatePrivateKeyRotationTimer()
-            completionHandler()
+            Task {
+                await self?.updatePrivateKeyRotationTimer()
+                completionHandler()
+            }
         }
 
         loadTunnelOperation.addObserver(
@@ -380,43 +385,43 @@ final class TunnelManager: @unchecked Sendable {
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         // Start polling the tunnel immediately when the user reconnects
         startPollingTunnelStatus(interval: tunnelStatusPollInterval)
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
-            do {
-                guard let tunnel = self.tunnel else {
-                    throw UnsetTunnelError()
+
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [self] finish in
+            // On internalQueue, so safe to assume isolation.
+            self.assumeIsolated { actor in
+                guard let tunnel = actor._tunnel else {
+                    finish(UnsetTunnelError())
+                    return
                 }
 
-                return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
+                _ = tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { [weak self] result in
                     if case let .success(observedState) = result,
-                        let connectionState = observedState.connectionState
+                        let connectionState = observedState.connectionState,
+                        let self
                     {
-                        // This completion fires on Tunnel.dispatchQueue; hop to internalQueue
-                        // so _tunnelStatus is mutated under nslock like every other writer.
                         self.internalQueue.async {
-                            _ = self.setTunnelStatus { tunnelStatus in
-                                tunnelStatus.state = .reconnecting(
-                                    connectionState.selectedRelays,
-                                    isPostQuantum: connectionState.isPostQuantum,
-                                    isDaita: connectionState.isDaitaEnabled
-                                )
-                                tunnelStatus.observedState = observedState
+                            // On internalQueue, so safe to assume isolated.
+                            self.assumeIsolated { actor in
+                                _ = actor.setTunnelStatus { tunnelStatus in
+                                    tunnelStatus.state = .reconnecting(
+                                        connectionState.selectedRelays,
+                                        isPostQuantum: connectionState.isPostQuantum,
+                                        isDaita: connectionState.isDaitaEnabled
+                                    )
+                                    tunnelStatus.observedState = observedState
+                                }
                             }
                         }
                     }
 
                     finish(result.error)
                 }
-            } catch {
-                finish(error)
-
-                return AnyCancellable()
             }
         }
 
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                self.didReconnectTunnel(error: operation.error)
-
+        operation.completionBlock = { [weak self] in
+            Task { [weak self] in
+                await self?.didReconnectTunnel(error: operation.error)
                 completionHandler?(operation.error)
             }
         }
@@ -434,30 +439,40 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func reapplyTunnelConfiguration() {
-        guard let tunnel else { return }
-        if self.tunnelStatus.state.isSecured {
+        guard let tunnel = _tunnel else { return }
+
+        if _tunnelStatus.state.isSecured {
             let observer = TunnelBlockObserver(
-                didUpdateTunnelStatus: { _, status in
+                didUpdateTunnelStatus: { [weak self] _, status in
                     if case .disconnected = status.state {
-                        if let observer = self.observer {
-                            self.removeObserver(observer)
-                            self.observer = nil
+                        guard let self else { return }
+                        self.internalQueue.async {
+                            // On internalQueue, so safe to assume isolation.
+                            self.assumeIsolated { actor in
+                                if let observer = actor.observer {
+                                    actor.removeObserver(observer)
+                                    actor.observer = nil
+                                }
+                                actor.startTunnel()
+                            }
                         }
-                        self.startTunnel()
                     }
                 }
             )
+
             addObserver(observer)
             self.observer = observer
 
             let configuration = TunnelConfiguration(
-                includeAllNetworks: settings.includeAllNetworks.includeAllNetworksIsEnabled,
-                excludeLocalNetworks: settings.includeAllNetworks.localNetworkSharingIsEnabled
+                includeAllNetworks: _tunnelSettings.includeAllNetworks.includeAllNetworksIsEnabled,
+                excludeLocalNetworks: _tunnelSettings.includeAllNetworks.localNetworkSharingIsEnabled
             )
 
             tunnel.setConfiguration(configuration)
-            tunnel.saveToPreferences { _ in
-                self.stopTunnel(isOnDemandEnabled: true)
+            tunnel.saveToPreferences { [weak self] _ in
+                Task { [weak self] in
+                    await self?.stopTunnel(isOnDemandEnabled: true)
+                }
             }
         }
     }
@@ -480,7 +495,7 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func selectRelays(tunnelSettings: LatestTunnelSettings) throws -> SelectedRelays {
-        let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
+        let retryAttempts = _tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
 
         return try relaySelector.selectRelays(
             tunnelSettings: tunnelSettings,
@@ -488,178 +503,163 @@ final class TunnelManager: @unchecked Sendable {
         )
     }
 
-    // MARK: - Tunnel observeration
+    // MARK: - Tunnel observation
 
     /// Add tunnel observer.
     /// In order to cancel the observation, either call `removeObserver(_:)` or simply release
     /// the observer.
-    func addObserver(_ observer: TunnelObserver) {
+    /// Nonisolation is safe as long as `ObserverList.append` keeps its locks.
+    nonisolated func addObserver(_ observer: TunnelObserver) {
         observerList.append(observer)
     }
 
     /// Remove tunnel observer.
-    func removeObserver(_ observer: TunnelObserver) {
+    /// Nonisolation is safe long as `ObserverList.remove` keeps its locks.
+    nonisolated func removeObserver(_ observer: TunnelObserver) {
         observerList.remove(observer)
     }
 
     // MARK: - TunnelInteractor
 
-    var isConfigurationLoaded: Bool {
-        nslock.withLock {
-            _isConfigurationLoaded
-        }
+    /// Nonisolation is safe due to execution on internal queue.
+    nonisolated var isConfigurationLoaded: Bool {
+        internalQueue.sync { assumeIsolated { actor in actor._isConfigurationLoaded } }
     }
 
     fileprivate var tunnel: (any TunnelProtocol)? {
-        nslock.withLock {
-            _tunnel
-        }
+        _tunnel
     }
 
-    var tunnelStatus: TunnelStatus {
-        nslock.withLock {
-            _tunnelStatus
-        }
+    /// Nonisolation is safe due to execution on internal queue.
+    nonisolated var tunnelStatus: TunnelStatus {
+        internalQueue.sync { assumeIsolated { $0._tunnelStatus } }
     }
 
-    var settings: LatestTunnelSettings {
-        nslock.withLock {
-            _tunnelSettings
-        }
+    /// Nonisolation is safe due to execution on internal queue.
+    nonisolated var settings: LatestTunnelSettings {
+        internalQueue.sync { assumeIsolated { $0._tunnelSettings } }
     }
 
-    var deviceState: DeviceState {
-        nslock.withLock {
-            _deviceState
-        }
+    /// Nonisolation is safe due to execution on internal queue.
+    nonisolated var deviceState: DeviceState {
+        internalQueue.sync { assumeIsolated { $0._deviceState } }
     }
 
     fileprivate func setConfigurationLoaded() {
-        nslock.withLock {
-            guard !_isConfigurationLoaded else {
-                return
-            }
+        guard !_isConfigurationLoaded else { return }
 
-            _isConfigurationLoaded = true
+        _isConfigurationLoaded = true
 
-            DispatchQueue.main.async {
-                self.observerList.notify { observer in
-                    observer.tunnelManagerDidLoadConfiguration(self)
-                }
+        observerList.notify { observer in
+            Task { @MainActor in
+                observer.tunnelManagerDidLoadConfiguration(self)
             }
         }
     }
 
     fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
-        nslock.withLock {
-            if let tunnel {
-                subscribeVPNStatusObserver(tunnel: tunnel)
-            } else {
-                unsubscribeVPNStatusObserver()
-            }
+        if let tunnel {
+            subscribeVPNStatusObserver(tunnel: tunnel)
+        } else {
+            unsubscribeVPNStatusObserver()
+        }
 
-            _tunnel = tunnel
+        _tunnel = tunnel
 
-            // Update the existing state
-            if shouldRefreshTunnelState {
-                logger.debug("Refresh tunnel status for new tunnel.")
-                refreshTunnelStatus()
-            }
+        // Update the existing state
+        if shouldRefreshTunnelState {
+            logger.debug("Refresh tunnel status for new tunnel.")
+            refreshTunnelStatus()
         }
     }
 
+    @discardableResult
     fileprivate func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
-        nslock.withLock {
-            var newTunnelStatus = _tunnelStatus
-            block(&newTunnelStatus)
+        var newTunnelStatus = _tunnelStatus
+        block(&newTunnelStatus)
 
-            guard _tunnelStatus != newTunnelStatus else {
-                return newTunnelStatus
-            }
-
-            logger.info("Status: \(newTunnelStatus).")
-
-            _tunnelStatus = newTunnelStatus
-
-            // Packet tunnel may have attempted or rotated the key.
-            // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
-            let newPacketTunnelKeyRotation = _tunnelStatus.observedState.connectionState?.lastKeyRotation
-            if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
-                lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
-                refreshDeviceState()
-            }
-            // Handle unrecoverable blocked states
-            if case let .error(blockedStateReason) = _tunnelStatus.state,
-                !blockedStateReason.recoverableError()
-            {
-                handleBlockedState(reason: blockedStateReason)
-            }
-
-            DispatchQueue.main.async {
-                self.observerList.notify { [tunnelStatus = self.tunnelStatus] observer in
-                    observer
-                        .tunnelManager(self, didUpdateTunnelStatus: tunnelStatus)
-                }
-            }
-
+        guard _tunnelStatus != newTunnelStatus else {
             return newTunnelStatus
         }
+
+        logger.info("Status: \(newTunnelStatus).")
+
+        _tunnelStatus = newTunnelStatus
+
+        // Packet tunnel may have attempted or rotated the key.
+        // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
+        let newPacketTunnelKeyRotation = _tunnelStatus.observedState.connectionState?.lastKeyRotation
+        if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
+            lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
+            refreshDeviceState()
+        }
+        // Handle unrecoverable blocked states
+        if case let .error(blockedStateReason) = _tunnelStatus.state,
+            !blockedStateReason.recoverableError()
+        {
+            handleBlockedState(reason: blockedStateReason)
+        }
+
+        let snapshot = newTunnelStatus
+        observerList.notify { observer in
+            Task { @MainActor in
+                observer.tunnelManager(self, didUpdateTunnelStatus: snapshot)
+            }
+        }
+
+        return newTunnelStatus
     }
 
     fileprivate func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
-        nslock.withLock {
-            let shouldCallDelegate = _tunnelSettings != settings && _isConfigurationLoaded
+        let shouldCallDelegate = _tunnelSettings != settings && _isConfigurationLoaded
 
-            _tunnelSettings = settings
+        _tunnelSettings = settings
 
-            if persist {
-                do {
-                    try settingsManager.writeSettings(settings)
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to write settings."
-                    )
-                }
+        if persist {
+            do {
+                try settingsManager.writeSettings(settings)
+            } catch {
+                logger.error(
+                    error: error,
+                    message: "Failed to write settings."
+                )
             }
+        }
 
-            if shouldCallDelegate {
-                DispatchQueue.main.async {
-                    self.observerList.notify { observer in
-                        observer.tunnelManager(self, didUpdateTunnelSettings: settings)
-                    }
+        if shouldCallDelegate {
+            observerList.notify { observer in
+                Task { @MainActor in
+                    observer.tunnelManager(self, didUpdateTunnelSettings: settings)
                 }
             }
         }
     }
 
     func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
-        nslock.withLock {
-            let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
-            let previousDeviceState = _deviceState
+        let shouldCallDelegate = _deviceState != deviceState && _isConfigurationLoaded
+        let previousDeviceState = _deviceState
 
-            _deviceState = deviceState
+        _deviceState = deviceState
 
-            if persist {
-                do {
-                    try settingsManager.writeDeviceState(deviceState)
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to write device state."
-                    )
-                }
+        if persist {
+            do {
+                try settingsManager.writeDeviceState(deviceState)
+            } catch {
+                logger.error(
+                    error: error,
+                    message: "Failed to write device state."
+                )
             }
+        }
 
-            if shouldCallDelegate {
-                DispatchQueue.main.async {
-                    self.observerList.notify { observer in
-                        observer.tunnelManager(
-                            self,
-                            didUpdateDeviceState: deviceState,
-                            previousDeviceState: previousDeviceState
-                        )
-                    }
+        if shouldCallDelegate {
+            observerList.notify { observer in
+                Task { @MainActor in
+                    observer.tunnelManager(
+                        self,
+                        didUpdateDeviceState: deviceState,
+                        previousDeviceState: previousDeviceState
+                    )
                 }
             }
         }
@@ -667,144 +667,142 @@ final class TunnelManager: @unchecked Sendable {
 
     // MARK: - Private methods
 
-    @objc private func applicationDidBecomeActive() {
+    /// Nonisolation is safe as long as no actual actor-isolated work is performed outside
+    /// the actor's executor.
+    @objc nonisolated private func applicationDidBecomeActive() {
         #if DEBUG
-            logger.debug("Refresh device state and tunnel status due to application becoming active.")
+            logger.debug(
+                "Refresh device state and tunnel status due to application becoming active."
+            )
         #endif
-        refreshTunnelStatus()
-        refreshDeviceState()
+
+        Task { [weak self] in
+            await self?.refreshTunnelStatus()
+            await self?.refreshDeviceState()
+        }
     }
 
     private func didUpdateNetworkPath(_ path: Network.NWPath) {
         // Only act on network path updates when VPN is disconnected.
         // When VPN is up, the packet tunnel handles network changes internally.
-        let status = tunnel?.status ?? .disconnected
+        let status = _tunnel?.status ?? .disconnected
         guard [.disconnected, .invalid].contains(status) else { return }
 
         setDisconnectedState(networkPathStatus: path.status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
-        nslock.withLock {
-            // Unregister from receiving VPN connection status changes
-            unsubscribeVPNStatusObserver()
-        }
+        unsubscribeVPNStatusObserver()
     }
 
     private func didReconnectTunnel(error: Error?) {
-        nslock.withLock {
-            if let error, !error.isOperationCancellationError {
-                logger.error(error: error, message: "Failed to reconnect the tunnel.")
-            }
+        if let error, !error.isOperationCancellationError {
+            logger.error(error: error, message: "Failed to reconnect the tunnel.")
+        }
 
-            // Refresh tunnel status only when connecting,reasserting or error to pick up the next relay,
-            // since both states may persist for a long period of time until the tunnel is fully
-            // connected.
-            switch tunnelStatus.state {
-            case .connecting, .reconnecting, .error:
-                logger.debug("Refresh tunnel status due to reconnect.")
-                refreshTunnelStatus()
+        // Refresh tunnel status only when connecting, reasserting or error to pick up the next relay,
+        // since both states may persist for a long period of time until the tunnel is fully connected.
+        switch _tunnelStatus.state {
+        case .connecting, .reconnecting, .error:
+            logger.debug("Refresh tunnel status due to reconnect.")
+            refreshTunnelStatus()
 
-            default:
-                break
-            }
+        default:
+            break
         }
     }
 
     private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
-        nslock.withLock {
-            unsubscribeVPNStatusObserver()
+        unsubscribeVPNStatusObserver()
 
-            statusObserver =
-                tunnel
-                .addBlockObserver(queue: internalQueue) { [weak self] tunnel, status in
-                    guard let self else { return }
+        statusObserver = tunnel.addBlockObserver(queue: internalQueue) { [weak self] _, status in
+            guard let self else { return }
+            self.assumeIsolated { actor in
+                // Save the NEVPNStatus so we can reject stale IPC updates
+                actor._lastNEVPNStatus = status
+                actor.logger.debug("VPN connection status changed to \(status).")
 
-                    // Save the NEVPNStatus so we can reject stale IPC updates
-                    self._lastNEVPNStatus = status
-                    self.logger.debug("VPN connection status changed to \(status).")
+                // Control polling based on NEVPNStatus directly (the source of truth),
+                // not the derived tunnelStatus.state which can be stale.
+                actor.updatePollingFromVPNStatus(status)
 
-                    // Control polling based on NEVPNStatus directly (the source of truth),
-                    // not the derived tunnelStatus.state which can be stale.
-                    self.updatePollingFromVPNStatus(status)
-
-                    // Update tunnel status for all state changes to ensure UI reflects
-                    // disconnecting and disconnected states immediately.
-                    self.updateTunnelStatus(status)
-                }
-
-            // Save and start polling for the current status since the observer
-            // only fires on status changes, not for the initial state.
-            _lastNEVPNStatus = tunnel.status
-            updatePollingFromVPNStatus(tunnel.status)
+                // Update tunnel status for all state changes to ensure UI reflects
+                // disconnecting and disconnected states immediately.
+                actor.updateTunnelStatus(status)
+            }
         }
+
+        // Save and start polling for the current status since the observer
+        // only fires on status changes, not for the initial state.
+        _lastNEVPNStatus = tunnel.status
+        updatePollingFromVPNStatus(tunnel.status)
     }
 
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
         networkMonitor?.pathUpdateHandler = { [weak self] path in
-            self?.scheduleNetworkPathUpdate(path)
+            guard let self else { return }
+            self.assumeIsolated { actor in
+                actor.scheduleNetworkPathUpdate(path)
+            }
         }
 
         networkMonitor?.start(queue: internalQueue)
     }
 
-    /// Schedule a network path update with a 1-second delay to debounce rapid changes.
+    /// Schedule a network path update with a delay to debounce rapid changes.
     private func scheduleNetworkPathUpdate(_ path: Network.NWPath) {
         pendingNetworkPathUpdate?.cancel()
 
         let workItem = DispatchWorkItem { [weak self] in
-            self?.didUpdateNetworkPath(path)
+            guard let self else { return }
+            self.assumeIsolated { actor in
+                actor.didUpdateNetworkPath(path)
+            }
         }
         pendingNetworkPathUpdate = workItem
 
-        internalQueue
-            .asyncAfter(
-                deadline:
-                    .now()
-                    .advanced(by: Self.networkPathUpdateDelay),
-                execute: workItem
-            )
+        internalQueue.asyncAfter(
+            deadline: .now().advanced(by: Self.networkPathUpdateDelay),
+            execute: workItem
+        )
     }
 
     private func unsubscribeVPNStatusObserver() {
-        nslock.withLock {
-            statusObserver?.invalidate()
-            statusObserver = nil
-        }
+        statusObserver?.invalidate()
+        statusObserver = nil
     }
 
     private func refreshTunnelStatus() {
-        nslock.withLock {
-            guard let connectionStatus = _tunnel?.status else { return }
+        guard let connectionStatus = _tunnel?.status else { return }
 
-            switch connectionStatus {
-            case .connecting, .reasserting, .connected:
-                // Active states: fetch via IPC
-                fetchAndUpdateTunnelStatus()
-            case .disconnected, .disconnecting, .invalid:
-                // Down states: update directly
-                updateTunnelStatus(connectionStatus)
-            @unknown default:
-                break
-            }
+        switch connectionStatus {
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch via IPC
+            fetchAndUpdateTunnelStatus()
+        case .disconnected, .disconnecting, .invalid:
+            // Down states: update directly
+            updateTunnelStatus(connectionStatus)
+        @unknown default:
+            break
         }
     }
 
     /// Refresh device state from settings and update the in-memory value.
     /// Used to refresh device state when it's modified by packet tunnel during key rotation.
     private func refreshDeviceState() {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [settingsManager] in
-            do {
-                let newDeviceState = try settingsManager.readDeviceState()
-
-                self.setDeviceState(newDeviceState, persist: false)
-            } catch {
-                if let error = error as? KeychainError, error == .itemNotFound {
-                    return
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [self, settingsManager] in
+            // On internalQueue, so safe to assume isolated.
+            self.assumeIsolated { actor in
+                do {
+                    let newDeviceState = try settingsManager.readDeviceState()
+                    actor.setDeviceState(newDeviceState, persist: false)
+                } catch {
+                    if let error = error as? KeychainError, error == .itemNotFound {
+                        return
+                    }
+                    actor.logger.error(error: error, message: "Failed to refresh device state")
                 }
-
-                self.logger.error(error: error, message: "Failed to refresh device state")
             }
         }
 
@@ -823,24 +821,22 @@ final class TunnelManager: @unchecked Sendable {
     /// For active states, fetches detailed status via IPC.
     /// For down states, updates state directly without IPC.
     private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
-        nslock.withLock {
-            switch connectionStatus {
-            case .connecting, .reasserting, .connected:
-                // Active states: fetch details via IPC
-                fetchAndUpdateTunnelStatus()
+        switch connectionStatus {
+        case .connecting, .reasserting, .connected:
+            // Active states: fetch details via IPC
+            fetchAndUpdateTunnelStatus()
 
-            case .disconnecting:
-                handleDisconnectingStateDirectly()
+        case .disconnecting:
+            handleDisconnectingStateDirectly()
 
-            case .disconnected:
-                handleDisconnectedStateDirectly()
+        case .disconnected:
+            handleDisconnectedStateDirectly()
 
-            case .invalid:
-                setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+        case .invalid:
+            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
 
-            @unknown default:
-                logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
-            }
+        @unknown default:
+            logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
         }
     }
 
@@ -860,9 +856,7 @@ final class TunnelManager: @unchecked Sendable {
 
     /// Handle disconnecting state directly without IPC.
     private func handleDisconnectingStateDirectly() {
-        let currentState = tunnelStatus.state
-
-        switch currentState {
+        switch _tunnelStatus.state {
         case .disconnecting:
             // Already disconnecting, no change needed
             break
@@ -883,9 +877,7 @@ final class TunnelManager: @unchecked Sendable {
 
     /// Handle disconnected state directly without IPC.
     private func handleDisconnectedStateDirectly() {
-        let currentState = tunnelStatus.state
-
-        switch currentState {
+        switch _tunnelStatus.state {
         case .pendingReconnect:
             logger.debug("Ignore disconnected state when pending reconnect.")
 
@@ -913,18 +905,21 @@ final class TunnelManager: @unchecked Sendable {
             guard let self else { return }
 
             self.internalQueue.async {
-                // Reject stale IPC updates if the tunnel is now dead
-                guard self.isTunnelAlive else {
-                    self.logger.debug("Ignoring stale IPC response, tunnel is dead.")
-                    return
-                }
+                // On internalQueue, so safe to assume isolation.
+                self.assumeIsolated { actor in
+                    // Reject stale IPC updates if the tunnel is now dead
+                    guard actor.isTunnelAlive else {
+                        actor.logger.debug("Ignoring stale IPC response, tunnel is dead.")
+                        return
+                    }
 
-                if case let .success(observedState) = result {
-                    _ = self.setTunnelStatus { tunnelStatus in
-                        tunnelStatus.observedState = observedState
-
-                        if let newState = self.mapObservedStateToTunnelState(observedState) {
-                            tunnelStatus.state = newState
+                    if case let .success(observedState) = result {
+                        let newState = actor.mapObservedStateToTunnelState(observedState)
+                        _ = actor.setTunnelStatus { tunnelStatus in
+                            tunnelStatus.observedState = observedState
+                            if let state = newState {
+                                tunnelStatus.state = state
+                            }
                         }
                     }
                 }
@@ -984,31 +979,34 @@ final class TunnelManager: @unchecked Sendable {
         modificationBlock: @escaping @Sendable (inout LatestTunnelSettings) -> Void,
         completionHandler: (@Sendable () -> Void)?
     ) {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            let currentSettings = self._tunnelSettings
-            var updatedSettings = self._tunnelSettings
-            let settingsStrategy = TunnelSettingsStrategy()
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [self] in
+            // On internalQueue, so safe to assume isolated.
+            self.assumeIsolated { actor in
+                let currentSettings = actor._tunnelSettings
+                var updatedSettings = actor._tunnelSettings
+                let settingsStrategy = TunnelSettingsStrategy()
 
-            modificationBlock(&updatedSettings)
-            self.setSettings(updatedSettings, persist: true)
+                modificationBlock(&updatedSettings)
+                actor.setSettings(updatedSettings, persist: true)
 
-            let reconnectionStrategy = settingsStrategy.getReconnectionStrategy(
-                oldSettings: currentSettings,
-                newSettings: updatedSettings
-            )
+                let reconnectionStrategy = settingsStrategy.getReconnectionStrategy(
+                    oldSettings: currentSettings,
+                    newSettings: updatedSettings
+                )
 
-            switch reconnectionStrategy {
-            case .currentRelayReconnect:
-                self.reconnectTunnel(selectNewRelay: false)
-            case .newRelayReconnect:
-                self.reconnectTunnel(selectNewRelay: true)
-            case .hardReconnect:
-                self.reapplyTunnelConfiguration()
+                switch reconnectionStrategy {
+                case .currentRelayReconnect:
+                    actor.reconnectTunnel(selectNewRelay: false)
+                case .newRelayReconnect:
+                    actor.reconnectTunnel(selectNewRelay: true)
+                case .hardReconnect:
+                    actor.reapplyTunnelConfiguration()
+                }
             }
         }
 
         operation.completionBlock = {
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 completionHandler?()
             }
         }
@@ -1032,20 +1030,23 @@ final class TunnelManager: @unchecked Sendable {
         modificationBlock: @escaping @Sendable (inout DeviceState) -> Void,
         completionHandler: (@Sendable () -> Void)? = nil
     ) {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
-            var deviceState = self.deviceState
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [self] in
+            // On internalQueue, so safe to assume isolation.
+            self.assumeIsolated { actor in
+                var deviceState = actor._deviceState
 
-            modificationBlock(&deviceState)
+                modificationBlock(&deviceState)
 
-            self.setDeviceState(deviceState, persist: true)
+                actor.setDeviceState(deviceState, persist: true)
 
-            if reconnectTunnel {
-                self.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+                if reconnectTunnel {
+                    actor.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
+                }
             }
         }
 
         operation.completionBlock = {
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 completionHandler?()
             }
         }
@@ -1077,7 +1078,9 @@ final class TunnelManager: @unchecked Sendable {
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
-            self?.refreshTunnelStatus()
+            Task { [weak self] in
+                await self?.refreshTunnelStatus()
+            }
         }
         timer.schedule(wallDeadline: .now() + interval, repeating: interval.timeInterval)
         timer.activate()
@@ -1135,46 +1138,38 @@ final class TunnelManager: @unchecked Sendable {
         case .deviceRevoked:
             setDeviceState(.revoked, persist: true)
         case .invalidAccount:
-            unsetTunnelConfiguration {
-                self.setDeviceState(.revoked, persist: true)
-                self.operationQueue.cancelAllOperations()
-                self.removeLastUsedAccount()
-            }
+            setDeviceState(.revoked, persist: true)
+            operationQueue.cancelAllOperations()
+            removeLastUsedAccount()
+            unsetTunnelConfiguration()
         default:
             break
         }
     }
 
-    private func unsetTunnelConfiguration(isRemovingProfile: Bool = true, completion: (@Sendable () -> Void)? = nil) {
-        // Tell the caller to unsubscribe from VPN status notifications.
+    private func unsetTunnelConfiguration(isRemovingProfile: Bool = true) {
         prepareForVPNConfigurationDeletion()
 
-        // Reset tunnel.
         _ = setTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .disconnected
         }
 
-        // Finish immediately if tunnel provider is not set.
-        guard let tunnel, isRemovingProfile else {
-            completion?()
-            return
-        }
+        guard let tunnel = _tunnel, isRemovingProfile else { return }
 
-        // Remove VPN configuration.
-        tunnel.removeFromPreferences { [self] error in
-            internalQueue.async { [self] in
-                // Ignore error but log it.
-                if let error {
-                    logger.error(
-                        error: error,
-                        message: "Failed to remove VPN configuration."
-                    )
+        tunnel.removeFromPreferences { [weak self] error in
+            guard let self else { return }
+            self.internalQueue.async {
+                // On internalQueue, so safe to assume isolated.
+                self.assumeIsolated { actor in
+                    if let error {
+                        actor.logger.error(
+                            error: error,
+                            message: "Failed to remove VPN configuration."
+                        )
+                    }
+                    actor.setTunnel(nil, shouldRefreshTunnelState: false)
                 }
-
-                setTunnel(nil, shouldRefreshTunnelState: false)
-
-                completion?()
             }
         }
     }
@@ -1269,6 +1264,8 @@ final class TunnelManager: @unchecked Sendable {
 
 #endif
 
+/// Used by operations in TunnelManager. Since those operations excute on `internalQueueu`
+/// it's safe to assume isolation in the contained functions.
 private struct TunnelInteractorProxy: TunnelInteractor {
     private let tunnelManager: TunnelManager
 
@@ -1277,7 +1274,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     var tunnel: (any TunnelProtocol)? {
-        tunnelManager.tunnel
+        tunnelManager.assumeIsolated { $0._tunnel }
     }
 
     var backgroundTaskProvider: BackgroundTaskProviding {
@@ -1293,59 +1290,59 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     }
 
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
-        tunnelManager.setTunnel(tunnel, shouldRefreshTunnelState: shouldRefreshTunnelState)
+        tunnelManager.assumeIsolated { $0.setTunnel(tunnel, shouldRefreshTunnelState: shouldRefreshTunnelState) }
     }
 
     var tunnelStatus: TunnelStatus {
-        tunnelManager.tunnelStatus
+        tunnelManager.assumeIsolated { $0._tunnelStatus }
     }
 
     func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
-        tunnelManager.setTunnelStatus(block)
+        tunnelManager.assumeIsolated { $0.setTunnelStatus(block) }
     }
 
     var isConfigurationLoaded: Bool {
-        tunnelManager.isConfigurationLoaded
+        tunnelManager.assumeIsolated { $0._isConfigurationLoaded }
     }
 
     var settings: LatestTunnelSettings {
-        tunnelManager.settings
+        tunnelManager.assumeIsolated { $0._tunnelSettings }
     }
 
     var deviceState: DeviceState {
-        tunnelManager.deviceState
+        tunnelManager.assumeIsolated { $0._deviceState }
     }
 
     func setConfigurationLoaded() {
-        tunnelManager.setConfigurationLoaded()
+        tunnelManager.assumeIsolated { $0.setConfigurationLoaded() }
     }
 
     func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
-        tunnelManager.setSettings(settings, persist: persist)
+        tunnelManager.assumeIsolated { $0.setSettings(settings, persist: persist) }
     }
 
     func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
-        tunnelManager.setDeviceState(deviceState, persist: persist)
+        tunnelManager.assumeIsolated { $0.setDeviceState(deviceState, persist: persist) }
     }
 
     func removeLastUsedAccount() {
-        tunnelManager.removeLastUsedAccount()
+        tunnelManager.assumeIsolated { $0.removeLastUsedAccount() }
     }
 
     func startTunnel() {
-        tunnelManager.startTunnel()
+        tunnelManager.assumeIsolated { $0.startTunnel() }
     }
 
     func prepareForVPNConfigurationDeletion() {
-        tunnelManager.prepareForVPNConfigurationDeletion()
+        tunnelManager.assumeIsolated { $0.prepareForVPNConfigurationDeletion() }
     }
 
     func selectRelays() throws -> SelectedRelays {
-        try tunnelManager.selectRelays(tunnelSettings: tunnelManager.settings)
+        try tunnelManager.assumeIsolated { try $0.selectRelays(tunnelSettings: $0._tunnelSettings) }
     }
 
     func handleRestError(_ error: Error) {
-        tunnelManager.handleRestError(error)
+        tunnelManager.assumeIsolated { $0.handleRestError(error) }
     }
 }
 
@@ -1353,15 +1350,19 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
 #if NOT_PRODUCTION_PERMANENT
     extension TunnelManager: RelayCacheTrackerObserver {
-        func relayCacheTracker(_ tracker: RelayCacheTracker, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        nonisolated func relayCacheTracker(
+            _ tracker: RelayCacheTracker,
+            didUpdateCachedRelays cachedRelays: CachedRelays
+        ) {
             // Only reconnect if relays are now available
             guard !cachedRelays.isEmpty else { return }
 
-            let currentStatus = nslock.withLock { _tunnelStatus }
-
-            // If tunnel is active, trigger reconnect to re-evaluate with new relays
-            if currentStatus.state.isSecured {
-                reconnectTunnel(selectNewRelay: false)
+            Task { [weak self] in
+                guard let self else { return }
+                // If tunnel is active, trigger reconnect to re-evaluate with new relays
+                if self._tunnelStatus.state.isSecured {
+                    self.reconnectTunnel(selectNewRelay: false)
+                }
             }
         }
     }
@@ -1378,34 +1379,34 @@ extension TunnelManager {
         }
 
         var deviceState: DeviceState {
-            manager?.deviceState ?? .loggedOut
+            manager?.assumeIsolated { $0._deviceState } ?? .loggedOut
         }
 
         func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
-            manager?.setDeviceState(deviceState, persist: persist)
+            manager?.assumeIsolated { $0.setDeviceState(deviceState, persist: persist) }
         }
 
         func setLastUsedAccount(_ accountNumber: String) {
-            guard let manager else { return }
+            manager?.assumeIsolated { manager in
+                manager.logger.debug("Store last used account.")
 
-            manager.logger.debug("Store last used account.")
-
-            do {
-                try manager.settingsManager.setLastUsedAccount(accountNumber)
-            } catch {
-                manager.logger.error(
-                    error: error,
-                    message: "Failed to store last used account number."
-                )
+                do {
+                    try manager.settingsManager.setLastUsedAccount(accountNumber)
+                } catch {
+                    manager.logger.error(
+                        error: error,
+                        message: "Failed to store last used account number."
+                    )
+                }
             }
         }
 
         func unsetTunnelConfiguration() {
-            manager?.unsetTunnelConfiguration()
+            manager?.assumeIsolated { $0.unsetTunnelConfiguration() }
         }
 
         func removeLastUsedAccount() {
-            manager?.removeLastUsedAccount()
+            manager?.assumeIsolated { $0.removeLastUsedAccount() }
         }
     }
 }
