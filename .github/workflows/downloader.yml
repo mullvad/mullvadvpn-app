@@ -66,7 +66,7 @@ jobs:
         with:
           # Own cache key: this workflow builds a different profile and target
           # set than the other Rust workflows.
-          shared-key: installer-downloader
+          shared-key: downloader
           # rust-cache always assumes the target directory is `<workspace>/target`
           # and never reads CARGO_TARGET_DIR, so point it at the real one.
           cache-directories: ${{ env.CARGO_TARGET_DIR }}
@@ -104,7 +104,7 @@ jobs:
         with:
           # Own cache key: this workflow builds a different profile and target
           # set than the other Rust workflows.
-          shared-key: installer-downloader
+          shared-key: downloader
           cache-bin: false
           # Only save the cache from main, where the scheduled runs populate it.
           # A cache saved during a pull_request run is scoped to that one PR and

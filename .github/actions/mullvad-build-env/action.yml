@@ -46,11 +46,25 @@ runs:
           echo "CARGO_TARGET_DIR=$CARGO_TARGET_DIR" >> $GITHUB_ENV
         fi
 
+    # Each workflow gets its own cache, so the nightly run that populates it
+    # builds exactly the artifacts that workflow needs. `cargo clippy` and
+    # `cargo doc` only emit metadata, while `cargo build` and `cargo test`
+    # emit compiled libraries, and cargo keys the two under different
+    # fingerprints, so a shared cache would serve one of them useless entries.
+    - name: Derive Rust cache key from the calling workflow
+      if: ${{ inputs.rust-cache == 'true' }}
+      id: rust-cache-key
+      shell: bash
+      run: |
+        name="${GITHUB_WORKFLOW_REF%%@*}"            # .../workflows/clippy.yml
+        name="${name##*/}"                           # clippy.yml
+        echo "key=${name%.*}" >> "$GITHUB_OUTPUT"    # clippy
+
     - name: Setup Rust cache
       if: ${{ inputs.rust-cache == 'true' }}
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
       with:
-        add-job-id-key: "false"  # Preserve cache across jobs
+        shared-key: ${{ steps.rust-cache-key.outputs.key }}
         # rust-cache only caches `<workspace>/target` and never reads
         # CARGO_TARGET_DIR, so a target directory outside the workspace has to
         # be named here. Empty, and therefore ignored, when it is unset.
