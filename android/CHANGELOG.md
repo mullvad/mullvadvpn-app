@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
+### Fixed
+- Fix relay list and custom lists not being sorted using locale-aware collation.
+
 
 ## [android/2026.9-beta2] - 2026-09-09
 ### Fixed
