@@ -23,8 +23,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private var isSceneConfigured = false
 
     private var appCoordinator: ApplicationCoordinator?
-    private var accountDataThrottling: AccountDataThrottling?
-    private var deviceDataThrottling: DeviceDataThrottling?
 
     private var tunnelObserver: TunnelObserver?
 
@@ -45,6 +43,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     }
 
     // MARK: - Private
+
+    // Default cooldown interval between device data requests.
+    private let deviceDataDefaultWaitInterval = Duration.minutes(1)
+    // Interval in days when account is considered to be close to expiry.
+    private let accountCloseToExpiryDays = 4
+    private var deviceUpdateThrottle: ActionThrottle?
 
     private func addTunnelObserver() {
         let tunnelObserver = TunnelBlockObserver(
@@ -68,8 +72,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         isSceneConfigured = true
         disableAnimationsIfNeeded()
 
-        accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
-        deviceDataThrottling = DeviceDataThrottling(tunnelManager: tunnelManager)
+        deviceUpdateThrottle = ActionThrottle(
+            waitInterval: deviceDataDefaultWaitInterval,
+            action: { [tunnelManager] in
+                tunnelManager.updateAccountData()
+            })
+
         refreshLoginMetadata(forceUpdate: true)
 
         appCoordinator = ApplicationCoordinator(
@@ -150,32 +158,30 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
      to or past expiry.
 
      Both account and device data are refreshed regardless of other conditions when `forceUpdate` is `true`.
-
-     For more information on exact timings used for throttling refresh requests refer to `AccountDataThrottling` and
-     `DeviceDataThrottling` types.
      */
     private func refreshLoginMetadata(forceUpdate: Bool) {
-        let condition: AccountDataThrottling.Condition
+        let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
+        let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
+        let isCloseToExpiry =
+            (tunnelManager.deviceState.accountData?.daysUntilExpiry).map { $0 < accountCloseToExpiryDays } ?? false
 
-        if forceUpdate {
-            condition = .always
-        } else {
-            let isPresentingSettings = appCoordinator?.isPresentingSettings ?? false
-            let isPresentingAccount = appCoordinator?.isPresentingAccount ?? false
-
-            condition = isPresentingSettings || isPresentingAccount ? .always : .whenCloseToExpiryAndBeyond
+        let shouldUpdateDeviceData = tunnelManager.deviceState.isLoggedIn
+        let shouldUpdateAccountData =
+            tunnelManager.deviceState.accountData != nil
+            && (forceUpdate || isPresentingSettings || isPresentingAccount || isCloseToExpiry)
+        if shouldUpdateAccountData {
+            tunnelManager.updateAccountData()
         }
-
-        accountDataThrottling?.requestUpdate(condition: condition)
-        deviceDataThrottling?.requestUpdate(forceUpdate: forceUpdate)
+        if shouldUpdateDeviceData {
+            deviceUpdateThrottle?.requestAction(force: forceUpdate)
+        }
     }
 
     /**
      Reset throttling for login metadata making a subsequent refresh request execute unthrottled.
      */
     private func resetLoginMetadataThrottling() {
-        accountDataThrottling?.reset()
-        deviceDataThrottling?.reset()
+        deviceUpdateThrottle?.reset()
     }
 
     // MARK: - UIWindowSceneDelegate
