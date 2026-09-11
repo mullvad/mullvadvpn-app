@@ -21,6 +21,13 @@ pub static LE_ROOT_STORE: LazyLock<Arc<RootCertStore>> = LazyLock::new(|| {
     Arc::new(store)
 });
 
+/// The trust anchors browsers use, for hosts that are not ours.
+pub static WEBPKI_ROOT_STORE: LazyLock<Arc<RootCertStore>> = LazyLock::new(|| {
+    Arc::new(RootCertStore {
+        roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
+    })
+});
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -29,5 +36,12 @@ mod tests {
     #[test]
     fn root_store_holds_exactly_one_anchor() {
         assert_eq!(LE_ROOT_STORE.len(), 1);
+    }
+
+    /// Third parties are trusted through the public roots, not our single pin.
+    #[test]
+    fn webpki_store_is_not_our_pin() {
+        assert!(WEBPKI_ROOT_STORE.len() > 1);
+        assert_ne!(WEBPKI_ROOT_STORE.len(), LE_ROOT_STORE.len());
     }
 }

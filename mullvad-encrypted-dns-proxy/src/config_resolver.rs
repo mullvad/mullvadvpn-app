@@ -7,7 +7,6 @@ use hickory_resolver::{
     config::*,
     net::{NetError, runtime::TokioRuntimeProvider},
 };
-use rustls::ClientConfig;
 use std::{net::IpAddr, time::Duration};
 use tokio::time::error::Elapsed;
 
@@ -96,7 +95,7 @@ pub async fn resolve_config_with_resolverconfig(
     let provider = TokioRuntimeProvider::default();
     let resolver = TokioResolver::builder_with_config(resolver_config, provider)
         .with_options(options)
-        .with_tls_config(client_config_tls12())
+        .with_tls_config(mullvad_tls_client::doh_resolvers().clone())
         .build()
         .map_err(Error::ProtocolError)?;
 
@@ -123,18 +122,6 @@ pub async fn resolve_config_with_resolverconfig(
     }
 
     Ok(proxy_configs)
-}
-
-fn client_config_tls12() -> ClientConfig {
-    let root_store = rustls::RootCertStore {
-        roots: webpki_roots::TLS_SERVER_ROOTS.to_vec(),
-    };
-    let mut config = ClientConfig::builder()
-        .with_root_certificates(root_store)
-        .with_no_client_auth();
-    // Disable TLS tickets to reduce ability to track clients over time
-    config.resumption = rustls::client::Resumption::disabled();
-    config
 }
 
 #[cfg(test)]
