@@ -24,7 +24,6 @@ jnix = { version = "0.5.2", features = ["derive"] }
 libc = "0.2"
 netlink-packet-core = { workspace = true }
 netlink-packet-route = { workspace = true }
-netlink-sys = { workspace = true }
 rtnetlink = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
