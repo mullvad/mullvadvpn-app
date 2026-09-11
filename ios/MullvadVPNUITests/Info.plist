@@ -6,7 +6,7 @@
 	<string>$(PRODUCT_MODULE_NAME).TestObservationConfiguration</string>
 	<key>AdServingDomain</key>
 	<string>$(AD_SERVING_DOMAIN)</string>
-	<key>AmIJSONUrl</key>
+	<key>AmIMullvadUrl</key>
 	<string>$(AM_I_JSON_URL)</string>
 	<key>ApiEndpoint</key>
 	<string>$(API_ENDPOINT)</string>
