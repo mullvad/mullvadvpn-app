@@ -10,6 +10,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import Network
 
@@ -19,89 +20,38 @@ protocol OutgoingConnectionHandling {
 }
 
 final class OutgoingConnectionProxy: OutgoingConnectionHandling {
-    enum ExitIPVersion: String {
-        case v4 = "ipv4"
-        case v6 = "ipv6"
-
-        func host(hostname: String) -> String {
-            "\(rawValue).am.i.\(hostname)"
-        }
-    }
-
-    let urlSession: URLSessionProtocol
+    let apiContext: ApiContext
     let hostname: String
 
-    init(urlSession: URLSessionProtocol, hostname: String) {
-        self.urlSession = urlSession
+    init(
+        apiContext: ApiContext,
+        hostname: String = REST.amIMullvadHostname,
+    ) {
+        self.apiContext = apiContext
         self.hostname = hostname
     }
 
     func getIPV6(retryStrategy: REST.RetryStrategy) async throws -> IPV6ConnectionData {
-        try await perform(retryStrategy: retryStrategy, version: .v6)
+        guard
+            let data = await apiContext.amIMullvad(
+                address: "https://ipv6.\(hostname)/json",
+                retryStrategy: retryStrategy.toRustStrategy()),
+            case let .ipv6(ipv6) = data.ip
+        else {
+            throw APIError(statusCode: 0, errorDescription: "getting ipv6 address failed", serverResponseCode: nil)
+        }
+        return IPV6ConnectionData(ip: ipv6, exitIP: data.mullvadExitIp)
     }
 
     func getIPV4(retryStrategy: REST.RetryStrategy) async throws -> IPV4ConnectionData {
-        try await perform(retryStrategy: retryStrategy, version: .v4)
-    }
-
-    private func perform<T: Decodable>(retryStrategy: REST.RetryStrategy, version: ExitIPVersion) async throws -> T {
-        let delayIterator = retryStrategy.makeDelayIterator()
-        for _ in 0..<retryStrategy.maxRetryCount {
-            if !Task.isCancelled {
-                do {
-                    return try await perform(host: version.host(hostname: hostname))
-                } catch {
-                    // ignore if request is cancelled
-                    if case URLError.cancelled = error {
-                        throw error
-                    } else {
-                        // retry with the delay
-                        guard let delay = delayIterator.next() else { throw error }
-                        let mills = UInt64(max(0, delay.milliseconds))
-                        let nanos = mills.saturatingMultiplication(1_000_000)
-                        try await Task.sleep(nanoseconds: nanos)
-                    }
-                }
-            }
+        guard
+            let data = await apiContext.amIMullvad(
+                address: "https://ipv4.\(hostname)/json",
+                retryStrategy: retryStrategy.toRustStrategy()),
+            case let .ipv4(ipv4) = data.ip
+        else {
+            throw APIError(statusCode: 0, errorDescription: "getting ipv4 address failed", serverResponseCode: nil)
         }
-        return try await perform(host: version.host(hostname: hostname))
-    }
-
-    private func perform<T: Decodable>(host: String) async throws -> T {
-        var urlComponents = URLComponents()
-        urlComponents.scheme = "https"
-        urlComponents.host = host
-        urlComponents.path = "/json"
-
-        guard let url = urlComponents.url else {
-            throw REST.Error.network(URLError(.badURL))
-        }
-        let request = URLRequest(
-            url: url,
-            cachePolicy: .useProtocolCachePolicy,
-            timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval
-        )
-        let (data, response) = try await data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw REST.Error.network(URLError(.badServerResponse))
-        }
-        let decoder = JSONDecoder()
-        guard (200..<300).contains(httpResponse.statusCode) else {
-            throw REST.Error.unhandledResponse(
-                httpResponse.statusCode,
-                try? decoder.decode(
-                    REST.ServerErrorResponse.self,
-                    from: data
-                )
-            )
-        }
-        let connectionData = try decoder.decode(T.self, from: data)
-        return connectionData
-    }
-}
-
-extension OutgoingConnectionProxy: URLSessionProtocol {
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        return try await urlSession.data(for: request)
+        return IPV4ConnectionData(ip: ipv4, exitIP: data.mullvadExitIp)
     }
 }
