@@ -217,12 +217,21 @@ impl Inner {
     }
 
     /// Removes all PIDs from the Cgroup.
+    ///
+    /// PIDs can only be removed from a cgroup by moving them to another one, so this moves them
+    /// all back to the root cgroup.
     fn clear(&mut self) -> Result<(), Error> {
-        for pid in self.list()? {
-            let pid = Pid::from_raw(pid);
-            self.remove(pid)?;
+        match self {
+            Inner::CGroup1(inner) => inner
+                .excluded_cgroup1
+                .move_pids_to(&inner.root_cgroup1)
+                .map_err(Error::from),
+            #[cfg(feature = "cgroup2")]
+            Inner::CGroup2(inner) => inner
+                .excluded_cgroup2
+                .move_pids_to(&inner.root_cgroup2)
+                .map_err(Error::from),
         }
-        Ok(())
     }
 
     /// Get a handle to the [CGroup2] used for split-tunneling, if any.
