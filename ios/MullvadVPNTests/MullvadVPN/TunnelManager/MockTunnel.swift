@@ -16,12 +16,11 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
     typealias TunnelManagerProtocol = SimulatorTunnelProviderManager
 
     var status: NEVPNStatus
-
     var isOnDemandEnabled: Bool
-
     var startDate: Date?
-
     var backgroundTaskProvider: BackgroundTaskProviding
+
+    var onRemoveFromPreferences: (() -> Void)?
 
     required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) {
         status = .disconnected
@@ -51,6 +50,7 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
     }
 
     func removeFromPreferences(completion: @escaping (Error?) -> Void) {
+        onRemoveFromPreferences?()
         completion(nil)
     }
 

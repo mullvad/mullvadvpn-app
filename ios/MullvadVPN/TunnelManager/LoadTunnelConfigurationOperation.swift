@@ -14,52 +14,45 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendable {
+actor LoadTunnelConfigurationTask {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let interactor: TunnelInteractor
     private let settingsManager: SettingsManager
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, settingsManager: SettingsManager) {
+    init(interactor: TunnelInteractor, settingsManager: SettingsManager) {
         self.interactor = interactor
         self.settingsManager = settingsManager
-        super.init(dispatchQueue: dispatchQueue)
     }
 
-    override func main() {
-        Task {
-            let settingsResult = readSettings()
-            let deviceStateResult = readDeviceState()
+    func start() async {
+        let settingsResult = readSettings()
+        let deviceStateResult = readDeviceState()
 
-            let tunnel = await interactor.getPersistentTunnel()
-            let settings = settingsResult.flattenValue()
-            let deviceState = deviceStateResult.flattenValue()
+        let tunnel = await interactor.getPersistentTunnel()
+        let settings = settingsResult.flattenValue()
+        let deviceState = deviceStateResult.flattenValue()
 
-            interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
-            interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
+        interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
+        interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
-            if let tunnel, deviceState == nil {
-                logger.debug("Remove orphaned VPN configuration.")
+        guard let tunnel else {
+            setTunnelAndLoadConfiguration(nil)
+            return
+        }
 
-                tunnel.removeFromPreferences { error in
-                    if let error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to remove VPN configuration."
-                        )
-                    }
-                    self.finishOperation(tunnel: nil)
-                }
-            } else {
-                finishOperation(tunnel: tunnel)
+        if deviceState == nil {
+            tunnel.removeFromPreferences { error in
+                error.flatMap { self.logger.error(error: $0, message: "Failed to remove VPN configuration.") }
             }
+            setTunnelAndLoadConfiguration(nil)
+        } else {
+            setTunnelAndLoadConfiguration(tunnel)
         }
     }
 
-    private func finishOperation(tunnel: (any TunnelProtocol)?) {
+    private func setTunnelAndLoadConfiguration(_ tunnel: (any TunnelProtocol)?) {
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
         interactor.setConfigurationLoaded()
-
-        finish(result: .success(()))
     }
 
     private func readSettings() -> Result<LatestTunnelSettings?, Error> {
