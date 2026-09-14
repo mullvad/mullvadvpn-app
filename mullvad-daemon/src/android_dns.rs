@@ -10,6 +10,7 @@ use talpid_core::connectivity_listener::ConnectivityListener;
 /// A non-blocking DNS resolver. The default resolver uses `getaddrinfo`, which often prevents the
 /// tokio runtime from being dropped, since it waits indefinitely on blocking threads. This is
 /// particularly bad on Android, so we use a non-blocking resolver instead.
+#[derive(Clone)]
 pub struct AndroidDnsResolver {
     connectivity_listener: ConnectivityListener,
 }
