@@ -33,7 +33,10 @@ use talpid_tunnel_config_client::{
     self, EphemeralPeer, RelayConfigService, request_ephemeral_peer_with,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio::sync::{
+    Mutex,
+    mpsc::{UnboundedReceiver, UnboundedSender},
+};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 use tunnel_obfuscation::create_local_socket_obfuscator;
@@ -67,18 +70,34 @@ impl Drop for ObfuscationGuard {
 /// fail fast.
 #[derive(Clone)]
 pub struct BoundUdpTransports {
-    socket: UdpSocket,
+    socket: Arc<Mutex<UdpSocket>>,
 }
 
 impl BoundUdpTransports {
     /// Bind the socket, or fail describing why.
     pub async fn bind() -> io::Result<Self> {
-        let params = UdpTransportFactoryParams {
+        let params = Self::params();
+        let (socket, _recv) = UdpSocketFactory::default().bind(&params).await?;
+        Ok(Self {
+            socket: Arc::new(Mutex::new(socket)),
+        })
+    }
+
+    fn params() -> UdpTransportFactoryParams {
+        UdpTransportFactoryParams {
             addr: None,
             port: 0,
-        };
-        let (socket, _recv) = UdpSocketFactory::default().bind(&params).await?;
-        Ok(Self { socket })
+        }
+    }
+
+    /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
+    /// whilst the socket is rebound.
+    pub async fn rebind(&self) -> io::Result<()> {
+        let mut socket = self.socket.lock().await;
+
+        let (new_socket, _recv) = UdpSocketFactory::default().bind(&Self::params()).await?;
+        *socket = new_socket;
+        Ok(())
     }
 }
 
@@ -90,7 +109,9 @@ impl UdpTransportFactory for BoundUdpTransports {
         &mut self,
         _params: &UdpTransportFactoryParams,
     ) -> io::Result<(Self::Send, Self::Recv)> {
-        Ok((self.socket.clone(), self.socket.clone()))
+        let socket_guard = self.socket.lock().await;
+
+        Ok((socket_guard.clone(), socket_guard.clone()))
     }
 }
 
@@ -251,19 +272,36 @@ pub(crate) enum TunnelAdapterChannelCommand {
     Wake,
     Suspend,
     Stop,
+    BumpSockets,
 }
 
+<<<<<<< HEAD
 struct DeviceHolder {
+||||||| parent of b82d503b47 (fixup! Allow rebinding sockets in factory)
+/// All state for a final connected WireGuard session.
+struct DeviceHolder {
+=======
+/// All state for a final connected WireGuard session.
+struct ActiveConnection {
+>>>>>>> b82d503b47 (fixup! Allow rebinding sockets in factory)
     devices: Devices,
+    transport_provider: BoundUdpTransports,
     last_suspended_at: Option<talpid_time::Instant>,
     config: TunnelConfig,
     obfuscation: Option<ObfuscationGuard>,
 }
 
-impl DeviceHolder {
-    fn new(devices: Devices, config: TunnelConfig, obfuscation: Option<ObfuscationGuard>) -> Self {
+impl ActiveConnection {
+    /// Transport provider should be the one used by Devices.
+    fn new(
+        devices: Devices,
+        config: TunnelConfig,
+        obfuscation: Option<ObfuscationGuard>,
+        transport_provider: BoundUdpTransports,
+    ) -> Self {
         Self {
             devices,
+            transport_provider,
             last_suspended_at: None,
             config,
             obfuscation,
@@ -274,6 +312,19 @@ impl DeviceHolder {
         self.devices.stop().await;
         std::mem::drop(self.obfuscation.take());
         self.last_suspended_at = None;
+    }
+
+    async fn bump_sockets(&mut self) -> Result<(), TunnelError> {
+        self.devices.suspend().await;
+        if let Err(err) = self.transport_provider.rebind().await {
+            log::error!("Failed to rebind sockets: {err}");
+        }
+        if self.obfuscation.is_some() {
+            self.restart_obfuscation_after_long_sleep().await?;
+        }
+
+        self.devices.wake().await;
+        Ok(())
     }
 
     async fn handle_devices_wake(&mut self) -> Result<(), TunnelError> {
@@ -371,7 +422,8 @@ impl IosTunnelAdapter {
         if self.stopped.load(Ordering::SeqCst) {
             return;
         }
-        log::debug!("recycle_udp_sockets: not yet implemented");
+        log::debug!("Suspending device");
+        _ = self.tx.send(TunnelAdapterChannelCommand::BumpSockets);
     }
 
     pub fn suspend(&self) {
@@ -476,7 +528,13 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
-        let mut holder = DeviceHolder::new(devices, config, final_obfuscation);
+<<<<<<< HEAD
+        let mut holder = DeviceHolder::new(devices, config, final_obfuscation, udp);
+||||||| parent of b82d503b47 (fixup! Allow rebinding sockets in factory)
+        let mut holder = DeviceHolder::new(devices, params, keys, obfuscation, udp);
+=======
+        let mut holder = ActiveConnection::new(devices, params, keys, obfuscation, udp);
+>>>>>>> b82d503b47 (fixup! Allow rebinding sockets in factory)
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
         Self::monitor_connectivity(&mut holder, rx, stopped).await?;
@@ -972,7 +1030,7 @@ impl IosTunnelAdapter {
 
     /// Monitor an established connection. Returns when connectivity is lost or stopped.
     async fn monitor_connectivity(
-        device_holder: &mut DeviceHolder,
+        device_holder: &mut ActiveConnection,
         mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<(), TunnelError> {
