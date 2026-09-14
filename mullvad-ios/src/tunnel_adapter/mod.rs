@@ -16,10 +16,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::gotatun::{
-    ip_mux::ip_mux,
-    smoltcp_network::{SmoltcpHandle, smoltcp_network},
-};
 use gotatun::{
     device::{DeviceBuilder, Peer},
     udp::{
@@ -28,6 +24,10 @@ use gotatun::{
         socket::{UdpSocket, UdpSocketFactory},
     },
     x25519::StaticSecret,
+};
+use talpid_netstack::{
+    ip_mux::ip_mux,
+    smoltcp_network::{SmoltcpHandle, smoltcp_network},
 };
 use tokio::sync::{
     Mutex,
