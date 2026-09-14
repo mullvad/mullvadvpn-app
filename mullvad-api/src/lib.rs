@@ -285,6 +285,7 @@ pub trait DnsResolver: 'static + Send + Sync {
 }
 
 /// DNS resolver that relies on `ToSocketAddrs` (`getaddrinfo`).
+#[derive(Clone)]
 pub struct DefaultDnsResolver;
 
 #[async_trait]

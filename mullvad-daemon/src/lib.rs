@@ -1050,13 +1050,12 @@ impl Daemon {
         relay_list_updater.update().await;
 
         let location_handler = GeoIpHandler::new(
-            api_runtime.rest_handle(
-                #[cfg(not(target_os = "android"))]
-                mullvad_api::DefaultDnsResolver,
-                #[cfg(target_os = "android")]
-                android_dns::AndroidDnsResolver::new(connectivity_listener),
-            ),
             internal_event_tx.clone().to_specialized_sender(),
+            api_handle.availability.clone(),
+            #[cfg(not(target_os = "android"))]
+            mullvad_api::DefaultDnsResolver,
+            #[cfg(target_os = "android")]
+            android_dns::AndroidDnsResolver::new(connectivity_listener),
         );
 
         let leak_checker = {

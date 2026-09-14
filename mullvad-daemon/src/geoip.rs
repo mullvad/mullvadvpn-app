@@ -1,7 +1,13 @@
+use std::sync::Arc;
 use std::time::Duration;
 
-use futures::join;
-use mullvad_api::rest::{Error, RequestServiceHandle};
+use futures::{future::OptionFuture, join};
+use mullvad_api::{
+    availability::ApiAvailability,
+    proxy::ApiConnectionMode,
+    rest::{Error, RequestService, RequestServiceHandle},
+    DnsResolver,
+};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
 use std::sync::LazyLock;
 use talpid_core::mpsc::Sender;
@@ -48,18 +54,39 @@ pub(crate) struct GeoIpHandler {
     /// The [`LocationEventData`] used by [`crate::Daemon::handle_location_event`] to
     /// determine if the location belongs to the current tunnel state.
     pub request_id: usize,
-    rest_service: RequestServiceHandle,
+    rest_service_ipv4: RequestServiceHandle,
+    rest_service_ipv6: RequestServiceHandle,
     location_sender: DaemonEventSender<LocationEventData>,
 }
 
 impl GeoIpHandler {
     pub fn new(
-        rest_service: RequestServiceHandle,
         location_sender: DaemonEventSender<LocationEventData>,
+        api_availability: ApiAvailability,
+        dns_resolver: impl DnsResolver + Clone,
     ) -> Self {
+        // Create one rest service per ipv4/v6 conncheck host.
+        let [rest_service_ipv4, rest_service_ipv6] = [
+            format!("ipv4.{}", *MULLVAD_CONNCHECK_HOST),
+            format!("ipv6.{}", *MULLVAD_CONNCHECK_HOST),
+        ]
+        .map(|host| {
+            RequestService::spawn(
+                host,
+                api_availability.clone(),
+                ApiConnectionMode::Direct.into_provider(),
+                Arc::new(dns_resolver.clone()),
+                #[cfg(target_os = "android")]
+                None,
+                #[cfg(feature = "api-override")]
+                false,
+            )
+        });
+
         Self {
             request_id: 0,
-            rest_service,
+            rest_service_ipv4,
+            rest_service_ipv6,
             location_sender,
         }
     }
@@ -74,10 +101,13 @@ impl GeoIpHandler {
         self.abort_current_request();
 
         let request_id = self.request_id;
-        let rest_service = self.rest_service.clone();
+        let rest_service_ipv4 = self.rest_service_ipv4.clone();
+        let rest_service_ipv6 = use_ipv6.then(|| self.rest_service_ipv6.clone());
         let location_sender = self.location_sender.clone();
         tokio::spawn(async move {
-            if let Ok(location) = get_geo_location_with_retry(use_ipv6, rest_service).await {
+            if let Ok(location) =
+                get_geo_location_with_retry(rest_service_ipv4, rest_service_ipv6).await
+            {
                 let _ = location_sender.send(LocationEventData {
                     request_id,
                     location,
@@ -88,18 +118,19 @@ impl GeoIpHandler {
 
     /// Abort any ongoing call to am.i.mullvad.net
     pub fn abort_current_request(&mut self) {
-        self.rest_service.reset();
+        self.rest_service_ipv4.reset();
+        self.rest_service_ipv6.reset();
     }
 }
 
 /// Fetch the current `GeoIpLocation` from am.i.mullvad.net. Handles retries on network errors.
 async fn get_geo_location_with_retry(
-    use_ipv6: bool,
-    rest_service: RequestServiceHandle,
+    rest_service_ipv4: RequestServiceHandle,
+    rest_service_ipv6: Option<RequestServiceHandle>,
 ) -> Result<GeoIpLocation, Error> {
     log::debug!("Fetching GeoIpLocation");
     retry_future(
-        move || send_location_request(rest_service.clone(), use_ipv6),
+        async move || send_location_request(&rest_service_ipv4, rest_service_ipv6.as_ref()).await,
         move |result| match result {
             Err(error) => error.is_network_error(),
             _ => false,
@@ -110,26 +141,17 @@ async fn get_geo_location_with_retry(
 }
 
 async fn send_location_request(
-    request_sender: RequestServiceHandle,
-    use_ipv6: bool,
+    rest_service_ipv4: &RequestServiceHandle,
+    rest_service_ipv6: Option<&RequestServiceHandle>,
 ) -> Result<GeoIpLocation, Error> {
-    let v4_sender = request_sender.clone();
-    let v4_future = async move {
-        let uri_v4 = format!("https://ipv4.{}/json", *MULLVAD_CONNCHECK_HOST);
-        let location = send_location_request_internal(&uri_v4, v4_sender).await?;
-        Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
-    };
-    let v6_sender = request_sender.clone();
-    let v6_future = async move {
-        if use_ipv6 {
-            let uri_v6 = format!("https://ipv6.{}/json", *MULLVAD_CONNCHECK_HOST);
-            let location = send_location_request_internal(&uri_v6, v6_sender).await;
-            Some(location.map(GeoIpLocation::from))
-        } else {
-            None
-        }
+    let send_request = async |service: &RequestServiceHandle| {
+        let response = service.request().get("json")?.await?;
+        let response: AmIMullvad = response.deserialize().await?;
+        Ok::<GeoIpLocation, Error>(response.into())
     };
 
+    let v4_future = send_request(rest_service_ipv4);
+    let v6_future = OptionFuture::from(rest_service_ipv6.map(send_request));
     let (v4_result, v6_result) = join!(v4_future, v6_future);
 
     match (v4_result, v6_result) {
@@ -149,13 +171,6 @@ async fn send_location_request(
         }
         (Err(e_v4), _) => Err(e_v4),
     }
-}
-
-async fn send_location_request_internal(
-    uri: &str,
-    service: RequestServiceHandle,
-) -> Result<AmIMullvad, Error> {
-    service.request().get(uri)?.await?.deserialize().await
 }
 
 fn log_network_error(err: Error, version: &'static str) {
