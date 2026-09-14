@@ -70,7 +70,7 @@ impl phy::TxToken for SmoltcpTxToken<'_> {
                     log::warn!("smoltcp: to_gotatun channel full or closed, dropping packet");
                 }
             }
-            Err(err) => log::error!("smoltcp emitted an unparseable IP packet, dropping: {err}"),
+            Err(err) => log::error!("smoltcp emitted an unparsable IP packet, dropping: {err}"),
         }
 
         result

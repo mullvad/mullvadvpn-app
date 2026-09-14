@@ -40,7 +40,7 @@ enum HandleState {
                 + Send,
         >,
     },
-    // This is used in `start` to safetly swap out the state.
+    // This is used in `start` to safely swap out the state.
     // A RequestCancelHandle method should never return and leave the state as this.
     Intermediate,
     Started {

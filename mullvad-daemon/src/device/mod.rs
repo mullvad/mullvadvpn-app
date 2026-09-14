@@ -526,7 +526,7 @@ impl AccountManager {
                         }
                         Some(AccountManagerCommand::SetRotationInterval(interval, tx)) => {
                             self.rotation_interval = interval;
-                            if current_api_call.is_running_timed_totation() {
+                            if current_api_call.is_running_timed_rotation() {
                                 current_api_call.clear();
                             }
                             let _ = tx.send(Ok(()));

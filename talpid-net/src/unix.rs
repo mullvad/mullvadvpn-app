@@ -46,7 +46,7 @@ struct IfReq {
 }
 
 impl IfReq {
-    /// Returns an [`ifreq`] refering to `interface`.
+    /// Returns an [`ifreq`] referring to `interface`.
     ///
     /// - `interface`: Name of the interface (e.g. `eth0`).
     fn new(interface: &str) -> Result<Self, io::Error> {
