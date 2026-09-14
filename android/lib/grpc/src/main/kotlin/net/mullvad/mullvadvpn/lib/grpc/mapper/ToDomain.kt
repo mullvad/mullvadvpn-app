@@ -155,7 +155,7 @@ internal fun TunnelState.toDomain(): ModelTunnelState =
         connected != null -> connected.toDomain()
         disconnecting != null -> disconnecting.toDomain()
         error != null -> error.toDomain()
-        else -> error("Tunnelstate not supported")
+        else -> error("Tunnelstate $this not supported")
     }
 
 private fun TunnelState.Connecting.toDomain(): ModelTunnelState.Connecting =
@@ -224,18 +224,8 @@ private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
 
 internal fun GeoIpLocation.toDomain(): ModelGeoIpLocation =
     ModelGeoIpLocation(
-        ipv4 =
-            if (ipv4 != null) {
-                InetAddress.getByName(ipv4)
-            } else {
-                null
-            },
-        ipv6 =
-            if (ipv6 != null) {
-                InetAddress.getByName(ipv6)
-            } else {
-                null
-            },
+        ipv4 = ipv4?.let(InetAddress::getByName),
+        ipv6 = ipv6?.let(InetAddress::getByName),
         country = country,
         city = city,
         latitude = latitude,
@@ -251,21 +241,14 @@ internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
         endpoint =
             ModelEndpoint(address = address.toInetSocketAddress(), protocol = protocol.toDomain()),
         entryEndpoint =
-            if (entry_endpoint != null) {
+            entry_endpoint?.let {
                 ModelEndpoint(
-                    address = entry_endpoint.address.toInetSocketAddress(),
-                    protocol = entry_endpoint.protocol.toDomain(),
+                    address = it.address.toInetSocketAddress(),
+                    protocol = it.protocol.toDomain(),
                 )
-            } else {
-                null
             },
         quantumResistant = quantum_resistant,
-        obfuscation =
-            if (obfuscation != null && obfuscation.single != null) {
-                obfuscation.single.toDomain()
-            } else {
-                null
-            },
+        obfuscation = obfuscation?.single?.toDomain(),
         daita = daita,
     )
 
@@ -393,8 +376,8 @@ internal fun Settings.toDomain(): ModelSettings =
 internal fun RelayOverride.toDomain(): ModelRelayOverride =
     ModelRelayOverride(
         hostname = hostname,
-        ipv4AddressIn = if (ipv4_addr_in != null) InetAddress.getByName(ipv4_addr_in) else null,
-        ipv6AddressIn = if (ipv6_addr_in != null) InetAddress.getByName(ipv6_addr_in) else null,
+        ipv4AddressIn = ipv4_addr_in?.let(InetAddress::getByName),
+        ipv6AddressIn = ipv6_addr_in?.let(InetAddress::getByName),
     )
 
 internal fun RelaySettings.toDomain(): ModelRelaySettings =
@@ -646,7 +629,7 @@ internal fun Device.toDomain(): ModelDevice =
 
 internal fun DeviceState.toDomain(): ModelDeviceState =
     when (state) {
-        DeviceState.State.LOGGED_IN if device != null && device.device != null ->
+        DeviceState.State.LOGGED_IN if device?.device != null ->
             ModelDeviceState.LoggedIn(
                 ModelAccountNumber(device.account_number),
                 device.device.toDomain(),
