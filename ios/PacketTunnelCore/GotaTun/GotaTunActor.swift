@@ -332,6 +332,12 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     private func handleAdapterError(_ error: GotaTunError) {
+        if case .bindSockets = error,
+            currentReachability == .reachable
+        {
+            makeRecoveryTaskIfNeeded(reason: .socketBindError)
+            return
+        }
         let blockedReason = mapGotaTunError(error)
         logger.error("Adapter error: \(error) → blocked reason: \(blockedReason)")
         enterErrorState(reason: blockedReason)
@@ -488,6 +494,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         attemptCount: UInt = 0,
         isReconnect: Bool = false
     ) async {
+        cancelRecoveryTask()
         let settings: Settings
         do {
             settings = try settingsReader.read()
@@ -589,7 +596,11 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         } catch {
             logger.error("Failed to start tunnel: \(error)")
             currentAdapter = nil
-            enterErrorState(reason: .tunnelAdapter)
+            if let error = error as? GotaTunError {
+                handleAdapterError(error)
+            } else {
+                enterErrorState(reason: .tunnelAdapter)
+            }
         }
     }
 
@@ -683,13 +694,13 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private func makeRecoveryTaskIfNeeded(reason: BlockedStateReason) {
         guard reason.shouldRestartAutomatically else { return }
 
+        let recoveryDelay = timings.recoveryDelay(for: reason)
+
         recoveryTask?.cancel()
-        recoveryTask = Task { [weak self, timings, clock] in
-            while true {
-                try? await clock.sleep(for: timings.bootRecoveryPeriodicity)
-                guard !Task.isCancelled else { return }
-                self?.eventContinuation.yield(.reconnect(.random, .userInitiated))
-            }
+        recoveryTask = Task { [weak self, clock] in
+            try? await clock.sleep(for: recoveryDelay)
+            guard !Task.isCancelled else { return }
+            self?.eventContinuation.yield(.reconnect(.random, .userInitiated))
         }
     }
 
@@ -734,6 +745,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return .tunnelAdapter
         case .internalError:
             return .unknown
+        case .bindSockets:
+            return .tunnelAdapter
         }
     }
 }

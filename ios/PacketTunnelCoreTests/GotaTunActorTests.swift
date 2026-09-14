@@ -955,4 +955,54 @@ final class GotaTunActorTests: XCTestCase {
 
         XCTAssertEqual(factory.adaptersCreated.count, 1)
     }
+
+    func testConnectingOnSocketBindError() async throws {
+        let timings = GotaTunActorTimings()
+        let clock = TestClock()
+        let factory = GotaTunAdapterFactoryStub(
+            outcomes: [.error(.bindSockets("")), .connected()]
+        )
+
+        let actor = makeActor(adapterFactory: factory, clock: clock, timings: timings)
+        let launchOptions = launchOptions
+
+        let states = await collectStates(from: actor) {
+            $0.isConnected
+        } while: {
+            Task { await actor.start(options: launchOptions) }
+            await clock.waitForSleepers()
+            await clock.advance(by: timings.socketBindErrorRecoveryPeriodicity)
+        }
+        XCTAssertEqual(factory.adaptersCreated.count, 2)
+        // First connect is triggered by `actor.start`, second connect is triggered by the returned socket bind error.
+        XCTAssertEqual(states.map(\.name), ["Initial", "Connecting", "Connecting", "Connected"])
+    }
+
+    func testReconnectingOnSocketBindErrorWhenConnected() async throws {
+        let factory = GotaTunAdapterFactoryStub()
+        let timings = GotaTunActorTimings()
+        let clock = TestClock()
+
+        let actor = makeActor(
+            adapterFactory: factory,
+            clock: clock,
+            timings: timings
+        )
+
+        await waitFor(actor) {
+            $0.isConnected
+        } while: {
+            await actor.start(options: launchOptions)
+        }
+
+        let states = await collectStates(from: actor, count: 3) {
+            factory.adaptersCreated.first!.callbackHandler?.onError(.bindSockets(""))
+            await clock.waitForSleepers()
+            await clock.advance(by: timings.socketBindErrorRecoveryPeriodicity)
+        }
+
+        XCTAssertEqual(factory.adaptersCreated.count, 2)
+        XCTAssertEqual(states.map(\.name), ["Connected", "Reconnecting", "Connected"])
+    }
+
 }

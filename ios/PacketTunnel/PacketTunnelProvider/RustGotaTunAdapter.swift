@@ -32,7 +32,7 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
                 callback: CallbackProxy(callbackHandler)
             )
         } catch let error as GotaTunFfiError {
-            throw Self.mapError(error)
+            throw error.toGotaTunError()
         }
 
         logger.debug("Tunnel started via GotaTunTunnel")
@@ -105,17 +105,6 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
             return .lwo(clientPublicKey: config.clientPublicKey, serverPublicKey: ingressPeerKey)
         }
     }
-
-    private static func mapError(_ error: GotaTunFfiError) -> GotaTunError {
-        switch error {
-        case let .InvalidConfig(message):
-            return .invalidConfig(message)
-        case let .Internal(message):
-            return .internalError(message)
-        case let .BindSockets(message):
-            return .internalError(message)
-        }
-    }
 }
 
 private final class CallbackProxy: GotaTunCallback {
@@ -133,7 +122,20 @@ private final class CallbackProxy: GotaTunCallback {
         handler.onTimeout()
     }
 
-    func onError(message: String) {
-        handler.onError(.internalError(message))
+    func onError(error: GotaTunFfiError) {
+        handler.onError(error.toGotaTunError())
+    }
+}
+
+extension GotaTunFfiError {
+    func toGotaTunError() -> GotaTunError {
+        switch self {
+        case .InvalidConfig(let description):
+            return .invalidConfig(description)
+        case .BindSockets(let description):
+            return .bindSockets(description)
+        case .Internal(let description):
+            return .internalError(description)
+        }
     }
 }

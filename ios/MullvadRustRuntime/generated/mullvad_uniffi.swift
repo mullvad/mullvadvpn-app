@@ -1205,7 +1205,7 @@ public protocol GotaTunCallback: AnyObject, Sendable {
     /**
      * A fatal error occurred.
      */
-    func onError(message: String) 
+    func onError(error: GotaTunFfiError) 
     
 }
 
@@ -1278,7 +1278,7 @@ fileprivate struct UniffiCallbackInterfaceGotaTunCallback {
         },
         onError: { (
             uniffiHandle: UInt64,
-            message: RustBuffer,
+            error: RustBuffer,
             uniffiOutReturn: UnsafeMutableRawPointer,
             uniffiCallStatus: UnsafeMutablePointer<RustCallStatus>
         ) in
@@ -1288,7 +1288,7 @@ fileprivate struct UniffiCallbackInterfaceGotaTunCallback {
                     throw UniffiInternalError.unexpectedStaleHandle
                 }
                 return uniffiObj.onError(
-                     message: try FfiConverterString.lift(message)
+                     error: try FfiConverterTypeGotaTunFfiError_lift(error)
                 )
             }
 
@@ -1439,7 +1439,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_timeout() != 47357) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_error() != 39076) {
+    if (uniffi_mullvad_ios_checksum_method_gotatuncallback_on_error() != 46553) {
         return InitializationResult.apiChecksumMismatch
     }
 
