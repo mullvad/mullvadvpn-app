@@ -419,8 +419,9 @@ class ConnectionTest : EndToEndTest() {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
-        // Set wireguard custom port
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
+        // Set wireguard custom port
         on<ConnectPage> { enableWireGuardCustomPortStory(53) }
 
         // Connect

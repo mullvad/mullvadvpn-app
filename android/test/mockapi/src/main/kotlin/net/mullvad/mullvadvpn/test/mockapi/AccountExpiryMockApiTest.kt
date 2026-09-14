@@ -45,8 +45,9 @@ class AccountExpiryMockApiTest : MockApiTest() {
         // Act
         app.launchAndLogIn(validAccountNumber)
 
-        // Wait for us to be on connect page before changing expiry
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
+        // Wait for us to be on connect page before changing expiry
         on<ConnectPage>()
 
         // Set account time as expired
@@ -73,8 +74,9 @@ class AccountExpiryMockApiTest : MockApiTest() {
         // Act
         app.launchAndLogIn(validAccountNumber)
 
-        // Wait for us to be on connect page before changing expiry
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
+        // Wait for us to be on connect page before changing expiry
         on<ConnectPage>()
 
         // Set account time as expired
