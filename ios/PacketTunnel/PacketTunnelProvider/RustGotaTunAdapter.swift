@@ -102,7 +102,7 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
         case .lwo:
             // LWO obfuscates the handshake with the ingress relay's key.
             let ingressPeerKey = config.entryPeerPublicKey ?? config.exitPeerPublicKey
-            return .lwo(clientPublicKey: config.clientPublicKey, serverPublicKey: ingressPeerKey)
+            return .lwo(serverPublicKey: ingressPeerKey)
         }
     }
 }
