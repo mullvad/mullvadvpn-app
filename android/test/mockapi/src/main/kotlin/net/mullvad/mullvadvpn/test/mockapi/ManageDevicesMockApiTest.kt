@@ -28,6 +28,8 @@ class ManageDevicesMockApiTest : MockApiTest() {
         // Act - go to devices screen
         app.launchAndLogIn(validAccountNumber)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         on<ConnectPage> { clickAccount() }
 
         on<AccountPage> { clickManageDevices() }

@@ -2,11 +2,9 @@
 
 package net.mullvad.mullvadvpn.app
 
-import android.Manifest
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
@@ -32,9 +30,6 @@ import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import co.touchlab.kermit.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -80,8 +75,6 @@ import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
 import net.mullvad.mullvadvpn.screen.navigation.splashEntry
-import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -92,7 +85,7 @@ import org.koin.core.parameter.parametersOf
 )
 @Composable
 @Suppress("LongMethod")
-fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
+fun MullvadApp() {
     val resultStore = rememberResultStore()
     val navigationState = rememberNavigationState(SplashNavKey)
 
@@ -120,10 +113,6 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
                 mullvadAppViewModel.setCurrentBackStack(backstack)
             }
         }
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        CheckNotificationPermission(serviceConnectionManager)
     }
 
     val entryProvider = entryProvider {
@@ -208,24 +197,3 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
 private fun defaultNavDisplayTransitionSpec(): ContentTransform =
     fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
         fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
-
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun CheckNotificationPermission(serviceConnectionManager: ServiceConnectionManager) {
-    val notificationPermission =
-        rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
-    LaunchedEffect(Unit) {
-        serviceConnectionManager.connectionState.collect {
-            if (it is ServiceConnectionState.Bound) {
-                if (!notificationPermission.status.isGranted) {
-                    notificationPermission.launchPermissionRequest()
-                    cancel(
-                        message =
-                            "We should only show one notification permission dialog per app start"
-                    )
-                }
-            }
-        }
-    }
-}

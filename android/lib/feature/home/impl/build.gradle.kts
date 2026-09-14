@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.koin.compose)
     implementation(libs.arrow)
+    implementation(libs.accompanist.permissions)
     implementation(libs.compose.constrainlayout)
     implementation(libs.androidx.credentials) {
         // This dependency adds a lot of unused permissions to the app.

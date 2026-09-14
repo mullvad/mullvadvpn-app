@@ -32,6 +32,7 @@ class DefaultLocationTest : EndToEndTest() {
             assert(isGone)
         }
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
 
         // After we have logged in the daemon will have set the new default location so the

@@ -28,6 +28,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
         val newAccountExpiry = oldAccountExpiry.plusMonths(1)
         apiRouter.accountExpiry = newAccountExpiry
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickAccount() }
 
         on<AccountPage> {
@@ -43,6 +44,8 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Act
         app.launchAndLogIn(validAccountNumber)
+
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Wait for us to be on connect page before changing expiry
         on<ConnectPage>()
@@ -70,6 +73,8 @@ class AccountExpiryMockApiTest : MockApiTest() {
 
         // Act
         app.launchAndLogIn(validAccountNumber)
+
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Wait for us to be on connect page before changing expiry
         on<ConnectPage>()

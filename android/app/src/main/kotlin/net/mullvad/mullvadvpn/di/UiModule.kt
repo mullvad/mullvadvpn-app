@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsViewModel
 import net.mullvad.mullvadvpn.feature.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectViewModel
+import net.mullvad.mullvadvpn.feature.home.impl.connect.HasShowNotificationPromptRepository
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
@@ -186,6 +187,7 @@ val uiModule = module {
     }
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
+    single { HasShowNotificationPromptRepository() }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -341,6 +343,7 @@ val uiModule = module {
             resolveAppListing = get(),
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
+            hasShownNotificationPromptRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
