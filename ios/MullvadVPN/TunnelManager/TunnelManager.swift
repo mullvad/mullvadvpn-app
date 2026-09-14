@@ -149,7 +149,7 @@ final class TunnelManager: @unchecked Sendable {
     }
 
     func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        accountManager.updateDeviceData { [weak self] error in
+        accountManager.updateAccountData { [weak self] error in
             guard let self else { return }
             if let error {
                 self.handleRestError(error)
@@ -164,6 +164,18 @@ final class TunnelManager: @unchecked Sendable {
         _ = try await setAccount(action: .delete(accountNumber))
         removeLastUsedAccount()
         unsetTunnelConfiguration()
+    }
+
+    func updateDeviceData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
+        accountManager.updateDeviceData { [weak self] error in
+            guard let self else { return }
+            if let error {
+                self.handleRestError(error)
+                completionHandler?(.failure(error))
+            } else {
+                completionHandler?(.success(()))
+            }
+        }
     }
 
     private func setAccount(
