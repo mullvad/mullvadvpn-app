@@ -1096,7 +1096,7 @@ public enum GotaTunObfuscation: Equatable, Hashable {
     case shadowsocks
     case quic(hostname: String, token: String
     )
-    case lwo(clientPublicKey: Data, serverPublicKey: Data
+    case lwo(serverPublicKey: Data
     )
 
 
@@ -1128,7 +1128,7 @@ public struct FfiConverterTypeGotaTunObfuscation: FfiConverterRustBuffer {
         case 4: return .quic(hostname: try FfiConverterString.read(from: &buf), token: try FfiConverterString.read(from: &buf)
         )
         
-        case 5: return .lwo(clientPublicKey: try FfiConverterData.read(from: &buf), serverPublicKey: try FfiConverterData.read(from: &buf)
+        case 5: return .lwo(serverPublicKey: try FfiConverterData.read(from: &buf)
         )
         
         default: throw UniffiInternalError.unexpectedEnumCase
@@ -1157,9 +1157,8 @@ public struct FfiConverterTypeGotaTunObfuscation: FfiConverterRustBuffer {
             FfiConverterString.write(token, into: &buf)
             
         
-        case let .lwo(clientPublicKey,serverPublicKey):
+        case let .lwo(serverPublicKey):
             writeInt(&buf, Int32(5))
-            FfiConverterData.write(clientPublicKey, into: &buf)
             FfiConverterData.write(serverPublicKey, into: &buf)
             
         }
