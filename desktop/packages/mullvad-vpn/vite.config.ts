@@ -132,7 +132,11 @@ const viteConfig = defineConfig({
         },
       },
     }),
-    react(),
+    react({
+      compiler: {
+        target: '19',
+      },
+    }),
   ],
 });
 
