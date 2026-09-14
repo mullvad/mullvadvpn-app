@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
   via the `iphlpapi` IP helper API.
 
 ### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
 - Reject invalid DAITA fraction limits in tunnel config responses before starting the tunnel.
 - Ignore DAITA tunnel config responses unless DAITA was requested.
 - Fix infinite loop of account checks when account ran out of time.
