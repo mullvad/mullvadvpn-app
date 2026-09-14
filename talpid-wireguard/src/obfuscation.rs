@@ -195,6 +195,16 @@ pub enum RunningObfuscation {
     Transport(Arc<dyn ObfuscatedTransport>),
 }
 
+impl RunningObfuscation {
+    /// Obfuscate for a WireGuard device that uses `client_public_key`, which LWO keys off.
+    pub fn with_client_public_key(mut self, client_public_key: PublicKey) -> Self {
+        if let RunningObfuscation::Lwo(settings) = &mut self {
+            settings.client_public_key = client_public_key;
+        }
+        self
+    }
+}
+
 /// Set up the obfuscation for `settings`.
 ///
 /// The [SelectedTransportRx] is `Some` only for a multiplexer, and returns the selected obfuscation

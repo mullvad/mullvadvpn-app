@@ -1,270 +1,128 @@
-//! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
-//! restarting obfuscation and WG tunnels when necessary.
+//! Negotiate ephemeral peers before the tunnel is opened.
 
-use super::{CloseMsg, Error, TunnelType, config::Config};
-
-use std::{
-    net::IpAddr,
-    sync::Arc,
-    time::{Duration, Instant},
+use crate::{
+    CloseMsg, Error,
+    config::Config,
+    gotatun::{MaybeObfuscatingTransportFactory, lwo_timer_params, lwo_version},
+    obfuscation::RunningObfuscation,
 };
-
-use ipnetwork::IpNetwork;
-use talpid_tunnel_config_client::{DaitaSettings, EphemeralPeer};
-use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::sync::Mutex as AsyncMutex;
+use std::{io, net::Ipv4Addr, sync::Arc, time::Duration};
+use talpid_net::bypass::SocketBypass;
+use talpid_tunnel_config_client::negotiation::{
+    self, Ingress, IngressTransport, NegotiatedPeers, NegotiationConfig, NegotiationError, Relay,
+    Relays,
+};
+use talpid_types::net::{
+    obfuscation::LwoVersion,
+    wireguard::{PeerConfig, PublicKey},
+};
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
-#[cfg(windows)]
-pub async fn config_ephemeral_peers(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    config: &mut Config,
-    retry_attempt: u32,
-) -> std::result::Result<(), CloseMsg> {
-    let iface_name = {
-        let tunnel = tunnel.lock().await;
-        let tunnel = tunnel.as_ref().unwrap();
-        tunnel.get_interface_name()
-    };
-
-    // Lower the MTU in order to make the ephemeral peer handshake work more reliably.
-    // On unix based operating systems this is done by setting the MSS directly on the
-    // TCP socket. But that solution does not work on Windows, so we do this MTU hack instead.
-    log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
-    try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
-
-    // A route on an interface that is not connected cannot be used, and we are about to connect
-    // to the config service through the tunnel.
-    wait_for_connected_interface(&iface_name).await;
-
-    config_ephemeral_peers_inner(tunnel, config, retry_attempt).await?;
-
-    log::trace!("Resetting tunnel MTU");
-    try_set_ipv4_mtu(&iface_name, config.mtu);
-
-    Ok(())
-}
-
-/// Waits briefly for the tunnel IPv4 interface to report itself as connected. Logs if it is not
-/// already connected, since that means we were about to use a tunnel that Windows had not
-/// finished plumbing.
+/// Negotiate ephemeral peers with the relays in `config`.
 ///
-/// A route on an interface that is not connected cannot be used, so the connect that follows
-/// would be routed out some other interface and blocked by the firewall, surfacing as WSAEACCES.
-/// Whether that is what actually happens to the config service connect is not established -- the
-/// log line is here to tell us.
-///
-/// This never fails the tunnel: it is a diagnostic, and the connection is attempted either way.
-#[cfg(target_os = "windows")]
-async fn wait_for_connected_interface(alias: &str) {
-    use talpid_types::ErrorExt;
-    use talpid_windows::net::{AddressFamily, get_ip_interface_entry, luid_from_alias};
-
-    /// How long to wait for the interface to report itself as connected.
-    const CONNECTED_CHECK_TIMEOUT: Duration = Duration::from_millis(500);
-    /// How long to wait between those checks.
-    const CONNECTED_CHECK_INTERVAL: Duration = Duration::from_millis(10);
-
-    let luid = match luid_from_alias(alias) {
-        Ok(luid) => luid,
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to obtain tunnel interface LUID")
-            );
-            return;
-        }
-    };
-
-    let start = Instant::now();
-    let mut was_disconnected = false;
-
-    loop {
-        match get_ip_interface_entry(AddressFamily::Ipv4, &luid) {
-            Ok(row) if row.Connected => {
-                if was_disconnected {
-                    log::debug!(
-                        "Tunnel IP interface became connected after {:?}",
-                        start.elapsed()
-                    );
-                }
-                return;
-            }
-            Ok(_) => {
-                if !was_disconnected {
-                    log::debug!("Tunnel IP interface is not connected yet");
-                    was_disconnected = true;
-                }
-            }
-            Err(error) => {
-                log::error!("Failed to obtain tunnel IP interface: {error}");
-                return;
-            }
-        }
-
-        if start.elapsed() >= CONNECTED_CHECK_TIMEOUT {
-            log::warn!(
-                "Tunnel IP interface is still not connected after {:?}",
-                start.elapsed()
-            );
-            return;
-        }
-
-        tokio::time::sleep(CONNECTED_CHECK_INTERVAL).await;
-    }
-}
-
-#[cfg(windows)]
-fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
-    use talpid_windows::net::*;
-    match luid_from_alias(alias) {
-        Ok(luid) if let Err(error) = set_mtu(u32::from(mtu), luid, AddressFamily::Ipv4) => {
-            log::error!("Failed to set tunnel interface MTU: {error}");
-        }
-        Ok(_) => {}
-        Err(error) => {
-            log::error!("Failed to obtain tunnel interface LUID: {error}")
-        }
-    }
-}
-
-#[cfg(not(windows))]
-pub async fn config_ephemeral_peers(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    config: &mut Config,
-    retry_attempt: u32,
-) -> Result<(), CloseMsg> {
-    config_ephemeral_peers_inner(tunnel, config, retry_attempt).await
-}
-
-async fn config_ephemeral_peers_inner(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    config: &mut Config,
-    retry_attempt: u32,
-) -> Result<(), CloseMsg> {
-    let ephemeral_private_key = PrivateKey::new_from_random();
-
-    let exit_should_have_daita = config.daita && !config.is_multihop();
-    let exit_ephemeral_peer = request_ephemeral_peer(
-        retry_attempt,
-        config,
-        ephemeral_private_key.public_key(),
-        config.quantum_resistant,
-        exit_should_have_daita,
-    )
-    .await?;
-
-    let mut daita = exit_ephemeral_peer.daita;
-
-    log::debug!("Retrieved ephemeral peer");
-
-    if config.is_multihop() {
-        // Set up tunnel to lead to entry
-        let mut entry_tun_config = config.clone();
-        entry_tun_config.exit_peer = None;
-        entry_tun_config
-            .entry_peer
-            .allowed_ips
-            .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
-
-        reconfigure_tunnel(tunnel, entry_tun_config.clone(), None).await?;
-
-        let entry_ephemeral_peer = request_ephemeral_peer(
-            retry_attempt,
-            &entry_tun_config,
-            ephemeral_private_key.public_key(),
-            config.quantum_resistant,
-            config.daita,
-        )
-        .await?;
-        log::debug!("Successfully exchanged PSK with entry peer");
-
-        config.entry_peer.psk = entry_ephemeral_peer.psk;
-        daita = entry_ephemeral_peer.daita;
-    }
-
-    config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
-    if config.daita {
-        // NOTE: this option does nothing for GotaTun, and should be removed in future.
-        log::trace!("Enabling constant packet size for entry peer");
-        config.entry_peer.constant_packet_size = true;
-    }
-
-    config.tunnel.private_key = ephemeral_private_key;
-
-    reconfigure_tunnel(tunnel, config.clone(), daita).await?;
-
-    Ok(())
-}
-
-/// Reconfigures the tunnel to use the provided config.
-async fn reconfigure_tunnel(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    config: Config,
-    daita: Option<DaitaSettings>,
-) -> Result<(), CloseMsg> {
-    if let Some(tunnel) = tunnel.lock().await.as_mut() {
-        tunnel
-            .set_config(config, daita)
-            .await
-            .map_err(Error::TunnelError)
-            .map_err(CloseMsg::SetupError)?;
-    }
-    Ok(())
-}
-
-async fn request_ephemeral_peer(
-    retry_attempt: u32,
+/// The relays are reached through temporary GotaTun devices, whichever WireGuard implementation the
+/// tunnel uses, so the tunnel does not have to be open.
+pub async fn negotiate_ephemeral_peers(
     config: &Config,
-    wg_psk_pubkey: PublicKey,
-    enable_pq: bool,
-    enable_daita: bool,
-) -> std::result::Result<EphemeralPeer, CloseMsg> {
-    log::debug!("Requesting ephemeral peer");
+    retry_attempt: u32,
+    obfuscation: Option<&RunningObfuscation>,
+    bypass: &Arc<dyn SocketBypass>,
+) -> Result<NegotiatedPeers, CloseMsg> {
+    let timeout = psk_exchange_timeout(retry_attempt);
+    let negotiation_config = NegotiationConfig {
+        private_key: config.tunnel.private_key.clone(),
+        tunnel_ipv4: config.tunnel_ipv4().unwrap_or(Ipv4Addr::UNSPECIFIED),
+        tunnel_ipv6: config.tunnel_ipv6(),
+        config_service_ip: config.ipv4_gateway,
+        relays: relays(config),
+        enable_post_quantum: config.quantum_resistant,
+        enable_daita: config.daita,
+        timeout,
+    };
+    let mut transport = GotaTunIngressTransport {
+        config,
+        obfuscation,
+        bypass,
+    };
 
-    let timeout = std::cmp::min(
+    negotiation::negotiate_ephemeral_peers(&negotiation_config, &mut transport)
+        .await
+        .map_err(|error| match error {
+            NegotiationError::Timeout => {
+                log::warn!(
+                    "Timeout while negotiating ephemeral peers \
+                     (retry {retry_attempt}, timeout {timeout:?}, PQ={}, DAITA={})",
+                    negotiation_config.enable_post_quantum,
+                    negotiation_config.enable_daita,
+                );
+                CloseMsg::EphemeralPeerNegotiationTimeout
+            }
+            error => CloseMsg::SetupError(Error::EphemeralPeerNegotiationError(error)),
+        })
+}
+
+/// How long to wait for a config service to respond, on attempt `retry_attempt` to connect.
+fn psk_exchange_timeout(retry_attempt: u32) -> Duration {
+    std::cmp::min(
         MAX_PSK_EXCHANGE_TIMEOUT,
         INITIAL_PSK_EXCHANGE_TIMEOUT
             .saturating_mul(PSK_EXCHANGE_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
-    );
+    )
+}
 
-    // TCP socket with extra reliability settings
-    let tcp_socket = talpid_tunnel_config_client::socket::TcpSocket::new()
-        .map_err(talpid_tunnel_config_client::Error::TcpSocketError)
-        .map_err(Error::EphemeralPeerNegotiationError)
-        .map_err(CloseMsg::SetupError)?;
-
-    let start_time = Instant::now();
-    let request_future = talpid_tunnel_config_client::request_ephemeral_peer(
-        config.ipv4_gateway,
-        config.tunnel.private_key.public_key(),
-        wg_psk_pubkey,
-        enable_pq,
-        enable_daita,
-        &tcp_socket,
-    );
-
-    let ephemeral = match tokio::time::timeout(timeout, request_future).await {
-        Ok(result) => result
-            .map_err(Error::EphemeralPeerNegotiationError)
-            .map_err(CloseMsg::SetupError)?,
-        Err(_) => {
-            let elapsed = start_time.elapsed();
-            log::warn!(
-                "Timeout while negotiating ephemeral peer \
-                 (retry {retry_attempt}, timeout {timeout:?}, PQ={enable_pq}, \
-                 DAITA={enable_daita}, elapsed {elapsed:?})"
-            );
-            if let Some(info) = tcp_socket.query_tcp_info() {
-                log::warn!("{info:?}");
-            }
-
-            return Err(CloseMsg::EphemeralPeerNegotiationTimeout);
-        }
+/// The relays of `config` to negotiate ephemeral peers with.
+fn relays(config: &Config) -> Relays {
+    let relay = |peer: &PeerConfig| Relay {
+        public_key: peer.public_key.clone(),
+        endpoint: peer.endpoint,
     };
+    match &config.exit_peer {
+        None => Relays::Singlehop(relay(&config.entry_peer)),
+        Some(exit_peer) => Relays::Multihop {
+            entry: relay(&config.entry_peer),
+            exit: relay(exit_peer),
+        },
+    }
+}
 
-    Ok(ephemeral)
+/// Reaches the ingress relay the same way as the tunnel does.
+struct GotaTunIngressTransport<'a> {
+    config: &'a Config,
+    obfuscation: Option<&'a RunningObfuscation>,
+    bypass: &'a Arc<dyn SocketBypass>,
+}
+
+impl IngressTransport for GotaTunIngressTransport<'_> {
+    type Factory = MaybeObfuscatingTransportFactory;
+    type Guard = ();
+
+    async fn connect(
+        &mut self,
+        client_public_key: &PublicKey,
+    ) -> io::Result<Ingress<Self::Factory, Self::Guard>> {
+        let endpoint = self.config.entry_peer.endpoint;
+        let obfuscation = self
+            .obfuscation
+            .cloned()
+            .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
+        // The temporary devices carry little traffic, so the socket buffers are left as they are.
+        let factory = MaybeObfuscatingTransportFactory::new(
+            false,
+            obfuscation,
+            endpoint,
+            Arc::clone(self.bypass),
+        );
+        let timer_params =
+            (lwo_version(self.config) == Some(LwoVersion::V2)).then(lwo_timer_params);
+
+        Ok(Ingress {
+            factory,
+            endpoint,
+            timer_params,
+            guard: (),
+        })
+    }
 }
