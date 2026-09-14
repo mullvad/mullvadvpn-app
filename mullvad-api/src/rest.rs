@@ -155,7 +155,7 @@ impl Error {
 /// It allows for on-demand termination of in-flight requests.
 ///
 /// TLS connections are established by [`HttpsConnector`] and may be reused for multiple request.
-pub(crate) struct RequestService<C> {
+pub struct RequestService<C> {
     host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
     access_tokens: AccessTokenStore,
@@ -329,6 +329,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     }
 
     async fn send_request(&mut self, request: Request<Full<Bytes>>) -> Result<Response<Incoming>> {
+        let method = request.request.method().clone();
         let uri = request.uri().clone();
 
         let t = request.timeout;
@@ -343,6 +344,8 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             .flatten();
 
         // TODO: retry once if error is due to access token expiry
+
+        tracing::trace!("{method} {uri:?}");
 
         if let Err(err) = &result
             && err.is_network_error()
