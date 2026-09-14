@@ -18,6 +18,7 @@ crate-type = ["rlib", "staticlib"]
 # https://github.com/mullvad/gotatun/pull/73
 gotatun = { workspace = true, features = ["daita", "device"] }
 hyper-util = { workspace = true }
+ipnetwork = { workspace = true }
 log = { workspace = true }
 ml-kem = { version = "0.2.1", features = ["zeroize"] }
 # This is a wrapper to the C implementation of HQC in PQClean.
@@ -29,8 +30,9 @@ prost = { workspace = true }
 rand_core = { version = "0.6", features = ["getrandom"] }
 sha2 = { workspace = true }
 socket2 = { workspace = true }
+talpid-netstack = { path = "../talpid-netstack" }
 talpid-types = { path = "../talpid-types" }
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "time"] }
 tonic = { workspace = true }
 tonic-prost = { workspace = true }
 tower = { workspace = true }

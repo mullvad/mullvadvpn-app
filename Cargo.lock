@@ -6214,6 +6214,7 @@ version = "0.0.0"
 dependencies = [
  "gotatun",
  "hyper-util",
+ "ipnetwork",
  "libc",
  "log",
  "ml-kem",
@@ -6224,6 +6225,7 @@ dependencies = [
  "rand_core 0.6.4",
  "sha2",
  "socket2",
+ "talpid-netstack",
  "talpid-types",
  "tokio",
  "tonic",
