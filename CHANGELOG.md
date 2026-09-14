@@ -56,6 +56,8 @@ Line wrap the file at 100 chars.                                              Th
   via the `iphlpapi` IP helper API.
 
 ### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
+
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
