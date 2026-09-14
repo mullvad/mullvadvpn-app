@@ -15,6 +15,7 @@ use zeroize::Zeroize;
 
 mod hqc;
 mod ml_kem;
+pub mod negotiation;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 pub mod socket;
 
