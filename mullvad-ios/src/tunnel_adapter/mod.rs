@@ -13,10 +13,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::gotatun::{
-    ip_mux::ip_mux,
-    smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
-};
 use gotatun::{
     device::{DeviceBuilder, Peer},
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
@@ -29,6 +25,10 @@ use gotatun::{
     x25519::StaticSecret,
 };
 use ipnetwork::IpNetwork;
+use talpid_netstack::{
+    ip_mux::ip_mux,
+    smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
+};
 use talpid_tunnel_config_client::{
     self, EphemeralPeer, RelayConfigService, request_ephemeral_peer_with,
 };

@@ -1,0 +1,27 @@
+[package]
+name = "talpid-netstack"
+edition.workspace = true
+rust-version.workspace = true
+description = "Userspace TCP/IP networking through GotaTun devices, using smoltcp"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+bytes = { workspace = true }
+either = { workspace = true }
+gotatun = { workspace = true }
+log = { workspace = true }
+smoltcp = { version = "0.13", default-features = false, features = [
+  "medium-ip",
+  "proto-ipv4",
+  "proto-ipv6",
+  "socket-icmp",
+  "socket-tcp",
+  "std",
+] }
+tokio = { workspace = true, features = ["macros", "rt", "sync", "time"] }
+tokio-util = { workspace = true }
+zerocopy = { workspace = true }
+
+[lints]
+workspace = true
