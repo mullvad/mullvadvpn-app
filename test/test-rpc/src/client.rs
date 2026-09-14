@@ -163,7 +163,7 @@ impl ServiceClient {
             .await?
     }
 
-    /// Returns path of Mullvad app cache directorie on the test runner.
+    /// Returns path of Mullvad app cache directory on the test runner.
     pub async fn find_mullvad_app_cache_dir(&self) -> Result<PathBuf, Error> {
         self.client
             .get_mullvad_app_cache_dir(tarpc::context::current())
