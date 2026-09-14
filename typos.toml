@@ -46,7 +46,9 @@ dependy = ""
 # For example, you might want to allow a specific constant like
 # `DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME`, but still want to forbid
 # the typo `INVAILD` in other places.
-DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME = "DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME"
+#
+# FIXME(Rename get_shadowsocks_chipers)
+get_shadowsocks_chipers = "get_shadowsocks_chipers"  # Proper typo, but part of FFI.
 
 [type.po]
 # Never spell check translations.
