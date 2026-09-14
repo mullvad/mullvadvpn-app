@@ -3,13 +3,13 @@
 //! Used on iOS where the tunnel process cannot bind raw ICMP sockets directly.
 //! ICMP echo requests are constructed and sent through the smoltcp stack.
 
-use crate::gotatun::smoltcp_network::SmoltcpIcmpSocket;
 use rand::Rng;
 use smoltcp::{
     phy::ChecksumCapabilities,
     wire::{Icmpv4Packet, Icmpv4Repr},
 };
 use std::{io, net::Ipv4Addr};
+use talpid_netstack::smoltcp_network::SmoltcpIcmpSocket;
 
 /// Random payload carried in each echo request, matching common `ping` implementations.
 const PAYLOAD_LEN: usize = 42;
