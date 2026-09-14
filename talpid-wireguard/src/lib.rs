@@ -547,8 +547,11 @@ impl WireguardMonitor {
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
+            log::debug!("Start async move");
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
+
+            log::debug!("async move 1");
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -556,9 +559,14 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
+            log::debug!("async move 2");
+
             {
                 let lock = tunnel.lock().await;
                 let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
+
+                log::debug!("async move 3");
+
                 match connectivity_monitor
                     .establish_connectivity(borrowed_tun.as_ref())
                     .await
@@ -576,6 +584,8 @@ impl WireguardMonitor {
                         Err(CloseMsg::PingErr)
                     }
                 }?;
+
+                log::debug!("async move 4");
             }
 
             if should_negotiate_ephemeral_peer {

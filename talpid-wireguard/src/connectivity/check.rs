@@ -135,9 +135,11 @@ impl Check {
         // Send initial ping to prod WireGuard into connecting.
         // Failing to do so might be indicative of another firewall blocking pings.
         // If all traffic is blocked, the inner connectivity check will fail.
+        log::debug!("establish_connectivity 1");
         if let Err(err) = self.ping_state.ping().await {
             log::error!("{err}");
         }
+        log::debug!("establish_connectivity 2");
         self.establish_connectivity_inner(
             self.retry_attempt,
             ESTABLISH_TIMEOUT,
@@ -161,12 +163,17 @@ impl Check {
         max_timeout: Duration,
         tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
+        log::debug!("establish_connectivity_inner 1");
         if self.conn_state.connected() {
             return Ok(true);
         }
 
+        log::debug!("establish_connectivity_inner 2");
+
         let check_timeout = max_timeout
             .min(timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)));
+
+        log::debug!("establish_connectivity_inner 3");
 
         // Begin polling tunnel traffic stats periodically
         let poll_check = async {
@@ -186,21 +193,28 @@ impl Check {
             }
         };
 
+        log::debug!("establish_connectivity_inner 4");
+
         let timeout = tokio::time::sleep(check_timeout);
+
+        log::debug!("establish_connectivity_inner 5");
 
         tokio::select! {
             // Tunnel status polling returned a result
             result = poll_check => {
+                log::debug!("establish_connectivity_inner poll_check");
                 result
             }
 
             // Cancel token signal
             _ = self.cancel_receiver.rx.recv() => {
+                log::debug!("establish_connectivity_inner cancel_receiver");
                 Ok(false)
             }
 
             // Give up if the timeout is hit
             _ = timeout => {
+                log::debug!("establish_connectivity_inner timeout");
                 Ok(false)
             }
         }

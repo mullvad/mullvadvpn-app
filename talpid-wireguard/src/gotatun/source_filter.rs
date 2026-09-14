@@ -46,12 +46,12 @@ impl<R: IpRecv> IpRecv for SourceFilter<R> {
     async fn recv<'a>(
         &'a mut self,
         pool: &mut PacketBufPool,
-    ) -> io::Result<impl Iterator<Item = Packet<Ip>> + Send + 'a> {
+    ) -> io::Result<impl Iterator<Item=Packet<Ip>> + Send + 'a> {
         let (v4, v6) = (self.v4, self.v6);
         let packets = self.inner.recv(pool).await?;
 
         Ok(
-            packets.filter(move |packet: &Packet<Ip>| match packet.source() {
+            packets.inspect(|x| log::debug!("LOLZ Got a packet {:?} length {:?}", x.source(), x.rest.len())).filter(move |packet: &Packet<Ip>| match packet.source() {
                 Some(IpAddr::V4(source)) => v4 == Some(source),
                 Some(IpAddr::V6(source)) => v6 == Some(source),
                 None => false,

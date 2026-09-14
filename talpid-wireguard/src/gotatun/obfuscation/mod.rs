@@ -30,6 +30,7 @@ impl UdpSend for BypassedUdpSend {
     type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
 
     async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+        log::debug!("LOLZ Sending a packet to {:?} length {:?}", destination, packet.len());
         self.0.socket.send_to(packet, destination).await
     }
 
@@ -42,6 +43,7 @@ impl UdpSend for BypassedUdpSend {
         send_buf: &mut Self::SendManyBuf,
         packets: &mut Vec<(Packet, SocketAddr)>,
     ) -> io::Result<()> {
+        log::debug!("LOLZ Sending many packets to {:?}", packets.last());
         self.0.socket.send_many_to(send_buf, packets).await
     }
 

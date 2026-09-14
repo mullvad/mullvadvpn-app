@@ -255,6 +255,7 @@ async fn reconfigure_tunnel(
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     bypass: Arc<dyn SocketBypass>,
 ) -> Result<Config, CloseMsg> {
+    log::debug!("LOLZ First");
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
@@ -270,6 +271,7 @@ async fn reconfigure_tunnel(
             *obfs_guard = Some(new_obfuscator_handle);
         }
     }
+    log::debug!("LOLZ Second");
     {
         let mut shared_tunnel = tunnel.lock().await;
         let mut tunnel = shared_tunnel.take().expect("tunnel was None");

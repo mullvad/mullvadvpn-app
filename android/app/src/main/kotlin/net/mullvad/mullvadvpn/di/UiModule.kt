@@ -341,6 +341,7 @@ val uiModule = module {
             resolveAppListing = get(),
             connectionPath = get(),
             multihopGuideMigrationHintUseCase = get(),
+            //settingsRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }

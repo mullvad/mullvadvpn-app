@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
@@ -38,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
+import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
@@ -65,6 +67,7 @@ class ConnectViewModel(
     isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
+    //private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -162,6 +165,10 @@ class ConnectViewModel(
             connectionProxy.reconnect().onLeft {
                 _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
             }
+            // Debug code for switching ipv6 on/off
+            //val settings = settingsRepository.settingsUpdates.first()
+            //settings!!
+            //settingsRepository.setIpv6Enabled(settings.tunnelOptions.enableIpv6.not())
         }
     }
 
