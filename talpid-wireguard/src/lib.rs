@@ -204,7 +204,9 @@ impl WireguardMonitor {
             &config,
         );
 
-        let obfuscator = get_obfuscator(&args.runtime, params, &mut config, &bypass)?;
+        let obfuscator = args
+            .runtime
+            .block_on(get_obfuscator(params, &mut config, &bypass))?;
         let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
         // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
@@ -464,7 +466,9 @@ impl WireguardMonitor {
 
         // Android always uses GotaTun (userspace WireGuard), which applies the obfuscation
         // itself. See `MaybeObfuscatingTransportFactory`.
-        let obfuscator = get_obfuscator(&args.runtime, params, &mut config, &bypass)?;
+        let obfuscator = args
+            .runtime
+            .block_on(get_obfuscator(params, &mut config, &bypass))?;
         let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
@@ -1019,8 +1023,7 @@ fn selected_endpoint_addr(
 }
 
 /// Set up the obfuscation, and make room for it in every packet.
-fn get_obfuscator(
-    runtime: &tokio::runtime::Handle,
+async fn get_obfuscator(
     params: &TunnelParameters,
     config: &mut Config,
     bypass: &Arc<dyn SocketBypass>,
@@ -1037,11 +1040,8 @@ fn get_obfuscator(
         );
     }
 
-    runtime
-        .block_on(obfuscation::create_obfuscation(
-            &settings,
-            Arc::clone(bypass),
-        ))
+    obfuscation::create_obfuscation(&settings, Arc::clone(bypass))
+        .await
         .map(Some)
 }
 
