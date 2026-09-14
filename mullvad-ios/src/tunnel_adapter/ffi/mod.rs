@@ -10,12 +10,11 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
-
-use crate::tunnel_adapter::{NegotiatePQError, ObfuscationProxyError, TunnelError};
+use talpid_tunnel_config_client::negotiation::NegotiationError;
 
 use super::{
-    BoundUdpTransports, IosTunnelAdapter, ObfuscationParameters, PeerParameters,
-    TunnelCallbackHandler, TunnelParameters,
+    BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, ObfuscationProxyError, PeerConfig,
+    TunnelCallbackHandler, TunnelConfig, TunnelError,
 };
 
 /// A WireGuard peer (entry or exit).
@@ -60,8 +59,14 @@ pub enum GotaTunObfuscation {
     Off,
     UdpOverTcp,
     Shadowsocks,
-    Quic { hostname: String, token: String },
-    Lwo { server_public_key: Vec<u8> },
+    Quic {
+        hostname: String,
+        token: String,
+    },
+    Lwo {
+        client_public_key: Vec<u8>,
+        server_public_key: Vec<u8>,
+    },
 }
 
 /// Error returned when starting a tunnel.
@@ -111,32 +116,44 @@ impl TunnelCallbackHandler for CallbackBridge {
         self.0.on_timeout();
     }
     fn on_error(&self, error: TunnelError) {
-        let mapped_error = match &error {
-            TunnelError::ObfuscationProxyError(ObfuscationProxyError::LocalSocketError(
-                local_socket_error,
-            ))
-            | TunnelError::NegotiatePQError(NegotiatePQError::ObfuscationProxyError(
-                ObfuscationProxyError::LocalSocketError(local_socket_error),
-            ))
-            | TunnelError::NegotiatePQError(NegotiatePQError::Phase2ObfuscationError(
-                ObfuscationProxyError::LocalSocketError(local_socket_error),
-            )) => match local_socket_error {
-                tunnel_obfuscation::Error::BindLocalUdp(_)
-                | tunnel_obfuscation::Error::BindRemoteUdp(_)
-                | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
-                | tunnel_obfuscation::Error::CreateQuicObfuscator(
-                    tunnel_obfuscation::quic::Error::BindError(_),
-                )
-                | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
-                    tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
-                    | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
-                ) => GotaTunFfiError::BindSockets(format!("{error}")),
-                _ => GotaTunFfiError::Internal(format!("{error}")),
-            },
-            TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
+        let mapped_error = match (&error, local_socket_error(&error)) {
+            (TunnelError::ICMPSocketError(_), _)
+            | (
+                _,
+                Some(
+                    tunnel_obfuscation::Error::BindLocalUdp(_)
+                    | tunnel_obfuscation::Error::BindRemoteUdp(_)
+                    | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
+                    | tunnel_obfuscation::Error::CreateQuicObfuscator(
+                        tunnel_obfuscation::quic::Error::BindError(_),
+                    )
+                    | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
+                        tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
+                        | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
+                    ),
+                ),
+            ) => GotaTunFfiError::BindSockets(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
+    }
+}
+
+/// The obfuscation proxy error behind `error`, if any, including one hit while negotiating
+/// ephemeral peers.
+fn local_socket_error(error: &TunnelError) -> Option<&tunnel_obfuscation::Error> {
+    let proxy_error = match error {
+        TunnelError::ObfuscationProxyError(proxy_error) => proxy_error,
+        TunnelError::NegotiatePQError(NegotiationError::Transport(transport_error)) => {
+            transport_error
+                .get_ref()?
+                .downcast_ref::<ObfuscationProxyError>()?
+        }
+        _ => return None,
+    };
+    match proxy_error {
+        ObfuscationProxyError::LocalSocketError(local_socket_error) => Some(local_socket_error),
+        ObfuscationProxyError::InvalidQuicToken(_) => None,
     }
 }
 
@@ -159,7 +176,7 @@ impl GotaTunTunnel {
         config: GotaTunConfig,
         callback: Box<dyn GotaTunCallback>,
     ) -> Result<Arc<Self>, GotaTunFfiError> {
-        let params = build_tunnel_parameters(tun_fd, config)?;
+        let tunnel_config = build_tunnel_config(tun_fd, config)?;
         let runtime = crate::mullvad_ios_runtime().map_err(GotaTunFfiError::Internal)?;
 
         // Bind before returning, so a missing interface is reported to the caller instead of
@@ -169,7 +186,7 @@ impl GotaTunTunnel {
             .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
 
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
-        let adapter = IosTunnelAdapter::start(runtime, params, udp, handler);
+        let adapter = IosTunnelAdapter::start(runtime, tunnel_config, udp, handler);
         Ok(Arc::new(Self { adapter }))
     }
 
@@ -218,8 +235,8 @@ fn catch_all_ips() -> Vec<IpNetwork> {
 fn build_peer(
     peer: &GotaTunPeer,
     allowed_ips: Vec<IpNetwork>,
-) -> Result<PeerParameters, GotaTunFfiError> {
-    Ok(PeerParameters {
+) -> Result<PeerConfig, GotaTunFfiError> {
+    Ok(PeerConfig {
         public_key: key32(&peer.public_key, "peer public key")?,
         endpoint: parse(&peer.endpoint, "peer endpoint")?,
         allowed_ips,
@@ -228,24 +245,26 @@ fn build_peer(
 
 fn build_obfuscation(
     obfuscation: GotaTunObfuscation,
-) -> Result<ObfuscationParameters, GotaTunFfiError> {
+) -> Result<ObfuscationConfig, GotaTunFfiError> {
     Ok(match obfuscation {
-        GotaTunObfuscation::Off => ObfuscationParameters::Off,
-        GotaTunObfuscation::UdpOverTcp => ObfuscationParameters::UdpOverTcp,
-        GotaTunObfuscation::Shadowsocks => ObfuscationParameters::Shadowsocks,
-        GotaTunObfuscation::Quic { hostname, token } => {
-            ObfuscationParameters::Quic { hostname, token }
-        }
-        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationParameters::Lwo {
+        GotaTunObfuscation::Off => ObfuscationConfig::Off,
+        GotaTunObfuscation::UdpOverTcp => ObfuscationConfig::UdpOverTcp,
+        GotaTunObfuscation::Shadowsocks => ObfuscationConfig::Shadowsocks,
+        GotaTunObfuscation::Quic { hostname, token } => ObfuscationConfig::Quic { hostname, token },
+        GotaTunObfuscation::Lwo {
+            client_public_key,
+            server_public_key,
+        } => ObfuscationConfig::Lwo {
+            client_public_key: key32(&client_public_key, "LWO client public key")?,
             server_public_key: key32(&server_public_key, "LWO server public key")?,
         },
     })
 }
 
-fn build_tunnel_parameters(
+fn build_tunnel_config(
     tun_fd: i32,
     config: GotaTunConfig,
-) -> Result<TunnelParameters, GotaTunFfiError> {
+) -> Result<TunnelConfig, GotaTunFfiError> {
     // The exit peer carries all user traffic (full internet). In multihop the entry
     // peer only carries the exit relay's encrypted UDP, so its single allowed IP is
     // the exit endpoint's address (a host route).
@@ -256,7 +275,7 @@ fn build_tunnel_parameters(
         .map(|peer| build_peer(peer, vec![IpNetwork::from(exit_peer.endpoint.ip())]))
         .transpose()?;
 
-    Ok(TunnelParameters {
+    Ok(TunnelConfig {
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
         ipv4_addr: parse::<Ipv4Addr>(&config.ipv4_address, "IPv4 address")?,
