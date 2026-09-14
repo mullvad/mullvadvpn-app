@@ -1,13 +1,10 @@
-use std::future::Future;
-use std::pin::Pin;
-use talpid_tunnel_config_client::DaitaSettings;
 use tokio::time::Instant;
 
 use super::Check;
 use super::check::{CancelToken, ConnState, PingState};
 use super::pinger;
 
-use crate::{Config, Tunnel, TunnelError};
+use crate::{Tunnel, TunnelError};
 use pinger::Pinger;
 
 // Convenient re-exports
@@ -92,14 +89,6 @@ impl Tunnel for MockTunnel {
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         (self.on_get_stats)()
-    }
-
-    fn set_config(
-        &mut self,
-        _config: Config,
-        _daita: Option<DaitaSettings>,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
-        Box::pin(async { Ok(()) })
     }
 }
 
