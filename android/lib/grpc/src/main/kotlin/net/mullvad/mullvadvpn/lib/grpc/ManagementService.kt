@@ -19,7 +19,6 @@ import java.io.File
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Proxy
-import java.net.ProxySelector
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
