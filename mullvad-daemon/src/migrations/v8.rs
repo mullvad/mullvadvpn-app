@@ -270,7 +270,7 @@ mod test {
     /// For obfuscation_settings
     /// obfuscation_settings: { selected_obfuscation: "on" } should be not be changed.
     #[test]
-    fn migrate_seleted_obfuscation_from_on() {
+    fn migrate_selected_obfuscation_from_on() {
         let mut migrated_settings: serde_json::Value =
             serde_json::from_str(r#"{ "obfuscation_settings": { "selected_obfuscation": "on" } }"#)
                 .unwrap();
@@ -285,7 +285,7 @@ mod test {
     /// obfuscation_settings: { selected_obfuscation: "off" } should be replaced with
     /// obfuscation_settings: { selected_obfuscation: "auto" }
     #[test]
-    fn migrate_seleted_obfuscation_from_off() {
+    fn migrate_selected_obfuscation_from_off() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
             r#"{ "obfuscation_settings": { "selected_obfuscation": "off" } }"#,
         )
