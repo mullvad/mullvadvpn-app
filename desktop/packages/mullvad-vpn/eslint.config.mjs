@@ -1,5 +1,4 @@
 import react from 'eslint-plugin-react';
-import reactcompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
@@ -37,7 +36,6 @@ export default [
       'react/jsx-no-bind': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'error',
-      'react-compiler/react-compiler': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
     },
