@@ -10,7 +10,7 @@ use gotatun::{
 };
 use ipnetwork::IpNetwork;
 
-use crate::gotatun::smoltcp_network::SmoltcpNetworkConfig;
+use talpid_netstack::smoltcp_network::SmoltcpNetworkConfig;
 
 /// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
 pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;

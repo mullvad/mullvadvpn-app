@@ -240,7 +240,7 @@ struct SockAddrPair {
 
 #[cfg(test)]
 mod tests {
-    use crate::gotatun::tcp_packet;
+    use crate::tcp_packet;
 
     use super::*;
 

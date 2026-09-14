@@ -19,7 +19,6 @@ path = "src/bin/uniffi-bindgen.rs"
 
 [target.'cfg(any(target_os = "ios", target_os = "macos", target_os = "tvos"))'.dependencies]
 bytes = { workspace = true }
-either = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
@@ -35,11 +34,11 @@ smoltcp = { version = "0.13", default-features = false, features = [
   "socket-tcp",
   "std",
 ] }
+talpid-netstack = { path = "../talpid-netstack" }
 talpid-time = { path = "../talpid-time" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
-tokio-util = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
