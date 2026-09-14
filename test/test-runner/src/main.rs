@@ -383,7 +383,7 @@ impl Service for TestServer {
 
     /// Write a slice as the entire contents of a file.
     ///
-    /// See the documention of [`tokio::fs::write`] for details of the behavior.
+    /// See the documentation of [`tokio::fs::write`] for details of the behavior.
     async fn write_file(
         self,
         _: context::Context,

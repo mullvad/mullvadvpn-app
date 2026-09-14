@@ -87,7 +87,7 @@ impl EphemeralPeerExchange {
         let tcp_provider = IosTcpProvider::new(tunnel_handle, peer_parameters);
 
         let conn = endpoint
-            // it is assumend that the service function will only be called once.
+            // it is assumed that the service function will only be called once.
             // Yet, by its signature, it is forced to be callable multiple times.
             // The tcp_provider appeases this constraint, maybe we should rewrite this back to
             // explicitly only allow a single invocation? It is due to this mismatch between how we

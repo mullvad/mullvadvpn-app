@@ -1141,7 +1141,7 @@ impl Daemon {
             }
             either::Either::Left(_) => {
                 // Fetching GeoIpLocation is automatically done when connecting.
-                // If TargetState is Unsecured we will not connect on lauch and
+                // If TargetState is Unsecured we will not connect on launch and
                 // so we have to explicitly fetch this information.
                 self.fetch_am_i_mullvad()
             }

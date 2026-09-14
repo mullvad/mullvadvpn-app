@@ -147,7 +147,7 @@ impl Firewall {
         // Socket addresses for Multicast DNS.
         const MDNS_PORT: u16 = 5353;
         if remote_address.port() == MDNS_PORT {
-            // Blocking mDNS sometimes causes the tunnel to fail. Seemingly by interferring with
+            // Blocking mDNS sometimes causes the tunnel to fail. Seemingly by interfering with
             // configd, mDNSResponder, or another macOS service.
             return Ok(false);
         }

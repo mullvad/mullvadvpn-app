@@ -451,12 +451,12 @@ impl From<IpAddr> for LinkIpAddr {
     fn from(address: IpAddr) -> LinkIpAddr {
         match address {
             IpAddr::V4(address) => {
-                let octects = address.octets();
-                LinkIpAddr((AF_INET, octects.to_vec()))
+                let octets = address.octets();
+                LinkIpAddr((AF_INET, octets.to_vec()))
             }
             IpAddr::V6(address) => {
-                let octects = address.octets();
-                LinkIpAddr((AF_INET6, octects.to_vec()))
+                let octets = address.octets();
+                LinkIpAddr((AF_INET6, octets.to_vec()))
             }
         }
     }

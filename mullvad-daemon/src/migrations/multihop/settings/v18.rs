@@ -26,7 +26,7 @@ impl __RelaySettings {
     /// If `filters` is true, copy the exit filters to the entry filters. To keep the legacy behavior where there was only one
     /// set of filters, but they applied for both entry and exit relays.
     ///
-    /// If `automatic_entry` is true, then the entry relay location is overriden to [`__Constraint::Any`].
+    /// If `automatic_entry` is true, then the entry relay location is overridden to [`__Constraint::Any`].
     pub fn migrate(
         from: v17::RelaySettingsInner,
         multihop: __Multihop,

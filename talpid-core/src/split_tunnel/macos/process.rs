@@ -248,7 +248,7 @@ async fn handle_eslogger_output(
 }
 
 /// Logs `"Failed to parse eslogger message: {error}"`, throttled to at most once per minute.
-/// `eslogger` can emit unparseable output at a very high rate, so occurrences within the
+/// `eslogger` can emit unparsable output at a very high rate, so occurrences within the
 /// throttling window are counted and folded into the next logged message instead of each being
 /// logged individually.
 fn log_parse_error_throttled(error: serde_json::Error) {

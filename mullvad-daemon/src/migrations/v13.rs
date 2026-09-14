@@ -47,7 +47,7 @@ fn migrate_quantum_resistance(settings: &mut serde_json::Value) -> Result<()> {
             // settings version, because it was never added through a settings migration!
             // I'll go ahead and fix that right here, but going forward we should be more cautious
             // about *not* adding certain settings via migrations. Not doing so means that we rely on
-            // the implemenation of Settings::default to fill in all the missing details, which might
+            // the implementation of Settings::default to fill in all the missing details, which might
             // be ok..
             wg["quantum_resistant"] = "on".into();
         }
