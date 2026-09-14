@@ -71,7 +71,7 @@ pub enum GotaTunObfuscation {
 /// Error returned when starting a tunnel.
 #[derive(Debug, uniffi::Error)]
 pub enum GotaTunFfiError {
-    /// A field in the config was malformed (bad key length, unparseable address, ...).
+    /// A field in the config was malformed (bad key length, unparsable address, ...).
     InvalidConfig(String),
     /// UDP sockets could not be bound, typically because no interface is available.
     BindSockets(String),

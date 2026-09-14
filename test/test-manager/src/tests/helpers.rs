@@ -697,7 +697,7 @@ pub async fn constrain_to_relay(
 ) -> anyhow::Result<WireguardRelay> {
     let intersect_query = intersect_with_current_location(mullvad_client, query.clone()).await?;
     let (exit, relay_constraints) =
-        get_single_relay_location_contraint(mullvad_client, intersect_query.clone()).await?;
+        get_single_relay_location_constraint(mullvad_client, intersect_query.clone()).await?;
     let (_relay_constraints, obfuscation) = into_settings(intersect_query);
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))
@@ -788,7 +788,7 @@ pub async fn get_all_pickable_relays(
 /// This function does not handle bridges and multihop configurations (currently). There is no
 /// particular reason for this other than it not being needed at the time, so feel free to extend
 /// this function :).
-async fn get_single_relay_location_contraint(
+async fn get_single_relay_location_constraint(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
 ) -> anyhow::Result<(WireguardRelay, RelayConstraints)> {

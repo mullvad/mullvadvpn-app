@@ -159,7 +159,7 @@ pub mod proptest {
             Just(SUPPORTED_VERSION), // > 0
             Just(FULLY_ROLLED_OUT)   // = 1
         ];
-        // Let's say that any of the edge-cases should be generated with a 1/5 probabilty.
+        // Let's say that any of the edge-cases should be generated with a 1/5 probability.
         prop_oneof![
             80 => any,
             20 => edge_cases
@@ -192,7 +192,7 @@ mod test {
             }
          }
 
-         /// Test that eqaulity works as expected (i.e. as for floating point numbers).
+         /// Test that equality works as expected (i.e. as for floating point numbers).
          #[test]
          fn rollout_identity(rollout in arb_rollout()) {
              assert_eq!(rollout, rollout)

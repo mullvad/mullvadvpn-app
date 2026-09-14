@@ -1183,7 +1183,7 @@ pub enum TunnelError {
     StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
-    #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
+    #[error("Failed to start DAITA - tunnel implementation does not support DAITA")]
     DaitaNotSupported,
 
     /// GotaTun device error
