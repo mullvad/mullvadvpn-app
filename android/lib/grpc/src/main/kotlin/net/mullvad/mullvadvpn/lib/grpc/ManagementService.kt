@@ -18,6 +18,8 @@ import com.squareup.wire.GrpcStatus
 import java.io.File
 import java.io.IOException
 import java.net.InetAddress
+import java.net.Proxy
+import java.net.ProxySelector
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineDispatcher
@@ -1003,6 +1005,8 @@ class ManagementService(
             .webSocketCloseTimeout(timeout = 0, TimeUnit.MILLISECONDS)
             .protocols(listOf(Protocol.H2_PRIOR_KNOWLEDGE))
             .eventListener(connectionListener)
+            // Workaround for handling WiFi with proxy settings
+            .proxy(Proxy.NO_PROXY)
             .addInterceptor(
                 HttpLoggingInterceptor { message -> Logger.withTag("grpc").d(message) }
                     // BODY level must not be used with gRPC streaming calls: HttpLoggingInterceptor
