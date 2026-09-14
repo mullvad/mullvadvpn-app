@@ -28,7 +28,8 @@
     "test/**",
     "tunnel-obfuscation/**",
     "windows/**",
-    "windows-installer/**"
+    "windows-installer/**",
+    "typos.toml"
   ],
   "appteam-ios": [
     ".github/workflows/ios*",
