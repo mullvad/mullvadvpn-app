@@ -1,10 +1,11 @@
 //! A userspace IP networking stack built on smoltcp, providing TCP and ICMP
 //! sockets whose traffic is surfaced as gotatun [`IpSend`]/[`IpRecv`] streams.
 //!
-//! This is used on iOS where the tunnel process cannot bind sockets to the
-//! tunnel device directly. Instead, smoltcp generates raw IP packets that are
-//! fed into a GotaTun device via [`IpRecv`], and decrypted return traffic is
-//! fed back via [`IpSend`].
+//! This lets a process talk through a tunnel without binding sockets to the
+//! tunnel device, which is not possible on iOS, and without depending on the
+//! OS to route traffic into the tunnel. Instead, smoltcp generates raw IP
+//! packets that are fed into a GotaTun device via [`IpRecv`], and decrypted
+//! return traffic is fed back via [`IpSend`].
 
 mod device;
 mod icmp_socket;
