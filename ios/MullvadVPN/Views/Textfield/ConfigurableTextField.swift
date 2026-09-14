@@ -266,3 +266,15 @@ enum TextFieldNamespace {
         let action: () -> Void
     }
 }
+
+#Preview {
+    ConfigurableTextField(
+        title: "Account number",
+        placeholder: "Enter your account number",
+        text: .constant("1234 5678"),
+        borderStyle: .constant(.normal),
+        configuration: .init(
+            autoComplete: .init(suggestions: .constant(["1234 5678 9012 3456"]), onSelect: { _ in })
+        )
+    )
+}
