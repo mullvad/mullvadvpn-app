@@ -200,46 +200,19 @@ async fn config_ephemeral_peers_inner(
     Ok(())
 }
 
-#[cfg(target_os = "android")]
 /// Reconfigures the tunnel to use the provided config.
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: Config,
     daita: Option<DaitaSettings>,
 ) -> Result<(), CloseMsg> {
-    let mut shared_tunnel = tunnel.lock().await;
-    let mut tunnel = shared_tunnel.take().expect("tunnel was None");
-
-    tunnel
-        .set_config(config.clone(), daita)
-        .await
-        .map_err(Error::TunnelError)
-        .map_err(CloseMsg::SetupError)?;
-
-    *shared_tunnel = Some(tunnel);
-
-    Ok(())
-}
-
-#[cfg(not(target_os = "android"))]
-/// Reconfigures the tunnel to use the provided config.
-async fn reconfigure_tunnel(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    config: Config,
-    daita: Option<DaitaSettings>,
-) -> Result<(), CloseMsg> {
-    let mut tunnel = tunnel.lock().await;
-
-    let set_config_future = tunnel
-        .as_mut()
-        .map(|tunnel| tunnel.set_config(config.clone(), daita));
-
-    if let Some(f) = set_config_future {
-        f.await
+    if let Some(tunnel) = tunnel.lock().await.as_mut() {
+        tunnel
+            .set_config(config, daita)
+            .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
     }
-
     Ok(())
 }
 
