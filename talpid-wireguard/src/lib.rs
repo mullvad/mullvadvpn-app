@@ -8,7 +8,6 @@ use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::Future;
-use obfuscation::RunningObfuscation;
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 #[cfg(windows)]
@@ -660,7 +659,7 @@ impl WireguardMonitor {
         resource_dir: &Path,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
-        obfuscation: Option<RunningObfuscation>,
+        obfuscation: Option<obfuscation::RunningObfuscation>,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
@@ -699,7 +698,7 @@ impl WireguardMonitor {
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
-        obfuscation: Option<RunningObfuscation>,
+        obfuscation: Option<obfuscation::RunningObfuscation>,
         _userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
@@ -724,7 +723,7 @@ impl WireguardMonitor {
         config: &Config,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
-        obfuscation: Option<RunningObfuscation>,
+        obfuscation: Option<obfuscation::RunningObfuscation>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
     ) -> Result<TunnelType> {
