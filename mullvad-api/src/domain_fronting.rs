@@ -140,22 +140,23 @@ pub(crate) async fn cdn_tls_connect(
         }
     }
 
-    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
+    fn new_cdn_tls_config() -> rustls::ClientConfig {
         let mut config = rustls::ClientConfig::builder()
             .dangerous()
             .with_custom_certificate_verifier(Arc::new(NoCertVerification))
             .with_no_client_auth();
         // Disable TLS tickets to reduce ability to track clients over time
         config.resumption = rustls::client::Resumption::disabled();
-        Arc::new(config)
-    });
+        config
+    }
+
+    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> =
+        LazyLock::new(|| Arc::new(new_cdn_tls_config()));
 
     static CDN_TLS_CONFIG_HTTP2: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        let mut config = CDN_TLS_CONFIG.deref().clone();
-        Arc::make_mut(&mut config)
-            .alpn_protocols
-            .push("h2".as_bytes().to_vec());
-        config
+        let mut config = new_cdn_tls_config();
+        config.alpn_protocols.push("h2".as_bytes().to_vec());
+        Arc::new(config)
     });
 
     let config = if http2 {
