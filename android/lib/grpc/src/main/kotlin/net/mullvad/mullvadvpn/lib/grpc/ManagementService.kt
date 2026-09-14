@@ -19,8 +19,8 @@ import java.io.File
 import java.io.IOException
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -193,6 +193,8 @@ class ManagementService(
     private val service: RelaySelectorServiceClient by lazy {
         GrpcClient.Builder()
             .client(client)
+            // GrpcClient.Build requires a base url, but the actual url is not used since we use a
+            // UDS instead.
             .baseUrl("http://localhost/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()
@@ -212,6 +214,8 @@ class ManagementService(
     private val grpc: ManagementServiceClient by lazy {
         GrpcClient.Builder()
             .client(client)
+            // GrpcClient.Build requires a base url, but the actual url is not used since we use a
+            // UDS instead.
             .baseUrl("http://localhost/")
             .minMessageToCompress(Long.MAX_VALUE)
             .build()

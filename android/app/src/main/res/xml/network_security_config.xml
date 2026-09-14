@@ -3,8 +3,9 @@
     <base-config cleartextTrafficPermitted="false" />
 
     <!--
-    We need to be able to use cleartext when communicating with local host as that is
-    used to communicate with the daemon via grpc
+    Due to how OkHttp checks for cleartext traffic we need to allow cleartext traffic for localhost.
+    The traffic is not actually being sent to localhost, but rather to a UDS.
+    See ManagementService and buildClient.
     -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">localhost</domain>
