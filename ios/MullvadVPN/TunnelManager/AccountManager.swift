@@ -107,6 +107,41 @@ struct AccountManager: Sendable {
         return operation
     }
 
+    func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
+        Task {
+            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+                completionHandler?(InvalidDeviceStateError())
+                return
+            }
+
+            let result = await accountsProxy.getAccountData(
+                accountNumber: accountData.number,
+                retryStrategy: .default
+            )
+
+            do {
+                let accountData = try result.get()
+                switch interactor.deviceState {
+                case .loggedIn(var storedAccountData, let storedDeviceData):
+                    storedAccountData.expiry = accountData.expiry
+                    let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
+
+                    // Make sure we don't update any data if cancellation happened in-flight.
+                    if Task.isCancelled {
+                        throw CancellationError()
+                    } else {
+                        interactor.setDeviceState(newDeviceState, persist: true)
+                    }
+                default:
+                    throw InvalidDeviceStateError()
+                }
+            } catch {
+                interactor.handleRestError(error)
+                completionHandler?(error)
+            }
+        }
+    }
+
     func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         Task {
             guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
