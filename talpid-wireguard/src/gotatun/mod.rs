@@ -399,6 +399,11 @@ impl Tunnel for GotaTun {
                 && self.config.tunnel.private_key.public_key().as_bytes()
                     != old_public_key.as_bytes();
 
+            // LWO keys off the client public key, which changes when an ephemeral peer is set up
+            if let Some(RunningObfuscation::Lwo(settings)) = &mut self.obfuscation {
+                settings.client_public_key = self.config.tunnel.private_key.public_key();
+            }
+
             // If we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
             let devices = match self.devices.take() {
@@ -410,6 +415,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?

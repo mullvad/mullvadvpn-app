@@ -7,6 +7,7 @@ use std::{
     sync::Arc,
 };
 use talpid_net::bypass::{BypassToken, SocketBypass};
+use talpid_tunnel::SelectedObfuscation;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::net::{
@@ -19,6 +20,29 @@ use tunnel_obfuscation::{
     multiplexer::{self, Multiplexer, Transport},
     quic, shadowsocks, udp2tcp,
 };
+
+pub enum Obfuscator {
+    Single(RunningObfuscation),
+    Multiplexer(RunningObfuscation, SelectedTransportRx),
+}
+
+impl Obfuscator {
+    pub fn obfuscation(&self) -> &RunningObfuscation {
+        match self {
+            Obfuscator::Single(running_obfuscation) => running_obfuscation,
+            Obfuscator::Multiplexer(running_obfuscation, _) => running_obfuscation,
+        }
+    }
+
+    pub async fn multiplexer_commited_to(
+        obfuscator: Option<Obfuscator>,
+    ) -> Result<Option<SelectedObfuscation>> {
+        match obfuscator {
+            Some(Self::Single(_)) | None => Ok(None),
+            Some(Self::Multiplexer(_, rx)) => rx.selected_obfuscation().await,
+        }
+    }
+}
 
 /// Settings for the local socket obfuscator to run: either a single obfuscator or a multiplexer.
 #[derive(Debug, Clone)]
@@ -178,18 +202,17 @@ pub enum RunningObfuscation {
 pub async fn create_obfuscation(
     settings: &ObfuscationSettings,
     bypass: Arc<dyn SocketBypass>,
-) -> Result<(RunningObfuscation, Option<SelectedTransportRx>)> {
+) -> Result<Obfuscator> {
     match settings {
         // LWO is special-cased since `ObfuscatedTransport` does not support batched send/recv.
-        ObfuscationSettings::Single(tunnel_obfuscation::Settings::Lwo(settings)) => {
-            Ok((RunningObfuscation::Lwo(settings.clone()), None))
-        }
-
+        ObfuscationSettings::Single(tunnel_obfuscation::Settings::Lwo(settings)) => Ok(
+            Obfuscator::Single(RunningObfuscation::Lwo(settings.clone())),
+        ),
         ObfuscationSettings::Single(settings) => {
             let transport = create_transport(bypass, settings)
                 .await
                 .map_err(Error::ObfuscationError)?;
-            Ok((RunningObfuscation::Transport(transport), None))
+            Ok(Obfuscator::Single(RunningObfuscation::Transport(transport)))
         }
 
         ObfuscationSettings::Multiplexer {
@@ -205,16 +228,36 @@ pub async fn create_obfuscation(
                     selected_transport,
                 },
             );
-            Ok((
+            Ok(Obfuscator::Multiplexer(
                 RunningObfuscation::Transport(Arc::new(multiplexer)),
-                Some(selected_transport_rx),
+                SelectedTransportRx(selected_transport_rx),
             ))
         }
     }
 }
 
 /// Told which transport a multiplexer committed to.
-pub type SelectedTransportRx = oneshot::Receiver<Transport>;
+pub struct SelectedTransportRx(oneshot::Receiver<Transport>);
+
+impl SelectedTransportRx {
+    pub async fn selected_obfuscation(self) -> Result<Option<SelectedObfuscation>> {
+        let rx = self.0;
+        let transport = rx.await.map_err(|_err| {
+            log::error!("The multiplexer stopped before selecting a transport");
+            Error::UnknownSelectedObfuscator
+        })?;
+
+        let selected = match transport {
+            Transport::Direct(_) => SelectedObfuscation::Direct,
+            Transport::Obfuscated(settings) => {
+                SelectedObfuscation::Obfuscated(config_from_single_settings(&settings))
+            }
+        };
+
+        log::debug!("Selected obfuscation: {selected:?}");
+        Ok(Some(selected))
+    }
+}
 
 /// Create the [`SocketBypass`] used to exclude the GotaTun inline obfuscation transport's
 /// sockets from tunnel traffic.

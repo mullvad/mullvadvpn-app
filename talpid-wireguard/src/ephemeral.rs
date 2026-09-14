@@ -170,11 +170,11 @@ async fn config_ephemeral_peers_inner(
             .allowed_ips
             .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
-        let entry_config = reconfigure_tunnel(tunnel, entry_tun_config, None).await?;
+        reconfigure_tunnel(tunnel, entry_tun_config.clone(), None).await?;
 
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
-            &entry_config,
+            &entry_tun_config,
             ephemeral_private_key.public_key(),
             config.quantum_resistant,
             config.daita,
@@ -195,57 +195,52 @@ async fn config_ephemeral_peers_inner(
 
     config.tunnel.private_key = ephemeral_private_key;
 
-    *config = reconfigure_tunnel(tunnel, config.clone(), daita).await?;
+    reconfigure_tunnel(tunnel, config.clone(), daita).await?;
 
     Ok(())
 }
 
 #[cfg(target_os = "android")]
-/// Reconfigures the tunnel to use the provided config. Returns the new config used by the new
-/// tunnel.
+/// Reconfigures the tunnel to use the provided config.
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: Config,
     daita: Option<DaitaSettings>,
-) -> Result<Config, CloseMsg> {
-    {
-        let mut shared_tunnel = tunnel.lock().await;
-        let mut tunnel = shared_tunnel.take().expect("tunnel was None");
+) -> Result<(), CloseMsg> {
+    let mut shared_tunnel = tunnel.lock().await;
+    let mut tunnel = shared_tunnel.take().expect("tunnel was None");
 
-        tunnel
-            .set_config(config.clone(), daita)
-            .await
-            .map_err(Error::TunnelError)
-            .map_err(CloseMsg::SetupError)?;
+    tunnel
+        .set_config(config.clone(), daita)
+        .await
+        .map_err(Error::TunnelError)
+        .map_err(CloseMsg::SetupError)?;
 
-        *shared_tunnel = Some(tunnel);
-    }
-    Ok(config)
+    *shared_tunnel = Some(tunnel);
+
+    Ok(())
 }
 
 #[cfg(not(target_os = "android"))]
-/// Reconfigures the tunnel to use the provided config. Returns the new config used by the new
-/// tunnel.
+/// Reconfigures the tunnel to use the provided config.
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: Config,
     daita: Option<DaitaSettings>,
-) -> Result<Config, CloseMsg> {
-    {
-        let mut tunnel = tunnel.lock().await;
+) -> Result<(), CloseMsg> {
+    let mut tunnel = tunnel.lock().await;
 
-        let set_config_future = tunnel
-            .as_mut()
-            .map(|tunnel| tunnel.set_config(config.clone(), daita));
+    let set_config_future = tunnel
+        .as_mut()
+        .map(|tunnel| tunnel.set_config(config.clone(), daita));
 
-        if let Some(f) = set_config_future {
-            f.await
-                .map_err(Error::TunnelError)
-                .map_err(CloseMsg::SetupError)?;
-        }
+    if let Some(f) = set_config_future {
+        f.await
+            .map_err(Error::TunnelError)
+            .map_err(CloseMsg::SetupError)?;
     }
 
-    Ok(config)
+    Ok(())
 }
 
 async fn request_ephemeral_peer(

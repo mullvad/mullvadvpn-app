@@ -2,11 +2,13 @@
 
 #![deny(missing_docs)]
 
+use crate::obfuscation::Obfuscator;
+
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::Future;
-use obfuscation::{RunningObfuscation, SelectedTransportRx};
+use obfuscation::RunningObfuscation;
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use std::collections::HashSet;
 #[cfg(windows)]
@@ -23,10 +25,9 @@ use talpid_routing::RouteManagerHandle;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::{
-    EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, SelectedObfuscation, TunnelArgs, TunnelEvent,
-    TunnelMetadata, WIREGUARD_HEADER_SIZE, tun_provider,
+    EventHook, IPV4_HEADER_SIZE, IPV6_HEADER_SIZE, TunnelArgs, TunnelEvent, TunnelMetadata,
+    WIREGUARD_HEADER_SIZE, tun_provider,
 };
-use tunnel_obfuscation::multiplexer::Transport;
 
 use talpid_net::bypass::SocketBypass;
 use talpid_tunnel_config_client::DaitaSettings;
@@ -171,13 +172,12 @@ impl WireguardMonitor {
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         // GotaTun applies every obfuscation method itself, so obfuscation requires it.
-        let require_userspace_wireguard =
+        let userspace_wireguard =
             params.use_userspace_wg() || params.obfuscation.is_some() || *FORCE_USERSPACE_WIREGUARD;
         assert!(
-            !(*FORCE_KERNEL_WIREGUARD && require_userspace_wireguard),
+            !(*FORCE_KERNEL_WIREGUARD && userspace_wireguard),
             "Cannot force kernel WireGuard when userspace is required (DAITA, obfuscation, etc.)"
         );
-        let userspace_wireguard = require_userspace_wireguard;
 
         let route_mtu = args
             .runtime
@@ -204,9 +204,8 @@ impl WireguardMonitor {
             &config,
         );
 
-        let (obfuscation, selected_transport_rx) =
-            get_obfuscator(&args.runtime, params, &mut config, &bypass)?
-                .map_or((None, None), |(obfuscation, rx)| (Some(obfuscation), rx));
+        let obfuscator = get_obfuscator(&args.runtime, params, &mut config, &bypass)?;
+        let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
         // Do not reuse the tunnel adapter that the previous attempt left behind. This is a
         // precaution in case the interface gets broken in some way. Creating a new interface
@@ -372,7 +371,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = selected_obfuscation(selected_transport_rx)
+            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
 
@@ -465,9 +464,8 @@ impl WireguardMonitor {
 
         // Android always uses GotaTun (userspace WireGuard), which applies the obfuscation
         // itself. See `MaybeObfuscatingTransportFactory`.
-        let (obfuscation, selected_transport_rx) =
-            get_obfuscator(&args.runtime, params, &mut config, &bypass)?
-                .map_or((None, None), |(obfuscation, rx)| (Some(obfuscation), rx));
+        let obfuscator = get_obfuscator(&args.runtime, params, &mut config, &bypass)?;
+        let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
@@ -554,7 +552,7 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = selected_obfuscation(selected_transport_rx)
+            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
             event_hook
@@ -1000,39 +998,17 @@ impl WireguardMonitor {
     }
 }
 
-/// Return the transport that the obfuscator has committed to, if it had a choice to make.
-///
-/// Only a multiplexer has one, so this is `Ok(None)` for every other configuration, whose tunnel
-/// parameters already describe the single transport in use.
-async fn selected_obfuscation(
-    selected_transport_rx: Option<SelectedTransportRx>,
-) -> Result<Option<SelectedObfuscation>> {
-    let Some(rx) = selected_transport_rx else {
-        return Ok(None);
-    };
-
-    let transport = rx.await.map_err(|_err| {
-        log::error!("The multiplexer stopped before selecting a transport");
-        Error::UnknownSelectedObfuscator
-    })?;
-
-    let selected = match transport {
-        Transport::Direct(_) => SelectedObfuscation::Direct,
-        Transport::Obfuscated(settings) => {
-            SelectedObfuscation::Obfuscated(obfuscation::config_from_single_settings(&settings))
-        }
-    };
-
-    log::debug!("Selected obfuscation: {selected:?}");
-    Ok(Some(selected))
-}
-
 /// Return the address of the remote endpoint that `selected` connects to, if it is known.
 ///
-/// [`SelectedObfuscation::Direct`] carries no address of its own: it refers to the direct
-/// transport of the multiplexer, whose endpoint is the relay itself.
+/// [`talpid_tunnel::SelectedObfuscation::Direct`] carries no address of its own: it refers to the
+/// direct transport of the multiplexer, whose endpoint is the relay itself.
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
-fn selected_endpoint_addr(selected: &SelectedObfuscation, config: &Config) -> Option<IpAddr> {
+fn selected_endpoint_addr(
+    selected: &talpid_tunnel::SelectedObfuscation,
+    config: &Config,
+) -> Option<IpAddr> {
+    use talpid_tunnel::SelectedObfuscation;
+
     match selected {
         SelectedObfuscation::Obfuscated(obfuscator) => Some(obfuscator.endpoint().address.ip()),
         SelectedObfuscation::Direct => match config.obfuscator_config.as_ref()? {
@@ -1048,7 +1024,7 @@ fn get_obfuscator(
     params: &TunnelParameters,
     config: &mut Config,
     bypass: &Arc<dyn SocketBypass>,
-) -> Result<Option<(RunningObfuscation, Option<SelectedTransportRx>)>> {
+) -> Result<Option<Obfuscator>> {
     let Some(settings) = config.obfuscation_settings() else {
         return Ok(None);
     };
