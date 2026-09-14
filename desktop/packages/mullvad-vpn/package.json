@@ -53,6 +53,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "gettext-extractor": "^3.5.4",
     "globals": "^15.9.0",
+    "oxc-transform-react": "^0.145.0",
     "playwright": "^1.55.1",
     "postject": "^1.0.0-alpha.6",
     "vite": "8.2.0",
