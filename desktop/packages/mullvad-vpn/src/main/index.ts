@@ -1,5 +1,5 @@
 import { exec, execFile } from 'child_process';
-import { app, nativeTheme, powerMonitor, session, shell, systemPreferences } from 'electron';
+import { app, powerMonitor, session, shell, systemPreferences } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
@@ -461,21 +461,17 @@ class ApplicationMain
     );
 
     this.tunnelStateExpectation = new Expectation(async () => {
+      const initialTunnelState = this.settings.gui.autoConnect
+        ? { state: 'connecting' as const, featureIndicators: undefined }
+        : this.tunnelState.tunnelState;
+
       this.userInterface?.createTrayIconController(
-        this.tunnelState.tunnelState,
+        initialTunnelState,
         this.settings.gui.monochromaticIcon,
       );
       await this.userInterface?.updateTrayTheme();
 
       this.userInterface?.updateTray(this.account.isLoggedIn(), this.tunnelState.tunnelState);
-
-      if (process.platform === 'win32') {
-        nativeTheme.on('updated', async () => {
-          if (this.settings.gui.monochromaticIcon) {
-            await this.userInterface?.updateTrayTheme();
-          }
-        });
-      }
     });
 
     this.registerIpcListeners();

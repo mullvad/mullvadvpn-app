@@ -349,6 +349,11 @@ export default class UserInterface implements WindowControllerDelegate {
             );
         });
 
+        const WM_SETTINGCHANGE = 0x001a;
+        appWindow.hookWindowMessage(WM_SETTINGCHANGE, async () => {
+          await this.updateTrayTheme();
+        });
+
         appWindow.removeMenu();
 
         return appWindow;

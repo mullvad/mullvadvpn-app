@@ -17,8 +17,7 @@ export default class TrayIconController {
   private iconSet: NativeImage[] = [];
   private iconParameters: IconParameters;
 
-  private updateThrottlePromise?: Promise<void>;
-
+  private pendingUpdateFollowUp: ReturnType<typeof setTimeout> | null = null;
   private previousNotificationIconReason?: string;
 
   constructor(
@@ -43,16 +42,18 @@ export default class TrayIconController {
   }
 
   public updateTheme(): Promise<void> {
-    // For some reason the icon doesn't update if the iconSet is changed to quickly. Adding a
-    // throttle fixes this issue.
-    this.updateThrottlePromise ??= new Promise((resolve) => {
-      setTimeout(() => {
-        this.updateThrottlePromise = undefined;
-        void this.updateThemeImpl().then(resolve);
-      }, 200);
-    });
+    if (this.pendingUpdateFollowUp !== null) {
+      clearTimeout(this.pendingUpdateFollowUp);
+    }
 
-    return this.updateThrottlePromise;
+    // For some reason the icon doesn't update if the iconSet is changed too quickly.
+    // Scheduling a follow-up fixes this issue.
+    this.pendingUpdateFollowUp = setTimeout(() => {
+      this.pendingUpdateFollowUp = null;
+      void this.updateThemeImpl();
+    }, 200);
+
+    return this.updateThemeImpl();
   }
 
   public setMonochromaticIcon(monochromaticIcon: boolean) {
