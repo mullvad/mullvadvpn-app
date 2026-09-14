@@ -250,12 +250,12 @@ pub async fn open_gotatun_tunnel(
     let interface_name = async_tun.deref().tun_name().unwrap();
 
     let config = config.clone();
-    //#[cfg(target_os = "android")]
-    //let config = match gateway_only {
+    #[cfg(target_os = "android")]
+    let config = match gateway_only {
         // See `wireguard_go` module for why this is needed.
-    //    true => patch_allowed_ips(config),
-    //    false => config,
-    //};
+        true => patch_allowed_ips(config),
+        false => config,
+    };
 
     log::trace!("passing tunnel dev to gotatun");
     let gotatun = GotaTun::new(async_tun, bypass, config, interface_name)
