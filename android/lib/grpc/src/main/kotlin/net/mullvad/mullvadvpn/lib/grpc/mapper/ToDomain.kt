@@ -162,22 +162,24 @@ private fun TunnelState.Connecting.toDomain(): ModelTunnelState.Connecting =
     ModelTunnelState.Connecting(
         endpoint = relay_info?.tunnel_endpoint?.toDomain(),
         location = relay_info?.location?.toDomain(),
-        featureIndicators = feature_indicators?.toDomain() ?: emptyList(),
+        featureIndicators = feature_indicators?.toDomain().orEmpty(),
     )
 
 private fun TunnelState.Disconnected.toDomain(): ModelTunnelState.Disconnected =
     ModelTunnelState.Disconnected(location = disconnected_location?.toDomain())
 
+@Suppress("UnsafeCallOnNullableType")
 private fun TunnelState.Connected.toDomain(): ModelTunnelState.Connected =
     ModelTunnelState.Connected(
         endpoint = relay_info!!.tunnel_endpoint!!.toDomain(),
         location = relay_info.location?.toDomain(),
-        featureIndicators = feature_indicators?.toDomain() ?: emptyList(),
+        featureIndicators = feature_indicators?.toDomain().orEmpty(),
     )
 
 private fun TunnelState.Disconnecting.toDomain(): ModelTunnelState.Disconnecting =
     ModelTunnelState.Disconnecting(actionAfterDisconnect = after_disconnect.toDomain())
 
+@Suppress("UnsafeCallOnNullableType")
 private fun TunnelState.Error.toDomain(): ModelTunnelState.Error {
     val otherAlwaysOnAppError = error_state.let {
         if (it?.other_always_on_app_error != null) {
@@ -252,6 +254,7 @@ internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
         daita = daita,
     )
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun ObfuscationEndpoint.toDomain(): ModelObfuscationEndpoint =
     ModelObfuscationEndpoint(
         endpoint =
@@ -359,11 +362,12 @@ internal fun ErrorState.GenerationError.toDomain(): ModelParameterGenerationErro
             ModelParameterGenerationError.Ipv6_Unavailable
     }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun Settings.toDomain(): ModelSettings =
     ModelSettings(
         relaySettings = relay_settings!!.toDomain(),
         obfuscationSettings = obfuscation_settings!!.toDomain(),
-        customLists = custom_lists?.custom_lists?.map { it.toDomain() } ?: emptyList(),
+        customLists = custom_lists?.custom_lists?.map { it.toDomain() }.orEmpty(),
         allowLan = allow_lan,
         tunnelOptions = tunnel_options!!.toDomain(),
         relayOverrides = relay_overrides.map { it.toDomain() },
@@ -387,6 +391,7 @@ internal fun RelaySettings.toDomain(): ModelRelaySettings =
         else -> throw NullPointerException("RelaySettings endpoint is null")
     }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun NormalRelaySettings.toDomain(): ModelRelayConstraints =
     ModelRelayConstraints(
         location = location?.toDomain() ?: ModelConstraint.Any,
@@ -448,6 +453,7 @@ internal fun Ownership.toDomain(): ModelConstraint<ModelOwnership> =
         Ownership.RENTED -> ModelConstraint.Only(ModelOwnership.Rented)
     }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun ObfuscationSettings.toDomain(): ModelObfuscationSettings =
     ModelObfuscationSettings(
         selectedObfuscationMode = selected_obfuscation.toDomain(),
@@ -503,11 +509,12 @@ internal fun CustomList.toDomain(): ModelCustomList =
         locations = locations.map { it.toDomain() },
     )
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun TunnelOptions.toDomain(): ModelTunnelOptions =
     ModelTunnelOptions(
         mtu = if (mtu != null) ModelMtu(mtu) else null,
-        quantumResistant = quantum_resistant!!.toDomain(),
-        daitaSettings = daita!!.toDomain(),
+        quantumResistant = quantum_resistant?.toDomain() ?: ModelQuantumResistantState.Off,
+        daitaSettings = daita?.toDomain() ?: ModelDaitaSettings(enabled = false),
         dnsOptions = dns_options!!.toDomain(),
         enableIpv6 = enable_ipv6,
     )
@@ -523,8 +530,8 @@ internal fun QuantumResistantState.toDomain(): ModelQuantumResistantState =
 internal fun DnsOptions.toDomain(): ModelDnsOptions =
     ModelDnsOptions(
         state = state.toDomain(),
-        defaultOptions = default_options!!.toDomain(),
-        customOptions = custom_options!!.toDomain(),
+        defaultOptions = default_options?.toDomain() ?: ModelDefaultDnsOptions(),
+        customOptions = custom_options?.toDomain() ?: ModelCustomDnsOptions(emptyList()),
     )
 
 internal fun DnsOptions.DnsState.toDomain(): ModelDnsState =
@@ -549,6 +556,7 @@ internal fun CustomDnsOptions.toDomain() =
 internal fun AppVersionInfo.toDomain(): ModelAppVersionInfo =
     ModelAppVersionInfo(supported = supported, suggestedUpgrade = suggested_upgrade?.version)
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun RelayList.toDomain(): ModelRelayList =
     ModelRelayList(countries.toDomain(), endpoint_data!!.toDomain())
 
@@ -598,6 +606,7 @@ internal fun RelayListCity.toDomain(
     )
 }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun Relay.toDomain(
     city: ModelGeoLocationId.City,
     cityName: String,
@@ -624,6 +633,7 @@ private fun Relay.WireguardEndpoint.Quic.toDomain(): ModelQuic =
 
 private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun Device.toDomain(): ModelDevice =
     ModelDevice(ModelDeviceId.fromString(id), name, created!!.atDefaultZone())
 
@@ -639,6 +649,7 @@ internal fun DeviceState.toDomain(): ModelDeviceState =
         else -> throw NullPointerException("Device state is null")
     }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun AccountData.toDomain(accountNumber: ModelAccountNumber): ModelAccountData =
     ModelAccountData(
         id = AccountId(UUID.fromString(id)),
@@ -646,6 +657,7 @@ internal fun AccountData.toDomain(accountNumber: ModelAccountNumber): ModelAccou
         expiryDate = expiry!!.atDefaultZone(),
     )
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun VoucherSubmission.toDomain(): ModelRedeemVoucherSuccess =
     ModelRedeemVoucherSuccess(
         timeAdded = seconds_added,
@@ -674,6 +686,7 @@ internal fun ApiAccessMethodSettings.toDomain(): List<ModelApiAccessMethodSettin
     addAll(custom.map { it.toDomain() })
 }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun AccessMethodSetting.toDomain(): ModelApiAccessMethodSetting =
     ModelApiAccessMethodSetting(
         id = ModelApiAccessMethodId.fromString(id!!.value),
@@ -700,6 +713,7 @@ internal fun CustomProxy.toDomain(): ModelApiAccessMethod.CustomProxy =
         else -> error("Custom proxy not found")
     }
 
+@Suppress("UnsafeCallOnNullableType")
 internal fun Shadowsocks.toDomain(): ModelApiAccessMethod.CustomProxy.Shadowsocks =
     ModelApiAccessMethod.CustomProxy.Shadowsocks(
         ip = ip,
