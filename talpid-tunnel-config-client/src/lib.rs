@@ -1,16 +1,15 @@
 use gotatun::device::daita;
+use hyper_util::rt::tokio::TokioIo;
 use proto::PostQuantumRequestV1;
-use std::fmt;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::SocketAddr;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::{IpAddr, Ipv4Addr};
 use std::time::Instant;
+use std::{fmt, io};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
-use tonic::transport::Channel;
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-use tonic::transport::Endpoint;
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
+use tokio::io::{AsyncRead, AsyncWrite};
+use tonic::transport::{Channel, Endpoint};
 use tower::service_fn;
 use zeroize::Zeroize;
 
@@ -134,6 +133,27 @@ pub async fn request_ephemeral_peer(
     log::debug!("Connecting to relay config service at {service_address}");
     let client = connect_relay_config_client(service_address, socket).await?;
     log::debug!("Connected to relay config service at {service_address}");
+
+    request_ephemeral_peer_with(
+        client,
+        parent_pubkey,
+        ephemeral_pubkey,
+        enable_post_quantum,
+        enable_daita,
+    )
+    .await
+}
+
+/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled, over `stream`, a
+/// connection to the config service.
+pub async fn request_ephemeral_peer_over_stream(
+    stream: impl AsyncRead + AsyncWrite + Send + Unpin + 'static,
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    let client = relay_config_client_over_stream(stream).await?;
 
     request_ephemeral_peer_with(
         client,
@@ -422,8 +442,6 @@ async fn connect_relay_config_client(
     ip: Ipv4Addr,
     socket: &socket::TcpSocket,
 ) -> Result<RelayConfigService, Error> {
-    use hyper_util::rt::tokio::TokioIo;
-
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
     let socket = socket.try_clone().map_err(Error::TcpSocketError)?;
@@ -436,6 +454,29 @@ async fn connect_relay_config_client(
                 let stream = connect_to_config_service(socket, addr).await?;
                 Ok::<_, std::io::Error>(TokioIo::new(stream))
             }
+        }))
+        .await
+        .map_err(Error::GrpcConnectError)?;
+
+    Ok(RelayConfigService::new(connection))
+}
+
+/// Create a new `RelayConfigService` that talks over `stream`.
+async fn relay_config_client_over_stream(
+    stream: impl AsyncRead + AsyncWrite + Send + Unpin + 'static,
+) -> Result<RelayConfigService, Error> {
+    // The connector hands out the stream the first time it is called. A connection cannot be
+    // re-established over the same stream, so any later call fails.
+    let stream = std::sync::Mutex::new(Some(stream));
+
+    let connection = Endpoint::from_static("tcp://0.0.0.0:0")
+        .connect_with_connector(service_fn(move |_| {
+            let stream = stream
+                .lock()
+                .unwrap()
+                .take()
+                .ok_or_else(|| io::Error::other("The config service stream was already used"));
+            async move { stream.map(TokioIo::new) }
         }))
         .await
         .map_err(Error::GrpcConnectError)?;
