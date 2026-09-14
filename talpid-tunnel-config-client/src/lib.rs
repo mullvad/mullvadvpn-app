@@ -1,10 +1,6 @@
 use gotatun::device::daita;
 use hyper_util::rt::tokio::TokioIo;
 use proto::PostQuantumRequestV1;
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-use std::net::SocketAddr;
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-use std::net::{IpAddr, Ipv4Addr};
 use std::num::NonZeroUsize;
 use std::time::Instant;
 use std::{fmt, io};
@@ -17,8 +13,6 @@ use zeroize::Zeroize;
 mod hqc;
 mod ml_kem;
 pub mod negotiation;
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-pub mod socket;
 
 #[expect(clippy::allow_attributes)]
 mod proto {
@@ -33,7 +27,7 @@ pub enum Error {
     // TODO: Remove box when upgrading tonic to a version with
     // https://github.com/hyperium/tonic/pull/2282
     GrpcError(Box<tonic::Status>),
-    /// Failed to create or duplicate the tunnel config socket.
+    /// Failed to open a TCP connection to the config service.
     TcpSocketError(std::io::Error),
     MissingCiphertexts,
     InvalidCiphertextLength {
@@ -65,7 +59,7 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(err) => write!(f, "Failed to connect to config service: {err:?}"),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
-            TcpSocketError(err) => write!(f, "Failed to create tunnel config socket: {err}"),
+            TcpSocketError(err) => write!(f, "Failed to connect to config service: {err}"),
             MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
                 algorithm,
@@ -133,30 +127,6 @@ impl From<&DaitaSettings> for daita::DaitaSettings {
             min_delay_capacity: 50,
         }
     }
-}
-
-/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-pub async fn request_ephemeral_peer(
-    service_address: Ipv4Addr,
-    parent_pubkey: PublicKey,
-    ephemeral_pubkey: PublicKey,
-    enable_post_quantum: bool,
-    enable_daita: bool,
-    socket: &socket::TcpSocket,
-) -> Result<EphemeralPeer, Error> {
-    log::debug!("Connecting to relay config service at {service_address}");
-    let client = connect_relay_config_client(service_address, socket).await?;
-    log::debug!("Connected to relay config service at {service_address}");
-
-    request_ephemeral_peer_with(
-        client,
-        parent_pubkey,
-        ephemeral_pubkey,
-        enable_post_quantum,
-        enable_daita,
-    )
-    .await
 }
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled, over `stream`, a
@@ -353,127 +323,6 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
     for (dst_byte, src_byte) in dst.iter_mut().zip(src.iter()) {
         *dst_byte ^= src_byte;
     }
-}
-
-/// Connects to the config service at `addr`.
-#[cfg(not(any(target_os = "windows", target_os = "ios")))]
-async fn connect_to_config_service(
-    socket: socket::TcpSocket,
-    addr: SocketAddr,
-) -> std::io::Result<tokio::net::TcpStream> {
-    socket.connect(addr).await
-}
-
-// TODO: Remove this if waiting for the tunnel addresses turns out to be enough on its own. The
-// retry is here because we do not know that it is, and it hides the symptom rather than fixing it
-// -- if the logs stop showing retries that succeed, it has nothing left to do.
-/// Connects to the config service at `addr`, retrying briefly for as long as the firewall blocks
-/// the connection.
-///
-/// The tunnel is configured very shortly before this runs, and we suspect that a connection made
-/// before it is ready is blocked instead of being routed through the tunnel, which surfaces as
-/// WSAEACCES. A connection that only succeeds on a retry would confirm it, so every attempt is
-/// logged.
-#[cfg(target_os = "windows")]
-async fn connect_to_config_service(
-    socket: socket::TcpSocket,
-    addr: SocketAddr,
-) -> std::io::Result<tokio::net::TcpStream> {
-    use std::time::Duration;
-
-    /// How long to keep retrying.
-    const RETRY_TIMEOUT: Duration = Duration::from_secs(1);
-    /// How long to wait between those retries.
-    const RETRY_INTERVAL: Duration = Duration::from_millis(50);
-
-    let start = Instant::now();
-    let mut attempts = 0u32;
-    let mut last_error = None;
-
-    loop {
-        attempts += 1;
-        let error = match socket.try_clone()?.connect(addr).await {
-            Ok(stream) => {
-                if let Some(err) = last_error {
-                    log::warn!(
-                        "Connection to {addr} succeeded on attempt {attempts} after {:?}. \
-                         Earlier attempts failed with: {err}",
-                        start.elapsed(),
-                    );
-                }
-                return Ok(stream);
-            }
-            Err(error) => error,
-        };
-
-        if !tunnel_not_ready_error(&error) {
-            return Err(error);
-        }
-
-        if start.elapsed() >= RETRY_TIMEOUT {
-            log::warn!(
-                "Giving up on {addr} after {attempts} failed attempts over {:?}: {error}",
-                start.elapsed(),
-            );
-            return Err(error);
-        }
-
-        log::debug!("Connection to {addr} failed, retrying: {error}");
-        last_error = Some(error);
-
-        tokio::time::sleep(RETRY_INTERVAL).await;
-    }
-}
-
-/// Returns whether `error` means the tunnel was not ready, and might succeed on a retry.
-#[cfg(target_os = "windows")]
-fn tunnel_not_ready_error(error: &std::io::Error) -> bool {
-    use windows_sys::Win32::Networking::WinSock::{
-        WSAEACCES, WSAEADDRNOTAVAIL, WSAEHOSTUNREACH, WSAENETUNREACH,
-    };
-
-    let Some(raw_err) = error.raw_os_error() else {
-        return false;
-    };
-
-    matches!(
-        raw_err,
-        // Blocked by the firewall, because the connection was not classified against the tunnel.
-        WSAEACCES |
-        // No source address on the tunnel interface is usable yet.
-        WSAEADDRNOTAVAIL |
-        // No route through the tunnel yet.
-        WSAENETUNREACH |
-        WSAEHOSTUNREACH
-    )
-}
-
-/// Create a new `RelayConfigService` connected to the given IP.
-///
-/// On non-Windows platforms the connection is made with a socket where the MSS
-/// value has been specifically lowered, to avoid MTU issues. See the `socket` module.
-#[cfg(not(any(target_os = "ios", target_os = "tvos")))]
-async fn connect_relay_config_client(
-    ip: Ipv4Addr,
-    socket: &socket::TcpSocket,
-) -> Result<RelayConfigService, Error> {
-    let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
-    let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
-    let socket = socket.try_clone().map_err(Error::TcpSocketError)?;
-
-    let connection = endpoint
-        .connect_with_connector(service_fn(move |_| {
-            let clone = socket.try_clone();
-            async move {
-                let socket = clone?;
-                let stream = connect_to_config_service(socket, addr).await?;
-                Ok::<_, std::io::Error>(TokioIo::new(stream))
-            }
-        }))
-        .await
-        .map_err(Error::GrpcConnectError)?;
-
-    Ok(RelayConfigService::new(connection))
 }
 
 /// Create a new `RelayConfigService` that talks over `stream`.
