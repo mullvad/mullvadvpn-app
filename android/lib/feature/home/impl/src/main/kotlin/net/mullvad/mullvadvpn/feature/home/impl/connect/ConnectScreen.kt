@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.res.Resources
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -67,6 +69,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
@@ -180,6 +185,7 @@ private fun PreviewAccountScreen(
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilityScope) {
@@ -194,6 +200,13 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
     val createVpnProfile =
         rememberLauncherForActivityResult(CreateVpnProfile()) {
             connectViewModel.createVpnProfileResult(it)
+        }
+
+    val notificationPermissionState =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            null
         }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
@@ -282,6 +295,16 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                 uriHandler.safeOpenUri(sideEffect.uri.toString()).onLeft {
                     snackbarHostState.showSnackbarImmediately(message = sideEffect.errorMessage)
                 }
+
+            ConnectViewModel.UiSideEffect.ShowNotificationPermissionPrompt -> {
+                if (
+                    notificationPermissionState != null &&
+                        !notificationPermissionState.status.isGranted
+                ) {
+                    notificationPermissionState.launchPermissionRequest()
+                    connectViewModel.setHasShownNotificationPrompt()
+                }
+            }
         }
     }
 

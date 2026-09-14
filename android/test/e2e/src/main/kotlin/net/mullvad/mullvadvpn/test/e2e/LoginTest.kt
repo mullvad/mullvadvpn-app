@@ -17,6 +17,7 @@ class LoginTest : EndToEndTest() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
         app.launchAndLogIn(validTestAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
     }
 

@@ -16,6 +16,7 @@ class LogoutTest : EndToEndTest() {
     fun testLogout() {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         on<ConnectPage> { clickAccount() }
 

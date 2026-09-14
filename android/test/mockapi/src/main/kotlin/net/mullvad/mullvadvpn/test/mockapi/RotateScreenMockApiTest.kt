@@ -22,6 +22,8 @@ class RotateScreenMockApiTest : MockApiTest() {
 
         app.launchAndLogIn(validAccountNumber)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         on<ConnectPage> {
             device.waitForStableInActiveWindow()
             device.setOrientationLeft()

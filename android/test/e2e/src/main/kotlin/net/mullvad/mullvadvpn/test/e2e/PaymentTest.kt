@@ -26,7 +26,7 @@ class PaymentTest : EndToEndTest() {
     fun testInAppPurchaseForOutOfTime() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
-        app.launchAndLogIn(validTestAccountNumber, acceptNotificationPermission = false)
+        app.launchAndLogIn(validTestAccountNumber)
 
         on<OutOfTimePage> { clickAddTime() }
 

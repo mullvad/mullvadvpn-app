@@ -52,6 +52,7 @@ class LoginMockApiTest : MockApiTest() {
 
         // Act
         app.launchAndLogIn(validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Assert
         on<ConnectPage>()
@@ -68,7 +69,7 @@ class LoginMockApiTest : MockApiTest() {
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
 
-        app.launchAndLogIn(validAccountNumber, acceptNotificationPermission = false)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert
         on<OutOfTimePage>()

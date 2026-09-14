@@ -65,11 +65,17 @@ class ConnectViewModel(
     isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
     multihopGuideMigrationHintUseCase: MultihopGuideMigrationHintUseCase,
+    private val hasShownNotificationPromptRepository: HasShowNotificationPromptRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
     val uiSideEffect =
-        merge(_uiSideEffect.receiveAsFlow(), outOfTimeEffect(), revokedDeviceEffect())
+        merge(
+            _uiSideEffect.receiveAsFlow(),
+            outOfTimeEffect(),
+            revokedDeviceEffect(),
+            showNotificationPromptEffect(),
+        )
 
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
@@ -234,6 +240,10 @@ class ConnectViewModel(
         userPreferencesRepository.setHasDismissedMultihopMigrationGuideBanner()
     }
 
+    fun setHasShownNotificationPrompt() = viewModelScope.launch {
+        hasShownNotificationPromptRepository.setHasShowNotificationPrompt(true)
+    }
+
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }
 
@@ -241,6 +251,11 @@ class ConnectViewModel(
         deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
             UiSideEffect.RevokedDevice
         }
+
+    private fun showNotificationPromptEffect() =
+        hasShownNotificationPromptRepository.hasShowNotificationPrompt
+            .filter { !it }
+            .map { UiSideEffect.ShowNotificationPermissionPrompt }
 
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: WebsiteAuthToken?) : UiSideEffect
@@ -258,5 +273,7 @@ class ConnectViewModel(
 
             data class PermissionDenied(val systemVpnSettingsAvailable: Boolean) : ConnectError
         }
+
+        data object ShowNotificationPermissionPrompt : UiSideEffect
     }
 }

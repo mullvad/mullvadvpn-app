@@ -34,6 +34,8 @@ class ObfuscationMockApiTest : MockApiTest() {
     fun checkThatAllObfuscationsAreUsed() {
         app.launchAndLogIn(validAccountNumber)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         // Disable IPv6 so we do not test IPv6 with the same obfuscation method
         on<ConnectPage> { disableIPv6Story() }
 

@@ -23,7 +23,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         }
 
         // Act
-        app.launchAndLogIn(validAccountNumber, acceptNotificationPermission = false)
+        app.launchAndLogIn(validAccountNumber)
 
         // Assert that we have too many devices
         on<TooManyDevicesPage> {
