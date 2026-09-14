@@ -1,8 +1,3 @@
-use std::pin::Pin;
-
-use futures::Future;
-use talpid_tunnel_config_client::DaitaSettings;
-
 use crate::config::MULLVAD_INTERFACE_NAME;
 
 use super::{
@@ -115,27 +110,5 @@ impl Tunnel for NetlinkTunnel {
             TunnelError::GetConfigError
         })?;
         Ok(Stats::parse_device_message(&device))
-    }
-
-    fn set_config(
-        &mut self,
-        config: Config,
-        daita: Option<DaitaSettings>,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'static>> {
-        let mut wg = self.netlink_connections.wg_handle.clone();
-        let interface_index = self.interface_index;
-        Box::pin(async move {
-            if daita.is_some() {
-                // Outright fail to start - this tunnel type does not support DAITA.
-                return Err(TunnelError::DaitaNotSupported);
-            }
-
-            wg.set_config(interface_index, &config)
-                .await
-                .map_err(|err| {
-                    log::error!("Failed to set WireGuard device config: {}", err);
-                    TunnelError::SetConfigError
-                })
-        })
     }
 }
