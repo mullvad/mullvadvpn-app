@@ -513,8 +513,8 @@ internal fun CustomList.toDomain(): ModelCustomList =
 internal fun TunnelOptions.toDomain(): ModelTunnelOptions =
     ModelTunnelOptions(
         mtu = if (mtu != null) ModelMtu(mtu) else null,
-        quantumResistant = quantum_resistant?.toDomain() ?: ModelQuantumResistantState.Off,
-        daitaSettings = daita?.toDomain() ?: ModelDaitaSettings(enabled = false),
+        quantumResistant = quantum_resistant!!.toDomain(),
+        daitaSettings = daita!!.toDomain(),
         dnsOptions = dns_options!!.toDomain(),
         enableIpv6 = enable_ipv6,
     )
@@ -530,8 +530,8 @@ internal fun QuantumResistantState.toDomain(): ModelQuantumResistantState =
 internal fun DnsOptions.toDomain(): ModelDnsOptions =
     ModelDnsOptions(
         state = state.toDomain(),
-        defaultOptions = default_options?.toDomain() ?: ModelDefaultDnsOptions(),
-        customOptions = custom_options?.toDomain() ?: ModelCustomDnsOptions(emptyList()),
+        defaultOptions = default_options!!.toDomain(),
+        customOptions = custom_options!!.toDomain(),
     )
 
 internal fun DnsOptions.DnsState.toDomain(): ModelDnsState =
