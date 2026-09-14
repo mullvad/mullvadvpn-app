@@ -152,7 +152,7 @@ impl PidManager {
 
     /// Get a handle to the [CGroup2] used for split-tunneling.
     ///
-    /// Returns an option if we prevously failed to set up the cgroup2, or if cloning it fails.
+    /// Returns an option if we previously failed to set up the cgroup2, or if cloning it fails.
     pub fn excluded_cgroup(&self) -> Option<CGroup2> {
         self.inner()
             .ok()?
