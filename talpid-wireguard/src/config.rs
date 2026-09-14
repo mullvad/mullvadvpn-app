@@ -1,4 +1,4 @@
-use std::net::{Ipv4Addr, Ipv6Addr};
+use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
 /// Name to use for the tunnel device
@@ -138,6 +138,41 @@ impl Config {
         self.exit_peer.is_some()
     }
 
+    /// Return whether ephemeral peers are negotiated when the tunnel is set up.
+    pub fn negotiates_ephemeral_peers(&self) -> bool {
+        self.quantum_resistant || self.daita
+    }
+
+    /// Use the ephemeral `private_key`, and the PSKs negotiated with the entry and exit relays.
+    pub fn set_ephemeral_keys(
+        &mut self,
+        private_key: wireguard::PrivateKey,
+        entry_psk: Option<wireguard::PresharedKey>,
+        exit_psk: Option<wireguard::PresharedKey>,
+    ) {
+        self.tunnel.private_key = private_key;
+        self.entry_peer.psk = entry_psk;
+        if let Some(exit_peer) = &mut self.exit_peer {
+            exit_peer.psk = exit_psk;
+        }
+    }
+
+    /// Return the IPv4 address of the tunnel, if it has one.
+    pub fn tunnel_ipv4(&self) -> Option<Ipv4Addr> {
+        self.tunnel.addresses.iter().find_map(|ip| match ip {
+            IpAddr::V4(ipv4_addr) => Some(*ipv4_addr),
+            IpAddr::V6(..) => None,
+        })
+    }
+
+    /// Return the IPv6 address of the tunnel, if it has one.
+    pub fn tunnel_ipv6(&self) -> Option<Ipv6Addr> {
+        self.tunnel.addresses.iter().find_map(|ip| match ip {
+            IpAddr::V6(ipv6_addr) => Some(*ipv6_addr),
+            IpAddr::V4(..) => None,
+        })
+    }
+
     /// Return the exit peer. `exit_peer` if it is set, otherwise `entry_peer`.
     pub fn exit_peer(&self) -> &wireguard::PeerConfig {
         self.exit_peer.as_ref().unwrap_or(&self.entry_peer)
@@ -170,29 +205,4 @@ impl Config {
             .flat_map(|peer| peer.allowed_ips.iter())
             .cloned()
     }
-}
-
-/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs.
-/// Used to block traffic to other destinations while connecting on Android.
-#[cfg(target_os = "android")]
-pub(crate) fn patch_allowed_ips(mut config: Config) -> Config {
-    use ipnetwork::IpNetwork;
-    use std::net::IpAddr;
-
-    let gateway_net_v4 = IpNetwork::from(IpAddr::from(config.ipv4_gateway));
-    let gateway_net_v6 = config
-        .ipv6_gateway
-        .map(|net| IpNetwork::from(IpAddr::from(net)));
-    for peer in config.peers_mut() {
-        for allowed_ips in &mut peer.allowed_ips {
-            if allowed_ips.prefix() == 0 {
-                match (allowed_ips.is_ipv4(), gateway_net_v6) {
-                    (true, _) => *allowed_ips = gateway_net_v4,
-                    (_, Some(net)) => *allowed_ips = net,
-                    _ => continue,
-                }
-            }
-        }
-    }
-    config
 }
