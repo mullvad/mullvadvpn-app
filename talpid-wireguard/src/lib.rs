@@ -32,7 +32,7 @@ use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::{
     BoxedError, ErrorExt,
-    net::{AllowedTunnelTraffic, wireguard::TunnelParameters},
+    net::wireguard::TunnelParameters,
 };
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -296,7 +296,7 @@ impl WireguardMonitor {
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(
                     metadata,
-                    AllowedTunnelTraffic::All,
+                    talpid_types::net::AllowedTunnelTraffic::All,
                 ))
                 .await;
 
@@ -488,8 +488,6 @@ impl WireguardMonitor {
             .block_on(get_obfuscator(params, &mut config, &bypass))?;
         let obfuscation = obfuscator.as_ref().map(Obfuscator::obfuscation).cloned();
 
-        let should_negotiate_ephemeral_peer = config.negotiates_ephemeral_peers();
-
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
         let mut connectivity_monitor = connectivity::Check::new(
             config.ipv4_gateway,
@@ -517,17 +515,7 @@ impl WireguardMonitor {
         };
 
         let tunnel_fut = async move {
-            // Ephemeral peers are negotiated without the tunnel device, so no tunnel traffic is
-            // allowed until they are.
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
-            event_hook
-                .on_event(TunnelEvent::InterfaceUp(
-                    metadata,
-                    AllowedTunnelTraffic::None,
-                ))
-                .await;
-
-            let daita = if should_negotiate_ephemeral_peer {
+            let daita = if config.negotiates_ephemeral_peers() {
                 let peers = ephemeral::negotiate_ephemeral_peers(
                     &config,
                     args.retry_attempt,
@@ -551,16 +539,6 @@ impl WireguardMonitor {
             .await
             .map_err(CloseMsg::SetupError)?;
             *tunnel.lock().await = Some(Box::new(gotatun) as TunnelType);
-
-            if should_negotiate_ephemeral_peer {
-                let metadata = Self::tunnel_metadata(&iface_name, &config);
-                event_hook
-                    .on_event(TunnelEvent::InterfaceUp(
-                        metadata,
-                        AllowedTunnelTraffic::All,
-                    ))
-                    .await;
-            }
 
             // Negotiating ephemeral peers does not depend on the routes, but the connectivity
             // check does.
