@@ -46,7 +46,7 @@ import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
