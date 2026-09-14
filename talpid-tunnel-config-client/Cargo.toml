@@ -46,5 +46,8 @@ nix = { workspace = true, features = ["socket"] }
 [target."cfg(windows)".dependencies]
 windows-sys = { workspace = true, features = ["Win32_Networking_WinSock"] }
 
+[dev-dependencies]
+tokio = { workspace = true, features = ["net"] }
+
 [lints]
 workspace = true
