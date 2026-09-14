@@ -7,6 +7,13 @@ extend-exclude = [
   "dist-assets/**",
   "windows/libwfp",
   "windows/windows-libraries",
+  # TODO(Enable spell checking for Android source files)
+  "ios/**",
+  "ci/ios/**",
+  # TODO(Enable spell checking for iOS source files)
+  "android/**",
+  # TODO(Enable spell checking for desktop app source files)
+  "desktop/**",
 ]
 
 [default]
