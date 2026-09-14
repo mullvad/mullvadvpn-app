@@ -4,8 +4,7 @@ use super::{
     super::stats::{Stats, StatsMap},
     Config, Error as WgKernelError, Handle, Tunnel, TunnelError,
 };
-use futures::Future;
-use std::{collections::HashMap, pin::Pin};
+use std::collections::HashMap;
 use talpid_dbus::{
     dbus,
     network_manager::{
@@ -13,8 +12,6 @@ use talpid_dbus::{
         WireguardTunnel,
     },
 };
-use talpid_net::unix::iface_index;
-use talpid_tunnel_config_client::DaitaSettings;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -92,30 +89,6 @@ impl Tunnel for NetworkManagerTunnel {
                 TunnelError::GetConfigError
             })?;
         Ok(Stats::parse_device_message(&device))
-    }
-
-    fn set_config(
-        &mut self,
-        config: Config,
-        daita: Option<DaitaSettings>,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
-        let interface_name = self.interface_name.clone();
-        let mut wg = self.netlink_connections.wg_handle.clone();
-        Box::pin(async move {
-            if daita.is_some() {
-                // Outright fail to start - this tunnel type does not support DAITA.
-                return Err(TunnelError::DaitaNotSupported);
-            }
-
-            let index = iface_index(&interface_name).map_err(|err| {
-                log::error!("Failed to fetch WireGuard device index: {}", err);
-                TunnelError::SetConfigError
-            })?;
-            wg.set_config(index, &config).await.map_err(|err| {
-                log::error!("Failed to apply WireGuard config: {}", err);
-                TunnelError::SetConfigError
-            })
-        })
     }
 }
 
