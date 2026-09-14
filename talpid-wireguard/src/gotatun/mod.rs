@@ -378,10 +378,29 @@ impl Tunnel for GotaTun {
         daita: Option<DaitaSettings>,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
+            let old_public_key = self.config.tunnel.private_key.public_key();
             self.config = config;
+
+            // The UDP transport needs to be recreated if the client pubkey changes.
+            let stale_transport = obfuscation::lwo_version(&self.config) == Some(LwoVersion::V1)
+                && self.config.tunnel.private_key.public_key().as_bytes()
+                    != old_public_key.as_bytes();
+
             // If we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
             let devices = match self.devices.take() {
+                // Recreate the device(s) with a transport that uses the new key
+                Some(devices) if stale_transport => {
+                    devices.stop().await;
+                    create_devices(
+                        &self.config,
+                        daita.as_ref(),
+                        self.tun_dev.clone(),
+                        Arc::clone(&self.bypass),
+                    )
+                    .await
+                    .map_err(TunnelError::GotaTunDevice)?
+                }
                 // Switching from singlehop to multihop
                 Some(Devices::Singlehop(device))
                     if let Some(_exit_peer) = self.config.exit_peer.as_ref() =>
