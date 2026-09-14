@@ -447,6 +447,7 @@ class ConnectionTest : EndToEndTest() {
         // tunnel.
         app.applySettings(localNetworkSharing = true)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { toggleInTunnelIpv6Story() }
         on<ConnectPage> { clickConnect() }
         device.acceptVpnPermissionDialog()
