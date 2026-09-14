@@ -6,10 +6,6 @@
 //! On Darwin, the utun device prepends a 4-byte protocol family header to each
 //! packet. We strip it on read and prepend it on write.
 
-use crate::gotatun::{
-    ip_mux::{IpMuxRecv, IpMuxSend},
-    smoltcp_network::{SmoltcpIpRecv, SmoltcpIpSend},
-};
 use bytes::Buf;
 use gotatun::{
     packet::{Ip, Ipv4Header, Packet, PacketBufPool},
@@ -21,6 +17,10 @@ use std::{
     iter,
     os::fd::{AsRawFd, BorrowedFd, OwnedFd, RawFd},
     sync::Arc,
+};
+use talpid_netstack::{
+    ip_mux::{IpMuxRecv, IpMuxSend},
+    smoltcp_network::{SmoltcpIpRecv, SmoltcpIpSend},
 };
 use tokio::io::{Interest, unix::AsyncFd};
 use zerocopy::IntoBytes;
