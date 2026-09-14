@@ -1,0 +1,44 @@
+# Config for the `typos` crate. Used to catch common spelling errors in CI.
+# See also: https://github.com/crate-ci/typos/blob/v1.50.1/docs/reference.md
+
+[files]
+extend-exclude = [
+  # exclude git (sub)modules and generated content
+  "dist-assets/**",
+  "windows/libwfp",
+  "windows/windows-libraries",
+]
+
+[default]
+extend-ignore-words-re = [
+  # words with length <= 4 chars is likely noise
+  "^[a-zA-Z]{1,4}$",
+]
+
+extend-ignore-re = []
+
+[default.extend-words]
+# Allowlist for words that look like typos but are not, or aren't worth fixing
+# right now. Entries should look like `mullvad = "mullvad"`.
+daita = "daita"  # Defense Against AI-guided Traffic Analysis.
+maybenot = "maybenot"  # a framework for traffic analysis defenses.
+
+# Denylist to forbid misspelled words that aren't detected by the built-in
+# dictionary. Entries should look like `protonvpn = ""` or `mulvlad = "mullvad"`;
+# the non-empty form can be automatically fixed by `--bless`.
+atomicaly = "atomically"
+dependy = ""
+
+[default.extend-identifiers]
+# Allowlist for specific identifiers that should be permitted even though they
+# appear to contain typos that would be forbidden in other identifiers.
+#
+# For example, you might want to allow a specific constant like
+# `DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME`, but still want to forbid
+# the typo `INVAILD` in other places.
+DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME = "DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME"
+
+[type.po]
+# Never spell check translations.
+extend-glob = ["*.po"]
+check-file = false
