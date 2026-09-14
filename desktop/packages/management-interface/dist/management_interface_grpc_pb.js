@@ -1553,7 +1553,7 @@ appUpgrade: {
   // The great multihop migration of 2026
 //
 // If the return value is SplitFilterMigration, a migration took place recently. After
-// ClearMigrationMessage has been called, GetMigrationEvent will indefintely return null.
+// ClearMigrationMessage has been called, GetMigrationEvent will indefinitely return null.
 // If the return value is null, there is nothing for the clients to do. The migration has either
 // not been run or was already completed.
 getMigrationEvent: {
@@ -1569,7 +1569,7 @@ getMigrationEvent: {
   },
   // Call this function after *handling* a SplitFilterMigration as returned by GetMigrationEvent to
 // mark the migration as completed. This will cause GetMigrationEvent to return a null-value
-// indefintely.
+// indefinitely.
 clearMigrationMessage: {
     path: '/mullvad_daemon.management_interface.ManagementService/ClearMigrationMessage',
     requestStream: false,
