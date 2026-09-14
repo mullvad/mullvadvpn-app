@@ -12,15 +12,13 @@ use gotatun::{
     x25519::{PublicKey, StaticSecret},
 };
 use ipnetwork::IpNetwork;
+use talpid_netstack::smoltcp_network::{SmoltcpHandle, smoltcp_network};
 use talpid_tunnel_config_client::{EphemeralPeer, RelayConfigService, request_ephemeral_peer_with};
 use talpid_types::net::wireguard::PrivateKey;
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 
-use crate::{
-    gotatun::smoltcp_network::{SmoltcpHandle, smoltcp_network},
-    tunnel_adapter::NegotiatePQError,
-};
+use crate::tunnel_adapter::NegotiatePQError;
 
 use super::{
     BoundUdpTransports,

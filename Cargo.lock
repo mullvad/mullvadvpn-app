@@ -3511,7 +3511,6 @@ dependencies = [
  "bytes",
  "cbindgen",
  "chrono",
- "either",
  "futures",
  "gotatun",
  "hyper",
@@ -3530,11 +3529,11 @@ dependencies = [
  "shadowsocks",
  "smoltcp",
  "talpid-future",
+ "talpid-netstack",
  "talpid-time",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
- "tokio-util 0.7.18",
  "tonic",
  "tower",
  "tracing",
@@ -6129,6 +6128,20 @@ dependencies = [
  "socket2",
  "talpid-types",
  "thiserror 2.0.19",
+]
+
+[[package]]
+name = "talpid-netstack"
+version = "0.0.0"
+dependencies = [
+ "bytes",
+ "either",
+ "gotatun",
+ "log",
+ "smoltcp",
+ "tokio",
+ "tokio-util 0.7.18",
+ "zerocopy",
 ]
 
 [[package]]
