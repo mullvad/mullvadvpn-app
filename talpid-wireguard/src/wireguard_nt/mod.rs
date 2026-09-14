@@ -12,14 +12,11 @@ use ipnetwork::IpNetwork;
 use once_cell::sync::OnceCell;
 use std::{
     ffi::CStr,
-    fmt,
-    future::Future,
-    io,
+    fmt, io,
     mem::{self, MaybeUninit},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
     path::Path,
-    pin::Pin,
     ptr,
     sync::{
         Arc, LazyLock, Mutex,
@@ -27,7 +24,6 @@ use std::{
     },
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{BoxedError, ErrorExt};
 use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
@@ -191,7 +187,6 @@ pub enum Error {
 }
 
 pub struct WgNtTunnel {
-    config: Arc<Mutex<Config>>,
     device: Option<Arc<WgNtAdapter>>,
     interface_name: String,
     setup_handle: tokio::task::JoinHandle<()>,
@@ -487,7 +482,6 @@ impl WgNtTunnel {
         });
 
         Ok(WgNtTunnel {
-            config: Arc::new(Mutex::new(config.clone())),
             device: Some(device),
             interface_name,
             setup_handle,
@@ -1154,31 +1148,6 @@ impl Tunnel for WgNtTunnel {
     fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {
         self.stop_tunnel();
         Ok(())
-    }
-
-    fn set_config(
-        &mut self,
-        config: Config,
-        _daita: Option<DaitaSettings>,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
-        let device = self.device.clone();
-        let current_config = self.config.clone();
-
-        Box::pin(async move {
-            let Some(device) = device else {
-                log::error!("Failed to set config: No tunnel device");
-                return Err(super::TunnelError::SetConfigError);
-            };
-            let mut current_config = current_config.lock().unwrap();
-            *current_config = config;
-            device.set_config(&current_config).map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to set wg-nt tunnel config")
-                );
-                super::TunnelError::SetConfigError
-            })
-        })
     }
 }
 
