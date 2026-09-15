@@ -3,6 +3,7 @@
 use crate::{
     CloseMsg, Error,
     config::Config,
+    connectivity,
     gotatun::{lwo_timer_params, lwo_version, transport_factory},
     obfuscation::RunningObfuscation,
 };
@@ -31,6 +32,8 @@ pub async fn negotiate_ephemeral_peers(
     bypass: &Arc<dyn SocketBypass>,
 ) -> Result<NegotiatedPeers, CloseMsg> {
     let timeout = psk_exchange_timeout(retry_attempt);
+    // An unreachable relay should fail as fast as the connectivity check would.
+    let handshake_timeout = connectivity::establish_timeout(retry_attempt);
     let negotiate = Negotiables {
         post_quantum: config.quantum_resistant,
         daita: config.daita,
@@ -44,6 +47,7 @@ pub async fn negotiate_ephemeral_peers(
         relays: relays(config),
         ingress_timer_params: (lwo_version(config) == Some(LwoVersion::V2)).then(lwo_timer_params),
         timeout,
+        handshake_timeout,
         // `Config` has a single private key, since some tunnels use one device for multihop.
         separate_exit_key: false,
     };
@@ -67,7 +71,8 @@ pub async fn negotiate_ephemeral_peers(
             NegotiationError::Timeout => {
                 log::warn!(
                     "Timeout while negotiating ephemeral peers \
-                     (retry {retry_attempt}, timeout {timeout:?}, PQ={}, DAITA={})",
+                     (retry {retry_attempt}, timeout {timeout:?}, \
+                     handshake timeout {handshake_timeout:?}, PQ={}, DAITA={})",
                     negotiate.post_quantum,
                     negotiate.daita,
                 );

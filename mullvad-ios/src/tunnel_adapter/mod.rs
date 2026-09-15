@@ -406,6 +406,7 @@ impl IosTunnelAdapter {
             // iOS only uses LWO v1, which keeps the default timers.
             ingress_timer_params: None,
             timeout: config.establish_timeout(),
+            handshake_timeout: config.establish_timeout(),
             // Each relay has a device of its own, so it can have a key of its own.
             separate_exit_key: true,
         };
