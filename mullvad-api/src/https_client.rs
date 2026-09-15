@@ -265,60 +265,11 @@ async fn cdn_tls_connect(
     stream: TcpStream,
     front_domain: &str,
 ) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
-    use std::sync::LazyLock;
-    use tokio_rustls::rustls::{self, client::danger, pki_types};
+    use tokio_rustls::rustls::pki_types;
 
-    #[derive(Debug)]
-    struct NoCertVerification;
-
-    impl danger::ServerCertVerifier for NoCertVerification {
-        fn verify_server_cert(
-            &self,
-            _: &pki_types::CertificateDer<'_>,
-            _: &[pki_types::CertificateDer<'_>],
-            _: &pki_types::ServerName<'_>,
-            _: &[u8],
-            _: pki_types::UnixTime,
-        ) -> Result<danger::ServerCertVerified, rustls::Error> {
-            Ok(danger::ServerCertVerified::assertion())
-        }
-
-        fn verify_tls12_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn verify_tls13_signature(
-            &self,
-            _: &[u8],
-            _: &pki_types::CertificateDer<'_>,
-            _: &rustls::DigitallySignedStruct,
-        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
-            Ok(danger::HandshakeSignatureValid::assertion())
-        }
-
-        fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
-            rustls::crypto::aws_lc_rs::default_provider()
-                .signature_verification_algorithms
-                .supported_schemes()
-        }
-    }
-
-    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
-        let mut config = rustls::ClientConfig::builder()
-            .dangerous()
-            .with_custom_certificate_verifier(Arc::new(NoCertVerification))
-            .with_no_client_auth();
-        // Disable TLS tickets to reduce ability to track clients over time
-        config.resumption = rustls::client::Resumption::disabled();
-        Arc::new(config)
-    });
-
-    let connector = tokio_rustls::TlsConnector::from(Arc::clone(&CDN_TLS_CONFIG));
+    let connector = tokio_rustls::TlsConnector::from(Arc::new(
+        mullvad_tls_client::api_domain_fronting().clone(),
+    ));
     let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
     connector.connect(server_name, stream).await

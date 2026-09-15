@@ -7,8 +7,9 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-rustls = { workspace = true, features = ["aws-lc-rs", "std"] }
+rustls = { workspace = true, features = ["aws-lc-rs", "std", "tls12"] }
 rustls-pki-types.workspace = true
+webpki-roots.workspace = true
 
 [features]
 # The configuration for `releases.mullvad.net`. Only the release tooling reaches

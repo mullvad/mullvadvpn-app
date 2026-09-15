@@ -62,6 +62,57 @@ pub fn releases_cdn() -> &'static ClientConfig {
     &CONFIG
 }
 
+/// TLS configuration for the public DoH resolvers that the encrypted DNS
+/// proxy addresses are looked up through.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn doh_resolvers() -> &'static ClientConfig {
+    public_roots_config()
+}
+
+/// TLS configuration for GitHub, which serves the changelog for a release.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn github() -> &'static ClientConfig {
+    public_roots_config()
+}
+
+/// TLS configuration for the host serving app installers, which the signed
+/// version metadata names. It is a content delivery network rather than ours,
+/// so none of the pinned configurations reach it.
+///
+/// * TLS 1.2 and 1.3.
+/// * The webpki root store, the trust anchors browsers use.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn app_installers() -> &'static ClientConfig {
+    public_roots_config()
+}
+
+/// The configuration every third party is reached with. These hosts are not
+/// ours, so the floor is set by what they can be relied on to support rather
+/// than by what we would prefer.
+fn public_roots_config() -> &'static ClientConfig {
+    static CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
+        client_config(
+            &[&rustls::version::TLS12, &rustls::version::TLS13],
+            None,
+            Arc::clone(&cert::WEBPKI_ROOT_STORE),
+        )
+    });
+
+    &CONFIG
+}
+
 /// Helper for creating TLS client configs.
 ///
 /// It fixes what does not vary:
@@ -85,6 +136,84 @@ fn client_config(
     // Disable TLS tickets to reduce ability to track clients over time
     config.resumption = rustls::client::Resumption::disabled();
     config
+}
+
+/// TLS configuration for the domain fronting connection to `api.mullvad.net`.
+///
+/// The CDN edge presents a certificate for the front domain, and it is
+/// accepted without being checked, so this outer layer says nothing about who
+/// is on the other end. It does not need to: the API connection tunnelled
+/// inside it is authenticated by [`api`].
+///
+/// * TLS 1.2 and 1.3, matching [`doh_resolvers`], since the edge is a third
+///   party.
+/// * No trust anchors and no certificate verification.
+/// * Whichever key exchange groups the provider offers.
+/// * SNI enabled.
+/// * No TLS session tickets.
+pub fn api_domain_fronting() -> &'static ClientConfig {
+    static CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
+        let provider = Arc::new(rustls::crypto::aws_lc_rs::default_provider());
+        let mut config = ClientConfig::builder_with_provider(Arc::clone(&provider))
+            .with_protocol_versions(&[&rustls::version::TLS12, &rustls::version::TLS13])
+            .expect("aws-lc-rs crypto provider should support TLS 1.2 and 1.3")
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(AcceptAnyServerCertificate { provider }))
+            .with_no_client_auth();
+        // Disable TLS tickets to reduce ability to track clients over time
+        config.resumption = rustls::client::Resumption::disabled();
+        config
+    });
+
+    &CONFIG
+}
+
+/// Accepts every server certificate without validating it. See
+/// [`api_domain_fronting`] for when that is appropriate.
+#[derive(Debug)]
+struct AcceptAnyServerCertificate {
+    /// The provider the connection is configured with.
+    provider: Arc<rustls::crypto::CryptoProvider>,
+}
+
+impl rustls::client::danger::ServerCertVerifier for AcceptAnyServerCertificate {
+    fn verify_server_cert(
+        &self,
+        _end_entity: &rustls_pki_types::CertificateDer<'_>,
+        _intermediates: &[rustls_pki_types::CertificateDer<'_>],
+        _server_name: &rustls_pki_types::ServerName<'_>,
+        _ocsp_response: &[u8],
+        _now: rustls_pki_types::UnixTime,
+    ) -> Result<rustls::client::danger::ServerCertVerified, rustls::Error> {
+        Ok(rustls::client::danger::ServerCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rustls_pki_types::CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _message: &[u8],
+        _cert: &rustls_pki_types::CertificateDer<'_>,
+        _dss: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    /// This rejects nothing, since no certificate is verified. It only fills
+    /// the ClientHello's `signature_algorithms` extension, and mirroring the
+    /// provider keeps that identical to what a verifying client would send.
+    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+        self.provider
+            .signature_verification_algorithms
+            .supported_schemes()
+    }
 }
 
 #[cfg(test)]
@@ -128,12 +257,60 @@ mod tests {
     /// served before, linking connections made from different tunnels.
     #[test]
     fn configs_disable_session_resumption() {
-        for (name, config) in [("api", api()), ("releases_cdn", releases_cdn())] {
-            let resumption = format!("{:?}", config.resumption);
-            assert!(
-                resumption.contains("NoClientSessionStorage"),
-                "{name} caches sessions: {resumption}"
-            );
+        for (name, config) in [
+            ("api", api()),
+            ("doh_resolvers", doh_resolvers()),
+            ("api_domain_fronting", api_domain_fronting()),
+        ] {
+            assert_caches_no_session(name, config);
         }
+    }
+
+    /// As does the one behind the `releases-cdn` feature.
+    #[cfg(feature = "releases-cdn")]
+    #[test]
+    fn releases_config_disables_session_resumption() {
+        assert_caches_no_session("releases_cdn", releases_cdn());
+    }
+
+    fn assert_caches_no_session(name: &str, config: &ClientConfig) {
+        let resumption = format!("{:?}", config.resumption);
+        assert!(
+            resumption.contains("NoClientSessionStorage"),
+            "{name} caches sessions: {resumption}"
+        );
+    }
+
+    /// The unauthenticated verifier really does accept anything, including
+    /// bytes that are not a certificate at all.
+    #[test]
+    fn api_domain_fronting_verifier_accepts_junk() {
+        use rustls::client::danger::ServerCertVerifier as _;
+
+        let verifier = AcceptAnyServerCertificate {
+            provider: Arc::new(rustls::crypto::aws_lc_rs::default_provider()),
+        };
+        let result = verifier.verify_server_cert(
+            &rustls_pki_types::CertificateDer::from(vec![0xde, 0xad, 0xbe, 0xef]),
+            &[],
+            &rustls_pki_types::ServerName::try_from("example.com").unwrap(),
+            &[],
+            rustls_pki_types::UnixTime::now(),
+        );
+        assert!(result.is_ok());
+    }
+
+    /// It advertises exactly what the provider can verify, so the ClientHello
+    /// matches that of a client which does check certificates.
+    #[test]
+    fn api_domain_fronting_verifier_mirrors_provider_schemes() {
+        use rustls::client::danger::ServerCertVerifier as _;
+
+        let provider = Arc::new(rustls::crypto::aws_lc_rs::default_provider());
+        let expected = provider
+            .signature_verification_algorithms
+            .supported_schemes();
+        let verifier = AcceptAnyServerCertificate { provider };
+        assert_eq!(verifier.supported_verify_schemes(), expected);
     }
 }
