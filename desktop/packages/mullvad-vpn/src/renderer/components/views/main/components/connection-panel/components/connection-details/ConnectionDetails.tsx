@@ -11,6 +11,8 @@ import {
 } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
 import { colors } from '../../../../../../../lib/foundations';
+import { useEffectEvent } from '../../../../../../../lib/utility-hooks';
+import { type IConnectionReduxState } from '../../../../../../../redux/connection/reducers';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
 
@@ -64,12 +66,22 @@ export function ConnectionDetails() {
 
   const tunnelState = connection.status;
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setConnectionEffectEvent = useEffectEvent((value: IConnectionReduxState) => {
+    setConnection(value);
+  });
+
   useEffect(() => {
     if (
       reduxConnection.status.state === 'connected' ||
       reduxConnection.status.state === 'connecting'
     ) {
-      setConnection(reduxConnection);
+      setConnectionEffectEvent(reduxConnection);
     }
   }, [reduxConnection, tunnelState.state]);
 

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../../../shared/gettext';
 import { colors, Radius } from '../../../../../../../../foundations';
+import { useEffectEvent } from '../../../../../../../../utility-hooks';
 import { useSlides } from '../../../../../../hooks';
 import { useCarouselIndicatorRef } from './hooks';
 
@@ -72,9 +73,19 @@ export function CarouselIndicator({
 
   const [disabled, setDisabled] = React.useState(disabledProp ?? false);
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setDisabledEffectEvent = useEffectEvent((value: boolean) => {
+    setDisabled(value);
+  });
+
   // Allow focus to be moved before button is disabled.
   React.useEffect(() => {
-    setDisabled(disabledProp ?? false);
+    setDisabledEffectEvent(disabledProp ?? false);
   }, [disabledProp]);
 
   const handleClick = React.useCallback(() => {

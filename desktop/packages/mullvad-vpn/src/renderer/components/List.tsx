@@ -55,10 +55,14 @@ export default function List<T>(props: ListProps<T>) {
 
   useEffect(() => itemChangeEvent(props.items), [props.items]);
 
+  const setSkipAddTransitionEffectEvent = useEffectEvent((value: boolean) => {
+    setSkipAddTransition(value);
+  });
+
   useEffect(() => {
     // Set to animate accordion for added items after first render unless
     // props.skipAddTransition === true.
-    setSkipAddTransition(props.skipAddTransition ?? false);
+    setSkipAddTransitionEffectEvent(props.skipAddTransition ?? false);
   }, [props.skipAddTransition]);
 
   const onRemoved = useCallback((key: string) => {
@@ -123,8 +127,18 @@ function ListItem<T>(props: ListItemProps<T>) {
     }
   }, [onRemoved, props.data.key, props.data.removing]);
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
+    setExpanded(value);
+  });
+
   // Expands after initial render and collapses when item is set to being removed.
-  useEffect(() => setExpanded(!props.data.removing), [props.data.removing]);
+  useEffect(() => setExpandedEffectEvent(!props.data.removing), [props.data.removing]);
 
   return (
     <Accordion expanded={expanded} onTransitionEnd={onTransitionEnd}>

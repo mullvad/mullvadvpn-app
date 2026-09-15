@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { useEffectEvent } from '../../../../../../utility-hooks';
 import { IconButton, IconButtonProps } from '../../../../../icon-button';
 import { useCarouselContext } from '../../../../CarouselContext';
 import { useSlides } from '../../../../hooks';
@@ -12,9 +13,19 @@ export function CarouselPrevButton(props: CarouselPrevButtonProps) {
   const { prevButtonRef } = useCarouselContext();
   const [disabled, setDisabled] = React.useState(isFirstSlide);
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setDisabledEffectEvent = useEffectEvent((value: boolean) => {
+    setDisabled(value);
+  });
+
   // Allow focus to be moved before button is disabled.
   React.useEffect(() => {
-    setDisabled(isFirstSlide);
+    setDisabledEffectEvent(isFirstSlide);
   }, [isFirstSlide]);
 
   return (

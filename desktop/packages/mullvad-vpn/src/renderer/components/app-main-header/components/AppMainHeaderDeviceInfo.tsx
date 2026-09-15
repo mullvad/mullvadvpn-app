@@ -6,6 +6,7 @@ import { closeToExpiry, formatRemainingTime, hasExpired } from '../../../../shar
 import { messages } from '../../../../shared/gettext';
 import { Flex, FootnoteMini } from '../../../lib/components';
 import { useInterval } from '../../../lib/hooks';
+import { useEffectEvent } from '../../../lib/utility-hooks';
 import { formatDeviceName } from '../../../lib/utils';
 import { useSelector } from '../../../redux/store';
 
@@ -33,9 +34,19 @@ export const AppMainHeaderDeviceInfo = () => {
   // The time left value must be recalculated recurringly since it should change when time passes.
   useInterval(() => setTimeLeft(formatTimeLeft(accountExpiry)), 60 * 60 * 1_000);
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setTimeLeftEffectEvent = useEffectEvent((value: string) => {
+    setTimeLeft(value);
+  });
+
   // The time left value must be updated every time the accountExpiry changes.
   useEffect(() => {
-    setTimeLeft(formatTimeLeft(accountExpiry));
+    setTimeLeftEffectEvent(formatTimeLeft(accountExpiry));
   }, [accountExpiry]);
 
   return (

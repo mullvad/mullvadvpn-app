@@ -70,7 +70,17 @@ export const useRefCallback = useEffectEvent;
 export function useLastDefinedValue<T>(value: T): T {
   const [definedValue, setDefinedValue] = useState(value);
 
-  useEffect(() => setDefinedValue((prev) => value ?? prev), [value]);
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from settings state in an effect.
+  const setLastDefinedValueEffectEvent = useEffectEvent((value: T) =>
+    setDefinedValue((prev) => value ?? prev),
+  );
+
+  useEffect(() => setLastDefinedValueEffectEvent(value), [value]);
 
   return value ?? definedValue;
 }
