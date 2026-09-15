@@ -187,11 +187,6 @@ pub struct OpenedTun {
 }
 
 impl OpenedTun {
-    #[cfg(target_os = "android")]
-    pub fn interface_name(&self) -> &str {
-        &self.interface_name
-    }
-
     /// Whether the tunnel device was created, rather than reused. Android applies the routes of a
     /// new tunnel device asynchronously.
     #[cfg(target_os = "android")]

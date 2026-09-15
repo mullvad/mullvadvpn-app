@@ -27,7 +27,6 @@ use talpid_tunnel::{
 };
 
 use talpid_net::bypass::SocketBypass;
-use talpid_tunnel_config_client::DaitaSettings;
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::{BoxedError, ErrorExt, net::wireguard::TunnelParameters};
@@ -497,7 +496,6 @@ impl WireguardMonitor {
         // it until ephemeral peers have been negotiated.
         let tun = gotatun::open_tun(&config, args.tun_provider.clone())?;
         let is_new_tun = tun.is_new();
-        let iface_name = tun.interface_name().to_owned();
         let route_manager = args.route_manager;
         let tun_provider = Arc::clone(&args.tun_provider);
 
@@ -535,6 +533,7 @@ impl WireguardMonitor {
             )
             .await
             .map_err(CloseMsg::SetupError)?;
+            let iface_name = gotatun.get_interface_name();
             *tunnel.lock().await = Some(Box::new(gotatun) as TunnelType);
 
             // Negotiating ephemeral peers does not depend on the routes, but the connectivity
@@ -647,7 +646,7 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        daita: Option<DaitaSettings>,
+        daita: Option<talpid_tunnel_config_client::DaitaSettings>,
         obfuscation: Option<obfuscation::RunningObfuscation>,
         resource_dir: &Path,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
@@ -690,7 +689,7 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        daita: Option<DaitaSettings>,
+        daita: Option<talpid_tunnel_config_client::DaitaSettings>,
         obfuscation: Option<obfuscation::RunningObfuscation>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
@@ -718,7 +717,7 @@ impl WireguardMonitor {
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
-        daita: Option<DaitaSettings>,
+        daita: Option<talpid_tunnel_config_client::DaitaSettings>,
         obfuscation: Option<obfuscation::RunningObfuscation>,
         tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         bypass: Arc<dyn SocketBypass>,
