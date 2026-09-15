@@ -1,0 +1,22 @@
+syntax = "proto3";
+package wire_wrappers;
+
+// Drop-in replacements for the `google.protobuf.*Value` wrapper types.
+//
+// This file is provided to the `WireProtoPatcherPlugin` and is copied
+// verbatim into the generated output directory. The plugin rewrites any
+// `google/protobuf/wrappers.proto` import (and the corresponding
+// `google.protobuf.*Value` type references) in the patched proto files to
+// point at these types instead. This is required since the well-known
+// wrapper types are converted to nullable types, but Wire can not requires
+// all return types to be non-nullable.
+
+message WireDoubleValue { double value = 1; }
+message WireFloatValue { float value = 1; }
+message WireInt64Value { int64 value = 1; }
+message WireUInt64Value { uint64 value = 1; }
+message WireInt32Value { int32 value = 1; }
+message WireUInt32Value { uint32 value = 1; }
+message WireBoolValue { bool value = 1; }
+message WireStringValue { string value = 1; }
+message WireBytesValue { bytes value = 1; }
