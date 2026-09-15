@@ -55,6 +55,15 @@ impl ObfuscationSettings {
             }
         }
     }
+
+    /// See [`tunnel_obfuscation::Settings::stacks_on_provided_socket`].
+    pub fn stacks_on_provided_socket(&self) -> bool {
+        match self {
+            ObfuscationSettings::Single(settings) => settings.stacks_on_provided_socket(),
+            // Each transport it races has a socket of its own.
+            ObfuscationSettings::Multiplexer(_) => false,
+        }
+    }
 }
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint

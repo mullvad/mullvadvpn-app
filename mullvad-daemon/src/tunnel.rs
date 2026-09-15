@@ -187,6 +187,7 @@ impl InnerParametersGenerator {
                 .into_talpid_tunnel_options(),
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
+            proxy: self.tunnel_options.wireguard.socks5_proxy.clone(),
         }
     }
 

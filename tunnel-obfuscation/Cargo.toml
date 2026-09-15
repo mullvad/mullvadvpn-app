@@ -33,6 +33,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "macros", "net", "rt-multi-thread", "sync"] }
 tokio-util = { workspace = true, features = ["rt"] }
 udp-over-tcp = { workspace = true }
+zerocopy = { workspace = true, features = ["derive"] }
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
