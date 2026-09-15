@@ -14,6 +14,7 @@ import Network
 /// Each variant maps to a non-recoverable `BlockedStateReason`.
 public enum GotaTunError: Error, Sendable, Equatable {
     case invalidConfig(String)
+    case bindSockets(String)
     case internalError(String)
 }
 

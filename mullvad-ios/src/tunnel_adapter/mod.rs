@@ -95,14 +95,83 @@ impl UdpTransportFactory for BoundUdpTransports {
 }
 
 /// Error from a phase of [`IosTunnelAdapter::run`].
-enum TunnelError {
+pub enum TunnelError {
+    GotaTunDeviceError(gotatun::device::Error),
+    MultihopEntryDeviceError(gotatun::device::Error),
+    MultihopExitDeviceError(gotatun::device::Error),
+    ObfuscationProxyError(ObfuscationProxyError),
+    ICMPSocketError(io::Error),
     Timeout,
-    Error(String),
+    TunnelDevice(io::Error),
+    NegotiatePQError(NegotiatePQError),
 }
 
-impl TunnelError {
-    fn error(msg: impl std::fmt::Display) -> Self {
-        TunnelError::Error(msg.to_string())
+impl std::fmt::Display for TunnelError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TunnelError::GotaTunDeviceError(msg) => write!(f, "GotaTun device error: {msg}"),
+            TunnelError::MultihopEntryDeviceError(msg) => {
+                write!(f, "Multihop entry device error: {msg}")
+            }
+            TunnelError::MultihopExitDeviceError(msg) => {
+                write!(f, "Multihop exit device error: {msg}")
+            }
+            TunnelError::ObfuscationProxyError(e) => write!(f, "Obfuscation proxy error: {e}"),
+            TunnelError::ICMPSocketError(msg) => write!(f, "ICMP socket error: {msg}"),
+            TunnelError::Timeout => write!(f, "Timeout"),
+            TunnelError::TunnelDevice(msg) => write!(f, "Tunnel device error: {msg}"),
+            TunnelError::NegotiatePQError(e) => write!(f, "Negotiate PQ error: {e}"),
+        }
+    }
+}
+
+pub enum NegotiatePQError {
+    Timeout,
+    ObfuscationProxyError(ObfuscationProxyError),
+    DeviceError(gotatun::device::Error),
+    ExchangeError(String),
+    Phase2ExitDeviceError(gotatun::device::Error),
+    Phase2EntryDeviceError(gotatun::device::Error),
+    Phase2ExchangeError(String),
+    Phase2ObfuscationError(ObfuscationProxyError),
+    Phase2Timeout,
+}
+
+impl std::fmt::Display for NegotiatePQError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            NegotiatePQError::Timeout => write!(f, "Negotiate PQ timeout"),
+            NegotiatePQError::ObfuscationProxyError(e) => write!(f, "Obfuscation proxy error: {e}"),
+            NegotiatePQError::DeviceError(msg) => write!(f, "Device error: {msg}"),
+            NegotiatePQError::ExchangeError(msg) => write!(f, "Exchange error: {msg}"),
+            NegotiatePQError::Phase2ExitDeviceError(msg) => {
+                write!(f, "Phase 2 exit device error: {msg}")
+            }
+            NegotiatePQError::Phase2EntryDeviceError(msg) => {
+                write!(f, "Phase 2 entry device error: {msg}")
+            }
+            NegotiatePQError::Phase2ExchangeError(msg) => {
+                write!(f, "Phase 2 exchange error: {msg}")
+            }
+            NegotiatePQError::Phase2ObfuscationError(e) => {
+                write!(f, "Phase 2 obfuscation error: {e}")
+            }
+            NegotiatePQError::Phase2Timeout => write!(f, "Phase 2 timeout"),
+        }
+    }
+}
+
+pub enum ObfuscationProxyError {
+    InvalidQuicToken(String),
+    LocalSocketError(tunnel_obfuscation::Error),
+}
+
+impl std::fmt::Display for ObfuscationProxyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ObfuscationProxyError::InvalidQuicToken(msg) => write!(f, "Invalid QUIC token: {msg}"),
+            ObfuscationProxyError::LocalSocketError(msg) => write!(f, "Local socket error: {msg}"),
+        }
     }
 }
 
@@ -174,7 +243,7 @@ pub struct PeerConfig {
 pub trait TunnelCallbackHandler: Send + Sync + 'static {
     fn on_connected(&self);
     fn on_timeout(&self);
-    fn on_error(&self, message: String);
+    fn on_error(&self, error: TunnelError);
 }
 
 /// A single tunnel connection attempt.
@@ -251,8 +320,10 @@ impl IosTunnelAdapter {
         // once, here, based on the final outcome.
         match Self::run_inner(config, udp, &callback, &stopped, &stop_notify).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
-            Err(TunnelError::Timeout) => Self::fire_timeout(&stopped, &callback),
-            Err(TunnelError::Error(msg)) => Self::fire_error(&stopped, &callback, msg),
+            Err(
+                TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiatePQError::Timeout),
+            ) => Self::fire_timeout(&stopped, &callback),
+            Err(error) => Self::fire_error(&stopped, &callback, error),
         }
     }
 
@@ -264,12 +335,14 @@ impl IosTunnelAdapter {
         stop_notify: &Notify,
     ) -> Result<(), TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
-        let tun_dev = IosTunDevice::new(config.tun_fd, config.mtu)
-            .map_err(|e| TunnelError::error(format!("TUN device: {e}")))?;
+        let tun_dev =
+            IosTunDevice::new(config.tun_fd, config.mtu).map_err(TunnelError::TunnelDevice)?;
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = Self::negotiate_pq(&mut config, &udp, stopped).await?;
+        let pq = Self::negotiate_pq(&mut config, &udp, stopped)
+            .await
+            .map_err(TunnelError::NegotiatePQError)?;
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
@@ -281,7 +354,7 @@ impl IosTunnelAdapter {
         Self::apply_lwo_ingress_key(&mut config, &pq);
         let final_obfuscation = Self::start_obfuscation_proxy(&config)
             .await
-            .map_err(|e| TunnelError::error(format!("Final obfuscation: {e}")))?;
+            .map_err(TunnelError::ObfuscationProxyError)?;
         if let Some(ref guard) = final_obfuscation {
             Self::apply_obfuscation(&mut config, guard.endpoint());
         }
@@ -337,7 +410,7 @@ impl IosTunnelAdapter {
         config: &mut TunnelConfig,
         udp: &BoundUdpTransports,
         stopped: &AtomicBool,
-    ) -> Result<PqResult, TunnelError> {
+    ) -> Result<PqResult, NegotiatePQError> {
         // No PQ/DAITA: the device peer is just the static configured exit peer.
         if !(config.enable_pq || config.enable_daita) {
             let private_key = StaticSecret::from(config.private_key);
@@ -370,7 +443,7 @@ impl IosTunnelAdapter {
             return Ok((None, first_key, first_peer));
         }
         if stopped.load(Ordering::SeqCst) {
-            return Err(TunnelError::Timeout);
+            return Err(NegotiatePQError::Timeout);
         }
 
         // --- Phase 2: reach the exit relay through the entry, using the phase-1
@@ -387,7 +460,7 @@ impl IosTunnelAdapter {
         }
         let obfuscation_p2 = Self::start_obfuscation_proxy(config)
             .await
-            .map_err(|e| TunnelError::error(format!("PQ2 obfuscation: {e}")))?;
+            .map_err(NegotiatePQError::Phase2ObfuscationError)?;
         if let Some(ref ob) = obfuscation_p2 {
             first_peer = first_peer.with_endpoint(ob.endpoint());
         }
@@ -422,7 +495,7 @@ impl IosTunnelAdapter {
             .with_private_key(StaticSecret::from(config.private_key))
             .build()
             .await
-            .map_err(|e| TunnelError::error(format!("PQ2 exit device: {e}")))?;
+            .map_err(NegotiatePQError::Phase2ExitDeviceError)?;
 
         let mut entry_peer = first_peer.clone();
         entry_peer.allowed_ips = vec![config.exit_peer.endpoint.ip().into()];
@@ -439,7 +512,7 @@ impl IosTunnelAdapter {
             Ok(dev) => dev,
             Err(e) => {
                 pq2_exit.stop().await;
-                return Err(TunnelError::error(format!("PQ2 entry device: {e}")));
+                return Err(NegotiatePQError::Phase2EntryDeviceError(e));
             }
         };
 
@@ -478,8 +551,8 @@ impl IosTunnelAdapter {
                 }
                 Ok((Some((first_key, first_peer)), exit_secret, exit_peer))
             }
-            Ok(Err(e)) => Err(TunnelError::error(format!("PQ phase 2: {e}"))),
-            Err(_) => Err(TunnelError::Timeout),
+            Ok(Err(e)) => Err(NegotiatePQError::Phase2ExchangeError(e)),
+            Err(_) => Err(NegotiatePQError::Phase2Timeout),
         }
     }
 
@@ -503,7 +576,7 @@ impl IosTunnelAdapter {
                 .with_peer(pq_exit_peer.with_endpoint(config.exit_peer.endpoint))
                 .build()
                 .await
-                .map_err(|e| TunnelError::error(format!("GotaTun device: {e}")))?;
+                .map_err(TunnelError::GotaTunDeviceError)?;
             return Ok(Devices::Singlehop(device));
         };
 
@@ -521,7 +594,7 @@ impl IosTunnelAdapter {
             .with_peer(pq_exit_peer)
             .build()
             .await
-            .map_err(|e| TunnelError::error(format!("Exit device: {e}")))?;
+            .map_err(TunnelError::MultihopExitDeviceError)?;
 
         log::info!(
             "Multihop: entry={}, exit={}",
@@ -550,7 +623,7 @@ impl IosTunnelAdapter {
             Ok(dev) => dev,
             Err(e) => {
                 exit_device.stop().await;
-                return Err(TunnelError::error(format!("Entry device: {e}")));
+                return Err(TunnelError::MultihopEntryDeviceError(e));
             }
         };
 
@@ -574,7 +647,7 @@ impl IosTunnelAdapter {
         let icmp_socket = smoltcp_handle
             .icmp_socket(ping_ident)
             .await
-            .map_err(|e| TunnelError::error(format!("ICMP socket: {e}")))?;
+            .map_err(TunnelError::ICMPSocketError)?;
         let mut pinger = SmoltcpPinger::new(icmp_socket, config.ipv4_gateway, ping_ident);
 
         let establish_timeout = config.establish_timeout();
@@ -599,11 +672,11 @@ impl IosTunnelAdapter {
         peer_config: &PeerConfig,
         parent_pubkey: PublicKey,
         timeout: Duration,
-    ) -> Result<(StaticSecret, Peer), TunnelError> {
+    ) -> Result<(StaticSecret, Peer), NegotiatePQError> {
         // Start a fresh obfuscation proxy for this PQ device
         let _obfuscation = Self::start_obfuscation_proxy(config)
             .await
-            .map_err(|e| TunnelError::error(format!("PQ obfuscation proxy: {e}")))?;
+            .map_err(NegotiatePQError::ObfuscationProxyError)?;
 
         let peer_endpoint = _obfuscation
             .as_ref()
@@ -626,7 +699,7 @@ impl IosTunnelAdapter {
             .with_peer(initial_peer)
             .build()
             .await
-            .map_err(|e| TunnelError::error(format!("PQ device: {e}")))?;
+            .map_err(NegotiatePQError::DeviceError)?;
 
         // PQ negotiation only talks to the relay's config service, so restrict the
         // peer's allowed IPs accordingly rather than routing the whole internet.
@@ -659,8 +732,8 @@ impl IosTunnelAdapter {
 
                 Ok((ephemeral_secret, peer))
             }
-            Ok(Err(e)) => Err(TunnelError::error(format!("PQ exchange: {e}"))),
-            Err(_) => Err(TunnelError::Timeout),
+            Ok(Err(e)) => Err(NegotiatePQError::ExchangeError(e)),
+            Err(_) => Err(NegotiatePQError::Timeout),
         }
     }
 
@@ -669,7 +742,7 @@ impl IosTunnelAdapter {
     /// Returns `None` if obfuscation is off.
     async fn start_obfuscation_proxy(
         config: &TunnelConfig,
-    ) -> Result<Option<ObfuscationGuard>, String> {
+    ) -> Result<Option<ObfuscationGuard>, ObfuscationProxyError> {
         let ingress_endpoint = config
             .entry_peer
             .as_ref()
@@ -696,7 +769,7 @@ impl IosTunnelAdapter {
                 let wg_ep = localhost_wg_endpoint(ingress_endpoint);
                 let token = token
                     .parse::<tunnel_obfuscation::quic::AuthToken>()
-                    .map_err(|e| format!("Invalid QUIC token: {e}"))?;
+                    .map_err(ObfuscationProxyError::InvalidQuicToken)?;
                 tunnel_obfuscation::Settings::Quic(tunnel_obfuscation::quic::Settings::new(
                     ingress_endpoint,
                     hostname.clone(),
@@ -721,7 +794,7 @@ impl IosTunnelAdapter {
 
         let obfuscator = create_local_socket_obfuscator(&settings)
             .await
-            .map_err(|e| format!("Obfuscation proxy: {e}"))?;
+            .map_err(ObfuscationProxyError::LocalSocketError)?;
         let endpoint = obfuscator.endpoint();
         log::info!("Obfuscation proxy started at {endpoint}");
         let task = tokio::spawn(async move {
@@ -840,10 +913,14 @@ impl IosTunnelAdapter {
         }
     }
 
-    fn fire_error(stopped: &AtomicBool, callback: &Arc<dyn TunnelCallbackHandler>, msg: String) {
+    fn fire_error(
+        stopped: &AtomicBool,
+        callback: &Arc<dyn TunnelCallbackHandler>,
+        error: TunnelError,
+    ) {
         if !stopped.swap(true, Ordering::SeqCst) {
-            log::error!("Tunnel adapter error: {msg}");
-            callback.on_error(msg);
+            log::error!("Tunnel adapter error: {error}");
+            callback.on_error(error);
         }
     }
 
@@ -985,7 +1062,7 @@ mod tests {
     struct CountingCallback {
         connected: AtomicUsize,
         timeout: AtomicUsize,
-        errors: Mutex<Vec<String>>,
+        errors: Mutex<Vec<TunnelError>>,
     }
 
     impl TunnelCallbackHandler for CountingCallback {
@@ -995,8 +1072,8 @@ mod tests {
         fn on_timeout(&self) {
             self.timeout.fetch_add(1, Ordering::SeqCst);
         }
-        fn on_error(&self, message: String) {
-            self.errors.lock().unwrap().push(message);
+        fn on_error(&self, error: TunnelError) {
+            self.errors.lock().unwrap().push(error);
         }
     }
 
@@ -1039,12 +1116,17 @@ mod tests {
         let (concrete, dynamic) = callback();
         let stopped = AtomicBool::new(false);
 
-        IosTunnelAdapter::fire_error(&stopped, &dynamic, "boom".into());
+        let first_error = TunnelError::TunnelDevice(std::io::Error::other("boom!"));
+        IosTunnelAdapter::fire_error(&stopped, &dynamic, first_error);
         assert!(stopped.load(Ordering::SeqCst));
-        assert_eq!(concrete.errors.lock().unwrap().as_slice(), ["boom"]);
+        assert!(matches!(
+            concrete.errors.lock().unwrap().as_slice().first().unwrap(),
+            TunnelError::TunnelDevice(err) if format!("{}", err) == "boom!"
+        ));
 
         // Already stopped: neither a second error nor a timeout fires.
-        IosTunnelAdapter::fire_error(&stopped, &dynamic, "again".into());
+        let second_error = TunnelError::TunnelDevice(std::io::Error::other("other!"));
+        IosTunnelAdapter::fire_error(&stopped, &dynamic, second_error);
         IosTunnelAdapter::fire_timeout(&stopped, &dynamic);
         assert_eq!(concrete.errors.lock().unwrap().len(), 1);
         assert_eq!(concrete.timeout.load(Ordering::SeqCst), 0);

@@ -201,7 +201,7 @@ extension BlockedStateReason {
      */
     var shouldRestartAutomatically: Bool {
         switch self {
-        case .deviceLocked:
+        case .deviceLocked, .socketBindError:
             return true
         case .noRelaysSatisfyingConstraints, .noRelaysSatisfyingFilterConstraints,
             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,

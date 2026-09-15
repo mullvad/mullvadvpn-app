@@ -12,8 +12,8 @@ use std::sync::Arc;
 use ipnetwork::IpNetwork;
 
 use super::{
-    BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, PeerConfig, TunnelCallbackHandler,
-    TunnelConfig,
+    BoundUdpTransports, IosTunnelAdapter, NegotiatePQError, ObfuscationConfig,
+    ObfuscationProxyError, PeerConfig, TunnelCallbackHandler, TunnelConfig, TunnelError,
 };
 
 /// A WireGuard peer (entry or exit).
@@ -101,7 +101,7 @@ pub trait GotaTunCallback: Send + Sync + 'static {
     /// The pinger timed out.
     fn on_timeout(&self);
     /// A fatal error occurred.
-    fn on_error(&self, message: String);
+    fn on_error(&self, error: GotaTunFfiError);
 }
 
 /// Bridges the foreign [`GotaTunCallback`] to the internal [`TunnelCallbackHandler`].
@@ -114,8 +114,33 @@ impl TunnelCallbackHandler for CallbackBridge {
     fn on_timeout(&self) {
         self.0.on_timeout();
     }
-    fn on_error(&self, message: String) {
-        self.0.on_error(message);
+    fn on_error(&self, error: TunnelError) {
+        let mapped_error = match &error {
+            TunnelError::ObfuscationProxyError(ObfuscationProxyError::LocalSocketError(
+                local_socket_error,
+            ))
+            | TunnelError::NegotiatePQError(NegotiatePQError::ObfuscationProxyError(
+                ObfuscationProxyError::LocalSocketError(local_socket_error),
+            ))
+            | TunnelError::NegotiatePQError(NegotiatePQError::Phase2ObfuscationError(
+                ObfuscationProxyError::LocalSocketError(local_socket_error),
+            )) => match local_socket_error {
+                tunnel_obfuscation::Error::BindLocalUdp(_)
+                | tunnel_obfuscation::Error::BindRemoteUdp(_)
+                | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
+                | tunnel_obfuscation::Error::CreateQuicObfuscator(
+                    tunnel_obfuscation::quic::Error::BindError(_),
+                )
+                | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
+                    tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
+                    | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
+                ) => GotaTunFfiError::BindSockets(format!("{error}")),
+                _ => GotaTunFfiError::Internal(format!("{error}")),
+            },
+            TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
+            _ => GotaTunFfiError::Internal(format!("{error}")),
+        };
+        self.0.on_error(mapped_error);
     }
 }
 
