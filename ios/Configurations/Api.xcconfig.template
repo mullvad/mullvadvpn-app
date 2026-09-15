@@ -22,3 +22,13 @@ AM_I_JSON_URL[config=Debug] = https:/${}/am.i.mullvad.net/json
 AM_I_JSON_URL[config=Release] = https:/${}/am.i.mullvad.net/json
 AM_I_JSON_URL[config=MockRelease] = https:/${}/am.i.mullvad.net/json
 AM_I_JSON_URL[config=Staging] = https:/${}/am.i.stagemole.eu/json
+
+DOMAIN_FRONTING_FRONT[config=Debug] = www.phpmyadmin.net
+DOMAIN_FRONTING_FRONT[config=Release] = www.phpmyadmin.net
+DOMAIN_FRONTING_FRONT[config=MockRelease] = www.phpmyadmin.net
+DOMAIN_FRONTING_FRONT[config=Staging] = www.phpmyadmin.net
+
+DOMAIN_FRONTING_PROXY_HOST[config=Debug] = 1105015943.rsc.cdn77.org
+DOMAIN_FRONTING_PROXY_HOST[config=Release] = 1105015943.rsc.cdn77.org
+DOMAIN_FRONTING_PROXY_HOST[config=MockRelease] = 1105015943.rsc.cdn77.org
+DOMAIN_FRONTING_PROXY_HOST[config=Staging] = 1105015943.rsc.cdn77.org
