@@ -31,6 +31,11 @@ Line wrap the file at 100 chars.                                              Th
   The privacy policy can still be reached from Settings.
 
 
+## [android/2026.9] - 2026-09-15
+### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
+
+
 ## [android/2026.9-beta2] - 2026-09-09
 ### Fixed
 - Fix the sorting of the location list in English being incorrect.
@@ -41,7 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added
-- Make the globe interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
+- Make the map interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
   where servers are located as well as displaying your connection path.
 - Add a new multihop design with a new "when needed" option that will automatically multihop
   when it is needed given the currently active settings (e.g. DAITA is on).
