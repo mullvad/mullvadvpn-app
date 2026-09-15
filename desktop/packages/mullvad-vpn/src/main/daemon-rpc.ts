@@ -372,6 +372,20 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
       this.client.getMigrationEvent,
     );
     const migrations = convertFromMigrationEvent(response);
+
+    const hasOneA = migrations.some(
+      (migration) => migration.type === 'split-filter' && migration.scenario === 'one-a',
+    );
+    if (hasOneA) {
+      // The `one-a` split filter migration should not be displayed to the user.
+      // Remove the 'one-a' split filter migration from the list and return rest.
+      const filteredMigrations = migrations.filter(
+        (migration) => !(migration.type === 'split-filter' && migration.scenario === 'one-a'),
+      );
+
+      return filteredMigrations;
+    }
+
     return migrations;
   }
 

@@ -1,7 +1,7 @@
 import type { ValueOfArray } from '../utility-types';
 
 export const translations = {
-  allowedTags: ['b', 'br', 'em', 'a'],
+  allowedTags: ['b', 'br', 'em', 'a', 'img'],
   allowedVoidTags: ['br'],
 } as const;
 
