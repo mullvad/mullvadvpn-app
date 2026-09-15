@@ -4,6 +4,8 @@ use talpid_net::bypass::{NoopBypass, SocketBypass};
 use tokio::io;
 
 pub mod direct;
+#[cfg(feature = "gotatun")]
+pub mod gotatun_transport;
 pub mod local_socket;
 pub mod lwo;
 pub mod multiplexer;

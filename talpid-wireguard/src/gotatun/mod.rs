@@ -43,10 +43,8 @@ mod source_filter;
 
 use conversions::to_gotatun_peer;
 use lan_filter::LanFilter;
-pub use obfuscation::{MaybeObfuscatingTransportFactory, lwo_timer_params, lwo_version};
+pub use obfuscation::{TransportFactory, lwo_timer_params, lwo_version, transport_factory};
 use source_filter::SourceFilter;
-
-type TransportFactory = MaybeObfuscatingTransportFactory;
 
 /// Everything read from the TUN device passes both filters before it enters the tunnel.
 type TunRx = LanFilter<SourceFilter<GotaTunDevice>>;
@@ -407,7 +405,7 @@ async fn create_devices(
         obfuscation: Option<RunningObfuscation>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory = MaybeObfuscatingTransportFactory::new(
+        let factory = transport_factory(
             optimize_buffer_size,
             obfuscation,
             config.entry_peer.endpoint,

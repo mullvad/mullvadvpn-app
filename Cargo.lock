@@ -6961,6 +6961,7 @@ dependencies = [
  "bytes",
  "criterion",
  "futures",
+ "gotatun",
  "log",
  "mullvad-masque-proxy",
  "rand 0.9.4",

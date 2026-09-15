@@ -1,7 +1,7 @@
 //! LWO obfuscation/deobfuscation wrappers for GotaTun UDP transports.
 //!
 //! LWO v2 also changes the timing of some WireGuard timers; see [`lwo_timer_params`]. These must
-//! be applied to the [`gotatun::device::Peer`] of LWO v2 peers.
+//! be applied to the GotaTun peers of LWO v2 relays.
 // TODO: v1 support can be removed when all servers support v2
 
 use std::{io, net::SocketAddr};
@@ -11,13 +11,11 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
-use talpid_types::net::obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators};
-use tunnel_obfuscation::lwo::{
+
+use crate::lwo::{
     self,
     v2::{self, Verdict, timers},
 };
-
-use crate::config::Config;
 
 /// The keys used to obfuscate traffic.
 #[derive(Clone, Copy)]
@@ -40,16 +38,6 @@ pub fn lwo_timer_params() -> TimerParams {
         new_handshake_timeout: timers::NEW_HANDSHAKE_TIMEOUT,
         rekey_timeout: timers::REKEY_TIMEOUT,
         rekey_after_time: timers::REKEY_AFTER_TIME,
-    }
-}
-
-/// The LWO version the tunnel config connects with, if it uses LWO at all.
-///
-/// [`LwoVersion::V2`] peers must have [`lwo_timer_params`] applied.
-pub fn lwo_version(config: &Config) -> Option<LwoVersion> {
-    match &config.obfuscator_config {
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { version, .. })) => Some(*version),
-        _ => None,
     }
 }
 
