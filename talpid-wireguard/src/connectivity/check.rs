@@ -92,6 +92,15 @@ impl CancelToken {
     }
 }
 
+/// How long [`Check::establish_connectivity`] waits for the tunnel to work, on attempt
+/// `retry_attempt` to connect.
+pub fn establish_timeout(retry_attempt: u32) -> Duration {
+    MAX_ESTABLISH_TIMEOUT.min(
+        ESTABLISH_TIMEOUT
+            .saturating_mul(ESTABLISH_TIMEOUT_MULTIPLIER.saturating_pow(retry_attempt)),
+    )
+}
+
 impl Check {
     pub fn new(
         addr: Ipv4Addr,
