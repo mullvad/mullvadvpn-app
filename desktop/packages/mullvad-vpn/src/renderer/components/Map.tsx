@@ -116,25 +116,29 @@ function MapInner(props: MapInnerProps) {
   const onSizeChange = useEffectEvent(onSizeChangeImpl);
 
   const animationFrameCallback = useEffectEvent((now: number) => {
-    now *= 0.001; // convert to seconds
+    const runAnimations = () => {
+      now *= 0.001; // convert to seconds
 
-    // Propagate location change to the map
-    if (newParams.current) {
-      mapRef.current?.setLocation(
-        newParams.current.location,
-        newParams.current.connectionState,
-        now,
-        props.animate,
-      );
-      newParams.current = undefined;
-    }
+      // Propagate location change to the map
+      if (newParams.current) {
+        mapRef.current?.setLocation(
+          newParams.current.location,
+          newParams.current.connectionState,
+          now,
+          props.animate,
+        );
+        newParams.current = undefined;
+      }
 
-    mapRef.current?.draw(now);
+      mapRef.current?.draw(now);
 
-    // Stops rendering if pause is true. This happens when there is no ongoing movements
-    if (!pause.current) {
-      render();
-    }
+      // Stops rendering if pause is true. This happens when there is no ongoing movements
+      if (!pause.current) {
+        requestAnimationFrame(runAnimations);
+      }
+    };
+
+    runAnimations();
   });
 
   // These lint rules are disabled for now because the react plugin for eslint does
