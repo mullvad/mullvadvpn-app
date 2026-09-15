@@ -85,9 +85,6 @@ pub enum Error {
     #[error("Not a valid URI {0}")]
     InvalidUri(#[from] Arc<http::uri::InvalidUri>),
 
-    #[error("Set account number on factory with no access token store")]
-    NoAccessTokenStore,
-
     /// Failed to obtain versions
     #[error("Failed to obtain versions")]
     FetchVersions(#[from] Arc<anyhow::Error>),
