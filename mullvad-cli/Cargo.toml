@@ -33,9 +33,11 @@ talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 
-[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
+[target.'cfg(any(windows, all(unix, not(target_os = "android"))))'.dependencies]
 clap_complete = { version = "4.4.8" }
 clap_complete_nushell = "4.6.2"
+
+[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 nix = { workspace = true, features = ["signal"] }
 
 [target."cfg(windows)".build-dependencies]

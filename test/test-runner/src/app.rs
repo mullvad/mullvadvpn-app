@@ -49,6 +49,7 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         // NOTE: Works as of `4116ebc` (Mullvad app).
         &settings_dir,
         &caches,
+        Path::new(r"C:\ProgramData\nushell\vendor\autoload\mullvad.nu"),
     ];
 
     Ok(existing_paths(&traces))
