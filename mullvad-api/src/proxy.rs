@@ -1,4 +1,3 @@
-use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -232,23 +231,15 @@ impl<T: AsyncRead + AsyncWrite + Unpin> AsyncWrite for ConnectionDecorator<T> {
     }
 }
 
-impl<T: AsyncRead + AsyncWrite> Connection for ConnectionDecorator<T> {
-    fn connected(&self) -> Connected {
-        Connected::new()
-    }
-}
+trait Connection: AsyncRead + AsyncWrite + Unpin + Send {}
 
-trait ConnectionMullvad: AsyncRead + AsyncWrite + Unpin + Connection + Send {}
-
-impl<T: AsyncRead + AsyncWrite + Unpin + Connection + Send> ConnectionMullvad for T {}
+impl<T: AsyncRead + AsyncWrite + Unpin + Send> Connection for T {}
 
 /// Stream that represents a Mullvad API connection
-pub struct ApiConnection(Box<dyn ConnectionMullvad>);
+pub struct ApiConnection(Box<dyn Connection>);
 
 impl ApiConnection {
-    pub fn new<T: AsyncRead + AsyncWrite + Unpin + Connection + Send + 'static>(
-        conn: Box<T>,
-    ) -> Self {
+    pub fn new<T: AsyncRead + AsyncWrite + Unpin + Send + 'static>(conn: Box<T>) -> Self {
         Self(conn)
     }
 }
@@ -300,12 +291,6 @@ impl AsyncWrite for ApiConnection {
 
     fn is_write_vectored(&self) -> bool {
         self.0.is_write_vectored()
-    }
-}
-
-impl Connection for ApiConnection {
-    fn connected(&self) -> Connected {
-        self.0.connected()
     }
 }
 
