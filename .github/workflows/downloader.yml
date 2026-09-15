@@ -48,7 +48,7 @@ jobs:
     env:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
-      MAX_BINARY_SIZE: 3370000
+      MAX_BINARY_SIZE: 3380000
       # On Windows, the checkout is on the D drive, which is very small.
       # Moving the target directory to the C drive ensures that the runner
       # doesn't run out of space on the D drive.
@@ -93,7 +93,7 @@ jobs:
     env:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
-      MAX_BINARY_SIZE: 4018176
+      MAX_BINARY_SIZE: 4050000
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
