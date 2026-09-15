@@ -25,20 +25,23 @@ use gotatun::{
     x25519::StaticSecret,
 };
 use ipnetwork::IpNetwork;
+use talpid_net::bypass::NoopBypass;
 use talpid_netstack::{
     ip_mux::ip_mux,
     smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
 };
 use talpid_tunnel_config_client::negotiation::{
-    Ingress, IngressTransport, Negotiables, NegotiationConfig, NegotiationError, Relay, Relays,
-    negotiate_ephemeral_peers,
+    Negotiables, NegotiationConfig, NegotiationError, Relay, Relays, negotiate_ephemeral_peers,
 };
 use talpid_types::{
     ErrorExt,
     net::wireguard::{PresharedKey, PrivateKey, PublicKey},
 };
 use tokio::sync::Notify;
-use tunnel_obfuscation::create_local_socket_obfuscator;
+use tunnel_obfuscation::{
+    create_local_socket_obfuscator, create_transport,
+    gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation},
+};
 
 use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
@@ -96,43 +99,6 @@ impl UdpTransportFactory for BoundUdpTransports {
     }
 }
 
-/// Reaches the ingress relay using the pre-bound UDP socket, through an obfuscation proxy if
-/// obfuscation is enabled.
-struct IosIngressTransport<'a> {
-    config: &'a mut TunnelConfig,
-    udp: BoundUdpTransports,
-}
-
-impl IngressTransport for IosIngressTransport<'_> {
-    type Factory = BoundUdpTransports;
-    type Guard = Option<ObfuscationGuard>;
-
-    async fn connect(
-        &mut self,
-        client_public_key: &PublicKey,
-    ) -> io::Result<Ingress<Self::Factory, Self::Guard>> {
-        IosTunnelAdapter::set_lwo_client_public_key(self.config, *client_public_key.as_bytes());
-        let obfuscation = IosTunnelAdapter::start_obfuscation_proxy(self.config)
-            .await
-            .map_err(io::Error::other)?;
-        let ingress_peer = self
-            .config
-            .entry_peer
-            .as_ref()
-            .unwrap_or(&self.config.exit_peer);
-        let endpoint = obfuscation
-            .as_ref()
-            .map_or(ingress_peer.endpoint, ObfuscationGuard::endpoint);
-
-        Ok(Ingress {
-            factory: self.udp.clone(),
-            endpoint,
-            timer_params: None,
-            guard: obfuscation,
-        })
-    }
-}
-
 /// Error from a phase of [`IosTunnelAdapter::run`].
 pub enum TunnelError {
     GotaTunDeviceError(gotatun::device::Error),
@@ -166,7 +132,6 @@ impl std::fmt::Display for TunnelError {
     }
 }
 
-#[derive(Debug)]
 pub enum ObfuscationProxyError {
     InvalidQuicToken(String),
     LocalSocketError(tunnel_obfuscation::Error),
@@ -177,15 +142,6 @@ impl std::fmt::Display for ObfuscationProxyError {
         match self {
             ObfuscationProxyError::InvalidQuicToken(msg) => write!(f, "Invalid QUIC token: {msg}"),
             ObfuscationProxyError::LocalSocketError(msg) => write!(f, "Local socket error: {msg}"),
-        }
-    }
-}
-
-impl std::error::Error for ObfuscationProxyError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            ObfuscationProxyError::InvalidQuicToken(_) => None,
-            ObfuscationProxyError::LocalSocketError(error) => Some(error),
         }
     }
 }
@@ -353,9 +309,7 @@ impl IosTunnelAdapter {
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = Self::negotiate_pq(&mut config, &udp)
-            .await
-            .map_err(TunnelError::NegotiatePQError)?;
+        let pq = Self::negotiate_pq(&config, &udp).await?;
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
@@ -420,9 +374,9 @@ impl IosTunnelAdapter {
     /// Returns the `(entry, exit_key, exit_peer)` triple to configure the final
     /// device(s) with - `entry` is `Some` only for multihop PQ.
     async fn negotiate_pq(
-        config: &mut TunnelConfig,
+        config: &TunnelConfig,
         udp: &BoundUdpTransports,
-    ) -> Result<PqResult, NegotiationError> {
+    ) -> Result<PqResult, TunnelError> {
         // No PQ/DAITA: the device peer is just the static configured exit peer.
         if !(config.enable_pq || config.enable_daita) {
             let private_key = StaticSecret::from(config.private_key);
@@ -449,17 +403,31 @@ impl IosTunnelAdapter {
             tunnel_ipv4: config.ipv4_addr,
             config_service_ip: config.ipv4_gateway,
             relays,
+            // iOS only uses LWO v1, which keeps the default timers.
+            ingress_timer_params: None,
             timeout: config.establish_timeout(),
             // Each relay has a device of its own, so it can have a key of its own.
             separate_exit_key: true,
         };
 
-        let mut transport = IosIngressTransport {
-            config: &mut *config,
-            udp: udp.clone(),
+        let obfuscation = Self::create_obfuscation(config)
+            .await
+            .map_err(TunnelError::ObfuscationProxyError)?;
+        let ingress_endpoint = config
+            .entry_peer
+            .as_ref()
+            .unwrap_or(&config.exit_peer)
+            .endpoint;
+        let ingress_transport = |client_public_key: &PublicKey| {
+            let obfuscation = obfuscation
+                .clone()
+                .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
+            MaybeObfuscatingTransportFactory::new(udp.clone(), obfuscation, ingress_endpoint)
         };
         let negotiated =
-            negotiate_ephemeral_peers(&negotiation_config, negotiate, &mut transport).await?;
+            negotiate_ephemeral_peers(&negotiation_config, negotiate, ingress_transport)
+                .await
+                .map_err(TunnelError::NegotiatePQError)?;
 
         let ingress_key = StaticSecret::from(negotiated.private_key.to_bytes());
         let exit_key = negotiated.exit_private_key.as_ref().map_or_else(
@@ -601,6 +569,45 @@ impl IosTunnelAdapter {
     async fn start_obfuscation_proxy(
         config: &TunnelConfig,
     ) -> Result<Option<ObfuscationGuard>, ObfuscationProxyError> {
+        let Some(settings) = Self::obfuscation_settings(config)? else {
+            return Ok(None);
+        };
+
+        let obfuscator = create_local_socket_obfuscator(&settings)
+            .await
+            .map_err(ObfuscationProxyError::LocalSocketError)?;
+        let endpoint = obfuscator.endpoint();
+        log::info!("Obfuscation proxy started at {endpoint}");
+        let task = tokio::spawn(async move {
+            let _ = obfuscator.run().await;
+        });
+        Ok(Some(ObfuscationGuard { endpoint, task }))
+    }
+
+    /// Create the obfuscation for the temporary devices that negotiate ephemeral peers. Unlike
+    /// [`Self::start_obfuscation_proxy`], it obfuscates without a local proxy socket.
+    /// Returns `None` if obfuscation is off.
+    async fn create_obfuscation(
+        config: &TunnelConfig,
+    ) -> Result<Option<RunningObfuscation>, ObfuscationProxyError> {
+        let obfuscation = match Self::obfuscation_settings(config)? {
+            None => return Ok(None),
+            // LWO obfuscates each datagram in place, over the socket of the device.
+            Some(tunnel_obfuscation::Settings::Lwo(settings)) => RunningObfuscation::Lwo(settings),
+            Some(settings) => RunningObfuscation::Transport(
+                create_transport(Arc::new(NoopBypass), &settings)
+                    .await
+                    .map_err(ObfuscationProxyError::LocalSocketError)?,
+            ),
+        };
+        Ok(Some(obfuscation))
+    }
+
+    /// The settings of the obfuscator that reaches the ingress relay.
+    /// Returns `None` if obfuscation is off.
+    fn obfuscation_settings(
+        config: &TunnelConfig,
+    ) -> Result<Option<tunnel_obfuscation::Settings>, ObfuscationProxyError> {
         let ingress_endpoint = config
             .entry_peer
             .as_ref()
@@ -649,16 +656,7 @@ impl IosTunnelAdapter {
                 version: talpid_types::net::obfuscation::LwoVersion::V1,
             }),
         };
-
-        let obfuscator = create_local_socket_obfuscator(&settings)
-            .await
-            .map_err(ObfuscationProxyError::LocalSocketError)?;
-        let endpoint = obfuscator.endpoint();
-        log::info!("Obfuscation proxy started at {endpoint}");
-        let task = tokio::spawn(async move {
-            let _ = obfuscator.run().await;
-        });
-        Ok(Some(ObfuscationGuard { endpoint, task }))
+        Ok(Some(settings))
     }
 
     /// Apply obfuscation to the config: replace the ingress peer's endpoint with the proxy address.
