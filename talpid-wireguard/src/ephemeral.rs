@@ -35,7 +35,6 @@ pub async fn negotiate_ephemeral_peers(
     let negotiation_config = NegotiationConfig {
         private_key: config.tunnel.private_key.clone(),
         tunnel_ipv4: config.tunnel_ipv4().unwrap_or(Ipv4Addr::UNSPECIFIED),
-        tunnel_ipv6: config.tunnel_ipv6(),
         config_service_ip: config.ipv4_gateway,
         relays: relays(config),
         enable_post_quantum: config.quantum_resistant,
