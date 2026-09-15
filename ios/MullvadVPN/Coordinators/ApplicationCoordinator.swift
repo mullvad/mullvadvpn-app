@@ -678,17 +678,22 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let accountInteractor = AccountInteractor(
-            tunnelManager: tunnelManager,
-            accountsProxy: accountsProxy,
-            apiProxy: apiProxy,
-            deviceProxy: devicesProxy
+        guard let accountNumber = tunnelManager.deviceState.accountData?.number,
+            let currentDeviceId = tunnelManager.deviceState.deviceData?.identifier
+        else {
+            return
+        }
+        let deviceManagementInteractor = DeviceManagementInteractor(
+            accountNumber: accountNumber,
+            currentDeviceId: currentDeviceId,
+            devicesProxy: devicesProxy
         )
 
         let coordinator = AccountCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: accountInteractor,
-            storePaymentManager: storePaymentManager
+            tunnelManager: tunnelManager,
+            storePaymentManager: storePaymentManager,
+            deviceManagementInteractor: deviceManagementInteractor
         )
 
         coordinator.didFinish = { [weak self] _, reason in

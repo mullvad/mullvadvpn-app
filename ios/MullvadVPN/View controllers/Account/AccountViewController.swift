@@ -27,7 +27,7 @@ enum AccountViewControllerAction: Sendable {
 class AccountViewController: UIViewController, @unchecked Sendable {
     typealias ActionHandler = (AccountViewControllerAction) -> Void
 
-    private let interactor: AccountInteractor
+    private let tunnelManager: TunnelManager
     private let errorPresenter: PaymentAlertPresenter
 
     private let contentView: AccountContentView = {
@@ -37,11 +37,12 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
     private var isFetchingProducts = false
     private var paymentState: PaymentState = .none
+    private var tunnelObserver: TunnelObserver?
 
     var actionHandler: ActionHandler?
 
-    init(interactor: AccountInteractor, errorPresenter: PaymentAlertPresenter) {
-        self.interactor = interactor
+    init(tunnelManager: TunnelManager, errorPresenter: PaymentAlertPresenter) {
+        self.tunnelManager = tunnelManager
         self.errorPresenter = errorPresenter
 
         super.init(nibName: nil, bundle: nil)
@@ -85,22 +86,28 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             self?.actionHandler?(.restorePurchasesInfo)
         }
 
-        interactor.didReceiveTunnelState = { [weak self] in
-            guard let self else { return }
-            Task { @MainActor in
-                applyViewState(animated: true)
-            }
-        }
+        let tunnelObserver =
+            TunnelBlockObserver(
+                didUpdateTunnelStatus: { [weak self] _, _ in
+                    guard let self else { return }
+                    Task { @MainActor in
+                        applyViewState(animated: true)
+                    }
+                },
+                didUpdateDeviceState: { [weak self] _, deviceState, _ in
+                    Task { @MainActor in
+                        self?.updateView(from: deviceState)
+                    }
+                }
+            )
 
-        interactor.didReceiveDeviceState = { [weak self] deviceState in
-            Task { @MainActor in
-                self?.updateView(from: deviceState)
-            }
-        }
+        tunnelManager.addObserver(tunnelObserver)
+
+        self.tunnelObserver = tunnelObserver
 
         configUI()
         addActions()
-        updateView(from: interactor.deviceState)
+        updateView(from: tunnelManager.deviceState)
         applyViewState(animated: false)
     }
 
@@ -148,7 +155,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         contentView.purchaseButton.isEnabled =
             !isFetchingProducts
             && isInteractionEnabled
-            && !interactor.tunnelState.isBlockingInternet
+        && !tunnelManager.tunnelStatus.state.isBlockingInternet
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
@@ -164,7 +171,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     private func copyAccountToken() {
-        guard let accountData = interactor.deviceState.accountData else {
+        guard let accountData = tunnelManager.deviceState.accountData else {
             return
         }
 
@@ -271,7 +278,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     style: .default,
                     handler: { [weak self] _ in
                         PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                        self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                        self?.tunnelManager.reapplyTunnelConfiguration()
                     }
                 )
             )
@@ -282,7 +289,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 title: "Factory Reset", style: .destructive,
                 handler: { [weak self] _ in
                     guard let self else { return }
-                    interactor.tunnelManager.updateSettings([.reset])
+                    tunnelManager.updateSettings([.reset])
                     UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
                     logOut()
                 }))
