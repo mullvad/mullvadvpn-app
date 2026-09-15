@@ -68,8 +68,6 @@ pub struct NegotiationConfig {
     pub private_key: PrivateKey,
     /// The IPv4 address of this device in the tunnel.
     pub tunnel_ipv4: Ipv4Addr,
-    /// The IPv6 address of this device in the tunnel, if it has one.
-    pub tunnel_ipv6: Option<Ipv6Addr>,
     /// The address of the config service in the tunnel.
     pub config_service_ip: Ipv4Addr,
     pub relays: Relays,
@@ -251,7 +249,9 @@ async fn negotiate_through_entry<T: IngressTransport>(
     let (entry_ip_send, entry_ip_recv, exit_udp) = new_udp_tun_channel(
         MULTIHOP_CHANNEL_CAPACITY,
         config.tunnel_ipv4,
-        config.tunnel_ipv6.unwrap_or(Ipv6Addr::UNSPECIFIED),
+        // The exit relay is always reached over IPv4, so the exit device never sends from an IPv6
+        // address.
+        Ipv6Addr::UNSPECIFIED,
         entry_mtu(exit.endpoint),
     );
 

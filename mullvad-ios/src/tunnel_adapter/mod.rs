@@ -443,7 +443,6 @@ impl IosTunnelAdapter {
         let negotiation_config = NegotiationConfig {
             private_key: PrivateKey::from(config.private_key),
             tunnel_ipv4: config.ipv4_addr,
-            tunnel_ipv6: Some(config.ipv6_addr),
             config_service_ip: config.ipv4_gateway,
             relays,
             enable_post_quantum: config.enable_pq,
