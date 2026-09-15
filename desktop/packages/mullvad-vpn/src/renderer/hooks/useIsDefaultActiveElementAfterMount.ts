@@ -1,9 +1,15 @@
 import React from 'react';
 
+import { useEffectEvent } from '../lib/utility-hooks';
+
 export const useIsDefaultActiveElementAfterMount = () => {
   const [isDefaultActiveElementAfterMount, setIsDefaultActiveElementAfterMount] = React.useState<
     boolean | undefined
   >(undefined);
+
+  const setIsDefaultActiveElementAfterMountEffectEvent = useEffectEvent((value: boolean) => {
+    setIsDefaultActiveElementAfterMount(value);
+  });
 
   React.useEffect(() => {
     if (typeof document !== 'undefined') {
@@ -11,7 +17,7 @@ export const useIsDefaultActiveElementAfterMount = () => {
         document.activeElement === document.body ||
         document.activeElement === document.documentElement;
 
-      setIsDefaultActiveElementAfterMount(isBodyOrDocumentElement);
+      setIsDefaultActiveElementAfterMountEffectEvent(isBodyOrDocumentElement);
     }
 
     return () => {

@@ -6,6 +6,7 @@ import { useRecents } from '../../../../../features/locations/hooks';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
+import { useEffectEvent } from '../../../../../lib/utility-hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
@@ -38,8 +39,12 @@ function GeographicalLocationImpl({
   const { selectedLocationRef } = useScrollPositionContext();
   const { hasRecents } = useRecents();
 
+  const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
+    setExpanded(value);
+  });
+
   useEffect(() => {
-    setExpanded(location.expanded);
+    setExpandedEffectEvent(location.expanded);
   }, [location.expanded]);
 
   const disabled = disabledProp || location.disabled || loading;
