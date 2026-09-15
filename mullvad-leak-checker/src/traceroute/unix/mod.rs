@@ -4,7 +4,6 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     ops::RangeFrom,
-    os::fd::{FromRawFd, IntoRawFd},
 };
 
 use crate::{
@@ -235,11 +234,10 @@ async fn send_icmp_probes<Impl: Traceroute>(
 }
 
 impl AsyncUdpSocket {
+    /// Note: It is up to the caller to set `nonblocking mode` on `socket`.
     pub fn from_socket2(socket: socket2::Socket) -> Self {
         // HACK: Wrap the socket in a tokio::net::UdpSocket to be able to use it async
-        // SAFETY: `into_raw_fd()` consumes the socket and returns an owned & open file descriptor.
-        let udp_socket = unsafe { std::net::UdpSocket::from_raw_fd(socket.into_raw_fd()) };
-        let udp_socket = tokio::net::UdpSocket::from_std(udp_socket).unwrap();
+        let udp_socket = tokio::net::UdpSocket::from_std(socket.into()).unwrap();
         AsyncUdpSocket(udp_socket)
     }
 
