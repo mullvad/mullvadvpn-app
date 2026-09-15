@@ -11,8 +11,5 @@ export function useInterval(fn: () => void, interval: number) {
     return () => {
       clearInterval(id);
     };
-
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interval]);
 }
