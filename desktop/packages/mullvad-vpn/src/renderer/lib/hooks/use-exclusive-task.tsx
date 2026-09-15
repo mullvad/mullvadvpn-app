@@ -11,9 +11,11 @@ export const useExclusiveTask = (task: () => Promise<void>) => {
     setRunning(true);
     try {
       await task();
-    } finally {
-      setRunning(false);
+    } catch {
+      console.error('Failed exclusive task');
     }
+
+    setRunning(false);
   }, [task, running]);
 
   const result = React.useMemo(() => [run, running] as const, [run, running]);
