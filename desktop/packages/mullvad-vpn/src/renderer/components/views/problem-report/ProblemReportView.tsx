@@ -138,9 +138,10 @@ function Form() {
       await viewLog(reportId);
     } catch {
       // TODO: handle error
-    } finally {
-      setDisableActions(false);
+      console.error('Error collecting or viewing log');
     }
+
+    setDisableActions(false);
   }, [collectLog, viewLog]);
 
   const onChangeEmail = useCallback(

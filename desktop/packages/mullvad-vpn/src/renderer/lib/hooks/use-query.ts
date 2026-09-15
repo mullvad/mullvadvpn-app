@@ -39,13 +39,13 @@ export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps
         setIsError(true);
         setError(err as Error);
       }
-    } finally {
-      if (isActive()) {
-        setIsFetching(false);
-      }
-      if (!hasLoadedRef.current) {
-        hasLoadedRef.current = true;
-      }
+    }
+
+    if (isActive()) {
+      setIsFetching(false);
+    }
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true;
     }
   }, [hasLoadedRef, queryFn]);
 
