@@ -9,10 +9,12 @@
 # Tracking issue: https://github.com/rust-lang/cargo/issues/17009
 min-publish-age = true
 
-# Makes rustc record fixed file paths instead of machine specific ones into built
-# binaries. Required for reproducible builds. Nightly-only, and
+# Enables the trim-paths feature, which makes rustc record fixed file paths instead of machine
+# specific ones into built binaries. Required for reproducible builds. Nightly-only, and
 # ignored by stable cargo, so it does nothing in the builds we ship.
-# Use this with building/reproducible-build.sh.
+# This key only enables the feature. The scope is set per profile, which stable cargo rejects
+# rather than ignores, so building/reproducible-build.sh exports
+# CARGO_PROFILE_RELEASE_TRIM_PATHS instead. Without that, nothing is trimmed.
 # Tracking issue: https://github.com/rust-lang/cargo/issues/12137
 trim-paths = true
 
