@@ -3,7 +3,7 @@
 use crate::{
     CloseMsg, Error,
     config::Config,
-    gotatun::{MaybeObfuscatingTransportFactory, lwo_timer_params, lwo_version},
+    gotatun::{TransportFactory, lwo_timer_params, lwo_version, transport_factory},
     obfuscation::RunningObfuscation,
 };
 use std::{io, sync::Arc, time::Duration};
@@ -101,7 +101,7 @@ struct GotaTunIngressTransport<'a> {
 }
 
 impl IngressTransport for GotaTunIngressTransport<'_> {
-    type Factory = MaybeObfuscatingTransportFactory;
+    type Factory = TransportFactory;
     type Guard = ();
 
     async fn connect(
@@ -114,12 +114,7 @@ impl IngressTransport for GotaTunIngressTransport<'_> {
             .cloned()
             .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
         // The temporary devices carry little traffic, so the socket buffers are left as they are.
-        let factory = MaybeObfuscatingTransportFactory::new(
-            false,
-            obfuscation,
-            endpoint,
-            Arc::clone(self.bypass),
-        );
+        let factory = transport_factory(false, obfuscation, endpoint, Arc::clone(self.bypass));
         let timer_params =
             (lwo_version(self.config) == Some(LwoVersion::V2)).then(lwo_timer_params);
 

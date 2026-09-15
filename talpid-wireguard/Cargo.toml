@@ -28,7 +28,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 tun = { workspace = true }
-tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+tunnel-obfuscation = { path = "../tunnel-obfuscation", features = ["gotatun"] }
 
 [dev-dependencies]
 insta = { workspace = true }
