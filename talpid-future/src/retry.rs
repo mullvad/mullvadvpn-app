@@ -1,15 +1,14 @@
 //! This library provides utility functions and types for retrying futures.
 use rand::{Rng, distr::OpenClosed01};
-use std::{future::Future, ops::Deref, time::Duration};
+use std::{ops::Deref, time::Duration};
 use talpid_time::sleep;
 
 /// Retries a future until it should stop as determined by the retry function, or when
 /// the iterator returns `None`.
 pub async fn retry_future<
-    F: FnMut() -> O,
+    F: AsyncFnMut() -> T,
     R: FnMut(&T) -> bool,
     D: Iterator<Item = Duration>,
-    O: Future<Output = T>,
     T,
 >(
     mut factory: F,
