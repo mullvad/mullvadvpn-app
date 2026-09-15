@@ -117,8 +117,6 @@ impl TunnelCallbackHandler for CallbackBridge {
     fn on_error(&self, error: TunnelError) {
         let mapped_error = match &error {
             TunnelError::ObfuscationProxyError(ObfuscationProxyError::LocalSocketError(
-                local_socket_error,
-            )) => match local_socket_error {
                 tunnel_obfuscation::Error::BindLocalUdp(_)
                 | tunnel_obfuscation::Error::BindRemoteUdp(_)
                 | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
@@ -128,10 +126,9 @@ impl TunnelCallbackHandler for CallbackBridge {
                 | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
                     tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
                     | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
-                ) => GotaTunFfiError::BindSockets(format!("{error}")),
-                _ => GotaTunFfiError::Internal(format!("{error}")),
-            },
-            TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
+                ),
+            ))
+            | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
