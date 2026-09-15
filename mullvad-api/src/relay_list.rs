@@ -36,7 +36,7 @@ where
         match T::deserialize(value) {
             Ok(entry) => result.push(entry),
             Err(err) => {
-                log::warn!(
+                tracing::warn!(
                     "Discarding malformed relay list entry of type '{}'.\nError: {err}",
                     std::any::type_name::<T>()
                 );

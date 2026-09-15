@@ -3381,7 +3381,6 @@ dependencies = [
  "hyper-util",
  "ipnetwork",
  "libc",
- "log",
  "mockito",
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
