@@ -20,20 +20,16 @@ export class SelectLocationRouteObjectModel {
     }
   }
 
-  getEntryButton() {
-    return this.selectors.entryButton();
+  getEntryInput() {
+    return this.selectors.entryInput();
   }
 
-  getExitButton() {
-    return this.selectors.exitButton();
+  getExitInput() {
+    return this.selectors.exitInput();
   }
 
-  getSearchInput() {
-    return this.selectors.searchInput();
-  }
-
-  getRelaysMatching(relayNames: string[]) {
-    return this.selectors.relaysMatching(relayNames);
+  getLocationsMatching(relayNames: string[]) {
+    return this.selectors.locationsMatching(relayNames);
   }
 
   getFilterChip(label: string) {

@@ -1,20 +1,22 @@
+import React from 'react';
+
 import { useRecents } from '../../../../../features/locations/hooks';
 import type { LocationType } from '../../../../../features/locations/types';
-import { Expandable } from '../../../../../lib/components/expandable';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { useHasCustomLists } from '../../hooks';
+import { useMounted } from '../../../../../lib/utility-hooks';
+import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
 import { NoSearchResult } from '../no-search-result';
 import { RecentLocations } from '../recent-locations';
-import { useHasSearched, useHasSearchedLocations } from './hooks';
+import { useHasCustomLists, useHasSearched, useHasSearchedLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
 
-export type LocationsListsProps = React.PropsWithChildren & {
+export type LocationsListsProps = {
   type: LocationType;
 };
 
-export function LocationLists(props: LocationsListsProps) {
+function LocationsListsImpl() {
   const { hasRecents } = useRecents();
   const hasSearched = useHasSearched();
   const hasVisibleCustomLists = useHasCustomLists();
@@ -26,18 +28,33 @@ export function LocationLists(props: LocationsListsProps) {
   const showNoSearchResult =
     hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
 
+  const { resetScroll } = useScrollPositionContext();
+
+  const mounted = useMounted();
+  const isMounted = mounted();
+
+  React.useEffect(() => {
+    if (!isMounted) {
+      resetScroll();
+    }
+  }, [resetScroll, isMounted]);
+
   return (
-    <LocationListsProvider {...props}>
-      <Expandable expanded={showRecentLocations}>
-        <Expandable.Content>
-          <RecentLocations />
-        </Expandable.Content>
-      </Expandable>
+    <>
       <FlexColumn gap="large">
+        {showRecentLocations && <RecentLocations />}
         {showCustomListLocationLists && <CustomListLocations />}
         {showCountryLocations && <CountryLocations />}
         {showNoSearchResult && <NoSearchResult />}
       </FlexColumn>
+    </>
+  );
+}
+
+export function LocationLists({ type }: LocationsListsProps) {
+  return (
+    <LocationListsProvider type={type}>
+      <LocationsListsImpl />
     </LocationListsProvider>
   );
 }
