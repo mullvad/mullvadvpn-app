@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
+### Fixed
+- Blocking DNS queries related to connchecks during the ephemeral peer handshake caused tunnel setup
+  to fail on some devices.
+
 
 ## [android/2026.10] - 2026-09-17
 ### Fixed
