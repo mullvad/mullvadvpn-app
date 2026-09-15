@@ -28,78 +28,60 @@ class SettingsPage: Page {
     }
 
     @discardableResult func tapAPIAccessCell() -> Self {
-        app
-            .cells[AccessibilityIdentifier.apiAccessCell]
+        app.buttons[AccessibilityIdentifier.apiAccessCell]
             .tap()
 
         return self
     }
 
     @discardableResult func tapDAITACell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.daitaCell]
+        app.buttons[AccessibilityIdentifier.daitaCell]
             .tap()
 
         return self
     }
 
     @discardableResult func verifyDAITAOn() -> Self {
-        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.daitaCell]
-            .staticTexts["On"]
-
-        XCTAssertTrue(textElement.exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.contains("On"))
 
         return self
     }
 
     @discardableResult func verifyDAITAOff() -> Self {
-        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.daitaCell]
-            .staticTexts["Off"]
-
-        XCTAssertTrue(textElement.exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.daitaCell].label.contains("Off"))
 
         return self
     }
 
     @discardableResult func tapMultihopCell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.multihopCell]
+        app.buttons[AccessibilityIdentifier.multihopCell]
             .tap()
 
         return self
     }
 
     @discardableResult func verifyMultihop(state: MultihopState) -> Self {
-        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.multihopCell]
-            .staticTexts[state.description]
-
-        XCTAssertTrue(textElement.exists)
+        XCTAssertTrue(app.buttons[AccessibilityIdentifier.multihopCell].label.contains(state.description))
 
         return self
     }
 
     @discardableResult func tapVPNSettingsCell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.vpnSettingsCell]
+        app.buttons[AccessibilityIdentifier.vpnSettingsCell]
             .tap()
 
         return self
     }
 
     @discardableResult func tapReportAProblemCell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.problemReportCell]
+        app.buttons[AccessibilityIdentifier.problemReportCell]
             .tap()
 
         return self
     }
 
     @discardableResult func tapLanguageCell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.languageCell]
+        app.buttons[AccessibilityIdentifier.languageCell]
             .tap()
 
         return self
@@ -111,8 +93,7 @@ class SettingsPage: Page {
     }
 
     @discardableResult func tapIncludeAllNetworksCell() -> Self {
-        app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.includeAllNetworksCell]
+        app.buttons[AccessibilityIdentifier.includeAllNetworksCell]
             .tap()
 
         return self
