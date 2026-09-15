@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useEffectEvent } from '../utility-hooks';
+
 export type UseQueryProps<T> = {
   enabled?: boolean;
   queryFn: () => Promise<T>;
@@ -49,13 +51,25 @@ export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps
 
   const isLoading = isFetching && !hasLoadedRef.current;
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from an effect.
+  const runQuery = useEffectEvent(() => {
+    if (enabled) {
+      void run();
+    }
+  });
+
   React.useEffect(() => {
     mountedRef.current = true;
-    if (enabled) void run();
+    runQuery();
     return () => {
       mountedRef.current = false;
     };
-  }, [enabled, cacheKey, run]);
+  }, [enabled, cacheKey]);
 
   return { data, error, isError, isLoading, isFetching, refetch: run };
 };

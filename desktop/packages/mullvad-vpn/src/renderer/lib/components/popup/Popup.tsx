@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { useEffectEvent } from '../../utility-hooks';
 import { useEffectSyncOpen, useHandleAnimationEnd, useHandleClick, useHandleClose } from './hooks';
 import { PopupProvider, usePopupContext } from './PopupContext';
 
@@ -46,9 +47,13 @@ function PopupImpl({ children, ...props }: Omit<PopupProps, 'open' | 'onOpenChan
 export function Popup({ open, onOpenChange, ...props }: PopupProps) {
   const [mounted, setMounted] = React.useState(open);
 
+  const setMountedEffectEvent = useEffectEvent(() => {
+    setMounted(true);
+  });
+
   React.useEffect(() => {
     if (open) {
-      setMounted(true);
+      setMountedEffectEvent();
     }
   }, [open]);
 
