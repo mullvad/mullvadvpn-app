@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
 
 
 ## [android/2026.9-beta2] - 2026-09-09
