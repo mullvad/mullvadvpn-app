@@ -267,12 +267,16 @@ private struct MockTunnelManager: LoginViewModelProviding {
 
 #Preview {
     LoginView(
-        viewModel: LoginViewModel(
-            interactor: LoginInteractor(
-                tunnelManager: MockTunnelManager(),
-                settingsManager: SettingsManager()
-            ),
-            loginState: .default
-        )
+        viewModel: {
+            let vm = LoginViewModel(
+                interactor: LoginInteractor(
+                    tunnelManager: MockTunnelManager(),
+                    settingsManager: SettingsManager()
+                ),
+                loginState: .default
+            )
+            vm.storedAccountNumber = ["9999 9999 9999 9999"]
+            return vm
+        }()
     )
 }
