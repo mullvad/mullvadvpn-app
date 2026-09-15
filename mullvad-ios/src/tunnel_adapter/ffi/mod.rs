@@ -10,7 +10,6 @@ use std::net::{Ipv4Addr, Ipv6Addr};
 use std::sync::Arc;
 
 use ipnetwork::IpNetwork;
-use talpid_tunnel_config_client::negotiation::NegotiationError;
 
 use super::{
     BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, ObfuscationProxyError, PeerConfig,
@@ -116,44 +115,23 @@ impl TunnelCallbackHandler for CallbackBridge {
         self.0.on_timeout();
     }
     fn on_error(&self, error: TunnelError) {
-        let mapped_error = match (&error, local_socket_error(&error)) {
-            (TunnelError::ICMPSocketError(_), _)
-            | (
-                _,
-                Some(
-                    tunnel_obfuscation::Error::BindLocalUdp(_)
-                    | tunnel_obfuscation::Error::BindRemoteUdp(_)
-                    | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
-                    | tunnel_obfuscation::Error::CreateQuicObfuscator(
-                        tunnel_obfuscation::quic::Error::BindError(_),
-                    )
-                    | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
-                        tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
-                        | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
-                    ),
+        let mapped_error = match &error {
+            TunnelError::ObfuscationProxyError(ObfuscationProxyError::LocalSocketError(
+                tunnel_obfuscation::Error::BindLocalUdp(_)
+                | tunnel_obfuscation::Error::BindRemoteUdp(_)
+                | tunnel_obfuscation::Error::ConnectRemoteUdp(_)
+                | tunnel_obfuscation::Error::CreateQuicObfuscator(
+                    tunnel_obfuscation::quic::Error::BindError(_),
+                )
+                | tunnel_obfuscation::Error::CreateUdp2TcpObfuscator(
+                    tunnel_obfuscation::udp2tcp::Error::ConnectTcp(_)
+                    | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
                 ),
-            ) => GotaTunFfiError::BindSockets(format!("{error}")),
+            ))
+            | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
         self.0.on_error(mapped_error);
-    }
-}
-
-/// The obfuscation proxy error behind `error`, if any, including one hit while negotiating
-/// ephemeral peers.
-fn local_socket_error(error: &TunnelError) -> Option<&tunnel_obfuscation::Error> {
-    let proxy_error = match error {
-        TunnelError::ObfuscationProxyError(proxy_error) => proxy_error,
-        TunnelError::NegotiatePQError(NegotiationError::Transport(transport_error)) => {
-            transport_error
-                .get_ref()?
-                .downcast_ref::<ObfuscationProxyError>()?
-        }
-        _ => return None,
-    };
-    match proxy_error {
-        ObfuscationProxyError::LocalSocketError(local_socket_error) => Some(local_socket_error),
-        ObfuscationProxyError::InvalidQuicToken(_) => None,
     }
 }
 
