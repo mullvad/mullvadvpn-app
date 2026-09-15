@@ -33,7 +33,10 @@ use talpid_tunnel_config_client::negotiation::{
     Ingress, IngressTransport, Negotiables, NegotiationConfig, NegotiationError, Relay, Relays,
     negotiate_ephemeral_peers,
 };
-use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
+use talpid_types::{
+    ErrorExt,
+    net::wireguard::{PresharedKey, PrivateKey, PublicKey},
+};
 use tokio::sync::Notify;
 use tunnel_obfuscation::create_local_socket_obfuscator;
 
@@ -156,7 +159,9 @@ impl std::fmt::Display for TunnelError {
             TunnelError::ICMPSocketError(msg) => write!(f, "ICMP socket error: {msg}"),
             TunnelError::Timeout => write!(f, "Timeout"),
             TunnelError::TunnelDevice(msg) => write!(f, "Tunnel device error: {msg}"),
-            TunnelError::NegotiatePQError(e) => write!(f, "Negotiate PQ error: {e}"),
+            TunnelError::NegotiatePQError(e) => {
+                f.write_str(&e.display_chain_with_msg("Negotiate PQ error"))
+            }
         }
     }
 }

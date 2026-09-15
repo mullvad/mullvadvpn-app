@@ -17,7 +17,6 @@ use gotatun::{
 };
 use ipnetwork::IpNetwork;
 use std::{
-    fmt,
     future::Future,
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -135,38 +134,20 @@ pub trait IngressTransport {
 }
 
 /// Errors from [`negotiate_ephemeral_peers`].
-#[derive(Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum NegotiationError {
     /// A config service did not respond in time.
+    #[error("Timed out while negotiating ephemeral peer")]
     Timeout,
     /// Failed to connect to the ingress relay.
-    Transport(io::Error),
+    #[error("Failed to connect to the ingress relay")]
+    Transport(#[source] io::Error),
     /// Failed to create a GotaTun device.
-    Device(gotatun::device::Error),
+    #[error("Failed to create GotaTun device")]
+    Device(#[source] gotatun::device::Error),
     /// The exchange with a config service failed.
-    Exchange(Error),
-}
-
-impl fmt::Display for NegotiationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Timeout => "Timed out while negotiating ephemeral peer".fmt(f),
-            Self::Transport(error) => write!(f, "Failed to connect to the ingress relay: {error}"),
-            Self::Device(error) => write!(f, "Failed to create GotaTun device: {error}"),
-            Self::Exchange(error) => write!(f, "Failed to exchange ephemeral peer: {error}"),
-        }
-    }
-}
-
-impl std::error::Error for NegotiationError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            Self::Timeout => None,
-            Self::Transport(error) => Some(error),
-            Self::Device(error) => Some(error),
-            Self::Exchange(error) => Some(error),
-        }
-    }
+    #[error("Failed to exchange ephemeral peer")]
+    Exchange(#[source] Error),
 }
 
 /// Negotiate ephemeral peers with the relays in `config`, using a new ephemeral key. In multihop,
