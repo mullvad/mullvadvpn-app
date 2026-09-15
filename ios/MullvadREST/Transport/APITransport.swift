@@ -11,7 +11,7 @@
 import MullvadRustRuntime
 import MullvadTypes
 
-public protocol APITransportProtocol {
+public protocol APITransportProtocol: Sendable {
     var name: String { get }
 
     func sendRequest(_ request: APIRequest, completion: @escaping @Sendable (ProxyAPIResponse) -> Void) throws
