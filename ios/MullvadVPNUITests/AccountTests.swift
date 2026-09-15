@@ -211,4 +211,24 @@ class AccountTests: LoggedOutUITestCase {
         AccountPage(app)
             .verifyPaidUntil(accountExpiry)
     }
+
+    func testAddTimeInWelcomeViewProceeds() async throws {
+        LoginPage(app)
+            .tapCreateAccountButton()
+            .tryConfirmAccountCreation()
+
+        // Verify welcome page is shown and get account number from it
+        let accountNumber = WelcomePage(app).getAccountNumber()
+
+        // Teardown
+        addTeardownBlock {
+            self.mullvadAPIWrapper.deleteAccount(accountNumber)
+        }
+
+        await addTime(accountNumber: accountNumber, days: 1)
+
+        // Verify the app fetches the latest account data with added time
+        // and proceeds.
+        SetUpAccountCompletedPage(app)
+    }
 }
