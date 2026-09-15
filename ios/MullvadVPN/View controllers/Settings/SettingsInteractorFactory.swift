@@ -42,10 +42,6 @@ final class SettingsInteractorFactory {
         ProblemReportInteractor(apiProxy: apiProxy, tunnelManager: tunnelManager, redactor: redactor)
     }
 
-    func makeSettingsInteractor() -> SettingsInteractor {
-        SettingsInteractor(tunnelManager: tunnelManager)
-    }
-
     func makeIPOverrideInteractor() -> IPOverrideInteractor {
         IPOverrideInteractor(repository: ipOverrideRepository, tunnelManager: tunnelManager)
     }
