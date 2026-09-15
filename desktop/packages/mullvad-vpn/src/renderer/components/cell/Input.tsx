@@ -217,7 +217,11 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
 
   const blur = useCallback(() => inputRef.current?.blur(), [inputRef]);
 
-  const value = inputRef.current?.value;
+  const [value, setValue] = React.useState<string | undefined>(undefined);
+
+  React.useEffect(() => {
+    setValue(inputRef.current?.value);
+  }, [inputRef]);
 
   return (
     <BackAction disabled={!focused} action={blur}>
