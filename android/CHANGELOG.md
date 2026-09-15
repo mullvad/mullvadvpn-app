@@ -21,7 +21,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.9] - 2026-09-15
 ### Fixed
 - Fix LWO not working with with multihop, DAITA on, and PQ off.
 
@@ -36,7 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added
-- Make the globe interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
+- Make the map interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
   where servers are located as well as displaying your connection path.
 - Add a new multihop design with a new "when needed" option that will automatically multihop
   when it is needed given the currently active settings (e.g. DAITA is on).
