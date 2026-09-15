@@ -6201,6 +6201,7 @@ dependencies = [
  "sha2",
  "talpid-netstack",
  "talpid-types",
+ "thiserror 2.0.19",
  "tokio",
  "tonic",
  "tonic-prost",
