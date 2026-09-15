@@ -41,7 +41,7 @@ serde = "1.0"
 serde_json = "1.0"
 socket2 = "0.5.7"
 surge-ping = "0.8"
-tarpc = { version = "0.31", features = ["serde-transport", "serde1", "tokio1"] }
+tarpc = { version = "0.38", features = ["serde-transport", "serde1", "tokio1"] }
 thiserror = "2.0"
 tipsy = "0.7.0"
 tokio = { version = "1.44", default-features = false }

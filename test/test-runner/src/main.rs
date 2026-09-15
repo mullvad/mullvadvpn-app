@@ -6,7 +6,7 @@ use std::{
     path::PathBuf,
     process::Stdio,
     sync::Arc,
-    time::{Duration, SystemTime},
+    time::{Duration, Instant},
 };
 use util::OnDrop;
 
@@ -48,7 +48,6 @@ struct SpawnedProcess {
     abort_handle: OnDrop,
 }
 
-#[tarpc::server]
 impl Service for TestServer {
     async fn install_app(
         self,
@@ -190,8 +189,7 @@ impl Service for TestServer {
     ) -> Result<test_rpc::AmIMullvadResponse, test_rpc::Error> {
         let timeout = ctx
             .deadline
-            .duration_since(SystemTime::now())
-            .ok()
+            .checked_duration_since(Instant::now())
             // account for some time to send the RPC response
             .and_then(|d| d.checked_sub(Duration::from_millis(500)))
             .unwrap_or_default();
@@ -325,7 +323,7 @@ impl Service for TestServer {
         #[cfg(not(target_os = "windows"))]
         {
             log::warn!("disable_mullvad_daemon is only implemented on Windows");
-            return Err(test_rpc::Error::Syscall);
+            Err(test_rpc::Error::Syscall)
         }
         #[cfg(target_os = "windows")]
         {
@@ -337,7 +335,7 @@ impl Service for TestServer {
         #[cfg(not(target_os = "windows"))]
         {
             log::warn!("enable_mullvad_daemon is only implemented on Windows");
-            return Err(test_rpc::Error::Syscall);
+            Err(test_rpc::Error::Syscall)
         }
         #[cfg(target_os = "windows")]
         {
@@ -675,7 +673,12 @@ async fn main() -> Result<(), Error> {
         ));
 
         let server = tarpc::server::BaseChannel::with_defaults(runner_transport);
-        server.execute(TestServer::default().serve()).await;
+        server
+            .execute(TestServer::default().serve())
+            .for_each(|response| async move {
+                tokio::spawn(response);
+            })
+            .await;
 
         log::error!("Restarting server since it stopped");
     }
