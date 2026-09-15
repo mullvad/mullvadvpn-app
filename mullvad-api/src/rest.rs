@@ -131,7 +131,7 @@ impl Error {
 
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
-        // Hyper returs `cancelled` if the request or underlying connection was dropped before it
+        // Hyper returns `cancelled` if the request or underlying connection was dropped before it
         // was started. `is_user` is returned when the underlying connection is dropped while
         // the request is in-flight, but it may also be true for other errors triggered by us.
         if let Error::HyperError(error) = &self
