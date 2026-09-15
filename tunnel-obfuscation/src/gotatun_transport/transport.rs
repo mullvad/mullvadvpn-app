@@ -6,7 +6,8 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend},
 };
-use tunnel_obfuscation::transport::ObfuscatedTransport;
+
+use crate::transport::ObfuscatedTransport;
 
 /// Split `transport` into the halves that [`UdpTransportFactory::bind`] returns.
 ///
