@@ -46,8 +46,9 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         # Optionally move binaries to some known location
         --output)
-            ARTIFACTS_DIR="$TEST_FRAMEWORK_ROOT/target/$TARGET/release"
-            mv -t "$1" "$ARTIFACTS_DIR/test-runner" "$ARTIFACTS_DIR/connection-checker"
+            ARTIFACTS_DIR="${CARGO_TARGET_DIR:-$TEST_FRAMEWORK_ROOT/target}/$TARGET/release"
+            mv -t "$2" "$ARTIFACTS_DIR/test-runner" "$ARTIFACTS_DIR/connection-checker"
+            shift
             ;;
         *)
             log_error "Unknown parameter: $1"

@@ -143,9 +143,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build app
-        run: |
-          export CARGO_TARGET_DIR=target/
-          ./build.sh --optimize
+        run: ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
@@ -228,10 +226,7 @@ jobs:
         run: |
           # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
           mkdir bin
-          test/scripts/build-scripts/test-runner.sh linux
-          mv -t ./bin/ \
-            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
-            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
+          test/scripts/build-scripts/test-runner.sh linux --output ./bin/
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
