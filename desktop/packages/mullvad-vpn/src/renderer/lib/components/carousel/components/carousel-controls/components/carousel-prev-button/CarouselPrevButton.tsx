@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../../../../shared/gettext';
+import { useEffectEvent } from '../../../../../../utility-hooks';
 import { IconButton, IconButtonProps } from '../../../../../icon-button';
 import { useCarouselContext } from '../../../../CarouselContext';
 import { useSlides } from '../../../../hooks';
@@ -12,9 +13,13 @@ export function CarouselPrevButton(props: CarouselPrevButtonProps) {
   const { prevButtonRef } = useCarouselContext();
   const [disabled, setDisabled] = React.useState(isFirstSlide);
 
+  const setDisabledEffectEvent = useEffectEvent((value: boolean) => {
+    setDisabled(value);
+  });
+
   // Allow focus to be moved before button is disabled.
   React.useEffect(() => {
-    setDisabled(isFirstSlide);
+    setDisabledEffectEvent(isFirstSlide);
   }, [isFirstSlide]);
 
   return (

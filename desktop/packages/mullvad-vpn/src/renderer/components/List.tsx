@@ -55,10 +55,14 @@ export default function List<T>(props: ListProps<T>) {
 
   useEffect(() => itemChangeEvent(props.items), [props.items]);
 
+  const setSkipAddTransitionEffectEvent = useEffectEvent((value: boolean) => {
+    setSkipAddTransition(value);
+  });
+
   useEffect(() => {
     // Set to animate accordion for added items after first render unless
     // props.skipAddTransition === true.
-    setSkipAddTransition(props.skipAddTransition ?? false);
+    setSkipAddTransitionEffectEvent(props.skipAddTransition ?? false);
   }, [props.skipAddTransition]);
 
   const onRemoved = useCallback((key: string) => {
@@ -123,8 +127,12 @@ function ListItem<T>(props: ListItemProps<T>) {
     }
   }, [onRemoved, props.data.key, props.data.removing]);
 
+  const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
+    setExpanded(value);
+  });
+
   // Expands after initial render and collapses when item is set to being removed.
-  useEffect(() => setExpanded(!props.data.removing), [props.data.removing]);
+  useEffect(() => setExpandedEffectEvent(!props.data.removing), [props.data.removing]);
 
   return (
     <Accordion expanded={expanded} onTransitionEnd={onTransitionEnd}>

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../../../../../../../shared/gettext';
 import { colors, Radius } from '../../../../../../../../foundations';
+import { useEffectEvent } from '../../../../../../../../utility-hooks';
 import { useSlides } from '../../../../../../hooks';
 import { useCarouselIndicatorRef } from './hooks';
 
@@ -72,9 +73,13 @@ export function CarouselIndicator({
 
   const [disabled, setDisabled] = React.useState(disabledProp ?? false);
 
+  const setDisabledEffectEvent = useEffectEvent((value: boolean) => {
+    setDisabled(value);
+  });
+
   // Allow focus to be moved before button is disabled.
   React.useEffect(() => {
-    setDisabled(disabledProp ?? false);
+    setDisabledEffectEvent(disabledProp ?? false);
   }, [disabledProp]);
 
   const handleClick = React.useCallback(() => {

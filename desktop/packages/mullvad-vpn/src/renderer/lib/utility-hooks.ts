@@ -70,7 +70,11 @@ export const useRefCallback = useEffectEvent;
 export function useLastDefinedValue<T>(value: T): T {
   const [definedValue, setDefinedValue] = useState(value);
 
-  useEffect(() => setDefinedValue((prev) => value ?? prev), [value]);
+  const setLastDefinedValueEffectEvent = useEffectEvent((value: T) =>
+    setDefinedValue((prev) => value ?? prev),
+  );
+
+  useEffect(() => setLastDefinedValueEffectEvent(value), [value]);
 
   return value ?? definedValue;
 }

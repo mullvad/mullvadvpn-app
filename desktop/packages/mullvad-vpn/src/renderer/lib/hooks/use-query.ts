@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { useEffectEvent } from '../utility-hooks';
+
 export type UseQueryProps<T> = {
   enabled?: boolean;
   queryFn: () => Promise<T>;
@@ -49,13 +51,19 @@ export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps
 
   const isLoading = isFetching && !hasLoadedRef.current;
 
+  const runQuery = useEffectEvent(() => {
+    if (enabled) {
+      void run();
+    }
+  });
+
   React.useEffect(() => {
     mountedRef.current = true;
-    if (enabled) void run();
+    runQuery();
     return () => {
       mountedRef.current = false;
     };
-  }, [enabled, cacheKey, run]);
+  }, [enabled, cacheKey]);
 
   return { data, error, isError, isLoading, isFetching, refetch: run };
 };

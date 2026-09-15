@@ -8,7 +8,12 @@ import { ListItemProps } from '../../../../../lib/components/list-item';
 import { Switch } from '../../../../../lib/components/switch';
 import { formatHtml } from '../../../../../lib/html-formatter';
 import { IpAddress } from '../../../../../lib/ip';
-import { useBoolean, useMounted, useStyledRef } from '../../../../../lib/utility-hooks';
+import {
+  useBoolean,
+  useEffectEvent,
+  useMounted,
+  useStyledRef,
+} from '../../../../../lib/utility-hooks';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../../../../AriaGroup';
 import * as Cell from '../../../../cell';
 import List, { stringValueAsKey } from '../../../../List';
@@ -184,8 +189,15 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
     [dns, setDns],
   );
 
-  useEffect(() => setSavingEdit(false), [dns.customOptions.addresses]);
-  useEffect(() => setSavingAdd(false), [dns.customOptions.addresses]);
+  const setSavingEditEffectEvent = useEffectEvent((value: boolean) => {
+    setSavingEdit(value);
+  });
+  useEffect(() => setSavingEditEffectEvent(false), [dns.customOptions.addresses]);
+
+  const setSavingAddEffectEvent = useEffectEvent((value: boolean) => {
+    setSavingAdd(value);
+  });
+  useEffect(() => setSavingAddEffectEvent(false), [dns.customOptions.addresses]);
 
   const listExpanded = featureAvailable && (dns.state === 'custom' || inputVisible || savingAdd);
 

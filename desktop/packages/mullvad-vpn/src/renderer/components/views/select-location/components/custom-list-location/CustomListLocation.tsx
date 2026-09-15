@@ -8,6 +8,7 @@ import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
+import { useEffectEvent } from '../../../../../lib/utility-hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
@@ -37,17 +38,21 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
   const showEmptySubtitle = customList.locations.length === 0;
   const disabled = customList.disabled || disabledProp || loading;
 
+  const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
+    setExpanded(value);
+  });
+
   // Collapse accordion when all its children are removed
   useEffect(() => {
     if (customList.locations.length === 0) {
-      setExpanded(false);
+      setExpandedEffectEvent(false);
     }
   }, [customList.locations.length, setExpanded]);
 
   // If custom list state is updated by search, update state accordingly
   useEffect(() => {
     if (searchTerm.length > 0) {
-      setExpanded(customList.expanded);
+      setExpandedEffectEvent(customList.expanded);
     }
   }, [customList.expanded, searchTerm.length]);
 

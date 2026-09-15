@@ -11,6 +11,8 @@ import {
 } from '../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../shared/gettext';
 import { colors } from '../../../../../../../lib/foundations';
+import { useEffectEvent } from '../../../../../../../lib/utility-hooks';
+import { type IConnectionReduxState } from '../../../../../../../redux/connection/reducers';
 import { useSelector } from '../../../../../../../redux/store';
 import { tinyText } from '../../../../../../common-styles';
 
@@ -64,12 +66,16 @@ export function ConnectionDetails() {
 
   const tunnelState = connection.status;
 
+  const setConnectionEffectEvent = useEffectEvent((value: IConnectionReduxState) => {
+    setConnection(value);
+  });
+
   useEffect(() => {
     if (
       reduxConnection.status.state === 'connected' ||
       reduxConnection.status.state === 'connecting'
     ) {
-      setConnection(reduxConnection);
+      setConnectionEffectEvent(reduxConnection);
     }
   }, [reduxConnection, tunnelState.state]);
 
