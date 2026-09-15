@@ -57,7 +57,8 @@ export function SettingsForm(props: React.PropsWithChildren) {
 
   const removeInput = useCallback((key: string) => {
     setInputStatuses((prevInputStatuses) => {
-      const { [key]: _, ...inputStatuses } = prevInputStatuses;
+      const inputStatuses = { ...prevInputStatuses };
+      delete inputStatuses[key];
       return inputStatuses;
     });
   }, []);
