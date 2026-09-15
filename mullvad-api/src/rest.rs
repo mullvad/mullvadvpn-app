@@ -117,15 +117,19 @@ impl Error {
 
     /// Return true if there was no route to the destination
     pub fn is_offline(&self) -> bool {
-        match self {
-            Error::Connect(error) | Error::Dns(error)
-                if let Some(cause) = error.source()
-                    && let Some(err) = cause.downcast_ref::<std::io::Error>() =>
-            {
-                err.raw_os_error() == Some(libc::ENETUNREACH)
-            }
-            _ => false,
-        }
+        let (Error::Connect(error) | Error::Dns(error)) = self else {
+            return false;
+        };
+
+        // Get the raw os error.
+        let raw_error = error.raw_os_error().or_else(|| {
+            // Check the underlying error in case someone created a nested io::Error lasagna
+            let cause = error.source()?;
+            let error = cause.downcast_ref::<io::Error>()?;
+            error.raw_os_error()
+        });
+
+        raw_error == Some(libc::ENETUNREACH)
     }
 
     pub fn is_aborted(&self) -> bool {
