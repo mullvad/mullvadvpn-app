@@ -381,7 +381,6 @@ registerReleaseTask(
     "fdroidRelease",
     appVersion,
     listOf("createOssProdReleaseDistApk"),
-    skipClean = true,
     skipDirtyCheck = true,
 )
 
