@@ -47,8 +47,6 @@ export default function StateTriggeredNavigation() {
       prevPath.current = nextPath;
       updatePath(nextPath);
     }
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextPath]);
 
   return null;
