@@ -83,6 +83,13 @@ pub struct NegotiationConfig {
     pub separate_exit_key: bool,
 }
 
+impl NegotiationConfig {
+    fn allowed_ip(&self) -> IpNetwork {
+        // Only allow tunnel to talk to the config service
+        IpNetwork::from(IpAddr::V4(self.config_service_ip))
+    }
+}
+
 /// Ephemeral peers negotiated by [`negotiate_ephemeral_peers`].
 pub struct NegotiatedPeers {
     /// The private key to use with the ingress relay, and with the exit relay unless
@@ -220,7 +227,7 @@ async fn negotiate_with_ingress<T: IngressTransport>(
     let (net, net_recv, net_send, _net_guard) = userspace_net(config);
 
     let peer = ingress_peer(config.relays.ingress(), endpoint, timer_params)
-        .with_allowed_ip(config_service_network(config));
+        .with_allowed_ip(config.allowed_ip());
     let device = DeviceBuilder::new()
         .with_udp(factory)
         .with_ip_pair(net_send, net_recv)
@@ -269,7 +276,7 @@ async fn negotiate_through_entry<T: IngressTransport>(
 
     let exit_peer = Peer::new(exit.pubkey())
         .with_endpoint(exit.endpoint)
-        .with_allowed_ip(config_service_network(config));
+        .with_allowed_ip(config.allowed_ip());
     let exit_device = DeviceBuilder::new()
         .with_udp(exit_udp)
         .with_ip_pair(net_send, net_recv)
@@ -361,11 +368,6 @@ fn ingress_peer(relay: &Relay, endpoint: SocketAddr, timer_params: Option<TimerP
 
 fn static_secret(private_key: &PrivateKey) -> StaticSecret {
     StaticSecret::from(private_key.to_bytes())
-}
-
-/// The only destination that the temporary devices route into the tunnel.
-fn config_service_network(config: &NegotiationConfig) -> IpNetwork {
-    IpNetwork::from(IpAddr::V4(config.config_service_ip))
 }
 
 /// MTU of the entry device, which carries the packets that the exit device sends to `exit_endpoint`.
