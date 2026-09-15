@@ -92,7 +92,7 @@ pub enum SetCommands {
 
     /// Set tunnel IP version constraint
     IpVersion {
-        /// IP protocol to use, or 'any'
+        /// IP protocol to use: 'any', 'v4' (or 'ipv4'), or 'v6' (or 'ipv6')
         ip_version: Constraint<IpVersion>,
     },
 
