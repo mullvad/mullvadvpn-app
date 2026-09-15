@@ -11,10 +11,16 @@ use tunnel_obfuscation::transport::ObfuscatedTransport;
 /// Split `transport` into the halves that [`UdpTransportFactory::bind`] returns.
 ///
 /// [`UdpTransportFactory::bind`]: gotatun::udp::UdpTransportFactory::bind
-pub fn split(transport: Arc<dyn ObfuscatedTransport>) -> (ObfuscatingSend, ObfuscatingRecv) {
+pub fn split(
+    transport: Arc<dyn ObfuscatedTransport>,
+    peer_endpoint: SocketAddr,
+) -> (ObfuscatingSend, ObfuscatingRecv) {
     (
         ObfuscatingSend(Arc::clone(&transport)),
-        ObfuscatingRecv(transport),
+        ObfuscatingRecv {
+            transport,
+            peer_endpoint,
+        },
     )
 }
 
@@ -34,7 +40,14 @@ impl UdpSend for ObfuscatingSend {
 }
 
 /// The receiving half, which takes packets the transport received from the relay.
-pub struct ObfuscatingRecv(Arc<dyn ObfuscatedTransport>);
+pub struct ObfuscatingRecv {
+    transport: Arc<dyn ObfuscatedTransport>,
+
+    /// Reported as the source of every datagram.
+    ///
+    /// This likely does not matter, but we set it to the WireGuard endpoint.
+    peer_endpoint: SocketAddr,
+}
 
 impl UdpRecv for ObfuscatingRecv {
     /// See [`ObfuscatingSend::SendManyBuf`].
@@ -44,8 +57,8 @@ impl UdpRecv for ObfuscatingRecv {
         // Packets from the pool are far larger than any WireGuard datagram, so a datagram that
         // does not fit here was not meant for us.
         let mut packet = pool.get();
-        let len = self.0.recv(&mut packet).await?;
+        let len = self.transport.recv(&mut packet).await?;
         packet.truncate(len);
-        Ok((packet, self.0.endpoint()))
+        Ok((packet, self.peer_endpoint))
     }
 }
