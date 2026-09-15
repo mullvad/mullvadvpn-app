@@ -7,7 +7,6 @@ use std::{
     task::{self, Poll},
 };
 
-use hyper_util::client::legacy::connect::{Connected, Connection};
 use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 use tokio_rustls::{
     TlsConnector,
@@ -80,14 +79,5 @@ where
 
     fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
         Pin::new(&mut self.stream).poll_shutdown(cx)
-    }
-}
-
-impl<S> Connection for TlsStream<S>
-where
-    S: AsyncRead + AsyncWrite + Unpin,
-{
-    fn connected(&self) -> Connected {
-        Connected::new()
     }
 }
