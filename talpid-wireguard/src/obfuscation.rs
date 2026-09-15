@@ -34,7 +34,7 @@ impl Obfuscator {
         }
     }
 
-    pub async fn multiplexer_commited_to(
+    pub async fn multiplexer_committed_to(
         obfuscator: Option<Obfuscator>,
     ) -> Result<Option<SelectedObfuscation>> {
         match obfuscator {

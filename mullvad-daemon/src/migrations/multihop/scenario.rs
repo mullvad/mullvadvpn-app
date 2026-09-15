@@ -20,7 +20,7 @@
 //!
 //! # Note
 //! - The scenario naming scheme is inherited from the UI/UX team at Mullvad.
-//! - Filters are considered because they preivously affected DAITA through 'Magic Multihop" / 'automatic multihop'.
+//! - Filters are considered because they previously affected DAITA through 'Magic Multihop" / 'automatic multihop'.
 //!   This was undefined (or atleast undocumented) behaviour, but it was decided when this migration was architected to respect the previous behaviour.
 //! - `Multihop` was previously a boolean value, but it will be migrated to a tri-nary [Multihop] setting.
 //! - [WhenNeeded] generalizes the previous 'automatic multihop' setting to other settings than

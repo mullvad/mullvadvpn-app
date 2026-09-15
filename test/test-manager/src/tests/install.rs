@@ -118,7 +118,7 @@ pub async fn test_upgrade_app(
         &TEST_CONFIG
             .app_package_filename
             .contains(&running_daemon_version),
-        "Incorrect deamon version installed. Expected {expected} but {actual} is installed",
+        "Incorrect daemon version installed. Expected {expected} but {actual} is installed",
         expected = TEST_CONFIG.app_package_filename.clone(),
         actual = running_daemon_version
     );

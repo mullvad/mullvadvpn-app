@@ -75,7 +75,7 @@ pub extern "C" fn mullvad_api_retry_strategy_constant(
     SwiftRetryStrategy(ptr)
 }
 
-/// Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
+/// Creates a retry strategy that retries `max_retries` times with a exponentially increating delay.
 /// The delay will never exceed `max_delay_sec`
 /// The result needs to be consumed.
 #[unsafe(no_mangle)]

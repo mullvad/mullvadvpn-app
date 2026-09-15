@@ -785,7 +785,7 @@ impl ApiProxy {
         self.handle.service.request(request).await
     }
 
-    /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
+    /// Check the availability of `{APP_URL_PREFIX}/api-addrs`.
     pub async fn api_addrs_available(&self) -> Result<bool, rest::Error> {
         let request = self
             .handle

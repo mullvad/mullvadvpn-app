@@ -126,7 +126,7 @@ impl RelayListProxy {
 
 /// Relay list as served by the API.
 ///
-/// This stuct should conform to the API response 1-1.
+/// This struct should conform to the API response 1-1.
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ServerRelayList {
     locations: BTreeMap<String, Location>,
@@ -403,7 +403,7 @@ struct WireGuardRelay {
 
 impl WireGuardRelay {
     fn into_mullvad_relay(self, location: location::Location) -> relay_list::WireguardRelay {
-        // Sanity check that new 'features' key is in sync with the old, superceded keys.
+        // Sanity check that new 'features' key is in sync with the old, superseded keys.
         // TODO: Remove `self.daita` (and this check 👇) when `features` key has been completely
         // rolled out to production.
         if self.features.daita.is_some() {
@@ -504,7 +504,7 @@ struct Lwo {}
 #[derive(Debug, Clone, Deserialize, Serialize)]
 struct Bridges {
     shadowsocks: Vec<relay_list::ShadowsocksEndpointData>,
-    /// The physical bridge servers and generic connnection details.
+    /// The physical bridge servers and generic connection details.
     #[serde(deserialize_with = "deserialize_valid_entries")]
     relays: Vec<Relay>,
 }

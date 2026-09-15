@@ -107,7 +107,7 @@ unsafe extern "C" {
     /// key exchange was successful, `raw_ephemeral_private_key` must be a valid pointer to 32
     /// bytes for the lifetime of this call. If PQ was enabled, `raw_preshared_key` must be a valid
     /// pointer to 32 bytes for the lifetime of this call. If DAITA was requested, the
-    /// `daita_prameters` must point to a valid instance of `DaitaParameters`.
+    /// `daita_parameters` must point to a valid instance of `DaitaParameters`.
     pub fn swift_ephemeral_peer_ready(
         raw_packet_tunnel: *const c_void,
         raw_preshared_key: *const u8,

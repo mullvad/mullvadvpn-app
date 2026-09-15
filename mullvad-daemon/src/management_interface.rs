@@ -1435,12 +1435,12 @@ impl ManagementInterfaceServer {
         })
     }
 
-    /// Wait for the server to shut down gracefully. If that does not happend within
+    /// Wait for the server to shut down gracefully. If that does not happen within
     /// [`RPC_SERVER_SHUTDOWN_TIMEOUT`], the gRPC server is aborted and we yield the async
     /// execution.
     pub async fn stop(mut self) {
         use futures::SinkExt;
-        // Send a singal to the underlying RPC server to shut down.
+        // Send a signal to the underlying RPC server to shut down.
         let _ = self.server_abort_tx.send(()).await;
 
         match timeout(RPC_SERVER_SHUTDOWN_TIMEOUT, self.rpc_server_join_handle).await {

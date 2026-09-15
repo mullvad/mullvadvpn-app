@@ -69,7 +69,7 @@ const SETTINGS_FILE: &str = "settings.json";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("An error occured")]
+    #[error("An error occurred")]
     Other(#[from] anyhow::Error),
 
     #[error("Failed to read the settings")]

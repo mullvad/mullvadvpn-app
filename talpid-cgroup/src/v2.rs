@@ -66,7 +66,7 @@ impl CGroup2 {
 
     /// Create or open a child to the current cgroup2 called `name`.
     ///
-    /// If the child alread exists, open it.
+    /// If the child already exists, open it.
     pub fn create_or_open_child(&self, name: &str) -> Result<Self, Error> {
         let child_path = self.path.join(name);
         match nix::unistd::mkdir(&child_path, nix::sys::stat::Mode::from_bits_truncate(0o755)) {

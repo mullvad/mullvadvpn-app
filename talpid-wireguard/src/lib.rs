@@ -372,7 +372,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
+            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
 
@@ -555,7 +555,7 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
+            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
             event_hook
@@ -1183,7 +1183,7 @@ pub enum TunnelError {
     StartDaita(#[source] Box<dyn std::error::Error + Send>),
 
     /// This tunnel does not support DAITA.
-    #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
+    #[error("Failed to start DAITA - tunnel implementation does not support DAITA")]
     DaitaNotSupported,
 
     /// GotaTun device error

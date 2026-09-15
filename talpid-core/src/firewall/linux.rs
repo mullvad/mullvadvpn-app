@@ -388,7 +388,7 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    /// Mark connections initated by processes matched by `add_selector_rules` with `fwmark`.
+    /// Mark connections initiated by processes matched by `add_selector_rules` with `fwmark`.
     fn add_actual_split_tunneling_rules(
         &mut self,
         policy: &FirewallPolicy,
