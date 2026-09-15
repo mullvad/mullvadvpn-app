@@ -24,7 +24,6 @@ hyper = { version = "1.8.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
 libc = "0.2"
-log = { workspace = true }
 mullvad-api-constants = { path = "./mullvad-api-constants" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
