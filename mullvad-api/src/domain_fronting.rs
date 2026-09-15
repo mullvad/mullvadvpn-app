@@ -3,7 +3,6 @@
 use std::{
     io,
     net::SocketAddr,
-    ops::Deref as _,
     str::FromStr,
     sync::{Arc, LazyLock},
     time::Duration,
