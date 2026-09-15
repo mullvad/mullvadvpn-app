@@ -115,38 +115,39 @@ function MapInner(props: MapInnerProps) {
   const [onSizeChangeImpl, sizeChangeCounter] = useRerenderer();
   const onSizeChange = useEffectEvent(onSizeChangeImpl);
 
-  const animationFrameCallback = useEffectEvent((now: number) => {
-    const runAnimations = () => {
-      now *= 0.001; // convert to seconds
+  const animationFrameCallback = useCallback(
+    (now: number) => {
+      const runAnimations = () => {
+        now *= 0.001; // convert to seconds
 
-      // Propagate location change to the map
-      if (newParams.current) {
-        mapRef.current?.setLocation(
-          newParams.current.location,
-          newParams.current.connectionState,
-          now,
-          props.animate,
-        );
-        newParams.current = undefined;
-      }
+        // Propagate location change to the map
+        if (newParams.current) {
+          mapRef.current?.setLocation(
+            newParams.current.location,
+            newParams.current.connectionState,
+            now,
+            props.animate,
+          );
+          newParams.current = undefined;
+        }
 
-      mapRef.current?.draw(now);
+        mapRef.current?.draw(now);
 
-      // Stops rendering if pause is true. This happens when there is no ongoing movements
-      if (!pause.current) {
-        requestAnimationFrame(runAnimations);
-      }
-    };
+        // Stops rendering if pause is true. This happens when there is no ongoing movements
+        if (!pause.current) {
+          requestAnimationFrame(runAnimations);
+        }
+      };
 
-    runAnimations();
-  });
+      runAnimations();
+    },
+    [props.animate],
+  );
 
-  // These lint rules are disabled for now because the react plugin for eslint does
-  // not understand that useEffectEvent should not be added to the dependency array.
-  // Enable these rules again when eslint can lint useEffectEvent properly.
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
+  const render = useCallback(
+    () => requestAnimationFrame(animationFrameCallback),
+    [animationFrameCallback],
+  );
 
   // This is called when the canvas has been rendered the first time and initializes the gl context
   // and the map.
@@ -155,7 +156,7 @@ function MapInner(props: MapInnerProps) {
       return;
     }
 
-    onSizeChange();
+    onSizeChangeImpl();
 
     const gl = canvas.getContext('webgl2', { antialias: true })!;
 
