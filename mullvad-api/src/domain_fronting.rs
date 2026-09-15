@@ -11,7 +11,6 @@ use std::{
 use http::Uri;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use tokio::net::TcpStream;
-use tokio_rustls::rustls::KeyLogFile;
 use tracing::{Level, instrument};
 
 use crate::proxy::{ApiConnectionMode, ProxyConfig};
