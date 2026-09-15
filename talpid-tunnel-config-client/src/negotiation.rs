@@ -42,6 +42,12 @@ pub struct Relay {
     pub endpoint: SocketAddr,
 }
 
+impl Relay {
+    fn pubkey(&self) -> gotatun::x25519::PublicKey {
+        (*self.public_key.as_bytes()).into()
+    }
+}
+
 /// The relays that the tunnel goes through.
 pub enum Relays {
     Singlehop(Relay),
@@ -261,7 +267,7 @@ async fn negotiate_through_entry<T: IngressTransport>(
         entry_mtu(exit.endpoint),
     );
 
-    let exit_peer = Peer::new(peer_public_key(exit))
+    let exit_peer = Peer::new(exit.pubkey())
         .with_endpoint(exit.endpoint)
         .with_allowed_ip(config_service_network(config));
     let exit_device = DeviceBuilder::new()
@@ -346,15 +352,11 @@ fn userspace_net(
 
 /// A peer for `relay`, reached at `endpoint`.
 fn ingress_peer(relay: &Relay, endpoint: SocketAddr, timer_params: Option<TimerParams>) -> Peer {
-    let peer = Peer::new(peer_public_key(relay)).with_endpoint(endpoint);
+    let peer = Peer::new(relay.pubkey()).with_endpoint(endpoint);
     match timer_params {
         Some(timer_params) => peer.dangerously_with_timer_params(timer_params),
         None => peer,
     }
-}
-
-fn peer_public_key(relay: &Relay) -> gotatun::x25519::PublicKey {
-    (*relay.public_key.as_bytes()).into()
 }
 
 fn static_secret(private_key: &PrivateKey) -> StaticSecret {
