@@ -1,8 +1,5 @@
-//! [`MaybeObfuscatingTransportFactory`] is an enum that either passes through to a plain UDP socket
-//! or applies obfuscation.
-
-mod lwo;
-mod transport;
+//! The UDP transport of GotaTun devices that reach a relay: sockets that bypass the tunnel, with
+//! optional obfuscation.
 
 use std::{io, net::SocketAddr, sync::Arc};
 
@@ -14,15 +11,42 @@ use gotatun::{
     },
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use talpid_types::net::obfuscation::LwoVersion;
-use tunnel_obfuscation::ObfuscatedTransport;
+use talpid_types::net::obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators};
+use tunnel_obfuscation::gotatun_transport::MaybeObfuscatingTransportFactory;
 
-use crate::obfuscation::RunningObfuscation;
+use crate::{config::Config, obfuscation::RunningObfuscation};
 
-use lwo::{LwoKeys, LwoRecv, LwoSend, LwoUdpTransportFactory};
-use transport::{ObfuscatingRecv, ObfuscatingSend};
+pub use tunnel_obfuscation::gotatun_transport::lwo_timer_params;
 
-pub use lwo::{lwo_timer_params, lwo_version};
+/// A [`UdpTransportFactory`] for sockets that bypass the tunnel, with optional obfuscation.
+pub type TransportFactory = MaybeObfuscatingTransportFactory<BypassingSocketFactory>;
+
+/// Create a transport factory with optional obfuscation.
+///
+/// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked.
+///   This could be beneficial for performance reasons.
+pub fn transport_factory(
+    optimize_buffer_size: bool,
+    obfuscation: Option<RunningObfuscation>,
+    peer_endpoint: SocketAddr,
+    bypass: Arc<dyn SocketBypass>,
+) -> TransportFactory {
+    let sockets = BypassingSocketFactory {
+        inner: udp_socket_factory(optimize_buffer_size),
+        bypass,
+    };
+    MaybeObfuscatingTransportFactory::new(sockets, obfuscation, peer_endpoint)
+}
+
+/// The LWO version the tunnel config connects with, if it uses LWO at all.
+///
+/// [`LwoVersion::V2`] peers must have [`lwo_timer_params`] applied.
+pub fn lwo_version(config: &Config) -> Option<LwoVersion> {
+    match &config.obfuscator_config {
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { version, .. })) => Some(*version),
+        _ => None,
+    }
+}
 
 #[derive(Clone)]
 pub struct BypassedUdpSend(Arc<BypassSocket<UdpSocket>>);
@@ -78,155 +102,9 @@ impl UdpRecv for BypassedUdpRecv {
     }
 }
 
-/// A [`UdpSend`] wrapper that optionally obfuscates outgoing packets.
-#[derive(Clone)]
-pub enum MaybeObfuscatingSend {
-    Plain(BypassedUdpSend),
-    Lwo(LwoSend<BypassedUdpSend>),
-    Transport(ObfuscatingSend),
-}
-
-impl UdpSend for MaybeObfuscatingSend {
-    type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
-
-    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
-        match self {
-            Self::Plain(inner) => inner.send_to(packet, destination).await,
-            Self::Lwo(inner) => inner.send_to(packet, destination).await,
-            Self::Transport(inner) => inner.send_to(packet, destination).await,
-        }
-    }
-
-    fn max_number_of_packets_to_send(&self) -> usize {
-        match self {
-            Self::Plain(inner) => inner.max_number_of_packets_to_send(),
-            Self::Lwo(inner) => inner.max_number_of_packets_to_send(),
-            Self::Transport(inner) => inner.max_number_of_packets_to_send(),
-        }
-    }
-
-    async fn send_many_to(
-        &self,
-        send_buf: &mut Self::SendManyBuf,
-        packets: &mut Vec<(Packet, SocketAddr)>,
-    ) -> io::Result<()> {
-        match self {
-            Self::Plain(inner) => inner.send_many_to(send_buf, packets).await,
-            Self::Lwo(inner) => inner.send_many_to(send_buf, packets).await,
-            Self::Transport(inner) => inner.send_many_to(&mut (), packets).await,
-        }
-    }
-
-    fn local_addr(&self) -> io::Result<Option<SocketAddr>> {
-        match self {
-            Self::Plain(inner) => inner.local_addr(),
-            Self::Lwo(inner) => inner.local_addr(),
-            Self::Transport(inner) => inner.local_addr(),
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    fn set_fwmark(&self, mark: u32) -> io::Result<()> {
-        match self {
-            Self::Plain(inner) => inner.set_fwmark(mark),
-            Self::Lwo(inner) => inner.set_fwmark(mark),
-            Self::Transport(inner) => inner.set_fwmark(mark),
-        }
-    }
-}
-
-/// A [`UdpRecv`] enum that either passes through to a plain receiver or applies deobfuscation.
-pub enum MaybeObfuscatingRecv {
-    Plain(BypassedUdpRecv),
-    Lwo(LwoRecv<BypassedUdpRecv>),
-    Transport(ObfuscatingRecv),
-}
-
-impl UdpRecv for MaybeObfuscatingRecv {
-    type RecvManyBuf = <UdpSocket as UdpRecv>::RecvManyBuf;
-
-    async fn recv_from(&mut self, pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
-        match self {
-            Self::Plain(inner) => inner.recv_from(pool).await,
-            Self::Lwo(inner) => inner.recv_from(pool).await,
-            Self::Transport(inner) => inner.recv_from(pool).await,
-        }
-    }
-
-    async fn recv_many_from(
-        &mut self,
-        recv_buf: &mut Self::RecvManyBuf,
-        pool: &mut PacketBufPool,
-        packets: &mut Vec<(Packet, SocketAddr)>,
-    ) -> io::Result<()> {
-        match self {
-            Self::Plain(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
-            Self::Lwo(inner) => inner.recv_many_from(recv_buf, pool, packets).await,
-            Self::Transport(inner) => inner.recv_many_from(&mut (), pool, packets).await,
-        }
-    }
-
-    fn enable_udp_gro(&self) -> io::Result<()> {
-        match self {
-            Self::Plain(inner) => inner.enable_udp_gro(),
-            Self::Lwo(inner) => inner.enable_udp_gro(),
-            Self::Transport(inner) => inner.enable_udp_gro(),
-        }
-    }
-}
-
 pub struct BypassingSocketFactory {
     inner: UdpSocketFactory,
     bypass: Arc<dyn SocketBypass>,
-}
-
-/// A [`UdpTransportFactory`] that either passes through to a plain factory or wraps it with
-/// obfuscation.
-pub enum MaybeObfuscatingTransportFactory {
-    Plain(BypassingSocketFactory),
-    Lwo(LwoUdpTransportFactory<BypassingSocketFactory>),
-    Transport {
-        transport: Arc<dyn ObfuscatedTransport>,
-        /// See [`ObfuscatingRecv`].
-        peer_endpoint: SocketAddr,
-    },
-}
-
-impl MaybeObfuscatingTransportFactory {
-    /// Create a transport factory with optional obfuscation.
-    pub fn new(
-        optimize_buffer_size: bool,
-        obfuscation: Option<RunningObfuscation>,
-        peer_endpoint: SocketAddr,
-        bypass: Arc<dyn SocketBypass>,
-    ) -> Self {
-        let make_factory = |bypass| BypassingSocketFactory {
-            bypass,
-            inner: udp_socket_factory(optimize_buffer_size),
-        };
-        match obfuscation {
-            Some(RunningObfuscation::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
-                inner: make_factory(bypass),
-                keys: match settings.version {
-                    LwoVersion::V1 => LwoKeys::V1 {
-                        tx_key: *settings.server_public_key.as_bytes(),
-                        rx_key: *settings.client_public_key.as_bytes(),
-                    },
-                    LwoVersion::V2 => LwoKeys::V2 {
-                        key: *settings.server_public_key.as_bytes(),
-                    },
-                },
-                endpoint: settings.server_addr,
-            }),
-            Some(RunningObfuscation::Transport(transport)) => Self::Transport {
-                transport,
-                peer_endpoint,
-            },
-
-            // Use `Self::Plain` when there is no obfuscation
-            None => Self::Plain(make_factory(bypass)),
-        }
-    }
 }
 
 /// Provide a [`UdpSocketFactory`] for the entry-device.
@@ -262,37 +140,5 @@ impl UdpTransportFactory for BypassingSocketFactory {
         let send = BypassedUdpSend(Arc::new(BypassSocket::new(self.bypass.clone(), sv)?));
         let recv = BypassedUdpRecv(BypassSocket::new(self.bypass.clone(), rv)?);
         Ok((send, recv))
-    }
-}
-
-impl UdpTransportFactory for MaybeObfuscatingTransportFactory {
-    type Send = MaybeObfuscatingSend;
-    type Recv = MaybeObfuscatingRecv;
-
-    async fn bind(
-        &mut self,
-        params: &UdpTransportFactoryParams,
-    ) -> io::Result<(Self::Send, Self::Recv)> {
-        use MaybeObfuscatingRecv as Recv;
-        use MaybeObfuscatingSend as Send;
-        match self {
-            Self::Plain(factory) => {
-                let (sv, rv) = factory.bind(params).await?;
-                Ok((Send::Plain(sv), Recv::Plain(rv)))
-            }
-            Self::Lwo(factory) => {
-                let (sv, rv) = factory.bind(params).await?;
-                Ok((Send::Lwo(sv), Recv::Lwo(rv)))
-            }
-            // The transport binds and excludes a socket of its own, so the addresses and the
-            // fwmark in `params` do not apply to it.
-            Self::Transport {
-                transport,
-                peer_endpoint,
-            } => {
-                let (sv, rv) = transport::split(Arc::clone(transport), *peer_endpoint);
-                Ok((Send::Transport(sv), Recv::Transport(rv)))
-            }
-        }
     }
 }
