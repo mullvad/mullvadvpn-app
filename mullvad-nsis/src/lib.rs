@@ -11,7 +11,6 @@ mod cleanup;
 mod handle;
 mod logger;
 mod pathedit;
-mod tray;
 
 /// NSIS status codes returned to the installer scripts.
 #[derive(Clone, Copy)]
