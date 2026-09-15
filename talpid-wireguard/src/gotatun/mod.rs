@@ -376,9 +376,8 @@ impl Tunnel for GotaTun {
             self.config = config;
 
             // The UDP transport needs to be recreated if the client pubkey changes.
-            let stale_transport = obfuscation::lwo_version(&self.config) == Some(LwoVersion::V1)
-                && self.config.tunnel.private_key.public_key().as_bytes()
-                    != old_public_key.as_bytes();
+            let stale_transport =
+                self.config.tunnel.private_key.public_key().as_bytes() != old_public_key.as_bytes();
 
             // If we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
