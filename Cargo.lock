@@ -3501,7 +3501,6 @@ version = "0.0.0"
 dependencies = [
  "bytes",
  "cbindgen",
- "either",
  "futures",
  "gotatun",
  "hyper",
@@ -3520,10 +3519,11 @@ dependencies = [
  "shadowsocks",
  "smoltcp",
  "talpid-future",
+ "talpid-net",
+ "talpid-netstack",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
- "tokio-util 0.7.18",
  "tonic",
  "tower",
  "tracing",
@@ -6109,6 +6109,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-netstack"
+version = "0.0.0"
+dependencies = [
+ "bytes",
+ "either",
+ "gotatun",
+ "log",
+ "smoltcp",
+ "tokio",
+ "tokio-util 0.7.18",
+ "zerocopy",
+]
+
+[[package]]
 name = "talpid-platform-metadata"
 version = "0.0.0"
 dependencies = [
@@ -6178,23 +6192,22 @@ version = "0.0.0"
 dependencies = [
  "gotatun",
  "hyper-util",
- "libc",
+ "ipnetwork",
  "log",
  "ml-kem",
- "nix 0.31.3",
  "pqcrypto-hqc",
  "pqcrypto-traits",
  "prost",
  "rand_core 0.6.4",
  "sha2",
- "socket2",
+ "talpid-netstack",
  "talpid-types",
+ "thiserror 2.0.19",
  "tokio",
  "tonic",
  "tonic-prost",
  "tonic-prost-build",
  "tower",
- "windows-sys 0.61.2",
  "zeroize",
 ]
 
@@ -6949,6 +6962,7 @@ dependencies = [
  "bytes",
  "criterion",
  "futures",
+ "gotatun",
  "log",
  "mullvad-masque-proxy",
  "rand 0.9.4",

@@ -23,6 +23,7 @@ async-trait = { workspace = true }
 blake2 = { workspace = true }
 bytes = { workspace = true }
 futures = { workspace = true }
+gotatun = { workspace = true, optional = true }
 log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
 rand = { workspace = true, features = ["small_rng"] }
@@ -37,6 +38,10 @@ udp-over-tcp = { workspace = true }
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }
 tokio = { workspace = true, features = ["test-util"] }
+
+[features]
+# Obfuscating UDP transports for GotaTun devices
+gotatun = ["dep:gotatun"]
 
 [lints]
 workspace = true
