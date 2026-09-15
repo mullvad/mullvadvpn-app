@@ -17,9 +17,7 @@ import SwiftUI
 import UIKit
 
 /// Top-level settings coordinator.
-final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    UINavigationControllerDelegate, Sendable
-{
+final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigationControllerDelegate, Sendable {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private var currentRoute: SettingsNavigationRoute?
@@ -248,21 +246,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         alertPresenter?.showAlert(presentation: presentation, animated: true)
     }
 
-    // MARK: - SettingsViewControllerDelegate
-
-    nonisolated func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
-        didFinish?(self)
-    }
-
-    nonisolated func settingsViewController(
-        _ controller: SettingsViewController,
-        didRequestRoutePresentation route: SettingsNavigationRoute
-    ) {
-        Task {
-            await navigate(to: route, animated: true)
-        }
-    }
-
     // MARK: - Route handling
 
     /// Pop to root route.
@@ -306,16 +289,34 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     /// - Returns: a result of creating a child for the route.
     private func makeChild(for route: SettingsNavigationRoute) -> SettingsViewControllerFactory.MakeChildResult {
         if route == .root {
-            let controller = SettingsViewController(
-                interactor: interactorFactory.makeSettingsInteractor(),
-                appPreferences: appPreferences,
-                breadcrumbsProvider: breadcrumbsProvider
-            )
-            controller.delegate = self
-            return .viewController(controller)
+            return .viewController(makeRootViewController())
         } else {
             return viewControllerFactory?.makeRoute(for: route) ?? .failed
         }
+    }
+
+    private func makeRootViewController() -> UIViewController {
+        let viewModel = SettingsViewModel(
+            tunnelManager: interactorFactory.tunnelManager,
+            appPreferences: appPreferences,
+            breadcrumbsProvider: breadcrumbsProvider
+        )
+        let view = SettingsView(viewModel: viewModel) { [weak self] route in
+            self?.navigate(to: route, animated: true)
+        }
+
+        let host = UIHostingController(rootView: view)
+        let doneButton = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                guard let self else { return }
+                didFinish?(self)
+            })
+        )
+        doneButton.setAccessibilityIdentifier(.settingsDoneButton)
+        host.navigationItem.rightBarButtonItem = doneButton
+
+        return host
     }
 
     /// Map the view controller to the individual route.
@@ -323,7 +324,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     /// - Returns: a route upon success, otherwise `nil`.
     private func route(for viewController: UIViewController) -> SettingsNavigationRoute? {
         switch viewController {
-        case is SettingsViewController:
+        case is UIHostingController<SettingsView>:
             return .root
         case is UIHostingController<SettingsDAITAView<DAITATunnelSettingsViewModel>>:
             return .daita
