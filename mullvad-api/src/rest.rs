@@ -328,7 +328,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             && let Err(Error::ApiError(_, code)) = &result
             && code == crate::INVALID_ACCESS_TOKEN
         {
-            log::debug!("Access token was rejected. Retrying with a new one");
+            tracing::debug!("Access token was rejected. Retrying with a new one");
             self.access_tokens.invalidate_token(account);
             // Retry with new token
             result = self.send_request_timeout(request).await;
