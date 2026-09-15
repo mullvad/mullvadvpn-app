@@ -20,8 +20,9 @@ enum AccountDismissReason: Equatable, Sendable {
 }
 
 final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked Sendable {
-    private let interactor: AccountInteractor
+    private let tunnelManager: TunnelManager
     private let storePaymentManager: StorePaymentManager
+    private let deviceManagementInteractor: DeviceManagementInteractor
     private var accountController: AccountViewController?
 
     let navigationController: UINavigationController
@@ -33,19 +34,21 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     init(
         navigationController: UINavigationController,
-        interactor: AccountInteractor,
-        storePaymentManager: StorePaymentManager
+        tunnelManager: TunnelManager,
+        storePaymentManager: StorePaymentManager,
+        deviceManagementInteractor: DeviceManagementInteractor,
     ) {
         self.navigationController = navigationController
-        self.interactor = interactor
+        self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
+        self.deviceManagementInteractor = deviceManagementInteractor
     }
 
     func start(animated: Bool) {
         navigationController.navigationBar.prefersLargeTitles = true
 
         let accountController = AccountViewController(
-            interactor: interactor,
+            tunnelManager: tunnelManager,
             errorPresenter: PaymentAlertPresenter(alertContext: self)
         )
 
@@ -79,7 +82,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     private func didRequestShowInAppPurchase(
         paymentAction: PaymentAction
     ) {
-        guard let accountNumber = interactor.deviceState.accountData?.number else { return }
+        guard let accountNumber = tunnelManager.deviceState.accountData?.number else { return }
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,
@@ -93,18 +96,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     }
 
     private func navigateToDeviceManagement() {
-        guard let accountNumber = interactor.deviceState.accountData?.number,
-            let currentDeviceId = interactor.deviceState.deviceData?.identifier
-        else {
-            return
-        }
         let controller = UIHostingController(
             rootView: DeviceManagementView(
-                deviceManaging: DeviceManagementInteractor(
-                    accountNumber: accountNumber,
-                    currentDeviceId: currentDeviceId,
-                    devicesProxy: interactor.deviceProxy
-                ),
+                deviceManaging: deviceManagementInteractor,
                 style: .deviceManagement,
                 onError: { [weak self] title, error in
                     self?.presentError(
@@ -150,7 +144,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     private func navigateToDeleteAccount() {
         let coordinator = AccountDeletionCoordinator(
             navigationController: CustomNavigationController(),
-            tunnelManager: interactor.tunnelManager
+            tunnelManager: tunnelManager
         )
 
         coordinator.start()
@@ -194,7 +188,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         let alertPresenter = AlertPresenter(context: self)
 
         Task {
-            await interactor.logout()
+            await tunnelManager.unsetAccount()
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                 guard let self else { return }
 
