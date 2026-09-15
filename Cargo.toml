@@ -81,9 +81,7 @@ hickory-resolver = { version = "0.26.1", default-features = false, features = ["
 hickory-server = { version = "0.26.1", features = ["resolver"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
-  "client-legacy",
-  "http1",
-  "http2",
+  "tokio",
 ] }
 insta = { version = "1.42", features = ["yaml"] }
 ipnetwork = "0.21.1"
