@@ -3519,6 +3519,7 @@ dependencies = [
  "shadowsocks",
  "smoltcp",
  "talpid-future",
+ "talpid-net",
  "talpid-netstack",
  "talpid-tunnel-config-client",
  "talpid-types",

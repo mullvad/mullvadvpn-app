@@ -44,6 +44,7 @@ smoltcp = { version = "0.13", default-features = false, features = [
   "std",
 ] }
 talpid-future = { path = "../talpid-future" }
+talpid-net = { path = "../talpid-net" }
 talpid-netstack = { path = "../talpid-netstack" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
@@ -52,7 +53,7 @@ tonic = { workspace = true }
 tower = { workspace = true }
 tracing = "0.1"
 tracing-subscriber = { workspace = true }
-tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+tunnel-obfuscation = { path = "../tunnel-obfuscation", features = ["gotatun"] }
 uniffi = { workspace = true }
 zerocopy = "0.8"
 

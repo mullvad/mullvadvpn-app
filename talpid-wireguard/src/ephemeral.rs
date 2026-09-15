@@ -3,14 +3,13 @@
 use crate::{
     CloseMsg, Error,
     config::Config,
-    gotatun::{TransportFactory, lwo_timer_params, lwo_version, transport_factory},
+    gotatun::{lwo_timer_params, lwo_version, transport_factory},
     obfuscation::RunningObfuscation,
 };
-use std::{io, net::Ipv4Addr, sync::Arc, time::Duration};
+use std::{net::Ipv4Addr, sync::Arc, time::Duration};
 use talpid_net::bypass::SocketBypass;
 use talpid_tunnel_config_client::negotiation::{
-    self, Ingress, IngressTransport, Negotiables, NegotiatedPeers, NegotiationConfig,
-    NegotiationError, Relay, Relays,
+    self, Negotiables, NegotiatedPeers, NegotiationConfig, NegotiationError, Relay, Relays,
 };
 use talpid_types::net::{
     obfuscation::LwoVersion,
@@ -41,17 +40,26 @@ pub async fn negotiate_ephemeral_peers(
         tunnel_ipv4: config.tunnel_ipv4().unwrap_or(Ipv4Addr::UNSPECIFIED),
         config_service_ip: config.ipv4_gateway,
         relays: relays(config),
+        ingress_timer_params: (lwo_version(config) == Some(LwoVersion::V2)).then(lwo_timer_params),
         timeout,
         // `Config` has a single private key, since some tunnels use one device for multihop.
         separate_exit_key: false,
     };
-    let mut transport = GotaTunIngressTransport {
-        config,
-        obfuscation,
-        bypass,
+    // Reach the ingress relay the same way as the tunnel does. The temporary devices carry little
+    // traffic, so the socket buffers are left as they are.
+    let ingress_transport = |client_public_key: &PublicKey| {
+        let obfuscation = obfuscation
+            .cloned()
+            .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
+        transport_factory(
+            false,
+            obfuscation,
+            config.entry_peer.endpoint,
+            Arc::clone(bypass),
+        )
     };
 
-    negotiation::negotiate_ephemeral_peers(&negotiation_config, negotiate, &mut transport)
+    negotiation::negotiate_ephemeral_peers(&negotiation_config, negotiate, ingress_transport)
         .await
         .map_err(|error| match error {
             NegotiationError::Timeout => {
@@ -88,39 +96,5 @@ fn relays(config: &Config) -> Relays {
             entry: relay(&config.entry_peer),
             exit: relay(exit_peer),
         },
-    }
-}
-
-/// Reaches the ingress relay the same way as the tunnel does.
-struct GotaTunIngressTransport<'a> {
-    config: &'a Config,
-    obfuscation: Option<&'a RunningObfuscation>,
-    bypass: &'a Arc<dyn SocketBypass>,
-}
-
-impl IngressTransport for GotaTunIngressTransport<'_> {
-    type Factory = TransportFactory;
-    type Guard = ();
-
-    async fn connect(
-        &mut self,
-        client_public_key: &PublicKey,
-    ) -> io::Result<Ingress<Self::Factory, Self::Guard>> {
-        let endpoint = self.config.entry_peer.endpoint;
-        let obfuscation = self
-            .obfuscation
-            .cloned()
-            .map(|obfuscation| obfuscation.with_client_public_key(client_public_key.clone()));
-        // The temporary devices carry little traffic, so the socket buffers are left as they are.
-        let factory = transport_factory(false, obfuscation, endpoint, Arc::clone(self.bypass));
-        let timer_params =
-            (lwo_version(self.config) == Some(LwoVersion::V2)).then(lwo_timer_params);
-
-        Ok(Ingress {
-            factory,
-            endpoint,
-            timer_params,
-            guard: (),
-        })
     }
 }

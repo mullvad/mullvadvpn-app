@@ -17,8 +17,6 @@ use gotatun::{
 };
 use ipnetwork::IpNetwork;
 use std::{
-    future::Future,
-    io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     time::Duration,
 };
@@ -80,6 +78,8 @@ pub struct NegotiationConfig {
     /// The address of the config service in the tunnel.
     pub config_service_ip: Ipv4Addr,
     pub relays: Relays,
+    /// WireGuard timers to use with the ingress relay, if they differ from the defaults.
+    pub ingress_timer_params: Option<TimerParams>,
     /// Time limit for the exchange with each config service.
     pub timeout: Duration,
     /// Negotiate a different ephemeral key with the exit relay in multihop. This requires a
@@ -110,38 +110,12 @@ pub struct NegotiatedPeers {
     pub daita: Option<DaitaSettings>,
 }
 
-/// A transport to the ingress relay, created by [`IngressTransport::connect`].
-pub struct Ingress<F, G> {
-    pub factory: F,
-    /// The endpoint to send to, e.g. a local obfuscation proxy.
-    pub endpoint: SocketAddr,
-    /// WireGuard timers to use with the ingress relay, if they differ from the defaults.
-    pub timer_params: Option<TimerParams>,
-    /// Kept alive for as long as the transport is used.
-    pub guard: G,
-}
-
-/// Connects the temporary devices to the ingress relay.
-pub trait IngressTransport {
-    type Factory: UdpTransportFactory;
-    type Guard: Send;
-
-    /// Create a transport to the ingress relay for a device that uses `client_public_key`.
-    fn connect(
-        &mut self,
-        client_public_key: &PublicKey,
-    ) -> impl Future<Output = io::Result<Ingress<Self::Factory, Self::Guard>>> + Send;
-}
-
 /// Errors from [`negotiate_ephemeral_peers`].
 #[derive(thiserror::Error, Debug)]
 pub enum NegotiationError {
     /// A config service did not respond in time.
     #[error("Timed out while negotiating ephemeral peer")]
     Timeout,
-    /// Failed to connect to the ingress relay.
-    #[error("Failed to connect to the ingress relay")]
-    Transport(#[source] io::Error),
     /// Failed to create a GotaTun device.
     #[error("Failed to create GotaTun device")]
     Device(#[source] gotatun::device::Error),
@@ -156,16 +130,20 @@ pub enum NegotiationError {
 /// In multihop, the entry peer is negotiated first. The exit peer is then negotiated through the
 /// entry relay, using the negotiated entry peer.
 ///
+/// The temporary devices reach the ingress relay through the UDP transports that
+/// `ingress_transport` creates for a device with the given public key.
+///
 /// Each exchange with a config service takes at most [`NegotiationConfig::timeout`].
-pub async fn negotiate_ephemeral_peers<T: IngressTransport>(
+pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
-    transport: &mut T,
+    ingress_transport: impl Fn(&PublicKey) -> F,
 ) -> Result<NegotiatedPeers, NegotiationError> {
     let ephemeral_key = PrivateKey::new_from_random();
 
     log::debug!("Negotiating ephemeral peer with the ingress relay");
-    let ingress_peer = negotiate_with_ingress(config, negotiate, transport, &ephemeral_key).await?;
+    let ingress_peer =
+        negotiate_with_ingress(config, negotiate, &ingress_transport, &ephemeral_key).await?;
 
     let (exit_private_key, exit_psk) = match &config.relays {
         Relays::Singlehop(_) => (None, None),
@@ -175,7 +153,7 @@ pub async fn negotiate_ephemeral_peers<T: IngressTransport>(
             let exit_peer = negotiate_through_entry(
                 config,
                 negotiate,
-                transport,
+                &ingress_transport,
                 entry,
                 &ephemeral_key,
                 ingress_peer.psk.as_ref(),
@@ -198,27 +176,17 @@ pub async fn negotiate_ephemeral_peers<T: IngressTransport>(
 
 /// Negotiate an ephemeral peer with the ingress relay, through a device that uses the private key
 /// of this device.
-async fn negotiate_with_ingress<T: IngressTransport>(
+async fn negotiate_with_ingress<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
-    transport: &mut T,
+    ingress_transport: &impl Fn(&PublicKey) -> F,
     ephemeral_key: &PrivateKey,
 ) -> Result<EphemeralPeer, NegotiationError> {
-    let Ingress {
-        factory,
-        endpoint,
-        timer_params,
-        guard: _guard,
-    } = transport
-        .connect(&config.private_key.public_key())
-        .await
-        .map_err(NegotiationError::Transport)?;
     let (net, net_recv, net_send, _net_guard) = userspace_net(config);
 
-    let peer = ingress_peer(config.relays.ingress(), endpoint, timer_params)
-        .with_allowed_ip(config.allowed_ip());
+    let peer = ingress_peer(config, config.relays.ingress()).with_allowed_ip(config.allowed_ip());
     let device = DeviceBuilder::new()
-        .with_udp(factory)
+        .with_udp(ingress_transport(&config.private_key.public_key()))
         .with_ip_pair(net_send, net_recv)
         .with_private_key(static_secret(&config.private_key))
         .with_peer(peer)
@@ -237,25 +205,16 @@ async fn negotiate_with_ingress<T: IngressTransport>(
 /// The exit device uses the private key of this device, and requests an ephemeral peer for
 /// `exit_key`.
 #[expect(clippy::too_many_arguments)]
-async fn negotiate_through_entry<T: IngressTransport>(
+async fn negotiate_through_entry<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
-    transport: &mut T,
+    ingress_transport: &impl Fn(&PublicKey) -> F,
     entry: &Relay,
     entry_key: &PrivateKey,
     entry_psk: Option<&PresharedKey>,
     exit: &Relay,
     exit_key: &PrivateKey,
 ) -> Result<EphemeralPeer, NegotiationError> {
-    let Ingress {
-        factory,
-        endpoint,
-        timer_params,
-        guard: _guard,
-    } = transport
-        .connect(&entry_key.public_key())
-        .await
-        .map_err(NegotiationError::Transport)?;
     let (net, net_recv, net_send, _net_guard) = userspace_net(config);
     let (entry_ip_send, entry_ip_recv, exit_udp) = new_udp_tun_channel(
         MULTIHOP_CHANNEL_CAPACITY,
@@ -278,13 +237,13 @@ async fn negotiate_through_entry<T: IngressTransport>(
         .await
         .map_err(NegotiationError::Device)?;
 
-    let mut entry_peer = ingress_peer(entry, endpoint, timer_params)
-        .with_allowed_ip(IpNetwork::from(exit.endpoint.ip()));
+    let mut entry_peer =
+        ingress_peer(config, entry).with_allowed_ip(IpNetwork::from(exit.endpoint.ip()));
     if let Some(psk) = entry_psk {
         entry_peer = entry_peer.with_preshared_key(*psk.as_bytes());
     }
     let entry_device = match DeviceBuilder::new()
-        .with_udp(factory)
+        .with_udp(ingress_transport(&entry_key.public_key()))
         .with_ip_pair(entry_ip_send, entry_ip_recv)
         .with_private_key(static_secret(entry_key))
         .with_peer(entry_peer)
@@ -354,11 +313,11 @@ fn userspace_net(
     })
 }
 
-/// A peer for `relay`, reached at `endpoint`.
-fn ingress_peer(relay: &Relay, endpoint: SocketAddr, timer_params: Option<TimerParams>) -> Peer {
-    let peer = Peer::new(relay.pubkey()).with_endpoint(endpoint);
-    match timer_params {
-        Some(timer_params) => peer.dangerously_with_timer_params(timer_params),
+/// A peer for `relay`, which is the ingress relay.
+fn ingress_peer(config: &NegotiationConfig, relay: &Relay) -> Peer {
+    let peer = Peer::new(relay.pubkey()).with_endpoint(relay.endpoint);
+    match &config.ingress_timer_params {
+        Some(timer_params) => peer.dangerously_with_timer_params(timer_params.clone()),
         None => peer,
     }
 }
