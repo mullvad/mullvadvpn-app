@@ -17,10 +17,12 @@ pub mod transport;
 /// This is also used as the password for the same user, as is common practice.
 pub const UNPRIVILEGED_USER: &str = "mole";
 
+/// tarpc's RpcError is only available at runtime. It cannot be (de)serialized,
+/// so it is converted to a string when sent over the wire.
 #[derive(thiserror::Error, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Error {
-    #[error("Test runner RPC failed")]
-    Tarpc(#[from] tarpc::client::RpcError),
+    #[error("Test runner RPC failed: {0}")]
+    Tarpc(String),
     #[error("Syscall failed")]
     Syscall,
     #[error("Internal IO error occurred: {0}")]
@@ -81,6 +83,12 @@ impl Error {
     /// Convenient mapping from a Tokio error to the test_rpc Error type.
     pub fn from_tokio_join_error(error: tokio::task::JoinError) -> Error {
         Error::TokioJoinError(error.to_string())
+    }
+}
+
+impl From<tarpc::client::RpcError> for Error {
+    fn from(err: tarpc::client::RpcError) -> Self {
+        Error::Tarpc(err.to_string())
     }
 }
 
