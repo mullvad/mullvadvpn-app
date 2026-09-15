@@ -372,7 +372,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
+            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
 
@@ -555,7 +555,7 @@ impl WireguardMonitor {
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            let selected_obfuscation = Obfuscator::multiplexer_commited_to(obfuscator)
+            let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
             event_hook
