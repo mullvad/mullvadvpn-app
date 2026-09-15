@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { TunnelState } from '../../shared/daemon-rpc-types';
@@ -96,10 +96,20 @@ function MapInner(props: MapInnerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
   // The constant is only used for the width for the first frame that is rendered.
-  const width = applyPixelRatio(canvasRef.current?.clientWidth ?? 320);
+  const [width, setWidth] = useState(applyPixelRatio(320));
+  useEffect(() => {
+    if (canvasRef.current?.clientWidth) {
+      setWidth(applyPixelRatio(canvasRef.current?.clientWidth));
+    }
+  }, [canvasRef]);
 
   // The constant is only used for the height for the first frame that is rendered.
-  const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
+  const [height, setHeight] = useState(applyPixelRatio(493));
+  useEffect(() => {
+    if (canvasRef.current?.clientHeight) {
+      setHeight(applyPixelRatio(canvasRef.current?.clientHeight));
+    }
+  }, [canvasRef]);
 
   // Hack to rerender when window size changes or when ref is set.
   const [onSizeChangeImpl, sizeChangeCounter] = useRerenderer();

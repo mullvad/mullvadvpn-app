@@ -14,7 +14,7 @@ export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps
   const [isError, setIsError] = React.useState<boolean>(false);
   const [isFetching, setIsFetching] = React.useState<boolean>(false);
 
-  const hasLoadedRef = React.useRef(false);
+  const [hasLoaded, setHasLoaded] = React.useState(false);
   const mountedRef = React.useRef(false);
   const runIdRef = React.useRef(0);
 
@@ -44,12 +44,12 @@ export const useQuery = <T>({ queryFn, queryKey, enabled = true }: UseQueryProps
     if (isActive()) {
       setIsFetching(false);
     }
-    if (!hasLoadedRef.current) {
-      hasLoadedRef.current = true;
+    if (!hasLoaded) {
+      setHasLoaded(true);
     }
-  }, [hasLoadedRef, queryFn]);
+  }, [hasLoaded, queryFn]);
 
-  const isLoading = isFetching && !hasLoadedRef.current;
+  const isLoading = isFetching && !hasLoaded;
 
   // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
   // in order to be able to continue setting state from a useEffect without
