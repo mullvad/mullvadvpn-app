@@ -122,3 +122,6 @@ include(
     ":test:detekt",
     ":test:baselineprofile",
 )
+
+// Gives every project a `clean` task, including container projects without a build file.
+gradle.lifecycle.beforeProject { pluginManager.apply("base") }

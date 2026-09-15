@@ -100,7 +100,7 @@ tasks.withType<DependencyUpdatesTask> {
     rejectVersionIf { candidate.version.isNonStableVersion() }
 }
 
-tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
+tasks.named<Delete>("clean") { dependsOn(subprojects.map { "${it.path}:clean" }) }
 
 // The preflight configuration is done at the project root level to ensure
 // it runs before any other build tasks. This is a known limitation:
