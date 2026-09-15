@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
@@ -87,13 +87,7 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
   const featureIndicatorsVisible =
     tunnelState.state === 'connected' || tunnelState.state === 'connecting';
 
-  const featureIndicators = useRef(
-    featureIndicatorsVisible ? (tunnelState.featureIndicators ?? []) : [],
-  );
-
-  if (featureIndicatorsVisible && tunnelState.featureIndicators) {
-    featureIndicators.current = tunnelState.featureIndicators;
-  }
+  const featureIndicators = featureIndicatorsVisible ? (tunnelState.featureIndicators ?? []) : [];
 
   const ellipsis = messages.gettext('%(amount)d more...');
 
@@ -154,10 +148,10 @@ export function FeatureIndicators(props: FeatureIndicatorsProps) {
     }, 0);
   });
 
-  const sortedIndicators = [...featureIndicators.current].sort((a, b) => a - b);
+  const sortedIndicators = [...featureIndicators].sort((a, b) => a - b);
 
   return (
-    <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.current.length > 0}>
+    <StyledAccordion expanded={featureIndicatorsVisible && featureIndicators.length > 0}>
       <StyledFeatureIndicatorsContainer $expanded={props.expanded}>
         <StyledAccordion expanded={props.expanded}>
           <StyledTitle>{messages.pgettext('connect-view', 'Active features')}</StyledTitle>
