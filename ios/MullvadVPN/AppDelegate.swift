@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) lazy var ipOverrideRepository = IPOverrideRepository(settingsStore: settingsManager.store)
     private(set) var relaySelector: RelaySelectorWrapper!
     private(set) var launchArguments = LaunchArguments()
-    var apiContext: MullvadApiContext!
+    var apiContext: ApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
     let breadcrumbsProvider = BreadcrumbsProvider()
@@ -124,8 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             methods: accessMethodRepository.fetchAll()
         )
 
-        // swift-format-ignore: NeverUseForceTry
-        apiContext = try! MullvadApiContext(
+        apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
