@@ -37,11 +37,11 @@ tonic-prost = { workspace = true }
 tower = { workspace = true }
 zeroize = { workspace = true }
 
-[build-dependencies]
-tonic-prost-build = { workspace = true, features = ["transport"] }
-
 [dev-dependencies]
 tokio = { workspace = true, features = ["net"] }
+
+[build-dependencies]
+tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [lints]
 workspace = true
