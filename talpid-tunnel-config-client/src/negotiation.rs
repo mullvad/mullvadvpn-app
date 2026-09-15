@@ -8,7 +8,7 @@ use crate::{
     CONFIG_SERVICE_PORT, DaitaSettings, EphemeralPeer, Error, request_ephemeral_peer_over_stream,
 };
 use gotatun::{
-    device::{DeviceBuilder, Peer},
+    device::{Device, DeviceBuilder, DeviceTransports, Peer},
     noise::TimerParams,
     packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
     tun::MtuWatcher,
@@ -32,6 +32,9 @@ const USERSPACE_NET_MTU: u16 = 576;
 
 /// Capacity of the channels between the entry and exit devices in multihop.
 const MULTIHOP_CHANNEL_CAPACITY: usize = 100;
+
+/// How often to check whether a device has completed a handshake with its peer.
+const HANDSHAKE_POLL_INTERVAL: Duration = Duration::from_millis(50);
 
 /// A relay to negotiate an ephemeral peer with.
 pub struct Relay {
@@ -82,6 +85,9 @@ pub struct NegotiationConfig {
     pub ingress_timer_params: Option<TimerParams>,
     /// Time limit for the exchange with each config service.
     pub timeout: Duration,
+    /// Time limit for the WireGuard handshake with each relay. A relay that does not complete a
+    /// handshake in time is unreachable, so there is no point in waiting for [`Self::timeout`].
+    pub handshake_timeout: Duration,
     /// Negotiate a different ephemeral key with the exit relay in multihop. This requires a
     /// separate device for each relay, since a device has a single private key.
     pub separate_exit_key: bool,
@@ -133,7 +139,8 @@ pub enum NegotiationError {
 /// The temporary devices reach the ingress relay through the UDP transports that
 /// `ingress_transport` creates for a device with the given public key.
 ///
-/// Each exchange with a config service takes at most [`NegotiationConfig::timeout`].
+/// Each exchange with a config service takes at most [`NegotiationConfig::timeout`], or
+/// [`NegotiationConfig::handshake_timeout`] if the relay does not complete a WireGuard handshake.
 pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
     config: &NegotiationConfig,
     negotiate: Negotiables,
@@ -194,7 +201,10 @@ async fn negotiate_with_ingress<F: UdpTransportFactory>(
         .await
         .map_err(NegotiationError::Device)?;
 
-    let result = request_ephemeral_peer_through(&net, config, ephemeral_key, negotiate).await;
+    let result = tokio::select! {
+        result = request_ephemeral_peer_through(&net, config, ephemeral_key, negotiate) => result,
+        error = fail_without_handshake(&device, config.handshake_timeout) => Err(error),
+    };
     device.stop().await;
     result
 }
@@ -262,10 +272,38 @@ async fn negotiate_through_entry<F: UdpTransportFactory>(
         daita: false,
         ..negotiate
     };
-    let result = request_ephemeral_peer_through(&net, config, exit_key, negotiate).await;
+    // The exit device reaches the exit relay through the entry relay, so it cannot complete a
+    // handshake unless both relays are reachable.
+    let result = tokio::select! {
+        result = request_ephemeral_peer_through(&net, config, exit_key, negotiate) => result,
+        error = fail_without_handshake(&exit_device, config.handshake_timeout) => Err(error),
+    };
     entry_device.stop().await;
     exit_device.stop().await;
     result
+}
+
+/// Return [`NegotiationError::Timeout`] if `device` has not completed a handshake with its peer
+/// within `timeout`. Never returns otherwise.
+// TODO: consider upstreaming a function that forces a handshake to gotatun.
+async fn fail_without_handshake(
+    device: &Device<impl DeviceTransports>,
+    timeout: Duration,
+) -> NegotiationError {
+    let handshake = async {
+        loop {
+            let peers = device.read(async |device| device.peers().await).await;
+            if peers.iter().all(|peer| peer.stats.last_handshake.is_some()) {
+                return;
+            }
+            tokio::time::sleep(HANDSHAKE_POLL_INTERVAL).await;
+        }
+    };
+    if tokio::time::timeout(timeout, handshake).await.is_ok() {
+        std::future::pending::<()>().await;
+    }
+    log::debug!("No handshake with the relay within {timeout:?}");
+    NegotiationError::Timeout
 }
 
 /// Request an ephemeral peer from the config service that is reached through `net`.
