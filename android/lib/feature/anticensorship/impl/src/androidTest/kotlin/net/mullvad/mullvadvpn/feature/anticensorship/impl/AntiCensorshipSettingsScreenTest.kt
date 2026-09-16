@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -22,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -54,7 +54,7 @@ class AntiCensorshipSettingsScreenTest {
             selectedLwoObfuscationPort = selectedLwoObfuscationPort,
         )
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: Lc<Unit, AntiCensorshipSettingsUiState> = createDefaultUiState().toLc(),
         onBackClick: () -> Unit = {},
         onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit = {},

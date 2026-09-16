@@ -543,7 +543,7 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.turbine)
     androidTestImplementation(libs.junit.jupiter.api)
-    androidTestImplementation(libs.junit5.android.test.compose)
+    androidTestImplementation(libs.androidx.ui.test)
     androidTestImplementation(libs.androidx.espresso)
     androidTestImplementation(projects.lib.screenTest)
 }

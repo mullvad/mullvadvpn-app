@@ -5,7 +5,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -19,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +34,7 @@ class CustomListLocationsScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: CustomListLocationsUiState,
         onSearchTermInput: (String) -> Unit = {},
         onSaveClick: () -> Unit = {},

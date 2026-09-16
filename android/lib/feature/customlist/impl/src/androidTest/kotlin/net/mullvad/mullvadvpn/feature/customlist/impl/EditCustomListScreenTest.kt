@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -17,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.DELETE_DROPDOWN_MENU_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_DROPDOWN_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -32,7 +32,7 @@ class EditCustomListScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: EditCustomListUiState = EditCustomListUiState.Loading,
         onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
         onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },

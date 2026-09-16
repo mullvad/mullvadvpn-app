@@ -6,7 +6,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -18,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
@@ -30,7 +30,7 @@ class AddTimeBottomSheetTest {
     @RegisterExtension
     val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private fun ComposeContext.initBottomSheet(
+    private fun ScreenTestContext.initBottomSheet(
         state: Lc<Unit, AddTimeUiState> = Lc.Loading(Unit),
         sheetState: SheetState =
             SheetState(

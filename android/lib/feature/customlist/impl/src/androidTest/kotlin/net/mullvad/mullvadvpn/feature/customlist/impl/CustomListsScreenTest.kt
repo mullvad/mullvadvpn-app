@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -14,6 +13,7 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.CustomListsUi
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NEW_LIST_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +29,7 @@ class CustomListsScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: CustomListsUiState = CustomListsUiState.Loading,
         addCustomList: () -> Unit = {},
         openCustomList: (CustomList) -> Unit = {},

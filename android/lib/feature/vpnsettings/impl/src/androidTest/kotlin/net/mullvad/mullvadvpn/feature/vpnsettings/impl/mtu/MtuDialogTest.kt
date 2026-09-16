@@ -4,10 +4,10 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -28,7 +28,7 @@ class MtuDialogTest {
     private val defaultState =
         MtuDialogUiState(mtuInput = "", inputError = null, showResetToDefault = true)
 
-    private fun ComposeContext.initDialog(
+    private fun ScreenTestContext.initDialog(
         state: MtuDialogUiState = defaultState,
         onInputChanged: (String) -> Unit = {},
         onSaveMtu: (String) -> Unit = {},

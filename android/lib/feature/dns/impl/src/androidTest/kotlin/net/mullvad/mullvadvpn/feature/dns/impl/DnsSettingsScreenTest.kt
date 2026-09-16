@@ -9,7 +9,6 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -19,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_DNS_ADD_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_DNS_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_DNS_SETTINGS_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -55,7 +55,7 @@ class DnsSettingsScreenTest {
             showUnreachableIpv6DnsWarning = showUnreachableIpv6DnsWarning,
         )
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: Lc<Unit, DnsSettingsUiState> = createDefaultUiState().toLc(),
         navigateToDns: (index: Int?, address: String?) -> Unit = { _, _ -> },
         onToggleDnsClick: (Boolean) -> Unit = {},

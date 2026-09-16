@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.feature.dns.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import de.mannodermaus.junit5.compose.ComposeContext
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ class CustomDnsDialogTest {
             isIpv6Enabled = true,
         )
 
-    private fun ComposeContext.initDialog(
+    private fun ScreenTestContext.initDialog(
         state: CustomDnsDialogViewState = defaultState,
         onDnsInputChange: (String) -> Unit = { _ -> },
         onSaveDnsClick: () -> Unit = {},

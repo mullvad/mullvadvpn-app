@@ -4,7 +4,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -15,6 +14,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +39,7 @@ class AccountScreenTest {
             MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: AccountUiState? = null,
         onCopyAccountNumber: (String) -> Unit = {},
         onLogoutClick: () -> Unit = {},

@@ -2,10 +2,10 @@ package net.mullvad.mullvadvpn.feature.daita.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -21,7 +21,7 @@ class DaitaScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: Lc<Boolean, DaitaUiState> = Lc.Loading(false),
         onDaitaEnabled: (enable: Boolean) -> Unit = {},
         onBackClick: () -> Unit = {},

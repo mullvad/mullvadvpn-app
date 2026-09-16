@@ -4,7 +4,6 @@ import android.graphics.drawable.Drawable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -12,6 +11,7 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.PackageName
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -33,7 +33,7 @@ class SplitTunnelingScreenTest {
         unmockkAll()
     }
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: Lc<Loading, SplitTunnelingUiState>,
         onEnableSplitTunneling: (Boolean) -> Unit = {},
         onShowSystemAppsClick: (show: Boolean) -> Unit = {},

@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.anticensorship.impl
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.coVerify
 import io.mockk.mockk
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport.SelectPortScreen
@@ -13,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortType
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class SelectPortScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private fun ComposeContext.initScreen(
+    private fun ScreenTestContext.initScreen(
         state: Lc<Unit, SelectPortUiState>,
         onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
         navigateToCustomPortDialog: (Port?) -> Unit = {},

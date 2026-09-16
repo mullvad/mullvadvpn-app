@@ -3,13 +3,13 @@ package net.mullvad.mullvadvpn.feature.serveripoverride.impl
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.feature.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -27,7 +27,7 @@ class ResetServerIPOverridesConfirmationDialogTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initDialog(
+    private fun ScreenTestContext.initDialog(
         onClearAllOverrides: () -> Unit = {},
         onNavigateBack: () -> Unit = {},
     ) {

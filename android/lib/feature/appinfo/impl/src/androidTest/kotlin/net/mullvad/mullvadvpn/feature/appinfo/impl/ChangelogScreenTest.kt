@@ -2,10 +2,10 @@ package net.mullvad.mullvadvpn.feature.appinfo.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogScreen
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogUiState
+import net.mullvad.mullvadvpn.screen.test.ScreenTestContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -21,7 +21,10 @@ class ChangelogScreenTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initScreen(state: ChangelogUiState, onBackClick: () -> Unit = {}) {
+    private fun ScreenTestContext.initScreen(
+        state: ChangelogUiState,
+        onBackClick: () -> Unit = {},
+    ) {
         setContentWithTheme { ChangelogScreen(state = state, onBackClick = onBackClick) }
     }
 
