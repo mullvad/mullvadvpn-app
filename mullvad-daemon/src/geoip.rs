@@ -78,7 +78,7 @@ impl GeoIpHandler {
                 Arc::new(dns_resolver.clone()),
                 #[cfg(target_os = "android")]
                 None,
-                #[cfg(any(feature = "api-override", test))]
+                #[cfg(feature = "api-override")]
                 false,
             )
         });
