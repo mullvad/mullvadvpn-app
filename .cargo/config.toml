@@ -1,3 +1,65 @@
+# Build aws-lc-sys with OPENSSL_SMALL to cut ~1.3 MiB of linked code. It gives
+# up the optimized P-256 and Ed25519 implementations, and on x86_64 the AVX-512
+# assembly for AES-GCM and RSA. ChaCha20-Poly1305 is unaffected.
+#
+# aws-lc-sys turns this on by itself at opt-level "s"/"z", but we build it at 3,
+# where benchmarks on one Linux x86_64 machine indicated ~45% faster AES-GCM.
+# So it has to be forced back on here.
+[env]
+AWS_LC_SYS_SMALL = "1"
+
+[registry]
+global-min-publish-age = "7 days"
+
+[target.aarch64-pc-windows-msvc]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+  "-Clink-arg=/PDBALTPATH:%_PDB%",
+]
+
+[target.aarch64-unknown-linux-gnu.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
+
+[target.aarch64-unknown-linux-gnu.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
+
+[target.i686-pc-windows-msvc]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+  "-Clink-arg=/PDBALTPATH:%_PDB%",
+]
+
+[target.riscv64gc-unknown-linux-gnu.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
+
+[target.riscv64gc-unknown-linux-gnu.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
+
+# The /Brepro and /PDBALTPATH link args below make the linked PE files reproducible:
+# /Brepro replaces the PE TimeDateStamp (normally the link time) with a hash of the
+# inputs, and /PDBALTPATH:%_PDB% embeds only the PDB file name, not its absolute path,
+# in the PE debug directory. Both are required for reproducible builds.
+[target.x86_64-pc-windows-msvc]
+rustflags = [
+  "-Ctarget-feature=+crt-static",
+  "-Clink-arg=/Brepro",
+  "-Clink-arg=/PDBALTPATH:%_PDB%",
+]
+
+[target.x86_64-unknown-linux-gnu.mnl]
+rustc-link-lib = ["mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
+
+[target.x86_64-unknown-linux-gnu.nftnl]
+rustc-link-lib = ["nftnl", "mnl"]
+rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
+
 [unstable]
 # Supply-chain hardening: refuse dependency versions published within the cooldown
 # window set below, giving malicious releases time to be caught before we
@@ -15,65 +77,3 @@ min-publish-age = true
 # Use this with building/reproducible-build.sh.
 # Tracking issue: https://github.com/rust-lang/cargo/issues/12137
 trim-paths = true
-
-[registry]
-global-min-publish-age = "7 days"
-
-# Build aws-lc-sys with OPENSSL_SMALL to cut ~1.3 MiB of linked code. It gives
-# up the optimized P-256 and Ed25519 implementations, and on x86_64 the AVX-512
-# assembly for AES-GCM and RSA. ChaCha20-Poly1305 is unaffected.
-#
-# aws-lc-sys turns this on by itself at opt-level "s"/"z", but we build it at 3,
-# where benchmarks on one Linux x86_64 machine indicated ~45% faster AES-GCM.
-# So it has to be forced back on here.
-[env]
-AWS_LC_SYS_SMALL = "1"
-
-# The /Brepro and /PDBALTPATH link args below make the linked PE files reproducible:
-# /Brepro replaces the PE TimeDateStamp (normally the link time) with a hash of the
-# inputs, and /PDBALTPATH:%_PDB% embeds only the PDB file name, not its absolute path,
-# in the PE debug directory. Both are required for reproducible builds.
-[target.x86_64-pc-windows-msvc]
-rustflags = [
-  "-Ctarget-feature=+crt-static",
-  "-Clink-arg=/Brepro",
-  "-Clink-arg=/PDBALTPATH:%_PDB%",
-]
-
-[target.i686-pc-windows-msvc]
-rustflags = [
-  "-Ctarget-feature=+crt-static",
-  "-Clink-arg=/Brepro",
-  "-Clink-arg=/PDBALTPATH:%_PDB%",
-]
-
-[target.aarch64-pc-windows-msvc]
-rustflags = [
-  "-Ctarget-feature=+crt-static",
-  "-Clink-arg=/Brepro",
-  "-Clink-arg=/PDBALTPATH:%_PDB%",
-]
-
-[target.x86_64-unknown-linux-gnu.mnl]
-rustc-link-lib = ["mnl"]
-rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
-
-[target.x86_64-unknown-linux-gnu.nftnl]
-rustc-link-lib = ["nftnl", "mnl"]
-rustc-link-search = ["native=dist-assets/binaries/x86_64-unknown-linux-gnu"]
-
-[target.aarch64-unknown-linux-gnu.mnl]
-rustc-link-lib = ["mnl"]
-rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
-
-[target.aarch64-unknown-linux-gnu.nftnl]
-rustc-link-lib = ["nftnl", "mnl"]
-rustc-link-search = ["native=dist-assets/binaries/aarch64-unknown-linux-gnu"]
-
-[target.riscv64gc-unknown-linux-gnu.mnl]
-rustc-link-lib = ["mnl"]
-rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
-
-[target.riscv64gc-unknown-linux-gnu.nftnl]
-rustc-link-lib = ["nftnl", "mnl"]
-rustc-link-search = ["native=dist-assets/binaries/riscv64gc-unknown-linux-gnu"]
