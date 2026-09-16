@@ -9,6 +9,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadREST
+import MullvadSettings
 import MullvadTypes
 
 /// The verdict of an account status check.
@@ -69,4 +71,32 @@ struct DeviceCheck: Equatable {
 
     // The status of the last performed key rotation.
     var keyRotationStatus: KeyRotationStatus
+}
+
+extension AccountVerdict {
+    /// Converts account data result type into `AccountVerdict`.
+    init(accountResult: Result<Account, Error>) throws {
+        do {
+            let account = try accountResult.get()
+
+            self = account.expiry > Date() ? .active(account) : .expired(account)
+        } catch let error as REST.Error where error.compareErrorCode(.invalidAccount) {
+            self = .invalid
+        }
+    }
+}
+
+extension DeviceVerdict {
+    /// Converts device result type into `DeviceVerdict` by comparing the server key with the one in `deviceState`.
+    init(deviceResult: Result<Device, Error>, deviceState: DeviceState) throws {
+        guard let deviceData = deviceState.deviceData else { throw DeviceCheckError.invalidDeviceState }
+
+        do {
+            let device = try deviceResult.get()
+
+            self = deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .active : .keyMismatch
+        } catch let error as REST.Error where error.compareErrorCode(.deviceNotFound) {
+            self = .revoked
+        }
+    }
 }
