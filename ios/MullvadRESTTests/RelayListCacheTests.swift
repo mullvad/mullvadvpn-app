@@ -148,6 +148,8 @@ class RelayListCacheTests: XCTestCase {
         let context = ApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
+            amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
+            amIMullvadHostIpv6: "ipv6.\(REST.amIMullvadHostname)",
             domain: REST.encryptedDNSHostname,
             domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
             disableTls: true,
