@@ -23,14 +23,16 @@ public final class GotaTunTunnelImplementation: TunnelImplementation, Sendable {
         blockedStateErrorMapper: sending BlockedStateErrorMapperProtocol,
         adapterFactory: GotaTunAdapterFactory,
         ipOverrideWrapper: IPOverrideWrapper,
-        settingsReader: sending TunnelSettingsManager
+        settingsReader: sending TunnelSettingsManager,
+        deviceChecker: DeviceCheckerProtocol
     ) {
         gotaTunActor = GotaTunActor(
             providerDelegate: providerDelegate,
             settingsReader: settingsReader,
             relaySelector: RelaySelectorWrapper(relayCache: ipOverrideWrapper),
             blockedStateErrorMapper: blockedStateErrorMapper,
-            adapterFactory: adapterFactory
+            adapterFactory: adapterFactory,
+            deviceChecker: deviceChecker
         )
     }
 

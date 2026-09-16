@@ -163,3 +163,49 @@ final class GotaTunAdapterFactoryStub: GotaTunAdapterFactory {
         }
     }
 }
+
+/// Stub for `DeviceCheckerProtocol`. Each check suspends until an outcome is available, either from `outcomes`
+/// or from `complete(with:)`.
+final class DeviceCheckerStub: DeviceCheckerProtocol, Sendable {
+    private struct State {
+        var calls: [Bool] = []
+        var cancelledCount = 0
+    }
+
+    private let outcomes = AsyncStream<DeviceCheckOutcome>.makeStream()
+    private let started = AsyncStream<Void>.makeStream()
+    private let state = OSAllocatedUnfairLock(initialState: State())
+
+    /// `rotateKeyOnMismatch` of each check, in call order.
+    var calls: [Bool] { state.withLock { $0.calls } }
+    var cancelledCount: Int { state.withLock { $0.cancelledCount } }
+
+    init(outcomes queued: [DeviceCheckOutcome] = []) {
+        queued.forEach { outcomes.continuation.yield($0) }
+    }
+
+    func checkDevice(rotateKeyOnMismatch: Bool) async -> DeviceCheckOutcome {
+        state.withLock { $0.calls.append(rotateKeyOnMismatch) }
+        started.continuation.yield()
+
+        return await withTaskCancellationHandler {
+            for await outcome in outcomes.stream {
+                return outcome
+            }
+            return .noAction
+        } onCancel: {
+            state.withLock { $0.cancelledCount += 1 }
+        }
+    }
+
+    /// Returns once a check that has not been waited for yet has started.
+    func waitForCheck() async {
+        for await _ in started.stream {
+            return
+        }
+    }
+
+    func complete(with outcome: DeviceCheckOutcome) {
+        outcomes.continuation.yield(outcome)
+    }
+}
