@@ -3,7 +3,6 @@ use std::time::Duration;
 
 use futures::{future::OptionFuture, join};
 use mullvad_api::{
-    DnsResolver,
     availability::ApiAvailability,
     proxy::ApiConnectionMode,
     rest::{Error, RequestService, RequestServiceHandle},
