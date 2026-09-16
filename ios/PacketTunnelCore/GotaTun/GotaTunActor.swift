@@ -345,9 +345,13 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     private func handleAdapterTimeout() async {
-        guard observedState.connectionState != nil else {
+        guard var state = observedState.connectionState else {
             logger.debug("Ignoring onTimeout in state \(observedState)")
             return
+        }
+        state.connectionAttemptCount += 1
+        if state.connectionAttemptCount >= 3 {
+
         }
 
         await restartConnection(nextRelays: .random, incrementAttempt: true)
