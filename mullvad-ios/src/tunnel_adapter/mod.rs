@@ -39,9 +39,8 @@ use talpid_types::{
 };
 use tokio::sync::Notify;
 use tunnel_obfuscation::{
-    LocalSocketObfuscator, create_transport,
+    create_transport,
     gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation},
-    local_socket::LocalSocketRunner,
 };
 
 use self::pinger::SmoltcpPinger;
@@ -50,23 +49,7 @@ use self::tun_device::IosTunDevice;
 /// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
 pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;
 
-/// Guard that aborts the obfuscation proxy task on drop.
-struct ObfuscationGuard {
-    endpoint: SocketAddr,
-    task: tokio::task::JoinHandle<()>,
-}
-
-impl ObfuscationGuard {
-    fn endpoint(&self) -> SocketAddr {
-        self.endpoint
-    }
-}
-
-impl Drop for ObfuscationGuard {
-    fn drop(&mut self) {
-        self.task.abort();
-    }
-}
+type TransportFactory = MaybeObfuscatingTransportFactory<BoundUdpTransports>;
 
 /// A UDP transport bound ahead of the tunnel starting.
 /// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection
@@ -298,7 +281,7 @@ impl IosTunnelAdapter {
     }
 
     async fn run_inner(
-        mut config: TunnelConfig,
+        config: TunnelConfig,
         udp: BoundUdpTransports,
         callback: &Arc<dyn TunnelCallbackHandler>,
         stopped: &AtomicBool,
@@ -324,23 +307,9 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
-        // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at
-        //    it, then hand the same obfuscation over to the real device.
-        let final_obfuscation = match obfuscation {
-            None => None,
-            Some(obfuscation) => {
-                let obfuscation = obfuscation.with_client_public_key(Self::ingress_public_key(&pq));
-                // TODO: replace local socket obfuscation for tunnel traffic
-                Some(
-                    Self::start_obfuscation_proxy(obfuscation)
-                        .await
-                        .map_err(TunnelError::ObfuscationProxyError)?,
-                )
-            }
-        };
-        if let Some(ref guard) = final_obfuscation {
-            Self::apply_obfuscation(&mut config, guard.endpoint());
-        }
+        // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at it.
+        let obfuscation = obfuscation
+            .map(|obfuscation| obfuscation.with_client_public_key(Self::ingress_public_key(&pq)));
 
         // 4. Build the user-traffic device(s) behind an IpMuxRecv and IpMuxSend (TUN + smoltcp).
         let (smoltcp_handle, ip_recv, ip_send, _smoltcp_guard) =
@@ -351,7 +320,8 @@ impl IosTunnelAdapter {
             });
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
 
-        let devices = Self::build_devices(&config, &udp, pq, mux_recv, mux_send).await?;
+        let devices =
+            Self::build_devices(&config, &udp, obfuscation, pq, mux_recv, mux_send).await?;
         if stopped.load(Ordering::SeqCst) {
             devices.stop().await;
             return Err(TunnelError::Timeout);
@@ -475,16 +445,25 @@ impl IosTunnelAdapter {
     async fn build_devices(
         config: &TunnelConfig,
         udp: &BoundUdpTransports,
+        obfuscation: Option<RunningObfuscation>,
         pq: PqResult,
         mux_recv: tun_device::IosTunIpRecv,
         mux_send: tun_device::IosTunIpSend,
     ) -> Result<Devices, TunnelError> {
         let (pq_entry, pq_exit_key, pq_exit_peer) = pq;
 
+        let ingress_endpoint = config
+            .entry_peer
+            .as_ref()
+            .unwrap_or(&config.exit_peer)
+            .endpoint;
+        let ingress_transport =
+            MaybeObfuscatingTransportFactory::new(udp.clone(), obfuscation, ingress_endpoint);
+
         let Some(entry_peer_config) = config.entry_peer.as_ref() else {
-            // Singlehop: one device, mux'd IP pair, real UDP.
+            // Singlehop: one device, mux'd IP pair, obfuscated UDP.
             let device = DeviceBuilder::new()
-                .with_udp(udp.clone())
+                .with_udp(ingress_transport)
                 .with_ip_pair(mux_send, mux_recv)
                 .with_private_key(pq_exit_key)
                 .with_peer(pq_exit_peer.with_endpoint(config.exit_peer.endpoint))
@@ -516,8 +495,7 @@ impl IosTunnelAdapter {
             config.exit_peer.endpoint
         );
 
-        // Use the PQ entry key if negotiated, otherwise the device key. The
-        // endpoint must match the (possibly obfuscated) config endpoint.
+        // Use the PQ entry key if negotiated, otherwise the device key.
         let (entry_key, entry_peer) = pq_entry.unwrap_or_else(|| {
             (
                 StaticSecret::from(config.private_key),
@@ -527,7 +505,7 @@ impl IosTunnelAdapter {
         let entry_peer = entry_peer.with_endpoint(entry_peer_config.endpoint);
 
         let entry_device = match DeviceBuilder::new()
-            .with_udp(udp.clone())
+            .with_udp(ingress_transport)
             .with_ip_pair(tun_channel_tx, tun_channel_rx)
             .with_peer(entry_peer)
             .with_private_key(entry_key)
@@ -576,36 +554,6 @@ impl IosTunnelAdapter {
             _ = tokio::time::sleep(establish_timeout) => false,
             _ = stop_notify.notified() => false,
         })
-    }
-
-    /// Run `obfuscation` behind a local UDP socket, which the tunnel devices send to.
-    /// Returns a guard that keeps the proxy alive until dropped.
-    ///
-    /// TODO: The tunnel devices should obfuscate in place, the way the ephemeral peer negotiation
-    /// does, instead of going through a local socket. See [`MaybeObfuscatingTransportFactory`].
-    async fn start_obfuscation_proxy(
-        obfuscation: RunningObfuscation,
-    ) -> Result<ObfuscationGuard, ObfuscationProxyError> {
-        let transport = match obfuscation {
-            RunningObfuscation::Transport(transport) => transport,
-            // LWO rewrites each datagram in place, so it has no transport of its own to reuse.
-            RunningObfuscation::Lwo(settings) => create_transport(
-                Arc::new(NoopBypass),
-                &tunnel_obfuscation::Settings::Lwo(settings),
-            )
-            .await
-            .map_err(ObfuscationProxyError::LocalSocketError)?,
-        };
-
-        let obfuscator = LocalSocketRunner::new(transport)
-            .await
-            .map_err(ObfuscationProxyError::LocalSocketError)?;
-        let endpoint = obfuscator.endpoint();
-        log::info!("Obfuscation proxy started at {endpoint}");
-        let task = tokio::spawn(async move {
-            let _ = Box::new(obfuscator).run().await;
-        });
-        Ok(ObfuscationGuard { endpoint, task })
     }
 
     /// Create the obfuscation that reaches the ingress relay. It is used by the temporary devices
@@ -681,15 +629,6 @@ impl IosTunnelAdapter {
             }),
         };
         Ok(Some(settings))
-    }
-
-    /// Apply obfuscation to the config: replace the ingress peer's endpoint with the proxy address.
-    fn apply_obfuscation(config: &mut TunnelConfig, proxy_endpoint: SocketAddr) {
-        if let Some(ref mut entry) = config.entry_peer {
-            entry.endpoint = proxy_endpoint;
-        } else {
-            config.exit_peer.endpoint = proxy_endpoint;
-        }
     }
 
     /// Wait for the device to receive traffic (rx_bytes > 0 on any peer).
@@ -820,14 +759,14 @@ fn localhost_wg_endpoint(peer: SocketAddr) -> SocketAddr {
 enum Devices {
     Singlehop(
         gotatun::device::Device<(
-            BoundUdpTransports,
+            TransportFactory,
             tun_device::IosTunIpSend,
             tun_device::IosTunIpRecv,
         )>,
     ),
     Multihop {
         entry: gotatun::device::Device<(
-            BoundUdpTransports,
+            TransportFactory,
             gotatun::tun::channel::TunChannelTx,
             gotatun::tun::channel::TunChannelRx,
         )>,
@@ -994,24 +933,6 @@ mod tests {
             "IPv6 header is larger than IPv4 (v4={v4}, v6={v6})"
         );
         assert_eq!((v6 - v4) as usize, Ipv6Header::LEN - Ipv4Header::LEN);
-    }
-
-    #[test]
-    fn apply_obfuscation_targets_entry_in_multihop_else_exit() {
-        let proxy: SocketAddr = "127.0.0.1:9999".parse().unwrap();
-
-        // Singlehop: rewrites the exit endpoint.
-        let mut singlehop = config();
-        IosTunnelAdapter::apply_obfuscation(&mut singlehop, proxy);
-        assert_eq!(singlehop.exit_peer.endpoint, proxy);
-
-        // Multihop: rewrites the entry endpoint, leaves the exit untouched.
-        let mut multihop = config();
-        multihop.entry_peer = Some(peer("9.9.9.9:51820"));
-        let exit_endpoint = multihop.exit_peer.endpoint;
-        IosTunnelAdapter::apply_obfuscation(&mut multihop, proxy);
-        assert_eq!(multihop.entry_peer.as_ref().unwrap().endpoint, proxy);
-        assert_eq!(multihop.exit_peer.endpoint, exit_endpoint);
     }
 
     #[test]
