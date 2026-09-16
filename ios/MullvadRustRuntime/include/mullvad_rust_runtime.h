@@ -672,7 +672,7 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retr
                                                               uint64_t delay_sec);
 
 /**
- * Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
+ * Creates a retry strategy that retries `max_retries` times with a exponentially increating delay.
  * The delay will never exceed `max_delay_sec`
  * The result needs to be consumed.
  */
@@ -753,7 +753,7 @@ extern void swift_data_drop(struct SwiftData *data);
  * key exchange was successful, `raw_ephemeral_private_key` must be a valid pointer to 32
  * bytes for the lifetime of this call. If PQ was enabled, `raw_preshared_key` must be a valid
  * pointer to 32 bytes for the lifetime of this call. If DAITA was requested, the
- * `daita_prameters` must point to a valid instance of `DaitaParameters`.
+ * `daita_parameters` must point to a valid instance of `DaitaParameters`.
  */
 extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
                                        const uint8_t *raw_preshared_key,
