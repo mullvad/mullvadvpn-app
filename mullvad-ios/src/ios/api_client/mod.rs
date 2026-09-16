@@ -4,13 +4,13 @@ use crate::get_string;
 use access_method_resolver::{IOSAddressCacheBacking, SwiftAccessMethodResolver};
 use access_method_settings::SwiftAccessMethodSettingsWrapper;
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
 use mullvad_api::{
+    AddressCache, ApiEndpoint, ApiProxy, Runtime,
     access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
     rest::{self, MullvadRestHandle},
-    AddressCache, ApiEndpoint, ApiProxy, Runtime,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{Id, Settings};
