@@ -19,6 +19,7 @@ class LoginTest : EndToEndTest() {
         app.launchAndLogIn(validTestAccountNumber)
         app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
+        on<LoginPage>()
     }
 
     @Test
