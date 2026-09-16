@@ -26,7 +26,7 @@ protocol AccountManagerTunnelInteractor: Sendable {
 struct AccountManager: Sendable {
     let operationQueue: AsyncOperationQueue
     let internalQueue: DispatchQueue
-    let interactor: AccountManagerTunnelInteractor
+    let interactor: TunnelInteractor
     let backgroundTaskProvider: BackgroundTaskProviding
     let accountsProxy: RESTAccountHandling
     let devicesProxy: DeviceHandling
@@ -36,53 +36,60 @@ struct AccountManager: Sendable {
         action: SetAccountAction,
         completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
     ) {
-        let operation = SetAccountOperation(
-            dispatchQueue: internalQueue,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
-            action: action,
-            deviceState: {
-                interactor.deviceState
-            },
-            onUpdateAccount: { deviceState in
-                if let accountNumber = deviceState.accountData?.number {
-                    interactor.setLastUsedAccount(accountNumber)
+        Task {
+            let deviceState = await interactor.getDeviceState()
+
+            let operation = SetAccountOperation(
+                dispatchQueue: internalQueue,
+                accountsProxy: accountsProxy,
+                devicesProxy: devicesProxy,
+                action: action,
+                deviceState: { deviceState },
+                onUpdateAccount: { deviceState, completion in
+                    Task {
+                        if let accountNumber = deviceState.accountData?.number {
+                            await interactor.setLastUsedAccount(accountNumber)
+                        }
+                        await interactor.setDeviceState(deviceState, persist: true)
+                        completion?()
+                    }
                 }
-                interactor.setDeviceState(deviceState, persist: true)
+            )
+
+            operation.completionQueue = .main
+            operation.completionHandler = { result in
+                completionHandler(result)
             }
-        )
 
-        operation.completionQueue = .main
-        operation.completionHandler = { result in
-            completionHandler(result)
+            operation.addObserver(
+                BackgroundObserver(
+                    backgroundTaskProvider: backgroundTaskProvider,
+                    name: action.taskName,
+                    cancelUponExpiration: true
+                ))
+
+            operation.addCondition(MutuallyExclusive(category: category))
+
+            // Unsetting (ie. logging out) or deleting the account should cancel all other
+            // currently ongoing activity.
+            switch action {
+            case .unset, .delete:
+                operationQueue.cancelAllOperations()
+            default:
+                break
+            }
+
+            operationQueue.addOperation(operation)
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: action.taskName,
-                cancelUponExpiration: true
-            ))
-
-        operation.addCondition(MutuallyExclusive(category: category))
-
-        // Unsetting (ie. logging out) or deleting the account should cancel all other
-        // currently ongoing activity.
-        switch action {
-        case .unset, .delete:
-            operationQueue.cancelAllOperations()
-        default:
-            break
-        }
-
-        operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @escaping @Sendable (Result<Void, Error>) -> Void) async -> Cancellable {
+        let deviceState = await interactor.getDeviceState()
+
         let operation = RotateKeyOperation(dispatchQueue: internalQueue, devicesProxy: devicesProxy) {
-            interactor.deviceState
+            deviceState
         } onUpdateAccount: { deviceState in
-            interactor.setDeviceState(deviceState, persist: true)
+            Task { await interactor.setDeviceState(deviceState, persist: true) }
         }
 
         operation.completionQueue = .main
@@ -107,30 +114,32 @@ struct AccountManager: Sendable {
         return operation
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        Task {
-            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-                completionHandler?(InvalidDeviceStateError())
-                return
-            }
-            do {
-                let device = try await devicesProxy.getDevice(
-                    accountNumber: accountData.number,
-                    identifier: deviceData.identifier,
-                    retryStrategy: .default
-                )
-                switch interactor.deviceState {
-                case .loggedIn(let storedAccount, var storedDevice):
-                    storedDevice.update(from: device)
-                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
-                    interactor.setDeviceState(newDeviceState, persist: true)
-                default:
-                    throw InvalidDeviceStateError()
-                }
-            } catch {
-                interactor.handleRestError(error)
-                completionHandler?(error)
-            }
+    func updateDeviceData() async -> Result<Void, Error> {
+        let deviceState = await interactor.getDeviceState()
+
+        guard case let .loggedIn(accountData, deviceData) = deviceState else {
+            return .failure(InvalidDeviceStateError())
         }
+
+        do {
+            let device = try await devicesProxy.getDevice(
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
+                retryStrategy: .default
+            )
+            switch deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                await interactor.setDeviceState(newDeviceState, persist: true)
+            default:
+                throw InvalidDeviceStateError()
+            }
+        } catch {
+            await interactor.handleRestError(error)
+            return .failure(error)
+        }
+
+        return .success(())
     }
 }

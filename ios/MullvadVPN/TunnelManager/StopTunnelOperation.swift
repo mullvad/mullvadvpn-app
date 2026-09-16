@@ -30,40 +30,38 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     }
 
     override func main() {
-        switch interactor.tunnelStatus.state {
-        case .disconnecting(.reconnect):
-            interactor.updateTunnelStatus { tunnelStatus in
-                tunnelStatus.state = .disconnecting(.nothing)
+        Task {
+            switch await interactor.getTunnelStatus().state {
+            case .disconnecting(.reconnect):
+                await interactor.updateTunnelStatus { tunnelStatus in
+                    tunnelStatus.state = .disconnecting(.nothing)
+                }
+                finish(result: .success(()))
+
+            case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
+                .negotiatingEphemeralPeer:
+                await doShutDownTunnel()
+
+            case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
+                finish(result: .success(()))
             }
-
-            finish(result: .success(()))
-
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
-            .negotiatingEphemeralPeer:
-            doShutDownTunnel()
-
-        case .disconnected, .disconnecting, .pendingReconnect, .waitingForConnectivity(.noNetwork):
-            finish(result: .success(()))
         }
     }
 
-    private func doShutDownTunnel() {
-        guard let tunnel = interactor.tunnel else {
+    private func doShutDownTunnel() async {
+        guard let tunnel = await interactor.getTunnel() else {
             finish(result: .failure(UnsetTunnelError()))
             return
         }
 
-        tunnel.isOnDemandEnabled = isOnDemandEnabled
+        await tunnel.setOnDemandEnabled(enabled: isOnDemandEnabled)
 
-        tunnel.saveToPreferences { error in
-            self.dispatchQueue.async {
-                if let error {
-                    self.finish(result: .failure(error))
-                } else {
-                    tunnel.stop()
-                    self.finish(result: .success(()))
-                }
-            }
+        let error = await tunnel.saveToPreferences()
+        if let error {
+            finish(result: .failure(error))
+        } else {
+            await tunnel.stop()
+            finish(result: .success(()))
         }
     }
 }

@@ -81,13 +81,15 @@ final class TunnelStub: TunnelProtocol, Equatable, @unchecked Sendable {
         ""
     }
 
+    func setOnDemandEnabled(enabled: Bool) async {}
+
     func saveToPreferences(_ completion: @escaping (Error?) -> Void) {}
 
     func removeFromPreferences(completion: @escaping (Error?) -> Void) {}
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}
 
-    func start(options: [String: NSObject]?) throws {}
+    func start(options: sending [String: NSObject]?) throws {}
 
     func stop() {}
 

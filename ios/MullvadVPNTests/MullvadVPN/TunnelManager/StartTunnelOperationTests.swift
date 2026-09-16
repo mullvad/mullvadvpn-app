@@ -79,8 +79,11 @@ class StartTunnelOperationTests: XCTestCase {
             interactor: interactor
         ) { _ in
             XCTAssertNotNil(interactor.tunnel)
-            XCTAssertNotNil(interactor.tunnel?.startDate)
-            expectation.fulfill()
+            Task {
+                let startDate = await interactor.tunnel?.startDate
+                XCTAssertNotNil(startDate)
+                expectation.fulfill()
+            }
         }
         operationQueue.addOperation(operation)
         wait(for: [expectation], timeout: .UnitTest.timeout)

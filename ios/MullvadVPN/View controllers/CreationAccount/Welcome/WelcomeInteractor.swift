@@ -73,7 +73,9 @@ final class WelcomeInteractor: @unchecked Sendable {
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
-            self?.tunnelManager.updateAccountData()
+            Task {
+                await self?.tunnelManager.updateAccountData()
+            }
         }
 
         accountUpdateTimer?.cancel()

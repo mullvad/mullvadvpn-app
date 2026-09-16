@@ -103,8 +103,11 @@ struct LoadTunnelConfigurationTests {
                 #expect(newTunnel == nil)
             } else {
                 /// `TunnelProtocol` is not equatable, use the `startDate` to determine whether it's the same tunnel
-                #expect(newTunnel?.startDate == expectedOutcome.tunnel?.startDate)
+                let capturedStartDate = await newTunnel?.startDate
+                let expectedStartDate = await expectedOutcome.tunnel?.startDate
+                #expect(capturedStartDate == expectedStartDate)
             }
+
             #expect(shouldRefreshTunnelState == true)
         }
 

@@ -48,20 +48,21 @@ actor TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         persistentTunnel
     }
 
-    private func setPersistentTunnel(from manager: TunnelProviderManagerType) {
+    private func setPersistentTunnel(from manager: TunnelProviderManagerType) async {
         persistentTunnel?.removeObserver(self)
         let tunnel = Tunnel(tunnelProvider: manager, backgroundTaskProvider: self.application)
         tunnel.addObserver(self)
 
-        self.logger.debug(
-            "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(tunnel.status)."
+        let status = await tunnel.status
+        logger.debug(
+            "Loaded persistent tunnel: \(tunnel.logFormat()) with status: \(status)."
         )
         persistentTunnel = tunnel
     }
 
     func loadPersistentTunnels() async throws {
         guard let manager = try await TunnelProviderManagerType.loadAllFromPreferences().first else { return }
-        self.setPersistentTunnel(from: manager)
+        await self.setPersistentTunnel(from: manager)
     }
 
     func createNewTunnel() -> TunnelType {
@@ -92,8 +93,8 @@ actor TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         }
     }
 
-    private func refreshStatus() {
+    private func refreshStatus() async {
         guard let persistentTunnel else { return }
-        handleTunnelStatus(tunnel: persistentTunnel, status: persistentTunnel.status)
+        handleTunnelStatus(tunnel: persistentTunnel, status: await persistentTunnel.status)
     }
 }
