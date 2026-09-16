@@ -41,7 +41,7 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
 
             val file = File(OUTPUT_DIRECTORY, fileName)
             if (file.exists()) {
-                file.delete()
+                executeShellCommand("rm -f $OUTPUT_DIRECTORY/$fileName")
             } else {
                 Logger.w("File $OUTPUT_DIRECTORY/$fileName does not exist")
             }
@@ -54,20 +54,23 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
         }
 
         job = coroutineScope.launch {
-            getInstrumentation()
-                .uiAutomation
-                .executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
+            executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
         }
     }
 
     private fun stopScreenRecord() {
         try {
-            getInstrumentation().uiAutomation.executeShellCommand("pkill -2 screenrecord")
+            executeShellCommand("pkill -2 screenrecord")
             runBlocking { job.join() }
         } catch (e: Exception) {
             Logger.e("Failed to stop recording", e)
             fail("Failed to stop screen recording")
         }
+    }
+
+    private fun executeShellCommand(command: String) {
+        val fd = getInstrumentation().uiAutomation.executeShellCommand(command)
+        fd.close()
     }
 
     private fun ExtensionContext.fileName(): String {
