@@ -3410,6 +3410,7 @@ dependencies = [
  "futures",
  "hickory-resolver",
  "insta",
+ "ipnetwork",
  "libc",
  "log",
  "log-panics",
