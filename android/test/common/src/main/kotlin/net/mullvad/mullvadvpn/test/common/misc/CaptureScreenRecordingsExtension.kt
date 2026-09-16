@@ -23,15 +23,27 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
 
     override fun beforeEach(context: ExtensionContext?) {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        val testMethodName = context?.testMethod!!.get().name
-        val fileName = "${testMethodName}.mp4"
-        Logger.v("Starting screen recording. Saving to $testMethodName")
+        val fileName = context?.fileName() ?: "unknown.mp4"
+        Logger.v("Starting screen recording. Saving to $fileName")
         startScreenRecord(fileName)
     }
 
     override fun afterEach(context: ExtensionContext?) {
         Logger.v("Stopping screen recording")
         stopScreenRecord()
+
+        // Delete the recording if the test passed, since it is not required and should not be
+        // uploaded to GitHub.
+        if (context?.executionException?.isEmpty == true) {
+            val fileName = context.fileName()
+
+            Logger.v("Deleting screen recording. Saving to $fileName")
+
+            val file = File(OUTPUT_DIRECTORY, fileName)
+            if (file.exists()) {
+                file.delete()
+            }
+        }
     }
 
     private fun startScreenRecord(fileName: String) {
@@ -54,6 +66,11 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
             Logger.e("Failed to stop recording", e)
             fail("Failed to stop screen recording")
         }
+    }
+
+    private fun ExtensionContext.fileName(): String {
+        val testMethodName = this.testMethod!!.get().name
+        return "${testMethodName}.mp4"
     }
 
     companion object {
