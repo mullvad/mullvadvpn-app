@@ -270,8 +270,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
                     style: .default,
                     handler: { [weak self] _ in
-                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                        self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                        Task {
+                            PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+                            await self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                        }
                     }
                 )
             )
@@ -281,10 +283,12 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             UIAlertAction(
                 title: "Factory Reset", style: .destructive,
                 handler: { [weak self] _ in
-                    guard let self else { return }
-                    interactor.tunnelManager.updateSettings([.reset])
-                    UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
-                    logOut()
+                    Task {
+                        guard let self else { return }
+                        await self.interactor.tunnelManager.updateSettings([.reset])
+                        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+                        self.logOut()
+                    }
                 }))
 
         sheetController.addAction(
