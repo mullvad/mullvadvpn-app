@@ -14,14 +14,14 @@ import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 
-protocol TunnelInteractor {
+protocol TunnelInteractor: Sendable {
     // MARK: - Tunnel manipulation
 
     var tunnel: (any TunnelProtocol)? { get }
     var backgroundTaskProvider: BackgroundTaskProviding { get }
 
-    func getPersistentTunnels() -> [any TunnelProtocol]
-    func createNewTunnel() -> any TunnelProtocol
+    func getPersistentTunnel() async -> (any TunnelProtocol)?
+    func createNewTunnel() async -> any TunnelProtocol
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool)
 
     // MARK: - Tunnel status
