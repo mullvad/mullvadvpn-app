@@ -309,7 +309,11 @@ impl IosTunnelAdapter {
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = Self::negotiate_pq(&config, &udp).await?;
+        let pq = tokio::select! {
+            pq = Self::negotiate_pq(&config, &udp) => pq?,
+            // NOTE: Temporary WG devices are torn down in a spawned task here.
+            _ = stop_notify.notified() => return Err(TunnelError::Timeout),
+        };
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
