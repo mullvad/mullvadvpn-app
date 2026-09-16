@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Replace grpc-java with wire as grpc library.
+- Introduce having the list of servers being logged in a public transparency log using the Sigsum
+  transparency logging system. This aims to make it harder for a third party to intercept and
+  serve a tampered version of the server list.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.

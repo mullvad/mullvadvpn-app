@@ -322,6 +322,13 @@ in each packet. Any observer who chose to look could trivially reverse it, but i
 sufficient to prevent automated packet inspection from recognizing and blocking the
 traffic.
 
+## Transparency-logged relay list with Sigsum
+
+The list of VPN servers that the user can connect to (the relay list) is served to the app
+from the Mullvad API. The relay list is transparency logged, which aims to prevent a malicious
+third-party from replacing it with a tampered version.  See the [sigsum](sigsum.md) document
+for more details.
+
 ## Desktop system service
 
 On all desktop platforms the VPN tunnel and the device security is handled by a system
