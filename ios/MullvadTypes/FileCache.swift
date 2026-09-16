@@ -55,10 +55,7 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
-        self.queue = DispatchSerialQueue(
-            label: "net.mullvad.filecache.\(fileURL.lastPathComponent)",
-            qos: .userInitiated
-        )
+        self.queue = DispatchSerialQueue(label: "FileCache")
     }
 
     // MARK: - Asynchronous functions
@@ -110,19 +107,19 @@ public actor FileCache<Content: Codable & Sendable>: FileCacheProtocol {
     // Will be removed once all call sites have been migrated.
 
     public nonisolated func read() throws -> Content {
-        try BridgeExecutor.run {
+        try BridgeExecutor.shared.run {
             try await self.read()
         }
     }
 
     public nonisolated func write(_ content: Content) throws {
-        try BridgeExecutor.run {
+        try BridgeExecutor.shared.run {
             try await self.write(content)
         }
     }
 
     public nonisolated func clear() throws {
-        try BridgeExecutor.run {
+        try BridgeExecutor.shared.run {
             try await self.clear()
         }
     }
