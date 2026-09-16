@@ -73,6 +73,8 @@ impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
             exit_peer: None,
             ipv4_gateway,
             ipv6_gateway,
+            // NOTE: Not visible to protobuf clients, and custom tunnels cannot set this.
+            routes: None,
             #[cfg(target_os = "linux")]
             fwmark: Some(mullvad_types::TUNNEL_FWMARK),
         })
