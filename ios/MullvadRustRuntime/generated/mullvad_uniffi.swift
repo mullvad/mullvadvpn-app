@@ -986,7 +986,7 @@ public enum GotaTunFfiError: Swift.Error, Equatable, Hashable, Foundation.Locali
     
     
     /**
-     * A field in the config was malformed (bad key length, unparseable address, ...).
+     * A field in the config was malformed (bad key length, unparsable address, ...).
      */
     case InvalidConfig(String
     )
