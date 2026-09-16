@@ -1,6 +1,3 @@
-mod ipnetwork_sub;
-
-use self::ipnetwork_sub::IpNetworkSub;
 use super::TunConfig;
 use ipnetwork::{IpNetwork, Ipv4Network};
 use jnix::{
@@ -21,6 +18,7 @@ use std::{
     sync::Arc,
 };
 use talpid_routing::Route;
+use talpid_types::net::ipnetwork_sub::IpNetworkSub;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use talpid_types::{ErrorExt, android::AndroidContext, android::InetNetwork};
 
