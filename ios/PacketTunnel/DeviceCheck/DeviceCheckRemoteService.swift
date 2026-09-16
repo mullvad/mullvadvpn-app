@@ -42,6 +42,49 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         )
     }
 
+    func getDevice(accountNumber: String, identifier: String) async throws -> Device {
+        try await devicesProxy
+            .getDevice(
+                accountNumber: accountNumber,
+                identifier: identifier,
+                retryStrategy: .noRetry,
+            )
+    }
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: WireGuard.PublicKey,
+    ) async -> Result<Device, Error> {
+        do {
+            return .success(try await devicesProxy.rotateDeviceKey(
+                accountNumber: accountNumber,
+                identifier: identifier,
+                publicKey: publicKey,
+                retryStrategy: .default,
+            ))
+        } catch {
+            return .failure(error)
+        }
+
+    }
+
+    func getDevice(accountNumber: String, identifier: String) async -> Result<MullvadTypes.Device, any Error> {
+        do {
+            return .success(try await devicesProxy
+                .getDevice(
+                    accountNumber: accountNumber,
+                    identifier: identifier,
+                    retryStrategy: .noRetry,
+                ))
+        }
+         catch {
+             return .failure(error)
+        }
+
+    }
+
+
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,

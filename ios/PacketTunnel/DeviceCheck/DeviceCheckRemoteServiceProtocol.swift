@@ -12,7 +12,7 @@ import Foundation
 import MullvadTypes
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
-protocol DeviceCheckRemoteServiceProtocol {
+protocol DeviceCheckRemoteServiceProtocol: Sendable {
     func getAccountData(accountNumber: String) async -> Result<Account, Error>
 
     func getDevice(
@@ -20,6 +20,10 @@ protocol DeviceCheckRemoteServiceProtocol {
         identifier: String,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable
+
+    func getDevice(accountNumber: String, identifier: String) async -> Result<Device, Error>
+
+    func rotateDeviceKey(accountNumber: String, identifier: String, publicKey: WireGuard.PublicKey) async -> Result<Device, Error>
 
     func rotateDeviceKey(
         accountNumber: String,
