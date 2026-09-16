@@ -10,18 +10,18 @@
 
 import Foundation
 
-public protocol Cancellable {
+public protocol Cancellable: Sendable {
     func cancel()
 }
 
 extension Operation: Cancellable {}
 
 /// An object representing a cancellation token.
-public final class AnyCancellable: Cancellable {
+public final class AnyCancellable: Cancellable, @unchecked Sendable {
     private let block: (() -> Void)?
 
     /// Create cancellation token with block handler.
-    public init(block: @escaping @Sendable () -> Void) {
+    public init(block: @escaping () -> Void) {
         self.block = block
     }
 

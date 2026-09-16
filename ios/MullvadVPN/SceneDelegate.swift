@@ -75,7 +75,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         deviceUpdateThrottle = ActionThrottle(
             waitInterval: deviceDataDefaultWaitInterval,
             action: { [tunnelManager] in
-                tunnelManager.updateAccountData()
+                Task {
+                    await tunnelManager.updateAccountData()
+                }
             })
 
         refreshLoginMetadata(forceUpdate: true)
@@ -241,9 +243,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     // MARK: - SettingsMigrationUIHandler
 
-    func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+    func showMigrationError(_ error: Error) {
         guard let appCoordinator else {
-            completionHandler()
             return
         }
 
@@ -254,10 +255,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             buttons: [
                 AlertAction(
                     title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default,
-                    handler: {
-                        completionHandler()
-                    }
+                    style: .default
                 )
             ]
         )
