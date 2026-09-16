@@ -79,7 +79,6 @@ impl ObfuscationSlot {
             .as_ref()
             .is_some_and(|proxy| proxy.serves(client_public_key));
         if !reusable {
-            self.proxy = None;
             self.proxy = ObfuscationProxy::start(params, client_public_key).await?;
         }
         Ok(self.proxy.as_ref())
