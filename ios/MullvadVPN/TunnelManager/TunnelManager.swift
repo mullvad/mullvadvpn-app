@@ -146,7 +146,7 @@ actor TunnelManager {
     func unsetAccount(isRemovingProfile: Bool = true) async {
         do {
             _ = try await setAccount(action: .unset)
-            unsetTunnelConfiguration(isRemovingProfile: isRemovingProfile)
+            await unsetTunnelConfiguration(isRemovingProfile: isRemovingProfile)
         } catch {
             logger.debug("Failed to unset account: \(error.description)")
         }
@@ -159,7 +159,7 @@ actor TunnelManager {
     func deleteAccount(accountNumber: String) async throws {
         _ = try await setAccount(action: .delete(accountNumber))
         removeLastUsedAccount()
-        unsetTunnelConfiguration()
+        await unsetTunnelConfiguration()
     }
 
     func updateDeviceData() async throws {
@@ -409,7 +409,7 @@ actor TunnelManager {
         operationQueue.addOperation(operation)
     }
 
-    func reapplyTunnelConfiguration() {
+    func reapplyTunnelConfiguration() async {
         guard let tunnel = _tunnel else { return }
 
         if _tunnelStatus.state.isSecured {
@@ -432,12 +432,9 @@ actor TunnelManager {
                 excludeLocalNetworks: _tunnelSettings.includeAllNetworks.localNetworkSharingIsEnabled
             )
 
-            tunnel.setConfiguration(configuration)
-            tunnel.saveToPreferences { [weak self] _ in
-                Task {
-                    await self?.stopTunnel(isOnDemandEnabled: true)
-                }
-            }
+            await tunnel.setConfiguration(configuration)
+            _ = await tunnel.saveToPreferences()
+            stopTunnel(isOnDemandEnabled: true)
         }
     }
 
@@ -538,9 +535,9 @@ actor TunnelManager {
         }
     }
 
-    fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
+    fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) async {
         if let tunnel {
-            subscribeVPNStatusObserver(tunnel: tunnel)
+            await subscribeVPNStatusObserver(tunnel: tunnel)
         } else {
             unsubscribeVPNStatusObserver()
         }
@@ -550,12 +547,12 @@ actor TunnelManager {
         // Update the existing state
         if shouldRefreshTunnelState {
             logger.debug("Refresh tunnel status for new tunnel.")
-            refreshTunnelStatus()
+            await refreshTunnelStatus()
         }
     }
 
     @discardableResult
-    fileprivate func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
+    fileprivate func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) async -> TunnelStatus {
         var newTunnelStatus = _tunnelStatus
         block(&newTunnelStatus)
 
@@ -578,7 +575,7 @@ actor TunnelManager {
         if case let .error(blockedStateReason) = _tunnelStatus.state,
             !blockedStateReason.recoverableError()
         {
-            handleBlockedState(reason: blockedStateReason)
+            await handleBlockedState(reason: blockedStateReason)
         }
 
         let snapshot = newTunnelStatus
@@ -665,23 +662,38 @@ actor TunnelManager {
         }
     }
 
-    private func didUpdateNetworkPath(_ path: Network.NWPath) {
+    private func didUpdateNetworkPath(_ path: Network.NWPath) async {
         // Only act on network path updates when VPN is disconnected.
         // When VPN is up, the packet tunnel handles network changes internally.
-        let status = _tunnel?.status ?? .disconnected
+        let status = await _tunnel?.status ?? .disconnected
         guard [.disconnected, .invalid].contains(status) else { return }
 
-        setDisconnectedState(networkPathStatus: path.status)
+        await setDisconnectedState(networkPathStatus: path.status)
     }
 
     fileprivate func prepareForVPNConfigurationDeletion() {
         unsubscribeVPNStatusObserver()
     }
 
-    private func didReconnectTunnel(error: Error?) {
+    private func didReconnectTunnel(error: Error?) async {
         if let error, !error.isOperationCancellationError {
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
         }
+
+        // Refresh tunnel status only when connecting, reasserting or error to pick up the next relay,
+        // since both states may persist for a long period of time until the tunnel is fully connected.
+        switch _tunnelStatus.state {
+        case .connecting, .reconnecting, .error:
+            logger.debug("Refresh tunnel status due to reconnect.")
+            await refreshTunnelStatus()
+
+        default:
+            break
+        }
+    }
+
+    private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) async {
+        unsubscribeVPNStatusObserver()
 
         // Refresh tunnel status only when connecting, reasserting or error to pick up the next relay,
         // since both states may persist for a long period of time until the tunnel is fully connected.
@@ -695,7 +707,7 @@ actor TunnelManager {
         }
     }
 
-    private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
+    private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) async {
         unsubscribeVPNStatusObserver()
 
         statusObserver = tunnel.addBlockObserver(queue: internalQueue) { [weak self] _, status in
@@ -715,8 +727,8 @@ actor TunnelManager {
 
         // Save and start polling for the current status since the observer
         // only fires on status changes, not for the initial state.
-        setNEVPNStatus(tunnel.status)
-        updatePollingFromVPNStatus(tunnel.status)
+        setNEVPNStatus(await tunnel.status)
+        updatePollingFromVPNStatus(await tunnel.status)
     }
 
     private func setNEVPNStatus(_ status: NEVPNStatus) {
@@ -740,8 +752,8 @@ actor TunnelManager {
         pendingNetworkPathUpdate?.cancel()
 
         let workItem = DispatchWorkItem { [weak self] in
-            self?.assumeIsolated { actor in
-                actor.didUpdateNetworkPath(path)
+            Task {
+                await self?.didUpdateNetworkPath(path)
             }
         }
         pendingNetworkPathUpdate = workItem
@@ -757,8 +769,8 @@ actor TunnelManager {
         statusObserver = nil
     }
 
-    private func refreshTunnelStatus() {
-        guard let connectionStatus = _tunnel?.status else { return }
+    private func refreshTunnelStatus() async {
+        guard let connectionStatus = await _tunnel?.status else { return }
 
         switch connectionStatus {
         case .connecting, .reasserting, .connected:
@@ -766,7 +778,7 @@ actor TunnelManager {
             fetchAndUpdateTunnelStatus()
         case .disconnected, .disconnecting, .invalid:
             // Down states: update directly
-            updateTunnelStatus(connectionStatus)
+            await updateTunnelStatus(connectionStatus)
         @unknown default:
             break
         }
@@ -804,20 +816,20 @@ actor TunnelManager {
     /// Update `TunnelStatus` from `NEVPNStatus`.
     /// For active states, fetches detailed status via IPC.
     /// For down states, updates state directly without IPC.
-    private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) {
+    private func updateTunnelStatus(_ connectionStatus: NEVPNStatus) async {
         switch connectionStatus {
         case .connecting, .reasserting, .connected:
             // Active states: fetch details via IPC
             fetchAndUpdateTunnelStatus()
 
         case .disconnecting:
-            handleDisconnectingStateDirectly()
+            await handleDisconnectingStateDirectly()
 
         case .disconnected:
-            handleDisconnectedStateDirectly()
+            await handleDisconnectedStateDirectly()
 
         case .invalid:
-            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+            await setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
 
         @unknown default:
             logger.debug("Unknown NEVPNStatus: \(connectionStatus.rawValue)")
@@ -828,8 +840,8 @@ actor TunnelManager {
 
     /// Directly set disconnected state without going through operation queue.
     /// Safe because disconnected is an idempotent final state.
-    private func setDisconnectedState(networkPathStatus: Network.NWPath.Status?) {
-        _ = setTunnelStatus { tunnelStatus in
+    private func setDisconnectedState(networkPathStatus: Network.NWPath.Status?) async {
+        _ = await setTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state =
                 networkPathStatus == .unsatisfied
@@ -839,13 +851,13 @@ actor TunnelManager {
     }
 
     /// Handle disconnecting state directly without IPC.
-    private func handleDisconnectingStateDirectly() {
+    private func handleDisconnectingStateDirectly() async {
         switch _tunnelStatus.state {
         case .disconnecting:
             // Already disconnecting, no change needed
             break
         default:
-            _ = setTunnelStatus { tunnelStatus in
+            _ = await setTunnelStatus { tunnelStatus in
                 if tunnelStatus.observedState.blockedState != nil {
                     tunnelStatus.state = .disconnecting(.nothing)
                 } else {
@@ -860,21 +872,21 @@ actor TunnelManager {
     }
 
     /// Handle disconnected state directly without IPC.
-    private func handleDisconnectedStateDirectly() {
+    private func handleDisconnectedStateDirectly() async {
         switch _tunnelStatus.state {
         case .pendingReconnect:
             logger.debug("Ignore disconnected state when pending reconnect.")
 
         case .disconnecting(.reconnect):
             logger.debug("Restart the tunnel on disconnect.")
-            _ = setTunnelStatus { tunnelStatus in
+            _ = await setTunnelStatus { tunnelStatus in
                 tunnelStatus = TunnelStatus()
                 tunnelStatus.state = .pendingReconnect
             }
             startTunnel()
 
         default:
-            setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
+            await setDisconnectedState(networkPathStatus: networkMonitor?.currentPath.status)
         }
     }
 
@@ -980,7 +992,9 @@ actor TunnelManager {
                 case .newRelayReconnect:
                     actor.reconnectTunnel(selectNewRelay: true)
                 case .hardReconnect:
-                    actor.reapplyTunnelConfiguration()
+                    Task {
+                        await actor.reapplyTunnelConfiguration()
+                    }
                 }
             }
         }
@@ -1114,17 +1128,17 @@ actor TunnelManager {
         }
     }
 
-    func handleRestError(_ error: Error) {
+    func handleRestError(_ error: Error) async {
         guard let restError = error as? REST.Error else { return }
 
         if restError.compareErrorCode(.deviceNotFound) {
-            handleBlockedState(reason: .deviceRevoked)
+            await handleBlockedState(reason: .deviceRevoked)
         } else if restError.compareErrorCode(.invalidAccount) {
-            handleBlockedState(reason: .invalidAccount)
+            await handleBlockedState(reason: .invalidAccount)
         }
     }
 
-    private func handleBlockedState(reason: BlockedStateReason) {
+    private func handleBlockedState(reason: BlockedStateReason) async {
         switch reason {
         case .deviceRevoked:
             setDeviceState(.revoked, persist: true)
@@ -1132,33 +1146,29 @@ actor TunnelManager {
             setDeviceState(.revoked, persist: true)
             operationQueue.cancelAllOperations()
             removeLastUsedAccount()
-            unsetTunnelConfiguration()
+            await unsetTunnelConfiguration()
         default:
             break
         }
     }
 
-    fileprivate func unsetTunnelConfiguration(isRemovingProfile: Bool = true) {
+    fileprivate func unsetTunnelConfiguration(isRemovingProfile: Bool = true) async {
         prepareForVPNConfigurationDeletion()
 
-        _ = setTunnelStatus { tunnelStatus in
+        _ = await setTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
             tunnelStatus.state = .disconnected
         }
 
         guard let tunnel = _tunnel, isRemovingProfile else { return }
 
-        tunnel.removeFromPreferences { [weak self] error in
-            Task {
-                if let error {
-                    self?.logger.error(
-                        error: error,
-                        message: "Failed to remove VPN configuration."
-                    )
-                }
-                await self?.setTunnel(nil, shouldRefreshTunnelState: false)
-            }
+        if let error = await tunnel.removeFromPreferences() {
+            logger.error(
+                error: error,
+                message: "Failed to remove VPN configuration."
+            )
         }
+        await setTunnel(nil, shouldRefreshTunnelState: false)
     }
 }
 

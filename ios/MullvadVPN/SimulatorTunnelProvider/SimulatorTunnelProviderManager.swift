@@ -13,7 +13,7 @@
     import Foundation
     import NetworkExtension
 
-    final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerProtocol {
+    final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerProtocol, @unchecked Sendable {
         static let tunnelsLock = NSRecursiveLock()
         nonisolated(unsafe) fileprivate static var tunnels = [SimulatorTunnelInfo]()
 
@@ -127,44 +127,34 @@
             super.init()
         }
 
-        func loadFromPreferences(completionHandler: (Error?) -> Void) {
-            var error: NEVPNError?
-
-            Self.tunnelsLock.withLock {
+        func loadFromPreferences() async throws {
+            try Self.tunnelsLock.withLock {
                 if let savedTunnel = Self.tunnels.first(where: { $0.identifier == self.identifier }) {
                     tunnelInfo = savedTunnel
                 } else {
-                    error = NEVPNError(.configurationInvalid)
+                    throw NEVPNError(.configurationInvalid)
                 }
             }
-
-            completionHandler(error)
         }
 
-        func saveToPreferences(completionHandler: ((Error?) -> Void)?) {
+        func saveToPreferences() async throws {
             Self.tunnelsLock.withLock {
                 if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
                     Self.tunnels[index] = tunnelInfo
                 } else {
                     Self.tunnels.append(tunnelInfo)
                 }
-
             }
-            completionHandler?(nil)
         }
 
-        func removeFromPreferences(completionHandler: ((Error?) -> Void)?) {
-            var error: NEVPNError?
-
-            Self.tunnelsLock.withLock {
+        func removeFromPreferences() async throws {
+            try Self.tunnelsLock.withLock {
                 if let index = Self.tunnels.firstIndex(where: { $0.identifier == self.identifier }) {
-                    Self.tunnels.remove(at: index)
+                    _ = Self.tunnels.remove(at: index)
                 } else {
-                    error = NEVPNError(.configurationReadWriteFailed)
+                    throw NEVPNError(.configurationReadWriteFailed)
                 }
             }
-
-            completionHandler?(error)
         }
 
         override func isEqual(_ object: Any?) -> Bool {

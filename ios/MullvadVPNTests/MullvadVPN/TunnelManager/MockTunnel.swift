@@ -56,7 +56,11 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
 
     func setConfiguration(_ configuration: TunnelConfiguration) {}
 
-    func start(options: [String: NSObject]?) throws {
+    func setOnDemandEnabled(enabled: Bool) async {
+        isOnDemandEnabled = enabled
+    }
+
+    func start(options: sending [String: NSObject]?) throws {
         startDate = Date()
     }
 

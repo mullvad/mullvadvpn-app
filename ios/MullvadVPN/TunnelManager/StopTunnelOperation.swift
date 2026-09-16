@@ -54,17 +54,14 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             return
         }
 
-        tunnel.isOnDemandEnabled = isOnDemandEnabled
+        await tunnel.setOnDemandEnabled(enabled: isOnDemandEnabled)
 
-        tunnel.saveToPreferences { error in
-            self.dispatchQueue.async {
-                if let error {
-                    self.finish(result: .failure(error))
-                } else {
-                    tunnel.stop()
-                    self.finish(result: .success(()))
-                }
-            }
+        let error = await tunnel.saveToPreferences()
+        if let error {
+            finish(result: .failure(error))
+        } else {
+            await tunnel.stop()
+            finish(result: .success(()))
         }
     }
 }

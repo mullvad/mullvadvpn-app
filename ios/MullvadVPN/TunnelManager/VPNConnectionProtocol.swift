@@ -11,7 +11,7 @@
 import Foundation
 import NetworkExtension
 
-protocol VPNTunnelProviderManagerProtocol: Equatable {
+protocol VPNTunnelProviderManagerProtocol: Equatable, Sendable {
     associatedtype SelfType: VPNTunnelProviderManagerProtocol
     associatedtype ConnectionType: VPNConnectionProtocol
 
@@ -22,14 +22,14 @@ protocol VPNTunnelProviderManagerProtocol: Equatable {
 
     init()
 
-    func loadFromPreferences(completionHandler: @escaping @Sendable (Error?) -> Void)
-    func saveToPreferences(completionHandler: (@Sendable (Error?) -> Void)?)
-    func removeFromPreferences(completionHandler: (@Sendable (Error?) -> Void)?)
+    func loadFromPreferences() async throws
+    func saveToPreferences() async throws
+    func removeFromPreferences() async throws
 
     static func loadAllFromPreferences(completionHandler: @escaping @Sendable ([SelfType]?, Error?) -> Void)
 }
 
-protocol VPNConnectionProtocol: NSObject {
+protocol VPNConnectionProtocol: NSObject, Sendable {
     var status: NEVPNStatus { get }
     var connectedDate: Date? { get }
 
@@ -42,6 +42,6 @@ protocol VPNTunnelProviderSessionProtocol {
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
 }
 
-extension NEVPNConnection: VPNConnectionProtocol {}
+extension NEVPNConnection: VPNConnectionProtocol, @retroactive @unchecked Sendable {}
 extension NETunnelProviderSession: VPNTunnelProviderSessionProtocol {}
-extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
+extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol, @retroactive @unchecked Sendable {}

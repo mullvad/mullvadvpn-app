@@ -76,7 +76,9 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
             self?.handleVPNStatus(status)
         }
 
-        handleVPNStatus(tunnel.status)
+        Task {
+            await handleVPNStatus(tunnel.status)
+        }
     }
 
     override func operationDidCancel() {
@@ -127,8 +129,10 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
             sendMessage()
 
         case .connecting:
-            waitForConnectingState { [weak self] in
-                self?.sendMessage()
+            Task { [weak self] in
+                await self?.waitForConnectingState {
+                    self?.sendMessage()
+                }
             }
 
         case .reasserting:
@@ -142,10 +146,10 @@ final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperatio
         }
     }
 
-    private func waitForConnectingState(block: @escaping () -> Void) {
+    private func waitForConnectingState(block: @escaping () -> Void) async {
         // Compute amount of time elapsed since the tunnel was launched.
         let timeElapsed: TimeInterval
-        if let startDate = tunnel.startDate {
+        if let startDate = await tunnel.startDate {
             timeElapsed = Date().timeIntervalSince(startDate)
         } else {
             timeElapsed = 0

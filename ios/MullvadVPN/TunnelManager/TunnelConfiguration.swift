@@ -11,7 +11,7 @@
 import Foundation
 import NetworkExtension
 
-struct TunnelConfiguration {
+struct TunnelConfiguration: @unchecked Sendable {
     var isEnabled: Bool
     var localizedDescription: String
     var protocolConfiguration: NETunnelProviderProtocol
