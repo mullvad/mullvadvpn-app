@@ -177,6 +177,7 @@ impl InnerParametersGenerator {
                 exit_peer: endpoint.exit_peer,
                 ipv4_gateway: endpoint.ipv4_gateway,
                 ipv6_gateway: Some(endpoint.ipv6_gateway),
+                routes: None,
                 #[cfg(target_os = "linux")]
                 fwmark: Some(mullvad_types::TUNNEL_FWMARK),
             },

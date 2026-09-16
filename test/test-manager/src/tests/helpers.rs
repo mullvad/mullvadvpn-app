@@ -662,6 +662,7 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
         exit_peer: None,
         ipv4_gateway: Ipv4Addr::new(10, 64, 10, 1),
         ipv6_gateway: None,
+        routes: None,
         #[cfg(target_os = "linux")]
         fwmark: None,
     }

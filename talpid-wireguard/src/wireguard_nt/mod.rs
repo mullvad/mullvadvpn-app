@@ -1236,6 +1236,7 @@ mod tests {
         obfuscation_mtu: 0,
         quantum_resistant: false,
         daita: false,
+        routes: vec!["1.3.3.0/24".parse().unwrap()],
     });
 
     static WG_STRUCT_CONFIG: LazyLock<Interface> = LazyLock::new(|| Interface {

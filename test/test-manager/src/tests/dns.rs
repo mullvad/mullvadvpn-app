@@ -665,6 +665,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
             },
             ipv4_gateway: CUSTOM_TUN_GATEWAY,
             exit_peer: None,
+            routes: None,
             #[cfg(target_os = "linux")]
             fwmark: None,
             ipv6_gateway: None,

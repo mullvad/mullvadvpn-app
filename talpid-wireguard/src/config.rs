@@ -1,3 +1,4 @@
+use ipnetwork::IpNetwork;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
@@ -35,6 +36,9 @@ pub struct Config {
     pub quantum_resistant: bool,
     /// Enable DAITA
     pub daita: bool,
+    /// Networks routed into the tunnel device. Typically matches the union of all peers' allowed
+    /// IPs.
+    pub routes: Vec<IpNetwork>,
 }
 
 /// Configuration errors
@@ -105,6 +109,7 @@ impl Config {
             obfuscation_mtu,
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
+            routes: Vec::new(),
         };
 
         for peer in config.peers_mut() {
@@ -114,6 +119,20 @@ impl Config {
                 return Err(Error::InvalidPeerIpError);
             }
         }
+
+        let routes: Vec<IpNetwork> = match &connection.routes {
+            Some(routes) => routes
+                .iter()
+                .copied()
+                .filter(|route| route.is_ipv4() || generic_options.enable_ipv6)
+                .collect(),
+            None => config
+                .peers()
+                .flat_map(|peer| peer.allowed_ips.iter())
+                .copied()
+                .collect(),
+        };
+        config.routes = routes;
 
         Ok(config)
     }
@@ -164,11 +183,9 @@ impl Config {
             .chain(std::iter::once(&mut self.entry_peer))
     }
 
-    /// Return routes for all allowed IPs.
-    pub fn get_tunnel_destinations(&self) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        self.peers()
-            .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
+    /// Return the networks routed into the tunnel device.
+    pub fn get_tunnel_destinations(&self) -> impl Iterator<Item = IpNetwork> + '_ {
+        self.routes.iter().copied()
     }
 }
 
@@ -176,7 +193,6 @@ impl Config {
 /// Used to block traffic to other destinations while connecting on Android.
 #[cfg(target_os = "android")]
 pub(crate) fn patch_allowed_ips(mut config: Config) -> Config {
-    use ipnetwork::IpNetwork;
     use std::net::IpAddr;
 
     let gateway_net_v4 = IpNetwork::from(IpAddr::from(config.ipv4_gateway));
