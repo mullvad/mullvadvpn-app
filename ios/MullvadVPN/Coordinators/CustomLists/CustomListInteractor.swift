@@ -140,11 +140,10 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         {
             relayConstraints.exitLocations = newExitLocations
             relayConstraints.entryLocations = newEntryLocations
-            tunnelManager
-                .updateSettings(
-                    [.relayConstraints(relayConstraints)],
-                    completionHandler: nil
-                )
+
+            Task {
+                await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            }
         }
     }
 
@@ -202,8 +201,8 @@ struct CustomListInteractor: CustomListInteractorProtocol {
     }
 }
 
-protocol SettingsUpdating {
-    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)?)
+protocol SettingsUpdating: Sendable {
+    func updateSettings(_ updates: [TunnelSettingsUpdate]) async
     var settings: LatestTunnelSettings { get }
 }
 

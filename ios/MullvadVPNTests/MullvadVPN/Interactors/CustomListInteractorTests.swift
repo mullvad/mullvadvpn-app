@@ -130,11 +130,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        tunnelManager
-            .updateSettings(
-                [.relayConstraints(relayConstraints)],
-                completionHandler: nil
-            )
+        await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
         )
@@ -175,9 +171,8 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+        await tunnelManager.updateSettings(
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -215,9 +210,8 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+        await tunnelManager.updateSettings(
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -254,9 +248,8 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        tunnelManager.updateSettings(
-            [.relayConstraints(relayConstraints)],
-            completionHandler: nil
+        await tunnelManager.updateSettings(
+            [.relayConstraints(relayConstraints)]
         )
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
@@ -275,12 +268,9 @@ struct CustomListInteractorTests {
     }
 }
 
-private class SettingsUpdatingMock: SettingsUpdating {
+private final class SettingsUpdatingMock: SettingsUpdating, @unchecked Sendable {
     var updateCalled = false
-    func updateSettings(
-        _ updates: [MullvadSettings.TunnelSettingsUpdate],
-        completionHandler: (@Sendable () -> Void)?
-    ) {
+    func updateSettings(_ updates: [MullvadSettings.TunnelSettingsUpdate]) async {
         for update in updates {
             update.apply(to: &settings)
         }
