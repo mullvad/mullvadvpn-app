@@ -98,13 +98,8 @@ pub enum ObfuscationParameters {
     Off,
     UdpOverTcp,
     Shadowsocks,
-    Quic {
-        hostname: String,
-        token: String,
-    },
-    Lwo {
-        server_public_key: [u8; 32],
-    },
+    Quic { hostname: String, token: String },
+    Lwo { server_public_key: [u8; 32] },
 }
 
 #[cfg(test)]
