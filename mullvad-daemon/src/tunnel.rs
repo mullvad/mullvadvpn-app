@@ -1,5 +1,5 @@
-use ipnetwork::IpNetwork;
-use std::net::SocketAddr;
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
 use talpid_types::net::wireguard::TunnelParameters;
@@ -15,8 +15,8 @@ use mullvad_types::{
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{
-    ALLOWED_IN_TUNNEL_LAN_NETS, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
-    ipnetwork_sub::IpNetworkSub, obfuscation::Obfuscators, wireguard,
+    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, ipnetwork_sub::IpNetworkSub,
+    obfuscation::Obfuscators, wireguard,
 };
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
@@ -113,6 +113,26 @@ impl ParametersGenerator {
         })
     }
 }
+
+/// Private networks that are legitimately reachable *inside* a Mullvad tunnel.
+///
+/// [`ALLOWED_LAN_NETS`] covers the entire private address space, but a handful of those addresses
+/// are Mullvad's own and only exist on the other side of the tunnel. Traffic to them must keep
+/// working when the local network is subtracted from a relay's allowed IPs.
+const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 2] = [
+    // The relay IPv4 gateway. Hosts the DNS resolver, the tunnel config service used for DAITA and
+    // PQ key exchange, and connectivity check pings. Generous to avoid restricting potential future
+    // ranges.
+    IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
+    // The relay IPv6 gateway.
+    IpNetwork::V6(
+        Ipv6Network::new_checked(
+            Ipv6Addr::new(0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0, 0, 0, 0),
+            64,
+        )
+        .unwrap(),
+    ),
+];
 
 /// Remove the private networks that must not be reachable through a Mullvad tunnel from
 /// `allowed_ips`.
