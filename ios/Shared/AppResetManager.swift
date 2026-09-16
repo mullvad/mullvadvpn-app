@@ -79,7 +79,7 @@ final class AppResetManagerReal {
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 guard let self else { return }
                 if tunnelStatus.observedState != .disconnected {
-                    tunnelManager.stopTunnel()
+                    Task { await tunnelManager.stopTunnel() }
                 } else if case .disconnected = tunnelStatus.observedState {
                     Task {
                         await reset()
@@ -108,7 +108,7 @@ final class AppResetManagerReal {
             fallthrough
         default:
             resetUserDefaults()
-            resetKeychain()
+            await resetKeychain()
             isAppReady.send(true)
         }
     }
@@ -120,11 +120,11 @@ final class AppResetManagerReal {
         await tunnelManager.unsetAccount(isRemovingProfile: false)
     }
 
-    private func resetKeychain() {
+    private func resetKeychain() async {
         let policy = launchArguments.settingsResetPolicy
         settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
         if policy.shouldReset(.settings) {
-            tunnelManager.updateSettings([.reset])
+            await tunnelManager.updateSettings([.reset])
         }
     }
 
@@ -170,7 +170,9 @@ final class AppResetManagerNoOp {
         settingsManager: SettingsManager
     ) {}
 
-    func start() {}
+    func start() {
+
+    }
 }
 
 extension UITestSettingsKey {
