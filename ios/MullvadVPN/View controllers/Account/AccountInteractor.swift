@@ -45,10 +45,11 @@ final class AccountInteractor: Sendable {
                     self?.didReceiveDeviceState?(deviceState)
                 }
             )
-
-        tunnelManager.addObserver(tunnelObserver)
-
         self.tunnelObserver = tunnelObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     var tunnelState: TunnelState {
@@ -69,21 +70,25 @@ final class AccountInteractor: Sendable {
             retryStrategy: .default
         )
 
-        return result.tryMap { accountData in
+        do {
             switch deviceState {
             case .loggedIn(var storedAccountData, let storedDeviceData):
-                storedAccountData.expiry = accountData.expiry
+                storedAccountData.expiry = try result.get().expiry
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
 
                 // Make sure we don't update any data if cancellation happened in-flight.
                 if Task.isCancelled {
                     throw CancellationError()
                 } else {
-                    tunnelManager.setDeviceState(newDeviceState, persist: true)
+                    await tunnelManager.setDeviceState(newDeviceState, persist: true)
                 }
             default:
                 throw InvalidDeviceStateError()
             }
+
+            return .success(())
+        } catch {
+            return .failure(error)
         }
     }
 

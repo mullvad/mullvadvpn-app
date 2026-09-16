@@ -43,6 +43,8 @@ final class NewAppVersionInAppNotificationProvider:
             invalidate()
         }
 
+        self.appVersionService.scheduleTimer(deadline: .now)
+
         let tunnelObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] tunnelManager in
                 guard let self else { return }
@@ -61,8 +63,9 @@ final class NewAppVersionInAppNotificationProvider:
         )
         self.tunnelObserver = tunnelObserver
 
-        tunnelManager.addObserver(tunnelObserver)
-        self.appVersionService.scheduleTimer(deadline: .now)
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     override var identifier: NotificationProviderIdentifier {

@@ -57,7 +57,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     @Published var multihopState: MultihopState {
         didSet {
-            tunnelManager.updateSettings([.multihop(multihopState)])
+            Task { await tunnelManager.updateSettings([.multihop(multihopState)]) }
         }
     }
 
@@ -161,6 +161,24 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 delegate.didSelectExitRelayLocations(constraint)
             }
         )
+
+        $searchText
+            .removeDuplicates()
+            .withPreviousValue()
+            .sink { [weak self] prevValue, newValue in
+                if prevValue == newValue { return }
+                if prevValue == nil && newValue == "" { return }
+                self?.search(searchText: newValue)
+                if newValue == "" {
+                    self?.updateSelections()
+                }
+            }.store(in: &cancellables)
+
+        updateMultihopState()
+        reloadAllDataSources()
+        updateSelections()
+        updateConnectedLocations(tunnelManager.tunnelStatus)
+
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateTunnelStatus: { [weak self] _, status in
@@ -190,26 +208,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     }
                 }
             )
-
-        $searchText
-            .removeDuplicates()
-            .withPreviousValue()
-            .sink { [weak self] prevValue, newValue in
-                if prevValue == newValue { return }
-                if prevValue == nil && newValue == "" { return }
-                self?.search(searchText: newValue)
-                if newValue == "" {
-                    self?.updateSelections()
-                }
-            }.store(in: &cancellables)
-
-        tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
 
-        updateMultihopState()
-        reloadAllDataSources()
-        updateSelections()
-        updateConnectedLocations(tunnelManager.tunnelStatus)
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     deinit {
@@ -262,12 +265,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.ownership = .any
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            Task { await tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) }
         case .provider:
             guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.providers = .any
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
-            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            Task { await tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) }
         default:
             break
         }
