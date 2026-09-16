@@ -56,4 +56,35 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
             completion: completion
         )
     }
+
+    func getDevice(accountNumber: String, identifier: String) async -> Result<Device, Error> {
+        do {
+            return .success(
+                try await devicesProxy.getDevice(
+                    accountNumber: accountNumber,
+                    identifier: identifier,
+                    retryStrategy: .noRetry
+                ))
+        } catch {
+            return .failure(error)
+        }
+    }
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: WireGuard.PublicKey
+    ) async -> Result<Device, Error> {
+        do {
+            return .success(
+                try await devicesProxy.rotateDeviceKey(
+                    accountNumber: accountNumber,
+                    identifier: identifier,
+                    publicKey: publicKey,
+                    retryStrategy: .default
+                ))
+        } catch {
+            return .failure(error)
+        }
+    }
 }

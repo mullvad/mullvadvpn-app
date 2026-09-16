@@ -94,8 +94,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
         completion: @escaping @Sendable (Result<DeviceCheck, Error>) -> Void
     ) {
         do {
-            let accountVerdict = try accountVerdict(from: accountResult)
-            let deviceVerdict = try deviceVerdict(from: deviceResult)
+            let accountVerdict = try AccountVerdict(accountResult: accountResult)
+            let deviceVerdict = try DeviceVerdict(deviceResult: deviceResult, deviceState: deviceStateAccessor.read())
 
             // Do not rotate the key if account is invalid even if the API successfully returns a device.
             if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
@@ -250,33 +250,6 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
             logger.debug("Cannot complete key rotation due to rotation race.")
 
             throw DeviceCheckError.keyRotationRace
-        }
-    }
-
-    // MARK: - Private helpers
-
-    /// Converts account data result type into `AccountVerdict`.
-    private func accountVerdict(from accountResult: Result<Account, Error>) throws -> AccountVerdict {
-        do {
-            let account = try accountResult.get()
-
-            return account.expiry > Date() ? .active(account) : .expired(account)
-        } catch let error as REST.Error where error.compareErrorCode(.invalidAccount) {
-            return .invalid
-        }
-    }
-
-    /// Converts device result type into `DeviceVerdict`.
-    private func deviceVerdict(from deviceResult: Result<Device, Error>) throws -> DeviceVerdict {
-        do {
-            let deviceState = try deviceStateAccessor.read()
-            guard let deviceData = deviceState.deviceData else { throw DeviceCheckError.invalidDeviceState }
-
-            let device = try deviceResult.get()
-
-            return deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .active : .keyMismatch
-        } catch let error as REST.Error where error.compareErrorCode(.deviceNotFound) {
-            return .revoked
         }
     }
 }
