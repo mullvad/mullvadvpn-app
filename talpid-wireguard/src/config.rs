@@ -189,26 +189,16 @@ impl Config {
     }
 }
 
-/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs.
+/// Restrict the allowed IPs to the gateway IPs.
 /// Used to block traffic to other destinations while connecting on Android.
 #[cfg(target_os = "android")]
 pub(crate) fn patch_allowed_ips(mut config: Config) -> Config {
-    use std::net::IpAddr;
-
-    let gateway_net_v4 = IpNetwork::from(IpAddr::from(config.ipv4_gateway));
-    let gateway_net_v6 = config
-        .ipv6_gateway
-        .map(|net| IpNetwork::from(IpAddr::from(net)));
-    for peer in config.peers_mut() {
-        for allowed_ips in &mut peer.allowed_ips {
-            if allowed_ips.prefix() == 0 {
-                match (allowed_ips.is_ipv4(), gateway_net_v6) {
-                    (true, _) => *allowed_ips = gateway_net_v4,
-                    (_, Some(net)) => *allowed_ips = net,
-                    _ => continue,
-                }
-            }
-        }
+    let mut gateway_nets = vec![IpNetwork::from(std::net::IpAddr::from(config.ipv4_gateway))];
+    if let Some(gateway) = config.ipv6_gateway {
+        gateway_nets.push(IpNetwork::from(std::net::IpAddr::from(gateway)));
     }
+
+    config.exit_peer_mut().allowed_ips = gateway_nets;
+
     config
 }
