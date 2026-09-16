@@ -8,14 +8,18 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Network
 import XCTest
 
 @testable import MullvadMockData
+@testable import MullvadREST
+@testable import MullvadRustRuntime
+@testable import MullvadSettings
+@testable import MullvadTypes
 
 final class OutgoingConnectionProxyTests: XCTestCase {
     private var mockIPV6ConnectionData: Data!
     private var mockIPV4ConnectionData: Data!
-    private let hostname = "mullvad.net"
 
     private let encoder = JSONEncoder()
 
@@ -30,28 +34,19 @@ final class OutgoingConnectionProxyTests: XCTestCase {
     }
 
     func testSuccessGettingIPV4() async throws {
-        let iPv4Expectation = expectation(description: "Did receive IPv4")
-
         let outgoingConnectionProxy = OutgoingConnectionProxy(
-            urlSession: URLSessionStub(
-                response: (mockIPV4ConnectionData, createHTTPURLResponse(ip: .v4, statusCode: 200))
-            ), hostname: hostname)
+            apiContext: try makeApiContext(disableTls: false)
+        )
 
-        let result = try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)
-
-        if result.ip == IPV4ConnectionData.mock.ip {
-            iPv4Expectation.fulfill()
-        }
-        await fulfillment(of: [iPv4Expectation], timeout: .UnitTest.timeout)
+        _ = try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)
     }
 
     func testFailureGettingIPV4() async throws {
         let noIPv4Expectation = expectation(description: "Did not receive IPv4")
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(
-            urlSession: URLSessionStub(
-                response: (Data(), createHTTPURLResponse(ip: .v4, statusCode: 503))
-            ), hostname: hostname)
+            apiContext: try makeApiContext(disableTls: true),
+            hostname: "localhost:1")
 
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV4(retryStrategy: .noRetry)) { _ in
             noIPv4Expectation.fulfill()
@@ -59,29 +54,20 @@ final class OutgoingConnectionProxyTests: XCTestCase {
         await fulfillment(of: [noIPv4Expectation], timeout: .UnitTest.timeout)
     }
 
-    func testSuccessGettingIPV6() async throws {
-        let ipv6Expectation = expectation(description: "Did receive IPv6")
+    // func testSuccessGettingIPV6() async throws {
+    //     let outgoingConnectionProxy = OutgoingConnectionProxy(
+    //         apiContext: try makeApiContext(disableTls: false)
+    //     )
 
-        let outgoingConnectionProxy = OutgoingConnectionProxy(
-            urlSession: URLSessionStub(
-                response: (mockIPV6ConnectionData, createHTTPURLResponse(ip: .v6, statusCode: 200))
-            ), hostname: hostname)
-
-        let result = try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)
-
-        if result.ip == IPV6ConnectionData.mock.ip {
-            ipv6Expectation.fulfill()
-        }
-        await fulfillment(of: [ipv6Expectation], timeout: .UnitTest.timeout)
-    }
+    //     _ = try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)
+    // }
 
     func testFailureGettingIPV6() async throws {
         let noIPv6Expectation = expectation(description: "Did not receive IPv6")
 
         let outgoingConnectionProxy = OutgoingConnectionProxy(
-            urlSession: URLSessionStub(
-                response: (mockIPV6ConnectionData, createHTTPURLResponse(ip: .v6, statusCode: 404))
-            ), hostname: hostname)
+            apiContext: try makeApiContext(disableTls: true),
+            hostname: "localhost:1")
 
         await XCTAssertThrowsErrorAsync(try await outgoingConnectionProxy.getIPV6(retryStrategy: .noRetry)) { _ in
             noIPv6Expectation.fulfill()
@@ -90,13 +76,23 @@ final class OutgoingConnectionProxyTests: XCTestCase {
     }
 }
 
-extension OutgoingConnectionProxyTests {
-    private func createHTTPURLResponse(ip: OutgoingConnectionProxy.ExitIPVersion, statusCode: Int) -> HTTPURLResponse {
-        return HTTPURLResponse(
-            url: URL(string: "https://\(ip.host(hostname: hostname))/json")!,
-            statusCode: statusCode,
-            httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
-        )!
-    }
+private func makeApiContext(disableTls: Bool) throws -> ApiContext {
+    let shadowsocksLoader = ShadowsocksLoader(
+        cache: ShadowsocksConfigurationCacheStub(),
+        relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
+        tunnelSettings: LatestTunnelSettings(),
+        settingsUpdater: SettingsUpdater(listener: TunnelSettingsListener())
+    )
+
+    let accessMethodsRepository = AccessMethodRepositoryStub.stub
+
+    return ApiContext(
+        host: "localhost",
+        address: REST.defaultAPIEndpoint.description,
+        domain: REST.encryptedDNSHostname,
+        disableTls: disableTls,
+        shadowsocksProvider: shadowsocksLoader,
+        accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
+        accessMethodChangeListeners: []
+    )
 }

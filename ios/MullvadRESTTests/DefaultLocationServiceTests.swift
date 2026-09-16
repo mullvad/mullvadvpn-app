@@ -8,34 +8,57 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Network
 import XCTest
 
 @testable import MullvadMockData
 @testable import MullvadREST
+@testable import MullvadRustRuntime
+@testable import MullvadTypes
 
 class DefaultLocationServiceTests: XCTestCase {
     private let encoder = JSONEncoder()
 
     func testFetchCurrentLocationIdentifier() async throws {
-        let mockData = try encoder.encode(
-            REST.ServerLocation(
-                country: "USA",
-                city: "Dallas, TX",
-                latitude: 32.89748,
-                longitude: -97.040443
-            )
+        let mockData = AmIMullvadResponse(
+            ip: .ipv4(.loopback),
+            country: "USA",
+            city: "Dallas, TX",
+            latitude: 32.89748,
+            longitude: -97.040443,
+            mullvadExitIp: false,
         )
 
         let locationService = DefaultLocationService(
-            urlSession: URLSessionStub(
-                response: (mockData, URLResponse())
-            ),
-            relayCache: try MockRelayCache().read()
+            relayCache: try MockRelayCache().read(),
+            apiContext: try makeApiContext(),
         )
 
-        let identifier = try await locationService.fetchCurrentLocationIdentifier()
+        let identifier = locationService.getLocation(mockData)
 
         XCTAssertEqual(identifier?.country, "us")
         XCTAssertEqual(identifier?.city, "dal")
+    }
+
+    private func makeApiContext() throws -> ApiContext {
+        let shadowsocksLoader = ShadowsocksLoaderStub(
+            configuration: ShadowsocksConfiguration(
+                address: .ipv4(.loopback),
+                port: 1080,
+                password: "123",
+                cipher: "aes-128-cfb"
+            ))
+
+        let accessMethodsRepository = AccessMethodRepositoryStub.stub
+
+        return ApiContext(
+            host: "localhost",
+            address: REST.defaultAPIEndpoint.description,
+            domain: REST.encryptedDNSHostname,
+            disableTls: true,
+            shadowsocksProvider: shadowsocksLoader,
+            accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
+            accessMethodChangeListeners: []
+        )
     }
 }

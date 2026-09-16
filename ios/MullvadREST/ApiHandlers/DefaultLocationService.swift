@@ -42,7 +42,7 @@ public struct DefaultLocationService {
     public func fetchCurrentLocationIdentifier() async throws -> REST.LocationIdentifier? {
         guard
             let serverLocation = await apiContext.amIMullvad(
-                address: endpoint,
+                address: "https://\(endpoint)/json",
                 retryStrategy: REST.RetryStrategy.noRetry.toRustStrategy())
         else {
             return nil
