@@ -37,11 +37,13 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
         if (context?.executionException?.isEmpty == true) {
             val fileName = context.fileName()
 
-            Logger.v("Deleting screen recording. Saving to $fileName")
+            Logger.v("Deleting screen recording $fileName")
 
             val file = File(OUTPUT_DIRECTORY, fileName)
             if (file.exists()) {
                 file.delete()
+            } else {
+                Logger.w("File $OUTPUT_DIRECTORY/$fileName does not exist")
             }
         }
     }
