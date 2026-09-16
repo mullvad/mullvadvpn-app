@@ -77,3 +77,13 @@ rust_2018_idioms = { level = "deny", priority = -1 }
 single_use_lifetimes = "warn"
 unused_lifetimes = "warn"
 unused_macro_rules = "warn"
+
+# Used by `ci/cargo-ci.sh` for every compiling CI job. No debugger ever attaches
+# in CI, so generating and linking debug info is just a cost.
+# Line tables are kept for better backtraces in failing CI tests.
+# Keep this in sync with the identical profile in `test/Cargo.toml`.
+[profile.ci]
+inherits = "dev"
+debug = "line-tables-only"
+# Incremental artifacts are large and never reused between CI runs.
+incremental = false
