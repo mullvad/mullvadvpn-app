@@ -64,7 +64,7 @@ function CustomListLocationsImpl() {
                 // TRANSLATORS: Instructs the user how to add locations to the custom list.
                 messages.pgettext(
                   'select-location-view',
-                  'Click “+“ on a location to add it to a list',
+                  'Click “...“ on a location to add it to a list',
                 )
               }
             </Text>
