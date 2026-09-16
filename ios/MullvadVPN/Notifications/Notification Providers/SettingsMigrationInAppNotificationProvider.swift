@@ -90,6 +90,19 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
 
     // MARK: - Private methods
     private func addObservers() {
+        let migratedSettingsObserver = MigratedSettingsObserverBlock { result in
+            switch result {
+            case .migrated:
+                self.shouldShowNotification = true
+            case .noChanges:
+                self.shouldShowNotification = false
+            }
+            self.invalidate()
+        }
+
+        self.migratedSettingsObserverBlock = migratedSettingsObserver
+        migratedSettingsUpdater.addObserver(migratedSettingsObserver)
+
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
                 guard let self else { return }
@@ -103,20 +116,10 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
                 invalidate()
             })
         self.tunnelObserver = tunnelObserver
-        tunnelManager.addObserver(tunnelObserver)
 
-        let migratedSettingsObserver = MigratedSettingsObserverBlock { result in
-            switch result {
-            case .migrated:
-                self.shouldShowNotification = true
-            case .noChanges:
-                self.shouldShowNotification = false
-            }
-            self.invalidate()
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
         }
-
-        self.migratedSettingsObserverBlock = migratedSettingsObserver
-        migratedSettingsUpdater.addObserver(migratedSettingsObserver)
     }
 
     private func createNotificationBody(_ string: String) -> NSAttributedString {

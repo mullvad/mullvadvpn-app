@@ -62,7 +62,9 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         )
         self.tunnelObserver = tunnelObserver
 
-        tunnelManager.addObserver(tunnelObserver)
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 
     // MARK: - Private

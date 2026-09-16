@@ -18,9 +18,9 @@ protocol RelayFilterSettingsViewModelProtocol {
     var onFeatureChipTapped: ((SelectLocationFilter) -> Void)? { get }
 }
 
-protocol RelayFilterViewModelSettingsProviding {
+protocol RelayFilterViewModelSettingsProviding: Sendable {
     var settings: LatestTunnelSettings { get }
-    func addObserver(_ observer: TunnelObserver)
+    func addObserver(_ observer: TunnelObserver) async
     func removeObserver(_ observer: TunnelObserver)
 }
 extension TunnelManager: RelayFilterViewModelSettingsProviding {}
@@ -83,6 +83,11 @@ extension RelayFilterSelection {
                     tunnelManager.settings.relayConstraints.exitFilter.value ?? RelayFilter()
                 }
 
+            // Automatic override notice should be visible when showing entry filter and an automatic location is selected.
+            shouldShowAutomaticFilterOverrideNotice = multihopContext == .entry && settings.automaticMultihopIsEnabled
+
+            reloadAllData()
+
             // Set up listener to update view when settings change, eg. DAITA is toggled.
             let tunnelObserver = TunnelBlockObserver(
                 didUpdateTunnelSettings: { [weak self] _, _ in
@@ -91,13 +96,11 @@ extension RelayFilterSelection {
                     reloadAllData()
                 }
             )
-            tunnelManager.addObserver(tunnelObserver)
             self.tunnelObserver = tunnelObserver
 
-            // Automatic override notice should be visible when showing entry filter and an automatic location is selected.
-            shouldShowAutomaticFilterOverrideNotice = multihopContext == .entry && settings.automaticMultihopIsEnabled
-
-            reloadAllData()
+            Task {
+                await tunnelManager.addObserver(tunnelObserver)
+            }
         }
 
         deinit {

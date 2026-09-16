@@ -32,10 +32,11 @@ final class RevokedDeviceInteractor: RevokedDeviceInteractorProtocol {
             TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                 self?.didUpdateTunnelStatus?(tunnelStatus)
             })
-
-        tunnelManager.addObserver(tunnelObserver)
-
         self.tunnelObserver = tunnelObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 }
 

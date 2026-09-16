@@ -84,7 +84,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
     }
 
     private func addObservers() {
-        tunnelObserver =
+        let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 if previousDeviceState == .loggedOut,
                     case .loggedIn = deviceState
@@ -101,6 +101,10 @@ final class NewDeviceNotificationProvider: NotificationProvider,
                     self?.invalidate()
                 }
             })
-        tunnelObserver.flatMap { tunnelManager.addObserver($0) }
+        self.tunnelObserver = tunnelObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 }

@@ -38,9 +38,10 @@ final class SettingsInteractor {
                     self.didUpdateSettings?()
                 }
             )
-
-        tunnelManager.addObserver(tunnelObserver)
-
         self.tunnelObserver = tunnelObserver
+
+        Task {
+            await tunnelManager.addObserver(tunnelObserver)
+        }
     }
 }
