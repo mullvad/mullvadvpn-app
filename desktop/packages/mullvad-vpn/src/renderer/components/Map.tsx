@@ -146,7 +146,7 @@ function MapInner(props: MapInnerProps) {
       return;
     }
 
-    onSizeChange();
+    onSizeChangeImpl();
 
     const gl = canvas.getContext('webgl2', { antialias: true })!;
 
