@@ -33,49 +33,49 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         try FileManager.default.removeItem(at: testFileURL)
     }
 
-    func testNothingToMigrate() throws {
+    func testNothingToMigrate() async throws {
         let settings = LatestTunnelSettings()
         try settingsManager.writeSettings(settings)
 
-        let nothingToMigrateExpectation = expectation(description: "No migration")
-        manager.migrateSettings(store: store) { result in
-            if case .nothing = result {
-                nothingToMigrateExpectation.fulfill()
-            }
+        let result = await manager.migrateSettings(store: store)
+
+        if case .nothing = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail()
         }
-        wait(for: [nothingToMigrateExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testNothingToMigrateWhenSettingsAreNotFound() throws {
+    func testNothingToMigrateWhenSettingsAreNotFound() async throws {
         let store = InMemorySettingsStore<KeychainError>()
         settingsManager = SettingsManager(store: store)
 
-        let nothingToMigrateExpectation = expectation(description: "No migration")
-        manager.migrateSettings(store: store) { result in
-            if case .nothing = result {
-                nothingToMigrateExpectation.fulfill()
-            }
+        let result = await manager.migrateSettings(store: store)
+
+        if case .nothing = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail()
         }
-        wait(for: [nothingToMigrateExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testFailedMigration() throws {
-        let failedMigrationExpectation = expectation(description: "Failed migration")
-        manager.migrateSettings(store: store) { result in
-            if case .failure = result {
-                failedMigrationExpectation.fulfill()
-            }
+    func testFailedMigration() async throws {
+        let result = await manager.migrateSettings(store: store)
+
+        if case .failure = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail()
         }
-        wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testFailedMigrationResetsSettings() throws {
+    func testFailedMigrationResetsSettings() async throws {
         let data = Data("Migration test".utf8)
         try store.write(data, for: .settings)
         try store.write(data, for: .deviceState)
 
         // Failed migration should reset settings and device state keys
-        manager.migrateSettings(store: store) { _ in }
+        _ = await manager.migrateSettings(store: store)
 
         let assertDeletionFor: (SettingsKey) throws -> Void = { [store] key in
             try XCTAssertThrowsError(store.read(key: key)) { thrownError in
@@ -87,11 +87,11 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         try assertDeletionFor(.lastUsedAccount)
     }
 
-    func testFailedMigrationIfRecordedSettingsVersionHigherThanLatestSettings() throws {
+    func testFailedMigrationIfRecordedSettingsVersionHigherThanLatestSettings() async throws {
         let settings = FutureVersionSettings()
         try write(settings: settings, version: Int.max - 1, in: settingsManager.store)
 
-        manager.migrateSettings(store: store) { _ in }
+        _ = await manager.migrateSettings(store: store)
 
         let assertDeletionFor: (SettingsKey) throws -> Void = { [store] key in
             try XCTAssertThrowsError(store.read(key: key)) { thrownError in
@@ -103,20 +103,19 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         try assertDeletionFor(.lastUsedAccount)
     }
 
-    func testFailedMigrationCorruptedSchemaResetsSettings() throws {
+    func testFailedMigrationCorruptedSchemaResetsSettings() async throws {
         let settings = FutureVersionSettings()
         try write(settings: settings, version: -42, in: settingsManager.store)
 
-        let failedMigrationExpectation = expectation(description: "Failed migration")
-        manager.migrateSettings(store: store) { result in
-            if case .failure = result {
-                failedMigrationExpectation.fulfill()
-            }
+        let result = await manager.migrateSettings(store: store)
+        if case .failure = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail()
         }
-        wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testSuccessfulMigrationFromV7ToLatest() throws {
+    func testSuccessfulMigrationFromV7ToLatest() async throws {
         var settingsV7 = TunnelSettingsV7()
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -131,7 +130,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         settingsV7.tunnelMultihopState = .off
         settingsV7.daita = .init(daitaState: .on)
 
-        try migrateToLatest(settingsV7, version: .v6)
+        try await migrateToLatest(settingsV7, version: .v6)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -143,7 +142,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV7.daita, latestSettings.daita)
     }
 
-    func testSuccessfulMigrationFromV6ToLatest() throws {
+    func testSuccessfulMigrationFromV6ToLatest() async throws {
         var settingsV6 = TunnelSettingsV6()
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -158,7 +157,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         settingsV6.tunnelMultihopState = .off
         settingsV6.daita = .init(daitaState: .on)
 
-        try migrateToLatest(settingsV6, version: .v6)
+        try await migrateToLatest(settingsV6, version: .v6)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -170,7 +169,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV6.daita, latestSettings.daita)
     }
 
-    func testSuccessfulMigrationFromV5ToLatest() throws {
+    func testSuccessfulMigrationFromV5ToLatest() async throws {
         var settingsV5 = TunnelSettingsV5()
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -184,7 +183,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         )
         settingsV5.tunnelMultihopState = .off
 
-        try migrateToLatest(settingsV5, version: .v5)
+        try await migrateToLatest(settingsV5, version: .v5)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -195,7 +194,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(latestSettings.tunnelMultihopState, .never)
     }
 
-    func testSuccessfulMigrationFromV4ToLatest() throws {
+    func testSuccessfulMigrationFromV4ToLatest() async throws {
         var settingsV4 = TunnelSettingsV4()
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -208,7 +207,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
             udpOverTcpPort: .automatic
         )
 
-        try migrateToLatest(settingsV4, version: .v4)
+        try await migrateToLatest(settingsV4, version: .v4)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -218,7 +217,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV4.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
     }
 
-    func testSuccessfulMigrationFromV3ToLatest() throws {
+    func testSuccessfulMigrationFromV3ToLatest() async throws {
         var settingsV3 = TunnelSettingsV3()
         let relayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -231,7 +230,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
             udpOverTcpPort: .port80
         )
 
-        try migrateToLatest(settingsV3, version: .v3)
+        try await migrateToLatest(settingsV3, version: .v3)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -240,7 +239,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV3.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
     }
 
-    func testSuccessfulMigrationFromV2ToLatest() throws {
+    func testSuccessfulMigrationFromV2ToLatest() async throws {
         var settingsV2 = TunnelSettingsV2()
         let osakaRelayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -248,13 +247,13 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
 
         settingsV2.relayConstraints = osakaRelayConstraints
 
-        try migrateToLatest(settingsV2, version: .v2)
+        try await migrateToLatest(settingsV2, version: .v2)
 
         let latestSettings = try settingsManager.readSettings()
         XCTAssertEqual(osakaRelayConstraints, latestSettings.relayConstraints)
     }
 
-    func testSuccessfulMigrationFromV1ToLatest() throws {
+    func testSuccessfulMigrationFromV1ToLatest() async throws {
         var settingsV1 = TunnelSettingsV1()
         let osakaRelayConstraints = RelayConstraints(
             exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
@@ -262,7 +261,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
 
         settingsV1.relayConstraints = osakaRelayConstraints
 
-        try migrateToLatest(settingsV1, version: .v1)
+        try await migrateToLatest(settingsV1, version: .v1)
 
         // Once the migration is done, settings should have been updated to the latest available version
         // Verify that the old settings are still valid
@@ -324,7 +323,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
     /// `automatic` case for `tunnelQuantumResistance` are safely mapped to `.on`.
     /// Prevents crashes and guarantees consistent behavior for existing users
     /// after upgrading to versions where `automatic` no longer exists.
-    func testTunnelQuantumResistanceMigratesAutomaticToOn() throws {
+    func testTunnelQuantumResistanceMigratesAutomaticToOn() async throws {
         let oldSettingsJSON = Data(
             """
             {
@@ -358,13 +357,12 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         let tunnelSettingsV4 = try parser.parsePayload(as: TunnelSettingsV4.self, from: oldSettingsJSON)
         try write(settings: tunnelSettingsV4, version: 4, in: store)
 
-        let successfulMigrationExpectation = expectation(description: "Successful migration")
-        manager.migrateSettings(store: store) { result in
-            if case .success = result {
-                successfulMigrationExpectation.fulfill()
-            }
+        let result = await manager.migrateSettings(store: store)
+        if case .success = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail()
         }
-        wait(for: [successfulMigrationExpectation], timeout: .UnitTest.timeout)
 
         let latestSettingsData = try XCTUnwrap(settingsManager.store.read(key: .settings))
         let latestSettings = try parser.parsePayload(as: LatestTunnelSettings.self, from: latestSettingsData)
@@ -372,16 +370,15 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(latestSettings.tunnelQuantumResistance, .on)
     }
 
-    private func migrateToLatest(_ settings: any TunnelSettings, version: SchemaVersion) throws {
+    private func migrateToLatest(_ settings: any TunnelSettings, version: SchemaVersion) async throws {
         try write(settings: settings, version: version.rawValue, in: settingsManager.store)
 
-        let successfulMigrationExpectation = expectation(description: "Successful migration")
-        manager.migrateSettings(store: store) { result in
-            if case .success = result {
-                successfulMigrationExpectation.fulfill()
-            }
+        let result = await manager.migrateSettings(store: store)
+        if case .success = result {
+            XCTAssertTrue(true)
+        } else {
+            XCTFail("Expected successful migration")
         }
-        wait(for: [successfulMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
     func write(settings: any TunnelSettings, version: Int, in store: SettingsStore) throws {

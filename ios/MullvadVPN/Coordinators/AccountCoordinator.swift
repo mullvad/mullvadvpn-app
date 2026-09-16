@@ -195,7 +195,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
         Task {
             await interactor.logout()
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self = self] in
                 guard let self else { return }
 
                 alertPresenter.dismissAlert(presentation: presentation, animated: true)
