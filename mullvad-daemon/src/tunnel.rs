@@ -1,5 +1,5 @@
-use ipnetwork::IpNetwork;
-use std::net::SocketAddr;
+use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
 use talpid_types::net::wireguard::TunnelParameters;
@@ -15,8 +15,8 @@ use mullvad_types::{
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{
-    ALLOWED_IN_TUNNEL_LAN_NETS, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
-    ipnetwork_sub::IpNetworkSub, obfuscation::Obfuscators, wireguard,
+    ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, ipnetwork_sub::IpNetworkSub,
+    obfuscation::Obfuscators, wireguard,
 };
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
@@ -113,6 +113,22 @@ impl ParametersGenerator {
         })
     }
 }
+
+/// Private networks that may point to Mullvad services in the VPN tunnel.
+const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 2] = [
+    // Net including the relay IPv4 gateway. Used for DNS, tunnel config service, and connectivity
+    // check.
+    // Reserve all of `10/8` in case new services are added.
+    IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
+    // Net including the relay IPv6 gateway.
+    IpNetwork::V6(
+        Ipv6Network::new_checked(
+            Ipv6Addr::new(0xfc00, 0xbbbb, 0xbbbb, 0xbb01, 0, 0, 0, 0),
+            64,
+        )
+        .unwrap(),
+    ),
+];
 
 /// Remove the private networks that must not be reachable through a Mullvad tunnel from
 /// `allowed_ips`.
