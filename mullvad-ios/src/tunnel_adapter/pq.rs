@@ -306,15 +306,13 @@ async fn negotiate_ephemeral_peer(
         .map_err(|e| format!("TCP connect to config service: {e}"))?;
 
     // The connector is called exactly once by tonic; use a Mutex to hand off the stream.
-    let stream_cell = std::sync::Mutex::new(Some(stream));
+    let mut stream_cell = Some(stream);
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let conn = endpoint
         .connect_with_connector(service_fn(move |_| {
             let stream = stream_cell
-                .lock()
-                .ok()
-                .and_then(|mut guard| guard.take())
+                .take()
                 .ok_or_else(|| io::Error::other("connector stream unavailable"));
             async move { Ok::<_, io::Error>(hyper_util::rt::tokio::TokioIo::new(stream?)) }
         }))
