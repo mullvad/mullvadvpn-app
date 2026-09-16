@@ -1432,7 +1432,7 @@ dependencies = [
  "idna",
  "ipnet",
  "jni 0.22.4",
- "rand 0.10.1",
+ "rand 0.10.2",
  "rustls",
  "thiserror 2.0.18",
  "tinyvec",
@@ -1454,7 +1454,7 @@ dependencies = [
  "jni 0.22.4",
  "once_cell",
  "prefix-trie",
- "rand 0.10.1",
+ "rand 0.10.2",
  "ring",
  "thiserror 2.0.18",
  "tinyvec",
@@ -1476,7 +1476,7 @@ dependencies = [
  "moka",
  "once_cell",
  "parking_lot",
- "rand 0.10.1",
+ "rand 0.10.2",
  "rustls",
  "smallvec",
  "thiserror 2.0.18",
@@ -3026,9 +3026,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.10.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2e8e8bcc7961af1fdac401278c6a831614941f6164ee3bf4ce61b7edb162207"
+checksum = "c7f5fa3a058cd35567ef9bfa5e75732bee0f9e4c55fa90477bef2dfcdbc4be80"
 dependencies = [
  "chacha20 0.10.2",
  "getrandom 0.4.2",
@@ -3430,7 +3430,7 @@ dependencies = [
  "ctr",
  "hkdf",
  "md-5",
- "rand 0.10.1",
+ "rand 0.10.2",
  "sha1",
 ]
 
@@ -3730,7 +3730,7 @@ dependencies = [
  "opentelemetry",
  "opentelemetry-semantic-conventions",
  "pin-project",
- "rand 0.10.1",
+ "rand 0.10.2",
  "serde",
  "static_assertions",
  "tarpc-plugins",
@@ -3851,7 +3851,7 @@ dependencies = [
  "mullvad-paths",
  "nix 0.30.1",
  "plist",
- "rand 0.9.4",
+ "rand 0.10.2",
  "rs-release",
  "serde_json",
  "socket2 0.5.10",
