@@ -61,7 +61,7 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
     }
 }
 
-extension IPOverrideCoordinator: @preconcurrency IPOverrideViewControllerDelegate {
+extension IPOverrideCoordinator: IPOverrideViewControllerDelegate {
     func presentImportTextController() {
         let viewController = IPOverrideTextViewController(interactor: interactor)
         let customNavigationController = CustomNavigationController(rootViewController: viewController)
