@@ -46,6 +46,8 @@ class TunnelManagerTests: XCTestCase {
         apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
+            amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
+            amIMullvadHostIpv6: "ipv6.\(REST.amIMullvadHostname)",
             domain: REST.encryptedDNSHostname,
             domainFronting: REST.domainFronting,
             disableTls: false,
