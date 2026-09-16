@@ -451,6 +451,7 @@ impl Relay {
                 exit_peer: None,
                 ipv4_gateway,
                 ipv6_gateway,
+                routes: None,
                 // NOTE: Ignored in gRPC
                 #[cfg(target_os = "linux")]
                 fwmark: None,
