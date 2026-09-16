@@ -60,38 +60,12 @@ public struct StoredRelays: Codable, Equatable, Sendable {
         timestamp = try? container.decode(Int64?.self, forKey: .timestamp)
         rawData = try container.decode(Data.self, forKey: .rawData)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
-<<<<<<< HEAD
-        // Eagerly deserialize relay data so the result is cached before
-        // this value reaches the actor's cooperative thread. The
-        // DeserializationCache.get() NSLock + JSON parsing would otherwise
-        // block a cooperative thread during relay selection.
-        let result = Result {
-            try REST.Coding.makeJSONDecoder().decode(
-                REST.ServerRelaysResponse.self,
-                from: rawData
-            )
-        }.map { CachedRelays(digest: digest, timestamp: timestamp, relays: $0, updatedAt: updatedAt) }
-        cache.set(result)
-||||||| parent of 7d8a388b67 (Remove NSLock from FileCache and related files)
-        // Eagerly deserialize relay data so the result is cached before
-        // this value reaches the actor's cooperative thread. The
-        // DeserializationCache.get() NSLock + JSON parsing would otherwise
-        // block a cooperative thread during relay selection.
-        let result = Result {
-            try REST.Coding.makeJSONDecoder().decode(
-                REST.ServerRelaysResponse.self,
-                from: rawData
-            )
-        }.map { CachedRelays(etag: etag, relays: $0, updatedAt: updatedAt) }
-        cache.set(result)
-=======
 
         let relays = try REST.Coding.makeJSONDecoder().decode(
             REST.ServerRelaysResponse.self,
             from: rawData
         )
-        cachedRelays = CachedRelays(etag: etag, relays: relays, updatedAt: updatedAt)
->>>>>>> 7d8a388b67 (Remove NSLock from FileCache and related files)
+        cachedRelays = CachedRelays(digest: digest, timestamp: timestamp, relays: relays, updatedAt: updatedAt)
     }
 
     // MARK: - Equatable
