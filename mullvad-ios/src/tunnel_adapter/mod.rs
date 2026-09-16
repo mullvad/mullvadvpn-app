@@ -39,8 +39,9 @@ use talpid_types::{
 };
 use tokio::sync::Notify;
 use tunnel_obfuscation::{
-    create_local_socket_obfuscator, create_transport,
+    LocalSocketObfuscator, create_transport,
     gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation},
+    local_socket::LocalSocketRunner,
 };
 
 use self::pinger::SmoltcpPinger;
@@ -306,11 +307,14 @@ impl IosTunnelAdapter {
         // 1. Create the TUN device from the fd handed over by iOS.
         let tun_dev =
             IosTunDevice::new(config.tun_fd, config.mtu).map_err(TunnelError::TunnelDevice)?;
+        let obfuscation = Self::create_obfuscation(&config)
+            .await
+            .map_err(TunnelError::ObfuscationProxyError)?;
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
         let pq = tokio::select! {
-            pq = Self::negotiate_pq(&config, &udp) => pq?,
+            pq = Self::negotiate_pq(&config, &udp, obfuscation.clone()) => pq?,
             // NOTE: Temporary WG devices are torn down in a spawned task here.
             _ = stop_notify.notified() => return Err(TunnelError::Timeout),
         };
@@ -320,12 +324,20 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
-        // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so
-        //    point LWO at it, then start the obfuscation proxy for the real device.
-        Self::apply_lwo_ingress_key(&mut config, &pq);
-        let final_obfuscation = Self::start_obfuscation_proxy(&config)
-            .await
-            .map_err(TunnelError::ObfuscationProxyError)?;
+        // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at
+        //    it, then hand the same obfuscation over to the real device.
+        let final_obfuscation = match obfuscation {
+            None => None,
+            Some(obfuscation) => {
+                let obfuscation = obfuscation.with_client_public_key(Self::ingress_public_key(&pq));
+                // TODO: replace local socket obfuscation for tunnel traffic
+                Some(
+                    Self::start_obfuscation_proxy(obfuscation)
+                        .await
+                        .map_err(TunnelError::ObfuscationProxyError)?,
+                )
+            }
+        };
         if let Some(ref guard) = final_obfuscation {
             Self::apply_obfuscation(&mut config, guard.endpoint());
         }
@@ -380,6 +392,7 @@ impl IosTunnelAdapter {
     async fn negotiate_pq(
         config: &TunnelConfig,
         udp: &BoundUdpTransports,
+        obfuscation: Option<RunningObfuscation>,
     ) -> Result<PqResult, TunnelError> {
         // No PQ/DAITA: the device peer is just the static configured exit peer.
         if !(config.enable_pq || config.enable_daita) {
@@ -415,9 +428,6 @@ impl IosTunnelAdapter {
             separate_exit_key: true,
         };
 
-        let obfuscation = Self::create_obfuscation(config)
-            .await
-            .map_err(TunnelError::ObfuscationProxyError)?;
         let ingress_endpoint = config
             .entry_peer
             .as_ref()
@@ -568,29 +578,38 @@ impl IosTunnelAdapter {
         })
     }
 
-    /// Start a fresh obfuscation proxy for the given config.
+    /// Run `obfuscation` behind a local UDP socket, which the tunnel devices send to.
     /// Returns a guard that keeps the proxy alive until dropped.
-    /// Returns `None` if obfuscation is off.
+    ///
+    /// TODO: The tunnel devices should obfuscate in place, the way the ephemeral peer negotiation
+    /// does, instead of going through a local socket. See [`MaybeObfuscatingTransportFactory`].
     async fn start_obfuscation_proxy(
-        config: &TunnelConfig,
-    ) -> Result<Option<ObfuscationGuard>, ObfuscationProxyError> {
-        let Some(settings) = Self::obfuscation_settings(config)? else {
-            return Ok(None);
+        obfuscation: RunningObfuscation,
+    ) -> Result<ObfuscationGuard, ObfuscationProxyError> {
+        let transport = match obfuscation {
+            RunningObfuscation::Transport(transport) => transport,
+            // LWO rewrites each datagram in place, so it has no transport of its own to reuse.
+            RunningObfuscation::Lwo(settings) => create_transport(
+                Arc::new(NoopBypass),
+                &tunnel_obfuscation::Settings::Lwo(settings),
+            )
+            .await
+            .map_err(ObfuscationProxyError::LocalSocketError)?,
         };
 
-        let obfuscator = create_local_socket_obfuscator(&settings)
+        let obfuscator = LocalSocketRunner::new(transport)
             .await
             .map_err(ObfuscationProxyError::LocalSocketError)?;
         let endpoint = obfuscator.endpoint();
         log::info!("Obfuscation proxy started at {endpoint}");
         let task = tokio::spawn(async move {
-            let _ = obfuscator.run().await;
+            let _ = Box::new(obfuscator).run().await;
         });
-        Ok(Some(ObfuscationGuard { endpoint, task }))
+        Ok(ObfuscationGuard { endpoint, task })
     }
 
-    /// Create the obfuscation for the temporary devices that negotiate ephemeral peers. Unlike
-    /// [`Self::start_obfuscation_proxy`], it obfuscates without a local proxy socket.
+    /// Create the obfuscation that reaches the ingress relay. It is used by the temporary devices
+    /// that negotiate ephemeral peers, and then reused by the tunnel devices.
     /// Returns `None` if obfuscation is off.
     async fn create_obfuscation(
         config: &TunnelConfig,
@@ -763,31 +782,15 @@ impl IosTunnelAdapter {
         overhead as u16
     }
 
-    /// After PQ, LWO obfuscates the handshake with the ingress device's ephemeral
-    /// key (the entry key in multihop, the exit key in singlehop) rather than the
-    /// device key. No-op unless obfuscation is LWO.
-    fn apply_lwo_ingress_key(config: &mut TunnelConfig, pq: &PqResult) {
+    /// The public key of the ingress device after PQ: the entry key in multihop, the exit key in
+    /// singlehop. LWO obfuscates the handshake with this key rather than the device key.
+    fn ingress_public_key(pq: &PqResult) -> PublicKey {
         let (pq_entry, pq_exit_key, _) = pq;
         let ingress_key = match pq_entry {
             Some((entry_key, _)) => entry_key,
             None => pq_exit_key,
         };
-        Self::set_lwo_client_public_key(
-            config,
-            gotatun::x25519::PublicKey::from(ingress_key).to_bytes(),
-        );
-    }
-
-    /// Make LWO obfuscate for a device that uses `client_public_key`. No-op unless obfuscation is
-    /// LWO.
-    fn set_lwo_client_public_key(config: &mut TunnelConfig, client_public_key: [u8; 32]) {
-        if let ObfuscationConfig::Lwo {
-            client_public_key: lwo_client_public_key,
-            ..
-        } = &mut config.obfuscation
-        {
-            *lwo_client_public_key = client_public_key;
-        }
+        PublicKey::from(gotatun::x25519::PublicKey::from(ingress_key).to_bytes())
     }
 }
 
@@ -875,7 +878,6 @@ impl Devices {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::assert_matches;
     use std::sync::Mutex;
     use std::sync::atomic::AtomicUsize;
 
@@ -1025,26 +1027,13 @@ mod tests {
     }
 
     #[test]
-    fn apply_lwo_ingress_key_picks_entry_key_when_multihop() {
+    fn ingress_public_key_picks_entry_key_when_multihop() {
         let entry_secret = StaticSecret::from([1u8; 32]);
         let exit_secret = StaticSecret::from([2u8; 32]);
         let entry_pub = gotatun::x25519::PublicKey::from(&entry_secret).to_bytes();
         let exit_pub = gotatun::x25519::PublicKey::from(&exit_secret).to_bytes();
 
-        let lwo = || ObfuscationConfig::Lwo {
-            client_public_key: [0u8; 32],
-            server_public_key: [9u8; 32],
-        };
-        let current = |c: &TunnelConfig| match c.obfuscation {
-            ObfuscationConfig::Lwo {
-                client_public_key, ..
-            } => client_public_key,
-            _ => unreachable!(),
-        };
-
         // Multihop PQ: the entry ephemeral key is used.
-        let mut multihop = config();
-        multihop.obfuscation = lwo();
         let pq_multihop: PqResult = (
             Some((
                 entry_secret,
@@ -1053,23 +1042,20 @@ mod tests {
             StaticSecret::from([2u8; 32]),
             IosTunnelAdapter::build_peer(&peer("1.2.3.4:1")),
         );
-        IosTunnelAdapter::apply_lwo_ingress_key(&mut multihop, &pq_multihop);
-        assert_eq!(current(&multihop), entry_pub);
+        assert_eq!(
+            IosTunnelAdapter::ingress_public_key(&pq_multihop).as_bytes(),
+            &entry_pub
+        );
 
         // Singlehop PQ: the (only) exit key is used.
-        let mut singlehop = config();
-        singlehop.obfuscation = lwo();
         let pq_singlehop: PqResult = (
             None,
             exit_secret,
             IosTunnelAdapter::build_peer(&peer("1.2.3.4:1")),
         );
-        IosTunnelAdapter::apply_lwo_ingress_key(&mut singlehop, &pq_singlehop);
-        assert_eq!(current(&singlehop), exit_pub);
-
-        // Non-LWO obfuscation is left untouched.
-        let mut off = config();
-        IosTunnelAdapter::apply_lwo_ingress_key(&mut off, &pq_singlehop);
-        assert_matches!(off.obfuscation, ObfuscationConfig::Off);
+        assert_eq!(
+            IosTunnelAdapter::ingress_public_key(&pq_singlehop).as_bytes(),
+            &exit_pub
+        );
     }
 }
