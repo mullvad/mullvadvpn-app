@@ -258,9 +258,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case .switchKey:
             await handleSwitchKey()
         case .sleep:
-            currentAdapter?.suspendTunnel()
+            await handleSleep()
         case .wake:
-            currentAdapter?.wakeTunnel()
+            await handleWake()
         #if NEVER_IN_PRODUCTION
             case let .barrier(resume):
                 resume()
@@ -308,6 +308,28 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         eventContinuation.finish()
     }
 
+    // MARK: - Sleep and Wake
+
+    private func handleSleep() async {
+        /// Special case when the device goes to sleep whilst still connecting or reconnecting,
+        /// simply cancel the connection and wait for the next wake to restart it
+        switch observedState {
+        case .connecting, .reconnecting:
+            stopCurrentAdapter()
+        default:
+            currentAdapter?.suspendTunnel()
+        }
+    }
+
+    private func handleWake() async {
+        switch observedState {
+        case .connecting, .reconnecting:
+            await restartConnection(nextRelays: .random)
+        default:
+            currentAdapter?.wakeTunnel()
+        }
+    }
+
     // MARK: - Adapter callbacks
 
     private func handleAdapterConnected() async {
@@ -315,7 +337,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case var .connecting(info), var .reconnecting(info):
             info.connectionAttemptCount = 0
             observedState = .connected(info)
-            await providerDelegate.reassertTunnel()
+            providerDelegate.reassertTunnel()
             logger.debug("Connected")
         default:
             logger.debug("Ignoring onConnected in state \(observedState)")
