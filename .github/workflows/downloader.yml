@@ -39,12 +39,7 @@ permissions: {}
 
 jobs:
   build-windows:
-    strategy:
-      matrix:
-        config:
-          - os: windows-latest
-            arch: x64
-    runs-on: ${{ matrix.config.os }}
+    runs-on: windows-latest
     env:
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.

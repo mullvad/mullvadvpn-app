@@ -128,6 +128,7 @@ jobs:
         run: ci/cargo-ci.sh test --workspace
 
   build-windows:
+    name: build-windows (${{ matrix.config.arch }})
     strategy:
       # Even if onw of the Windows jobs fail, the other should not be cancelled.
       fail-fast: false
