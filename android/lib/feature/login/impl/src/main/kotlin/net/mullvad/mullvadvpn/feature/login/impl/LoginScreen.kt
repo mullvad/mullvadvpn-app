@@ -19,11 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -47,7 +44,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -90,7 +86,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -106,7 +101,6 @@ import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberKeyboardType
-import net.mullvad.mullvadvpn.lib.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.lib.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
@@ -357,19 +351,14 @@ private fun ColumnScope.LoginInput(
         showLastChars = charsToShow == ACCOUNT_NUMBER_CHUNK_SIZE
     }
 
-    val outputTransformation =
-        remember(showPassword) {
-            accountNumberOutputTransformation(
-                showAccount = showPassword,
-                // HACK! See comment in accountNumberOutputTransformation for more information.
-                showLastX = { if (showLastChars) charsToShow else 0 },
+    val visualTransformation =
+        remember(showPassword, showLastChars, charsToShow) {
+            accountNumberVisualTransformation(
+                showPassword,
+                showLastX = if (showLastChars) charsToShow else 0,
             )
         }
 
-    val accountState = rememberTextFieldState(state.accountNumberInput)
-    LaunchedEffect(accountState) {
-        snapshotFlow { accountState.text.toString() }.collectLatest { onAccountNumberChange(it) }
-    }
     val revealInputRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     TextField(
@@ -390,12 +379,10 @@ private fun ColumnScope.LoginInput(
                         it
                     }
                 },
-        state =
-            if (state.loginState is LoginState.Loading.CreatingAccount) TextFieldState("")
-            else {
-                accountState
-            },
-        labelPosition = TextFieldLabelPosition.Above(),
+        value =
+            if (state.loginState is LoginState.Loading.CreatingAccount) ""
+            else state.accountNumberInput,
+        onValueChange = onAccountNumberChange,
         label = {
             Text(
                 text = stringResource(id = R.string.account_number),
@@ -403,7 +390,7 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        lineLimits = TextFieldLineLimits.SingleLine,
+        singleLine = true,
         trailingIcon =
             if (state.loginState is LoginState.Idle) {
                 {
@@ -455,14 +442,16 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        onKeyboardAction = { onLoginClick(state.accountNumberInput) },
+        keyboardActions = KeyboardActions(
+            onDone = { onLoginClick(state.accountNumberInput) }
+        ),
         keyboardOptions =
             KeyboardOptions(
                 autoCorrectEnabled = false,
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
                 keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
             ),
-        outputTransformation = outputTransformation,
+        visualTransformation = visualTransformation,
         enabled = state.loginState is LoginState.Idle,
         textStyle =
             MaterialTheme.typography.bodyLarge.copy(
@@ -483,7 +472,7 @@ private fun ColumnScope.LoginInput(
                 onClick = {
                     state.lastUsedAccount?.let {
                         charsToShow = ACCOUNT_NUMBER_CHUNK_SIZE
-                        accountState.setTextAndPlaceCursorAtEnd(it.value)
+                        onAccountNumberChange(it.value)
                         onLoginClick(it.value)
                     }
                 },
