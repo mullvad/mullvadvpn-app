@@ -195,6 +195,9 @@ impl HopConfig {
         if let Some(psk) = keys.preshared_key {
             wg_peer = wg_peer.with_preshared_key(psk);
         }
+        if let Some(daita) = &keys.daita {
+            wg_peer = wg_peer.with_daita(daita.clone());
+        }
         Self {
             private_key: keys.private_key.clone(),
             peer: wg_peer,
@@ -813,6 +816,14 @@ mod tests {
         HopKeys {
             private_key: StaticSecret::from([seed; 32]),
             preshared_key: psk,
+            daita: None,
+        }
+    }
+
+    fn daita_keys(seed: u8) -> HopKeys {
+        HopKeys {
+            daita: Some(Default::default()),
+            ..keys(seed, None)
         }
     }
 
@@ -883,6 +894,15 @@ mod tests {
         assert_eq!(config.exit.peer.preshared_key, Some([22u8; 32]));
         assert_eq!(config.exit.peer.endpoint, Some(p.exit_peer.endpoint));
         assert_eq!(config.ingress().peer.public_key, entry.peer.public_key);
+    }
+
+    #[test]
+    fn hop_config_applies_negotiated_daita() {
+        let p = peer("1.2.3.4:51820");
+        let with_daita = HopConfig::new(&p, &daita_keys(1), p.endpoint);
+        assert!(with_daita.peer.daita_settings.is_some());
+        let without_daita = HopConfig::new(&p, &keys(1, None), p.endpoint);
+        assert!(without_daita.peer.daita_settings.is_none());
     }
 
     #[test]

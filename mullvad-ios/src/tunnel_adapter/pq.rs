@@ -3,11 +3,12 @@
 use std::{
     io,
     net::SocketAddr,
+    num::NonZeroUsize,
     sync::atomic::{AtomicBool, Ordering},
 };
 
 use gotatun::{
-    device::{DeviceBuilder, Peer},
+    device::{DeviceBuilder, Peer, daita::DaitaSettings},
     udp::channel::new_udp_tun_channel,
     x25519::{PublicKey, StaticSecret},
 };
@@ -30,11 +31,11 @@ use super::{
 
 const CONFIG_SERVICE_ADDR: &str = "10.64.0.1:1337";
 
-/// Key material one hop's device is configured with.
-#[derive(Clone)]
+/// Key material and DAITA settings one hop's device is configured with.
 pub struct HopKeys {
     pub private_key: StaticSecret,
     pub preshared_key: Option<[u8; 32]>,
+    pub daita: Option<DaitaSettings>,
 }
 
 impl HopKeys {
@@ -43,13 +44,22 @@ impl HopKeys {
         Self {
             private_key: params.device_key(),
             preshared_key: None,
+            daita: None,
         }
     }
 
-    fn ephemeral(private_key: PrivateKey, negotiated: &EphemeralPeer) -> Self {
+    fn ephemeral(private_key: PrivateKey, negotiated: EphemeralPeer) -> Self {
         Self {
             private_key: StaticSecret::from(private_key.to_bytes()),
             preshared_key: negotiated.psk.as_ref().map(|psk| *psk.as_bytes()),
+            daita: negotiated.daita.map(|daita| DaitaSettings {
+                maybenot_machines: daita.client_machines,
+                max_decoy_frac: daita.max_decoy_frac,
+                max_delay_frac: daita.max_delay_frac,
+                // hardcoded values stolen from desktop
+                max_delayed_packets: const { NonZeroUsize::new(1024).unwrap() },
+                min_delay_capacity: 50,
+            }),
         }
     }
 
@@ -164,7 +174,7 @@ async fn negotiate_with_ingress(
         "PQ phase 1",
         result,
     )?;
-    Ok(HopKeys::ephemeral(ephemeral_private, &ephemeral))
+    Ok(HopKeys::ephemeral(ephemeral_private, ephemeral))
 }
 
 /// Phase 2 (multihop only): reach the exit relay's config service through the entry, whose
@@ -242,7 +252,7 @@ async fn negotiate_with_exit_via_entry(
         "PQ phase 2",
         result,
     )?;
-    Ok(HopKeys::ephemeral(ephemeral_private, &ephemeral))
+    Ok(HopKeys::ephemeral(ephemeral_private, ephemeral))
 }
 
 fn finish_exchange<F>(
@@ -353,26 +363,23 @@ mod tests {
 
     #[test]
     fn ingress_keys_are_entry_when_multihop_else_exit() {
-        let entry = HopKeys {
-            private_key: StaticSecret::from([1u8; 32]),
+        let keys = |seed: u8| HopKeys {
+            private_key: StaticSecret::from([seed; 32]),
             preshared_key: None,
-        };
-        let exit = HopKeys {
-            private_key: StaticSecret::from([2u8; 32]),
-            preshared_key: None,
+            daita: None,
         };
 
         let multihop = NegotiatedKeys {
-            entry: Some(entry.clone()),
-            exit: exit.clone(),
+            entry: Some(keys(1)),
+            exit: keys(2),
         };
-        assert_eq!(multihop.ingress().public_key(), entry.public_key());
+        assert_eq!(multihop.ingress().public_key(), keys(1).public_key());
 
-        let singlehop = NegotiatedKeys { entry: None, exit };
-        assert_eq!(
-            singlehop.ingress().public_key(),
-            PublicKey::from(&StaticSecret::from([2u8; 32]))
-        );
+        let singlehop = NegotiatedKeys {
+            entry: None,
+            exit: keys(2),
+        };
+        assert_eq!(singlehop.ingress().public_key(), keys(2).public_key());
     }
 
     #[test]
