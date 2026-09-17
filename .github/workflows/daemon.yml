@@ -138,10 +138,6 @@ jobs:
             arch: x64
           - os: windows-11-arm
             arch: arm64
-            # By default, ./build-windows-modules.sh uses one process per core,
-            # and the four of the Windows 11 ARM runner exhaust its memory:
-            # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
-            windows-modules-build-flags: --max-concurrent-processes 2
     runs-on: ${{ matrix.config.os }}
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
@@ -166,7 +162,7 @@ jobs:
         # only an incremental rebuild would read. Deleting them keeps the cache
         # saved at the end of the job down to the linked libraries.
         run: |
-          ./build-windows-modules.sh ${{ matrix.config['windows-modules-build-flags'] }} build winfw
+          ./build-windows-modules.sh build winfw
           rm -rf windows/*/bin/temp
 
       # Excluding windows-installer because it builds an actual full installer
