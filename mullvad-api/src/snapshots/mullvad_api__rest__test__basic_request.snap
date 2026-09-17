@@ -1,0 +1,17 @@
+---
+source: mullvad-api/src/rest.rs
+expression: request.inner_request()
+---
+Request {
+    method: GET,
+    uri: https://api.mullvad.net/test,
+    version: HTTP/1.1,
+    headers: {
+        "user-agent": "mullvad-app",
+        "accept": "application/json",
+        "host": "api.mullvad.net",
+    },
+    body: Full {
+        data: None,
+    },
+}

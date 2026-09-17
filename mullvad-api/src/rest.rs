@@ -365,23 +365,45 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             .flatten()
     }
 
+    async fn get_connection(&mut self) -> Result<Connection> {
+        // TODO: don't use `Option::take` once the new lifetime solver is stabilized
+        let mut connection = match self.connection.take() {
+            Some(connection) => connection,
+            None => self.connect().await?,
+        };
+
+        connection.send_request.ready().await?;
+
+        Ok(connection)
+    }
+
+    async fn get_connection_retry(&mut self) -> Result<Connection> {
+        timeout(CONNECT_TIMEOUT, async {
+            let max_attempts = 3;
+            let mut attempt = 0;
+            loop {
+                attempt += 1;
+
+                match self.get_connection().await {
+                    Ok(connection) => return Ok(connection),
+                    Err(e) if attempt > max_attempts => return Err(e),
+                    Err(..) => continue,
+                }
+            }
+        })
+        .await
+        .map_err(|_timeout| Error::TimeoutError)?
+    }
+
     async fn send_request_inner(
         &mut self,
         mut request: Request<Full<Bytes>>,
     ) -> Result<Response<Incoming>> {
         let _ = self.api_availability.wait_for_unsuspend().await;
 
-        let connection = match &mut self.connection {
-            Some(sr) => sr,
-            None => {
-                let connection = timeout(CONNECT_TIMEOUT, self.connect())
-                    .map_err(|_elapsed| Error::TimeoutError)
-                    .await??;
-                self.connection.insert(connection)
-            }
-        };
-
         if let Some(account) = &request.account {
+            let connection = self.get_connection_retry().await?;
+            let connection = self.connection.insert(connection);
             let access_token = self
                 .access_tokens
                 .get_token(account, &self.host, &mut connection.send_request)
@@ -394,6 +416,8 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
                 .insert(header::AUTHORIZATION, auth);
         }
 
+        let connection = self.get_connection_retry().await?;
+        let connection = self.connection.insert(connection);
         let response = connection
             .send_request
             .send_request(request.request)
@@ -499,9 +523,9 @@ impl<B: Body> Request<B> {
     /// Set the account number to obtain authentication for.
     ///
     /// If set, the [`RequestService`] may preempt this request with a request to fetch an access token.
-    pub fn account(mut self, account: AccountNumber) -> Result<Self> {
+    pub fn account(mut self, account: AccountNumber) -> Self {
         self.account = Some(account);
-        Ok(self)
+        self
     }
 
     /// Sets timeout for the request.
@@ -525,6 +549,11 @@ impl<B: Body> Request<B> {
     /// Returns the URI of the request
     pub fn uri(&self) -> &Uri {
         self.request.uri()
+    }
+
+    #[cfg(test)]
+    fn inner_request(&self) -> &hyper::Request<B> {
+        &self.request
     }
 }
 
@@ -592,7 +621,7 @@ struct OldErrorResponse {
 
 /// If `NewErrorResponse::type` is not defined it should default to "about:blank"
 const DEFAULT_ERROR_TYPE: &str = "about:blank";
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct NewErrorResponse {
     pub r#type: Option<String>,
 }
@@ -823,3 +852,159 @@ impl_into_arc_err!(hyper::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
+
+#[cfg(test)]
+mod test {
+    use http::header::AUTHORIZATION;
+    use mockito::Matcher;
+
+    use super::*;
+    use crate::proxy::ApiConnectionMode;
+
+    const ACCOUNT: &str = "1111222233334444";
+    const AUTH_TOKEN: &str = "supersecret";
+
+    /// Resolve every host to a fixed address.
+    struct MockResolver(SocketAddr);
+
+    #[async_trait::async_trait]
+    impl DnsResolver for MockResolver {
+        async fn resolve(&self, _host: String) -> io::Result<Vec<SocketAddr>> {
+            Ok(vec![self.0])
+        }
+    }
+
+    /// A `Debug` response type to generate nice insta snapshots
+    #[derive(Debug)]
+    #[expect(dead_code)]
+    struct MockResponse {
+        status: StatusCode,
+        headers: hyper::HeaderMap,
+        body: serde_json::Value,
+    }
+
+    async fn setup() -> (RequestServiceHandle, mockito::ServerGuard) {
+        let server = mockito::Server::new_async().await;
+
+        let service = RequestService::spawn(
+            "api.mullvad.net",
+            ApiAvailability::default(),
+            ApiConnectionMode::Direct.into_provider(),
+            Arc::new(MockResolver(server.socket_address())),
+            true, // disable_tls
+        );
+
+        (service, server)
+    }
+
+    fn mock_auth_token(server: &mut mockito::ServerGuard, expiry: &str) -> mockito::Mock {
+        server
+            .mock("POST", "/auth/v1/token")
+            .match_body(format!("{{\"account_number\":\"{ACCOUNT}\"}}").as_str())
+            .with_body(
+                serde_json::json!({
+                    "access_token": AUTH_TOKEN,
+                    "expiry":expiry,
+                })
+                .to_string(),
+            )
+            .expect(99) // don't unregister the handler after the first request
+            .create()
+    }
+
+    fn mock_secret_ok(server: &mut mockito::ServerGuard) -> mockito::Mock {
+        server
+            .mock("GET", "/secret")
+            .match_header(AUTHORIZATION, format!("Bearer {AUTH_TOKEN}").as_str())
+            .with_status(200)
+            .with_body(r#"{"foo":"bar"}"#)
+            .expect(99) // don't unregister the handler after the first request
+            .create()
+    }
+
+    /// Helper macro for dispatching a request, awaiting the response, and snapshotting them for testing.
+    macro_rules! test_request {
+        ($f:expr) => {
+            async {
+                let f = $f;
+                let request: Request<Full<Bytes>> = f();
+                insta::assert_debug_snapshot!(request.inner_request());
+                let response = request.await.expect("get response");
+                let (status, mut headers) = (response.status(), response.headers().clone());
+                headers.remove("date"); // strip non-reproducible date header
+                let body = response
+                    .deserialize::<serde_json::Value>()
+                    .await
+                    .expect("deserialize");
+                let mock_response = MockResponse {
+                    status,
+                    headers,
+                    body,
+                };
+                insta::assert_debug_snapshot!(mock_response);
+            }
+        };
+    }
+
+    #[tokio::test]
+    async fn basic_request() {
+        let (service, mut server) = setup().await;
+        let _mock = server
+            .mock("GET", "/test")
+            .with_body(r#"{"foo":"bar"}"#)
+            .create();
+        test_request!(|| service.request().get("test").unwrap()).await;
+    }
+
+    /// Test fetching auth token, and that the token is not reused when expired.
+    #[tokio::test]
+    async fn auth_evict() {
+        let (service, mut server) = setup().await;
+
+        // fetch an (expired) bearer token
+        let mock_auth_token = mock_auth_token(&mut server, "2000-01-01T00:00:00Z").expect(2);
+        // route that requires a bearer token
+        let mock_secret_ok = mock_secret_ok(&mut server).expect(2);
+        // route for when bearer token is not present
+        let mock_forbidden = server.mock("GET", Matcher::Any).expect(0).create();
+
+        for _ in 0..2 {
+            test_request!(|| service
+                .request()
+                .get("secret")
+                .unwrap()
+                .account(ACCOUNT.into()))
+            .await;
+        }
+
+        mock_auth_token.assert();
+        mock_secret_ok.assert();
+        mock_forbidden.assert();
+    }
+
+    /// Test fetching auth token, and that the token is reused between requests.
+    #[tokio::test]
+    async fn auth_reuse() {
+        let (service, mut server) = setup().await;
+
+        // 200 for fetching a bearer token
+        let mock_auth_token = mock_auth_token(&mut server, "2999-01-01T00:00:00Z").expect(1);
+        // route that requires a bearer token
+        let mock_secret_ok = mock_secret_ok(&mut server).expect(2);
+        // route for when bearer token is not present
+        let mock_forbidden = server.mock("GET", Matcher::Any).expect(0).create();
+
+        for _ in 0..2 {
+            test_request!(|| service
+                .request()
+                .get("secret")
+                .unwrap()
+                .account(ACCOUNT.into()))
+            .await;
+        }
+
+        mock_auth_token.assert();
+        mock_secret_ok.assert();
+        mock_forbidden.assert();
+    }
+}
