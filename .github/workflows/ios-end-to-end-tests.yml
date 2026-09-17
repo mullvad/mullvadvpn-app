@@ -115,15 +115,15 @@ jobs:
           cancel-in-progress: false
         with:
           test_name: ${{ github.event.inputs.user_supplied_test_name }}
+          device_uuid: ${{ inputs.device_uuid }}
+          outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+          # Supplied through 'secrets'
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
-          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ inputs.device_uuid }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           ios_in_app_purchase_username: ${{ secrets.IOS_IN_APP_PURCHASE_USERNAME }}
           ios_in_app_purchase_password: ${{ secrets.IOS_IN_APP_PURCHASE_PASSWORD }}
-          outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
 
       - name: Debug print job output directory
         run: |
