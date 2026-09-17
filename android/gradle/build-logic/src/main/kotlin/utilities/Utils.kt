@@ -105,13 +105,10 @@ fun Project.registerReleaseTask(
     releaseTaskName: String,
     appVersion: AppVersion,
     taskList: List<String>,
-    skipClean: Boolean = false,
     skipDirtyCheck: Boolean = false,
 ) {
     val releaseVersionName = appVersion.name
     val releaseDistDirPath = rootDir.parentFile.resolve("dist").absolutePath
-
-    if (!skipClean) tasks.configureEach { if (releaseTaskName in taskList) dependsOn("clean") }
 
     val postBuild =
         tasks.register<PostBuildTask>("${releaseTaskName}PostBuild") {
