@@ -155,7 +155,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         contentView.purchaseButton.isEnabled =
             !isFetchingProducts
             && isInteractionEnabled
-        && !tunnelManager.tunnelStatus.state.isBlockingInternet
+            && !tunnelManager.tunnelStatus.state.isBlockingInternet
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
