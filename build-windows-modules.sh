@@ -79,7 +79,7 @@ function build_solution_config {
     # represents a multiplier expressed in percents. That is, /Zm400 equates to 4x the amount of memory VS is allowed
     # to reserve compared to the default value. This parameter may be subject to tweaking if the issue persists.
     # /Zm200 was not enough from our empirical testing, so /Zm400 was semi-arbitrarily chosen for now.
-    cmd.exe "/c msbuild.exe $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform /p:AdditionalOptions=/Zm400"
+    cmd.exe "/c msbuild.exe /p:MultiProcessorCompilation=true $(to_win_path "$sln") /p:Configuration=$config /p:Platform=$platform /p:AdditionalOptions=/Zm400"
     set +x
 }
 
