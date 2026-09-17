@@ -245,9 +245,33 @@ fn supports_daita(relay: &WireguardRelay) -> bool {
 /// Tests that exercise the full relay-selection pipeline via
 /// [`RelaySelector::get_relay`] and [`RelaySelector::get_relay_by_query`].
 mod relay_selection {
+    use mullvad_relay_selector::EntryConstraints;
+
     use crate::relay_list_builder::RelayListBuilder;
 
     use super::*;
+
+    #[test]
+    fn se_got_wg_003_needs_other_entry() {
+        let relays = include_bytes!("./se-got-wg-003.json");
+        let (relay_list, bridge_list): (RelayList, BridgeList) =
+            serde_json::from_slice(relays).unwrap();
+        let relay_selector = RelaySelector::new(relay_list, bridge_list);
+
+        let scenario = Predicate::Autohop(
+            EntryConstraints::default()
+                .obfuscation(ObfuscationMode::Quic)
+                .ip_version(IpVersion::V4),
+        );
+
+        let partitions = relay_selector.partition_relays(scenario);
+        let se_got_wg_003 = partitions
+            .matches
+            .iter()
+            .find(|relay| relay.hostname == "se-got-wg-003")
+            .unwrap();
+        assert!(se_got_wg_003.needs_other_entry);
+    }
 
     /// Assert that the relay selector does *not* return a multihop configuration where the exit and
     /// entry relay are the same, even if the constraints would allow for it. Also verify that the relay

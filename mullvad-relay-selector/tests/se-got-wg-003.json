@@ -1,0 +1,194 @@
+[
+  {
+    "countries": [ {
+        "name": "Sweden",
+        "code": "se",
+        "cities": [
+          {
+            "name": "Gothenburg",
+            "code": "got",
+            "latitude": 57.70887,
+            "longitude": 11.97456,
+            "relays": [
+              {
+                "overridden_ipv4": false,
+                "overridden_ipv6": false,
+                "include_in_country": true,
+                "owned": true,
+                "provider": "31173",
+                "endpoint_data": {
+                  "public_key": "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                  "daita": false,
+                  "quic": {
+                    "addr_in": [
+                      "1.3.3.7"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-got-wg-004.blockerad.eu"
+                  },
+                  "lwo": "v1",
+                  "shadowsocks_extra_addr_in": [ ]
+                },
+                "needs_other_entry": false,
+                "inner": {
+                  "hostname": "se-got-wg-004",
+                  "ipv4_addr_in": "185.213.154.68",
+                  "ipv6_addr_in": "2a03:1b20:5:f011::a09f",
+                  "active": true,
+                  "weight": 100,
+                  "location": {
+                    "country": "Sweden",
+                    "country_code": "se",
+                    "city": "Gothenburg",
+                    "city_code": "got",
+                    "latitude": 57.70887,
+                    "longitude": 11.97456
+                  }
+                }
+              },
+              {
+                "overridden_ipv4": false,
+                "overridden_ipv6": false,
+                "include_in_country": true,
+                "owned": true,
+                "provider": "31173",
+                "endpoint_data": {
+                  "public_key": "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                  "daita": false,
+                  "quic": {
+                    "addr_in": [
+                      "2a03:1b20:5:f011:3::c014",
+                      "2a03:1b20:5:f011:3::c00e",
+                      "2a03:1b20:5:f011:3::c013",
+                      "2a03:1b20:5:f011:3::c009",
+                      "2a03:1b20:5:f011:3::c00c",
+                      "2a03:1b20:5:f011:3::c010",
+                      "2a03:1b20:5:f011:3::c00d",
+                      "2a03:1b20:5:f011:3::c005",
+                      "2a03:1b20:5:f011:3::c00a",
+                      "2a03:1b20:5:f011:3::c008",
+                      "2a03:1b20:5:f011:3::c012",
+                      "2a03:1b20:5:f011:3::c015",
+                      "2a03:1b20:5:f011:3::c01e",
+                      "2a03:1b20:5:f011:3::c00b",
+                      "2a03:1b20:5:f011:3::c011",
+                      "2a03:1b20:5:f011:3::c017",
+                      "2a03:1b20:5:f011:3::c016",
+                      "2a03:1b20:5:f011:3::c002",
+                      "2a03:1b20:5:f011:3::c006",
+                      "2a03:1b20:5:f011:3::c01f",
+                      "2a03:1b20:5:f011:3::c003",
+                      "2a03:1b20:5:f011:3::c004",
+                      "2a03:1b20:5:f011:3::c007",
+                      "2a03:1b20:5:f011:3::c00f",
+                      "2a03:1b20:5:f011:3::c01c",
+                      "2a03:1b20:5:f011:3::c01b",
+                      "2a03:1b20:5:f011:3::c019",
+                      "2a03:1b20:5:f011:3::c01d",
+                      "2a03:1b20:5:f011:3::c01a",
+                      "2a03:1b20:5:f011:3::c018"
+                    ],
+                    "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
+                    "domain": "se-got-wg-003.blockerad.eu"
+                  },
+                  "lwo": "v1",
+                  "shadowsocks_extra_addr_in": [
+                    "2a03:1b20:5:f011:3::b01a",
+                    "2a03:1b20:5:f011:3::b01d",
+                    "2a03:1b20:5:f011:3::b017",
+                    "2a03:1b20:5:f011:3::b00e",
+                    "2a03:1b20:5:f011:3::b018",
+                    "2a03:1b20:5:f011:3::b011",
+                    "2a03:1b20:5:f011:3::b019",
+                    "2a03:1b20:5:f011:3::b009",
+                    "2a03:1b20:5:f011:3::b015",
+                    "2a03:1b20:5:f011:3::b01b",
+                    "2a03:1b20:5:f011:3::b008",
+                    "2a03:1b20:5:f011:3::b005",
+                    "2a03:1b20:5:f011:3::b002",
+                    "2a03:1b20:5:f011:3::b00c",
+                    "2a03:1b20:5:f011:3::b00d",
+                    "2a03:1b20:5:f011:3::b007",
+                    "2a03:1b20:5:f011:3::b00b",
+                    "2a03:1b20:5:f011:3::b00f",
+                    "2a03:1b20:5:f011:3::b010",
+                    "2a03:1b20:5:f011:3::b013",
+                    "2a03:1b20:5:f011:3::b006",
+                    "2a03:1b20:5:f011:3::b01c",
+                    "2a03:1b20:5:f011:3::b003",
+                    "2a03:1b20:5:f011:3::b01f",
+                    "2a03:1b20:5:f011:3::b004",
+                    "2a03:1b20:5:f011:3::b00a",
+                    "2a03:1b20:5:f011:3::b01e",
+                    "2a03:1b20:5:f011:3::b012",
+                    "2a03:1b20:5:f011:3::b014",
+                    "2a03:1b20:5:f011:3::b016"
+                  ]
+                },
+                "needs_other_entry": false,
+                "inner": {
+                  "hostname": "se-got-wg-003",
+                  "ipv4_addr_in": "185.213.154.68",
+                  "ipv6_addr_in": "2a03:1b20:5:f011::a09f",
+                  "active": true,
+                  "weight": 100,
+                  "location": {
+                    "country": "Sweden",
+                    "country_code": "se",
+                    "city": "Gothenburg",
+                    "city_code": "got",
+                    "latitude": 57.70887,
+                    "longitude": 11.97456
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "wireguard": {
+      "port_ranges": [
+        {
+          "start": 53,
+          "end": 53
+        },
+        {
+          "start": 123,
+          "end": 123
+        },
+        {
+          "start": 4000,
+          "end": 33433
+        },
+        {
+          "start": 33565,
+          "end": 51820
+        },
+        {
+          "start": 52001,
+          "end": 60000
+        }
+      ],
+      "ipv4_gateway": "10.64.0.1",
+      "ipv6_gateway": "fc00:bbbb:bbbb:bb01::1",
+      "shadowsocks_port_ranges": [
+        {
+          "start": 51900,
+          "end": 51949
+        }
+      ],
+      "udp2tcp_ports": [
+        80,
+        443,
+        5001
+      ]
+    }
+  },
+  {
+    "bridges": [ ],
+    "bridge_endpoint": {
+      "shadowsocks": [ ]
+    }
+  }
+]
