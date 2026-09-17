@@ -3387,6 +3387,7 @@ dependencies = [
  "http-body-util",
  "hyper",
  "hyper-util",
+ "insta",
  "ipnetwork",
  "libc",
  "mockito",
