@@ -225,6 +225,13 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
+    #if NEVER_IN_PRODUCTION
+        func invalidateWireGuardKey() {
+            accountManager.invalidateWireGuardKey()
+            reconnectTunnel(selectNewRelay: false)
+        }
+    #endif
+
     func startOrStopPeriodicPrivateKeyRotation() {
         if deviceState.isLoggedIn {
             startPeriodicPrivateKeyRotation()

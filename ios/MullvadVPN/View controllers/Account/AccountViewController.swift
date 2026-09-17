@@ -282,6 +282,17 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     }
                 )
             )
+
+            sheetController.addAction(
+                UIAlertAction(
+                    title: "Invalidate WireGuard key",
+                    style: .default,
+                    handler: { [weak self] _ in
+                        self?.tunnelManager.invalidateWireGuardKey()
+                    }
+                )
+            )
+
         #endif
 
         sheetController.addAction(
