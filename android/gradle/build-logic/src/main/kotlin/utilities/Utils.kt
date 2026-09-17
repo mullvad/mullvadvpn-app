@@ -102,7 +102,7 @@ abstract class PostBuildTask @Inject constructor(private val execOperations: Exe
 }
 
 fun Project.registerReleaseTask(
-    releaseName: String,
+    releaseTaskName: String,
     appVersion: AppVersion,
     taskList: List<String>,
     skipClean: Boolean = false,
@@ -111,17 +111,17 @@ fun Project.registerReleaseTask(
     val releaseVersionName = appVersion.name
     val releaseDistDirPath = rootDir.parentFile.resolve("dist").absolutePath
 
-    if (!skipClean) tasks.configureEach { if (releaseName in taskList) dependsOn("clean") }
+    if (!skipClean) tasks.configureEach { if (releaseTaskName in taskList) dependsOn("clean") }
 
     val postBuild =
-        tasks.register<PostBuildTask>("${releaseName}PostBuild") {
+        tasks.register<PostBuildTask>("${releaseTaskName}PostBuild") {
             this.skipDirtyCheck.set(skipDirtyCheck)
             this.versionName.set(releaseVersionName)
             this.distDirPath.set(releaseDistDirPath)
             dependsOn(taskList)
         }
 
-    tasks.register(releaseName) { dependsOn(postBuild) }
+    tasks.register(releaseTaskName) { dependsOn(postBuild) }
 }
 
 // Fetch a string and that is split by `,` into a list of strings
