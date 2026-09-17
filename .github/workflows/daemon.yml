@@ -137,6 +137,10 @@ jobs:
             arch: x64
           - os: windows-11-arm
             arch: arm64
+            # By default, ./build-windows-modules.sh uses one process per core,
+            # and the four of the Windows 11 ARM runner exhaust its memory:
+            # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
+            windows-modules-build-flags: --max-concurrent-processes 2
     runs-on: ${{ matrix.config.os }}
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
@@ -149,20 +153,9 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Build Windows modules (x86_64)
-        if: ${{ matrix.config.arch == 'x64' }}
+      - name: Build Windows modules
         shell: bash
-        run: ./build-windows-modules.sh build winfw
-
-      - name: Build Windows modules (ARM64)
-        if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
-        # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
-        # because the Windows 11 ARM runner has 4 cores:
-        # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
-        #
-        # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
-        run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
+        run: ./build-windows-modules.sh ${{ matrix.config['windows-modules-build-flags'] }} build winfw
 
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead
