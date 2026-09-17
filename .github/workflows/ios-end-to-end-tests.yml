@@ -159,6 +159,12 @@ jobs:
     runs-on: [self-hosted, macOS, ios-test]
     needs: [build, define-test-suites-matrix, set-up-outputs-directory]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          clean: true
+          ref: ${{ env.COMMIT_HASH }}
+
       - name: Reboot phone
         run: |
           ./reboot_phone.sh "${{ inputs.device_uuid }}"
