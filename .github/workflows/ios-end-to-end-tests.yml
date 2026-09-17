@@ -1,7 +1,5 @@
 ---
 name: iOS end-to-end tests
-env:
-  TEST_DEVICE_UDID: 00008130-0019181022F3803A
 permissions:
   contents: read
   issues: write
@@ -26,6 +24,10 @@ on:
         description: >
          Specifies the repository commit to use; defaults to the current event's commit if not provided.
         required: false
+      device_uuid:
+        description: "The UUID on which device to run the tests"
+        required: false
+        default: 0CA792B8-06B2-5D33-A574-7E8D9C2F25FE
 jobs:
   set-up-outputs-directory:
     name: Set up outputs directory
@@ -108,13 +110,16 @@ jobs:
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/ios/build-ios-e2e-tests
+        concurrency:
+          group: ${{ inputs.device_uuid }}  # only one job/workflow touches the phone at a time
+          cancel-in-progress: false
         with:
           test_name: ${{ github.event.inputs.user_supplied_test_name }}
           ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
           test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
           has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
           no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
+          test_device_udid: ${{ inputs.device_uuid }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           ios_in_app_purchase_username: ${{ secrets.IOS_IN_APP_PURCHASE_USERNAME }}
           ios_in_app_purchase_password: ${{ secrets.IOS_IN_APP_PURCHASE_PASSWORD }}
@@ -141,11 +146,28 @@ jobs:
           rm -rf ios/derived-data
         shell: bash
 
+  reboot-phone:
+    name: Reboot connected iPhone
+    runs-on: [self-hosted, macOS, ios-test]
+    needs: set-up-outputs-directory
+    concurrency:
+      group: ${{ inputs.device_uuid }}  # only one job/workflow touches the phone at a time
+      cancel-in-progress: false
+    steps:
+      - name: Run iOS end to end tests action
+        run: |
+          ./reboot_phone "${{ inputs.device_uuid }}"
+        shell: bash
+        working-directory: ci/ios
+
   test:
     name: Run tests
     runs-on: [self-hosted, macOS, ios-test]
     needs: [build, define-test-suites-matrix, set-up-outputs-directory]
     timeout-minutes: 60
+    concurrency:
+      group: ${{ inputs.device_uuid }}  # only one job/workflow touches the phone at a time
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       matrix:
@@ -155,7 +177,7 @@ jobs:
         uses: ./.github/actions/ios/run-ios-e2e-tests
         with:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
+          test_device_udid: ${{ inputs.device_uuid }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
 
   clean-up-outputs-directory:
