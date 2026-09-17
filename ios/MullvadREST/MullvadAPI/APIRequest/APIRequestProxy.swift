@@ -39,9 +39,12 @@ public final class APIRequestProxy: APIRequestProxyProtocol, @unchecked Sendable
         _ proxyRequest: ProxyAPIRequest,
         completion: @escaping @Sendable (ProxyAPIResponse) -> Void
     ) {
-        dispatchQueue.async {
-            Task {
-                guard let transport = await self.transportProvider.makeTransport() else {
+        Task {
+            let transport = await self.transportProvider.makeTransport()
+
+            // `proxiedRequests` must only be accessed on `dispatchQueue`.
+            self.dispatchQueue.async {
+                guard let transport else {
                     // Cancel old task, if there's one scheduled.
                     self.cancelRequest(identifier: proxyRequest.id)
 
