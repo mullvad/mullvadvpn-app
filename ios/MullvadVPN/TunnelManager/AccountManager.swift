@@ -108,9 +108,7 @@ struct AccountManager: Sendable {
     }
 
     func updateAccountData() async throws {
-        guard case let .loggedIn(accountData, _) = interactor.deviceState else {
-            throw InvalidDeviceStateError()
-        }
+        let (accountData, _) = try ensureLoggedIn()
 
         let result = await accountsProxy.getAccountData(
             accountNumber: accountData.number,
@@ -140,9 +138,7 @@ struct AccountManager: Sendable {
     }
 
     func updateDeviceData() async throws {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-            throw InvalidDeviceStateError()
-        }
+        let (accountData, deviceData) = try ensureLoggedIn()
         do {
             let device = try await devicesProxy.getDevice(
                 accountNumber: accountData.number,
@@ -162,4 +158,28 @@ struct AccountManager: Sendable {
             throw error
         }
     }
+
+    private func ensureLoggedIn() throws -> (StoredAccountData, StoredDeviceData) {
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            throw InvalidDeviceStateError()
+        }
+        return (accountData, deviceData)
+    }
+
+    #if NEVER_IN_PRODUCTION
+        /// Replaces the device key with one that was never published to the API, then reconnects the tunnel if it
+        /// is up. This enables testing if the packet tunnel can recover a bad key.
+        func invalidateWireGuardKey() {
+            // Debug menu is not accessible when user has logged out
+            do {
+                var (accountData, deviceData) = try ensureLoggedIn()
+                deviceData.wgKeyData = StoredWgKeyData(
+                    creationDate: deviceData.wgKeyData.creationDate,
+                    privateKey: WireGuard.PrivateKey()
+                )
+                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+            } catch {}
+
+        }
+    #endif
 }
