@@ -58,14 +58,8 @@ pub enum GotaTunObfuscation {
     Off,
     UdpOverTcp,
     Shadowsocks,
-    Quic {
-        hostname: String,
-        token: String,
-    },
-    Lwo {
-        client_public_key: Vec<u8>,
-        server_public_key: Vec<u8>,
-    },
+    Quic { hostname: String, token: String },
+    Lwo { server_public_key: Vec<u8> },
 }
 
 /// Error returned when starting a tunnel.
@@ -228,11 +222,7 @@ fn build_obfuscation(
         GotaTunObfuscation::UdpOverTcp => ObfuscationConfig::UdpOverTcp,
         GotaTunObfuscation::Shadowsocks => ObfuscationConfig::Shadowsocks,
         GotaTunObfuscation::Quic { hostname, token } => ObfuscationConfig::Quic { hostname, token },
-        GotaTunObfuscation::Lwo {
-            client_public_key,
-            server_public_key,
-        } => ObfuscationConfig::Lwo {
-            client_public_key: key32(&client_public_key, "LWO client public key")?,
+        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationConfig::Lwo {
             server_public_key: key32(&server_public_key, "LWO server public key")?,
         },
     })
