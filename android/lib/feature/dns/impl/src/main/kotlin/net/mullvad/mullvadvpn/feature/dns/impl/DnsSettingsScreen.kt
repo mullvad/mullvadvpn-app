@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -346,7 +345,7 @@ private fun Content(
                 var expandedState by rememberSaveable { mutableStateOf(false) }
 
                 Accordion(
-                    modifier = Modifier.padding(bottom = Dimens.cellVerticalSpacing),
+                    modifier = Modifier.animateItem().padding(bottom = Dimens.cellVerticalSpacing),
                     title = stringResource(R.string.if_you_have_any_issues),
                     expandedText =
                         clickableAnnotatedString(
@@ -377,21 +376,23 @@ private fun Content(
             }
         }
 
-        contentBlockers(
-            focusDnsBlockersRequester = focusDnsBlockersRequester,
-            highlightBackgroundAlpha = { highlightBackgroundAlpha(it) },
-            numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
-            contentBlockersEnabled = state.contentBlockersEnabled,
-            defaultDnsOptions = state.defaultDnsOptions,
-            onToggleAllBlockers = onToggleAllBlockers,
-            onToggleBlockAds = onToggleBlockAds,
-            onToggleBlockTrackers = onToggleBlockTrackers,
-            onToggleBlockMalware = onToggleBlockMalware,
-            onToggleBlockAdultContent = onToggleBlockAdultContent,
-            onToggleBlockGambling = onToggleBlockGambling,
-            onToggleBlockSocialMedia = onToggleBlockSocialMedia,
-            navigateToMalwareInfo = navigateToMalwareInfo,
-        )
+        item(key = ContentKey.DNS_CONTENT_BLOCKERS) {
+            ContentBlockers(
+                focusDnsBlockersRequester = focusDnsBlockersRequester,
+                highlightBackgroundAlpha = { highlightBackgroundAlpha(it) },
+                numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
+                contentBlockersEnabled = state.contentBlockersEnabled,
+                defaultDnsOptions = state.defaultDnsOptions,
+                onToggleAllBlockers = onToggleAllBlockers,
+                onToggleBlockAds = onToggleBlockAds,
+                onToggleBlockTrackers = onToggleBlockTrackers,
+                onToggleBlockMalware = onToggleBlockMalware,
+                onToggleBlockAdultContent = onToggleBlockAdultContent,
+                onToggleBlockGambling = onToggleBlockGambling,
+                onToggleBlockSocialMedia = onToggleBlockSocialMedia,
+                navigateToMalwareInfo = navigateToMalwareInfo,
+            )
+        }
 
         itemWithDivider(key = ContentKey.ENABLE_CUSTOM_DNS) {
             SwitchListItem(
@@ -509,7 +510,8 @@ private fun LazyItemScope.ContentBlockersHeader(
 }
 
 @Suppress("LongMethod", "LongParameterList")
-private fun LazyListScope.contentBlockers(
+@Composable
+private fun LazyItemScope.ContentBlockers(
     focusDnsBlockersRequester: FocusRequester,
     highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
     numberOfBlockersEnabled: Int,
@@ -524,88 +526,70 @@ private fun LazyListScope.contentBlockers(
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
 ) {
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKERS_HEADER) {
-        ContentBlockersHeader(
-            numberOfBlockersEnabled = numberOfBlockersEnabled,
-            highlightBackgroundAlpha = highlightBackgroundAlpha,
-        )
-    }
+    ContentBlockersHeader(
+        numberOfBlockersEnabled = numberOfBlockersEnabled,
+        highlightBackgroundAlpha = highlightBackgroundAlpha,
+    )
 
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ALL) {
-        ContentBlocker(
-            focusRequester = focusDnsBlockersRequester,
-            title = stringResource(R.string.all),
-            isToggled = defaultDnsOptions.isAllBlockersEnabled,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleAllBlockers,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ADS) {
-        ContentBlocker(
-            title = stringResource(R.string.block_ads_title),
-            isToggled = defaultDnsOptions.blockAds,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockAds,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_TRACKERS) {
-        ContentBlocker(
-            title = stringResource(R.string.block_trackers_title),
-            isToggled = defaultDnsOptions.blockTrackers,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockTrackers,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_MALWARE) {
-        ContentBlocker(
-            title = stringResource(R.string.block_malware_title),
-            isToggled = defaultDnsOptions.blockMalware,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockMalware,
-            onInfoClicked = navigateToMalwareInfo,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_GAMBLING) {
-        ContentBlocker(
-            title = stringResource(R.string.block_gambling_title),
-            isToggled = defaultDnsOptions.blockGambling,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockGambling,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ADULT_CONTENT) {
-        ContentBlocker(
-            title = stringResource(R.string.block_adult_content_title),
-            isToggled = defaultDnsOptions.blockAdultContent,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockAdultContent,
-        )
-    }
-    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_SOCIAL_MEDIA) {
-        ContentBlocker(
-            title = stringResource(R.string.block_social_media_title),
-            isToggled = defaultDnsOptions.blockSocialMedia,
-            isEnabled = contentBlockersEnabled,
-            onClicked = onToggleBlockSocialMedia,
-            position = Position.Bottom,
-        )
-    }
+    ContentBlocker(
+        focusRequester = focusDnsBlockersRequester,
+        title = stringResource(R.string.all),
+        isToggled = defaultDnsOptions.isAllBlockersEnabled,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleAllBlockers,
+    )
+
+    ContentBlocker(
+        title = stringResource(R.string.block_ads_title),
+        isToggled = defaultDnsOptions.blockAds,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockAds,
+    )
+    ContentBlocker(
+        title = stringResource(R.string.block_trackers_title),
+        isToggled = defaultDnsOptions.blockTrackers,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockTrackers,
+    )
+
+    ContentBlocker(
+        title = stringResource(R.string.block_malware_title),
+        isToggled = defaultDnsOptions.blockMalware,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockMalware,
+        onInfoClicked = navigateToMalwareInfo,
+    )
+    ContentBlocker(
+        title = stringResource(R.string.block_gambling_title),
+        isToggled = defaultDnsOptions.blockGambling,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockGambling,
+    )
+    ContentBlocker(
+        title = stringResource(R.string.block_adult_content_title),
+        isToggled = defaultDnsOptions.blockAdultContent,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockAdultContent,
+    )
+    ContentBlocker(
+        title = stringResource(R.string.block_social_media_title),
+        isToggled = defaultDnsOptions.blockSocialMedia,
+        isEnabled = contentBlockersEnabled,
+        onClicked = onToggleBlockSocialMedia,
+        position = Position.Bottom,
+    )
 
     if (!contentBlockersEnabled) {
-        item(key = ContentKey.DNS_CONTENT_BLOCKERS_DISABLE_INFO) {
-            ListItemInfo(
-                text =
-                    stringResource(
-                        id = R.string.dns_content_blockers_subtitle,
-                        stringResource(id = R.string.enable_custom_dns),
-                    ),
-                modifier = Modifier.animateItem(),
-            )
-        }
+        ListItemInfo(
+            text =
+                stringResource(
+                    id = R.string.dns_content_blockers_subtitle,
+                    stringResource(id = R.string.enable_custom_dns),
+                ),
+            modifier = Modifier.animateItem(),
+        )
     } else {
-        item(key = ContentKey.CONTENT_BLOCKERS_SPACER) {
-            Spacer(modifier = Modifier.height(Dimens.mediumPadding).animateItem())
-        }
+        Spacer(modifier = Modifier.animateItem().height(Dimens.mediumPadding))
     }
 }
 
@@ -640,16 +624,7 @@ private object ContentKey {
     const val IMAGE = "image"
     const val DESCRIPTION = "description"
     const val EXTRA_INFORMATION = "extra_information"
-    const val DNS_CONTENT_BLOCKERS_HEADER = "dns_content_blockers_header"
-    const val DNS_CONTENT_BLOCKER_ALL = "dns_content_blocker_all"
-    const val DNS_CONTENT_BLOCKER_ADS = "dns_content_blocker_ads"
-    const val DNS_CONTENT_BLOCKER_TRACKERS = "dns_content_blocker_trackers"
-    const val DNS_CONTENT_BLOCKER_MALWARE = "dns_content_blocker_malware"
-    const val DNS_CONTENT_BLOCKER_GAMBLING = "dns_content_blocker_gambling"
-    const val DNS_CONTENT_BLOCKER_ADULT_CONTENT = "dns_content_blocker_adult_content"
-    const val DNS_CONTENT_BLOCKER_SOCIAL_MEDIA = "dns_content_blocker_social_media"
-    const val DNS_CONTENT_BLOCKERS_DISABLE_INFO = "dns_content_blockers_disable_info"
-    const val CONTENT_BLOCKERS_SPACER = "content_blockers_spacer"
+    const val DNS_CONTENT_BLOCKERS = "dns_content_blockers"
     const val ENABLE_CUSTOM_DNS = "enable_custom_dns"
     const val CUSTOM_DNS_ADD = "custom_dns_add"
     const val CUSTOM_DNS_DISABLE_INFO = "custom_dns_disable_info"
