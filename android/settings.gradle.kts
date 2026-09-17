@@ -128,5 +128,7 @@ gradle.lifecycle.beforeProject {
     pluginManager.apply("base")
 
     // Ensure clean tasks run first.
-    tasks.configureEach { if (!name.contains("clean", ignoreCase = true)) mustRunAfter("clean") }
+    tasks.configureEach {
+        if (!name.contains("clean", ignoreCase = true)) mustRunAfter("clean", ":cleanAll")
+    }
 }
