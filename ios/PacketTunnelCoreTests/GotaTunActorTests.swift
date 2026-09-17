@@ -29,6 +29,7 @@ final class GotaTunActorTests: XCTestCase {
         relaySelector: RelaySelectorProtocol = RelaySelectorStub.nonFallible(),
         defaultPathObserver: GotaTunPathObserverFake = GotaTunPathObserverFake(),
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol = BlockedStateErrorMapperStub(),
+        deviceChecker: DeviceCheckerProtocol = DeviceCheckerStub(),
         clock: TestClock = TestClock(),
         timings: GotaTunActorTimings = GotaTunActorTimings()
     ) -> GotaTunActor {
@@ -40,7 +41,8 @@ final class GotaTunActorTests: XCTestCase {
             relaySelector: relaySelector,
             defaultPathObserver: defaultPathObserver,
             blockedStateErrorMapper: blockedStateErrorMapper,
-            adapterFactory: adapterFactory
+            adapterFactory: adapterFactory,
+            deviceChecker: deviceChecker
         )
     }
 
@@ -767,6 +769,72 @@ final class GotaTunActorTests: XCTestCase {
         // The app compares this against its own record to decide whether to reload device state.
         let afterRotation = await actor.observedState
         XCTAssertEqual(afterRotation.connectionState?.lastKeyRotation, rotationDate)
+    }
+
+    // MARK: - Device check
+
+    func testBlockedDeviceCheckEntersErrorState() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.timeout(), .timeout(), .never])
+        let deviceChecker = DeviceCheckerStub(outcomes: [.blocked(.deviceRevoked)])
+        let actor = makeActor(adapterFactory: factory, deviceChecker: deviceChecker)
+
+        await waitFor(
+            actor, until: { $0.blockedReason == .deviceRevoked },
+            while: { await actor.start(options: launchOptions) })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 3)
+        XCTAssertTrue(factory.adaptersCreated[2].isStopped)
+    }
+
+    func testKeyRotationDeviceCheckReconnectsWithRotatedKey() async throws {
+        let priorKey = WireGuard.PrivateKey()
+        let rotatedKey = WireGuard.PrivateKey()
+        let rotationDate = Date()
+        var hasRotated = false
+        let settingsReader = SettingsReaderStub {
+            Settings(
+                privateKey: hasRotated ? rotatedKey : priorKey,
+                interfaceAddresses: [
+                    IPAddressRange(from: "127.0.0.1/32")!,
+                    IPAddressRange(from: "fc00::1/128")!,
+                ],
+                tunnelSettings: LatestTunnelSettings()
+            )
+        }
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.timeout(), .timeout(), .never, .connected()])
+        let deviceChecker = DeviceCheckerStub()
+        let actor = makeActor(adapterFactory: factory, settingsReader: settingsReader, deviceChecker: deviceChecker)
+
+        let states = await collectStates(
+            from: actor, until: { $0.isConnected },
+            while: {
+                await actor.start(options: launchOptions)
+                await deviceChecker.waitForCheck()
+                // The checker persists the rotated key before reporting, so the next settings read returns it.
+                hasRotated = true
+                deviceChecker.complete(with: .keyRotation(rotationDate))
+            })
+
+        XCTAssertEqual(factory.adaptersCreated.count, 4)
+        XCTAssertEqual(
+            factory.adaptersCreated[2].lastConfig?.privateKey, priorKey.rawValue,
+            "The attempt that triggered the check still uses the old key")
+        XCTAssertEqual(
+            factory.adaptersCreated[3].lastConfig?.privateKey, rotatedKey.rawValue,
+            "A key rotation while connecting must reconnect with the rotated key immediately")
+        XCTAssertEqual(states.last?.connectionState?.lastKeyRotation, rotationDate)
+    }
+
+    func testStopCancelsDeviceCheck() async throws {
+        let factory = GotaTunAdapterFactoryStub(outcomes: [.timeout(), .timeout(), .never])
+        let deviceChecker = DeviceCheckerStub()
+        let actor = makeActor(adapterFactory: factory, deviceChecker: deviceChecker)
+
+        await actor.start(options: launchOptions)
+        await deviceChecker.waitForCheck()
+        await assertStopLeadsToDisconnected(actor)
+
+        XCTAssertEqual(deviceChecker.cancelledCount, 1)
     }
 
     // MARK: - Cascading errors

@@ -28,131 +28,6 @@ import PacketTunnelCore
  Other times, packet tunnel runs this operation with `rotateImmediatelyOnKeyMismatch` set to `false`, in which
  case it respects the 24 hour interval between key rotation retry attempts.
  */
-
-final class DeviceCheckerNew: Sendable {
-
-    private let logger = Logger(label: "DeviceChecker")
-    private let remoteService: DeviceCheckRemoteServiceProtocol
-    private let deviceStateAccessor: DeviceStateAccessorProtocol
-    private let rotateImmediatelyOnKeyMismatch: Bool
-
-
-    init(
-        remoteService: DeviceCheckRemoteServiceProtocol,
-        deviceStateAccessor: DeviceStateAccessor,
-        rotateImmediatelyOnKeyMismatch: Bool,
-    ) {
-        self.remoteService = remoteService
-        self.deviceStateAccessor = deviceStateAccessor
-        self.rotateImmediatelyOnKeyMismatch = rotateImmediatelyOnKeyMismatch
-    }
-
-    func checkDevice() async throws -> Result<DeviceCheck, Error> {
-        guard case let .loggedIn(accountData, deviceData) = try deviceStateAccessor.read() else {
-            throw DeviceCheckError.invalidDeviceState
-        }
-
-        async let upstreamDeviceTask = remoteService.getDevice(
-            accountNumber: accountData.number,
-            identifier: deviceData.identifier,
-        )
-
-        async let upstreamAccountDataTask = remoteService.getAccountData(
-            accountNumber: accountData.number
-        )
-        let (upstreamDevice, upstreamAccountData) = await (
-            upstreamDeviceTask,
-            upstreamAccountDataTask,
-        )
-
-        do {
-            let localDeviceData = try deviceStateAccessor.read()
-            let deviceVerdict = try deviceVerdict(
-                from: upstreamDevice,
-                local: localDeviceData
-            )
-            let accountVerdict = try getAccountVerdict(from: upstreamAccountData)
-
-            // Do not rotate the key if account is invalid even if the API successfully returns a device.
-            if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
-                let rotationResult = await rotateKeyIfNeeded()
-                return rotationResult.map { rotationResult in
-                    DeviceCheck(
-                        accountVerdict: accountVerdict,
-                        deviceVerdict: deviceVerdict,
-                        keyRotationStatus: rotationResult
-                    )
-                }
-            }
-
-            return .success(
-                DeviceCheck(
-                    accountVerdict: accountVerdict,
-                    deviceVerdict: deviceVerdict,
-                    keyRotationStatus: .noAction
-                ))
-        } catch {
-            return .failure(error)
-        }
-    }
-
-    func rotateKeyIfNeeded() async -> Result<KeyRotationStatus, Error> {
-        guard !rotateImmediatelyOnKeyMismatch else {
-            return .success(.noAction)
-        }
-
-        let deviceState: DeviceState
-        do {
-            deviceState = try deviceStateAccessor.read()
-        } catch {
-            logger.error(error: error, message: "Failed to read device state before rotating key")
-            return .failure(error)
-        }
-
-        guard case let .loggedIn(accountData, deviceData) = deviceState else {
-            logger.debug("Will not attempt to rotate key as device is no longer logged in.")
-            return .failure(DeviceCheckError.invalidDeviceState)
-        }
-
-        var keyRotation = WgKeyRotation(data: deviceData)
-        guard keyRotation
-            .shouldRotateFromPacketTunnel(
-                rotateImmediately: rotateImmediatelyOnKeyMismatch
-            ) else {
-            return .success(
-                .noAction,
-            )
-        }
-
-        let publicKey = keyRotation.beginAttempt()
-
-        // TODO: why/explain wtf is going on here
-
-
-        let rotationResult = await remoteService
-            .rotateDeviceKey(
-                accountNumber: accountData.number,
-                identifier: deviceData.identifier,
-                publicKey: publicKey,
-            )
-
-        switch rotationResult {
-        case let .success(newDevice):
-            do {
-                try deviceStateAccessor.write(.loggedIn(accountData, keyRotation.data))
-            } catch {
-                logger.error(error: error, message: "Failed to persist updated device state after rotating key")
-                return .failure(error)
-            }
-            return .success(.succeeded(Date()))
-        case let .failure(error):
-            logger.error(error: error, message: "Failed to rotate device key")
-            return .failure(error)
-        }
-
-    }
-}
-
 final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Sendable {
     private let logger = Logger(label: "DeviceCheckOperation")
 
@@ -219,9 +94,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
         completion: @escaping @Sendable (Result<DeviceCheck, Error>) -> Void
     ) {
         do {
-            let accountVerdict = try getAccountVerdict(from: accountResult)
-            let deviceData = try deviceStateAccessor.read()
-            let deviceVerdict = try deviceVerdict(from: deviceResult, local: deviceData)
+            let accountVerdict = try AccountVerdict(accountResult: accountResult)
+            let deviceVerdict = try DeviceVerdict(deviceResult: deviceResult, deviceState: deviceStateAccessor.read())
 
             // Do not rotate the key if account is invalid even if the API successfully returns a device.
             if accountVerdict != .invalid, deviceVerdict == .keyMismatch {
@@ -377,31 +251,6 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
 
             throw DeviceCheckError.keyRotationRace
         }
-    }
-
-}
-
-/// Converts account data result type into `AccountVerdict`.
-private func getAccountVerdict(from accountResult: Result<Account, Error>) throws -> AccountVerdict {
-        do {
-            let account = try accountResult.get()
-
-        return account.expiry > Date() ? .active(account) : .expired(account)
-    } catch let error as REST.Error where error.compareErrorCode(.invalidAccount) {
-        return .invalid
-    }
-}
-
-        /// Converts device result type into `DeviceVerdict`.
-private func deviceVerdict(from deviceResult: Result<Device, Error>, local: DeviceState) throws -> DeviceVerdict {
-    do {
-        guard let deviceData = local.deviceData else { throw DeviceCheckError.invalidDeviceState }
-
-        let device = try deviceResult.get()
-
-        return deviceData.wgKeyData.privateKey.publicKey == device.pubkey ? .active : .keyMismatch
-    } catch let error as REST.Error where error.compareErrorCode(.deviceNotFound) {
-        return .revoked
     }
 }
 

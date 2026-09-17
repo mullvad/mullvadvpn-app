@@ -30,6 +30,12 @@
 		01335D442F89B711008AB806 /* GotaTunActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D3E2F89B711008AB806 /* GotaTunActor.swift */; };
 		01335D4A2F89B88E008AB806 /* GotaTunAdapterStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */; };
 		01335D4C2F89B8F8008AB806 /* GotaTunActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */; };
+		535AF74E72564FBCA36D858D /* DeviceCheckerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9652D28730414562B4EBCEEC /* DeviceCheckerProtocol.swift */; };
+		759BA1EFA5474B68873188E0 /* AsyncDeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A68A81AE6B74944B095642B /* AsyncDeviceChecker.swift */; };
+		56639F4C35E94AA9A8786445 /* AsyncDeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A68A81AE6B74944B095642B /* AsyncDeviceChecker.swift */; };
+		1A0EAD61C688421D9A7529AB /* DeviceCheck+BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift */; };
+		F04C723D5FC6466A8B7FE21E /* DeviceCheckMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF04D8DE59C40CCBA5001E1 /* DeviceCheckMocks.swift */; };
+		64B03ECC45774A42A90A651D /* AsyncDeviceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F9FB7BBFDF4537A98ECFCF /* AsyncDeviceCheckerTests.swift */; };
 		01335D4F2F89C396008AB806 /* RustGotaTunAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */; };
 		01335D502F89C396008AB806 /* RustGotaTunAdapterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */; };
 		01335D552F89C645008AB806 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
@@ -1821,6 +1827,10 @@
 		01335D402F89B711008AB806 /* GotaTunActorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTimings.swift; sourceTree = "<group>"; };
 		01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunAdapterStub.swift; sourceTree = "<group>"; };
 		01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTests.swift; sourceTree = "<group>"; };
+		9652D28730414562B4EBCEEC /* DeviceCheckerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheckerProtocol.swift; sourceTree = "<group>"; };
+		8A68A81AE6B74944B095642B /* AsyncDeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncDeviceChecker.swift; sourceTree = "<group>"; };
+		CFF04D8DE59C40CCBA5001E1 /* DeviceCheckMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheckMocks.swift; sourceTree = "<group>"; };
+		B4F9FB7BBFDF4537A98ECFCF /* AsyncDeviceCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncDeviceCheckerTests.swift; sourceTree = "<group>"; };
 		01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapter.swift; sourceTree = "<group>"; };
 		01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapterFactory.swift; sourceTree = "<group>"; };
 		01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunProviderProxy.swift; sourceTree = "<group>"; };
@@ -3078,6 +3088,7 @@
 		01335D412F89B711008AB806 /* GotaTun */ = {
 			isa = PBXGroup;
 			children = (
+				9652D28730414562B4EBCEEC /* DeviceCheckerProtocol.swift */,
 				01CBA33B302C9E4600D41B65 /* GotaTunKeyPolicy.swift */,
 				01335D3E2F89B711008AB806 /* GotaTunActor.swift */,
 				01335D3F2F89B711008AB806 /* GotaTunAdapterProtocol.swift */,
@@ -3206,6 +3217,8 @@
 		440E9EF82BDA95B300B1FD11 /* DeviceCheck */ = {
 			isa = PBXGroup;
 			children = (
+				B4F9FB7BBFDF4537A98ECFCF /* AsyncDeviceCheckerTests.swift */,
+				CFF04D8DE59C40CCBA5001E1 /* DeviceCheckMocks.swift */,
 				58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */,
 			);
 			path = DeviceCheck;
@@ -4006,6 +4019,7 @@
 		58915D662A25F9F20066445B /* DeviceCheck */ = {
 			isa = PBXGroup;
 			children = (
+				8A68A81AE6B74944B095642B /* AsyncDeviceChecker.swift */,
 				58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */,
 				58FDF2D82A0BA11900C2B061 /* DeviceCheckOperation.swift */,
 				58915D672A25FA080066445B /* DeviceCheckRemoteService.swift */,
@@ -6437,6 +6451,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				64B03ECC45774A42A90A651D /* AsyncDeviceCheckerTests.swift in Sources */,
+				F04C723D5FC6466A8B7FE21E /* DeviceCheckMocks.swift in Sources */,
+				1A0EAD61C688421D9A7529AB /* DeviceCheck+BlockedStateReason.swift in Sources */,
+				56639F4C35E94AA9A8786445 /* AsyncDeviceChecker.swift in Sources */,
 				A9A5FA432ACB05F20083449F /* UIColor+Helpers.swift in Sources */,
 				A9A5FA3D2ACB05D90083449F /* DeviceCheck.swift in Sources */,
 				A9A5FA3E2ACB05D90083449F /* DeviceCheckOperation.swift in Sources */,
@@ -6694,6 +6712,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				535AF74E72564FBCA36D858D /* DeviceCheckerProtocol.swift in Sources */,
 				58FE25F42AA9D730003D1918 /* PacketTunnelActor+Extensions.swift in Sources */,
 				58DDA18F2ABC32380039C360 /* Timings.swift in Sources */,
 				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
@@ -7275,6 +7294,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				759BA1EFA5474B68873188E0 /* AsyncDeviceChecker.swift in Sources */,
 				581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */,
 				580810E52A30E13A00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
 				580810E82A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
