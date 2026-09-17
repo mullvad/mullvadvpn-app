@@ -24,20 +24,20 @@ extension REST {
             self.applyJitter = applyJitter
         }
 
-        /// The return value of this function *must* be passed to a Rust FFI function that will consume it, otherwise it will leak.
-        public func toRustStrategy() -> SwiftRetryStrategy {
+        public func toRustStrategy() -> MullvadRustRuntime.RetryStrategy {
             switch delay {
             case .never:
-                return mullvad_api_retry_strategy_never()
+                return MullvadRustRuntime.RetryStrategy.never()
             case let .constant(duration):
-                return mullvad_api_retry_strategy_constant(UInt(maxRetryCount), UInt64(duration.seconds))
+                return MullvadRustRuntime.RetryStrategy.constant(
+                    maxRetries: UInt64(maxRetryCount),
+                    delaySec: UInt64(duration.seconds))
             case let .exponentialBackoff(initial, multiplier, maxDelay):
-                return mullvad_api_retry_strategy_exponential(
-                    UInt(maxRetryCount),
-                    UInt64(initial.seconds),
-                    UInt32(multiplier),
-                    UInt64(maxDelay.seconds)
-                )
+                return MullvadRustRuntime.RetryStrategy.exponential(
+                    maxRetries: UInt64(maxRetryCount),
+                    initialSec: UInt64(initial.seconds),
+                    factor: UInt32(multiplier),
+                    maxDelaySec: UInt64(maxDelay.seconds))
             }
         }
 
@@ -108,6 +108,12 @@ extension REST {
         public static let purchaseReceiptUpload = RetryStrategy(
             maxRetryCount: 3,
             delay: .default,
+            applyJitter: true
+        )
+
+        public static let apiRequest = RetryStrategy(
+            maxRetryCount: 3,
+            delay: .constant(.seconds(1)),
             applyJitter: true
         )
     }

@@ -1,45 +1,27 @@
-use std::{
-    ffi::{c_char, c_void},
-    ptr::null_mut,
-    slice,
-};
-
+use crate::api_client::helpers::{ShadowsocksWrapper, Socks5RemoteWrapper};
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting,
     BuiltInAccessMethod::{Bridge, Direct, EncryptedDnsProxy},
     Id, Settings,
 };
-use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
-
-use crate::get_string;
+use std::sync::Arc;
+use talpid_types::net::proxy;
 
 /// Converts parameters into a `Box<AccessMethodSetting>` raw representation that
 /// can be passed across the FFI boundary
-///
-/// # SAFETY:
-/// `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
-/// They are only valid for the duration of this call.
-///
-/// `proxy_configuration` can be NULL, or must be a pointer gotten through
-/// either the `convert_shadowsocks` or `convert_socks5` methods.
-#[unsafe(no_mangle)]
-unsafe extern "C" fn convert_builtin_access_method_setting(
-    unique_identifier: *const c_char,
-    name: *const c_char,
+#[uniffi::export]
+pub fn convert_builtin_access_method_setting(
+    unique_identifier: String,
+    name: String,
     is_enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: *mut c_void,
-) -> *mut c_void {
-    match convert_builtin_access_method_setting_inner(
-        unique_identifier,
-        name,
-        is_enabled,
-        method_kind,
-        proxy_configuration,
-    ) {
-        Some(access_method) => Box::into_raw(Box::new(access_method)) as *mut c_void,
-        None => null_mut(),
-    }
+) -> Option<Arc<AccessMethodSettingWrapper>> {
+    convert_builtin_access_method_setting_inner(unique_identifier, name, is_enabled, method_kind)
+        .map(|access_method| {
+            Arc::new(AccessMethodSettingWrapper {
+                inner: access_method,
+            })
+        })
 }
 
 /// Converts parameters into an `AccessMethodSetting`
@@ -47,16 +29,12 @@ unsafe extern "C" fn convert_builtin_access_method_setting(
 /// This function copies the strings from the conversion of the variables
 /// `unique_identifier`, `name`, and takes ownership of `proxy_configuration`
 fn convert_builtin_access_method_setting_inner(
-    unique_identifier: *const c_char,
-    name: *const c_char,
+    unique_identifier: String,
+    name: String,
     enabled: bool,
     method_kind: SwiftAccessMethodKind,
-    proxy_configuration: *mut c_void,
 ) -> Option<AccessMethodSetting> {
-    // SAFETY: See `convert_builtin_access_method_setting`
-    let id = unsafe { Id::from_string(get_string(unique_identifier))? };
-    // SAFETY: See `convert_builtin_access_method_setting`
-    let name = unsafe { get_string(name) };
+    let id = Id::from_string(unique_identifier)?;
     match method_kind {
         SwiftAccessMethodKind::KindDirect => Some(AccessMethodSetting::with_id(
             id,
@@ -78,124 +56,64 @@ fn convert_builtin_access_method_setting_inner(
             AccessMethod::BuiltIn(EncryptedDnsProxy),
         )),
 
-        SwiftAccessMethodKind::KindShadowsocks => match proxy_configuration.is_null() {
-            true => None,
-            false => {
-                // SAFETY: See `convert_builtin_access_method_setting`
-                let configuration: Shadowsocks =
-                    unsafe { *Box::from_raw(proxy_configuration as *mut _) };
-                Some(AccessMethodSetting::with_id(
-                    id,
-                    name,
-                    enabled,
-                    AccessMethod::Custom(proxy::CustomProxy::Shadowsocks(configuration)),
-                ))
-            }
-        },
-        SwiftAccessMethodKind::KindSocks5Local => match proxy_configuration.is_null() {
-            true => None,
-            false => {
-                // SAFETY: See `convert_builtin_access_method_setting`
-                let configuration: Socks5Remote =
-                    unsafe { *Box::from_raw(proxy_configuration as *mut _) };
-                Some(AccessMethodSetting::with_id(
-                    id,
-                    name,
-                    enabled,
-                    AccessMethod::Custom(proxy::CustomProxy::Socks5Remote(configuration)),
-                ))
-            }
-        },
+        SwiftAccessMethodKind::KindShadowsocks(configuration) => Some({
+            AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                AccessMethod::Custom(proxy::CustomProxy::Shadowsocks(configuration.0.clone())),
+            )
+        }),
+        SwiftAccessMethodKind::KindSocks5Local(configuration) => Some({
+            AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                AccessMethod::Custom(proxy::CustomProxy::Socks5Remote(configuration.0.clone())),
+            )
+        }),
     }
+}
+
+#[uniffi::export(with_foreign)]
+pub trait ShadowsocksBridgeProvider: Sync + Send {
+    fn bridge(&self) -> Option<Arc<ShadowsocksWrapper>>;
 }
 
 /// Used by Swift to instruct which access method kind it is trying to convert
-#[expect(dead_code)]
-#[repr(u8)]
+
+#[derive(uniffi::Enum)]
 pub enum SwiftAccessMethodKind {
-    KindDirect = 0,
+    KindDirect,
     KindBridge,
     KindEncryptedDnsProxy,
-    KindShadowsocks,
-    KindSocks5Local,
+    KindShadowsocks(Arc<ShadowsocksWrapper>),
+    KindSocks5Local(Arc<Socks5RemoteWrapper>),
+}
+
+#[derive(uniffi::Object)]
+pub struct AccessMethodSettingWrapper {
+    pub inner: AccessMethodSetting,
 }
 
 /// Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
-///
-/// # SAFETY
-/// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
-/// resulting from a call to `convert_builtin_access_method_setting`.
-/// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn init_access_method_settings_wrapper(
-    direct_method_raw: *mut c_void,
-    bridges_method_raw: *mut c_void,
-    encrypted_dns_method_raw: *mut c_void,
-    custom_methods_raw: *mut c_void,
-    custom_method_count: usize,
-) -> SwiftAccessMethodSettingsWrapper {
-    // SAFETY: each of these pointers must be created by a call to
-    // `convert_builtin_access_method_setting`, as per the function docs.
-    let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
-        (
-            *Box::from_raw(direct_method_raw as *mut AccessMethodSetting),
-            *Box::from_raw(bridges_method_raw as *mut AccessMethodSetting),
-            *Box::from_raw(encrypted_dns_method_raw as *mut AccessMethodSetting),
-        )
-    };
-
-    // SAFETY: custom_methods_raw must be a valid pointer to an AccessMethodSetting.
-    let custom =
-        unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
-    let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
-    let context = SwiftAccessMethodSettingsContext { settings };
-    SwiftAccessMethodSettingsWrapper::new(context)
+#[uniffi::export]
+pub fn init_access_method_settings_wrapper(
+    direct: Arc<AccessMethodSettingWrapper>,
+    bridges: Arc<AccessMethodSettingWrapper>,
+    encrypted_dns: Arc<AccessMethodSettingWrapper>,
+    custom: Vec<Arc<AccessMethodSettingWrapper>>,
+) -> SwiftAccessMethodSettingsContext {
+    let settings = Settings::new(
+        direct.inner.clone(),
+        bridges.inner.clone(),
+        encrypted_dns.inner.clone(),
+        custom.into_iter().map(|a| a.inner.clone()).collect(),
+    );
+    SwiftAccessMethodSettingsContext { settings }
 }
 
-/// Creates a vector of `AccessMethodSetting` objects from a C array.
-///
-/// This takes ownership of the `AccessMethodSetting`s pointed to by `raw_array`. So the memory is
-/// freed when the returned vector is dropped.
-///
-/// SAFETY: `raw_array` must be aligned, initialized for `count` reads and not be used after this
-/// call.
-unsafe fn access_methods_from_raw_array(
-    raw_array: *const *mut AccessMethodSetting,
-    number_of_elements: usize,
-) -> Vec<AccessMethodSetting> {
-    // `slice::from_raw_parts` will dereference the null pointer even if the slice is empty.
-    // In that case, just return an empty vec.
-    if number_of_elements == 0 || raw_array.is_null() {
-        return vec![];
-    }
-    // SAFETY: See notice above
-    let slice = unsafe { slice::from_raw_parts(raw_array, number_of_elements) };
-    slice
-        .iter()
-        .map(|ptr: &*mut AccessMethodSetting| {
-            // SAFETY: `slice` is a slice of pointers to `AccessMethodSetting` created with `Box::into_raw`
-            *unsafe { Box::from_raw(*ptr) }
-        })
-        .collect()
-}
-
-#[repr(C)]
-pub struct SwiftAccessMethodSettingsWrapper(*mut SwiftAccessMethodSettingsContext);
-
-impl SwiftAccessMethodSettingsWrapper {
-    pub fn new(context: SwiftAccessMethodSettingsContext) -> SwiftAccessMethodSettingsWrapper {
-        SwiftAccessMethodSettingsWrapper(Box::into_raw(Box::new(context)))
-    }
-
-    /// SAFETY: self must be constructed via [`SwiftAccessMethodSettingsWrapper::new`].
-    pub unsafe fn into_rust_context(self) -> Box<SwiftAccessMethodSettingsContext> {
-        // SAFETY: the self.0 pointer must be valid as per the callee guarantee that `self` was
-        // constructed by [`SwiftAccessMethodSettingsWrapper::new`]
-        unsafe { Box::from_raw(self.0) }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, uniffi::Object)]
 pub struct SwiftAccessMethodSettingsContext {
     pub settings: Settings,
 }
