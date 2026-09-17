@@ -270,19 +270,27 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 }
             )
         )
-        #if NEVER_IN_PRODUCTION
-            let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
-            sheetController.addAction(
-                UIAlertAction(
-                    title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
-                    style: .default,
-                    handler: { [weak self] _ in
-                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                        self?.tunnelManager.reapplyTunnelConfiguration()
-                    }
-                )
+        let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
+                style: .default,
+                handler: { [weak self] _ in
+                    PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+                    self?.tunnelManager.reapplyTunnelConfiguration()
+                }
             )
-        #endif
+        )
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Invalidate WireGuard key",
+                style: .default,
+                handler: { [weak self] _ in
+                    self?.tunnelManager.invalidateWireGuardKey()
+                }
+            )
+        )
 
         sheetController.addAction(
             UIAlertAction(
