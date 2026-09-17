@@ -21,6 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.10] - 2026-09-17
+### Fixed
+- Fix QUIC obfuscator hanging when being cancelled in connecting state. This would cause the entire
+tunnel state machine to hang, requiring restart of the app.
+
+
 ## [android/2026.9] - 2026-09-15
 ### Fixed
 - Fix LWO not working with with multihop, DAITA on, and PQ off.
