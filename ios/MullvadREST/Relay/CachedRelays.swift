@@ -11,7 +11,7 @@
 import Foundation
 
 /// A struct that represents the relay cache in memory
-public struct CachedRelays: Codable, Equatable {
+public struct CachedRelays: Codable, Equatable, Sendable {
     /// E-tag returned by server
     public let etag: String?
 
@@ -40,5 +40,4 @@ public struct CachedRelays: Codable, Equatable {
             updatedAt: Date(timeIntervalSince1970: 0)
         )
     }
-
 }
