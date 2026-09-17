@@ -109,7 +109,7 @@ struct AccountManager: Sendable {
 
     func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         Task {
-            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            guard case let .loggedIn(accountData, _) = interactor.deviceState else {
                 completionHandler?(InvalidDeviceStateError())
                 return
             }

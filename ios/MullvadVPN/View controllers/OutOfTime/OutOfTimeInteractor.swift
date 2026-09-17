@@ -28,8 +28,11 @@ final class OutOfTimeInteractor: Sendable {
     nonisolated(unsafe) var didReceiveTunnelStatus: (@Sendable (TunnelStatus) -> Void)?
     nonisolated(unsafe) var didAddMoreCredit: (@Sendable () -> Void)?
 
+    private let accountDataPoller: AccountDataPoller
+
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
+        accountDataPoller = AccountDataPoller(logger: logger, tunnelManager: tunnelManager)
 
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
@@ -62,30 +65,10 @@ final class OutOfTimeInteractor: Sendable {
     }
 
     func startAccountUpdateTimer() {
-        logger.debug(
-            "Start polling account updates every \(accountUpdateTimerInterval) second(s)."
-        )
-        let timer = DispatchSource.makeTimerSource(queue: .main)
-        timer.setEventHandler { [weak self] in
-            self?.tunnelManager.updateAccountData()
-        }
-
-        accountUpdateTimer?.cancel()
-        accountUpdateTimer = timer
-
-        timer.schedule(
-            wallDeadline: .now() + accountUpdateTimerInterval,
-            repeating: accountUpdateTimerInterval.timeInterval
-        )
-        timer.activate()
+        accountDataPoller.startAccountUpdateTimer()
     }
 
     func stopAccountUpdateTimer() {
-        logger.debug(
-            "Stop polling account updates."
-        )
-
-        accountUpdateTimer?.cancel()
-        accountUpdateTimer = nil
+        accountDataPoller.stopAccountUpdateTimer()
     }
 }

@@ -1213,6 +1213,8 @@
 		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */; };
 		F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */; };
+		F94B9CE2305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */; };
+		F94B9CE3305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */; };
 		F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28302E8A8FC300C3F75D /* LocationContext.swift */; };
 		F95A28332E8BBB7400C3F75D /* SelectLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */; };
 		F95AC9EA2E5DFB0600A55B52 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */; };
@@ -2844,6 +2846,7 @@
 		F9394EF22DC21D8C009595EA /* MullvadList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadList.swift; sourceTree = "<group>"; };
 		F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopSelectionView.swift; sourceTree = "<group>"; };
 		F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Properties.swift"; sourceTree = "<group>"; };
+		F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDataPoller.swift; sourceTree = "<group>"; };
 		F95A28302E8A8FC300C3F75D /* LocationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationContext.swift; sourceTree = "<group>"; };
 		F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationFilter.swift; sourceTree = "<group>"; };
 		F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
@@ -3441,6 +3444,7 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
+				F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */,
 				F080AED6303F202F00D4DE50 /* AccountManager.swift */,
 				A9E031762ACB08950095D843 /* BackgroundTaskProvider.swift */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
@@ -6548,6 +6552,7 @@
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
 				A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */,
 				7ACE19152C1C429A00260BB6 /* MultihopDecisionFlowTests.swift in Sources */,
+				F94B9CE3305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */,
 				7A2F410A2EC38FD20013D3C5 /* StoreSubscription.swift in Sources */,
 				F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */,
@@ -7144,6 +7149,7 @@
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
+				F94B9CE2305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
