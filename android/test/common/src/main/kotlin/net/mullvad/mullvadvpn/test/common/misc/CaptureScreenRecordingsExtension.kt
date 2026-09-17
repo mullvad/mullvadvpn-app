@@ -22,7 +22,7 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
 
     override fun beforeEach(context: ExtensionContext?) {
         device = UiDevice.getInstance(getInstrumentation())
-        val fileName = context?.fileName() ?: "unknown.mp4"
+        val fileName = context!!.fileName()
         Logger.v("Starting screen recording. Saving to $fileName")
         startScreenRecord(fileName)
     }
@@ -73,8 +73,9 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
     }
 
     private fun ExtensionContext.fileName(): String {
+        val testClassName = this.testClass.get().simpleName
         val testMethodName = this.testMethod!!.get().name
-        return "${testMethodName}.mp4"
+        return "${testClassName}_$testMethodName.mp4"
     }
 
     companion object {
