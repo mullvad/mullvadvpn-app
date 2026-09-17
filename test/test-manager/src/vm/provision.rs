@@ -35,7 +35,6 @@ pub async fn provision(
                 password,
             )
             .await
-            .context("Failed to provision runner over SSH")
         }
         Provisioner::Noop => {
             let dir = config
@@ -68,20 +67,21 @@ async fn provision_ssh(
         const SSH_TIMEOUT: Duration = Duration::from_secs(120);
         let started = Instant::now();
         loop {
-            let last_result = blocking_ssh(
+            match blocking_ssh(
                 user.clone(),
                 password.clone(),
                 guest_ip,
                 os_type,
                 &local_runner_dir,
                 local_app_manifest.clone(),
-            );
-            if last_result.is_err() && started.elapsed() < SSH_TIMEOUT {
-                log::warn!("Failed to provision over SSH, retrying...");
-                std::thread::sleep(Duration::from_secs(1));
-                continue;
+            ) {
+                Err(err) if started.elapsed() < SSH_TIMEOUT => {
+                    log::warn!("{:#}", err.context("Failed to provision over SSH"));
+                    std::thread::sleep(Duration::from_secs(1));
+                    continue;
+                }
+                res => break res,
             }
-            break last_result;
         }
     })
     .await
