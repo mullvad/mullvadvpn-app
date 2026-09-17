@@ -6,7 +6,8 @@ use gotatun::{
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
 use talpid_net::bypass::{BypassGuard, BypassSocket, SocketBypass};
-use tokio::sync::mpsc;
+use tokio::{sync::mpsc, task::JoinHandle};
+use tunnel_obfuscation::quic::{Client, ClientConfig, MAX_INFLIGHT_PACKETS};
 
 #[derive(Clone)]
 pub struct QuicSend {
@@ -48,8 +49,22 @@ impl UdpSend for QuicSend {
 }
 pub struct QuicTransportFactory {
     pub(super) settings: tunnel_obfuscation::quic::Settings,
-    pub running_client: Option<tunnel_obfuscation::quic::RunningClient>,
+    pub client_task: Option<JoinHandle<()>>,
     pub bypass: Arc<dyn SocketBypass>,
+}
+
+impl QuicTransportFactory {
+    fn stop_client(&mut self) {
+        if let Some(task) = self.client_task.take() {
+            task.abort();
+        }
+    }
+}
+
+impl Drop for QuicTransportFactory {
+    fn drop(&mut self) {
+        self.stop_client();
+    }
 }
 
 impl UdpTransportFactory for QuicTransportFactory {
@@ -61,10 +76,10 @@ impl UdpTransportFactory for QuicTransportFactory {
         _params: &UdpTransportFactoryParams,
     ) -> io::Result<(Self::Send, Self::Recv)> {
         log::debug!("Starting QUIC proxy using userspace transport");
-        if self.running_client.is_some() {
+        if self.client_task.is_some() {
             log::debug!("Reconnecting to QUIC proxy");
         }
-        self.running_client = None;
+        self.stop_client();
 
         let BypassSocket {
             socket: quinn_socket,
@@ -79,14 +94,8 @@ impl UdpTransportFactory for QuicTransportFactory {
 
         let config = self.settings.build_client_config(quinn_socket);
 
-        let client = tunnel_obfuscation::quic::Client::connect(config)
-            .await
-            .map_err(io::Error::other)?;
-
-        let (outgoing_tx, outgoing_rx) =
-            mpsc::channel(tunnel_obfuscation::quic::MAX_INFLIGHT_PACKETS);
-        let (incoming_tx, incoming_rx) =
-            mpsc::channel(tunnel_obfuscation::quic::MAX_INFLIGHT_PACKETS);
+        let (outgoing_tx, outgoing_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (incoming_tx, incoming_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let send = QuicSend {
             packet_tx: outgoing_tx,
             _bypass_guard: bypass_guard.clone(),
@@ -96,8 +105,26 @@ impl UdpTransportFactory for QuicTransportFactory {
             target_addr: self.settings.wireguard_endpoint(),
             _bypass_guard: bypass_guard,
         };
-        let running_client = client.proxy_channels(outgoing_rx, incoming_tx);
-        self.running_client = Some(running_client);
+        self.client_task = Some(tokio::spawn(run_client(config, outgoing_rx, incoming_tx)));
         Ok((send, recv))
+    }
+}
+
+async fn run_client(
+    config: ClientConfig,
+    outgoing_rx: mpsc::Receiver<Packet>,
+    incoming_tx: mpsc::Sender<BytesMut>,
+) {
+    let client = match Client::connect(config).await {
+        Ok(client) => client,
+        Err(error) => {
+            log::error!("Failed to connect to QUIC proxy: {error}");
+            return;
+        }
+    };
+
+    let running_client = client.proxy_channels(outgoing_rx, incoming_tx);
+    if let Err(error) = running_client.until_closed().await {
+        log::error!("QUIC proxy client stopped: {error}");
     }
 }
