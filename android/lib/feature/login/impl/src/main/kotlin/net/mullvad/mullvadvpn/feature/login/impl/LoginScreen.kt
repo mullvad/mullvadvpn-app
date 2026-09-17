@@ -53,13 +53,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
@@ -364,7 +371,7 @@ private fun ColumnScope.LoginInput(
         snapshotFlow { accountState.text.toString() }.collectLatest { onAccountNumberChange(it) }
     }
     val revealInputRequester = remember { FocusRequester() }
-    val inputRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     TextField(
         modifier =
             // Fix for DPad navigation
@@ -374,7 +381,6 @@ private fun ColumnScope.LoginInput(
                     // So that it is possible to use the reveal input button with DPad navigation.
                     end = revealInputRequester
                 }
-                .focusRequester(inputRequester)
                 .fillMaxWidth()
                 .testTag(LOGIN_INPUT_TEST_TAG)
                 .let {
@@ -404,10 +410,25 @@ private fun ColumnScope.LoginInput(
                     IconButton(
                         modifier =
                             Modifier.focusRequester(revealInputRequester)
-                                .focusProperties {
-                                    start = inputRequester
-                                    end = FocusRequester.Cancel
+                                .onKeyEvent { event ->
+                                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                                    when (event.key) {
+                                        Key.DirectionLeft -> {
+                                            focusManager.moveFocus(FocusDirection.Previous)
+                                            true
+                                        }
+                                        Key.DirectionUp -> {
+                                            focusManager.moveFocus(FocusDirection.Up)
+                                            true
+                                        }
+                                        Key.DirectionDown -> {
+                                            focusManager.moveFocus(FocusDirection.Next)
+                                            true
+                                        }
+                                        else -> false
+                                    }
                                 }
+                                .focusProperties { end = FocusRequester.Cancel }
                                 .testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
                         onClick = { showPassword = !showPassword },
                     ) {
