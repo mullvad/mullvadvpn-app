@@ -118,6 +118,9 @@ val releasePreflight =
 
 if (isReleaseBuild()) {
     allprojects {
-        tasks.configureEach { if (name != "releasePreflight") dependsOn(releasePreflight) }
+        tasks.configureEach {
+            if (name != "releasePreflight" && !name.contains("clean", ignoreCase = true))
+                dependsOn(releasePreflight)
+        }
     }
 }
