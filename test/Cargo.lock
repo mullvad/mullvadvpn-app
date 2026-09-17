@@ -2322,10 +2322,9 @@ version = "0.0.0"
 dependencies = [
  "hickory-resolver",
  "log",
- "rustls",
+ "mullvad-tls-client",
  "serde",
  "tokio",
- "webpki-roots",
 ]
 
 [[package]]
@@ -2395,6 +2394,7 @@ version = "0.0.0"
 dependencies = [
  "rustls",
  "rustls-pki-types",
+ "webpki-roots",
 ]
 
 [[package]]
