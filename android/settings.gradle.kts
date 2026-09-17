@@ -122,3 +122,8 @@ include(
     ":test:detekt",
     ":test:baselineprofile",
 )
+
+gradle.lifecycle.beforeProject {
+    // `base` adds the `clean` task, which projects without a build file would otherwise lack.
+    pluginManager.apply("base")
+}
