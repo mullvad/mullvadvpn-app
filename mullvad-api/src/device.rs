@@ -104,7 +104,7 @@ impl DevicesProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::NO_CONTENT])
-                .account(account)?
+                .account(account)
                 .await?;
             Ok(())
         }
@@ -142,7 +142,7 @@ impl DevicesProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?
+                .account(account)
                 .await
         }
     }
@@ -155,7 +155,7 @@ impl DevicesProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?
+                .account(account)
                 .await
         }
     }
@@ -179,7 +179,7 @@ impl DevicesProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?
+                .account(account)
                 .await
         }
     }
@@ -206,7 +206,7 @@ impl DevicesProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::CREATED])
-                .account(account)?
+                .account(account)
                 .await
         }
     }

@@ -602,7 +602,7 @@ impl AccountsProxy {
         async move {
             request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?
+                .account(account)
                 .await
         }
         .instrument(span)
@@ -651,7 +651,7 @@ impl AccountsProxy {
             .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission);
         async move {
             request?
-                .account(account)?
+                .account(account)
                 .expected_status(&[StatusCode::OK])
                 .await?
                 .deserialize()
@@ -670,7 +670,7 @@ impl AccountsProxy {
             .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
         async move {
             request?
-                .account(account.clone())?
+                .account(account.clone())
                 .header("Mullvad-Account-Number", &account)?
                 .expected_status(&[StatusCode::NO_CONTENT])
                 .await?;
@@ -687,7 +687,7 @@ impl AccountsProxy {
         self.handle
             .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
             .expected_status(&[StatusCode::OK])
-            .account(account)?
+            .account(account)
             .await
     }
 
@@ -771,7 +771,7 @@ impl AccountsProxy {
             .post(&format!("{APP_URL_PREFIX}/www-auth-token"));
         async move {
             let response: AuthTokenResponse = request?
-                .account(account)?
+                .account(account)
                 .expected_status(&[StatusCode::OK])
                 .await?
                 .deserialize()
