@@ -143,6 +143,9 @@ runs:
       uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce  # v2.0.0
       with:
         vs-version: latest
+        # Defaults to the x86 msbuild, which runs emulated on ARM64 and
+        # selects the x86 compiler.
+        msbuild-architecture: ${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}
 
     - name: Install build dependencies
       if: runner.os == 'Linux'
