@@ -1,0 +1,23 @@
+---
+source: mullvad-api/src/rest.rs
+expression: request
+---
+Request {
+    inner: Request {
+        method: GET,
+        uri: https://api.mullvad.net/secret,
+        version: HTTP/1.1,
+        headers: {
+            "user-agent": "mullvad-app",
+            "accept": "application/json",
+            "host": "api.mullvad.net",
+            "authorization": "Bearer supersecret",
+        },
+        body: Body(
+            Empty,
+        ),
+    },
+    body: Some(
+        [],
+    ),
+}
