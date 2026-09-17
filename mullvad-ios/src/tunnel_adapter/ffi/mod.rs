@@ -12,8 +12,8 @@ use std::sync::Arc;
 use ipnetwork::IpNetwork;
 
 use super::{
-    BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, ObfuscationProxyError, PeerConfig,
-    TunnelCallbackHandler, TunnelConfig, TunnelError,
+    BoundUdpTransports, IosTunnelAdapter, ObfuscationParameters, ObfuscationProxyError, PeerParameters,
+    TunnelCallbackHandler, TunnelError, TunnelParameters,
 };
 
 /// A WireGuard peer (entry or exit).
@@ -147,7 +147,7 @@ impl GotaTunTunnel {
         config: GotaTunConfig,
         callback: Box<dyn GotaTunCallback>,
     ) -> Result<Arc<Self>, GotaTunFfiError> {
-        let tunnel_config = build_tunnel_config(tun_fd, config)?;
+        let params = build_tunnel_parameters(tun_fd, config)?;
         let runtime = crate::mullvad_ios_runtime().map_err(GotaTunFfiError::Internal)?;
 
         // Bind before returning, so a missing interface is reported to the caller instead of
@@ -157,7 +157,7 @@ impl GotaTunTunnel {
             .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
 
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
-        let adapter = IosTunnelAdapter::start(runtime, tunnel_config, udp, handler);
+        let adapter = IosTunnelAdapter::start(runtime, params, udp, handler);
         Ok(Arc::new(Self { adapter }))
     }
 
@@ -206,8 +206,8 @@ fn catch_all_ips() -> Vec<IpNetwork> {
 fn build_peer(
     peer: &GotaTunPeer,
     allowed_ips: Vec<IpNetwork>,
-) -> Result<PeerConfig, GotaTunFfiError> {
-    Ok(PeerConfig {
+) -> Result<PeerParameters, GotaTunFfiError> {
+    Ok(PeerParameters {
         public_key: key32(&peer.public_key, "peer public key")?,
         endpoint: parse(&peer.endpoint, "peer endpoint")?,
         allowed_ips,
@@ -216,22 +216,22 @@ fn build_peer(
 
 fn build_obfuscation(
     obfuscation: GotaTunObfuscation,
-) -> Result<ObfuscationConfig, GotaTunFfiError> {
+) -> Result<ObfuscationParameters, GotaTunFfiError> {
     Ok(match obfuscation {
-        GotaTunObfuscation::Off => ObfuscationConfig::Off,
-        GotaTunObfuscation::UdpOverTcp => ObfuscationConfig::UdpOverTcp,
-        GotaTunObfuscation::Shadowsocks => ObfuscationConfig::Shadowsocks,
-        GotaTunObfuscation::Quic { hostname, token } => ObfuscationConfig::Quic { hostname, token },
-        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationConfig::Lwo {
+        GotaTunObfuscation::Off => ObfuscationParameters::Off,
+        GotaTunObfuscation::UdpOverTcp => ObfuscationParameters::UdpOverTcp,
+        GotaTunObfuscation::Shadowsocks => ObfuscationParameters::Shadowsocks,
+        GotaTunObfuscation::Quic { hostname, token } => ObfuscationParameters::Quic { hostname, token },
+        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationParameters::Lwo {
             server_public_key: key32(&server_public_key, "LWO server public key")?,
         },
     })
 }
 
-fn build_tunnel_config(
+fn build_tunnel_parameters(
     tun_fd: i32,
     config: GotaTunConfig,
-) -> Result<TunnelConfig, GotaTunFfiError> {
+) -> Result<TunnelParameters, GotaTunFfiError> {
     // The exit peer carries all user traffic (full internet). In multihop the entry
     // peer only carries the exit relay's encrypted UDP, so its single allowed IP is
     // the exit endpoint's address (a host route).
@@ -242,7 +242,7 @@ fn build_tunnel_config(
         .map(|peer| build_peer(peer, vec![IpNetwork::from(exit_peer.endpoint.ip())]))
         .transpose()?;
 
-    Ok(TunnelConfig {
+    Ok(TunnelParameters {
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
         ipv4_addr: parse::<Ipv4Addr>(&config.ipv4_address, "IPv4 address")?,
