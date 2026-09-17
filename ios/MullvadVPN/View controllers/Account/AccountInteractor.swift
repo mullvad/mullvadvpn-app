@@ -90,4 +90,22 @@ final class AccountInteractor: Sendable {
     func logout() async {
         await tunnelManager.unsetAccount()
     }
+
+    #if NEVER_IN_PRODUCTION
+        /// Replaces the device key with one that was never published to the API, then reconnects the tunnel if it
+        /// is up. This enables testing if the packet tunnel can recover a bad key.
+        func invalidateWireGuardKey() {
+            guard case .loggedIn(let accountData, var deviceData) = deviceState else { return }
+
+            deviceData.wgKeyData = StoredWgKeyData(
+                creationDate: deviceData.wgKeyData.creationDate,
+                privateKey: WireGuard.PrivateKey()
+            )
+            tunnelManager.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+
+            if tunnelManager.tunnelStatus.state.isSecured {
+                tunnelManager.reconnectTunnel(selectNewRelay: false)
+            }
+        }
+    #endif
 }
