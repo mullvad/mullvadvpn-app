@@ -135,7 +135,12 @@ runs:
       id: windows-modules-cache
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
       with:
-        path: ./windows/*/bin/
+        # `bin/temp` holds object files and other msbuild intermediates. They
+        # are only useful for an incremental rebuild, which never happens here,
+        # since a cache hit means the build is skipped entirely.
+        path: |
+          ./windows/*/bin/
+          !./windows/*/bin/temp/**
         key: windows-modules-${{ runner.arch }}-${{ steps.windows-modules-hash.outputs.hash }}
 
     - name: Install msbuild
