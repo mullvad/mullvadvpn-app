@@ -602,11 +602,7 @@ mod tests {
             resolver,
             Settings::default(),
             #[cfg(feature = "api-override")]
-            ApiEndpoint::new(
-                "mullvad.net".into(),
-                "127.0.0.1:1234".parse().unwrap(),
-                true,
-            ),
+            ApiEndpoint::new("mullvad.net".into(), "127.0.0.1:1234".parse().unwrap()).disable_tls(),
             event_tx,
         )
         .await
