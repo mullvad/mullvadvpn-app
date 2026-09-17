@@ -148,14 +148,17 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - uses: ./.github/actions/mullvad-build-env
+        id: build-env
 
+      # Both build steps are skipped when the libraries came from the cache,
+      # since that cache is keyed on the contents of every file under `windows/`.
       - name: Build Windows modules (x86_64)
-        if: ${{ matrix.config.arch == 'x64' }}
+        if: ${{ matrix.config.arch == 'x64' && steps.build-env.outputs.windows-modules-cache-hit != 'true' }}
         shell: bash
         run: ./build-windows-modules.sh build winfw
 
       - name: Build Windows modules (ARM64)
-        if: ${{ matrix.config.arch == 'arm64' }}
+        if: ${{ matrix.config.arch == 'arm64' && steps.build-env.outputs.windows-modules-cache-hit != 'true' }}
         shell: bash
         # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
         # because the Windows 11 ARM runner has 4 cores:
