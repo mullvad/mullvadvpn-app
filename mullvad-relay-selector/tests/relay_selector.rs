@@ -1138,7 +1138,7 @@ mod partition_relays {
     use super::relay_list_builder::RelayListBuilder;
 
     // An updated relay list can be fetched using
-    // `cargo run -p  mullvad-api --bin relay_list -- --internal`
+    // `cargo run -p  mullvad-api --bin relay-list -- --internal`
     static RELAYS: LazyLock<(RelayList, BridgeList)> = LazyLock::new(|| {
         let relays = include_bytes!("./relays.json");
         serde_json::from_slice(relays).unwrap()
