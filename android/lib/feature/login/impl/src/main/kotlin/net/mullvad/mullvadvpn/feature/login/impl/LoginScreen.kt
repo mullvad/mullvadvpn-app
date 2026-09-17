@@ -34,7 +34,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -325,7 +324,7 @@ fun OrDivier() {
 }
 
 @Composable
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalComposeUiApi::class)
 private fun ColumnScope.LoginInput(
     state: LoginUiState,
@@ -442,9 +441,7 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        keyboardActions = KeyboardActions(
-            onDone = { onLoginClick(state.accountNumberInput) }
-        ),
+        keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
                 autoCorrectEnabled = false,
