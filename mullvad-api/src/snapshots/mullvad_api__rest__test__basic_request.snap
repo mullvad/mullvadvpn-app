@@ -1,0 +1,14 @@
+---
+source: mullvad-api/src/rest.rs
+expression: mock_response
+---
+MockResponse {
+    status: 200,
+    headers: {
+        "connection": "close",
+        "content-length": "13",
+    },
+    body: Object {
+        "foo": String("bar"),
+    },
+}
