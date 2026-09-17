@@ -15,13 +15,6 @@ source scripts/utils/log
 # Analyze environment and parse arguments
 ################################################################################
 
-RUSTC_VERSION=$(rustc --version)
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
-
-echo "Computing build version..."
-PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
-log_header "Building Mullvad VPN $PRODUCT_VERSION"
-
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
 # If the produced binaries should be signed (Windows + macOS only)
@@ -33,6 +26,9 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
+
+RUSTC_VERSION=$(rustc --version)
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -54,6 +50,10 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+echo "Computing build version..."
+PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
+log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
 # Check if we are a building a release. Meaning we are configured to build with optimizations,
 # sign the artifacts, AND we are currently building on a release git tag.
