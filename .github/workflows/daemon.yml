@@ -152,8 +152,14 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - uses: ./.github/actions/mullvad-build-env
+        id: build-env
 
+      # The step is skipped when the libraries came from the cache, since that
+      # cache is keyed on the contents of every file under `windows/`. A build
+      # here would always trigger a full rebuild, since the mtimes from the
+      # cache is older than the checkout, so msbuild just rebuilds everything.
       - name: Build Windows modules
+        if: ${{ steps.build-env.outputs.windows-modules-cache-hit != 'true' }}
         shell: bash
         run: ./build-windows-modules.sh ${{ matrix.config['windows-modules-build-flags'] }} build winfw
 
