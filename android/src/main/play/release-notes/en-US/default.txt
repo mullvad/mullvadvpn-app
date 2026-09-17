@@ -1,5 +1,1 @@
-- Made the map interactive, with support for pan, pinch-to-zoom, and fling.
-- Added new multihop setting, "when needed", that will automatically multihop if required.
-- Improved search in the Select location screen.
-- Changed how filters work by splitting into entry and exit filters.
-- Fixed LWO not working with with multihop, DAITA on, and PQ off.
+- Fixed an issue that could hang the tunnel when canceling a connection attempt using QUIC.
