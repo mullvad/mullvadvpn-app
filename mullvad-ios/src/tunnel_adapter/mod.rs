@@ -176,14 +176,8 @@ pub enum ObfuscationConfig {
     Off,
     UdpOverTcp,
     Shadowsocks,
-    Quic {
-        hostname: String,
-        token: String,
-    },
-    Lwo {
-        client_public_key: [u8; 32],
-        server_public_key: [u8; 32],
-    },
+    Quic { hostname: String, token: String },
+    Lwo { server_public_key: [u8; 32] },
 }
 
 pub struct PeerConfig {
@@ -614,19 +608,22 @@ impl IosTunnelAdapter {
                     wg_ep,
                 ))
             }
-            ObfuscationConfig::Lwo {
-                client_public_key,
-                server_public_key,
-            } => tunnel_obfuscation::Settings::Lwo(tunnel_obfuscation::lwo::Settings {
-                server_addr: ingress_endpoint,
-                client_public_key: talpid_types::net::wireguard::PublicKey::from(
-                    *client_public_key,
-                ),
-                server_public_key: talpid_types::net::wireguard::PublicKey::from(
-                    *server_public_key,
-                ),
-                version: talpid_types::net::obfuscation::LwoVersion::V1,
-            }),
+            ObfuscationConfig::Lwo { server_public_key } => {
+                // Placeholder client key: every user of these settings overrides it with the key
+                // of the device the obfuscation is for, via `with_client_public_key`.
+                let device_public_key =
+                    gotatun::x25519::PublicKey::from(&StaticSecret::from(config.private_key));
+                tunnel_obfuscation::Settings::Lwo(tunnel_obfuscation::lwo::Settings {
+                    server_addr: ingress_endpoint,
+                    client_public_key: talpid_types::net::wireguard::PublicKey::from(
+                        device_public_key.to_bytes(),
+                    ),
+                    server_public_key: talpid_types::net::wireguard::PublicKey::from(
+                        *server_public_key,
+                    ),
+                    version: talpid_types::net::obfuscation::LwoVersion::V1,
+                })
+            }
         };
         Ok(Some(settings))
     }
