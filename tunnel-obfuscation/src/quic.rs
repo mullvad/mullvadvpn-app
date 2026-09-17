@@ -1,7 +1,6 @@
 //! Quic obfuscation
 
 use async_trait::async_trait;
-use mullvad_masque_proxy::client::ClientConfig;
 use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -13,7 +12,7 @@ use tokio_util::sync::CancellationToken;
 
 pub use mullvad_masque_proxy::{
     HTTP_MASQUE_DATAGRAM_CONTEXT_ID, MAX_INFLIGHT_PACKETS,
-    client::{Client, RunningClient},
+    client::{Client, ClientConfig, RunningClient},
 };
 
 use crate::{LocalSocketObfuscator, socket::create_remote_socket};

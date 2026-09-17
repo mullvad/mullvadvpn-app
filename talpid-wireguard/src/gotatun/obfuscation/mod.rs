@@ -205,7 +205,7 @@ impl MaybeObfuscatingTransportFactory {
             }),
             Some(ObfuscationSettings::Quic(settings)) => Self::Quic(QuicTransportFactory {
                 settings: settings.clone(),
-                running_client: None,
+                client_task: None,
                 bypass,
             }),
 
