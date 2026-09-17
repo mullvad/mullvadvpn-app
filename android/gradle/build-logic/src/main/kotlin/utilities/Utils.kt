@@ -118,7 +118,7 @@ fun Project.registerReleaseTask(
             dependsOn(taskList)
         }
 
-    tasks.register(releaseTaskName) { dependsOn(postBuild) }
+    tasks.register(releaseTaskName) { dependsOn(":cleanAll", postBuild) }
 }
 
 // Fetch a string and that is split by `,` into a list of strings
