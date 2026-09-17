@@ -76,6 +76,15 @@ jobs:
           clean build-for-testing 2>&1 | xcbeautify
         working-directory: ios/
 
+      - name: Check worktree for post-build-changes
+        run: |
+          CHANGES=$(git status --porcelain)
+          if [ -n "$CHANGES" ]; then
+            printf "Changes in working directory: \n%s" "$CHANGES"
+            exit 1
+          fi
+        working-directory: ios/
+
   test:
     name: Unit tests
     runs-on: macos-26
