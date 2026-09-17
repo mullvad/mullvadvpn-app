@@ -251,7 +251,7 @@ pub(crate) enum TunnelAdapterChannelCommand {
 }
 
 /// All state for a final connected WireGuard session.
-struct DeviceHolder {
+struct ActiveConnection {
     devices: Devices,
     transport_provider: BoundUdpTransports,
     last_suspended_at: Option<talpid_time::Instant>,
@@ -260,7 +260,7 @@ struct DeviceHolder {
     obfuscation: ObfuscationSlot,
 }
 
-impl DeviceHolder {
+impl ActiveConnection {
     /// Transport provider should be the one used by Devices.
     fn new(
         devices: Devices,
@@ -480,7 +480,7 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
-        let mut holder = DeviceHolder::new(devices, params, keys, obfuscation, udp);
+        let mut holder = ActiveConnection::new(devices, params, keys, obfuscation, udp);
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
         Self::monitor_connectivity(&mut holder, rx, stopped).await?;
@@ -617,7 +617,7 @@ impl IosTunnelAdapter {
 
     /// Monitor an established connection. Returns when connectivity is lost or stopped.
     async fn monitor_connectivity(
-        device_holder: &mut DeviceHolder,
+        device_holder: &mut ActiveConnection,
         mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<(), TunnelError> {
