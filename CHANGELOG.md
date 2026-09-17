@@ -124,6 +124,10 @@ This release is identical to 2026.5-beta2.
   access token.
 - Fix daemon crashing on startup when migrating settings that contain no WireGuard entry location.
 
+#### Linux
+- Fix `mullvad split-tunnel clear` failing with "Error in split tunneling" when one of the excluded
+  processes had already exited.
+
 #### Windows
 - Preserve the app's own theme colors when Windows high contrast (forced-colors) mode is
   enabled in order to prevent toggle switches and other custom-styled controls from becoming
