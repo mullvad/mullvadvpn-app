@@ -40,7 +40,9 @@ pub async fn negotiate_ephemeral_peers(
     };
     let negotiation_config = NegotiationConfig {
         private_key: config.tunnel.private_key.clone(),
-        tunnel_ipv4: config.tunnel_ipv4().unwrap_or(Ipv4Addr::UNSPECIFIED),
+        tunnel_ipv4: config.tunnel_ipv4().ok_or(CloseMsg::SetupError(
+            Error::WireguardConfigError(crate::config::Error::InvalidTunnelIpError),
+        ))?,
         config_service_ip: config.ipv4_gateway,
         relays: relays(config),
         ingress_timer_params: (lwo_version(config) == Some(LwoVersion::V2)).then(lwo_timer_params),
