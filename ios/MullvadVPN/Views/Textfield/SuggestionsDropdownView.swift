@@ -30,12 +30,11 @@ struct SuggestionsDropdownView: View {
 
     private var suggestionsHeight: CGFloat {
         let dividerHeight = max(0, suggestions.count - 1)
-        let itemheight = max(appearance.itemHeight, lineHeight)
+        let itemHeight = max(appearance.itemHeight, lineHeight)
         let totalHeight =
-            CGFloat(suggestions.count) * itemheight + CGFloat(dividerHeight)
+            CGFloat(suggestions.count) * itemHeight + CGFloat(dividerHeight)
 
-        print("suggestionsHeight = \(min(totalHeight, max(itemheight, 200)))")
-        return min(totalHeight, max(lineHeight, 200))
+        return min(totalHeight, max(lineHeight, itemHeight * 4))
     }
 
     var body: some View {
@@ -74,7 +73,6 @@ struct SuggestionsDropdownView: View {
                     .buttonStyle(.plain)
                     .if(index == 0) {
                         $0.sizeOfView { size in
-                            print("height = \(size.height)")
                             self.lineHeight = size.height
                         }
                     }
