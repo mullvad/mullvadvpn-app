@@ -161,7 +161,12 @@ jobs:
       - name: Build Windows modules
         if: ${{ steps.build-env.outputs.windows-modules-cache-hit != 'true' }}
         shell: bash
-        run: ./build-windows-modules.sh ${{ matrix.config['windows-modules-build-flags'] }} build winfw
+        # `bin/temp` holds object files and other msbuild intermediates, which
+        # only an incremental rebuild would read. Deleting them keeps the cache
+        # saved at the end of the job down to the linked libraries.
+        run: |
+          ./build-windows-modules.sh ${{ matrix.config['windows-modules-build-flags'] }} build winfw
+          rm -rf windows/*/bin/temp
 
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead
