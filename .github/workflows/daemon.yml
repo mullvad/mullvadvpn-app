@@ -167,6 +167,14 @@ jobs:
         # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
         run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
 
+      # `bin/temp` holds object files and other msbuild intermediates, which are
+      # only read by an incremental rebuild. That never happens here, since a
+      # cache hit skips the build entirely, so drop them before the cache is
+      # saved at the end of the job.
+      - name: Drop msbuild intermediates
+        shell: bash
+        run: rm -rf windows/*/bin/temp
+
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead
       # we just `cargo check` it below.
