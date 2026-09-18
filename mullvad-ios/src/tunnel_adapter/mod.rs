@@ -1,7 +1,7 @@
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 pub(crate) mod ffi;
 mod obfuscation;
-mod params;
+pub(crate) mod params;
 mod pinger;
 pub(crate) mod tun_device;
 
@@ -49,7 +49,7 @@ use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
 
 pub use self::obfuscation::ObfuscationProxyError;
-pub use self::params::{ObfuscationParameters, PeerParameters, TunnelParameters};
+pub use self::params::{PeerParameters, TunnelParameters};
 
 /// A UDP transport bound ahead of the tunnel starting.
 /// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection

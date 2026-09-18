@@ -12,8 +12,8 @@ use std::sync::Arc;
 use ipnetwork::IpNetwork;
 
 use super::{
-    BoundUdpTransports, IosTunnelAdapter, ObfuscationParameters, ObfuscationProxyError,
-    PeerParameters, TunnelCallbackHandler, TunnelError, TunnelParameters,
+    BoundUdpTransports, IosTunnelAdapter, ObfuscationProxyError, PeerParameters,
+    TunnelCallbackHandler, TunnelError, TunnelParameters, params::ObfuscationParameters,
 };
 
 /// A WireGuard peer (entry or exit).
