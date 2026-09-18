@@ -85,6 +85,8 @@ pub struct NegotiationConfig {
     pub ingress_timer_params: Option<TimerParams>,
     /// Time limit for the exchange with each config service.
     pub timeout: Duration,
+    /// TCP timeout. See [`talpid_netstack::smoltcp_network::SmoltcpHandle::tcp_connect`].
+    pub tcp_timeout: Option<Duration>,
     /// Time limit for the WireGuard handshake with each relay. A relay that does not complete a
     /// handshake in time is unreachable, so there is no point in waiting for [`Self::timeout`].
     pub handshake_timeout: Duration,
@@ -316,7 +318,7 @@ async fn request_ephemeral_peer_through(
     let config_service = SocketAddr::new(IpAddr::V4(config.config_service_ip), CONFIG_SERVICE_PORT);
     let exchange = async {
         let stream = net
-            .tcp_connect(config_service)
+            .tcp_connect(config_service, config.tcp_timeout)
             .await
             .map_err(Error::TcpSocketError)?;
         request_ephemeral_peer_over_stream(

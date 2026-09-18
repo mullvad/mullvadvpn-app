@@ -461,6 +461,7 @@ impl IosTunnelAdapter {
             ingress_timer_params: None,
             timeout: params.establish_timeout(),
             handshake_timeout: params.establish_timeout(),
+            tcp_timeout: Some(params.establish_timeout()),
             // Each relay has a device of its own, so it can have a key of its own.
             separate_exit_key: true,
         };
