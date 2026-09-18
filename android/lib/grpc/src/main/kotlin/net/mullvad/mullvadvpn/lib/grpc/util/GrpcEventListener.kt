@@ -38,11 +38,12 @@ internal class GrpcEventListener : EventListener() {
     }
 
     override fun callFailed(call: Call, ioe: IOException) {
-        // If we call failed in an expected manner, we can assume the connection is closed.
+        // A call can be reset due to the app cancelling the call, in that case we should just
+        // ignore it since it most likely that the daemon connection is still alive.
         if (call.isCanceled() || ioe is StreamResetException) {
-            _connectionState.update { GrpcConnectivityState.Closed }
-        } else {
-            _connectionState.update { GrpcConnectivityState.Failed }
+            return
         }
+
+        _connectionState.update { GrpcConnectivityState.Failed }
     }
 }
