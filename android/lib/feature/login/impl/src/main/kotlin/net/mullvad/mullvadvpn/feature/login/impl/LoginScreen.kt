@@ -19,11 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -37,7 +34,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -47,15 +43,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.layout
@@ -83,7 +80,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -99,10 +95,11 @@ import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberKeyboardType
-import net.mullvad.mullvadvpn.lib.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.lib.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.isDirectionCenter
+import net.mullvad.mullvadvpn.lib.common.compose.isDirectionRight
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
@@ -324,7 +321,7 @@ fun OrDivier() {
 }
 
 @Composable
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @OptIn(ExperimentalComposeUiApi::class)
 private fun ColumnScope.LoginInput(
     state: LoginUiState,
@@ -350,31 +347,30 @@ private fun ColumnScope.LoginInput(
         showLastChars = charsToShow == ACCOUNT_NUMBER_CHUNK_SIZE
     }
 
-    val outputTransformation =
-        remember(showPassword) {
-            accountNumberOutputTransformation(
-                showAccount = showPassword,
+    val visualTransformation =
+        remember(showPassword, showLastChars, charsToShow) {
+            accountNumberVisualTransformation(
+                showPassword,
                 // HACK! See comment in accountNumberOutputTransformation for more information.
-                showLastX = { if (showLastChars) charsToShow else 0 },
+                showLastX = if (showLastChars) charsToShow else 0,
             )
         }
 
-    val accountState = rememberTextFieldState(state.accountNumberInput)
-    LaunchedEffect(accountState) {
-        snapshotFlow { accountState.text.toString() }.collectLatest { onAccountNumberChange(it) }
-    }
     val revealInputRequester = remember { FocusRequester() }
     val inputRequester = remember { FocusRequester() }
+
     TextField(
         modifier =
-            // Fix for DPad navigation
             Modifier.semantics { contentType = ContentType.Password }
-                .focusProperties {
-                    start = FocusRequester.Cancel
-                    // So that it is possible to use the reveal input button with DPad navigation.
-                    end = revealInputRequester
-                }
                 .focusRequester(inputRequester)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown && keyEvent.isDirectionRight) {
+                        revealInputRequester.requestFocus()
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .fillMaxWidth()
                 .testTag(LOGIN_INPUT_TEST_TAG)
                 .let {
@@ -384,12 +380,10 @@ private fun ColumnScope.LoginInput(
                         it
                     }
                 },
-        state =
-            if (state.loginState is LoginState.Loading.CreatingAccount) TextFieldState("")
-            else {
-                accountState
-            },
-        labelPosition = TextFieldLabelPosition.Above(),
+        value =
+            if (state.loginState is LoginState.Loading.CreatingAccount) ""
+            else state.accountNumberInput,
+        onValueChange = onAccountNumberChange,
         label = {
             Text(
                 text = stringResource(id = R.string.account_number),
@@ -397,16 +391,23 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        lineLimits = TextFieldLineLimits.SingleLine,
+        singleLine = true,
         trailingIcon =
             if (state.loginState is LoginState.Idle) {
                 {
                     IconButton(
                         modifier =
                             Modifier.focusRequester(revealInputRequester)
-                                .focusProperties {
-                                    start = inputRequester
-                                    end = FocusRequester.Cancel
+                                .onPreviewKeyEvent { keyEvent ->
+                                    if (
+                                        keyEvent.type == KeyEventType.KeyUp &&
+                                            keyEvent.isDirectionCenter
+                                    ) {
+                                        showPassword = !showPassword
+                                        true
+                                    } else {
+                                        false
+                                    }
                                 }
                                 .testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
                         onClick = { showPassword = !showPassword },
@@ -434,14 +435,14 @@ private fun ColumnScope.LoginInput(
                 overflow = TextOverflow.Ellipsis,
             )
         },
-        onKeyboardAction = { onLoginClick(state.accountNumberInput) },
+        keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
                 autoCorrectEnabled = false,
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
                 keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
             ),
-        outputTransformation = outputTransformation,
+        visualTransformation = visualTransformation,
         enabled = state.loginState is LoginState.Idle,
         textStyle =
             MaterialTheme.typography.bodyLarge.copy(
@@ -462,7 +463,7 @@ private fun ColumnScope.LoginInput(
                 onClick = {
                     state.lastUsedAccount?.let {
                         charsToShow = ACCOUNT_NUMBER_CHUNK_SIZE
-                        accountState.setTextAndPlaceCursorAtEnd(it.value)
+                        onAccountNumberChange(it.value)
                         onLoginClick(it.value)
                     }
                 },
