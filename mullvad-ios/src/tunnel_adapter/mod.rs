@@ -226,6 +226,16 @@ pub(crate) enum TunnelAdapterChannelCommand {
     BumpSockets,
 }
 
+/// What applying a [`TunnelAdapterChannelCommand`] means for the caller's loop.
+enum CommandOutcome {
+    /// The tunnel is running normally.
+    Awake,
+    /// The tunnel is suspended.
+    Suspended,
+    /// The adapter was told to stop.
+    Stop,
+}
+
 /// All state of a connected tunnel, kept so that it can be suspended, woken, and moved onto
 /// fresh sockets while it runs.
 struct ActiveConnection {
@@ -271,16 +281,16 @@ impl ActiveConnection {
         Ok(())
     }
 
-    /// Apply a command from Swift. Returns whether the tunnel is suspended afterwards.
+    /// Apply a command from Swift.
     async fn handle_command(
         &self,
         command: TunnelAdapterChannelCommand,
-    ) -> Result<bool, TunnelError> {
+    ) -> Result<CommandOutcome, TunnelError> {
         match command {
             TunnelAdapterChannelCommand::Suspend => {
                 *self.last_suspended_at.lock().unwrap() = Some(talpid_time::Instant::now());
                 self.devices.suspend().await;
-                Ok(true)
+                Ok(CommandOutcome::Suspended)
             }
             TunnelAdapterChannelCommand::Wake => {
                 let last_suspended_at = *self.last_suspended_at.lock().unwrap();
@@ -290,14 +300,13 @@ impl ActiveConnection {
                     self.restart_obfuscation().await?;
                 }
                 self.devices.wake().await;
-                Ok(false)
+                Ok(CommandOutcome::Awake)
             }
             TunnelAdapterChannelCommand::BumpSockets => {
                 self.bump_sockets().await?;
-                Ok(false)
+                Ok(CommandOutcome::Awake)
             }
-            // Callers intercept `Stop` before it reaches here.
-            TunnelAdapterChannelCommand::Stop => unreachable!(),
+            TunnelAdapterChannelCommand::Stop => Ok(CommandOutcome::Stop),
         }
     }
 }
@@ -788,15 +797,15 @@ impl IosTunnelAdapter {
             tokio::select! {
                 _ = tokio::time::sleep(CONNECTIVITY_CHECK_INTERVAL) => {}
                 command = rx.recv() => {
-                    match command {
-                        // The channel only closes with the adapter, which stops us.
-                        Some(TunnelAdapterChannelCommand::Stop) | None => return Ok(false),
-                        Some(command) => {
-                            suspended = connection.handle_command(command).await?;
-                            // Give the tunnel the full ping interval again after it moved sockets.
-                            last_ping = Instant::now() - PING_INTERVAL;
-                        }
+                    // The channel only closes with the adapter, which stops us.
+                    let Some(command) = command else { return Ok(false) };
+                    match connection.handle_command(command).await? {
+                        CommandOutcome::Stop => return Ok(false),
+                        CommandOutcome::Suspended => suspended = true,
+                        CommandOutcome::Awake => suspended = false,
                     }
+                    // Give the tunnel the full ping interval again after it moved sockets.
+                    last_ping = Instant::now() - PING_INTERVAL;
                 }
             }
         }
@@ -818,16 +827,16 @@ impl IosTunnelAdapter {
             tokio::select! {
                 _ = tokio::time::sleep(Duration::from_secs(1)) => {}
                 command = rx.recv() => {
-                    match command {
-                        // The channel only closes when the adapter is dropped, which stops us.
-                        Some(TunnelAdapterChannelCommand::Stop) | None => return Ok(()),
-                        Some(command) => {
-                            suspended = connection.handle_command(command).await?;
-                            // Do not hold a sleep, or the sockets it spanned, against the tunnel.
-                            last_rx_time = Instant::now();
-                            continue;
-                        }
+                    // The channel only closes when the adapter is dropped, which stops us.
+                    let Some(command) = command else { return Ok(()) };
+                    match connection.handle_command(command).await? {
+                        CommandOutcome::Stop => return Ok(()),
+                        CommandOutcome::Suspended => suspended = true,
+                        CommandOutcome::Awake => suspended = false,
                     }
+                    // Do not hold a sleep, or the sockets it spanned, against the tunnel.
+                    last_rx_time = Instant::now();
+                    continue;
                 }
             }
 
