@@ -36,6 +36,12 @@ impl TunnelParameters {
     }
 }
 
+pub struct PeerParameters {
+    pub public_key: [u8; 32],
+    pub endpoint: SocketAddr,
+    pub allowed_ips: Vec<IpNetwork>,
+}
+
 /// Obfuscation configuration for the tunnel.
 #[cfg_attr(test, derive(Debug))]
 pub enum ObfuscationParameters {
@@ -44,12 +50,6 @@ pub enum ObfuscationParameters {
     Shadowsocks,
     Quic { hostname: String, token: String },
     Lwo { server_public_key: [u8; 32] },
-}
-
-pub struct PeerParameters {
-    pub public_key: [u8; 32],
-    pub endpoint: SocketAddr,
-    pub allowed_ips: Vec<IpNetwork>,
 }
 
 #[cfg(test)]
