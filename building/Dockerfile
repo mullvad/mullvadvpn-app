@@ -105,9 +105,22 @@ RUN apt-get update -y && \
 # === Volta for npm + node ===
 
 ENV PATH=/root/.volta/bin:$PATH
+
+# Pin and verify volta version. volta publishes no checksums, so compute it from ${VOLTA_URL}
+ARG VOLTA_VERSION=2.0.2
+ARG VOLTA_SHA256=6cec054c911fb925b629a09455775af6e95dc0f5694a4c28b63979ab9ef18037
+
+ARG VOLTA_URL=https://github.com/volta-cli/volta/releases/download/v$VOLTA_VERSION/volta-$VOLTA_VERSION-linux.tar.gz
+
 # volta seemingly does not have a way to explicitly install the toolchain
 # versions from package.json, but `node --version` triggers an install
 COPY desktop/package.json .
-RUN curl https://get.volta.sh | bash && node --version && rm package.json
+RUN curl --proto '=https' --tlsv1.2 -sSfL -o volta.tar.gz "$VOLTA_URL" && \
+    echo "$VOLTA_SHA256  volta.tar.gz" | sha256sum -c - && \
+    mkdir -p /root/.volta/bin && \
+    tar -xzf volta.tar.gz -C /root/.volta/bin && \
+    rm volta.tar.gz && \
+    volta setup && \
+    node --version && rm package.json
 
 WORKDIR /build
