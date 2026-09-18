@@ -321,8 +321,13 @@ impl IosTunnelAdapter {
         match Self::run_inner(config, udp, &callback, &stopped, &stop_notify).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(
-                TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiatePQError::Timeout),
-            ) => Self::fire_timeout(&stopped, &callback),
+                TunnelError::Timeout
+                | TunnelError::NegotiatePQError(
+                    NegotiatePQError::Timeout | NegotiatePQError::Phase2Timeout,
+                ),
+            ) => {
+                Self::fire_timeout(&stopped, &callback)
+            }
             Err(error) => Self::fire_error(&stopped, &callback, error),
         }
     }
