@@ -148,14 +148,6 @@ impl UdpTransportFactory for ObfuscatingTransports {
     }
 }
 
-/// What the Swift side asks the running tunnel to do.
-pub(crate) enum TunnelAdapterChannelCommand {
-    Wake,
-    Suspend,
-    Stop,
-    BumpSockets,
-}
-
 /// Error from a phase of [`IosTunnelAdapter::run`].
 pub enum TunnelError {
     GotaTunDeviceError(gotatun::device::Error),
@@ -223,6 +215,14 @@ pub trait TunnelCallbackHandler: Send + Sync + 'static {
     fn on_connected(&self);
     fn on_timeout(&self);
     fn on_error(&self, error: TunnelError);
+}
+
+/// What the Swift side asks the running tunnel to do.
+pub(crate) enum TunnelAdapterChannelCommand {
+    Wake,
+    Suspend,
+    Stop,
+    BumpSockets,
 }
 
 /// All state of a connected tunnel, kept so that it can be suspended, woken, and moved onto
