@@ -1,0 +1,213 @@
+---
+name: Future Rust channels - Build and test
+on:
+  # Only to test changes to this workflow itself.
+  pull_request:
+    paths:
+      - .github/workflows/future-rust-channels.yml
+      - ci/cargo-ci-clippy.sh
+  # The toolchains we do not pin to. Stable is usually ahead of our pinned
+  # version, while beta and nightly show what is coming. Breakage in any of
+  # them is worth knowing about but is never urgent, so they are checked once
+  # a day rather than on every pull request.
+  schedule:
+    - cron: '40 5 * * *'
+      timezone: 'Europe/Stockholm'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions: {}
+
+jobs:
+  prepare-containers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Resolve container image digests
+        run: |
+          echo "linux_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+          echo "android_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      linux_image: ${{ env.linux_image }}
+      android_image: ${{ env.android_image }}
+
+  linux:
+    name: Linux, Windows and test framework targets
+    needs: prepare-containers
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-containers.outputs.linux_image }}
+
+    strategy:
+      # A failure on one channel says nothing about the other, so run them all.
+      fail-fast: false
+      matrix:
+        rust: [stable, beta, nightly]
+
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      # Needed to check the test framework, and not included in the app
+      # container. Kept in step with testframework.yml.
+      - name: Install system dependencies
+        run: apt update && apt install -y pkg-config libssl-dev libpcap-dev
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+
+      # The container image ships the pinned toolchain, so override it here.
+      # `stable` means the actual stable channel, not the pinned version.
+      # Components and targets are installed per toolchain, so neither clippy
+      # nor the cross targets the image has for its pinned toolchain come along
+      # with the toolchain installed here.
+      - name: Install Rust toolchain
+        id: toolchain
+        run: |
+          rustup override set ${{ matrix.rust }}
+          rustup component add clippy
+          rustup target add aarch64-unknown-linux-gnu x86_64-pc-windows-gnu
+
+      # Nightly is left uncached. It puts a fresh commit hash in the cache key
+      # every day, so its entry would be written once and never read. Stable
+      # and beta hold still for weeks at a time.
+      - name: Setup Rust cache
+        if: ${{ matrix.rust != 'nightly' }}
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
+        with:
+          shared-key: future-rust-channels.yml-${{ matrix.rust }}
+          cache-bin: false
+          # Only save the cache when on main. A cache saved by a manually
+          # dispatched run on a branch is unreadable by every other branch.
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Test crates on x86_64-unknown-linux-gnu
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci.sh test --workspace --target x86_64-unknown-linux-gnu
+
+      - name: Clippy x86_64-unknown-linux-gnu
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh x86_64-unknown-linux-gnu
+
+      - name: Clippy aarch64-unknown-linux-gnu
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh aarch64-unknown-linux-gnu
+
+      # Compiles the same `cfg(windows)` code as the MSVC targets do, without
+      # needing a Windows runner.
+      - name: Clippy x86_64-pc-windows-gnu
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh x86_64-pc-windows-gnu
+
+      - name: Clippy test framework x86_64-unknown-linux-gnu
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        working-directory: test
+        run: ../ci/cargo-ci-clippy.sh x86_64-unknown-linux-gnu
+
+  # A regression almost always lands in nightly before it reaches beta or
+  # stable, so only nightly gets the wide net. The Linux job above covers all
+  # three channels. For the macOS and iOS jobs this also spares the scarce
+  # macOS runners.
+  macos:
+    name: macOS (nightly)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-toolchain: nightly
+          # A nightly toolchain re-keys the cache daily, so an entry here would
+          # be written once and never read.
+          cache-rust-targets: "false"
+
+      - name: Install additional Rust targets
+        id: toolchain
+        run: rustup target add x86_64-apple-darwin
+
+      # `--all-features` so that `uniffi-bindgen` is built with the feature that
+      # makes it call into uniffi, the way the iOS build does. Without it the
+      # uniffi dependency goes unused on macOS.
+      - name: Test crates on aarch64-apple-darwin
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci.sh test --workspace --all-features --target aarch64-apple-darwin
+
+      - name: Clippy aarch64-apple-darwin
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh aarch64-apple-darwin
+
+      - name: Clippy x86_64-apple-darwin
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh x86_64-apple-darwin
+
+  ios:
+    name: iOS (nightly)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust toolchain
+        id: toolchain
+        run: |
+          rustup override set nightly
+          rustup component add clippy
+          rustup target add aarch64-apple-ios
+
+      - name: Clippy aarch64-apple-ios
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh aarch64-apple-ios
+
+  android:
+    name: Android (nightly)
+    needs: prepare-containers
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-containers.outputs.android_image }}
+
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      # The Android targets the image has are only installed for its pinned
+      # toolchain, not for the one installed here.
+      - name: Install Rust toolchain
+        id: toolchain
+        run: |
+          rustup override set nightly
+          rustup component add clippy
+          rustup target add aarch64-linux-android armv7-linux-androideabi
+
+      # One 64-bit and one 32-bit target, which is where the pointer width and
+      # `cfg` differences between the four Android targets are.
+      - name: Clippy aarch64-linux-android
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh aarch64-linux-android
+
+      - name: Clippy armv7-linux-androideabi
+        if: ${{ !cancelled() && steps.toolchain.outcome == 'success' }}
+        run: ci/cargo-ci-clippy.sh armv7-linux-androideabi
