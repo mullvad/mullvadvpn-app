@@ -89,5 +89,5 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     };
 
     #[cfg(target_os = "windows")]
-    return windows::traceroute_using_ping(opt).await;
+    return windows::try_run_leak_test(opt).await;
 }
