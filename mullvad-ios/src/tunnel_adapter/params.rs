@@ -15,13 +15,13 @@ pub struct TunnelParameters {
     pub ipv4_addr: Ipv4Addr,
     pub ipv6_addr: Ipv6Addr,
     pub mtu: u16,
-    pub exit_peer: PeerConfig,
-    pub entry_peer: Option<PeerConfig>,
+    pub exit_peer: PeerParameters,
+    pub entry_peer: Option<PeerParameters>,
     pub ipv4_gateway: Ipv4Addr,
     pub establish_timeout_secs: u32,
     pub enable_pq: bool,
     pub enable_daita: bool,
-    pub obfuscation: ObfuscationConfig,
+    pub obfuscation: ObfuscationParameters,
 }
 
 impl TunnelParameters {
@@ -38,7 +38,7 @@ impl TunnelParameters {
 
 /// Obfuscation configuration for the tunnel.
 #[cfg_attr(test, derive(Debug))]
-pub enum ObfuscationConfig {
+pub enum ObfuscationParameters {
     Off,
     UdpOverTcp,
     Shadowsocks,
@@ -46,7 +46,7 @@ pub enum ObfuscationConfig {
     Lwo { server_public_key: [u8; 32] },
 }
 
-pub struct PeerConfig {
+pub struct PeerParameters {
     pub public_key: [u8; 32],
     pub endpoint: SocketAddr,
     pub allowed_ips: Vec<IpNetwork>,
@@ -56,8 +56,8 @@ pub struct PeerConfig {
 pub(crate) mod tests {
     use super::*;
 
-    pub(crate) fn peer(endpoint: &str) -> PeerConfig {
-        PeerConfig {
+    pub(crate) fn peer(endpoint: &str) -> PeerParameters {
+        PeerParameters {
             public_key: [7u8; 32],
             endpoint: endpoint.parse().unwrap(),
             allowed_ips: vec!["0.0.0.0/0".parse().unwrap()],
@@ -77,7 +77,7 @@ pub(crate) mod tests {
             establish_timeout_secs: 4,
             enable_pq: false,
             enable_daita: false,
-            obfuscation: ObfuscationConfig::Off,
+            obfuscation: ObfuscationParameters::Off,
         }
     }
 

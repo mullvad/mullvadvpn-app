@@ -12,7 +12,7 @@ use std::sync::Arc;
 use ipnetwork::IpNetwork;
 
 use super::{
-    BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, ObfuscationProxyError, PeerConfig,
+    BoundUdpTransports, IosTunnelAdapter, ObfuscationParameters, ObfuscationProxyError, PeerParameters,
     TunnelCallbackHandler, TunnelError, TunnelParameters,
 };
 
@@ -206,8 +206,8 @@ fn catch_all_ips() -> Vec<IpNetwork> {
 fn build_peer(
     peer: &GotaTunPeer,
     allowed_ips: Vec<IpNetwork>,
-) -> Result<PeerConfig, GotaTunFfiError> {
-    Ok(PeerConfig {
+) -> Result<PeerParameters, GotaTunFfiError> {
+    Ok(PeerParameters {
         public_key: key32(&peer.public_key, "peer public key")?,
         endpoint: parse(&peer.endpoint, "peer endpoint")?,
         allowed_ips,
@@ -216,13 +216,13 @@ fn build_peer(
 
 fn build_obfuscation(
     obfuscation: GotaTunObfuscation,
-) -> Result<ObfuscationConfig, GotaTunFfiError> {
+) -> Result<ObfuscationParameters, GotaTunFfiError> {
     Ok(match obfuscation {
-        GotaTunObfuscation::Off => ObfuscationConfig::Off,
-        GotaTunObfuscation::UdpOverTcp => ObfuscationConfig::UdpOverTcp,
-        GotaTunObfuscation::Shadowsocks => ObfuscationConfig::Shadowsocks,
-        GotaTunObfuscation::Quic { hostname, token } => ObfuscationConfig::Quic { hostname, token },
-        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationConfig::Lwo {
+        GotaTunObfuscation::Off => ObfuscationParameters::Off,
+        GotaTunObfuscation::UdpOverTcp => ObfuscationParameters::UdpOverTcp,
+        GotaTunObfuscation::Shadowsocks => ObfuscationParameters::Shadowsocks,
+        GotaTunObfuscation::Quic { hostname, token } => ObfuscationParameters::Quic { hostname, token },
+        GotaTunObfuscation::Lwo { server_public_key } => ObfuscationParameters::Lwo {
             server_public_key: key32(&server_public_key, "LWO server public key")?,
         },
     })

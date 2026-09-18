@@ -52,7 +52,7 @@ use tunnel_obfuscation::{
 use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
 
-pub use self::params::{ObfuscationConfig, PeerConfig, TunnelParameters};
+pub use self::params::{ObfuscationParameters, PeerParameters, TunnelParameters};
 
 /// A UDP transport bound ahead of the tunnel starting.
 /// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection
@@ -488,7 +488,7 @@ impl IosTunnelAdapter {
             return Ok((None, private_key, Self::build_peer(&config.exit_peer)));
         }
 
-        let relay = |peer: &PeerConfig| Relay {
+        let relay = |peer: &PeerParameters| Relay {
             public_key: PublicKey::from(peer.public_key),
             endpoint: peer.endpoint,
         };
@@ -695,13 +695,13 @@ impl IosTunnelAdapter {
             .endpoint;
 
         let settings = match &config.obfuscation {
-            ObfuscationConfig::Off => return Ok(None),
-            ObfuscationConfig::UdpOverTcp => {
+            ObfuscationParameters::Off => return Ok(None),
+            ObfuscationParameters::UdpOverTcp => {
                 tunnel_obfuscation::Settings::Udp2Tcp(tunnel_obfuscation::udp2tcp::Settings {
                     peer: ingress_endpoint,
                 })
             }
-            ObfuscationConfig::Shadowsocks => {
+            ObfuscationParameters::Shadowsocks => {
                 let wg_ep = localhost_wg_endpoint(ingress_endpoint);
                 tunnel_obfuscation::Settings::Shadowsocks(
                     tunnel_obfuscation::shadowsocks::Settings {
@@ -710,7 +710,7 @@ impl IosTunnelAdapter {
                     },
                 )
             }
-            ObfuscationConfig::Quic { hostname, token } => {
+            ObfuscationParameters::Quic { hostname, token } => {
                 let wg_ep = localhost_wg_endpoint(ingress_endpoint);
                 let token = token
                     .parse::<tunnel_obfuscation::quic::AuthToken>()
@@ -722,7 +722,7 @@ impl IosTunnelAdapter {
                     wg_ep,
                 ))
             }
-            ObfuscationConfig::Lwo { server_public_key } => {
+            ObfuscationParameters::Lwo { server_public_key } => {
                 // Placeholder client key: every user of these settings overrides it with the key
                 // of the device the obfuscation is for, via `with_client_public_key`.
                 let device_public_key =
@@ -855,8 +855,8 @@ impl IosTunnelAdapter {
         }
     }
 
-    /// Build a WireGuard [`Peer`] from a [`PeerConfig`].
-    fn build_peer(peer: &PeerConfig) -> Peer {
+    /// Build a WireGuard [`Peer`] from a [`PeerParameters`].
+    fn build_peer(peer: &PeerParameters) -> Peer {
         Peer::new(peer.public_key.into())
             .with_allowed_ips(peer.allowed_ips.clone())
             .with_endpoint(peer.endpoint)
