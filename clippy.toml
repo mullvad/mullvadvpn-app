@@ -1,1 +1,4 @@
 enum-variant-size-threshold = 1000
+# `result_large_err` defaults to 128 bytes, which some of our state machine
+# transition errors exceed by carrying the state to transition to.
+large-error-threshold = 256
