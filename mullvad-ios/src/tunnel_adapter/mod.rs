@@ -78,10 +78,8 @@ impl BoundUdpTransports {
         }
     }
 
-    /// Bind a new socket in place of the current one, after the network path changed under it.
-    ///
-    /// A device reads the socket only when it binds, so it keeps sending over the old one until
-    /// it is suspended and woken around this.
+    /// Rebind existing socket. It is expected that the associated GotaTun device will be suspended
+    /// whilst the socket is rebound.
     pub async fn rebind(&self) -> io::Result<()> {
         let mut socket = self.socket.lock().await;
         let (new_socket, _recv) = UdpSocketFactory::default().bind(&Self::params()).await?;
