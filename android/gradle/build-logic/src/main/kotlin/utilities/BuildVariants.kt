@@ -63,3 +63,17 @@ fun fullReleaseTasks(appVersion: AppVersion) =
             add("createPlayStagemoleReleaseDistBundle")
         }
     }
+
+fun fullReleaseArtifacts(versionName: AppVersionName) =
+    buildList<String> {
+        val name = "MullvadVPN-$versionName"
+        add("$name.apk")
+        add("$name.play.apk")
+        add("$name.play.aab")
+        if (versionName.isAlpha || versionName.isDev) {
+            add("$name.play.devmole.apk")
+            add("$name.play.stagemole.apk")
+            add("$name.play.devmole.aab")
+            add("$name.play.stagemole.aab")
+        }
+    }
