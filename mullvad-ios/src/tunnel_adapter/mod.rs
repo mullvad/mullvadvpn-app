@@ -951,6 +951,16 @@ enum Devices {
 }
 
 impl Devices {
+    async fn stop(self) {
+        match self {
+            Devices::Singlehop(dev) => dev.stop().await,
+            Devices::Multihop { entry, exit } => {
+                entry.stop().await;
+                exit.stop().await;
+            }
+        }
+    }
+
     async fn suspend(&self) {
         match self {
             Devices::Singlehop(dev) => dev.suspend().await,
@@ -970,16 +980,6 @@ impl Devices {
                 Ok(())
             }
         };
-    }
-
-    async fn stop(self) {
-        match self {
-            Devices::Singlehop(dev) => dev.stop().await,
-            Devices::Multihop { entry, exit } => {
-                entry.stop().await;
-                exit.stop().await;
-            }
-        }
     }
 
     /// Peer stats of the ingress device - the one whose rx reflects tunnel
