@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.grpc.util
 
+import co.touchlab.kermit.Logger
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Proxy
@@ -38,11 +39,13 @@ internal class GrpcEventListener : EventListener() {
     }
 
     override fun callFailed(call: Call, ioe: IOException) {
-        // If we call failed in an expected manner, we can assume the connection is closed.
+        // A call can be reset due to the app cancelling the call, in that case we should just
+        // ignore it since it most likely that the daemon connection is still alive.
         if (call.isCanceled() || ioe is StreamResetException) {
-            _connectionState.update { GrpcConnectivityState.Closed }
-        } else {
-            _connectionState.update { GrpcConnectivityState.Failed }
+            Logger.d("Call ${call.request().url} failed due to being cancelled or reset")
+            return
         }
+
+        _connectionState.update { GrpcConnectivityState.Failed }
     }
 }
