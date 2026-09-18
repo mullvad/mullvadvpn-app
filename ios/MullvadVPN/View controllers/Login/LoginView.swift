@@ -26,7 +26,7 @@ struct LoginView<ViewModel: LoginViewModel>: View {
     var body: some View {
         content
             .padding(UIMetrics.contentInsets.toEdgeInsets)
-            .scrollable(fill: .vertical, alignment: .center)
+            .scrollable(fill: .vertical)
             .background(Color.mullvadBackground.ignoresSafeArea())
             .safeAreaInset(edge: .top) {
                 if viewModel.showAccessMethodInvalidView {
