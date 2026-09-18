@@ -13,7 +13,7 @@ use ipnetwork::IpNetwork;
 
 use super::{
     BoundUdpTransports, IosTunnelAdapter, ObfuscationConfig, ObfuscationProxyError, PeerConfig,
-    TunnelCallbackHandler, TunnelConfig, TunnelError,
+    TunnelCallbackHandler, TunnelError, TunnelParameters,
 };
 
 /// A WireGuard peer (entry or exit).
@@ -231,7 +231,7 @@ fn build_obfuscation(
 fn build_tunnel_config(
     tun_fd: i32,
     config: GotaTunConfig,
-) -> Result<TunnelConfig, GotaTunFfiError> {
+) -> Result<TunnelParameters, GotaTunFfiError> {
     // The exit peer carries all user traffic (full internet). In multihop the entry
     // peer only carries the exit relay's encrypted UDP, so its single allowed IP is
     // the exit endpoint's address (a host route).
@@ -242,7 +242,7 @@ fn build_tunnel_config(
         .map(|peer| build_peer(peer, vec![IpNetwork::from(exit_peer.endpoint.ip())]))
         .transpose()?;
 
-    Ok(TunnelConfig {
+    Ok(TunnelParameters {
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
         ipv4_addr: parse::<Ipv4Addr>(&config.ipv4_address, "IPv4 address")?,

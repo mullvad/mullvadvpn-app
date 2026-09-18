@@ -1,5 +1,6 @@
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 pub(crate) mod ffi;
+mod params;
 mod pinger;
 pub(crate) mod tun_device;
 
@@ -24,7 +25,6 @@ use gotatun::{
     },
     x25519::StaticSecret,
 };
-use ipnetwork::IpNetwork;
 use talpid_net::bypass::NoopBypass;
 use talpid_netstack::{
     ip_mux::ip_mux,
@@ -52,8 +52,7 @@ use tunnel_obfuscation::{
 use self::pinger::SmoltcpPinger;
 use self::tun_device::IosTunDevice;
 
-/// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
-pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;
+pub use self::params::{ObfuscationConfig, PeerConfig, TunnelParameters};
 
 /// A UDP transport bound ahead of the tunnel starting.
 /// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection
@@ -221,50 +220,6 @@ const MONITOR_TIMEOUT: Duration = Duration::from_secs(120);
 /// still holds a healthy connection.
 const SLEEP_CYCLE_RESET_THRESHOLD: Duration = Duration::from_secs(120);
 
-/// Configuration for a single tunnel connection attempt.
-pub struct TunnelConfig {
-    pub tun_fd: i32,
-    pub private_key: [u8; 32],
-    pub ipv4_addr: Ipv4Addr,
-    pub ipv6_addr: Ipv6Addr,
-    pub mtu: u16,
-    pub exit_peer: PeerConfig,
-    pub entry_peer: Option<PeerConfig>,
-    pub ipv4_gateway: Ipv4Addr,
-    pub establish_timeout_secs: u32,
-    pub enable_pq: bool,
-    pub enable_daita: bool,
-    pub obfuscation: ObfuscationConfig,
-}
-
-impl TunnelConfig {
-    /// MTU available to the inner smoltcp stack after WireGuard overhead.
-    fn smoltcp_mtu(&self) -> u16 {
-        self.mtu.saturating_sub(WIREGUARD_OVERHEAD)
-    }
-
-    /// Timeout for establishing connectivity, clamped to at least one second.
-    fn establish_timeout(&self) -> Duration {
-        Duration::from_secs(self.establish_timeout_secs.max(1) as u64)
-    }
-}
-
-/// Obfuscation configuration for the tunnel.
-#[cfg_attr(test, derive(Debug))]
-pub enum ObfuscationConfig {
-    Off,
-    UdpOverTcp,
-    Shadowsocks,
-    Quic { hostname: String, token: String },
-    Lwo { server_public_key: [u8; 32] },
-}
-
-pub struct PeerConfig {
-    pub public_key: [u8; 32],
-    pub endpoint: SocketAddr,
-    pub allowed_ips: Vec<IpNetwork>,
-}
-
 /// Callbacks from the tunnel adapter to Swift.
 pub trait TunnelCallbackHandler: Send + Sync + 'static {
     fn on_connected(&self);
@@ -278,7 +233,7 @@ struct ActiveConnection {
     devices: Devices,
     transport_provider: BoundUdpTransports,
     obfuscation: ObfuscatingTransports,
-    config: TunnelConfig,
+    config: TunnelParameters,
     /// Key the ingress device handshakes with, which LWO obfuscates for.
     ingress_public_key: PublicKey,
     /// When the tunnel was last suspended, to decide whether to restart the obfuscator on wake.
@@ -358,7 +313,7 @@ pub struct IosTunnelAdapter {
 impl IosTunnelAdapter {
     pub fn start(
         runtime: tokio::runtime::Handle,
-        config: TunnelConfig,
+        config: TunnelParameters,
         udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
     ) -> Self {
@@ -410,7 +365,7 @@ impl IosTunnelAdapter {
     }
 
     async fn run(
-        config: TunnelConfig,
+        config: TunnelParameters,
         udp: BoundUdpTransports,
         callback: Arc<dyn TunnelCallbackHandler>,
         rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
@@ -428,7 +383,7 @@ impl IosTunnelAdapter {
     }
 
     async fn run_inner(
-        config: TunnelConfig,
+        config: TunnelParameters,
         udp: BoundUdpTransports,
         callback: &Arc<dyn TunnelCallbackHandler>,
         mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
@@ -523,7 +478,7 @@ impl IosTunnelAdapter {
     /// Returns the `(entry, exit_key, exit_peer)` triple to configure the final
     /// device(s) with - `entry` is `Some` only for multihop PQ.
     async fn negotiate_pq(
-        config: &TunnelConfig,
+        config: &TunnelParameters,
         udp: &BoundUdpTransports,
         obfuscation: Option<RunningObfuscation>,
     ) -> Result<PqResult, TunnelError> {
@@ -606,7 +561,7 @@ impl IosTunnelAdapter {
     /// Build the final GotaTun device(s) carrying user traffic and configure
     /// their peers.
     async fn build_devices(
-        config: &TunnelConfig,
+        config: &TunnelParameters,
         obfuscation: &ObfuscatingTransports,
         pq: PqResult,
         mux_recv: tun_device::IosTunIpRecv,
@@ -684,7 +639,7 @@ impl IosTunnelAdapter {
     async fn establish_connectivity(
         connection: &ActiveConnection,
         smoltcp_handle: &SmoltcpHandle,
-        config: &TunnelConfig,
+        config: &TunnelParameters,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<bool, TunnelError> {
@@ -713,7 +668,7 @@ impl IosTunnelAdapter {
     /// that negotiate ephemeral peers, and then reused by the tunnel devices.
     /// Returns `None` if obfuscation is off.
     async fn create_obfuscation(
-        config: &TunnelConfig,
+        config: &TunnelParameters,
     ) -> Result<Option<RunningObfuscation>, ObfuscationProxyError> {
         let obfuscation = match Self::obfuscation_settings(config)? {
             None => return Ok(None),
@@ -731,7 +686,7 @@ impl IosTunnelAdapter {
     /// The settings of the obfuscator that reaches the ingress relay.
     /// Returns `None` if obfuscation is off.
     fn obfuscation_settings(
-        config: &TunnelConfig,
+        config: &TunnelParameters,
     ) -> Result<Option<tunnel_obfuscation::Settings>, ObfuscationProxyError> {
         let ingress_endpoint = config
             .entry_peer
@@ -1032,6 +987,7 @@ impl Devices {
 
 #[cfg(test)]
 mod tests {
+    use super::params::tests::peer;
     use super::*;
     use std::sync::Mutex;
     use std::sync::atomic::AtomicUsize;
@@ -1060,31 +1016,6 @@ mod tests {
         let concrete = Arc::new(CountingCallback::default());
         let dynamic: Arc<dyn TunnelCallbackHandler> = concrete.clone();
         (concrete, dynamic)
-    }
-
-    fn peer(endpoint: &str) -> PeerConfig {
-        PeerConfig {
-            public_key: [7u8; 32],
-            endpoint: endpoint.parse().unwrap(),
-            allowed_ips: vec!["0.0.0.0/0".parse().unwrap()],
-        }
-    }
-
-    fn config() -> TunnelConfig {
-        TunnelConfig {
-            tun_fd: -1,
-            private_key: [0u8; 32],
-            ipv4_addr: Ipv4Addr::new(10, 0, 0, 2),
-            ipv6_addr: "fd00::2".parse().unwrap(),
-            mtu: 1280,
-            exit_peer: peer("1.2.3.4:51820"),
-            entry_peer: None,
-            ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
-            establish_timeout_secs: 4,
-            enable_pq: false,
-            enable_daita: false,
-            obfuscation: ObfuscationConfig::Off,
-        }
     }
 
     /// A terminal callback fires exactly once and latches the stopped flag; a
@@ -1120,24 +1051,6 @@ mod tests {
         IosTunnelAdapter::fire_timeout(&stopped, &dynamic);
         assert!(stopped.load(Ordering::SeqCst));
         assert_eq!(concrete.timeout.load(Ordering::SeqCst), 1);
-    }
-
-    #[test]
-    fn establish_timeout_clamps_to_at_least_one_second() {
-        let mut c = config();
-        c.establish_timeout_secs = 0;
-        assert_eq!(c.establish_timeout(), Duration::from_secs(1));
-        c.establish_timeout_secs = 7;
-        assert_eq!(c.establish_timeout(), Duration::from_secs(7));
-    }
-
-    #[test]
-    fn smoltcp_mtu_subtracts_wireguard_overhead_and_saturates() {
-        let mut c = config();
-        c.mtu = 1280;
-        assert_eq!(c.smoltcp_mtu(), 1280 - WIREGUARD_OVERHEAD);
-        c.mtu = 10; // smaller than the overhead
-        assert_eq!(c.smoltcp_mtu(), 0);
     }
 
     #[test]
