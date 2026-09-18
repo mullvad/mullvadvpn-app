@@ -22,7 +22,10 @@ pnet_packet.workspace = true
 
 [target."cfg(windows)".dependencies]
 talpid-windows = { path = "../talpid-windows" }
-windows-sys = { workspace = true, features = ["Win32_NetworkManagement_Ndis"] }
+windows-sys = { workspace = true, features = [
+  "Win32_NetworkManagement_IpHelper",
+  "Win32_NetworkManagement_Ndis"
+] }
 
 [lints]
 workspace = true
