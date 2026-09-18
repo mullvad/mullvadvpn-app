@@ -10,6 +10,7 @@ RUSTUP_SHA256_CHECKSUM="dda7234360b7f578ca8b0ddcb80145646fa61a67c1720a5abc7051b3
 # Install Rust
 curl -sf -L https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init > /tmp/rustup-init
 echo "$RUSTUP_SHA256_CHECKSUM /tmp/rustup-init" | sha256sum -c
+chmod +x /tmp/rustup-init
 /tmp/rustup-init -y
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
