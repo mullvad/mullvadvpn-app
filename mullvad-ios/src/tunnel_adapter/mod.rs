@@ -100,6 +100,7 @@ impl UdpTransportFactory for BoundUdpTransports {
 
 /// Error from a phase of [`IosTunnelAdapter::run`].
 pub enum TunnelError {
+    RebindUdpSocket(io::Error),
     GotaTunDeviceError(gotatun::device::Error),
     MultihopEntryDeviceError(gotatun::device::Error),
     MultihopExitDeviceError(gotatun::device::Error),
@@ -113,6 +114,7 @@ pub enum TunnelError {
 impl std::fmt::Display for TunnelError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            TunnelError::RebindUdpSocket(msg) => write!(f, "Failed to rebind UDP socket: {msg}"),
             TunnelError::GotaTunDeviceError(msg) => write!(f, "GotaTun device error: {msg}"),
             TunnelError::MultihopEntryDeviceError(msg) => {
                 write!(f, "Multihop entry device error: {msg}")
@@ -177,7 +179,7 @@ struct ActiveConnection {
     devices: Devices,
     transport_provider: BoundUdpTransports,
     /// When the tunnel was last suspended, to decide whether to restart the obfuscator on wake.
-    last_suspended_at: std::sync::Mutex<Option<talpid_time::Instant>>,
+    last_suspended_at: Option<talpid_time::Instant>,
     obfuscation: ObfuscatingTransports,
     params: TunnelParameters,
     /// Key the ingress device handshakes with, which LWO obfuscates for.
@@ -185,25 +187,22 @@ struct ActiveConnection {
 }
 
 impl ActiveConnection {
-    /// Move the tunnel onto a freshly bound socket, after the network path changed under it.
-    ///
-    /// The devices are suspended across this because they read the socket, and the obfuscation,
-    /// only when they bind.
-    async fn bump_sockets(&self) -> Result<(), TunnelError> {
+    /// Bumps sockets for obfuscators that need their sockets recycled to survive sleep and path
+    /// updates.
+    async fn bump_sockets(&mut self) -> Result<(), TunnelError> {
         self.devices.suspend().await;
-        if let Err(err) = self.transport_provider.rebind().await {
-            log::error!("Failed to rebind sockets: {err}");
-        }
+        self.transport_provider
+            .rebind()
+            .await
+            .map_err(TunnelError::RebindUdpSocket)?;
         self.restart_obfuscation().await?;
         self.devices.wake().await;
         Ok(())
     }
 
-    /// Replace the obfuscator, e.g. because a path change invalidated a socket it held, or
-    /// because it has sat idle through a long suspension.
-    async fn restart_obfuscation(&self) -> Result<(), TunnelError> {
-        // Drop the old obfuscator before building its replacement, to release its socket, if it
-        // has one of its own.
+    /// Replace the obfuscation proxy and point the ingress device at the new one.
+    /// No-op when obfuscation need not rebind sockets.
+    async fn restart_obfuscation(&mut self) -> Result<(), TunnelError> {
         self.obfuscation.replace(None).await;
         let obfuscation = create_obfuscation(&self.params)
             .await
@@ -218,19 +217,23 @@ impl ActiveConnection {
 
     /// Apply a command from Swift.
     async fn handle_command(
-        &self,
+        &mut self,
         command: TunnelAdapterChannelCommand,
     ) -> Result<CommandOutcome, TunnelError> {
         match command {
             TunnelAdapterChannelCommand::Suspend => {
-                *self.last_suspended_at.lock().unwrap() = Some(talpid_time::Instant::now());
+                self.last_suspended_at = Some(talpid_time::Instant::now());
                 self.devices.suspend().await;
                 Ok(CommandOutcome::Suspended)
             }
             TunnelAdapterChannelCommand::Wake => {
-                let last_suspended_at = *self.last_suspended_at.lock().unwrap();
-                let now = talpid_time::Instant::now();
-                let elapsed = now.duration_since(last_suspended_at.unwrap_or(now));
+                let Some(last_suspended_at) = self.last_suspended_at else {
+                    log::error!(
+                        "Received a wakeup command without ever being suspended - nothing to do"
+                    );
+                    return Ok(CommandOutcome::Awake);
+                };
+                let elapsed = talpid_time::Instant::now().duration_since(last_suspended_at);
                 if elapsed >= SLEEP_CYCLE_RESET_THRESHOLD {
                     self.restart_obfuscation().await?;
                 }
@@ -380,10 +383,10 @@ impl IosTunnelAdapter {
 
         // The tunnel can be suspended or moved onto new sockets from here on, so it is held as
         // one piece for the rest of its life.
-        let connection = ActiveConnection {
+        let mut connection = ActiveConnection {
             devices,
             transport_provider: udp,
-            last_suspended_at: std::sync::Mutex::new(None),
+            last_suspended_at: None,
             obfuscation,
             params,
             ingress_public_key,
@@ -394,21 +397,16 @@ impl IosTunnelAdapter {
         }
 
         // 5. Establish connectivity, then monitor it until it drops or we stop.
-        let connected = match Self::establish_connectivity(
-            &connection,
-            &smoltcp_handle,
-            &connection.params,
-            &mut rx,
-            stopped,
-        )
-        .await
-        {
-            Ok(connected) => connected,
-            Err(e) => {
-                connection.devices.stop().await;
-                return Err(e);
-            }
-        };
+        let connected =
+            match Self::establish_connectivity(&mut connection, &smoltcp_handle, &mut rx, stopped)
+                .await
+            {
+                Ok(connected) => connected,
+                Err(e) => {
+                    connection.devices.stop().await;
+                    return Err(e);
+                }
+            };
         if !connected {
             connection.devices.stop().await;
             return Err(TunnelError::Timeout);
@@ -416,7 +414,7 @@ impl IosTunnelAdapter {
 
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
-        let result = Self::monitor_connectivity(&connection, &mut rx, stopped).await;
+        let result = Self::monitor_connectivity(&mut connection, &mut rx, stopped).await;
         connection.devices.stop().await;
         result?;
         Err(TunnelError::Timeout)
@@ -593,9 +591,8 @@ impl IosTunnelAdapter {
     /// Ping until the device sees inbound traffic, the establish timeout fires,
     /// or we are stopped. Returns whether the tunnel became connected.
     async fn establish_connectivity(
-        connection: &ActiveConnection,
+        connection: &mut ActiveConnection,
         smoltcp_handle: &SmoltcpHandle,
-        params: &TunnelParameters,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<bool, TunnelError> {
@@ -605,9 +602,10 @@ impl IosTunnelAdapter {
             .icmp_socket(ping_ident)
             .await
             .map_err(TunnelError::ICMPSocketError)?;
-        let mut pinger = SmoltcpPinger::new(icmp_socket, params.ipv4_gateway, ping_ident);
+        let mut pinger =
+            SmoltcpPinger::new(icmp_socket, connection.params.ipv4_gateway, ping_ident);
 
-        let establish_timeout = params.establish_timeout();
+        let establish_timeout = connection.params.establish_timeout();
         log::info!("Establishing connectivity (timeout: {establish_timeout:?})");
 
         if let Err(e) = pinger.send_icmp().await {
@@ -622,7 +620,7 @@ impl IosTunnelAdapter {
 
     /// Wait for the device to receive traffic (rx_bytes > 0 on any peer).
     async fn wait_for_connectivity(
-        connection: &ActiveConnection,
+        connection: &mut ActiveConnection,
         pinger: &mut SmoltcpPinger,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
@@ -670,7 +668,7 @@ impl IosTunnelAdapter {
     /// Monitor an established connection. Returns when connectivity is lost or stopped.
     /// Watch the tunnel until it stops, loses connectivity, or is told to sleep or move sockets.
     async fn monitor_connectivity(
-        connection: &ActiveConnection,
+        connection: &mut ActiveConnection,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
     ) -> Result<(), TunnelError> {

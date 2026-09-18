@@ -121,6 +121,7 @@ impl TunnelCallbackHandler for CallbackBridge {
                     | tunnel_obfuscation::udp2tcp::Error::CreateTcpSocket(_),
                 ),
             ))
+            | TunnelError::RebindUdpSocket(_)
             | TunnelError::ICMPSocketError(_) => GotaTunFfiError::BindSockets(format!("{error}")),
             _ => GotaTunFfiError::Internal(format!("{error}")),
         };
