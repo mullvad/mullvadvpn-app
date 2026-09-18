@@ -13,7 +13,6 @@ import MullvadTypes
 
 struct AccountDataPoller {
     private let logger: Logger
-    private let tunnelManager: TunnelManager
     private let accountUpdateTimerInterval: Duration
     private let accountUpdateTimer: any DispatchSourceTimer
 
@@ -23,11 +22,12 @@ struct AccountDataPoller {
         accountUpdateTimerInterval: Duration = .seconds(15),
     ) {
         self.logger = logger
-        self.tunnelManager = tunnelManager
         self.accountUpdateTimerInterval = accountUpdateTimerInterval
         accountUpdateTimer = DispatchSource.makeTimerSource(queue: .main)
         accountUpdateTimer.setEventHandler { [weak tunnelManager] in
-            tunnelManager?.updateAccountData()
+            Task {
+                try? await tunnelManager?.updateAccountData()
+            }
         }
     }
 

@@ -148,16 +148,8 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        accountManager.updateAccountData { [weak self] error in
-            guard let self else { return }
-            if let error {
-                self.handleRestError(error)
-                completionHandler?(.failure(error))
-            } else {
-                completionHandler?(.success(()))
-            }
-        }
+    func updateAccountData() async throws {
+        try await accountManager.updateAccountData()
     }
 
     func deleteAccount(accountNumber: String) async throws {
@@ -166,16 +158,8 @@ final class TunnelManager: @unchecked Sendable {
         unsetTunnelConfiguration()
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        accountManager.updateDeviceData { [weak self] error in
-            guard let self else { return }
-            if let error {
-                self.handleRestError(error)
-                completionHandler?(.failure(error))
-            } else {
-                completionHandler?(.success(()))
-            }
-        }
+    func updateDeviceData() async throws {
+        try await accountManager.updateDeviceData()
     }
 
     private func setAccount(
