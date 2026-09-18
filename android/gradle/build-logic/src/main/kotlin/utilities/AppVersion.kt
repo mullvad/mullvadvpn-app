@@ -6,18 +6,35 @@ import org.gradle.api.provider.Provider
 // This value represent a version code that would be generated from and after year 2030.
 private const val MAX_ALLOWED_VERSION_CODE = 30000000
 
-data class AppVersion(val code: Int, val name: String) {
+@JvmInline
+value class AppVersionName(val value: String) {
     val isAlpha: Boolean
-        get() = name.contains("-alpha")
+        get() = value.contains("-alpha")
 
     val isBeta: Boolean
-        get() = name.contains("-beta")
+        get() = value.contains("-beta")
 
     val isDev: Boolean
-        get() = name.contains("-dev-")
+        get() = value.contains("-dev-")
 
     val isStable: Boolean
         get() = !isAlpha && !isBeta && !isDev
+
+    override fun toString() = value
+}
+
+data class AppVersion(val name: AppVersionName, val code: Int) {
+    val isAlpha: Boolean
+        get() = name.isAlpha
+
+    val isBeta: Boolean
+        get() = name.isBeta
+
+    val isDev: Boolean
+        get() = name.isDev
+
+    val isStable: Boolean
+        get() = name.isStable
 
     init {
         // This is a safety net to avoid generating too big version codes, since that could
@@ -31,12 +48,14 @@ data class AppVersion(val code: Int, val name: String) {
 val Project.appVersionProvider: Provider<AppVersion>
     get() = provider {
         AppVersion(
+            name =
+                AppVersionName(
+                    getStringPropertyOrNull("mullvad.app.config.override.versionName")
+                        ?: execVersionNameCargoCommand()
+                ),
             code =
                 getIntPropertyOrNull("mullvad.app.config.override.versionCode")
                     ?: execVersionCodeCargoCommand(),
-            name =
-                getStringPropertyOrNull("mullvad.app.config.override.versionName")
-                    ?: execVersionNameCargoCommand(),
         )
     }
 

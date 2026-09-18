@@ -113,7 +113,7 @@ fun Project.registerReleaseTask(
     val postBuild =
         tasks.register<PostBuildTask>("${releaseTaskName}PostBuild") {
             this.skipDirtyCheck.set(skipDirtyCheck)
-            this.versionName.set(releaseVersionName)
+            this.versionName.set(releaseVersionName.value)
             this.distDirPath.set(releaseDistDirPath)
             dependsOn(taskList)
         }
