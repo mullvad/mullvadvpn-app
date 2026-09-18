@@ -1,5 +1,6 @@
 {
   "appteam-desktop": [
+    ".github/workflows/future-rust.yml",
     ".github/workflows/rust-min-publish-age.yml",
     "building/Dockerfile",
     "building/linux-container-image.txt",
