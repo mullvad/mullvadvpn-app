@@ -139,7 +139,7 @@ const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 2] = [
 ///
 /// [`ALLOWED_IN_TUNNEL_LAN_NETS`] is allowlisted, since those ranges are legitimately used in
 /// Mullvad tunnels.
-fn subtract_lan_nets(allowed_ips: Vec<IpNetwork>) -> Vec<IpNetwork> {
+fn subtract_lan_nets(allowed_ips: &[IpNetwork]) -> Vec<IpNetwork> {
     // `sub_all` cannot mix address families.
     let blocked = |ipv4: bool| -> Vec<IpNetwork> {
         let exceptions: Vec<IpNetwork> = ALLOWED_IN_TUNNEL_LAN_NETS
@@ -158,7 +158,7 @@ fn subtract_lan_nets(allowed_ips: Vec<IpNetwork>) -> Vec<IpNetwork> {
     let (blocked_v4, blocked_v6) = (blocked(true), blocked(false));
 
     allowed_ips
-        .into_iter()
+        .iter()
         .flat_map(|allowed_ip| {
             let blocked = if allowed_ip.is_ipv4() {
                 &blocked_v4
@@ -247,7 +247,7 @@ impl InnerParametersGenerator {
             .iter_mut()
             .chain(std::iter::once(&mut endpoint.peer))
         {
-            peer.allowed_ips = subtract_lan_nets(std::mem::take(&mut peer.allowed_ips));
+            peer.allowed_ips = subtract_lan_nets(&peer.allowed_ips);
         }
 
         wireguard::TunnelParameters {
@@ -353,7 +353,7 @@ mod test {
     /// Test whether private IPs are subtracted correctly.
     #[test]
     fn test_disallowed_tun_ip_ranges() {
-        let result = subtract_lan_nets(allowed_ips(&["0.0.0.0/0", "::/0"]));
+        let result = subtract_lan_nets(&allowed_ips(&["0.0.0.0/0", "::/0"]));
 
         for ip in ["192.168.1.1", "172.16.0.1", "169.254.0.1", "fe80::1"] {
             assert!(!covers(&result, ip), "{ip} must not be reachable in tunnel");
@@ -370,7 +370,7 @@ mod test {
     /// - Possible future range: 10.128.0.1
     #[test]
     fn test_allowed_mullvad_tun_ip_ranges() {
-        let result = subtract_lan_nets(allowed_ips(&["0.0.0.0/0", "::/0"]));
+        let result = subtract_lan_nets(&allowed_ips(&["0.0.0.0/0", "::/0"]));
 
         for ip in ["10.64.0.1", "10.124.0.2", "10.128.0.1"] {
             assert!(covers(&result, ip), "{ip} must be reachable in tunnel");
