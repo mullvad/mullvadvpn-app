@@ -8,12 +8,15 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.UntrackedTask
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 
 private const val RELAY_LIST_ASSET = "assets/relays.json"
 private const val BUNDLE_RELAY_LIST_ASSET = "base/assets/relays.json"
@@ -22,26 +25,30 @@ private const val BUNDLE_RELAY_LIST_ASSET = "base/assets/relays.json"
 abstract class VerifyArtifactsTask : DefaultTask() {
     @get:Internal abstract val artifacts: ConfigurableFileCollection
 
-    @get:Input abstract val versionName: Property<AppVersionName>
+    @get:Optional @get:Input abstract val versionName: Property<AppVersionName>
 
-    @get:Input abstract val distDirectory: Property<String>
+    @get:Optional @get:Input abstract val distDirectory: Property<String>
 
     @TaskAction
     fun run() {
         val artifactFiles = artifacts.files.sortedBy { it.name }
-        val releaseVersion = versionName.get()
+        val releaseVersion = versionName.orNull
         val missingArtifacts = artifactFiles.filterNot { it.isFile }
 
         check(missingArtifacts.isEmpty()) {
             "Missing artifacts:\n" + missingArtifacts.joinToString("\n") { "  ${it.path}" }
         }
 
-        println("\nVerifying artifacts for version $releaseVersion")
-        println("  Directory: ${distDirectory.get()}")
-        println("\nExpected artifacts:")
-        artifactFiles.forEach { println("  ${it.name}") }
+        if (releaseVersion != null) {
+            println("\nVerifying artifacts for version $releaseVersion")
+            println("  Directory: ${distDirectory.get()}")
+            println("\nExpected artifacts:")
+            artifactFiles.forEach { println("  ${it.name}") }
+        }
 
-        artifactFiles.forEach { verifyArtifact(it, requireRelayList = !releaseVersion.isDev) }
+        artifactFiles.forEach {
+            verifyArtifact(it, requireRelayList = releaseVersion?.isDev != true)
+        }
     }
 
     private fun verifyArtifact(artifact: File, requireRelayList: Boolean) {
@@ -109,3 +116,20 @@ internal fun Project.registerReleaseVerifyArtifactsTask(
         artifacts.from(distArtifacts(expectedArtifacts))
         dependsOn("${releaseTaskName}PostBuild")
     }
+
+fun Project.registerVerifyArtifactsTask(versionName: AppVersionName) {
+    val artifactPath = providers.gradleProperty("artifact").orNull
+    val releaseVersion =
+        providers.gradleProperty("release").orNull?.let { AppVersionName(it) } ?: versionName
+
+    tasks.register<VerifyArtifactsTask>("verifyArtifacts") {
+        if (artifactPath != null) {
+            artifacts.from(File(artifactPath))
+        } else {
+            this.versionName.set(releaseVersion)
+            this.distDirectory.set(distDirectory().path)
+            artifacts.from(distArtifacts(fullReleaseArtifacts(releaseVersion)))
+            mustRunAfter(tasks.withType<Copy>())
+        }
+    }
+}
