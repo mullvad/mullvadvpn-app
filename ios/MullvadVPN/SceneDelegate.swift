@@ -75,7 +75,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         deviceUpdateThrottle = ActionThrottle(
             waitInterval: deviceDataDefaultWaitInterval,
             action: { [tunnelManager] in
-                tunnelManager.updateDeviceData()
+                try? await tunnelManager.updateDeviceData()
             })
 
         refreshLoginMetadata(forceUpdate: true)
@@ -170,7 +170,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             tunnelManager.deviceState.accountData != nil
             && (forceUpdate || isPresentingSettings || isPresentingAccount || isCloseToExpiry)
         if shouldUpdateAccountData {
-            tunnelManager.updateAccountData()
+            Task {
+                try? await tunnelManager.updateAccountData()
+            }
         }
         if shouldUpdateDeviceData {
             deviceUpdateThrottle?.requestAction(force: forceUpdate)
