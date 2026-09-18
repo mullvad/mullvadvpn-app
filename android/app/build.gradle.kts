@@ -9,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
@@ -19,6 +20,7 @@ import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
 import utilities.registerReleaseTask
+import utilities.registerVerifyArtifactsTask
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -52,7 +54,7 @@ android {
         minSdk = libs.versions.min.sdk.get().toInt()
         targetSdk = libs.versions.target.sdk.get().toInt()
         versionCode = appVersion.code
-        versionName = appVersion.name
+        versionName = appVersion.name.value
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         lint {
@@ -399,10 +401,18 @@ registerReleaseTask(
     "fdroidRelease",
     appVersion,
     listOf("createOssProdReleaseDistApk"),
+    listOf("MullvadVPN-${appVersion.name}.apk"),
     skipDirtyCheck = true,
 )
 
-registerReleaseTask("fullRelease", appVersion, fullReleaseTasks(appVersion))
+registerReleaseTask(
+    "fullRelease",
+    appVersion,
+    fullReleaseTasks(appVersion),
+    fullReleaseArtifacts(appVersion.name),
+)
+
+registerVerifyArtifactsTask(appVersion.name)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
