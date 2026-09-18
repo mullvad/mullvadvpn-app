@@ -132,7 +132,9 @@ const viteConfig = defineConfig({
         },
       },
     }),
-    react(),
+    react({
+      compiler: true,
+    }),
   ],
 });
 

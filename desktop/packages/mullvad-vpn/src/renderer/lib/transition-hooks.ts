@@ -16,11 +16,15 @@ const viewTransitionRef: { current?: ViewTransition } = {};
 
 export function useAfterTransition() {
   const runAfterTransition = useCallback((fn: () => void) => {
-    if (viewTransitionRef.current) {
-      void viewTransitionRef.current.finished.then(() => runAfterTransition(fn));
-    } else {
-      fn();
-    }
+    const innerRunAfterTransition = (fn: () => void) => {
+      if (viewTransitionRef.current) {
+        void viewTransitionRef.current.finished.then(() => innerRunAfterTransition(fn));
+      } else {
+        fn();
+      }
+    };
+
+    innerRunAfterTransition(fn);
   }, []);
 
   return runAfterTransition;
@@ -47,29 +51,33 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
 
   const transitionToView = useEffectEvent(
     (location: Location<LocationState>, transition: TransitionType) => {
-      if (getReduceMotion()) {
-        updateView(location);
-        setTimeout(() => onTransitionEnd(location));
-        return;
-      }
-
-      viewTransitionRef.current = document.startViewTransition(() => {
-        updateView(location);
-      });
-
-      void viewTransitionRef.current.ready.then(() => animateNavigation(transition));
-      void viewTransitionRef.current.finished.then(() => {
-        const queueLocation = queuedLocationRef.current;
-
-        delete viewTransitionRef.current;
-        delete queuedLocationRef.current;
-
-        if (queueLocation) {
-          transitionToView(queueLocation.location, queueLocation.transition);
-        } else {
-          onTransitionEnd?.(location);
+      const runTransitionToView = () => {
+        if (getReduceMotion()) {
+          updateView(location);
+          setTimeout(() => onTransitionEnd(location));
+          return;
         }
-      });
+
+        viewTransitionRef.current = document.startViewTransition(() => {
+          updateView(location);
+        });
+
+        void viewTransitionRef.current.ready.then(() => animateNavigation(transition));
+        void viewTransitionRef.current.finished.then(() => {
+          const queueLocation = queuedLocationRef.current;
+
+          delete viewTransitionRef.current;
+          delete queuedLocationRef.current;
+
+          if (queueLocation) {
+            runTransitionToView();
+          } else {
+            onTransitionEnd?.(location);
+          }
+        });
+      };
+
+      runTransitionToView();
     },
   );
 
@@ -87,11 +95,6 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
     return () => {
       unobserveHistory?.();
     };
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
 
   return currentLocation;

@@ -57,7 +57,8 @@ export function SettingsGroup({
 
   const unsetError = useCallback((key: string) => {
     setErrors((prevErrors) => {
-      const { [key]: _, ...errors } = prevErrors;
+      const errors = { ...prevErrors };
+      delete errors[key];
       return errors;
     });
   }, []);

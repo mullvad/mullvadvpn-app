@@ -6,6 +6,7 @@ import { type GeographicalLocation } from '../../../../../features/locations/typ
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { ListItemProps } from '../../../../../lib/components/list-item';
+import { useEffectEvent } from '../../../../../lib/utility-hooks';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
 import { CustomListGeographicalLocationTrailingActions } from './custom-list-geographical-location-trailing-actions';
@@ -14,6 +15,7 @@ import {
   useCustomListGeographicalLocationContext,
 } from './CustomListGeographicalLocationContext';
 import { useHandleSelectLocationInCustomList } from './hooks';
+
 export type CustomListGeographicalLocationProps = Pick<ListItemProps, 'level' | 'position'> & {
   disabled?: boolean;
   location: GeographicalLocation;
@@ -30,8 +32,18 @@ function CustomListGeographicalLocationImpl({
   const showChildren = locationChildren.length > 0 && expanded;
   const disabled = disabledProp || location.disabled || loading;
 
+  // TODO: Remove the use of useEffectEvent. This is used as an escape hatch
+  // in order to be able to continue setting state from a useEffect without
+  // lint errors.
+  //
+  // The entire logic should be rewritten to no longer depend on setting
+  // state from an effect.
+  const setExpandedEffectEvent = useEffectEvent((value: boolean) => {
+    setExpanded(value);
+  });
+
   useEffect(() => {
-    setExpanded(location.expanded);
+    setExpandedEffectEvent(location.expanded);
   }, [location.expanded]);
 
   const handleSelectLocationInCustomList = useHandleSelectLocationInCustomList();

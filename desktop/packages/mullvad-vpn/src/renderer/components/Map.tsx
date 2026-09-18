@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { TunnelState } from '../../shared/daemon-rpc-types';
@@ -96,43 +96,50 @@ function MapInner(props: MapInnerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(undefined);
 
   // The constant is only used for the width for the first frame that is rendered.
-  const width = applyPixelRatio(canvasRef.current?.clientWidth ?? 320);
+  const [width, setWidth] = useState(applyPixelRatio(320));
+  useEffect(() => {
+    if (canvasRef.current?.clientWidth) {
+      setWidth(applyPixelRatio(canvasRef.current?.clientWidth));
+    }
+  }, [canvasRef]);
 
   // The constant is only used for the height for the first frame that is rendered.
-  const height = applyPixelRatio(canvasRef.current?.clientHeight ?? 493);
+  const [height, setHeight] = useState(applyPixelRatio(493));
+  useEffect(() => {
+    if (canvasRef.current?.clientHeight) {
+      setHeight(applyPixelRatio(canvasRef.current?.clientHeight));
+    }
+  }, [canvasRef]);
 
   // Hack to rerender when window size changes or when ref is set.
   const [onSizeChangeImpl, sizeChangeCounter] = useRerenderer();
   const onSizeChange = useEffectEvent(onSizeChangeImpl);
 
-  const animationFrameCallback = useEffectEvent((now: number) => {
-    now *= 0.001; // convert to seconds
+  const render = useCallback(() => {
+    const runAnimations = (now: number) => {
+      now *= 0.001; // convert to seconds
 
-    // Propagate location change to the map
-    if (newParams.current) {
-      mapRef.current?.setLocation(
-        newParams.current.location,
-        newParams.current.connectionState,
-        now,
-        props.animate,
-      );
-      newParams.current = undefined;
-    }
+      // Propagate location change to the map
+      if (newParams.current) {
+        mapRef.current?.setLocation(
+          newParams.current.location,
+          newParams.current.connectionState,
+          now,
+          props.animate,
+        );
+        newParams.current = undefined;
+      }
 
-    mapRef.current?.draw(now);
+      mapRef.current?.draw(now);
 
-    // Stops rendering if pause is true. This happens when there is no ongoing movements
-    if (!pause.current) {
-      render();
-    }
-  });
+      // Stops rendering if pause is true. This happens when there is no ongoing movements
+      if (!pause.current) {
+        requestAnimationFrame(runAnimations);
+      }
+    };
 
-  // These lint rules are disabled for now because the react plugin for eslint does
-  // not understand that useEffectEvent should not be added to the dependency array.
-  // Enable these rules again when eslint can lint useEffectEvent properly.
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const render = useCallback(() => requestAnimationFrame(animationFrameCallback), []);
+    requestAnimationFrame(runAnimations);
+  }, [props.animate]);
 
   // This is called when the canvas has been rendered the first time and initializes the gl context
   // and the map.
@@ -141,7 +148,7 @@ function MapInner(props: MapInnerProps) {
       return;
     }
 
-    onSizeChange();
+    onSizeChangeImpl();
 
     const gl = canvas.getContext('webgl2', { antialias: true })!;
 
@@ -178,21 +185,11 @@ function MapInner(props: MapInnerProps) {
   useEffect(() => {
     addEventListener('resize', onSizeChange);
     return () => removeEventListener('resize', onSizeChange);
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const unsubscribe = window.ipc.window.listenScaleFactorChange(onSizeChange);
     return () => unsubscribe();
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const devicePixelRatio = window.devicePixelRatio;

@@ -1,5 +1,4 @@
 import react from 'eslint-plugin-react';
-import reactcompiler from 'eslint-plugin-react-compiler';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
@@ -8,6 +7,7 @@ import workspaceConfig from '../../eslint.config.mjs';
 export default [
   ...workspaceConfig,
   react.configs.flat.recommended,
+  reactHooks.configs.flat.recommended,
   { ignores: ['build/', 'build-standalone/'] },
   {
     files: ['**/*'],
@@ -29,15 +29,8 @@ export default [
   },
   {
     files: ['**/*.{js,mjs,ts,tsx}'],
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-compiler': reactcompiler,
-    },
     rules: {
       'react/jsx-no-bind': 'error',
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'error',
-      'react-compiler/react-compiler': 'error',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
     },
