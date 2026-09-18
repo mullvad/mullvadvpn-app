@@ -48,6 +48,7 @@ pub async fn negotiate_ephemeral_peers(
         ingress_timer_params: (lwo_version(config) == Some(LwoVersion::V2)).then(lwo_timer_params),
         timeout,
         handshake_timeout,
+        tcp_timeout: Some(handshake_timeout),
         // `Config` has a single private key, since some tunnels use one device for multihop.
         separate_exit_key: false,
     };

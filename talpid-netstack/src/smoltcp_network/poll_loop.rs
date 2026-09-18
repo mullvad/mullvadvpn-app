@@ -43,6 +43,7 @@ pub(super) enum SocketCmd {
     TcpConnect {
         addr: SocketAddr,
         response: oneshot::Sender<io::Result<SmoltcpTcpStream>>,
+        timeout: Option<Duration>,
     },
     CreateIcmpSocket {
         ident: u16,
@@ -306,10 +307,16 @@ impl SmoltcpStack {
 
     fn handle_cmd(&mut self, cmd: SocketCmd, notify: &Arc<Notify>) {
         match cmd {
-            SocketCmd::TcpConnect { addr, response } => {
+            SocketCmd::TcpConnect {
+                addr,
+                response,
+                timeout,
+            } => {
                 let rx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
                 let tx_buffer = tcp::SocketBuffer::new(vec![0u8; TCP_BUFFER_SIZE]);
                 let mut tcp_socket = tcp::Socket::new(rx_buffer, tx_buffer);
+
+                tcp_socket.set_timeout(timeout.map(Into::into));
 
                 let local_port = self
                     .next_local_port
@@ -427,6 +434,7 @@ mod tests {
             SocketCmd::TcpConnect {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
+                timeout: None,
             },
             &notify,
         );
@@ -475,6 +483,7 @@ mod tests {
             SocketCmd::TcpConnect {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
+                timeout: None,
             },
             &notify,
         );
@@ -529,6 +538,7 @@ mod tests {
             SocketCmd::TcpConnect {
                 addr: "10.0.0.2:1337".parse().unwrap(),
                 response: resp_tx,
+                timeout: None,
             },
             &notify,
         );

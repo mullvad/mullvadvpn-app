@@ -85,6 +85,8 @@ pub struct NegotiationConfig {
     pub ingress_timer_params: Option<TimerParams>,
     /// Time limit for the exchange with each config service.
     pub timeout: Duration,
+    /// TCP timeout. See [`talpid_netstack::smoltcp_network::SmoltcpHandle::tcp_connect`].
+    pub tcp_timeout: Option<Duration>,
     /// Time limit for the WireGuard handshake with each relay. A relay that does not complete a
     /// handshake in time is unreachable, so there is no point in waiting for [`Self::timeout`].
     pub handshake_timeout: Duration,
@@ -202,7 +204,7 @@ async fn negotiate_with_ingress<F: UdpTransportFactory>(
         .map_err(NegotiationError::Device)?;
 
     let result = tokio::select! {
-        result = request_ephemeral_peer_through(&net, config, ephemeral_key, negotiate) => result,
+        result = request_ephemeral_peer_through(net, config, ephemeral_key, negotiate) => result,
         error = fail_without_handshake(&device, config.handshake_timeout) => Err(error),
     };
     device.stop().await;
@@ -275,7 +277,7 @@ async fn negotiate_through_entry<F: UdpTransportFactory>(
     // The exit device reaches the exit relay through the entry relay, so it cannot complete a
     // handshake unless both relays are reachable.
     let result = tokio::select! {
-        result = request_ephemeral_peer_through(&net, config, exit_key, negotiate) => result,
+        result = request_ephemeral_peer_through(net, config, exit_key, negotiate) => result,
         error = fail_without_handshake(&exit_device, config.handshake_timeout) => Err(error),
     };
     entry_device.stop().await;
@@ -308,7 +310,7 @@ async fn fail_without_handshake(
 
 /// Request an ephemeral peer from the config service that is reached through `net`.
 async fn request_ephemeral_peer_through(
-    net: &SmoltcpHandle,
+    net: SmoltcpHandle,
     config: &NegotiationConfig,
     ephemeral_key: &PrivateKey,
     negotiate: Negotiables,
@@ -316,6 +318,7 @@ async fn request_ephemeral_peer_through(
     let config_service = SocketAddr::new(IpAddr::V4(config.config_service_ip), CONFIG_SERVICE_PORT);
     let exchange = async {
         let stream = net
+            .set_timeout(config.tcp_timeout)
             .tcp_connect(config_service)
             .await
             .map_err(Error::TcpSocketError)?;
