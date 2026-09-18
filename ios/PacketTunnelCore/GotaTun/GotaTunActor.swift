@@ -532,6 +532,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             enterErrorState(reason: blockedStateErrorMapper.mapError(error))
             return
         }
+        logger.info("Selected relays: \(selectedRelays)")
 
         do {
             try await applyInterfaceSettingsIfNeeded(settings)
