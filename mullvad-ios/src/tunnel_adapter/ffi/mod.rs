@@ -147,7 +147,7 @@ impl GotaTunTunnel {
         config: GotaTunConfig,
         callback: Box<dyn GotaTunCallback>,
     ) -> Result<Arc<Self>, GotaTunFfiError> {
-        let tunnel_config = build_tunnel_config(tun_fd, config)?;
+        let params = build_tunnel_parameters(tun_fd, config)?;
         let runtime = crate::mullvad_ios_runtime().map_err(GotaTunFfiError::Internal)?;
 
         // Bind before returning, so a missing interface is reported to the caller instead of
@@ -157,7 +157,7 @@ impl GotaTunTunnel {
             .map_err(|e| GotaTunFfiError::BindSockets(e.to_string()))?;
 
         let handler: Arc<dyn TunnelCallbackHandler> = Arc::new(CallbackBridge(callback));
-        let adapter = IosTunnelAdapter::start(runtime, tunnel_config, udp, handler);
+        let adapter = IosTunnelAdapter::start(runtime, params, udp, handler);
         Ok(Arc::new(Self { adapter }))
     }
 
