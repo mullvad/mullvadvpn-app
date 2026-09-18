@@ -140,7 +140,10 @@
          </trusted-key>
          <trusted-key id="350C5D75D04AA599CBAD22348D5059F2B1927A9A" group="com.lemonappdev" name="konsist" version="0.17.3"/>
          <trusted-key id="3F05DDA9F317301E927136D417A27CE7A60FF5F0" group="io.opentelemetry"/>
-         <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4" group="org.jspecify" name="jspecify" version="1.0.0"/>
+         <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4">
+            <trusting group="org.jspecify" name="jspecify" version="1.0.0"/>
+            <trusting group="org.jspecify" name="jspecify" version="1.0.1"/>
+         </trusted-key>
          <trusted-key id="447C96E2C6AE137D1DC239B85A456ADE180A42C5">
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.23.0"/>
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.24.0"/>
@@ -163,6 +166,7 @@
          <trusted-key id="54A26BFDC7ECDD39BA4C123AC3BAB45F4AF71FAB" group="io.opencensus" name="opencensus-proto" version="0.2.0"/>
          <trusted-key id="5897253BEA3046AEEA95A067E93671C7272B7B3F" group="org.jdom" name="jdom2" version="2.0.6"/>
          <trusted-key id="5CBA19E56141E78D54BF716F08A4A4958D61FC3D" group="io.kotest"/>
+         <trusted-key id="5DD80B0DDCCBE005F0A47FD66751E1A6E2001B8D" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="5F6C2148AD4911FE308110E5F0D0AE433308B042">
             <trusting group="dev.detekt"/>
             <trusting group="io.gitlab.arturbosch.detekt"/>
@@ -262,7 +266,10 @@
          <trusted-key id="BC87A3FD0A54480F0BADBEBD21939FF0CA2A6567" group="commons-codec" name="commons-codec" version="1.15"/>
          <trusted-key id="BCC135FC7ED8214F823D73E97FE9900F412D622E" group="com.google.flatbuffers" name="flatbuffers-java" version="1.12.0"/>
          <trusted-key id="BDB5FA4FE719D787FB3D3197F6D4A1D411E9D1AE" group="^com[.]google($|([.].*))" regex="true"/>
-         <trusted-key id="BF3A87D91B70BE32CAD64A2645D0CAA6D26B0F7D" group="com.palantir.javapoet" name="javapoet" version="0.12.0"/>
+         <trusted-key id="BF3A87D91B70BE32CAD64A2645D0CAA6D26B0F7D">
+            <trusting group="com.palantir.javapoet" name="javapoet" version="0.12.0"/>
+            <trusting group="com.palantir.javapoet" name="javapoet" version="0.19.0"/>
+         </trusted-key>
          <trusted-key id="C0612048F3393B80B22639B4F067A2FD751AE3E4" group="io.github.davidburstrom.contester" name="contester-breakpoint" version="0.2.0"/>
          <trusted-key id="C3259D20DAEC4ACE6D57CC83340B090F727518D8" group="com.google.j2objc" name="j2objc-annotations" version="3.1"/>
          <trusted-key id="C6F7D1C804C821F49AF3BFC13AD93C3C677A106E" group="io.perfmark" name="perfmark-api"/>
