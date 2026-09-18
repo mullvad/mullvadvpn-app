@@ -24,6 +24,7 @@ use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
+    time::Duration,
 };
 use tokio::{
     sync::{Notify, mpsc, oneshot},
@@ -78,6 +79,7 @@ pub fn smoltcp_network(
     let handle = SmoltcpHandle {
         cmd_tx,
         notify: notify.clone(),
+        timeout: None,
     };
 
     let poll_task = tokio::spawn(poll_loop(
@@ -107,6 +109,7 @@ impl Drop for SmoltcpNetworkGuard {
 pub struct SmoltcpHandle {
     cmd_tx: mpsc::Sender<SocketCmd>,
     notify: Arc<Notify>,
+    timeout: Option<Duration>,
 }
 
 impl SmoltcpHandle {
@@ -115,15 +118,26 @@ impl SmoltcpHandle {
     /// The returned stream may be used immediately. Reads will pend until the
     /// TCP handshake completes and data arrives. Writes are buffered and
     /// flushed once the connection is established.
-    pub async fn tcp_connect(&self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
+    pub async fn tcp_connect(self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
         let (tx, rx) = oneshot::channel();
+        let timeout = self.timeout;
         self.cmd_tx
-            .send(SocketCmd::TcpConnect { addr, response: tx })
+            .send(SocketCmd::TcpConnect {
+                addr,
+                response: tx,
+                timeout,
+            })
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop closed"))?;
         self.notify.notify_one();
         rx.await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop dropped"))?
+    }
+
+    /// See [`smoltcp::socket::tcp::Socket::set_timeout`].
+    pub fn set_timeout(mut self, timeout: Option<Duration>) -> Self {
+        self.timeout = timeout;
+        self
     }
 
     /// Create an ICMP socket bound to the given identifier.
