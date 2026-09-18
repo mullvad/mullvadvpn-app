@@ -10,9 +10,11 @@ license.workspace = true
 am-i-mullvad-client = { path = "../am-i-mullvad-client" }
 anyhow = "1.0.99"
 clap = { workspace = true, features = ["derive"] }
-ping = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 tokio = { workspace = true, features = ["rt", "time"] }
+
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+ping = { workspace = true }
 
 [lints]
 workspace = true
