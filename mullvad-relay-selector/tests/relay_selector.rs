@@ -1034,8 +1034,9 @@ mod relay_selection {
                 latitude: 59.3289,
                 longitude: 18.0649,
             };
+            let wireguard_port_range = 443..=443;
             let wireguard = EndpointData {
-                port_ranges: vec![443..=443],
+                port_ranges: vec![wireguard_port_range],
                 shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
                 ..Default::default()
             };
@@ -1364,7 +1365,8 @@ mod partition_relays {
             String::new(),
         ));
 
-        relay_list.inner.wireguard.shadowsocks_port_ranges = vec![100..=200];
+        let shadowsocks_port_range = 100..=200;
+        relay_list.inner.wireguard.shadowsocks_port_ranges = vec![shadowsocks_port_range];
         relay_list
             .add_relay("shadowsocks_extra_ipv6")
             .endpoint_data
