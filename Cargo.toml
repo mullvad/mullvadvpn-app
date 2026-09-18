@@ -38,6 +38,7 @@ members = [
   "talpid-future",
   "talpid-macos",
   "talpid-net",
+  "talpid-netstack",
   "talpid-platform-metadata",
   "talpid-routing",
   "talpid-time",

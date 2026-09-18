@@ -1,10 +1,11 @@
 //! A userspace IP networking stack built on smoltcp, providing TCP and ICMP
 //! sockets whose traffic is surfaced as gotatun [`IpSend`]/[`IpRecv`] streams.
 //!
-//! This is used on iOS where the tunnel process cannot bind sockets to the
-//! tunnel device directly. Instead, smoltcp generates raw IP packets that are
-//! fed into a GotaTun device via [`IpRecv`], and decrypted return traffic is
-//! fed back via [`IpSend`].
+//! This lets a process talk through a tunnel without binding sockets to the
+//! tunnel device, which is not possible on iOS, and without depending on the
+//! OS to route traffic into the tunnel. Instead, smoltcp generates raw IP
+//! packets that are fed into a GotaTun device via [`IpRecv`], and decrypted
+//! return traffic is fed back via [`IpSend`].
 
 mod device;
 mod icmp_socket;
@@ -23,6 +24,7 @@ use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
+    time::Duration,
 };
 use tokio::{
     sync::{Notify, mpsc, oneshot},
@@ -114,10 +116,22 @@ impl SmoltcpHandle {
     /// The returned stream may be used immediately. Reads will pend until the
     /// TCP handshake completes and data arrives. Writes are buffered and
     /// flushed once the connection is established.
-    pub async fn tcp_connect(&self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
+    ///
+    /// # Arguments
+    ///
+    /// * `timeout` - See [`smoltcp::socket::tcp::Socket::set_timeout`].
+    pub async fn tcp_connect(
+        &self,
+        addr: SocketAddr,
+        timeout: Option<Duration>,
+    ) -> io::Result<SmoltcpTcpStream> {
         let (tx, rx) = oneshot::channel();
         self.cmd_tx
-            .send(SocketCmd::TcpConnect { addr, response: tx })
+            .send(SocketCmd::TcpConnect {
+                addr,
+                response: tx,
+                timeout,
+            })
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop closed"))?;
         self.notify.notify_one();

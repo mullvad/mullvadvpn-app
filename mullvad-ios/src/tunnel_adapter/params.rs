@@ -1,25 +1,15 @@
 use std::{
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     time::Duration,
 };
 
-use gotatun::{
-    packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
-    tun::MtuWatcher,
-    x25519::StaticSecret,
-};
 use ipnetwork::IpNetwork;
-
-use crate::gotatun::smoltcp_network::SmoltcpNetworkConfig;
+use talpid_netstack::smoltcp_network::SmoltcpNetworkConfig;
 
 /// WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
 pub const WIREGUARD_OVERHEAD: u16 = 8 + 32;
 
-/// Parameters for a tunnel, as handed over by the FFI.
-///
-/// These are never modified once handed over. The configuration of each GotaTun device is
-/// derived from them together with the state negotiated with the relays and the obfuscator.
-#[derive(Debug, Clone)]
+/// Configuration for a single tunnel connection attempt.
 pub struct TunnelParameters {
     pub tun_fd: i32,
     pub private_key: [u8; 32],
@@ -54,46 +44,20 @@ impl TunnelParameters {
         Duration::from_secs(self.establish_timeout_secs.max(1) as u64)
     }
 
-    pub(super) fn is_multihop(&self) -> bool {
-        self.entry_peer.is_some()
-    }
-
     /// The relay the device talks to directly: the entry in multihop, otherwise the exit.
     pub(super) fn ingress_peer(&self) -> &PeerParameters {
         self.entry_peer.as_ref().unwrap_or(&self.exit_peer)
     }
-
-    pub(super) fn device_key(&self) -> StaticSecret {
-        StaticSecret::from(self.private_key)
-    }
-
-    /// MTU of the entry device in multihop: the tunnel MTU plus the entry hop's per-packet
-    /// overhead.
-    pub(super) fn entry_mtu(&self, entry: &PeerParameters) -> MtuWatcher {
-        MtuWatcher::new(self.mtu)
-            .increase(multihop_overhead(entry.endpoint))
-            .expect("MTU overflow")
-    }
 }
 
-/// Per-packet overhead the entry hop adds to the exit device's MTU budget.
-pub(super) fn multihop_overhead(entry_endpoint: SocketAddr) -> u16 {
-    let overhead = match entry_endpoint.ip() {
-        IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-        IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-    };
-    overhead as u16
-}
-
-#[derive(Clone, Debug)]
 pub struct PeerParameters {
     pub public_key: [u8; 32],
     pub endpoint: SocketAddr,
     pub allowed_ips: Vec<IpNetwork>,
 }
 
-/// Obfuscation method for the connection to the ingress relay.
-#[derive(Debug, Clone)]
+/// Obfuscation configuration for the tunnel.
+#[cfg_attr(test, derive(Debug))]
 pub enum ObfuscationParameters {
     Off,
     UdpOverTcp,
@@ -147,24 +111,5 @@ pub(crate) mod tests {
         assert_eq!(p.smoltcp_mtu(), 1280 - WIREGUARD_OVERHEAD);
         p.mtu = 10; // smaller than the overhead
         assert_eq!(p.smoltcp_mtu(), 0);
-    }
-
-    #[test]
-    fn multihop_overhead_is_larger_for_ipv6() {
-        let v4 = multihop_overhead("1.2.3.4:51820".parse().unwrap());
-        let v6 = multihop_overhead("[2001:db8::1]:51820".parse().unwrap());
-        assert!(
-            v6 > v4,
-            "IPv6 header is larger than IPv4 (v4={v4}, v6={v6})"
-        );
-        assert_eq!((v6 - v4) as usize, Ipv6Header::LEN - Ipv4Header::LEN);
-    }
-
-    #[test]
-    fn ingress_peer_is_entry_in_multihop_else_exit() {
-        let mut p = params();
-        assert_eq!(p.ingress_peer().endpoint, p.exit_peer.endpoint);
-        p.entry_peer = Some(peer("9.9.9.9:51820"));
-        assert_eq!(p.ingress_peer().endpoint, "9.9.9.9:51820".parse().unwrap());
     }
 }

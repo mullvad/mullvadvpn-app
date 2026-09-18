@@ -16,10 +16,12 @@ use talpid_types::net::{
 };
 use tokio::sync::oneshot;
 use tunnel_obfuscation::{
-    ObfuscatedTransport, create_transport, lwo,
+    create_transport, lwo,
     multiplexer::{self, Multiplexer, Transport},
     quic, shadowsocks, udp2tcp,
 };
+
+pub use tunnel_obfuscation::gotatun_transport::RunningObfuscation;
 
 pub enum Obfuscator {
     Single(RunningObfuscation),
@@ -183,16 +185,6 @@ pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> O
             version: settings.version,
         },
     }
-}
-
-/// A running obfuscated transport.
-#[derive(Clone)]
-pub enum RunningObfuscation {
-    /// Rewrite each datagram in place on its way out, over GotaTun's own socket.
-    Lwo(lwo::Settings),
-
-    /// Carry the datagrams through this transport, which has a socket of its own.
-    Transport(Arc<dyn ObfuscatedTransport>),
 }
 
 /// Set up the obfuscation for `settings`.
