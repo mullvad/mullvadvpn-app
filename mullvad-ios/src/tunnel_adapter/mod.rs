@@ -230,12 +230,12 @@ pub(crate) enum TunnelAdapterChannelCommand {
 struct ActiveConnection {
     devices: Devices,
     transport_provider: BoundUdpTransports,
+    /// When the tunnel was last suspended, to decide whether to restart the obfuscator on wake.
+    last_suspended_at: std::sync::Mutex<Option<talpid_time::Instant>>,
     obfuscation: ObfuscatingTransports,
     config: TunnelParameters,
     /// Key the ingress device handshakes with, which LWO obfuscates for.
     ingress_public_key: PublicKey,
-    /// When the tunnel was last suspended, to decide whether to restart the obfuscator on wake.
-    last_suspended_at: std::sync::Mutex<Option<talpid_time::Instant>>,
 }
 
 impl ActiveConnection {
@@ -432,10 +432,10 @@ impl IosTunnelAdapter {
         let connection = ActiveConnection {
             devices,
             transport_provider: udp,
+            last_suspended_at: std::sync::Mutex::new(None),
             obfuscation,
             config,
             ingress_public_key,
-            last_suspended_at: std::sync::Mutex::new(None),
         };
         if stopped.load(Ordering::SeqCst) {
             connection.devices.stop().await;
