@@ -1,9 +1,21 @@
-use std::{net::IpAddr, str};
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    ptr::null_mut,
+};
 
 use anyhow::{Context, anyhow};
 use futures::{FutureExt, StreamExt, select, stream::FuturesUnordered};
 
 use tokio::time::sleep;
+use windows_sys::Win32::{
+    Foundation::{GetLastError, HANDLE, INVALID_HANDLE_VALUE},
+    NetworkManagement::IpHelper::{
+        ICMP_ECHO_REPLY, ICMPV6_ECHO_REPLY_LH, IP_GENERAL_FAILURE, IP_OPTION_INFORMATION,
+        IP_SUCCESS, IP_TTL_EXPIRED_TRANSIT, Icmp6CreateFile, Icmp6SendEcho2, IcmpCloseHandle,
+        IcmpCreateFile, IcmpSendEcho2Ex,
+    },
+    Networking::WinSock::{AF_INET6, IN6_ADDR, IN6_ADDR_0, SOCKADDR_IN6},
+};
 
 use crate::{
     LeakInfo, LeakStatus,
@@ -11,13 +23,7 @@ use crate::{
     util::{Ip, get_interface_ip},
 };
 
-/// Implementation of traceroute using `ping.exe`
-///
-/// This monstrosity exists because the Windows firewall is not helpful enough to allow us to
-/// permit a process (the daemon) to receive ICMP TimeExceeded packets. We can get around this by
-/// using `ping.exe`, which does work for some reason. My best guess is that it has special kernel
-/// access to be able to do this.
-pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
+pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     let ip_version = match opt.destination {
         IpAddr::V4(..) => Ip::v4(),
         IpAddr::V6(..) => Ip::v6(),
@@ -35,50 +41,114 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         ping_tasks.push(async move {
             sleep(probe_delay).await;
 
-            log::debug!("sending probe packet (ttl={ttl})");
-
+            let destination = opt.destination;
             // ping.exe will send ICMP Echo packets to the destination, and since it's running in
             // the kernel it will be able to receive TimeExceeded responses.
-            let ping_path = r"C:\Windows\System32\ping.exe";
-            let output = tokio::process::Command::new(ping_path)
-                .args(["-i", &ttl.to_string()])
-                .args(["-n", "1"]) // number of pings
-                .args(["-w", &SEND_TIMEOUT.as_millis().to_string()])
-                .args(["-S", &interface_ip.to_string()]) // bind to interface IP
-                .arg(opt.destination.to_string())
-                .kill_on_drop(true)
-                .output()
-                .await
-                .context(anyhow!("Failed to execute {ping_path}"))?;
+            tokio::task::spawn_blocking(move || -> Result<Option<IpAddr>, anyhow::Error> {
+                log::debug!("sending probe packet (ttl={ttl})");
 
-            let output_err = || anyhow!("Unexpected output from `ping.exe`");
+                let output_err = || anyhow!("Unexpected error while pinging`");
+                let options = IP_OPTION_INFORMATION {
+                    Ttl: ttl as u8,
+                    ..Default::default()
+                };
 
-            let stdout = str::from_utf8(&output.stdout).with_context(output_err)?;
-            let _stderr = str::from_utf8(&output.stderr).with_context(output_err)?;
+                match (destination, interface_ip) {
+                    (IpAddr::V4(ipv4_destination_addr), IpAddr::V4(ipv4_source_addr)) => {
+                        let reply_size = std::mem::size_of::<ICMP_ECHO_REPLY>();
+                        let mut reply = ICMP_ECHO_REPLY::default();
 
-            log::trace!("ping stdout: {stdout}");
-            log::trace!("ping stderr: {_stderr}");
+                        let handle = IcmpHandle::create().with_context(output_err)?;
 
-            // Dumbly parse stdout for a line that looks like this:
-            // "Reply from <ip>: TTL expired"
+                        // SAFETY: handle has been checked for validity.
+                        let replies = unsafe {
+                            IcmpSendEcho2Ex(
+                                handle.as_raw_handle(),
+                                null_mut(),
+                                None,
+                                null_mut(),
+                                ipv4_source_addr.to_bits().to_be(),
+                                ipv4_destination_addr.to_bits().to_be(),
+                                null_mut(),
+                                0,
+                                &raw const options,
+                                (&raw mut reply).cast(),
+                                reply_size as u32,
+                                SEND_TIMEOUT.as_millis() as u32,
+                            )
+                        };
 
-            if !stdout.contains("TTL expired") {
-                // No "TTL expired" means we did not receive any TimeExceeded replies.
-                return Ok(None);
-            }
+                        if replies == 0 {
+                            // SAFETY: GetLastError() is always safe to call.
+                            let error_code = unsafe { GetLastError() };
+                            // For some reason. Windows will return an IP_GENERAL_FAILURE here instead of where it is supposed to in the ICMP_ECHO_REPLY.Status field. IP_GENERAL_FAILURE should mean that the firewall blocked the route.
+                            if error_code == IP_GENERAL_FAILURE {
+                                return Ok(None);
+                            } else {
+                                return Err(std::io::Error::from_raw_os_error(error_code as i32))
+                                    .with_context(output_err);
+                            }
+                        }
 
-            // NOTE: for IPv6, ping outputs the incorrect address here.
-            // No way to work around that unfortunately.
-            let (ip, ..) = stdout
-                .split_once("Reply from ")
-                .and_then(|(.., s)| s.split_once(": TTL expired"))
-                .with_context(output_err)?;
+                        // There are many possible return values that would indicate a possible leak, but these two statuses indicate a definite leak and should occur during at least one of the ping attempts.
+                        if reply.Status == IP_SUCCESS || reply.Status == IP_TTL_EXPIRED_TRANSIT {
+                            return Ok(Some(IpAddr::V4(Ipv4Addr::from_bits(reply.Address))));
+                        }
 
-            let ip: IpAddr = ip
-                .parse()
-                .context("`ping.exe` outputted an invalid IP address")?;
+                        Ok(None)
+                    }
+                    (IpAddr::V6(ipv6_destination_addr), IpAddr::V6(ipv6_source_addr)) => {
+                        let source = to_sockaddr6(ipv6_source_addr);
+                        let destination = to_sockaddr6(ipv6_destination_addr);
 
-            anyhow::Ok(Some(ip))
+                        let reply_size = std::mem::size_of::<ICMPV6_ECHO_REPLY_LH>();
+                        let mut reply = ICMPV6_ECHO_REPLY_LH::default();
+
+                        let handle = IcmpHandle::create_v6().with_context(output_err)?;
+
+                        // SAFETY: handle has been checked for validity.
+                        let replies = unsafe {
+                            Icmp6SendEcho2(
+                                handle.as_raw_handle(),
+                                null_mut(),
+                                None,
+                                null_mut(),
+                                &raw const source,
+                                &raw const destination,
+                                null_mut(),
+                                0,
+                                &raw const options,
+                                (&raw mut reply).cast(),
+                                reply_size as u32,
+                                SEND_TIMEOUT.as_millis() as u32,
+                            )
+                        };
+
+                        if replies == 0 {
+                            // SAFETY: GetLastError() is always safe to call.
+                            let error_code = unsafe { GetLastError() };
+                            // For some reason. Windows will return an IP_GENERAL_FAILURE here instead of where it is supposed to in the ICMP_ECHO_REPLY.Status field. IP_GENERAL_FAILURE should mean that the firewall blocked the route.
+                            if error_code == IP_GENERAL_FAILURE {
+                                return Ok(None);
+                            } else {
+                                return Err(std::io::Error::from_raw_os_error(error_code as i32))
+                                    .with_context(output_err);
+                            }
+                        }
+
+                        // There are many possible return values that would indicate a possible leak, but these two statuses indicate a definite leak and should occur during at least one of the ping attempts.
+                        if reply.Status == IP_SUCCESS || reply.Status == IP_TTL_EXPIRED_TRANSIT {
+                            return Ok(Some(IpAddr::V6(Ipv6Addr::from_segments(
+                                reply.Address.sin6_addr,
+                            ))));
+                        }
+
+                        Ok(None)
+                    }
+                    _ => Err(anyhow!("Mismatched source and destination ip version")),
+                }
+            })
+            .await?
         });
     }
 
@@ -98,5 +168,57 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
     select! {
         _ = sleep(LEAK_TIMEOUT).fuse() => Ok(LeakStatus::NoLeak),
         result = wait_for_first_leak.fuse() => result,
+    }
+}
+
+fn to_sockaddr6(addr: Ipv6Addr) -> SOCKADDR_IN6 {
+    SOCKADDR_IN6 {
+        sin6_family: AF_INET6,
+        sin6_addr: IN6_ADDR {
+            u: IN6_ADDR_0 {
+                Byte: addr.octets(),
+            },
+        },
+        ..Default::default()
+    }
+}
+
+struct IcmpHandle {
+    inner: HANDLE,
+}
+
+impl IcmpHandle {
+    pub fn create() -> std::io::Result<Self> {
+        //SAFETY: It is always safe to call IcmpCreateFile()
+        let handle = unsafe { IcmpCreateFile() };
+        if handle == INVALID_HANDLE_VALUE {
+            return Err(std::io::Error::last_os_error());
+        }
+
+        Ok(Self { inner: handle })
+    }
+
+    pub fn create_v6() -> std::io::Result<Self> {
+        //SAFETY: It is always safe to call Icmp6CreateFile()
+        let handle = unsafe { Icmp6CreateFile() };
+        if handle == INVALID_HANDLE_VALUE {
+            return Err(std::io::Error::last_os_error());
+        }
+
+        Ok(Self { inner: handle })
+    }
+
+    pub fn as_raw_handle(&self) -> HANDLE {
+        self.inner
+    }
+}
+
+impl Drop for IcmpHandle {
+    fn drop(&mut self) {
+        // SAFETY: This type can was created through create or create_v6, which always have a valid handle.
+        unsafe {
+            // This function can technically error according to the documentation, but there isn't anything that can be done about that and the worst consequence would be a leak.
+            IcmpCloseHandle(self.inner);
+        }
     }
 }
