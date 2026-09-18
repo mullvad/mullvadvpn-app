@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -376,6 +378,8 @@ private fun Content(
             }
         }
 
+        // To improve animations all content blockers are in one item instead of each blocker being
+        // its own item.
         item(key = ContentKey.DNS_CONTENT_BLOCKERS) {
             ContentBlockers(
                 focusDnsBlockersRequester = focusDnsBlockersRequester,
@@ -507,6 +511,7 @@ private fun LazyItemScope.ContentBlockersHeader(
         },
         backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.DNS_CONTENT_BLOCKERS),
     )
+    HorizontalDivider(modifier = Modifier.animateItem(), color = Color.Transparent)
 }
 
 @Suppress("LongMethod", "LongParameterList")
@@ -613,6 +618,7 @@ private fun LazyItemScope.ContentBlocker(
         onCellClicked = { onClicked(it) },
         onInfoClicked = onInfoClicked,
     )
+    HorizontalDivider(modifier = Modifier.animateItem(), color = Color.Transparent)
 }
 
 @Composable
