@@ -38,7 +38,7 @@ use talpid_types::{
     net::wireguard::{PresharedKey, PrivateKey, PublicKey},
 };
 use tokio::sync::{
-    Mutex, Notify,
+    Mutex,
     mpsc::{UnboundedReceiver, UnboundedSender},
 };
 use tunnel_obfuscation::{
@@ -155,6 +155,7 @@ impl UdpTransportFactory for ObfuscatingTransports {
 pub(crate) enum TunnelAdapterChannelCommand {
     Wake,
     Suspend,
+    Stop,
     BumpSockets,
 }
 
@@ -341,6 +342,8 @@ impl ActiveConnection {
                 self.bump_sockets().await?;
                 Ok(false)
             }
+            // Callers intercept `Stop` before it reaches here.
+            TunnelAdapterChannelCommand::Stop => unreachable!(),
         }
     }
 }
@@ -348,7 +351,6 @@ impl ActiveConnection {
 /// A single tunnel connection attempt.
 pub struct IosTunnelAdapter {
     stopped: Arc<AtomicBool>,
-    stop_notify: Arc<Notify>,
     tx: UnboundedSender<TunnelAdapterChannelCommand>,
     task_handle: Option<tokio::task::JoinHandle<()>>,
 }
@@ -361,21 +363,12 @@ impl IosTunnelAdapter {
         callback: Arc<dyn TunnelCallbackHandler>,
     ) -> Self {
         let stopped = Arc::new(AtomicBool::new(false));
-        let stop_notify = Arc::new(Notify::new());
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
-        let task = runtime.spawn(Self::run(
-            config,
-            udp,
-            callback,
-            rx,
-            stopped.clone(),
-            stop_notify.clone(),
-        ));
+        let task = runtime.spawn(Self::run(config, udp, callback, rx, stopped.clone()));
 
         Self {
             stopped,
-            stop_notify,
             tx,
             task_handle: Some(task),
         }
@@ -385,7 +378,8 @@ impl IosTunnelAdapter {
         if self.stopped.swap(true, Ordering::SeqCst) {
             return;
         }
-        self.stop_notify.notify_waiters();
+        log::debug!("Stopping device");
+        _ = self.tx.send(TunnelAdapterChannelCommand::Stop);
         if let Some(handle) = &self.task_handle {
             handle.abort();
         }
@@ -421,11 +415,10 @@ impl IosTunnelAdapter {
         callback: Arc<dyn TunnelCallbackHandler>,
         rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: Arc<AtomicBool>,
-        stop_notify: Arc<Notify>,
     ) {
         // Every phase below returns a `Result`; the callback is fired exactly
         // once, here, based on the final outcome.
-        match Self::run_inner(config, udp, &callback, rx, &stopped, &stop_notify).await {
+        match Self::run_inner(config, udp, &callback, rx, &stopped).await {
             Ok(()) => Self::fire_timeout(&stopped, &callback),
             Err(
                 TunnelError::Timeout | TunnelError::NegotiatePQError(NegotiationError::Timeout),
@@ -440,7 +433,6 @@ impl IosTunnelAdapter {
         callback: &Arc<dyn TunnelCallbackHandler>,
         mut rx: UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
-        stop_notify: &Notify,
     ) -> Result<(), TunnelError> {
         // 1. Create the TUN device from the fd handed over by iOS.
         let tun_dev =
@@ -451,11 +443,7 @@ impl IosTunnelAdapter {
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = tokio::select! {
-            pq = Self::negotiate_pq(&config, &udp, obfuscation.clone()) => pq?,
-            // NOTE: Temporary WG devices are torn down in a spawned task here.
-            _ = stop_notify.notified() => return Err(TunnelError::Timeout),
-        };
+        let pq = Self::negotiate_pq(&config, &udp, obfuscation.clone()).await?;
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
@@ -508,7 +496,6 @@ impl IosTunnelAdapter {
             &connection.config,
             &mut rx,
             stopped,
-            stop_notify,
         )
         .await
         {
@@ -525,7 +512,7 @@ impl IosTunnelAdapter {
 
         callback.on_connected();
         log::info!("Tunnel connected - starting ongoing monitoring");
-        let result = Self::monitor_connectivity(&connection, &mut rx, stopped, stop_notify).await;
+        let result = Self::monitor_connectivity(&connection, &mut rx, stopped).await;
         connection.devices.stop().await;
         result?;
         Err(TunnelError::Timeout)
@@ -700,7 +687,6 @@ impl IosTunnelAdapter {
         config: &TunnelConfig,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
-        stop_notify: &Notify,
     ) -> Result<bool, TunnelError> {
         // Bind the socket to the pinger's ident so echo replies reach it.
         let ping_ident: u16 = rand::random();
@@ -720,7 +706,6 @@ impl IosTunnelAdapter {
         tokio::select! {
             result = Self::wait_for_connectivity(connection, &mut pinger, rx, stopped) => result,
             _ = tokio::time::sleep(establish_timeout) => Ok(false),
-            _ = stop_notify.notified() => Ok(false),
         }
     }
 
@@ -835,13 +820,15 @@ impl IosTunnelAdapter {
             tokio::select! {
                 _ = tokio::time::sleep(CONNECTIVITY_CHECK_INTERVAL) => {}
                 command = rx.recv() => {
-                    let Some(command) = command else {
+                    match command {
                         // The channel only closes with the adapter, which stops us.
-                        return Ok(false);
-                    };
-                    suspended = connection.handle_command(command).await?;
-                    // Give the tunnel the full ping interval again after it moved sockets.
-                    last_ping = Instant::now() - PING_INTERVAL;
+                        Some(TunnelAdapterChannelCommand::Stop) | None => return Ok(false),
+                        Some(command) => {
+                            suspended = connection.handle_command(command).await?;
+                            // Give the tunnel the full ping interval again after it moved sockets.
+                            last_ping = Instant::now() - PING_INTERVAL;
+                        }
+                    }
                 }
             }
         }
@@ -853,7 +840,6 @@ impl IosTunnelAdapter {
         connection: &ActiveConnection,
         rx: &mut UnboundedReceiver<TunnelAdapterChannelCommand>,
         stopped: &AtomicBool,
-        stop_notify: &Notify,
     ) -> Result<(), TunnelError> {
         let mut last_rx_bytes: usize = 0;
         let mut last_rx_time = Instant::now();
@@ -863,14 +849,17 @@ impl IosTunnelAdapter {
         loop {
             tokio::select! {
                 _ = tokio::time::sleep(Duration::from_secs(1)) => {}
-                _ = stop_notify.notified() => return Ok(()),
                 command = rx.recv() => {
-                    // The channel only closes when the adapter is dropped, which stops us.
-                    let Some(command) = command else { return Ok(()) };
-                    suspended = connection.handle_command(command).await?;
-                    // Do not hold a sleep, or the sockets it spanned, against the tunnel.
-                    last_rx_time = Instant::now();
-                    continue;
+                    match command {
+                        // The channel only closes when the adapter is dropped, which stops us.
+                        Some(TunnelAdapterChannelCommand::Stop) | None => return Ok(()),
+                        Some(command) => {
+                            suspended = connection.handle_command(command).await?;
+                            // Do not hold a sleep, or the sockets it spanned, against the tunnel.
+                            last_rx_time = Instant::now();
+                            continue;
+                        }
+                    }
                 }
             }
 
