@@ -228,7 +228,7 @@ fn build_obfuscation(
     })
 }
 
-fn build_tunnel_config(
+fn build_tunnel_parameters(
     tun_fd: i32,
     config: GotaTunConfig,
 ) -> Result<TunnelParameters, GotaTunFfiError> {
