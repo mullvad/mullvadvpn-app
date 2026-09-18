@@ -114,10 +114,13 @@ extension AccessMethodViewModel {
                 header: "Direct",
                 preamble: NSLocalizedString("The app communicates with a Mullvad API server directly.", comment: ""),
                 body: [
-                    NSLocalizedString(
-                        "With the “Direct” method, the app communicates with a Mullvad API "
-                            + "server directly without any intermediate proxies.",
-                        comment: ""
+                    String(
+                        format: NSLocalizedString(
+                            "With the “%@” method, the app communicates with a Mullvad API "
+                                + "server directly without any intermediate proxies.",
+                            comment: ""
+                        ),
+                        "Direct"
                     ),
                     NSLocalizedString("This can be useful when you are not affected by censorship.", comment: ""),
                 ]
@@ -130,10 +133,14 @@ extension AccessMethodViewModel {
                     comment: ""
                 ),
                 body: [
-                    NSLocalizedString(
-                        "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a "
-                            + "Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.",
-                        comment: ""
+                    String(
+                        format: NSLocalizedString(
+                            "With the “%@” method, the app communicates with a Mullvad API server via a "
+                                + "Mullvad bridge server. It does this by sending the traffic obfuscated "
+                                + "by Shadowsocks.",
+                            comment: ""
+                        ),
+                        "Mullvad bridges"
                     ),
                     NSLocalizedString(
                         "This can be useful if the API is censored but Mullvad’s bridge servers are not.",
@@ -149,20 +156,26 @@ extension AccessMethodViewModel {
                     comment: ""
                 ),
                 body: [
-                    NSLocalizedString(
-                        "With the “Encrypted DNS proxy” method, the app will communicate with our "
-                            + "Mullvad API through a proxy address. It does this by retrieving "
-                            + "an address from a DNS over HTTPS (DoH) server and then using that "
-                            + "to reach our API servers.",
-                        comment: ""
+                    String(
+                        format: NSLocalizedString(
+                            "With the “%@” method, the app will communicate with our "
+                                + "Mullvad API through a proxy address. It does this by retrieving "
+                                + "an address from a DNS over HTTPS (DoH) server and then using that "
+                                + "to reach our API servers.",
+                            comment: ""
+                        ),
+                        "Encrypted DNS proxy"
                     ),
-                    NSLocalizedString(
-                        """
-                        If you are not connected to our VPN, then the Encrypted DNS proxy will \
-                        use your own non-VPN IP when connecting. The DoH servers are hosted by \
-                        one of the following providers: Quad9 or Cloudflare.
-                        """,
-                        comment: ""
+                    String(
+                        format: NSLocalizedString(
+                            """
+                            If you are not connected to our VPN, then the %@ will \
+                            use your own non-VPN IP when connecting. The DoH servers are hosted by \
+                            one of the following providers: Quad9 or Cloudflare.
+                            """,
+                            comment: ""
+                        ),
+                        "Encrypted DNS proxy"
                     ),
                 ]
             )
