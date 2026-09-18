@@ -9,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.fullReleaseArtifacts
 import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
@@ -399,10 +400,16 @@ registerReleaseTask(
     "fdroidRelease",
     appVersion,
     listOf("createOssProdReleaseDistApk"),
+    listOf("MullvadVPN-${appVersion.name}.apk"),
     skipDirtyCheck = true,
 )
 
-registerReleaseTask("fullRelease", appVersion, fullReleaseTasks(appVersion))
+registerReleaseTask(
+    "fullRelease",
+    appVersion,
+    fullReleaseTasks(appVersion),
+    fullReleaseArtifacts(appVersion.name),
+)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
