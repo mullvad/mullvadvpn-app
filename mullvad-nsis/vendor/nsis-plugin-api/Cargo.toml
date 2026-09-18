@@ -26,7 +26,8 @@ autobenches = false
 name = "nsis_plugin_api"
 path = "src/lib.rs"
 
-[target."cfg(windows)".dependencies]
+# Same condition the crate itself is compiled under.
+[target.'cfg(all(target_arch = "x86", target_os = "windows"))'.dependencies]
 nsis-fn = { path = "../nsis-fn" }
 windows-sys = { workspace = true, features = [
   "Win32_Foundation",
