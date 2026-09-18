@@ -118,6 +118,7 @@ impl ParametersGenerator {
 const ALLOWED_IN_TUNNEL_LAN_NETS: [IpNetwork; 2] = [
     // Net including the relay IPv4 gateway. Used for DNS, tunnel config service, and connectivity
     // check.
+    // This also includes SOCKS5 proxies.
     // Reserve all of `10/8` in case new services are added.
     IpNetwork::V4(Ipv4Network::new_checked(Ipv4Addr::new(10, 0, 0, 0), 8).unwrap()),
     // Net including the relay IPv6 gateway.
