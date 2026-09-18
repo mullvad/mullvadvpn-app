@@ -3,7 +3,6 @@
 use std::{
     io,
     net::SocketAddr,
-    num::NonZeroUsize,
     sync::atomic::{AtomicBool, Ordering},
 };
 
@@ -52,14 +51,7 @@ impl HopKeys {
         Self {
             private_key: StaticSecret::from(private_key.to_bytes()),
             preshared_key: negotiated.psk.as_ref().map(|psk| *psk.as_bytes()),
-            daita: negotiated.daita.map(|daita| DaitaSettings {
-                maybenot_machines: daita.client_machines,
-                max_decoy_frac: daita.max_decoy_frac,
-                max_delay_frac: daita.max_delay_frac,
-                // hardcoded values stolen from desktop
-                max_delayed_packets: const { NonZeroUsize::new(1024).unwrap() },
-                min_delay_capacity: 50,
-            }),
+            daita: negotiated.daita.as_ref().map(DaitaSettings::from),
         }
     }
 

@@ -1,6 +1,6 @@
 //! Conversions between [`gotatun`]-types and `talpid_wireguard`-types.
 
-use std::{num::NonZeroUsize, time::SystemTime};
+use std::time::SystemTime;
 
 use gotatun::device::Peer;
 use talpid_tunnel_config_client::DaitaSettings;
@@ -28,15 +28,7 @@ pub fn to_gotatun_peer(peer: &PeerConfig, daita: Option<&DaitaSettings>) -> Peer
     }
 
     if let Some(daita) = daita {
-        let daita = gotatun::device::daita::DaitaSettings {
-            maybenot_machines: daita.client_machines.clone(),
-            max_decoy_frac: daita.max_decoy_frac,
-            max_delay_frac: daita.max_delay_frac,
-            // TODO: tweak to sane values
-            max_delayed_packets: const { NonZeroUsize::new(1024).unwrap() },
-            min_delay_capacity: 50,
-        };
-        peer = peer.with_daita(daita);
+        peer = peer.with_daita(daita.into());
     }
 
     peer
