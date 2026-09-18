@@ -20,6 +20,7 @@ import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
 import utilities.registerReleaseTask
+import utilities.registerVerifyArtifactsTask
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -410,6 +411,8 @@ registerReleaseTask(
     fullReleaseTasks(appVersion),
     fullReleaseArtifacts(appVersion.name),
 )
+
+registerVerifyArtifactsTask(appVersion.name)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
