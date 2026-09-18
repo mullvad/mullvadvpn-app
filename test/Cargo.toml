@@ -50,7 +50,6 @@ tonic = "0.14.6"
 tower = "0.5.1"
 tun = "0.8.11"
 windows-registry = "0.6.1"
-windows-sys = "0.52.0"
 
 [workspace.lints.clippy]
 allow_attributes = "warn"
