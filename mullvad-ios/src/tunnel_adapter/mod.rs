@@ -7,6 +7,7 @@ pub(crate) mod tun_device;
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    pin::pin,
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
@@ -396,7 +397,21 @@ impl IosTunnelAdapter {
 
         // 2. Negotiate the PQ/DAITA ephemeral peer(s) over a smoltcp-only device,
         //    or fall back to the static device peer.
-        let pq = Self::negotiate_pq(&config, &udp, obfuscation.clone()).await?;
+        let pq = {
+            let mut negotiate_pq = pin!(Self::negotiate_pq(&config, &udp, obfuscation.clone()));
+            loop {
+                tokio::select! {
+                    pq = &mut negotiate_pq => break pq?,
+                    command = rx.recv() => match command {
+                        Some(TunnelAdapterChannelCommand::Stop) | None => {
+                            // NOTE: PQ devices are stopped when dropped
+                            return Err(TunnelError::Timeout);
+                        }
+                        Some(_) => {}
+                    },
+                }
+            }
+        };
         if stopped.load(Ordering::SeqCst) {
             // Cancelled externally; the outcome below is discarded since `run`
             // no-ops when it sees the tunnel is already stopped.
