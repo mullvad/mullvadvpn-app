@@ -120,6 +120,11 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
+    func addTime(accountNumber: String, days: Int) async {
+        let partnerAPIClient = PartnerAPIClient()
+        _ = await partnerAPIClient.addTime(accountNumber: accountNumber, days: days)
+    }
+
     /// Handle iOS add VPN configuration permission alert if presented, otherwise ignore
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
