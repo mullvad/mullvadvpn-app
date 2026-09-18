@@ -64,15 +64,24 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
 
 ARG RUST_VERSION=1.97.1
 
+# Pin and verify rustup version. When updating, get the checksum from ${RUSTUP_INIT_URL}.sha256
+ARG RUSTUP_VERSION=1.29.1
+ARG RUSTUP_INIT_SHA256=dda7234360b7f578ca8b0ddcb80145646fa61a67c1720a5abc7051b35c9fcb71
+
+ARG RUSTUP_INIT_URL=https://static.rust-lang.org/rustup/archive/$RUSTUP_VERSION/x86_64-unknown-linux-gnu/rustup-init
+
 # Install the Rust toolchain for both x86_64-unknown-linux-gnu and aarch64-unknown-linux-gnu,
 # plus x86_64-pc-windows-gnu for Windows cross-compilation/linting
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
-    sh -s -- -y \
+RUN curl --proto '=https' --tlsv1.2 -sSf -o rustup-init "$RUSTUP_INIT_URL" && \
+    echo "$RUSTUP_INIT_SHA256  rustup-init" | sha256sum -c - && \
+    chmod +x rustup-init && \
+    ./rustup-init -y \
     --default-toolchain $RUST_VERSION \
     --profile minimal \
     --component clippy \
     --target aarch64-unknown-linux-gnu \
-    --target x86_64-pc-windows-gnu
+    --target x86_64-pc-windows-gnu && \
+    rm rustup-init
 
 ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
