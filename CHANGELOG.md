@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
+- Perform the ephemeral peer exchange using smoltcp.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
