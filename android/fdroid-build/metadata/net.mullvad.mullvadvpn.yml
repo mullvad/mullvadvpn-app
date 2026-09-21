@@ -19,8 +19,8 @@ RepoType: git
 Repo: https://github.com/mullvad/mullvadvpn-app.git
 
 Builds:
-  - versionName: 'Reproducible'
-    versionCode: 1
+  - versionName: 'app-version-name'
+    versionCode: app-version-code
     commit: commit-hash
     timeout: 10800
     subdir: android/app
@@ -55,5 +55,5 @@ Builds:
 AutoUpdateMode: Version
 UpdateCheckMode: Tags ^android/[0-9]{4}\.[0-9]+$
 UpdateCheckData: dist-assets/android-version-code.txt|(\d+)|dist-assets/android-version-name.txt|(.+)
-CurrentVersion: 'Reproducible'
-CurrentVersionCode: 1
+CurrentVersion: 'app-version-name'
+CurrentVersionCode: app-version-code
