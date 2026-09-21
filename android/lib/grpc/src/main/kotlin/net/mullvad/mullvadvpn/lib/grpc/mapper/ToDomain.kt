@@ -34,6 +34,7 @@ import mullvad_daemon.management_interface.GeographicLocationConstraint
 import mullvad_daemon.management_interface.IpVersion
 import mullvad_daemon.management_interface.Location
 import mullvad_daemon.management_interface.LocationConstraint
+import mullvad_daemon.management_interface.LocationConstraint.Type
 import mullvad_daemon.management_interface.NormalRelaySettings
 import mullvad_daemon.management_interface.ObfuscationEndpoint
 import mullvad_daemon.management_interface.ObfuscationSettings
@@ -61,6 +62,7 @@ import mullvad_daemon.management_interface.TunnelState
 import mullvad_daemon.management_interface.VoucherSubmission
 import mullvad_daemon.management_interface.WireguardConstraints
 import mullvad_daemon.management_interface.WireguardEndpointData
+import mullvad_daemon.management_interface.single
 import mullvad_daemon.relay_selector.DiscardedRelay
 import mullvad_daemon.relay_selector.IncompatibleConstraints
 import mullvad_daemon.relay_selector.RelayPartitions
@@ -149,13 +151,13 @@ import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardE
 // Detekt; should try removing the @Suppress when Detekt 2.0 is stable).
 @Suppress("UnreachableCode")
 internal fun TunnelState.toDomain(): ModelTunnelState =
-    when {
-        disconnected != null -> disconnected.toDomain()
-        connecting != null -> connecting.toDomain()
-        connected != null -> connected.toDomain()
-        disconnecting != null -> disconnecting.toDomain()
-        error != null -> error.toDomain()
-        else -> error("Tunnelstate $this not supported")
+    when (state) {
+        is TunnelState.State.Connected -> state.value.toDomain()
+        is TunnelState.State.Connecting -> state.value.toDomain()
+        is TunnelState.State.Disconnected -> state.value.toDomain()
+        is TunnelState.State.Disconnecting -> state.value.toDomain()
+        is TunnelState.State.Error -> state.value.toDomain()
+        null -> error("TunnelState not be set")
     }
 
 private fun TunnelState.Connecting.toDomain(): ModelTunnelState.Connecting =
@@ -250,7 +252,7 @@ internal fun TunnelEndpoint.toDomain(): ModelTunnelEndpoint =
                 )
             },
         quantumResistant = quantum_resistant,
-        obfuscation = obfuscation?.single?.toDomain(),
+        obfuscation = obfuscation?.type?.single?.toDomain(),
         daita = daita,
     )
 
@@ -385,10 +387,11 @@ internal fun RelayOverride.toDomain(): ModelRelayOverride =
     )
 
 internal fun RelaySettings.toDomain(): ModelRelaySettings =
-    when {
-        custom != null -> throw IllegalArgumentException("CustomTunnelEndpoint is not supported")
-        normal != null -> ModelRelaySettings(normal.toDomain())
-        else -> throw NullPointerException("RelaySettings endpoint is null")
+    when (endpoint) {
+        is RelaySettings.Endpoint.Custom ->
+            throw IllegalArgumentException("CustomTunnelEndpoint is not supported")
+        is RelaySettings.Endpoint.Normal -> ModelRelaySettings(endpoint.value.toDomain())
+        null -> throw NullPointerException("RelaySettings endpoint is null")
     }
 
 @Suppress("UnsafeCallOnNullableType")
@@ -401,10 +404,10 @@ internal fun NormalRelaySettings.toDomain(): ModelRelayConstraints =
     )
 
 internal fun LocationConstraint.toDomain(): ModelConstraint<ModelRelayItemId> =
-    when {
-        custom_list != null -> ModelConstraint.Only(ModelCustomListId(custom_list))
-        location != null -> ModelConstraint.Only(location.toDomain())
-        else -> throw IllegalArgumentException("Invalid location constraint")
+    when (type) {
+        is Type.CustomList -> ModelConstraint.Only(ModelCustomListId(type.value))
+        is Type.Location -> ModelConstraint.Only(type.value.toDomain())
+        null -> throw IllegalArgumentException("Invalid location constraint")
     }
 
 @Suppress("ReturnCount")
@@ -692,25 +695,24 @@ internal fun AccessMethodSetting.toDomain(): ModelApiAccessMethodSetting =
         id = ModelApiAccessMethodId.fromString(id!!.value),
         name = ModelApiAccessMethodName.fromString(name),
         enabled = enabled,
-        apiAccessMethod = access_method.toDomain(),
+        apiAccessMethod = access_method!!.toDomain(),
     )
 
-internal fun AccessMethod?.toDomain(): ModelApiAccessMethod =
-    when {
-        this == null -> error("Access method is null")
-        direct != null -> ModelApiAccessMethod.Direct
-        bridges != null -> ModelApiAccessMethod.Bridges
-        encrypted_dns_proxy != null -> ModelApiAccessMethod.EncryptedDns
-        custom != null -> custom.toDomain()
-        else -> error("Type not found")
+internal fun AccessMethod.toDomain(): ModelApiAccessMethod =
+    when (access_method) {
+        is AccessMethod.AccessMethod.Bridges -> ModelApiAccessMethod.Bridges
+        is AccessMethod.AccessMethod.Custom -> access_method.value.toDomain()
+        is AccessMethod.AccessMethod.Direct -> ModelApiAccessMethod.Direct
+        is AccessMethod.AccessMethod.EncryptedDnsProxy -> ModelApiAccessMethod.EncryptedDns
+        null -> error("Type not found")
     }
 
 internal fun CustomProxy.toDomain(): ModelApiAccessMethod.CustomProxy =
-    when {
-        shadowsocks != null -> shadowsocks.toDomain()
-        socks5remote != null -> socks5remote.toDomain()
-        socks5local != null -> error("Socks5 local not supported")
-        else -> error("Custom proxy not found")
+    when (proxy_method) {
+        is CustomProxy.ProxyMethod.Shadowsocks -> proxy_method.value.toDomain()
+        is CustomProxy.ProxyMethod.Socks5local -> error("Socks5 local not supported")
+        is CustomProxy.ProxyMethod.Socks5remote -> proxy_method.value.toDomain()
+        null -> error("Custom proxy not found")
     }
 
 @Suppress("UnsafeCallOnNullableType")
@@ -773,11 +775,11 @@ internal fun Recents?.toDomain(): ModelRecents =
     }
 
 internal fun EntryRecent.toDomain(): ModelEntryRecent =
-    when {
-        location != null ->
-            ModelEntryRecent.Location((location.toDomain() as ModelConstraint.Only).value)
-        automatic != null -> ModelEntryRecent.Automatic
-        else -> error("Recent entry type must be set")
+    when (entry) {
+        is EntryRecent.Entry.Automatic -> ModelEntryRecent.Automatic
+        is EntryRecent.Entry.Location ->
+            ModelEntryRecent.Location((entry.value.toDomain() as ModelConstraint.Only).value)
+        null -> error("Recent entry type must be set")
     }
 
 internal fun ExitRecent.toDomain(): ModelExitRecent =

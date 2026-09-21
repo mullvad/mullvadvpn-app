@@ -287,23 +287,27 @@ class ManagementService(
             }
         }
 
-    private fun handleEvent(event: DaemonEvent) {
+    private fun handleEvent(daemonEvent: DaemonEvent) {
         if (extensiveLogging) {
-            Logger.v("Event: $event")
+            Logger.v("Event: $daemonEvent")
         }
-        when {
-            event.tunnel_state != null ->
-                _mutableTunnelState.update { event.tunnel_state.toDomain() }
-            event.settings != null -> _mutableSettings.update { event.settings.toDomain() }
-            event.relay_list != null -> _mutableRelayList.update { event.relay_list.toDomain() }
-            event.version_info != null ->
-                _mutableVersionInfo.update { event.version_info.toDomain() }
-            event.device != null && event.device.new_state != null ->
-                _mutableDeviceState.update { event.device.new_state.toDomain() }
-            event.new_access_method != null -> {
-                _mutableCurrentAccessMethod.update { event.new_access_method.toDomain() }
-            }
-            event.remove_device != null -> {}
+
+        when (val event = daemonEvent.event) {
+            is DaemonEvent.Event.Device ->
+                event.value.new_state?.let { deviceState ->
+                    _mutableDeviceState.update { deviceState.toDomain() }
+                }
+            is DaemonEvent.Event.NewAccessMethod ->
+                _mutableCurrentAccessMethod.update { event.value.toDomain() }
+            is DaemonEvent.Event.RelayList -> _mutableRelayList.update { event.value.toDomain() }
+            is DaemonEvent.Event.Settings -> _mutableSettings.update { event.value.toDomain() }
+            is DaemonEvent.Event.TunnelState ->
+                _mutableTunnelState.update { event.value.toDomain() }
+            is DaemonEvent.Event.VersionInfo ->
+                _mutableVersionInfo.update { event.value.toDomain() }
+            is DaemonEvent.Event.RemoveDevice,
+            is DaemonEvent.Event.LeakInfo,
+            null -> {}
         }
     }
 

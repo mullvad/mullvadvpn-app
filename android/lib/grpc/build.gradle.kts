@@ -42,6 +42,7 @@ wire {
         emitProtoReader32 = true
         escapeKotlinKeywords = true
         makeImmutableCopies = true
+        oneofMode = "sealed_class"
     }
 }
 

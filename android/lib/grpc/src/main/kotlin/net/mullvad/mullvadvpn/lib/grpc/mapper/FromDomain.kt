@@ -7,6 +7,7 @@ import mullvad_daemon.management_interface.AccessMethodSetting
 import mullvad_daemon.management_interface.CustomDnsOptions
 import mullvad_daemon.management_interface.CustomList
 import mullvad_daemon.management_interface.CustomProxy
+import mullvad_daemon.management_interface.CustomProxy.ProxyMethod
 import mullvad_daemon.management_interface.DaitaSettings
 import mullvad_daemon.management_interface.DefaultDnsOptions
 import mullvad_daemon.management_interface.DnsOptions
@@ -73,8 +74,10 @@ internal fun Constraint<RelayItemId>.fromDomain(): LocationConstraint =
         Constraint.Any -> LocationConstraint()
         is Constraint.Only ->
             when (val relayItemId = this@fromDomain.value) {
-                is CustomListId -> LocationConstraint(custom_list = relayItemId.value)
-                is ModelGeoLocationId -> LocationConstraint(location = relayItemId.fromDomain())
+                is CustomListId ->
+                    LocationConstraint(LocationConstraint.Type.CustomList(relayItemId.value))
+                is ModelGeoLocationId ->
+                    LocationConstraint(LocationConstraint.Type.Location(relayItemId.fromDomain()))
             }
     }
 
@@ -182,12 +185,14 @@ internal fun ModelOwnership.fromDomain(): Ownership =
 
 internal fun ModelRelaySettings.fromDomain(): RelaySettings =
     RelaySettings(
-        normal =
-            NormalRelaySettings(
-                wireguard_constraints = relayConstraints.wireguardConstraints.fromDomain(),
-                location = relayConstraints.location.fromDomain(),
-                ownership = relayConstraints.ownership.fromDomain(),
-                providers = relayConstraints.providers.fromDomain(),
+        endpoint =
+            RelaySettings.Endpoint.Normal(
+                NormalRelaySettings(
+                    wireguard_constraints = relayConstraints.wireguardConstraints.fromDomain(),
+                    location = relayConstraints.location.fromDomain(),
+                    ownership = relayConstraints.ownership.fromDomain(),
+                    providers = relayConstraints.providers.fromDomain(),
+                )
             )
     )
 
@@ -207,13 +212,16 @@ internal fun ModelNewAccessMethodSetting.fromDomain(): NewAccessMethodSetting =
     NewAccessMethodSetting(
         name = name.value,
         enabled = enabled,
-        access_method = AccessMethod(custom = apiAccessMethod.fromDomain()),
+        access_method =
+            AccessMethod(
+                access_method = AccessMethod.AccessMethod.Custom(apiAccessMethod.fromDomain())
+            ),
     )
 
 internal fun ModelCustomProxy.fromDomain(): CustomProxy =
     when (this) {
-        is ModelCustomProxy.Shadowsocks -> CustomProxy(shadowsocks = fromDomain())
-        is ModelCustomProxy.Socks5Remote -> CustomProxy(socks5remote = fromDomain())
+        is ModelCustomProxy.Shadowsocks -> CustomProxy(ProxyMethod.Shadowsocks(fromDomain()))
+        is ModelCustomProxy.Socks5Remote -> CustomProxy(ProxyMethod.Socks5remote(fromDomain()))
     }
 
 internal fun ModelCustomProxy.Socks5Remote.fromDomain(): Socks5Remote =
@@ -245,16 +253,15 @@ internal fun ApiAccessMethodSetting.fromDomain(): AccessMethodSetting =
     )
 
 internal fun ApiAccessMethod.fromDomain(): AccessMethod =
-    when (this) {
-        ApiAccessMethod.Bridges -> AccessMethod(bridges = AccessMethod.Bridges())
-        is ModelCustomProxy.Shadowsocks ->
-            AccessMethod(custom = CustomProxy(shadowsocks = fromDomain()))
-        is ModelCustomProxy.Socks5Remote ->
-            AccessMethod(custom = CustomProxy(socks5remote = fromDomain()))
-        ApiAccessMethod.Direct -> AccessMethod(direct = AccessMethod.Direct())
-        ApiAccessMethod.EncryptedDns ->
-            AccessMethod(encrypted_dns_proxy = AccessMethod.EncryptedDnsProxy())
-    }
+    AccessMethod(
+        when (this) {
+            ApiAccessMethod.Bridges -> AccessMethod.AccessMethod.Bridges(AccessMethod.Bridges())
+            is ModelCustomProxy -> AccessMethod.AccessMethod.Custom(fromDomain())
+            ApiAccessMethod.Direct -> AccessMethod.AccessMethod.Direct(AccessMethod.Direct())
+            ApiAccessMethod.EncryptedDns ->
+                AccessMethod.AccessMethod.EncryptedDnsProxy(AccessMethod.EncryptedDnsProxy())
+        }
+    )
 
 internal fun ModelShadowsocksObfuscationSettings.fromDomain(): ObfuscationSettings.Shadowsocks =
     when (val port = port) {
@@ -291,16 +298,16 @@ internal fun RelaySelectorPredicate.fromDomain(): Predicate =
     }
 
 internal fun RelaySelectorPredicate.SingleHop.fromDomain() =
-    Predicate(singlehop = entryConstraints.fromDomain())
+    Predicate(context = Predicate.Context.Singlehop(entryConstraints.fromDomain()))
 
 internal fun RelaySelectorPredicate.Autohop.fromDomain() =
-    Predicate(autohop = entryConstraints.fromDomain())
+    Predicate(context = Predicate.Context.Autohop(entryConstraints.fromDomain()))
 
 internal fun RelaySelectorPredicate.Entry.fromDomain() =
-    Predicate(entry = multihopConstraints.fromDomain())
+    Predicate(context = Predicate.Context.Entry(multihopConstraints.fromDomain()))
 
 internal fun RelaySelectorPredicate.Exit.fromDomain() =
-    Predicate(exit = multihopConstraints.fromDomain())
+    Predicate(context = Predicate.Context.Exit(multihopConstraints.fromDomain()))
 
 internal fun ModelMultihopConstraints.fromDomain(): MultiHopConstraints =
     MultiHopConstraints(
@@ -327,8 +334,8 @@ internal fun ModelDaitaSettings.fromDomain(): DaitaSettings = DaitaSettings(enab
 
 internal fun RelayItemId.fromDomain(): LocationConstraint =
     when (this) {
-        is CustomListId -> LocationConstraint(custom_list = value)
-        is ModelGeoLocationId -> LocationConstraint(location = fromDomain())
+        is CustomListId -> LocationConstraint(LocationConstraint.Type.CustomList(value))
+        is ModelGeoLocationId -> LocationConstraint(LocationConstraint.Type.Location(fromDomain()))
     }
 
 internal fun ModelCipher.fromDomain(): Shadowsocks.Cipher = Shadowsocks.Cipher(name = value)
