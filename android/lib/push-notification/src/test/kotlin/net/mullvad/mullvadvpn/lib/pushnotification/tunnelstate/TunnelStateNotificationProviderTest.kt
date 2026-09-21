@@ -152,7 +152,7 @@ class TunnelStateNotificationProviderTest {
         provider.notifications.test {
             val item = awaitItem() as NotificationUpdate.Notify<Notification.Tunnel>
 
-            // Then a Disconnected notification update is emitted with the pepare error
+            // Then a Disconnected notification update is emitted with the prepare error
             assertEquals(testNotificationId, item.notificationId)
             val expectedState = NotificationTunnelState.Disconnected(prepareError)
             assertEquals(expectedState, item.value.state)

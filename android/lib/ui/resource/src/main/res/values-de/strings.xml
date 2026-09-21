@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
     <string name="providers">Anbieter</string>
-    <string name="quantum_resistant_info_first_paragaph">Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern.</string>
-    <string name="quantum_resistant_info_second_paragaph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
+    <string name="quantum_resistant_info_first_paragraph">Diese Funktion macht den WireGuard-Tunnel resistent gegen mögliche Angriffe von Quantencomputern.</string>
+    <string name="quantum_resistant_info_second_paragraph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
     <string name="quantum_resistant_title">Quantenresistenter Tunnel</string>
     <string name="read_more">Mehr erfahren</string>
     <string name="read_more_here">Lesen Sie hier mehr dazu</string>
@@ -566,7 +566,7 @@
     <string name="warning">Warnung</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="when_needed">Bei Bedarf</string>
-    <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
+    <string name="wireguard_custom_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Der ausgewählte %1$s-Port wird nicht unterstützt, bitte ändern Sie ihn unter</string>
     <string name="wireguard_port_title">WireGuard-Port</string>

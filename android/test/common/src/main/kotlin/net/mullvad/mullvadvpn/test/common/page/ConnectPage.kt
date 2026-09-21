@@ -126,7 +126,7 @@ class ConnectPage internal constructor() : Page() {
     }
 
     /**
-     * Makes sure the conection card does not have an IPv6 out address. It is a prerequisite that
+     * Makes sure the connection card does not have an IPv6 out address. It is a prerequisite that
      * the connection card is in an expanded state.
      */
     fun ensureNoOutIpv6Address() {

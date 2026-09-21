@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">سیاست حفظ حریم خصوصی</string>
     <string name="problem_report_description">برای کمک مؤثرتر، فایل لاگ اپلیکیشن شما به این پیام پیوست خواهد شد. داده‌های شما امن و خصوصی می‌مانند، زیرا پیش از ارسال از طریق یک کانال رمزگذاری‌شده، ناشناس‌ می‌شوند.</string>
     <string name="providers">ارائه‌دهندگان</string>
-    <string name="quantum_resistant_info_first_paragaph">ویژگی زیر، تونل WireGuard را در برابر حملات احتمالی رایانه‌های کوانتومی مقاوم می‌کند.</string>
-    <string name="quantum_resistant_info_second_paragaph">این کار را با انجام یک تبادل کلیدِ اضافه با استفاده از یک الگوریتم امنِ کوانتومی انجام می‌دهد و نتیجه را در رمزگذاری معمولی WireGuard ترکیب می‌کند. این مرحلهٔ اضافی، هر بار که یک تونل جدید برقرار می‌شود، حدود 500 کیلوبایت ترافیک مصرف می‌کند.</string>
+    <string name="quantum_resistant_info_first_paragraph">ویژگی زیر، تونل WireGuard را در برابر حملات احتمالی رایانه‌های کوانتومی مقاوم می‌کند.</string>
+    <string name="quantum_resistant_info_second_paragraph">این کار را با انجام یک تبادل کلیدِ اضافه با استفاده از یک الگوریتم امنِ کوانتومی انجام می‌دهد و نتیجه را در رمزگذاری معمولی WireGuard ترکیب می‌کند. این مرحلهٔ اضافی، هر بار که یک تونل جدید برقرار می‌شود، حدود 500 کیلوبایت ترافیک مصرف می‌کند.</string>
     <string name="quantum_resistant_title">تونل مقاوم در برابر کوانتوم</string>
     <string name="read_more">بیشتر بخوانید</string>
     <string name="read_more_here">بیشتر در اینجا بخوانید</string>
@@ -566,7 +566,7 @@
     <string name="warning">هشدار</string>
     <string name="we_will_look_into_this">ما این موضوع را بررسی خواهیم کرد.</string>
     <string name="when_needed"></string>
-    <string name="wireguard_custon_port_title">سفارشی</string>
+    <string name="wireguard_custom_port_title">سفارشی</string>
     <string name="wireguard_mtu_footer">مقدار MTU مربوط به WireGuard را تنظیم کنید. دامنهٔ معتبر: %1$d تا %2$d.</string>
     <string name="wireguard_port_is_not_supported">پورتِ %1$s انتخاب‌شده پشتیبانی نمی‌شود؛ لطفاً آن را در بخش مربوطه تغییر دهید</string>
     <string name="wireguard_port_title">پورت ‏WireGuard</string>

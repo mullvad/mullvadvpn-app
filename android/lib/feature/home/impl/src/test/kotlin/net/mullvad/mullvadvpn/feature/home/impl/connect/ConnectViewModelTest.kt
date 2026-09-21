@@ -275,7 +275,7 @@ class ConnectViewModelTest {
         // Act
         viewModel.onConnectClick()
 
-        // Asser
+        // Assert
         coVerify { mockConnectionProxy.connect() }
     }
 

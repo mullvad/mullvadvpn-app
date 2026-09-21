@@ -60,7 +60,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
             val relay = relayProvider.getOverrideRelay()
             on<ConnectPage> { enableServerIpOverrideStory(relay.relay, mockServerIp) }
 
-            // Select the relay which has an overriden ip
+            // Select the relay which has an overridden ip
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> { selectRelayUsingSearch(relay) }

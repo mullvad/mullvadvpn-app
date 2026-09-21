@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
     <string name="providers">Hizmet sağlayıcılar</string>
-    <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
-    <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
+    <string name="quantum_resistant_info_first_paragraph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
+    <string name="quantum_resistant_info_second_paragraph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
     <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
     <string name="read_more">Devamını oku</string>
     <string name="read_more_here">buradan daha fazla bilgi edinin</string>
@@ -566,7 +566,7 @@
     <string name="warning">Uyarı</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="when_needed">Gerektiğinde</string>
-    <string name="wireguard_custon_port_title">Özel</string>
+    <string name="wireguard_custom_port_title">Özel</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_is_not_supported">Seçilen %1$s portu desteklenmiyor, lütfen portu değiştirin:</string>
     <string name="wireguard_port_title">WireGuard portu</string>

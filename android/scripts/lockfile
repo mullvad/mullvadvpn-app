@@ -46,7 +46,7 @@ function main {
         update_checksums
         update_keys false
         ;;
-    "-v"|"--verifiy")
+    "-v"|"--verify")
         setup_gradle
         verify
         ;;

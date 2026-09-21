@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
     <string name="providers">Tarjoajat</string>
-    <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
-    <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
+    <string name="quantum_resistant_info_first_paragraph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
+    <string name="quantum_resistant_info_second_paragraph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
     <string name="read_more">Lue lisää</string>
     <string name="read_more_here">lue lisää täällä</string>
@@ -566,7 +566,7 @@
     <string name="warning">Varoitus</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="when_needed">Tarvittaessa</string>
-    <string name="wireguard_custon_port_title">Mukautettu</string>
+    <string name="wireguard_custom_port_title">Mukautettu</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Valittua %1$s-porttia ei tueta. Vaihda portti</string>
     <string name="wireguard_port_title">WireGuard-portti</string>

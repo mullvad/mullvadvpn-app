@@ -72,7 +72,7 @@ buildscript {
         }
     }
 
-    // These depencies are added by the Wire plugin, but they are not needed for our build so we
+    // These dependencies are added by the Wire plugin, but they are not needed for our build so we
     // exclude them.
     // Unfortunately, this is not possible to do using libs.version.toml
     // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
