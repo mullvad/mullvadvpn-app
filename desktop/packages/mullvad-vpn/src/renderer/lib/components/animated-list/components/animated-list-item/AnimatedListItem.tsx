@@ -7,19 +7,12 @@ const StyledLi = styled(motion.li)`
   overflow: hidden;
 `;
 
-const itemVariants = {
-  hidden: { height: 0, opacity: 0 },
-  show: { height: 'auto', opacity: 1 },
-  exit: { height: 0, opacity: 0 },
-};
-
 export function AnimatedListItem({ children, ...props }: AnimatedListItemProps) {
   return (
     <StyledLi
-      variants={itemVariants}
-      initial="hidden"
-      animate="show"
-      exit="exit"
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: 'auto', opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       {...props}>
       {children}
