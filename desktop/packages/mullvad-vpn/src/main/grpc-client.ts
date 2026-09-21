@@ -274,7 +274,9 @@ export abstract class GrpcClient<
     if (process.platform === 'win32') {
       try {
         const { pipeIsAdminOwned } = await import('windows-utils');
-        pipeIsAdminOwned(this.rpcPath);
+        if (!pipeIsAdminOwned(this.rpcPath)) {
+          throw new Error('Named pipe is not owned by an admin.');
+        }
       } catch (e) {
         if (e && typeof e === 'object' && 'message' in e) {
           throw new Error(`Failed to verify admin ownership of named pipe. ${e.message}`);
