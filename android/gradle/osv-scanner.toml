@@ -288,3 +288,21 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-75596"  # GHSA-fccg-mwvh-qqg4
 ignoreUntil = 2026-11-01
 reason = "The app does not use netty for external http communication"
+
+# Wire: Unauthenticated decoder crash via 32-bit length integer overflow in ByteArrayProtoReader32
+[[IgnoredVulns]]
+id = "CVE-2026-63126"  # GHSA-9rm7-3qhh-h2mc
+ignoreUntil = 2026-11-01
+reason = "The version of Wire containing this vulnerability is only used to generate baseline profiles. It is not used by the app directly."
+
+# Bouncy Castle: Lazy ASN.1 sequence forcing resets nesting-depth guard
+[[IgnoredVulns]]
+id = "CVE-2026-13506"  # GHSA-qp49-qgx5-5m26
+ignoreUntil = 2026-11-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Bouncy Castle: Name Constraints bypass via trailing dot in rfc822Name and URI
+[[IgnoredVulns]]
+id = "CVE-2026-8763"  # GHSA-9pwp-9qqc-pr26
+ignoreUntil = 2026-11-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
