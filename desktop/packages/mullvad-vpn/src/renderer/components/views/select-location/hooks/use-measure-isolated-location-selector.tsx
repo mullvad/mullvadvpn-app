@@ -18,11 +18,11 @@ export function useMeasureIsolatedLocationSelector() {
       <SelectLocationHeader>
         <LocationSelector variant="primary" expanded={false}>
           <LocationSelector.Items>
-            <LocationSelector.Items.Item id="exit" type="exit" key="measure-isolated-item">
-              <LocationSelector.Items.Item.TextField>
-                <LocationSelector.Items.Item.TextField.Input />
-              </LocationSelector.Items.Item.TextField>
-            </LocationSelector.Items.Item>
+            <LocationSelector.Items.TextFieldItem id="exit" type="exit" key="measure-isolated-item">
+              <LocationSelector.Items.TextFieldItem.TextField>
+                <LocationSelector.Items.TextFieldItem.TextField.Input />
+              </LocationSelector.Items.TextFieldItem.TextField>
+            </LocationSelector.Items.TextFieldItem>
           </LocationSelector.Items>
         </LocationSelector>
       </SelectLocationHeader>

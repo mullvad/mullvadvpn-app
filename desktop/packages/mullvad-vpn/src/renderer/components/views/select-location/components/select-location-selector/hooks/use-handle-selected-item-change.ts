@@ -11,6 +11,8 @@ export function useHandleSelectedItemChange() {
     (id: LocationSelectorSelectedItem) => {
       if (id === 'entry') {
         setLocationType(LocationType.entry);
+      } else if (id === 'entryAutomatic') {
+        setLocationType(LocationType.entryAutomatic);
       } else {
         setLocationType(LocationType.exit);
       }

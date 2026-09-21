@@ -1,4 +1,4 @@
-import { AnimatePresence, type AnimationDefinition } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -11,14 +11,13 @@ import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
-  LocationLists,
   SelectLocationHeader,
   SelectLocationSelector,
   SpacePreAllocationView,
   StyledSelectLocationHeader,
 } from './components';
-import { LocationSlide } from './components/location-slide/LocationSlide';
 import { useMeasureExpandedLocationSelector, useMeasureIsolatedLocationSelector } from './hooks';
+import { useLocationSlides } from './hooks/use-location-slides';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
@@ -64,6 +63,7 @@ const StyledHeaderContainer = styled.div`
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)`
   & ${StyledScrollable} {
+    height: 100vh;
     scroll-padding-top: var(--header-height);
   }
   &:has(${StyledSelectLocationHeader}:focus-within) {
@@ -76,10 +76,8 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)`
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { locationType, isolatedItem, setIsLocationSelectorExpanded } =
+  const { isolatedItem, setIsLocationSelectorExpanded, transitionState } =
     useSelectLocationViewContext();
-
-  const [showScrollbar, setShowScrolllbar] = React.useState(true);
 
   const onClose = React.useCallback(() => history.pop(), [history]);
 
@@ -102,20 +100,7 @@ export function SelectLocationViewImpl() {
   const height = isolatedItem ? isolatedElementHeight : expandedElementHeight;
   const previousHeight = usePrevious(height);
 
-  const handleAnimationStart = React.useCallback(
-    (definition: AnimationDefinition) => {
-      if (typeof definition === 'object' && 'opacity' in definition) {
-        if (definition.opacity === 0) {
-          setShowScrolllbar(false);
-        }
-      }
-    },
-    [setShowScrolllbar],
-  );
-
-  const handleExitComplete = React.useCallback(() => {
-    setShowScrolllbar(true);
-  }, []);
+  const locationSlide = useLocationSlides();
 
   return (
     <StyledView backgroundColor="darkBlue" $headerHeight={height}>
@@ -128,7 +113,7 @@ export function SelectLocationViewImpl() {
             ref={scrollViewRef}
             onScroll={handleScroll}
             trackPadding={{ x: 0, y: height }}
-            showScrollIndicators={showScrollbar}>
+            showScrollIndicators={transitionState === 'transitioningOut' ? false : undefined}>
             <StyledHeaderMaxHeightContainer $previousHeight={previousHeight}>
               <StyledHeaderContainer>
                 <SelectLocationHeader>
@@ -138,14 +123,12 @@ export function SelectLocationViewImpl() {
             </StyledHeaderMaxHeightContainer>
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
-                <View.Container horizontalMargin="medium" flexDirection="column">
-                  <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
-                    <LocationSlide
-                      key={`${locationType}-location-lists`}
-                      onAnimationStart={handleAnimationStart}>
-                      <LocationLists type={locationType} />
-                    </LocationSlide>
-                  </AnimatePresence>
+                <View.Container
+                  horizontalMargin="medium"
+                  flexDirection="column"
+                  flexGrow={1}
+                  padding={{ top: 'tiny' }}>
+                  <AnimatePresence mode="wait">{locationSlide}</AnimatePresence>
                 </View.Container>
               </SpacePreAllocationView>
             </View.Content>
