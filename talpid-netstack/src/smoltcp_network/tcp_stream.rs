@@ -7,6 +7,7 @@ use std::{
     pin::Pin,
     sync::Arc,
     task::{Context, Poll, ready},
+    time::Instant,
 };
 use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
@@ -26,6 +27,15 @@ pub struct SmoltcpTcpStream {
     notify: Arc<Notify>,
     /// Buffer received bytes
     read_buf: BytesMut,
+    /// Traffic counters. Enabled by [`Self::log_stats_on_drop`].
+    stats: Option<Stats>,
+}
+
+/// Traffic counters for a stream, logged when it is dropped.
+struct Stats {
+    rx_bytes: u64,
+    tx_bytes: u64,
+    start_time: Instant,
 }
 
 impl SmoltcpTcpStream {
@@ -40,6 +50,30 @@ impl SmoltcpTcpStream {
             upstream_tx: PollSender::new(write_tx),
             notify,
             read_buf: BytesMut::new(),
+            stats: None,
+        }
+    }
+
+    /// Begin counting bytes received and sent on this stream. Log when dropped.
+    pub(crate) fn log_stats_on_drop(mut self) -> Self {
+        self.stats = Some(Stats {
+            rx_bytes: 0,
+            tx_bytes: 0,
+            start_time: Instant::now(),
+        });
+        self
+    }
+}
+
+impl Drop for SmoltcpTcpStream {
+    fn drop(&mut self) {
+        if let Some(stats) = &self.stats {
+            log::debug!(
+                "smoltcp TCP stream closed. RX: {} bytes, TX: {} bytes, duration: {:?}",
+                stats.rx_bytes,
+                stats.tx_bytes,
+                stats.start_time.elapsed(),
+            );
         }
     }
 }
@@ -65,6 +99,9 @@ impl AsyncRead for SmoltcpTcpStream {
                 // promptly refill it from smoltcp's receive buffer rather than
                 // waiting for the next inbound packet or poll-delay tick.
                 this.notify.notify_one();
+                if let Some(stats) = &mut this.stats {
+                    stats.rx_bytes += u64::try_from(data.len()).unwrap();
+                }
                 let n = std::cmp::min(buf.remaining(), data.len());
                 buf.put_slice(&data[..n]);
                 // `read_buf` is empty here (we only poll the channel once it is),
@@ -96,6 +133,9 @@ impl AsyncWrite for SmoltcpTcpStream {
             .send_item(buf.to_vec())
             .map_err(|_| broken_pipe())?;
         this.notify.notify_one();
+        if let Some(stats) = &mut this.stats {
+            stats.tx_bytes += u64::try_from(n).unwrap();
+        }
         Poll::Ready(Ok(n))
     }
 
