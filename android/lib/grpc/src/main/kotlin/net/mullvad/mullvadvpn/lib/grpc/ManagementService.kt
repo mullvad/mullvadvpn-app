@@ -1005,7 +1005,7 @@ class ManagementService(
             .protocols(listOf(Protocol.H2_PRIOR_KNOWLEDGE))
             .eventListener(connectionListener)
             // We need to disable proxy for the okhttp client, otherwise it will try to use the
-            // system proxy settings, which can interfer with calls to the daemon.
+            // system proxy settings, which can interfere with calls to the daemon.
             .proxy(Proxy.NO_PROXY)
             .addInterceptor(
                 HttpLoggingInterceptor { message -> Logger.withTag("grpc").d(message) }

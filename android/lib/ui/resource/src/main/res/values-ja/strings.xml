@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
     <string name="providers">プロバイダ</string>
-    <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
-    <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
+    <string name="quantum_resistant_info_first_paragraph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
+    <string name="quantum_resistant_info_second_paragraph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
     <string name="read_more">続きを読む</string>
     <string name="read_more_here">続きはこちら</string>
@@ -566,7 +566,7 @@
     <string name="warning">警告</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="when_needed">必要時</string>
-    <string name="wireguard_custon_port_title">カスタム</string>
+    <string name="wireguard_custom_port_title">カスタム</string>
     <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_is_not_supported">選択した%1$sポートには対応していません。</string>
     <string name="wireguard_port_title">WireGuardポート</string>

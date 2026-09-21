@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">integritetspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
     <string name="providers">Leverantörer</string>
-    <string name="quantum_resistant_info_first_paragaph">Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.</string>
-    <string name="quantum_resistant_info_second_paragaph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
+    <string name="quantum_resistant_info_first_paragraph">Den här funktionen gör WireGuard-tunneln resistent mot potentiella attacker från kvantdatorer.</string>
+    <string name="quantum_resistant_info_second_paragraph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
     <string name="quantum_resistant_title">Kvantresistent tunnel</string>
     <string name="read_more">Läs mer</string>
     <string name="read_more_here">läs mer här</string>
@@ -566,7 +566,7 @@
     <string name="warning">Varning</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="when_needed">Vid behov</string>
-    <string name="wireguard_custon_port_title">Anpassad</string>
+    <string name="wireguard_custom_port_title">Anpassad</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Den valda %1$s-porten stöds inte, ändra den i</string>
     <string name="wireguard_port_title">WireGuard-port</string>

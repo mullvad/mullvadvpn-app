@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
     <string name="providers">ပံ့ပိုးသူများ</string>
-    <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
-    <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
+    <string name="quantum_resistant_info_first_paragraph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
+    <string name="quantum_resistant_info_second_paragraph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
     <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
     <string name="read_more">ပိုမိုဖတ်ရှုရန်</string>
     <string name="read_more_here">ဤနေရာတွင် နောက်ထပ် ဖတ်ရန်</string>
@@ -566,7 +566,7 @@
     <string name="warning">သတိပေးချက်</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
     <string name="when_needed">လိုအပ်သည့်အခါ လုပ်ဆောင်ရန်</string>
-    <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
+    <string name="wireguard_custom_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။  အကျုံးဝင်သော အပိုင်းအခြား- %1$d - %2$d ။</string>
     <string name="wireguard_port_is_not_supported">ရွေးထားသည့် %1$s ပေါ့တ်ကို ပံ့ပိုးထားခြင်းမရှိပါသဖြင့် ၎င်းကို အောက်တွင် ပြောင်းပေးပါ </string>
     <string name="wireguard_port_title">WireGuard ပေါ့တ်</string>

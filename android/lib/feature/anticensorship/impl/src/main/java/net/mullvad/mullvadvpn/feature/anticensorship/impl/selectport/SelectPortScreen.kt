@@ -172,7 +172,7 @@ private fun LazyListScope.content(
             CustomPortListItem(
                 hierarchy = Hierarchy.Child1,
                 position = Position.Bottom,
-                title = stringResource(id = R.string.wireguard_custon_port_title),
+                title = stringResource(id = R.string.wireguard_custom_port_title),
                 isSelected = state.isCustom,
                 port = state.customPort,
                 onMainCellClicked = {

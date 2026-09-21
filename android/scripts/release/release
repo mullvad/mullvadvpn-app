@@ -26,7 +26,7 @@ print_usage() {
   log "Usage: release <option>"
   log "Where option is one of the following flags:"
   log "    -a, --add-release"
-  log "              Add new release to the metada file and publish it to releases.mullvad.net"
+  log "              Add new release to the metadata file and publish it to releases.mullvad.net"
   log "    -s, --set-latest-stable"
   log "              Update the latest.json file on release.mullvad.net"
   log "    -r, --remove-release"

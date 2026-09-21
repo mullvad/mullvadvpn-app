@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
     <string name="providers">Aanbieders</string>
-    <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
-    <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
+    <string name="quantum_resistant_info_first_paragraph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
+    <string name="quantum_resistant_info_second_paragraph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
     <string name="read_more">Meer lezen</string>
     <string name="read_more_here">lees hier meer</string>
@@ -566,7 +566,7 @@
     <string name="warning">Waarschuwing</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="when_needed">Wanneer nodig</string>
-    <string name="wireguard_custon_port_title">Aangepast</string>
+    <string name="wireguard_custom_port_title">Aangepast</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
     <string name="wireguard_port_is_not_supported">De geselecteerde %1$s-poort wordt niet ondersteund. Wijzig de poort in de</string>
     <string name="wireguard_port_title">WireGuard-poort</string>

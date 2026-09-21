@@ -31,7 +31,7 @@ if [[ $VERSION_NAME != *"alpha"* && $VERSION_NAME != *"-dev-"* && -z $release_no
 fi
 
 if [[ "${#release_notes}" -gt 500 ]]; then
-    echo "The number of characters in the relase notes may not exceed 500"
-    echo "Current number of charachers ${#release_notes}"
+    echo "The number of characters in the release notes may not exceed 500"
+    echo "Current number of characters ${#release_notes}"
     exit 1
 fi
