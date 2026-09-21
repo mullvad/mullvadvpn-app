@@ -150,15 +150,28 @@ pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
 ) -> Result<NegotiatedPeers, NegotiationError> {
     let ephemeral_key = PrivateKey::new_from_random();
 
-    log::debug!("Negotiating ephemeral peer with the ingress relay");
+    log::debug!(
+        "Negotiating ephemeral peer with the ingress relay {} (pq={}, daita={})",
+        config.relays.ingress().endpoint,
+        negotiate.post_quantum,
+        negotiate.daita
+    );
     let ingress_peer =
         negotiate_with_ingress(config, negotiate, &ingress_transport, &ephemeral_key).await?;
+    log::debug!(
+        "Negotiated ephemeral peer with the ingress relay (psk={}, daita={})",
+        ingress_peer.psk.is_some(),
+        ingress_peer.daita.is_some()
+    );
 
     let (exit_private_key, exit_psk) = match &config.relays {
         Relays::Singlehop(_) => (None, None),
         Relays::Multihop { entry, exit } => {
             let exit_private_key = config.separate_exit_key.then(PrivateKey::new_from_random);
-            log::debug!("Negotiating ephemeral peer with the exit relay");
+            log::debug!(
+                "Negotiating ephemeral peer with the exit relay {}",
+                exit.endpoint
+            );
             let exit_peer = negotiate_through_entry(
                 config,
                 negotiate,
@@ -170,6 +183,10 @@ pub async fn negotiate_ephemeral_peers<F: UdpTransportFactory>(
                 exit_private_key.as_ref().unwrap_or(&ephemeral_key),
             )
             .await?;
+            log::debug!(
+                "Negotiated ephemeral peer with the exit relay (psk={})",
+                exit_peer.psk.is_some()
+            );
             (exit_private_key, exit_peer.psk)
         }
     };
