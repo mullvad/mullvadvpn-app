@@ -31,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.model.toRadians
 internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 
     private lateinit var globe: Globe
-    private var viewPortSize: Size = Size(0f, 0f)
 
     // Due to location markers themselves containing colors we cache them to avoid recreating them
     // for every draw call.
@@ -150,9 +149,6 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
-
-        viewPortSize = Size(width.toFloat(), height.toFloat())
-
         val ratio: Float = width.toFloat() / height.toFloat()
 
         if (ratio.isFinite()) {
@@ -173,29 +169,31 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     var markerVector = mapOf<Vector3, Marker>()
 
-    fun calculateIntersection(offset: Offset): Vector3? {
-        val cameraz = -viewState.cameraPosition.zoom
-        val camerax = 0f
-        val cameray = toOffsetY(viewState.cameraPosition)
-
-        val camera = Vector3(camerax, cameray, cameraz)
-
-        val sphere = Sphere(Vector3(0f, 0f, 0f), 1f)
-        val ratio: Float = viewPortSize.width / viewPortSize.height
+    fun calculateIntersection(offset: Offset, width: Int, height: Int): Vector3? {
+        // If invalid view size return null
+        if (width <= 0 || height <= 0) return null
+        val viewPort = Size(width.toFloat(), height.toFloat())
+        val ratio: Float = viewPort.width / viewPort.height
 
         val directionVector =
             calculateDirectionVector(
                 viewState.cameraPosition.fov,
                 ratio,
-                viewPortSize.width,
-                viewPortSize.height,
+                viewPort.width,
+                viewPort.height,
                 offset.x,
                 offset.y,
                 nearPlaneDistance = PERSPECTIVE_Z_NEAR,
             )
 
+        val cameraz = -viewState.cameraPosition.zoom
+        val camerax = 0f
+        val cameray = toOffsetY(viewState.cameraPosition)
+        val camera = Vector3(camerax, cameray, cameraz)
+
         val ray = Ray(camera, directionVector)
 
+        val sphere = Sphere(Vector3(0f, 0f, 0f), 1f)
         val oc = ray.origin - sphere.center // Vector from ray origin to sphere center
         val a = ray.direction.dot(ray.direction)
         val b = 2f * oc.dot(ray.direction)
@@ -219,8 +217,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         }
     }
 
-    fun closestMarker(offset: Offset): Pair<Marker?, Float>? =
-        calculateIntersection(offset)?.let { intersectionPoint ->
+    fun closestMarker(offset: Offset, width: Int, height: Int): Pair<Marker?, Float>? =
+        calculateIntersection(offset, width, height)?.let { intersectionPoint ->
             markerVector
                 .minByOrNull { it.key.distanceTo(intersectionPoint) }
                 ?.let { closestMarker ->
