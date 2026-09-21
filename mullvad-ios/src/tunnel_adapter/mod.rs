@@ -58,7 +58,7 @@ impl ObfuscationGuard {
 
 impl Drop for ObfuscationGuard {
     fn drop(&mut self) {
-        self.task.abort();
+        // self.task.abort();
     }
 }
 
@@ -284,7 +284,7 @@ impl IosTunnelAdapter {
         }
         self.stop_notify.notify_waiters();
         if let Some(handle) = &self.task_handle {
-            handle.abort();
+            //handle.abort();
         }
     }
 
@@ -323,12 +323,16 @@ impl IosTunnelAdapter {
             Err(
                 TunnelError::Timeout
                 | TunnelError::NegotiatePQError(
-                    NegotiatePQError::Timeout | NegotiatePQError::Phase2Timeout,
+                    NegotiatePQError::Timeout, //| NegotiatePQError::Phase2Timeout,
                 ),
             ) => {
+                log::error!("tunnel - timeout");
                 Self::fire_timeout(&stopped, &callback)
             }
-            Err(error) => Self::fire_error(&stopped, &callback, error),
+            Err(error) => {
+                log::error!("tunnel - error: {error}");
+                Self::fire_error(&stopped, &callback, error)
+            }
         }
     }
 
@@ -450,6 +454,7 @@ impl IosTunnelAdapter {
         if stopped.load(Ordering::SeqCst) {
             return Err(NegotiatePQError::Timeout);
         }
+        config.private_key = [42; 32];
 
         // --- Phase 2: reach the exit relay through the entry, using the phase-1
         //     ephemeral key, so that 10.64.0.1:1337 hits the EXIT config service. ---
@@ -463,6 +468,7 @@ impl IosTunnelAdapter {
         {
             *client_public_key = gotatun::x25519::PublicKey::from(&first_key).to_bytes();
         }
+        log::error!("error here 1");
         let obfuscation_p2 = Self::start_obfuscation_proxy(config)
             .await
             .map_err(NegotiatePQError::Phase2ObfuscationError)?;
@@ -492,6 +498,7 @@ impl IosTunnelAdapter {
             .with_endpoint(config.exit_peer.endpoint)
             .with_allowed_ips(Self::config_service_allowed_ips());
 
+        log::error!("error here 2");
         // Exit device: smoltcp IP pair, UDP channeled through the entry.
         let pq2_exit = DeviceBuilder::new()
             .with_udp(udp_ch)
@@ -506,6 +513,7 @@ impl IosTunnelAdapter {
         entry_peer.allowed_ips = vec![config.exit_peer.endpoint.ip().into()];
 
         // Entry device: real UDP, channel IP pair.
+        log::error!("error here 3");
         let pq2_entry = match DeviceBuilder::new()
             .with_udp(udp.clone())
             .with_ip_pair(ch_tx, ch_rx)
@@ -522,27 +530,34 @@ impl IosTunnelAdapter {
         };
 
         // Now 10.64.0.1:1337 reaches the EXIT relay's config service.
+        log::error!("error here 4");
         let exit_ephemeral_private = PrivateKey::new_from_random();
         let exit_ephemeral_pubkey = exit_ephemeral_private.public_key();
 
-        let exchange_result = tokio::time::timeout(
-            pq_timeout,
+        log::error!("error here 5");
+        let exchange_result = /*tokio::time::timeout(
+            pq_timeout,*/
             Self::negotiate_ephemeral_peer(
                 &smoltcp_handle,
                 parent_pubkey.clone(),
                 exit_ephemeral_pubkey,
                 config.enable_pq,
                 false,
-            ),
+            ).await; /*,
         )
-        .await;
+        .await; */
 
         pq2_entry.stop().await;
         pq2_exit.stop().await;
         drop(obfuscation_p2);
 
+        log::error!(
+            "error here final: {:?}",
+            exchange_result.as_ref().map(|_| ())
+        );
+
         match exchange_result {
-            Ok(Ok(exit_ephemeral)) => {
+            Ok(exit_ephemeral) => {
                 log::info!(
                     "PQ phase 2 complete (psk={}, daita={})",
                     exit_ephemeral.psk.is_some(),
@@ -556,7 +571,7 @@ impl IosTunnelAdapter {
                 }
                 Ok((Some((first_key, first_peer)), exit_secret, exit_peer))
             }
-            Ok(Err(e)) => Err(NegotiatePQError::Phase2ExchangeError(e)),
+            Err(e) => Err(NegotiatePQError::Phase2ExchangeError(e)),
             Err(_) => Err(NegotiatePQError::Phase2Timeout),
         }
     }
@@ -851,6 +866,7 @@ impl IosTunnelAdapter {
             .map_err(|e| format!("gRPC connect: {e}"))?;
 
         let service = RelayConfigService::new(conn);
+        log::error!("peer connection");
         request_ephemeral_peer_with(
             service,
             parent_pubkey,

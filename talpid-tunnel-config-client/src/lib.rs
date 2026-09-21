@@ -5,7 +5,7 @@ use std::fmt;
 use std::net::SocketAddr;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::{IpAddr, Ipv4Addr};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 use tonic::transport::Channel;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
@@ -164,6 +164,12 @@ pub async fn request_ephemeral_peer_with(
         (None, None)
     };
 
+    log::error!("request_ephemeral_peer_with 1");
+
+    // timeout for playing with disabling/enabling internet when testing
+    // tokio::time::sleep(Duration::from_secs(10)).await;
+
+    // if we pass anything wrong here, this function never seems to timeout
     let response = client
         .register_peer_v1(proto::EphemeralPeerRequestV1 {
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
@@ -181,7 +187,9 @@ pub async fn request_ephemeral_peer_with(
             }),
         })
         .await
-        .map_err(|status| Error::GrpcError(Box::new(status)))?;
+        .map_err(|status| Error::GrpcError(Box::new(status)));
+    log::error!("request_ephemeral_peer_with 2");
+    let response = response?;
 
     let response = response.into_inner();
 
