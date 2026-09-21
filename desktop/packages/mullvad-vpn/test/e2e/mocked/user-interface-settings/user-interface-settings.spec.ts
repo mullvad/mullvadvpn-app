@@ -104,8 +104,6 @@ test.describe('User interface settings', () => {
   });
 
   test.describe('Start minimized setting', () => {
-    test.skip(() => !(process.platform === 'win32' || process.platform === 'darwin'));
-
     test('Should toggle start minimized setting', async () => {
       await setGuiSettings({ unpinnedWindow: true });
 
