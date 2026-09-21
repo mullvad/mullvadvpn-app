@@ -28,27 +28,17 @@ fun UiDevice.hasObjectWithTimeout(selector: BySelector, timeout: Long = DEFAULT_
 fun UiDevice.findObjectWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
-): UiObject2 {
-
-    wait(Until.hasObject(selector), timeout)
-
-    val foundObject =
-        findObject(selector)
-            ?: throw UiObjectNotFoundException(
-                "No matches for selector within timeout ($timeout ms): $selector"
-            )
-
-    return foundObject
-}
+): UiObject2 =
+    wait(Until.findObject(selector), timeout)
+        ?: throw UiObjectNotFoundException(
+            "No matches for selector within timeout ($timeout ms): $selector"
+        )
 
 fun UiDevice.findOneOrMoreObjectsWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
 ): List<UiObject2> {
-
-    wait(Until.hasObject(selector), timeout)
-
-    val foundObjects = findObjects(selector)
+    val foundObjects = wait(Until.findObjects(selector), timeout)
 
     if (foundObjects.isEmpty()) {
         throw UiObjectNotFoundException(
@@ -119,15 +109,11 @@ fun UiDevice.pressBackThrice() {
 fun UiObject2.findObjectWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
-): UiObject2 {
-
-    wait(Until.hasObject(selector), timeout)
-
-    return findObject(selector)
+): UiObject2 =
+    wait(Until.findObject(selector), timeout)
         ?: throw UiObjectNotFoundException(
             "No matches for selector within timeout ($timeout ms): $selector"
         )
-}
 
 fun UiObject2.findAncestor(selector: BySelector): UiObject2 {
     val p = parent ?: throw UiObjectNotFoundException("No ancestor matches selector: $selector")
