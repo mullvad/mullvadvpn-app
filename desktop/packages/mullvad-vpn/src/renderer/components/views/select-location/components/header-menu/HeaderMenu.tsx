@@ -41,7 +41,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopNever = useCallback(async () => {
     await setMultihop({ multihop: 'never' });
     onOpenChange?.(false);
-    if (locationType === LocationType.entry) {
+    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
       setLocationType(LocationType.exit);
       setIsolatedItem(undefined);
       setSearchTerm('');
@@ -51,7 +51,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const handleMultihopWhenNeeded = useCallback(async () => {
     await setMultihop({ multihop: 'when-needed' });
     onOpenChange?.(false);
-    if (locationType === LocationType.entry) {
+    if (locationType === LocationType.entry || locationType === LocationType.entryAutomatic) {
       setLocationType(LocationType.exit);
       setIsolatedItem(undefined);
       setSearchTerm('');

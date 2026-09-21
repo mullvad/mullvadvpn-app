@@ -9,9 +9,9 @@ export function useHandleSelectEntryLocation() {
   const { selectEntryRelayLocation } = useRelayLocations();
 
   const handleSelectEntryLocation = React.useCallback(
-    async (entryLocation: AnyLocation) => {
+    async (entryLocation: AnyLocation | 'any') => {
       setLocationType(LocationType.exit);
-      await selectEntryRelayLocation(entryLocation.details);
+      await selectEntryRelayLocation(entryLocation === 'any' ? 'any' : entryLocation.details);
       setIsolatedItem(undefined);
       setSearchTerm('');
     },

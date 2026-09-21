@@ -6,9 +6,10 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
+import { AutomaticLocation } from '../automatic-location';
 import { CountryLocation } from '../country-location';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
-import { useRelayCount } from './hooks';
+import { useRelayCount, useShowAutomaticLocation } from './hooks';
 
 export function CountryLocations() {
   const { countryLocations } = useLocationListsContext();
@@ -21,6 +22,8 @@ export function CountryLocations() {
 
   const { searchTerm } = useSelectLocationViewContext();
   const countryLocationsKey = searchTerm ? `country-locations-${searchTerm}` : 'country-locations';
+
+  const showAutomaticLocation = useShowAutomaticLocation();
 
   return (
     <FlexColumn
@@ -54,7 +57,8 @@ export function CountryLocations() {
           </SectionTitle.Text>
         )}
       </SectionTitle>
-      <FlexColumn key={countryLocationsKey}>
+      <FlexColumn key={countryLocationsKey} gap="tiny">
+        {showAutomaticLocation && <AutomaticLocation />}
         {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;

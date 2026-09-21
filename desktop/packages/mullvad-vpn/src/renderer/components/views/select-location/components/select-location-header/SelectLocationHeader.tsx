@@ -18,7 +18,7 @@ export function SelectLocationHeader({ children }: React.PropsWithChildren) {
         titleVisible>
         <HeaderMenuIconButton />
       </AppNavigationHeader>
-      <FlexColumn margin={{ horizontal: 'medium' }} padding={{ bottom: 'small' }}>
+      <FlexColumn margin={{ horizontal: 'medium' }} padding={{ bottom: 'tiny' }}>
         {children}
       </FlexColumn>
     </StyledSelectLocationHeader>

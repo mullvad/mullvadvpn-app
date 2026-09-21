@@ -8,6 +8,7 @@ import {
 export enum LocationType {
   entry = 0,
   exit,
+  entryAutomatic,
 }
 
 type LocationState = {

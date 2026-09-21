@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
@@ -15,11 +14,6 @@ import {
   CustomListLocationsProvider,
   useCustomListLocationsContext,
 } from './CustomListLocationsContext';
-
-const StyledCustomListsList = styled(AnimatedList)`
-  display: flex;
-  flex-direction: column;
-`;
 
 function CustomListLocationsImpl() {
   const { addingCustomList } = useCustomListLocationsContext();
@@ -42,7 +36,7 @@ function CustomListLocationsImpl() {
       data-focusable-heading>
       <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
-        <StyledCustomListsList key={customListsKey}>
+        <AnimatedList key={customListsKey}>
           {customListLocations.map((customList) => {
             const { key } = getLocationListItemMapProps(customList, undefined);
             return (
@@ -51,7 +45,7 @@ function CustomListLocationsImpl() {
               </AnimatedList.Item>
             );
           })}
-        </StyledCustomListsList>
+        </AnimatedList>
 
         {showAddCustomListText && (
           <Text variant="labelTiny" color="whiteAlpha60">
