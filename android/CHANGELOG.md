@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [Unreleased]
+### Fixed
+- Fix a rare crash that could occur if a touch event was received just as the map view was created.
+
+
 ## [android/2026.10] - 2026-09-17
 ### Fixed
 - Fix QUIC obfuscator hanging when being cancelled in connecting state. This would cause the entire
@@ -35,7 +40,7 @@ tunnel state machine to hang, requiring restart of the app.
 ## [android/2026.9-beta2] - 2026-09-09
 ### Fixed
 - Fix the sorting of the location list in English being incorrect.
-- Fix a rare crash that occured when interacting with the map.
+- Fix a rare crash that occurred when interacting with the map.
 - Fix anti-censorship filters showing in the location list when multihop is set to when needed.
 - Fix exit hop not being clickable in the select location list if a filter chip is showing.
 
