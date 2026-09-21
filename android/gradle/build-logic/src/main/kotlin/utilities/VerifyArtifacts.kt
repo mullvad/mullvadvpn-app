@@ -54,26 +54,29 @@ abstract class VerifyArtifactsTask : DefaultTask() {
     private fun verifyArtifact(artifact: File, requireRelayList: Boolean) {
         val relayListSize = relayListSize(artifact)
 
-        check(relayListSize > 0 || !requireRelayList) {
-            "${artifact.name} bundles an empty relay list"
+        if (requireRelayList) {
+            checkNotNull(relayListSize) { "${artifact.name} does not bundle a relay list" }
+            check(relayListSize > 0) { "${artifact.name} bundles an empty relay list" }
         }
 
-        val relayList = if (relayListSize > 0) "present ($relayListSize bytes)" else "empty"
+        val relayList =
+            when {
+                relayListSize == null -> "missing"
+                relayListSize == 0L -> "empty"
+                else -> "present ($relayListSize bytes)"
+            }
 
         println("\nVerifying ${artifact.name}")
         println("  Checksum:   ${artifact.sha256()} (sha256)")
         println("  Relay list: $relayList")
     }
 
-    private fun relayListSize(artifact: File): Long =
+    private fun relayListSize(artifact: File): Long? =
         openArchive(artifact).use { zip ->
             val relayListAsset =
                 if (artifact.extension == "aab") BUNDLE_RELAY_LIST_ASSET else RELAY_LIST_ASSET
-            val entry =
-                zip.getEntry(relayListAsset)
-                    ?: error("${artifact.name} does not bundle a relay list")
 
-            entry.size
+            zip.getEntry(relayListAsset)?.size
         }
 
     private fun openArchive(artifact: File): ZipFile =
