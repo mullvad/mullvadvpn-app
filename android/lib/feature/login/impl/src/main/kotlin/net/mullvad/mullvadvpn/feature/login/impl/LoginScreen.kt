@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -398,15 +399,16 @@ private fun ColumnScope.LoginInput(
                     IconButton(
                         modifier =
                             Modifier.focusRequester(revealInputRequester)
+                                .focusProperties {
+                                    start = inputRequester
+                                }
                                 .onPreviewKeyEvent { keyEvent ->
-                                    if (
-                                        keyEvent.type == KeyEventType.KeyUp &&
-                                            keyEvent.isDirectionCenter
-                                    ) {
-                                        showPassword = !showPassword
-                                        true
-                                    } else {
-                                        false
+                                    when (keyEvent.type) {
+                                        KeyEventType.KeyUp if keyEvent.isDirectionCenter -> {
+                                            showPassword = !showPassword
+                                            true
+                                        }
+                                        else -> false
                                     }
                                 }
                                 .testTag(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG),
