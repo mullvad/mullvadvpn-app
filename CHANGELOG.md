@@ -67,6 +67,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
 
+#### Windows
+- Apply gRPC pipe ownership check correctly on Windows. This fixes the advisory
+  `GHSA-wchj-r66m-4m48`.
+
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
 
