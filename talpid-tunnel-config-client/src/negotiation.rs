@@ -319,6 +319,7 @@ async fn request_ephemeral_peer_through(
     let exchange = async {
         let stream = net
             .set_timeout(config.tcp_timeout)
+            .log_stats()
             .tcp_connect(config_service)
             .await
             .map_err(Error::TcpSocketError)?;

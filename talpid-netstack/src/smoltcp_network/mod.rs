@@ -80,6 +80,7 @@ pub fn smoltcp_network(
         cmd_tx,
         notify: notify.clone(),
         timeout: None,
+        log_stats_on_drop: false,
     };
 
     let poll_task = tokio::spawn(poll_loop(
@@ -110,6 +111,7 @@ pub struct SmoltcpHandle {
     cmd_tx: mpsc::Sender<SocketCmd>,
     notify: Arc<Notify>,
     timeout: Option<Duration>,
+    log_stats_on_drop: bool,
 }
 
 impl SmoltcpHandle {
@@ -130,13 +132,24 @@ impl SmoltcpHandle {
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop closed"))?;
         self.notify.notify_one();
-        rx.await
-            .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop dropped"))?
+        let mut stream = rx
+            .await
+            .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop dropped"))??;
+        if self.log_stats_on_drop {
+            stream = stream.log_stats_on_drop();
+        }
+        Ok(stream)
     }
 
     /// See [`smoltcp::socket::tcp::Socket::set_timeout`].
     pub fn set_timeout(mut self, timeout: Option<Duration>) -> Self {
         self.timeout = timeout;
+        self
+    }
+
+    /// Log stats (rx and tx bytes) when stream is dropped.
+    pub fn log_stats(mut self) -> Self {
+        self.log_stats_on_drop = true;
         self
     }
 
