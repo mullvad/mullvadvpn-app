@@ -24,22 +24,18 @@ struct LoginView<ViewModel: LoginViewModel>: View {
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                content
+        content
+            .padding(UIMetrics.contentInsets.toEdgeInsets)
+            .scrollable(fill: .vertical)
+            .background(Color.mullvadBackground.ignoresSafeArea())
+            .safeAreaInset(edge: .top) {
+                if viewModel.showAccessMethodInvalidView {
+                    AccessMethodInvalidView {
+                        viewModel.navigateToAccessMethods?()
+                    }
                     .padding(UIMetrics.contentInsets.toEdgeInsets)
-                    .frame(minHeight: geometry.size.height, alignment: .center)
-            }
-        }
-        .background(Color.mullvadBackground.ignoresSafeArea())
-        .safeAreaInset(edge: .top) {
-            if viewModel.showAccessMethodInvalidView {
-                AccessMethodInvalidView {
-                    viewModel.navigateToAccessMethods?()
                 }
-                .padding(UIMetrics.contentInsets.toEdgeInsets)
             }
-        }
     }
 }
 

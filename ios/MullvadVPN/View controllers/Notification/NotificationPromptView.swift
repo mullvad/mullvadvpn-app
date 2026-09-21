@@ -23,59 +23,55 @@ struct NotificationPromptView<ViewModel>: View where ViewModel: NotificationProm
     }
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                VStack(spacing: 16) {
-                    ForEach(viewModel.rows) { item in
-                        switch item {
-                        case .header(let image, let text):
-                            VStack(spacing: 16) {
-                                image
-                                    .resizable()
-                                    .frame(width: iconSize, height: iconSize)
-                                    .foregroundStyle(Color(.primaryTextColor))
+        VStack(spacing: 16) {
+            ForEach(viewModel.rows) { item in
+                switch item {
+                case .header(let image, let text):
+                    VStack(spacing: 16) {
+                        image
+                            .resizable()
+                            .frame(width: iconSize, height: iconSize)
+                            .foregroundStyle(Color(.primaryTextColor))
 
-                                Text(text)
-                                    .font(.mullvadLarge)
-                                    .foregroundStyle(.white)
-                                    .multilineTextAlignment(.center)
-                            }
-
-                        case .message(let message, let font):
-                            Text(message)
-                                .font(font)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(.white.opacity(0.6))
-
-                        case .emptyView:
-                            Spacer()
-
-                        case .action(let text, let style, let accessibilityIdentifier, let action):
-                            MullvadButton(text: text, style: style, action: action)
-                                .accessibilityIdentifier(accessibilityIdentifier)
-                        }
+                        Text(text)
+                            .font(.mullvadLarge)
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
                     }
+
+                case .message(let message, let font):
+                    Text(message)
+                        .font(font)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.white.opacity(0.6))
+
+                case .emptyView:
+                    Spacer()
+
+                case .action(let text, let style, let accessibilityIdentifier, let action):
+                    MullvadButton(text: text, style: style, action: action)
+                        .accessibilityIdentifier(accessibilityIdentifier)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: geo.size.height)
             }
-            .background(Color.mullvadBackground)
-            .onAppear(perform: {
-                viewModel.checkNotificationPermission()
-            })
-            .onChange(of: viewModel.isNotificationsAllowed) { oldValue, newValue in
-                guard oldValue != newValue else { return }
-                self.didConclude?(newValue)
-            }
-            .onChange(of: viewModel.isSkipped) { oldValue, newValue in
-                guard oldValue != newValue else { return }
-                self.didConclude?(false)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
-                viewModel.checkNotificationPermission()
-            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 24)
+        .frame(maxWidth: .infinity)
+        .scrollable(fill: .vertical)
+        .background(Color.mullvadBackground)
+        .onAppear(perform: {
+            viewModel.checkNotificationPermission()
+        })
+        .onChange(of: viewModel.isNotificationsAllowed) { oldValue, newValue in
+            guard oldValue != newValue else { return }
+            self.didConclude?(newValue)
+        }
+        .onChange(of: viewModel.isSkipped) { oldValue, newValue in
+            guard oldValue != newValue else { return }
+            self.didConclude?(false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            viewModel.checkNotificationPermission()
         }
     }
 }

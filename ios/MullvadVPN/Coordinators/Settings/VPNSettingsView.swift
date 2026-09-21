@@ -76,14 +76,10 @@ struct VPNSettingsView: View {
                 isLastInList: false,
                 accessibilityIdentifier: .dnsSettings,
                 leadingAndTrailingDestination: {
-                    GeometryReader { reader in
-                        ScrollView {
-                            DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
-                                .navigationTitle("DNS settings")
-                                .frame(width: reader.size.width, height: reader.size.height)
-                        }
+                    DNSView(settingsInteractor: settingsInteractor, alertPresenter: alertPresenter)
+                        .navigationTitle("DNS settings")
+                        .scrollable(fill: [.horizontal, .vertical])
                         .background(Color.mullvadBackground)
-                    }
                 },
                 leading: {
                     itemFactory.leading(
@@ -96,18 +92,14 @@ struct VPNSettingsView: View {
                     SegmentedListItem(
                         accessibilityIdentifier: .ipOverrides,
                         leadingAndTrailingDestination: {
-                            GeometryReader { reader in
-                                ScrollView {
-                                    IPOverrideView(
-                                        ipOverrideInteractor: IPOverrideInteractor,
-                                        alertPresenter: alertPresenter,
-                                        navigationController: navigationController
-                                    )
-                                    .navigationTitle("Server IP override")
-                                    .frame(width: reader.size.width, height: reader.size.height)
-                                }
-                                .background(Color.mullvadBackground)
-                            }
+                            IPOverrideView(
+                                ipOverrideInteractor: IPOverrideInteractor,
+                                alertPresenter: alertPresenter,
+                                navigationController: navigationController
+                            )
+                            .navigationTitle("Server IP override")
+                            .scrollable(fill: [.horizontal, .vertical])
+                            .background(Color.mullvadBackground)
                         },
                         leading: {
                             itemFactory.leading(
