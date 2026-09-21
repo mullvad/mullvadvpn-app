@@ -10,6 +10,8 @@ extend-exclude = [
   # TODO(Enable spell checking for iOS source files)
   "ios/**",
   "ci/ios/**",
+  # Ignore android resource files
+  "android/lib/ui/resource/**/*.xml",
   # TODO(Enable spell checking for desktop app source files)
   "desktop/**",
 ]
