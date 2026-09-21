@@ -72,6 +72,9 @@ pub struct ConnectionConfig {
     /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,
+    /// Networks to route into the tunnel. If not set, this is the union of peers' allowed IPs.
+    #[serde(default)]
+    pub routes: Option<Vec<IpNetwork>>,
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
 }
