@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
+### Fixed
+- Fix a rare crash that could occur if a touch event was received just as the map view was created.
 
 ## [android/2026.10] - 2026-09-17
 ### Fixed

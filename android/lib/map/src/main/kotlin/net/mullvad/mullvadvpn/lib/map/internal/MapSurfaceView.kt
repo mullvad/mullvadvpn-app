@@ -43,10 +43,11 @@ internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
         requestRender()
     }
 
-    fun getPosition(offset: Offset): LatLong? = renderer.calculateIntersection(offset)?.toLatLong()
+    fun getPosition(offset: Offset): LatLong? =
+        renderer.calculateIntersection(offset, width, height)?.toLatLong()
 
     fun closestMarker(offset: Offset): Pair<Marker, Offset>? {
-        val (marker, distance) = renderer.closestMarker(offset) ?: return null
+        val (marker, distance) = renderer.closestMarker(offset, width, height) ?: return null
         return if (distance < MIN_DISTANCE) {
             marker?.let { marker to offset }
         } else {
