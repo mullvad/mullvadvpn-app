@@ -113,7 +113,7 @@ val preflightSkipDirtyCheck =
 val releasePreflight =
     tasks.register<PreBuildTask>("releasePreflight") {
         this.skipDirtyCheck.set(preflightSkipDirtyCheck)
-        this.versionName.set(appVersionProvider.map { it.name })
+        this.versionName.set(appVersionProvider.map { it.name.value })
     }
 
 if (isReleaseBuild()) {

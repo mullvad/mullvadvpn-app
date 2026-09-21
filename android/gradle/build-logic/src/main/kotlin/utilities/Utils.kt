@@ -51,29 +51,6 @@ fun printBuildHeader(versionName: String) {
     println("$line\nBuilding Mullvad VPN $versionName on $hostname\n$line")
 }
 
-fun printBuildChecksums(versionName: String, distDir: java.io.File) {
-    val artifacts =
-        distDir
-            .listFiles { f -> f.name.startsWith("MullvadVPN-$versionName") }
-            ?.sortedBy { it.name }
-    check(!artifacts.isNullOrEmpty()) {
-        "No artifacts found in $distDir for MullvadVPN-$versionName"
-    }
-    println("\nBuild checksums:")
-    artifacts.forEach { artifact ->
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        artifact.inputStream().use { stream ->
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            var bytes = stream.read(buffer)
-            while (bytes != -1) {
-                digest.update(buffer, 0, bytes)
-                bytes = stream.read(buffer)
-            }
-        }
-        println("  ${digest.digest().joinToString("") { "%02x".format(it) }}  ${artifact.name}")
-    }
-}
-
 @UntrackedTask(because = "Always runs preflight checks")
 abstract class PreBuildTask @Inject constructor(private val execOperations: ExecOperations) :
     DefaultTask() {
@@ -87,17 +64,14 @@ abstract class PreBuildTask @Inject constructor(private val execOperations: Exec
     }
 }
 
-@UntrackedTask(because = "Always prints build checksums")
+@UntrackedTask(because = "Always runs post build checks")
 abstract class PostBuildTask @Inject constructor(private val execOperations: ExecOperations) :
     DefaultTask() {
     @get:Input abstract val skipDirtyCheck: Property<Boolean>
-    @get:Input abstract val versionName: Property<String>
-    @get:Input abstract val distDirPath: Property<String>
 
     @TaskAction
     fun run() {
         if (!skipDirtyCheck.get()) checkCleanWorkingDirectory(execOperations)
-        printBuildChecksums(versionName.get(), java.io.File(distDirPath.get()))
     }
 }
 
@@ -105,20 +79,18 @@ fun Project.registerReleaseTask(
     releaseTaskName: String,
     appVersion: AppVersion,
     taskList: List<String>,
+    expectedArtifacts: List<String>,
     skipDirtyCheck: Boolean = false,
 ) {
-    val releaseVersionName = appVersion.name
-    val releaseDistDirPath = rootDir.parentFile.resolve("dist").absolutePath
+    tasks.register<PostBuildTask>("${releaseTaskName}PostBuild") {
+        this.skipDirtyCheck.set(skipDirtyCheck)
+        dependsOn(taskList)
+    }
 
-    val postBuild =
-        tasks.register<PostBuildTask>("${releaseTaskName}PostBuild") {
-            this.skipDirtyCheck.set(skipDirtyCheck)
-            this.versionName.set(releaseVersionName)
-            this.distDirPath.set(releaseDistDirPath)
-            dependsOn(taskList)
-        }
+    val verifyArtifacts =
+        registerReleaseVerifyArtifactsTask(releaseTaskName, appVersion.name, expectedArtifacts)
 
-    tasks.register(releaseTaskName) { dependsOn(":cleanAll", postBuild) }
+    tasks.register(releaseTaskName) { dependsOn(":cleanAll", verifyArtifacts) }
 }
 
 // Fetch a string and that is split by `,` into a list of strings
