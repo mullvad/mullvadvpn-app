@@ -100,8 +100,10 @@
 		4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8D2D2828A4001B13C9 /* HeaderView.swift */; };
 		4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
+		44297AAF305AD88100552263 /* ProblemReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44297AAE305AD87B00552263 /* ProblemReportView.swift */; };
 		44297AB1305AF0DF00552263 /* View+Scrollable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44297AB0305AF0D800552263 /* View+Scrollable.swift */; };
 		443D35B83052E9CC00D85D8B /* ActionThrottleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 443D35B73052E9C600D85D8B /* ActionThrottleTests.swift */; };
+		4441E492306121BF00620048 /* ProblemReportViewModelNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4441E491306121B700620048 /* ProblemReportViewModelNew.swift */; };
 		4449B4A02FA8DFE50030C2B3 /* UIStackView+Initializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */; };
 		4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */; };
 		4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */; };
@@ -141,6 +143,8 @@
 		44A6D4382F50AB960085A50A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		44AFC7BF3007E4D6001C905F /* MullvadButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */; };
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
+		44B12CC53062A7EE00B071C2 /* ProblemReportViewModalOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */; };
+		44B12CC73062F81500B071C2 /* ProblemReportLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC63062F80800B071C2 /* ProblemReportLogView.swift */; };
 		44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */; };
 		44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */; };
 		44C18DE32C74DF93009BE3E1 /* TunnelPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275432C3C3029000526DE /* TunnelPinger.swift */; };
@@ -1961,8 +1965,10 @@
 		4419AA8D2D2828A4001B13C9 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
+		44297AAE305AD87B00552263 /* ProblemReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportView.swift; sourceTree = "<group>"; };
 		44297AB0305AF0D800552263 /* View+Scrollable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Scrollable.swift"; sourceTree = "<group>"; };
 		443D35B73052E9C600D85D8B /* ActionThrottleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionThrottleTests.swift; sourceTree = "<group>"; };
+		4441E491306121B700620048 /* ProblemReportViewModelNew.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewModelNew.swift; sourceTree = "<group>"; };
 		4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Initializer.swift"; sourceTree = "<group>"; };
 		4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSettingsView.swift; sourceTree = "<group>"; };
 		4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSelectionNameSpace.swift; sourceTree = "<group>"; };
@@ -1984,6 +1990,8 @@
 		44A5152F2FF2C68800FFFB82 /* TopSlideTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSlideTransition.swift; sourceTree = "<group>"; };
 		44AFC7BE3007E4CF001C905F /* MullvadButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadButtonStyle.swift; sourceTree = "<group>"; };
 		44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
+		44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewModalOverlay.swift; sourceTree = "<group>"; };
+		44B12CC63062F80800B071C2 /* ProblemReportLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportLogView.swift; sourceTree = "<group>"; };
 		44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducer.swift; sourceTree = "<group>"; };
 		44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducerTests.swift; sourceTree = "<group>"; };
 		44CAEAA02D442F56004A8E65 /* LocationIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationIdentifier.swift; sourceTree = "<group>"; };
@@ -3697,12 +3705,16 @@
 		583FE01929C19760006E85F9 /* ProblemReport */ = {
 			isa = PBXGroup;
 			children = (
+				44B12CC63062F80800B071C2 /* ProblemReportLogView.swift */,
 				5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */,
 				58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */,
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
+				44297AAE305AD87B00552263 /* ProblemReportView.swift */,
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
 				A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */,
+				44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */,
 				A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */,
+				4441E491306121B700620048 /* ProblemReportViewModelNew.swift */,
 				A9AA56772EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift */,
 			);
 			path = ProblemReport;
@@ -7028,6 +7040,7 @@
 				F080AED8303F202F00D4DE50 /* AccountManager.swift in Sources */,
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */,
+				4441E492306121BF00620048 /* ProblemReportViewModelNew.swift in Sources */,
 				F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				7A95A9E72FADC1760096009A /* BlockedStateString.swift in Sources */,
 				4449B4A02FA8DFE50030C2B3 /* UIStackView+Initializer.swift in Sources */,
@@ -7056,6 +7069,7 @@
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
 				A9AA56782EAF9FDB005807E4 /* ReduceAnonymityWarningView.swift in Sources */,
 				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
+				44B12CC73062F81500B071C2 /* ProblemReportLogView.swift in Sources */,
 				5827B0BD2B14AC9200CCBBA1 /* AccessViewModel+TestingStatus.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				01C981E82F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */,
@@ -7138,6 +7152,7 @@
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				7A6389ED2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift in Sources */,
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
+				44B12CC53062A7EE00B071C2 /* ProblemReportViewModalOverlay.swift in Sources */,
 				A9A60ED42DF6E5AC00CD9C3D /* UIHostingRootController.swift in Sources */,
 				F09E81F23013931200F6F2B8 /* RoundedContainerModifier.swift in Sources */,
 				F03FC85E300E08E800DE2F5D /* ConfigurableTextField.swift in Sources */,
@@ -7171,6 +7186,7 @@
 				4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
 				F9C66351306FCE7A00C224CA /* ToolbarItem+Helpers.swift in Sources */,
+				44297AAF305AD88100552263 /* ProblemReportView.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
 				F09580982FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
