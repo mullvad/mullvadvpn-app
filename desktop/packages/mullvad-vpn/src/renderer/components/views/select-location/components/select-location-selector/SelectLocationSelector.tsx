@@ -1,28 +1,27 @@
-import { LocationType } from '../../../../../features/locations/types';
 import { LocationSelector } from '../../../../../lib/components/location-selector';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { SelectLocationSelectorDeviceRow } from '../select-location-selector-device-row';
 import { SelectLocationSelectorInternetRow } from '../select-location-selector-internet-row';
-import { SelectLocationSelectorEntryItem, SelectLocationSelectorExitItem } from './components';
+import { AutomaticEntryItem, EntryItem, ExitItem } from './components';
 import {
   useHandleSelectedItemChange,
   useIsExpanded,
   useLocationSelectorVariant,
-  useShowSelectLocationSelectorEntryItem,
-  useShowSelectLocationSelectorExitItem,
+  useSelectedItem,
+  useShowAutomaticEntryItem,
+  useShowEntryItem,
+  useShowExitItem,
 } from './hooks';
 
 export function SelectLocationSelector() {
-  const { locationType } = useSelectLocationViewContext();
-
   const handleSelectedItemChange = useHandleSelectedItemChange();
   const isExpanded = useIsExpanded();
 
-  const selectedItem = locationType === LocationType.entry ? 'entry' : 'exit';
+  const selectedItem = useSelectedItem();
 
-  const showSelectLocationSelectorEntryItem = useShowSelectLocationSelectorEntryItem();
-  const showSelectLocationSelectorExitItem = useShowSelectLocationSelectorExitItem();
-  const variant = useLocationSelectorVariant();
+  const showAutomaticEntryItem = useShowAutomaticEntryItem();
+  const showEntryItem = useShowEntryItem();
+  const showExitItem = useShowExitItem();
+  const variant = useLocationSelectorVariant(showAutomaticEntryItem);
 
   return (
     <LocationSelector
@@ -32,16 +31,10 @@ export function SelectLocationSelector() {
       variant={variant}>
       <SelectLocationSelectorDeviceRow />
       <LocationSelector.Items>
-        {/* NOTE: The components must have a `key` assigned as the `LocationSelector.Items`
-         * component uses `motion` components under the hood, which requires all children
-         * to use keys.
-         */}
-        {showSelectLocationSelectorEntryItem ? (
-          <SelectLocationSelectorEntryItem key="entry" type="entry" />
-        ) : null}
-        {showSelectLocationSelectorExitItem ? (
-          <SelectLocationSelectorExitItem key="exit" type="exit" />
-        ) : null}
+        {/* Assign keys to each item to ensure proper rendering with motion components */}
+        {showAutomaticEntryItem ? <AutomaticEntryItem key="entryAutomatic" /> : null}
+        {showEntryItem ? <EntryItem key="entry" /> : null}
+        {showExitItem ? <ExitItem key="exit" /> : null}
       </LocationSelector.Items>
       <SelectLocationSelectorInternetRow />
     </LocationSelector>

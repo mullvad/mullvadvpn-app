@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useMultihop } from '../../../../features/multihop/hooks';
+import { useActiveFilters } from '../../../../features/locations/hooks';
 import { LocationSelector } from '../../../../lib/components/location-selector';
 import {
   SelectLocationHeader,
@@ -9,6 +9,7 @@ import {
   SelectLocationSelectorInternetRow,
 } from '../components';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useEntryType } from './use-entry-type';
 
 const StyledMeasureElement = styled.div`
   position: absolute;
@@ -20,7 +21,8 @@ export function useMeasureExpandedLocationSelector() {
   const multihopRef = React.useRef<HTMLDivElement>(null);
   const [height, setHeight] = React.useState(0);
   const { locationType } = useSelectLocationViewContext();
-  const { multihop } = useMultihop();
+  const entryType = useEntryType();
+  const activeFilters = useActiveFilters(locationType);
 
   const singlehopElement = (
     <StyledMeasureElement ref={singlehopRef} inert>
@@ -28,11 +30,14 @@ export function useMeasureExpandedLocationSelector() {
         <LocationSelector variant="primary" expanded>
           <SelectLocationSelectorDeviceRow />
           <LocationSelector.Items>
-            <LocationSelector.Items.Item id="exit" type="exit" key="measure-singlehop-exit">
-              <LocationSelector.Items.Item.TextField>
-                <LocationSelector.Items.Item.TextField.Input />
-              </LocationSelector.Items.Item.TextField>
-            </LocationSelector.Items.Item>
+            <LocationSelector.Items.TextFieldItem
+              id="exit"
+              type="exit"
+              key="measure-singlehop-exit">
+              <LocationSelector.Items.TextFieldItem.TextField>
+                <LocationSelector.Items.TextFieldItem.TextField.Input />
+              </LocationSelector.Items.TextFieldItem.TextField>
+            </LocationSelector.Items.TextFieldItem>
           </LocationSelector.Items>
           <SelectLocationSelectorInternetRow />
         </LocationSelector>
@@ -46,16 +51,22 @@ export function useMeasureExpandedLocationSelector() {
         <LocationSelector variant="primary" expanded>
           <SelectLocationSelectorDeviceRow />
           <LocationSelector.Items>
-            <LocationSelector.Items.Item id="entry" type="entry" key="measure-singlehop-entry">
-              <LocationSelector.Items.Item.TextField>
-                <LocationSelector.Items.Item.TextField.Input />
-              </LocationSelector.Items.Item.TextField>
-            </LocationSelector.Items.Item>
-            <LocationSelector.Items.Item id="exit" type="exit" key="measure-singlehop-exit">
-              <LocationSelector.Items.Item.TextField>
-                <LocationSelector.Items.Item.TextField.Input />
-              </LocationSelector.Items.Item.TextField>
-            </LocationSelector.Items.Item>
+            <LocationSelector.Items.TextFieldItem
+              id="entry"
+              type="entry"
+              key="measure-singlehop-entry">
+              <LocationSelector.Items.TextFieldItem.TextField>
+                <LocationSelector.Items.TextFieldItem.TextField.Input />
+              </LocationSelector.Items.TextFieldItem.TextField>
+            </LocationSelector.Items.TextFieldItem>
+            <LocationSelector.Items.TextFieldItem
+              id="exit"
+              type="exit"
+              key="measure-singlehop-exit">
+              <LocationSelector.Items.TextFieldItem.TextField>
+                <LocationSelector.Items.TextFieldItem.TextField.Input />
+              </LocationSelector.Items.TextFieldItem.TextField>
+            </LocationSelector.Items.TextFieldItem>
           </LocationSelector.Items>
           <SelectLocationSelectorInternetRow />
         </LocationSelector>
@@ -63,9 +74,9 @@ export function useMeasureExpandedLocationSelector() {
     </StyledMeasureElement>
   );
 
-  // Measure when locationType or multihop changes
+  // Measure when entryType or locationType changes
   React.useLayoutEffect(() => {
-    if (multihop === 'always') {
+    if (entryType) {
       if (multihopRef.current) {
         const newHeight = multihopRef.current.offsetHeight;
         setHeight(newHeight);
@@ -76,7 +87,7 @@ export function useMeasureExpandedLocationSelector() {
         setHeight(newHeight);
       }
     }
-  }, [locationType, multihop]);
+  }, [locationType, entryType, activeFilters]);
 
   return {
     singlehopElement,

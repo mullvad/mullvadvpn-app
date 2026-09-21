@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { LocationType } from '../../../features/locations/types';
-import { useMultihop } from '../../../features/multihop/hooks';
 import useActions from '../../../lib/actionsHook';
 import type { LocationSelectorSelectedItem } from '../../../lib/components/location-selector';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
+
+type TransitionState = 'idle' | 'transitioningOut' | 'transitioningIn';
 
 type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'children'> & {
   locationType: LocationType;
@@ -16,6 +17,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
   isLocationSelectorExpanded: boolean;
   setIsLocationSelectorExpanded: (value: boolean) => void;
+  transitionState: TransitionState;
+  setTransitionState: (value: TransitionState) => void;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -37,7 +40,6 @@ type SelectLocationViewProviderProps = React.PropsWithChildren;
 export function SelectLocationViewProvider({ children }: SelectLocationViewProviderProps) {
   const { setSelectLocationView } = useActions(userInterface);
   const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
-  const { multihop } = useMultihop();
 
   const [isolatedItem, stateSetIsolatedItem] = React.useState<
     LocationSelectorSelectedItem | undefined
@@ -56,15 +58,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   }, []);
 
   const [isLocationSelectorExpanded, setIsLocationSelectorExpanded] = React.useState(true);
-
-  const locationType = React.useMemo(() => {
-    const allowEntryLocations = multihop === 'always';
-    if (allowEntryLocations) {
-      return locationTypeSelector;
-    }
-
-    return LocationType.exit;
-  }, [locationTypeSelector, multihop]);
+  const [transitionState, setTransitionState] = React.useState<TransitionState>('idle');
 
   const setLocationType = React.useCallback(
     (value: LocationType) => {
@@ -77,7 +71,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
 
   const value = React.useMemo(
     () => ({
-      locationType,
+      locationType: locationTypeSelector,
       setLocationType,
       searchTerm,
       setSearchTerm,
@@ -85,15 +79,18 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setIsolatedItem,
       isLocationSelectorExpanded,
       setIsLocationSelectorExpanded,
+      transitionState,
+      setTransitionState,
     }),
     [
-      locationType,
+      locationTypeSelector,
       setLocationType,
       searchTerm,
       setSearchTerm,
       isolatedItem,
       setIsolatedItem,
       isLocationSelectorExpanded,
+      transitionState,
     ],
   );
 

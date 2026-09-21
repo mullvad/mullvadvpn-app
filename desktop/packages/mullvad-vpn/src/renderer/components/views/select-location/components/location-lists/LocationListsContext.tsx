@@ -61,7 +61,7 @@ export function LocationListsProvider({ type, children }: LocationListsProviderP
   const filteredCustomListLocations = useMapCustomListsToLocations(
     searchedCountryLocations,
     searchTerm,
-    selectedLocation,
+    selectedLocation === 'any' ? undefined : selectedLocation,
   );
   const searchedCustomListLocations = useSearchCustomListLocations(
     filteredCustomListLocations,

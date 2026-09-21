@@ -1,4 +1,4 @@
-import type { RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
+import type { LiftedConstraint, RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
 import { useCustomLists } from '../../../../../../features/custom-lists/hooks';
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import {
@@ -11,13 +11,15 @@ import {
   isCustomList,
   isRelay,
 } from '../../../../../../features/locations/utils';
+import { useAutomaticLocationName } from './use-automatic-location-name';
 
-export function useLocationName(location: RelayLocation | undefined): string | undefined {
+export function useLocationName(location: LiftedConstraint<RelayLocation>): string | undefined {
   const { relayLocations } = useRelayLocations();
   const { customLists } = useCustomLists();
+  const automaticName = useAutomaticLocationName();
 
-  if (!location) {
-    return undefined;
+  if (location === 'any') {
+    return automaticName;
   }
 
   if (isCustomList(location)) {

@@ -6,10 +6,7 @@ import { FlexRow } from '../../../flex-row';
 import { BodySmall } from '../../../text';
 import { useLocationSelectorContext } from '../../LocationSelectorContext';
 import { LocationSelectorRowIcon } from './components';
-import {
-  LocationSelectorRowProvider,
-  useLocationSelectorRowContext,
-} from './LocationSelectorRowContext';
+import { LocationSelectorRowProvider } from './LocationSelectorRowContext';
 
 export type LocationSelectorRowPropsPositions = 'top' | 'bottom';
 
@@ -23,12 +20,9 @@ export const StyledLocationSelectorRowContent = styled(FlexRow).attrs({
   padding: { left: 'tiny' },
 })`
   ${() => {
-    const { position } = useLocationSelectorRowContext();
     return css`
       position: relative;
-      height: 100%;
-      padding-bottom: ${position === 'top' ? spacings.tiny : 0};
-      padding-top: ${position === 'bottom' ? spacings.tiny : 0};
+      min-height: 28px;
     `;
   }}
 `;

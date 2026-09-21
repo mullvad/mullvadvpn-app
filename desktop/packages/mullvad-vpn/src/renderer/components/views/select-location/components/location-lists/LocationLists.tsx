@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useRecents } from '../../../../../features/locations/hooks';
-import type { LocationType } from '../../../../../features/locations/types';
+import { LocationType } from '../../../../../features/locations/types';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useMounted } from '../../../../../lib/utility-hooks';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
@@ -18,6 +18,7 @@ export type LocationsListsProps = {
 
 function LocationsListsImpl() {
   const { hasRecents } = useRecents();
+
   const hasSearched = useHasSearched();
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
@@ -25,8 +26,6 @@ function LocationsListsImpl() {
   const showRecentLocations = !hasSearched && hasRecents;
   const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
   const showCountryLocations = !hasSearched || hasSearchedLocations;
-  const showNoSearchResult =
-    hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
 
   const { resetScroll } = useScrollPositionContext();
 
@@ -39,15 +38,18 @@ function LocationsListsImpl() {
     }
   }, [resetScroll, isMounted]);
 
+  const hasNoSearchResult =
+    hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
+  if (hasNoSearchResult) {
+    return <NoSearchResult />;
+  }
+
   return (
-    <>
-      <FlexColumn gap="large">
-        {showRecentLocations && <RecentLocations />}
-        {showCustomListLocationLists && <CustomListLocations />}
-        {showCountryLocations && <CountryLocations />}
-        {showNoSearchResult && <NoSearchResult />}
-      </FlexColumn>
-    </>
+    <FlexColumn gap="large">
+      {showRecentLocations && <RecentLocations />}
+      {showCustomListLocationLists && <CustomListLocations />}
+      {showCountryLocations && <CountryLocations />}
+    </FlexColumn>
   );
 }
 

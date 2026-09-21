@@ -35,3 +35,28 @@ export function findCustomList(
 ): ICustomList | undefined {
   return customLists.find((list) => list.id === id);
 }
+
+export function findCityForRelay(
+  hostname: string,
+  locations: IRelayLocationCountryRedux[],
+): IRelayLocationCityRedux | undefined {
+  return locations
+    .flatMap((country) => country.cities)
+    .find((city) => city.relays.some((relay) => relay.hostname === hostname));
+}
+
+export function findCountryForCity(
+  cityCode: string,
+  locations: IRelayLocationCountryRedux[],
+): IRelayLocationCountryRedux | undefined {
+  return locations.find((country) => country.cities.some((city) => city.code === cityCode));
+}
+
+export function findCountryForRelay(
+  hostname: string,
+  locations: IRelayLocationCountryRedux[],
+): IRelayLocationCountryRedux | undefined {
+  const city = findCityForRelay(hostname, locations);
+  if (!city) return undefined;
+  return findCountryForCity(city.code, locations);
+}
