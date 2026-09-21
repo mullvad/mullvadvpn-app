@@ -251,7 +251,6 @@
 		5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5875960926F371FC00BF6711 /* Tunnel+Messaging.swift */; };
 		5877F94E2A0A59AA0052D9E9 /* NotificationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5877F94D2A0A59AA0052D9E9 /* NotificationResponse.swift */; };
 		5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */; };
-		5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27029091CF20096FC88 /* AccountInteractor.swift */; };
 		5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */; };
 		5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27429093A310096FC88 /* StorePaymentEvent.swift */; };
 		5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A278290954790096FC88 /* TunnelViewControllerInteractor.swift */; };
@@ -746,7 +745,6 @@
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
 		7AEC2EC130232B0D00B988B6 /* MullvadApiNetworkTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEC2EC030232B0500B988B6 /* MullvadApiNetworkTask.swift */; };
 		7AEC2F6A302C952900B988B6 /* Task+AnyCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEC2F69302C952000B988B6 /* Task+AnyCancellable.swift */; };
-		7AEC2F6B302C998100B988B6 /* AccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878A27029091CF20096FC88 /* AccountInteractor.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		7AEF7F1A2AD00F52006FE45D /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */; };
@@ -1215,6 +1213,8 @@
 		F9394EF32DC21D8C009595EA /* MullvadList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9394EF22DC21D8C009595EA /* MullvadList.swift */; };
 		F947D9FE2ED5A9C000C9D728 /* MultihopSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */; };
 		F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */; };
+		F94B9CE2305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */; };
+		F94B9CE3305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */; };
 		F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28302E8A8FC300C3F75D /* LocationContext.swift */; };
 		F95A28332E8BBB7400C3F75D /* SelectLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */; };
 		F95AC9EA2E5DFB0600A55B52 /* LocationsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */; };
@@ -2070,7 +2070,6 @@
 		5877F94D2A0A59AA0052D9E9 /* NotificationResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationResponse.swift; sourceTree = "<group>"; };
 		58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraints.swift; sourceTree = "<group>"; };
 		5878A26E2907E7E00096FC88 /* ProblemReportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportInteractor.swift; sourceTree = "<group>"; };
-		5878A27029091CF20096FC88 /* AccountInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInteractor.swift; sourceTree = "<group>"; };
 		5878A27229091D6D0096FC88 /* TunnelBlockObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelBlockObserver.swift; sourceTree = "<group>"; };
 		5878A27429093A310096FC88 /* StorePaymentEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentEvent.swift; sourceTree = "<group>"; };
 		5878A278290954790096FC88 /* TunnelViewControllerInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelViewControllerInteractor.swift; sourceTree = "<group>"; };
@@ -2847,6 +2846,7 @@
 		F9394EF22DC21D8C009595EA /* MullvadList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadList.swift; sourceTree = "<group>"; };
 		F947D9FD2ED5A9C000C9D728 /* MultihopSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopSelectionView.swift; sourceTree = "<group>"; };
 		F947D9FF2ED5AC8600C9D728 /* CGRect+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGRect+Properties.swift"; sourceTree = "<group>"; };
+		F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDataPoller.swift; sourceTree = "<group>"; };
 		F95A28302E8A8FC300C3F75D /* LocationContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationContext.swift; sourceTree = "<group>"; };
 		F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationFilter.swift; sourceTree = "<group>"; };
 		F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsListView.swift; sourceTree = "<group>"; };
@@ -3444,6 +3444,7 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
+				F94B9CE1305BD8CE007B3F2C /* AccountDataPoller.swift */,
 				F080AED6303F202F00D4DE50 /* AccountManager.swift */,
 				A9E031762ACB08950095D843 /* BackgroundTaskProvider.swift */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
@@ -3720,7 +3721,6 @@
 				5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */,
 				F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */,
 				F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */,
-				5878A27029091CF20096FC88 /* AccountInteractor.swift */,
 				F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
 				7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */,
@@ -6465,7 +6465,6 @@
 				A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */,
 				A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */,
 				A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */,
-				7AEC2F6B302C998100B988B6 /* AccountInteractor.swift in Sources */,
 				7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */,
 				A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */,
 				F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */,
@@ -6553,6 +6552,7 @@
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
 				A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */,
 				7ACE19152C1C429A00260BB6 /* MultihopDecisionFlowTests.swift in Sources */,
+				F94B9CE3305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */,
 				7A2F410A2EC38FD20013D3C5 /* StoreSubscription.swift in Sources */,
 				F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */,
@@ -6908,7 +6908,6 @@
 				01C981E92F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift in Sources */,
 				7A9246AC2EB0C765008FE31A /* StorePaymentManagerInteractor.swift in Sources */,
 				58EFC7752AFB4CEF00E9F4CB /* AboutViewController.swift in Sources */,
-				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */,
 				7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */,
 				7A95A9D62FA8D1D20096009A /* SegmentedListItem+Preview.swift in Sources */,
@@ -7150,6 +7149,7 @@
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				F9394EEC2DBF56B6009595EA /* Color+Mullvad.swift in Sources */,
+				F94B9CE2305BD8CE007B3F2C /* AccountDataPoller.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
