@@ -9,6 +9,7 @@ use gotatun::{
     x25519::StaticSecret,
 };
 use talpid_net::bypass::NoopBypass;
+use talpid_types::net::ObfuscationType;
 use tokio::sync::Mutex;
 use tunnel_obfuscation::{
     create_transport,
@@ -88,17 +89,35 @@ impl std::fmt::Display for ObfuscationProxyError {
 pub async fn create_obfuscation(
     params: &TunnelParameters,
 ) -> Result<Option<RunningObfuscation>, ObfuscationProxyError> {
-    let obfuscation = match obfuscation_settings(params)? {
-        None => return Ok(None),
+    let Some(settings) = obfuscation_settings(params)? else {
+        log::info!("Obfuscation is off");
+        return Ok(None);
+    };
+    log::info!(
+        "Obfuscating the traffic towards {} with {}",
+        params.ingress_peer().endpoint,
+        obfuscation_type(&settings)
+    );
+
+    let obfuscation = match settings {
         // LWO obfuscates each datagram in place, over the socket of the device.
-        Some(tunnel_obfuscation::Settings::Lwo(settings)) => RunningObfuscation::Lwo(settings),
-        Some(settings) => RunningObfuscation::Transport(
+        tunnel_obfuscation::Settings::Lwo(settings) => RunningObfuscation::Lwo(settings),
+        settings => RunningObfuscation::Transport(
             create_transport(Arc::new(NoopBypass), &settings)
                 .await
                 .map_err(ObfuscationProxyError::LocalSocketError)?,
         ),
     };
     Ok(Some(obfuscation))
+}
+
+fn obfuscation_type(settings: &tunnel_obfuscation::Settings) -> ObfuscationType {
+    match settings {
+        tunnel_obfuscation::Settings::Udp2Tcp(_) => ObfuscationType::Udp2Tcp,
+        tunnel_obfuscation::Settings::Shadowsocks(_) => ObfuscationType::Shadowsocks,
+        tunnel_obfuscation::Settings::Quic(_) => ObfuscationType::Quic,
+        tunnel_obfuscation::Settings::Lwo(_) => ObfuscationType::Lwo,
+    }
 }
 
 /// The settings of the obfuscator that reaches the ingress relay.
