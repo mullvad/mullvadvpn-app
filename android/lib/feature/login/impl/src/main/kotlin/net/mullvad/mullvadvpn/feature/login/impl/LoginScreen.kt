@@ -399,9 +399,7 @@ private fun ColumnScope.LoginInput(
                     IconButton(
                         modifier =
                             Modifier.focusRequester(revealInputRequester)
-                                .focusProperties {
-                                    start = inputRequester
-                                }
+                                .focusProperties { start = inputRequester }
                                 .onPreviewKeyEvent { keyEvent ->
                                     when (keyEvent.type) {
                                         KeyEventType.KeyUp if keyEvent.isDirectionCenter -> {
