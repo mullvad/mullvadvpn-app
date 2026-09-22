@@ -1,20 +1,22 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  LogOverlayViewController.swift
-//  MullvadVPN
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Jon Petersson on 2026-04-24.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 import UIKit
 
-class LogOverlayViewController: UIViewController {
-    private let logView: LogView
-    private let interactor: LogViewInteractor
+class InAppLogOverlayViewController: UIViewController {
+    private let logView: InAppLogView
+    private let interactor: InAppLogViewInteractor
 
-    init(interactor: LogViewInteractor) {
+    init(interactor: InAppLogViewInteractor) {
         self.interactor = interactor
-        logView = LogView(interactor: interactor)
+        logView = InAppLogView(interactor: interactor)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -44,13 +46,6 @@ class LogOverlayViewController: UIViewController {
 
             self?.present(activityController, animated: true)
         }
-    }
-}
-
-class PassthroughWindow: UIWindow {
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        let hit = super.hitTest(point, with: event)
-        return hit === self ? nil : hit
     }
 }
 

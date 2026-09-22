@@ -201,7 +201,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             })
         tunnelManager.addObserver(settingsObserver)
 
-        #if DEBUG
+        #if NEVER_IN_PRODUCTION
             tunnelManager.onInAppLogEntries = { [weak self] entries in
                 DispatchQueue.main.async {
                     entries.forEach { self?.inAppLogObserver.didAddLogEntry($0) }
