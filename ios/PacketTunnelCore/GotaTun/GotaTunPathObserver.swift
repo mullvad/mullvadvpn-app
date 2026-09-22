@@ -27,23 +27,38 @@ public protocol GotaTunPathObserverProtocol: Sendable {
 }
 
 public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
-    private let pathMonitor = NWPathMonitor()
+    typealias PathUpdates = @Sendable () -> AsyncStream<Path>
+    typealias AddressLookup = @Sendable (_ interface: String?) -> Set<String>
+
+    private let clock: any Clock<Duration>
+    private let makePathUpdates: PathUpdates
+    private let localAddresses: AddressLookup
     private var observation: Task<Void, Never>?
+    private var onChange: (@Sendable (Network.NWPath.Status) -> Void)?
     private var startedStatus: Network.NWPath.Status?
     private let logger = Logger(label: "GotaTunPathObserver")
     private var pendingLoss: Task<Void, Never>?
-    private var deliveredRoute: Route?
+    private var pendingLossPath: Path?
+    private var deliveredPath: Path?
     private var deliveredAddresses: Set<String> = []
     private var addressCheck: Task<Void, Never>?
 
     /// How long a reported loss of connectivity must persist before it is believed. Applying
     /// tunnel settings, and interface handoffs, momentarily leave the path unsatisfied.
-    private static let pathUpdateDebounceDelay: Duration = .milliseconds(250)
+    static let pathUpdateDebounceDelay: Duration = .milliseconds(250)
 
     /// How long after a path update the interface's addresses are compared.
-    private static let addressCheckDelay: Duration = .seconds(3)
+    static let addressCheckDelay: Duration = .seconds(3)
 
-    public init() {}
+    public init(clock: any Clock<Duration> = ContinuousClock()) {
+        self.init(clock: clock, pathUpdates: Self.defaultPathUpdates, localAddresses: interfaceAddresses)
+    }
+
+    init(clock: any Clock<Duration>, pathUpdates: @escaping PathUpdates, localAddresses: @escaping AddressLookup) {
+        self.clock = clock
+        self.makePathUpdates = pathUpdates
+        self.localAddresses = localAddresses
+    }
 
     @discardableResult
     public func start(
@@ -51,16 +66,17 @@ public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
     ) async -> Network.NWPath.Status {
         if let startedStatus { return startedStatus }
 
-        var iterator = pathMonitor.makeAsyncIterator()
+        var iterator = makePathUpdates().makeAsyncIterator()
         let currentPath = await iterator.next()
         let currentStatus = currentPath?.status ?? .unsatisfied
         startedStatus = currentStatus
-        deliveredRoute = currentPath.map(Route.init)
-        deliveredAddresses = localAddresses(of: deliveredRoute?.interface)
+        deliveredPath = currentPath
+        deliveredAddresses = localAddresses(currentPath?.interface)
+        onChange = body
 
         observation = Task { [weak self] in
             while let path = await iterator.next() {
-                await self?.handle(path, body)
+                await self?.handle(path)
             }
         }
 
@@ -68,84 +84,114 @@ public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
     }
 
     public func stop() {
-        // Cancelling ends the sequence, which ends `observation`.
-        pathMonitor.cancel()
+        // Cancelling ends iteration, which terminates the path updates.
+        observation?.cancel()
         observation = nil
-        pendingLoss?.cancel()
-        pendingLoss = nil
+        onChange = nil
+        cancelPendingLoss()
         addressCheck?.cancel()
         addressCheck = nil
     }
 
-    private func handle(_ path: Network.NWPath, _ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
-        logger.debug("Received new path update: \(path), gateways: \(path.gateways)")
-        pendingLoss?.cancel()
-        pendingLoss = nil
+    private static func defaultPathUpdates() -> AsyncStream<Path> {
+        let monitor = NWPathMonitor()
+        return AsyncStream { continuation in
+            monitor.pathUpdateHandler = { continuation.yield(Path($0)) }
+            continuation.onTermination = { _ in monitor.cancel() }
+            monitor.start(queue: DispatchQueue(label: "GotaTunPathObserver.monitor"))
+        }
+    }
 
-        let route = Route(path)
-        guard route != deliveredRoute else {
-            scheduleAddressCheck(body)
+    func handle(_ path: Path) {
+        // Losing a path should be debounced - .satisfied updates need not be debounced. This swallows spurious losses in
+        // connectivity. Further losses replace the pending path but keep its deadline, so churn cannot postpone it.
+        if path.status == .unsatisfied, pendingLoss != nil {
+            pendingLossPath = path
             return
         }
 
-        // Losing a path should be debounced - .satisfied updates need not be debounced. This swallows spurious losses in connectivity.
+        cancelPendingLoss()
+
+        guard path != deliveredPath else {
+            scheduleAddressCheck()
+            return
+        }
+
         guard path.status == .unsatisfied else {
-            deliver(route, body)
+            deliver(path)
             return
         }
 
+        pendingLossPath = path
         pendingLoss = Task {
-            try? await Task.sleep(for: Self.pathUpdateDebounceDelay)
-            guard !Task.isCancelled else { return }
-            deliver(route, body)
+            try? await clock.sleep(for: Self.pathUpdateDebounceDelay)
+            guard !Task.isCancelled, let pendingLossPath else { return }
+            if pendingLossPath == deliveredPath {
+                cancelPendingLoss()
+            } else {
+                deliver(pendingLossPath)
+            }
         }
     }
 
     /// Does nothing while a check is pending, so frequent path updates cannot postpone it.
-    private func scheduleAddressCheck(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
-        guard addressCheck == nil, deliveredRoute?.status == .satisfied else { return }
+    private func scheduleAddressCheck() {
+        guard addressCheck == nil, deliveredPath?.status == .satisfied else { return }
 
         addressCheck = Task {
-            try? await Task.sleep(for: Self.addressCheckDelay)
+            try? await clock.sleep(for: Self.addressCheckDelay)
             guard !Task.isCancelled else { return }
             addressCheck = nil
 
-            guard let route = deliveredRoute, route.status == .satisfied, pendingLoss == nil,
-                localAddresses(of: route.interface) != deliveredAddresses
+            guard let path = deliveredPath, path.status == .satisfied, pendingLoss == nil,
+                localAddresses(path.interface) != deliveredAddresses
             else { return }
-            deliver(route, body)
+            deliver(path)
         }
     }
 
-    private func deliver(_ route: Route, _ body: (Network.NWPath.Status) -> Void) {
-        deliveredRoute = route
-        deliveredAddresses = localAddresses(of: route.interface)
+    private func cancelPendingLoss() {
+        pendingLoss?.cancel()
+        pendingLoss = nil
+        pendingLossPath = nil
+    }
+
+    private func deliver(_ path: Path) {
+        cancelPendingLoss()
+        deliveredPath = path
+        deliveredAddresses = localAddresses(path.interface)
         logger.debug(
             """
             Path changed: \(path.status), interface: \(path.interface ?? "none"), \
             gateways: \(path.gateways), addresses: \(deliveredAddresses.sorted())
             """
         )
-        body(route.status)
+        onChange?(path.status)
     }
 }
 
-/// The parts of a path that matter to the tunnel's sockets: whether there is one, which interface
-/// the system prefers, and which network that interface is attached to.
-private struct Route: Equatable {
-    let status: Network.NWPath.Status
-    let interface: String?
-    let gateways: [NWEndpoint]
+extension GotaTunPathObserver {
+    /// The parts of a path that matter to the tunnel's sockets: whether there is one, which interface
+    /// the system prefers, and which network that interface is attached to.
+    struct Path: Equatable, Sendable {
+        let status: Network.NWPath.Status
+        let interface: String?
+        let gateways: [NWEndpoint]
 
-    init(_ path: Network.NWPath) {
-        status = path.status
-        interface = path.availableInterfaces.first?.name
-        gateways = path.gateways
+        init(status: Network.NWPath.Status, interface: String?, gateways: [NWEndpoint] = []) {
+            self.status = status
+            self.interface = interface
+            self.gateways = gateways
+        }
+
+        init(_ path: Network.NWPath) {
+            self.init(status: path.status, interface: path.availableInterfaces.first?.name, gateways: path.gateways)
+        }
     }
 }
 
 /// The IPv4 and IPv6 addresses assigned to `interface`.
-private func localAddresses(of interface: String?) -> Set<String> {
+private func interfaceAddresses(of interface: String?) -> Set<String> {
     var list: UnsafeMutablePointer<ifaddrs>?
     guard let interface, getifaddrs(&list) == 0, let first = list else { return [] }
     defer { freeifaddrs(list) }
