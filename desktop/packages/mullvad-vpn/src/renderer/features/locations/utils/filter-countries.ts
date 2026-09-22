@@ -3,11 +3,11 @@ import type {
   IRelayLocationRelayRedux,
 } from '../../../redux/settings/reducers';
 
-export function filterLocationsByFilters(
-  locations: Array<IRelayLocationCountryRedux>,
+export function filterCountries(
+  countries: IRelayLocationCountryRedux[],
   filter: (relay: IRelayLocationRelayRedux) => boolean,
-): Array<IRelayLocationCountryRedux> {
-  return locations
+): IRelayLocationCountryRedux[] {
+  return countries
     .map((country) => ({
       ...country,
       cities: country.cities
