@@ -35,7 +35,6 @@ use nl_message::{ControlNla, NetlinkControlMessage};
 pub mod netlink_tunnel;
 pub use netlink_tunnel::NetlinkTunnel;
 pub mod nm_tunnel;
-pub use nm_tunnel::NetworkManagerTunnel;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -86,9 +85,6 @@ pub enum Error {
 
     #[error("Failed to delete device")]
     DeleteDevice(#[source] rtnetlink::Error),
-
-    #[error("NetworkManager error")]
-    NetworkManager(#[source] nm_tunnel::Error),
 }
 
 #[derive(Debug)]
@@ -159,7 +155,7 @@ impl Handle {
         result
     }
 
-    // create a wireguard device with the given name.
+    // create a network device with the given name.
     pub async fn create_device(&mut self, name: String, mtu: u32) -> Result<u32, Error> {
         let message_builder = LinkMessageBuilder::<LinkWireguard>::new(&name)
             // set link to be up

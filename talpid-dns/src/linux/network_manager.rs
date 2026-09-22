@@ -24,8 +24,6 @@ impl NetworkManager {
     }
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        // HACK: Remove me
-        let interface_name = "wg0-mullvad-dns";
         let old_settings = self.connection.set_dns(interface_name, servers)?;
         self.settings_backup = Some(old_settings);
         self.device = Some(interface_name.to_string());

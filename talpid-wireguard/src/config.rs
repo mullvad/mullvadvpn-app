@@ -5,8 +5,6 @@ use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguar
 /// Name to use for the tunnel device
 #[cfg(target_os = "linux")]
 pub(crate) const MULLVAD_INTERFACE_NAME: &str = "wg0-mullvad";
-#[cfg(target_os = "linux")]
-pub(crate) const MULLVAD_DNS_NAME: &str = "wg0-mullvad-dns";
 
 /// Config required to set up a single WireGuard tunnel
 #[derive(Debug, Clone)]

@@ -1,6 +1,6 @@
-use crate::{config::MULLVAD_DNS_NAME, gotatun::GotaTun};
+use crate::{gotatun::GotaTun, wireguard_kernel::nm_tunnel};
 
-use super::{super::stats::StatsMap, Config, Error as WgKernelError, Tunnel, TunnelError};
+use super::{super::stats::StatsMap, Config, Tunnel, TunnelError};
 use std::collections::HashMap;
 use talpid_dbus::{
     dbus,
@@ -18,64 +18,65 @@ pub enum Error {
     NetworkManager(#[from] NetworkManagerError),
 }
 
-pub struct NetworkManagerTunnel {
+/// [`NetworkManagerDevice`] is a generic network device. It can be used to configure system-wide DNS
+/// on systems which use NetworkManager to configure their network(s). The [`NetworkManagerTunnel`]
+/// type ties the lifetime of this generic network device to an instance of another WireGuard
+/// implementation.
+pub type NetworkManagerTunnel = (NetworkManagerDevice, GotaTun);
+
+pub struct NetworkManagerDevice {
     network_manager: NetworkManager,
     network_manager_device: NMDevice,
-    tunnel: GotaTun,
+    interface: String,
 }
 
-impl NetworkManagerTunnel {
-    pub fn new(tunnel: GotaTun, config: &Config) -> std::result::Result<Self, WgKernelError> {
-        let network_manager = NetworkManager::new()
-            .map_err(Error::NetworkManager)
-            .map_err(WgKernelError::NetworkManager)?;
-        let config_map = convert_config_to_dbus(config);
-        let _network_manager_device = network_manager
-            .create_network_device(&config_map)
-            .map_err(|err| WgKernelError::NetworkManager(err.into()))?;
-        Ok(NetworkManagerTunnel {
+impl NetworkManagerDevice {
+    pub fn dns(config: &Config, interface: String) -> std::result::Result<Self, nm_tunnel::Error> {
+        let network_manager = NetworkManager::new().map_err(Error::NetworkManager)?;
+        let config_map = convert_config_to_dbus(config, interface.clone());
+        let network_manager_device = network_manager.create_network_device(&config_map)?;
+        Ok(NetworkManagerDevice {
             network_manager,
-            tunnel,
-            network_manager_device: _network_manager_device,
+            network_manager_device,
+            interface,
         })
+    }
+
+    pub fn interface_name(&self) -> &str {
+        &self.interface
     }
 }
 
 #[async_trait::async_trait]
 impl Tunnel for NetworkManagerTunnel {
     fn get_interface_name(&self) -> String {
-        self.tunnel.get_interface_name()
+        self.1.get_interface_name()
     }
 
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError> {
         if let Err(err) = self
+            .0
             .network_manager
-            .remove_network_device(self.network_manager_device)
+            .remove_network_device(self.0.network_manager_device)
         {
-            log::error!("Failed to remove WireGuard tunnel via NM: {}", err);
-            // TODO: Propagate error ?
+            log::error!("Failed to remove NetworkManager device: {}", err);
         }
-        Box::new(self.tunnel).stop()
+        Box::new(self.1).stop()
     }
 
     async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
-        self.tunnel.get_tunnel_stats().await
+        self.1.get_tunnel_stats().await
     }
 }
 
-fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
+fn convert_config_to_dbus(config: &Config, interface: String) -> DeviceConfig {
     let mut ipv6_config: VariantMap = HashMap::new();
     let mut ipv4_config: VariantMap = HashMap::new();
     let mut connection_config: VariantMap = HashMap::new();
 
-    // TODO: Document `dummy` type.
     connection_config.insert("type".into(), Variant(Box::new("dummy".to_string())));
-    //connection_config.insert("type".into(), Variant(Box::new("wireguard".to_string())));
-    connection_config.insert("id".into(), Variant(Box::new(MULLVAD_DNS_NAME.to_string())));
-    connection_config.insert(
-        "interface-name".into(),
-        Variant(Box::new(MULLVAD_DNS_NAME.to_string())),
-    );
+    connection_config.insert("id".into(), Variant(Box::new(interface.clone())));
+    connection_config.insert("interface-name".into(), Variant(Box::new(interface)));
     connection_config.insert("autoconnect".into(), Variant(Box::new(true)));
 
     let ipv4_addrs: Vec<_> = config
