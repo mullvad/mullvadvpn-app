@@ -292,7 +292,7 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
 
     let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
 
-    let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
+    let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct);
     Ok(DevicesProxy::new(rest_handle))
 }
 

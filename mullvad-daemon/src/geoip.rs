@@ -74,7 +74,7 @@ impl GeoIpHandler {
             RequestService::spawn(
                 host,
                 api_availability.clone(),
-                ApiConnectionMode::Direct.into_provider(),
+                ApiConnectionMode::Direct,
                 Arc::new(dns_resolver.clone()),
                 #[cfg(target_os = "android")]
                 None,
