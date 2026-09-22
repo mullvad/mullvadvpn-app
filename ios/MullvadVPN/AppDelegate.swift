@@ -56,6 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
     let breadcrumbsProvider = BreadcrumbsProvider()
+    let inAppLogObserver = InAppLogBlockObserver()
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
@@ -198,6 +199,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 tunnelSettingsListener.onNewSettings?(settings)
             })
         tunnelManager.addObserver(settingsObserver)
+
+        #if DEBUG
+            tunnelManager.onInAppLogEntries = { [weak self] entries in
+                DispatchQueue.main.async {
+                    entries.forEach { self?.inAppLogObserver.didAddLogEntry($0) }
+                }
+            }
+        #endif
 
         storePaymentManager = StorePaymentManager(
             interactor: StorePaymentManagerInteractor(
@@ -472,6 +481,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
+            loggerBuilder.addInAppLogOutput(
+                process: .app,
+                observer: inAppLogObserver
+            )
         #endif
         loggerBuilder.install(redactor)
 
