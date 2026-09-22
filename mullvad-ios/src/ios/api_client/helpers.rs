@@ -72,7 +72,7 @@ pub fn new_socks5_access_method_setting(
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn get_shadowsocks_chipers() -> *mut libc::c_char {
+pub extern "C" fn get_shadowsocks_ciphers() -> *mut libc::c_char {
     let ciphers_string = available_ciphers().join(",");
     let ciphers_c_string = CString::new(ciphers_string).unwrap_or_default();
 

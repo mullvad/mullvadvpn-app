@@ -71,7 +71,7 @@ class LocationNode: @unchecked Sendable {
             children: [],
             showsChildren: showsChildren,
             isConnected: isConnected,
-            isSelected: false,  // explicity set to false since it's a different node
+            isSelected: false,  // explicitly set to false since it's a different node
             isExcluded: isExcluded,
             isOverridden: isOverridden
         )
@@ -262,7 +262,7 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
         children: [LocationNode] = [],
         showsChildren: Bool = false,
         locationInfo: [String]?,
-        isIPOverriden: Bool = false
+        isIPOverridden: Bool = false
     ) {
         self.locationInfo = locationInfo
 
@@ -274,7 +274,7 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: children,
             showsChildren: showsChildren,
-            isOverridden: isIPOverriden
+            isOverridden: isIPOverridden
         )
     }
 }

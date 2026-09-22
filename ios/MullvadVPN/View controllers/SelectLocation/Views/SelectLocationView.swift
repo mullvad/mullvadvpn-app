@@ -29,7 +29,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     var body: some View {
         VStack(spacing: 0) {
             // Eventhough the location list is not in the top,
-            // the navigation bar would changes appearence when the list gets scrolled.
+            // the navigation bar would changes appearance when the list gets scrolled.
             // (see UINavigationBar+Appearance.swift)
             // Adding an empty scroll view on top prevents that.
             ScrollView {}.frame(height: 0)

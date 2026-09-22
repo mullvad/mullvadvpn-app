@@ -17,7 +17,7 @@ import UserNotifications
 
 @MainActor
 protocol IncludeAllNetworksSettingsViewModel: ObservableObject {
-    var includeAllNetworksState: InclueAllNetworksState { get set }
+    var includeAllNetworksState: IncludeAllNetworksState { get set }
     var localNetworkSharingState: LocalNetworkSharingState { get set }
     var consent: Bool { get set }
 
@@ -34,7 +34,7 @@ class IncludeAllNetworksSettingsViewModelImpl: IncludeAllNetworksSettingsViewMod
 
     var settings: IncludeAllNetworksSettings
 
-    @Published var includeAllNetworksState: InclueAllNetworksState {
+    @Published var includeAllNetworksState: IncludeAllNetworksState {
         didSet {
             if includeAllNetworksState == .on {
                 Task {
@@ -329,7 +329,7 @@ extension IncludeAllNetworksSettingsViewModel {
 // MARK: Mock
 
 class MockIncludeAllNetworksTunnelSettingsViewModel: IncludeAllNetworksSettingsViewModel {
-    var includeAllNetworksState: InclueAllNetworksState
+    var includeAllNetworksState: IncludeAllNetworksState
     var localNetworkSharingState: LocalNetworkSharingState
     var consent: Bool
 

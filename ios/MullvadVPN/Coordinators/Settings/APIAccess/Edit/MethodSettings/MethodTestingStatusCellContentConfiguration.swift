@@ -43,7 +43,7 @@ struct MethodTestingStatusCellContentConfiguration: UIContentConfiguration, Equa
 }
 
 extension MethodTestingStatusCellContentConfiguration.Status {
-    /// The text label descirbing the status of testing and suitable for user presentation.
+    /// The text label describing the status of testing and suitable for user presentation.
     var text: String {
         switch self {
         case .unreachable:

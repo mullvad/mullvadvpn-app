@@ -111,7 +111,7 @@ final class RoutingTests: XCTestCase {
         XCTAssertEqual(router.modalStack.count, 1)
     }
 
-    func testShouldDropSameLevelModalRouteIfPreceededByExclusive() throws {
+    func testShouldDropSameLevelModalRouteIfPrecededByExclusive() throws {
         enum TestRoute: AppRouteProtocol {
             case one, two
             var isExclusive: Bool { self == .one }

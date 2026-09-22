@@ -50,7 +50,7 @@ class TunnelControlPage: Page {
     /// Poll the "in address row" label for its updated values and output an array of ConnectionAttempt objects representing the connection attempts that have been communicated through the UI.
     /// - Parameters:
     ///   - attemptsCount: number of connection attempts to look for
-    ///   - timeout: return the attemps found so far after this many seconds if `attemptsCount` haven't been reached yet
+    ///   - timeout: return the attempts found so far after this many seconds if `attemptsCount` haven't been reached yet
     private func waitForConnectionAttempts(_ attemptsCount: Int, timeout: TimeInterval) -> [ConnectionAttempt] {
         var connectionAttempts: [ConnectionAttempt] = []
         var lastConnectionAttempt: ConnectionAttempt?

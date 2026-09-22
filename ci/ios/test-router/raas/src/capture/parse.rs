@@ -180,7 +180,7 @@ pub enum TransportProtocol {
     Udp,
     Icmp,
     Icmp6,
-    Unkown,
+    Unknown,
 }
 
 impl From<IpNextHeaderProtocol> for TransportProtocol {
@@ -190,7 +190,7 @@ impl From<IpNextHeaderProtocol> for TransportProtocol {
             IpNextHeaderProtocols::Tcp => Self::Tcp,
             IpNextHeaderProtocols::Icmp => Self::Icmp,
             IpNextHeaderProtocols::Icmpv6 => Self::Icmp6,
-            _ => Self::Unkown,
+            _ => Self::Unknown,
         }
     }
 }

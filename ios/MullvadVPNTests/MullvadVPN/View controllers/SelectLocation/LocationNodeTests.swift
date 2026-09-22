@@ -37,7 +37,7 @@ class LocationNodeTests: XCTestCase {
         XCTAssertEqual(hostNode.root, listNode)
     }
 
-    func testAnscestors() throws {
+    func testAncestors() throws {
         hostNode.forEachAncestor { node in
             node.showsChildren = true
         }

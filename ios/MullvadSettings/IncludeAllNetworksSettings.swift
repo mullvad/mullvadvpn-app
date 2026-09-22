@@ -11,7 +11,7 @@
 import Foundation
 
 /// Whether IAN is enabled.
-public enum InclueAllNetworksState: Codable, Sendable {
+public enum IncludeAllNetworksState: Codable, Sendable {
     case on
     case off
 
@@ -33,7 +33,7 @@ public enum LocalNetworkSharingState: Codable, Sendable {
 }
 
 public struct IncludeAllNetworksSettings: Codable, Equatable, Sendable, CustomDebugStringConvertible {
-    public var includeAllNetworksState: InclueAllNetworksState
+    public var includeAllNetworksState: IncludeAllNetworksState
     public var localNetworkSharingState: LocalNetworkSharingState
 
     public var includeAllNetworksIsEnabled: Bool {
@@ -45,7 +45,7 @@ public struct IncludeAllNetworksSettings: Codable, Equatable, Sendable, CustomDe
     }
 
     public init(
-        includeAllNetworksState: InclueAllNetworksState = .off,
+        includeAllNetworksState: IncludeAllNetworksState = .off,
         localNetworkSharingState: LocalNetworkSharingState = .off
     ) {
         self.includeAllNetworksState = includeAllNetworksState

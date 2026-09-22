@@ -77,7 +77,7 @@ final class WireGuardGoTunnelImplementation: TunnelImplementation, @unchecked Se
             protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
         )
 
-        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
+        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initialized.
         startDefaultPathObserver()
 
         ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(

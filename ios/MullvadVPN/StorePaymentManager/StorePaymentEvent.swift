@@ -60,7 +60,7 @@ enum StorePaymentError: Error {
                 comment: ""
             )
         case .unknown:
-            NSLocalizedString("Unexpected error occured.", comment: "")
+            NSLocalizedString("Unexpected error occurred.", comment: "")
         }
     }
 }

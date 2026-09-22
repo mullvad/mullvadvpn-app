@@ -275,7 +275,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
         XCTAssertTrue(excludedNode.isExcluded)
 
-        // All ancestors are exluded when single child is excluded
+        // All ancestors are excluded when single child is excluded
         excludedNode.forEachAncestor { ancestor in
             XCTAssertTrue(ancestor.isExcluded)
         }
