@@ -11,7 +11,7 @@
 import Foundation
 
 // When adding new cases here, make sure to check if they should be added to the
-// "partially" variable when reseting the store in SettingsManager.resetStore().
+// "partially" variable when resetting the store in SettingsManager.resetStore().
 public enum SettingsKey: String, CaseIterable, Sendable, Codable {
     case settings = "Settings"
     case deviceState = "DeviceState"

@@ -23,7 +23,7 @@ class CustomNavigationController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationBar.configureCustomAppeareance()
+        navigationBar.configureCustomAppearance()
     }
 
     override func viewDidLayoutSubviews() {

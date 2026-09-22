@@ -70,14 +70,14 @@ class TrafficGenerator: @unchecked Sendable {
 
     func setupConnection() {
         print("Setting up connection...")
-        let doneAttemptingConnectExpecation = XCTestExpectation(description: "Done attemping to connect")
+        let doneAttemptingConnectExpectation = XCTestExpectation(description: "Done attempting to connect")
 
         connection.stateUpdateHandler = { state in
             switch state {
             case .ready:
                 print("Ready")
                 self.sendDataTimer.resume()
-                doneAttemptingConnectExpecation.fulfill()
+                doneAttemptingConnectExpectation.fulfill()
             case let .failed(error):
                 print("Failed to connect: \(error)")
                 self.sendDataTimer.cancel()
@@ -98,7 +98,7 @@ class TrafficGenerator: @unchecked Sendable {
         }
         connection.start(queue: dispatchQueue)
 
-        XCTWaiter().wait(for: [doneAttemptingConnectExpecation], timeout: 10.0)
+        XCTWaiter().wait(for: [doneAttemptingConnectExpectation], timeout: 10.0)
     }
 
     func stopConnection() {

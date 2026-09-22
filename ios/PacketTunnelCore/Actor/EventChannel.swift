@@ -99,7 +99,7 @@ extension PacketTunnelActor {
             }
         }
 
-        /// Mark the end of channel but let consumers exchaust the buffer before declaring the end of iteration.
+        /// Mark the end of channel but let consumers exhaust the buffer before declaring the end of iteration.
         /// If the buffer is empty then it should resume all pending continuations and send them `nil` to mark the end of iteration.
         func sendEnd() {
             stateLock.withLock {
@@ -139,7 +139,7 @@ extension PacketTunnelActor {
         }
 
         /// Consume first message in the buffer.
-        /// Returns `nil` if the buffer is empty, otherwise if attempts to coalesce buffered events before consuming the first comand in the list.
+        /// Returns `nil` if the buffer is empty, otherwise if attempts to coalesce buffered events before consuming the first command in the list.
         private func consumeFirst() -> Event? {
             guard !buffer.isEmpty else { return nil }
 

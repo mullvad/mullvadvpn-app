@@ -37,7 +37,7 @@ struct SettingsInfoView: View {
     }
 
     // A TabView inside a Scrollview has no height. This hidden view stretches the TabView to have the size
-    // of the heighest page.
+    // of the highest page.
     private func hiddenViewToStretchHeightInsideScrollView() -> some View {
         return ZStack {
             contentView()

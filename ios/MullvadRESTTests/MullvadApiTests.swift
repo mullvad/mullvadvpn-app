@@ -18,7 +18,7 @@ import XCTest
 @testable import MullvadREST
 @testable import MullvadSettings
 
-/// This tests main purpose is to test the functionallity of the FFI rather than every function of the proxy itself.
+/// This tests main purpose is to test the functionality of the FFI rather than every function of the proxy itself.
 /// It makes sure the response and errors are parsed correctly.
 
 class MullvadApiTests: XCTestCase {
@@ -194,7 +194,7 @@ class MullvadApiTests: XCTestCase {
             metadata: [:]
         )
 
-        // The mock server will only responde to requests with `matchBodyString` as body.
+        // The mock server will only respond to requests with `matchBodyString` as body.
         let matchBodyString = String(data: try encoder.encode(problemReportRequest), encoding: .utf8)!
         let expectedResponseCode: UInt = 204
         let mock = MullvadApiMock.post(

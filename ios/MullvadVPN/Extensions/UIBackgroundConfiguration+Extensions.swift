@@ -39,7 +39,7 @@ extension UIBackgroundConfiguration {
     ///
     /// - Parameters:
     ///   - state: a cell state.
-    ///   - selectionType: a desired selecton type.
+    ///   - selectionType: a desired selection type.
     /// - Returns: new background configuration.
     func adapted(
         for state: UICellConfigurationState,

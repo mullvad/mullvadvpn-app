@@ -21,12 +21,12 @@ protocol RESTResponseHandler<Success> {
 protocol RESTRustResponseHandler<Success> {
     associatedtype Success
 
-    func handleResponse(_ resonse: ProxyAPIResponse) -> REST.ResponseHandlerResult<Success>
+    func handleResponse(_ response: ProxyAPIResponse) -> REST.ResponseHandlerResult<Success>
 }
 
 extension REST {
     // TODO: We could probably remove the `decoding` case when network requests are fully merged to Mullvad API.
-    /// Responser handler result type.
+    /// Responder handler result type.
     enum ResponseHandlerResult<Success> {
         /// Response handler succeeded and produced a value.
         case success(Success)
@@ -135,7 +135,7 @@ extension REST {
         }
     }
 
-    /// Response handler for reponses where the body is empty.
+    /// Response handler for responses where the body is empty.
     static func rustEmptyResponseHandler() -> RustResponseHandler<Void> {
         RustResponseHandler { _ in
             .success(())

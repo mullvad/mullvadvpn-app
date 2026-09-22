@@ -39,7 +39,7 @@ struct WgKeyRotation: Sendable {
 
     /**
      Begin key rotation attempt by marking last rotation attempt and creating next private key if needed.
-     If the next private key was created during the preivous rotation attempt then continue using the same key.
+     If the next private key was created during the previous rotation attempt then continue using the same key.
 
      Returns the public key that should be pushed to the backend.
      */
@@ -59,8 +59,8 @@ struct WgKeyRotation: Sendable {
     }
 
     /**
-     Successfuly finish key rotation by swapping the current key with the next one, marking key creation date and
-     removing the date of last rotation attempt which indicates that the last rotation had succedeed and no new
+     Successfully finish key rotation by swapping the current key with the next one, marking key creation date and
+     removing the date of last rotation attempt which indicates that the last rotation had succeeded and no new
      rotation attempts were made.
 
      Device related properties are refreshed from `Device` struct that the caller should have received from the API. This function does nothing if the next private

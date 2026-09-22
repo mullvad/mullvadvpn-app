@@ -54,10 +54,10 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
         let wireguard = relayResponse.wireguard
         let bridge = relayResponse.bridge
 
-        let overridenWireguardRelays = wireguard.relays.map { relay in
+        let overriddenWireguardRelays = wireguard.relays.map { relay in
             return apply(overrides: overrides, to: relay)
         }
-        let overridenBridgeRelays = bridge.relays.map { relay in
+        let overriddenBridgeRelays = bridge.relays.map { relay in
             return apply(overrides: overrides, to: relay)
         }
 
@@ -67,12 +67,12 @@ public final class IPOverrideWrapper: RelayCacheProtocol {
                 ipv4Gateway: wireguard.ipv4Gateway,
                 ipv6Gateway: wireguard.ipv6Gateway,
                 portRanges: wireguard.portRanges,
-                relays: overridenWireguardRelays,
+                relays: overriddenWireguardRelays,
                 shadowsocksPortRanges: wireguard.shadowsocksPortRanges
             ),
             bridge: REST.ServerBridges(
                 shadowsocks: bridge.shadowsocks,
-                relays: overridenBridgeRelays
+                relays: overriddenBridgeRelays
             )
         )
     }

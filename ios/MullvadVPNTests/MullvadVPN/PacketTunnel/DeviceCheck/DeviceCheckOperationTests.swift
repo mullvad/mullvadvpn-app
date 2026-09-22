@@ -318,7 +318,7 @@ class DeviceCheckOperationTests: XCTestCase {
     ) {
         let operation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,
-            remoteSevice: remoteService,
+            remoteService: remoteService,
             deviceStateAccessor: deviceStateAccessor,
             rotateImmediatelyOnKeyMismatch: rotateImmediatelyOnKeyMismatch,
             completionHandler: completion

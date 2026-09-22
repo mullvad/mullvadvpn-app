@@ -75,7 +75,7 @@ extern void swift_store_address_cache(const uint8_t *data, uint64_t data_size);
 
 extern struct SwiftData swift_read_address_cache(void);
 
-char *get_shadowsocks_chipers(void);
+char *get_shadowsocks_ciphers(void);
 
 /**
  * Deallocates a CString returned by the Mullvad API client.
