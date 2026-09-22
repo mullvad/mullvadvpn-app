@@ -687,7 +687,7 @@ impl AccountsProxy {
         self.handle
             .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
             .expected_status(&[StatusCode::OK])
-            .account(account)?
+            .account(account)
             .await
     }
 
