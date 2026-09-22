@@ -1,8 +1,11 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client::SocketBypassRequest;
 use crate::{
-    DnsResolver, SigsumPublicKey, access::AccessTokenStore, availability::ApiAvailability,
-    https_client::HttpsConnector, proxy::ConnectionModeProvider,
+    DnsResolver, SigsumPublicKey,
+    access::AccessTokenStore,
+    availability::ApiAvailability,
+    https_client::HttpsConnector,
+    proxy::{ApiConnectionMode, ConnectionModeSource},
 };
 use duplicate::duplicate_item;
 use futures::{
@@ -156,7 +159,7 @@ impl Error {
 /// It allows for on-demand termination of in-flight requests.
 ///
 /// TLS connections are established by [`HttpsConnector`] and may be reused for multiple request.
-pub struct RequestService<C> {
+pub struct RequestService {
     host: Arc<str>,
     requests_rx: mpsc::UnboundedReceiver<SendRequest>,
     access_tokens: AccessTokenStore,
@@ -166,7 +169,7 @@ pub struct RequestService<C> {
     connection: Option<Connection>,
     dns_resolver: Arc<dyn DnsResolver>,
     connector: HttpsConnector,
-    connection_mode_provider: C,
+    connection_mode_source: ConnectionModeSource,
     api_availability: ApiAvailability,
 }
 
@@ -190,17 +193,18 @@ pub struct SendRequest {
     response_tx: oneshot::Sender<std::result::Result<Response<Incoming>, Error>>,
 }
 
-impl<C: ConnectionModeProvider + 'static> RequestService<C> {
+impl RequestService {
     /// Constructs a new [`RequestService`].
     pub fn spawn(
         host: impl Into<Arc<str>>,
         api_availability: ApiAvailability,
-        connection_mode_provider: C,
+        connection_mode_source: impl Into<ConnectionModeSource>,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
-        let connection_mode = connection_mode_provider.initial();
+        let connection_mode_source = connection_mode_source.into();
+        let connection_mode = connection_mode_source.initial();
 
         let connector = HttpsConnector::new(
             connection_mode,
@@ -220,7 +224,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
             requests_rx: command_rx,
             reset: Arc::clone(&reset),
             connector,
-            connection_mode_provider,
+            connection_mode_source,
             api_availability,
             connection: None,
             access_tokens: Default::default(),
@@ -254,7 +258,13 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
                 _ = reset.notified() => self.close_connection(),
 
                 // Handle change API access method
-                new_mode = self.connection_mode_provider.receive() => {
+                new_mode = async {
+                    match &mut self.connection_mode_source {
+                        ConnectionModeSource::Static(_) =>
+                            std::future::pending::<Option<ApiConnectionMode>>().await,
+                        ConnectionModeSource::Dynamic { change_rx, .. } => change_rx.next().await,
+                    }
+                } => {
                     let Some(new_mode) = new_mode else { break };
                     self.soft_close_connection();
                     self.connector.set_connection_mode(new_mode);
@@ -350,7 +360,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
         {
             tracing::warn!("{uri:?} request failed: {err:?}");
             self.close_connection();
-            self.connection_mode_provider.rotate().await;
+            self.connection_mode_source.rotate().await;
         }
 
         result
@@ -461,7 +471,7 @@ impl<C: ConnectionModeProvider + 'static> RequestService<C> {
     }
 }
 
-impl<C> RequestService<C> {
+impl RequestService {
     /// Drop [`RequestService::connection`] and abort [`Connection::connection_task`].
     ///
     /// Any in-flight [`Body`] returned [`Self::send_request`] will be aborted.
@@ -480,7 +490,7 @@ impl<C> RequestService<C> {
     }
 }
 
-impl<C> Drop for RequestService<C> {
+impl Drop for RequestService {
     fn drop(&mut self) {
         self.close_connection();
     }
@@ -901,7 +911,7 @@ mod test {
         let service = RequestService::spawn(
             "api.mullvad.net",
             ApiAvailability::default(),
-            ApiConnectionMode::Direct.into_provider(),
+            ApiConnectionMode::Direct,
             Arc::new(MockResolver(server.socket_address())),
             true, // disable_tls
         );

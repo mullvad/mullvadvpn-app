@@ -261,9 +261,8 @@ async fn remove_device() -> Result<(), Error> {
                 .map_err(Error::RpcInitializationError)?;
 
         let connection_mode = ApiConnectionMode::try_from_cache(&cache_path).await;
-        let proxy = mullvad_api::DevicesProxy::new(
-            api_runtime.mullvad_rest_handle(connection_mode.into_provider()),
-        );
+        let proxy =
+            mullvad_api::DevicesProxy::new(api_runtime.mullvad_rest_handle(connection_mode));
 
         let device_removal = retry_future(
             move || proxy.remove(device.account_number.clone(), device.device.id.clone()),
