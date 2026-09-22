@@ -3,6 +3,8 @@
 #![deny(missing_docs)]
 
 use crate::obfuscation::Obfuscator;
+#[cfg(target_os = "linux")]
+use crate::wireguard_kernel::nm_tunnel;
 
 use self::config::Config;
 #[cfg(windows)]
@@ -256,7 +258,7 @@ impl WireguardMonitor {
             };
 
             // Opening the tunnel blocks.
-            let (opened_tunnel, iface_name) = {
+            let (opened_tunnel, metadata) = {
                 let config = config.clone();
                 let bypass = Arc::clone(&bypass);
                 tokio::task::spawn_blocking(move || {
@@ -274,8 +276,7 @@ impl WireguardMonitor {
                         userspace_wireguard,
                         log_path.as_deref(),
                     )?;
-                    let iface_name = tunnel.get_interface_name();
-                    Ok::<_, Error>((tunnel, iface_name))
+                    Ok::<_, Error>(tunnel)
                 })
                 .await
                 .expect("Failed to join the task that opens the tunnel")
@@ -288,10 +289,9 @@ impl WireguardMonitor {
                 Self::wait_for_device_setup(setup_done_rx).await?;
             }
 
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(
-                    metadata,
+                    metadata.clone(),
                     talpid_types::net::AllowedTunnelTraffic::All,
                 ))
                 .await;
@@ -304,9 +304,10 @@ impl WireguardMonitor {
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let routes = Self::get_pre_tunnel_routes(&iface_name, &config, userspace_wireguard)
-                .chain(Self::get_endpoint_routes(&endpoint_addrs))
-                .collect();
+            let routes =
+                Self::get_pre_tunnel_routes(&metadata.interface, &config, userspace_wireguard)
+                    .chain(Self::get_endpoint_routes(&endpoint_addrs))
+                    .collect();
 
             args.route_manager
                 .add_routes(routes)
@@ -317,7 +318,7 @@ impl WireguardMonitor {
             let mut connectivity_monitor = connectivity::Check::new(
                 gateway,
                 #[cfg(any(target_os = "macos", target_os = "linux"))]
-                iface_name.clone(),
+                metadata.interface.clone(),
                 args.retry_attempt,
                 cancel_receiver,
             )
@@ -326,7 +327,7 @@ impl WireguardMonitor {
 
             if detect_mtu {
                 let config = config.clone();
-                let iface_name = iface_name.clone();
+                let iface_name = metadata.interface.clone();
                 tokio::task::spawn(async move {
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
@@ -378,14 +379,13 @@ impl WireguardMonitor {
             // Add any default route(s) that may exist.
             args.route_manager
                 .add_routes(
-                    Self::get_post_tunnel_routes(&iface_name, &config, userspace_wireguard)
+                    Self::get_post_tunnel_routes(&metadata.interface, &config, userspace_wireguard)
                         .collect(),
                 )
                 .await
                 .map_err(Error::SetupRoutingError)
                 .map_err(CloseMsg::SetupError)?;
 
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
             let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
@@ -574,7 +574,7 @@ impl WireguardMonitor {
                 }?;
             }
 
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            let metadata = tunnel_metadata(iface_name, &config);
             let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
@@ -654,13 +654,12 @@ impl WireguardMonitor {
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
-    ) -> Result<TunnelType> {
+    ) -> Result<(TunnelType, TunnelMetadata)> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        if userspace_wireguard {
+        let tunnel = if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
-
-            let tunnel = runtime
+            runtime
                 .block_on(gotatun::open_gotatun_tunnel(
                     config,
                     daita.as_ref(),
@@ -668,11 +667,9 @@ impl WireguardMonitor {
                     tun_provider,
                     bypass,
                 ))
-                .map(Box::new)?;
-            Ok(tunnel)
+                .map(Box::new)?
         } else {
             log::debug!("Using kernel WireGuard implementation");
-
             // The wintun adapter is kept alive between connections, and it holds the very
             // addresses that this tunnel is about to configure. A wireguard-nt adapter releases
             // them when it is parked, so there is nothing to do in the other direction.
@@ -680,8 +677,10 @@ impl WireguardMonitor {
 
             wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-                .map_err(Error::TunnelError)
-        }
+                .map_err(Error::TunnelError)?
+        };
+        let metadata = tunnel_metadata(tunnel.get_interface_name(), config);
+        Ok((tunnel, metadata))
     }
 
     #[cfg(target_os = "macos")]
@@ -695,11 +694,9 @@ impl WireguardMonitor {
         bypass: Arc<dyn SocketBypass>,
         _userspace_wireguard: bool,
         _log_path: Option<&Path>,
-    ) -> Result<TunnelType> {
+    ) -> Result<(TunnelType, TunnelMetadata)> {
         log::debug!("Tunnel MTU: {}", config.mtu);
-
         log::debug!("Using userspace WireGuard implementation");
-
         let tunnel = runtime
             .block_on(gotatun::open_gotatun_tunnel(
                 config,
@@ -709,7 +706,8 @@ impl WireguardMonitor {
                 bypass,
             ))
             .map(Box::new)?;
-        Ok(tunnel)
+        let metadata = tunnel_metadata(tunnel.get_interface_name(), config);
+        Ok((tunnel, metadata))
     }
 
     #[cfg(target_os = "linux")]
@@ -723,45 +721,61 @@ impl WireguardMonitor {
         bypass: Arc<dyn SocketBypass>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
-    ) -> Result<TunnelType> {
+    ) -> Result<(TunnelType, TunnelMetadata)> {
         log::debug!("Tunnel MTU: {}", config.mtu);
+        let gotatun = || {
+            runtime.block_on(gotatun::open_gotatun_tunnel(
+                config,
+                daita.as_ref(),
+                obfuscation,
+                tun_provider,
+                bypass,
+            ))
+        };
+        let metadata = |tunnel: &TunnelType| tunnel_metadata(tunnel.get_interface_name(), config);
+        let nm_will_manage_dns = will_nm_manage_dns().then(|| {
+            nm_tunnel::NetworkManagerDevice::dns(config, "mullvad-dns".to_string()).inspect_err(
+                |err| {
+                    log::warn!(
+                        "{}",
+                        err.display_chain_with_msg("Failed to start a tunnel with NetworkManager")
+                    )
+                },
+            )
+        });
 
-        if userspace_wireguard {
-            log::debug!("Using userspace WireGuard implementation");
-            let tunnel = runtime
-                .block_on(gotatun::open_gotatun_tunnel(
-                    config,
-                    daita.as_ref(),
-                    obfuscation,
-                    tun_provider,
-                    bypass,
-                ))
-                .map(Box::new)?;
-            Ok(tunnel)
-        } else {
-            let res = if will_nm_manage_dns() {
-                log::debug!("Using kernel WireGuard implementation through NetworkManager");
-                wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config)
-                    .map(|tunnel| Box::new(tunnel) as TunnelType)
-            } else {
+        match (userspace_wireguard, nm_will_manage_dns) {
+            // NetworkManager should manage a device (where routes + DNS may be configured).
+            (_, Some(Ok(nm))) => {
+                let dummy_dns = nm.interface_name().to_string();
+                let tunnel = (nm, gotatun()?);
+                let tunnel = Box::new(tunnel) as TunnelType;
+                let mut metadata = metadata(&tunnel);
+                metadata.dummy_dns = Some(dummy_dns);
+                Ok((tunnel, metadata))
+            }
+            // GotaTun is the WireGuard implementation.
+            (true, _) => {
+                let tunnel = Box::new(gotatun()?) as TunnelType;
+                let metadata = metadata(&tunnel);
+                Ok((tunnel, metadata))
+            }
+            // Use kernel WireGuard via the Netlink API.
+            (false, _) => {
                 log::debug!("Using kernel WireGuard implementation through netlink");
-                wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config)
-                    .map(|tunnel| Box::new(tunnel) as TunnelType)
-            };
-
-            res.or_else(|err| {
-                    log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
-
-                    Ok(runtime
-                        .block_on(gotatun::open_gotatun_tunnel(
-                            config,
-                            daita.as_ref(),
-                            obfuscation,
-                            tun_provider,
-                            bypass,
-                        ))
-                        .map(Box::new)?)
-                })
+                let tunnel = match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
+                    Ok(tunnel) => Box::new(tunnel) as TunnelType,
+                    Err(err) => {
+                        log::warn!(
+                            "Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",
+                            err.display_chain()
+                        );
+                        gotatun().map(Box::new)?
+                    }
+                };
+                let metadata = metadata(&tunnel);
+                Ok((tunnel, metadata))
+            }
         }
     }
 
@@ -994,14 +1008,17 @@ impl WireguardMonitor {
             route.with_mtu(mtu)
         }
     }
+}
 
-    fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
-        TunnelMetadata {
-            interface: interface_name.to_string(),
-            ips: config.tunnel.addresses.clone(),
-            ipv4_gateway: config.ipv4_gateway,
-            ipv6_gateway: config.ipv6_gateway,
-        }
+// TODO: Should `TunnelMetadata` be constructed by each Tunnel implementation instead?
+fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
+    TunnelMetadata {
+        interface: interface_name,
+        ips: config.tunnel.addresses.clone(),
+        ipv4_gateway: config.ipv4_gateway,
+        ipv6_gateway: config.ipv6_gateway,
+        #[cfg(target_os = "linux")]
+        dummy_dns: None,
     }
 }
 
@@ -1156,6 +1173,11 @@ pub enum TunnelError {
     /// GotaTun device error
     #[error("GotaTun: {0:?}")]
     GotaTunDevice(::gotatun::device::Error),
+
+    /// NetworkManager error
+    #[cfg(target_os = "linux")]
+    #[error("NetworkManager: {0:?}")]
+    NetworkManager(#[from] nm_tunnel::Error),
 }
 
 #[cfg(target_os = "linux")]

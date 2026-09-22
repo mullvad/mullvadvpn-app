@@ -48,11 +48,6 @@ const RPC_TIMEOUT: std::time::Duration = Duration::from_secs(3);
 
 const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
 
-const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
-const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
-
-const MAXIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
-
 const NM_DEVICE_STATE_CHANGED: &str = "StateChanged";
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -122,24 +117,23 @@ impl NetworkManager {
         })
     }
 
-    pub fn create_wg_tunnel(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
-        self.nm_supports_wireguard()?;
-        let tunnel = self.create_wg_tunnel_inner(config)?;
-        if let Err(err) = self.wait_until_device_is_ready(&tunnel.device_path) {
-            if let Err(removal_error) = self.remove_tunnel(tunnel) {
+    pub fn create_network_device(&self, config: &DeviceConfig) -> Result<NMDevice> {
+        let device = self.create_network_device_inner(config)?;
+        if let Err(err) = self.wait_until_device_is_ready(&device.device_path) {
+            if let Err(removal_error) = self.remove_network_device(device) {
                 log::error!(
-                    "Failed to remove WireGuard tunnel after it not becoming ready fast enough: {}",
+                    "Failed to remove network device after it not becoming ready fast enough: {}",
                     removal_error
                 );
             }
             return Err(err);
         }
 
-        Ok(tunnel)
+        Ok(device)
     }
 
-    pub fn get_interface_name(&self, tunnel: &WireguardTunnel) -> Result<String> {
-        tunnel
+    pub fn get_interface_name(&self, network_device: &NMDevice) -> Result<String> {
+        network_device
             .device_proxy(&self.connection)
             .get(NM_DEVICE, "Interface")
             .map_err(Error::Dbus)
@@ -154,7 +148,7 @@ impl NetworkManager {
             .map_err(Error::Dbus)
     }
 
-    fn create_wg_tunnel_inner(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
+    fn create_network_device_inner(&self, config: &DeviceConfig) -> Result<NMDevice> {
         let config_path: dbus::Path<'static> = match self.add_connection_2(config) {
             Ok((path, _result)) => path,
             Err(Error::Dbus(dbus_error)) if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) => {
@@ -188,58 +182,16 @@ impl NetworkManager {
             .map_err(Error::Dbus)?;
         let device_path = device_paths.into_iter().next().ok_or(Error::NoDevice)?;
 
-        Ok(WireguardTunnel {
+        Ok(NMDevice {
             config_path,
             connection_path,
             device_path,
         })
     }
 
-    pub fn nm_supports_wireguard(&self) -> Result<()> {
-        let (major, minor) = self.version()?;
-        Self::ensure_nm_is_new_enough_for_wireguard(major, minor)?;
-        Self::ensure_nm_is_old_enough_for_dns(major, minor)
-    }
-
-    pub fn nm_version_dns_works(&self) -> Result<()> {
-        let (major, minor) = self.version()?;
-        Self::ensure_nm_is_old_enough_for_dns(major, minor)
-    }
-
     pub fn version_string(&self) -> Result<String> {
         let manager = self.nm_manager();
         manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
-    }
-
-    fn ensure_nm_is_new_enough_for_wireguard(major: u32, minor: u32) -> Result<()> {
-        if major < MINIMUM_SUPPORTED_MAJOR_VERSION
-            || (minor < MINIMUM_SUPPORTED_MINOR_VERSION && major == MINIMUM_SUPPORTED_MAJOR_VERSION)
-        {
-            Err(Error::NMTooOld(major, minor))
-        } else {
-            Ok(())
-        }
-    }
-
-    fn ensure_nm_is_old_enough_for_dns(major_version: u32, minor_version: u32) -> Result<()> {
-        if major_version > MAXIMUM_SUPPORTED_MAJOR_VERSION {
-            Err(Error::NMTooNewFroDns(major_version, minor_version))
-        } else {
-            Ok(())
-        }
-    }
-
-    fn version(&self) -> Result<(u32, u32)> {
-        let version = self.version_string()?;
-        Self::parse_nm_version(&version).ok_or(Error::ParseNmVersionError(version))
-    }
-
-    fn parse_nm_version(version: &str) -> Option<(u32, u32)> {
-        let mut parts = version.split('.').map(|part| part.parse().ok());
-
-        let major_version: u32 = parts.next()??;
-        let minor_version: u32 = parts.next()??;
-        Some((major_version, minor_version))
     }
 
     fn add_connection_2(
@@ -319,7 +271,7 @@ impl NetworkManager {
         Ok(())
     }
 
-    pub fn remove_tunnel(&self, tunnel: WireguardTunnel) -> Result<()> {
+    pub fn remove_network_device(&self, tunnel: NMDevice) -> Result<()> {
         let deactivation_result: Result<()> = self
             .nm_manager()
             .method_call(
@@ -392,7 +344,6 @@ impl NetworkManager {
     pub fn ensure_can_be_used_to_manage_dns(&self) -> Result<()> {
         self.ensure_resolv_conf_is_managed()?;
         self.ensure_network_manager_exists()?;
-        self.nm_version_dns_works()?;
         Ok(())
     }
     pub fn ensure_resolv_conf_is_managed(&self) -> Result<()> {
@@ -557,12 +508,6 @@ impl NetworkManager {
             Self::update_dns_config(&mut settings, "ipv6", v6_dns);
         }
 
-        if let Some(wg_config) = settings.get_mut("wireguard")
-            && !wg_config.contains_key("fwmark")
-        {
-            log::error!("WireGuard config doesn't contain the firewall mark");
-        }
-
         self.reapply_settings(&device_path, settings, version_id)?;
         Ok(settings_backup)
     }
@@ -681,13 +626,13 @@ impl dbus::message::SignalArgs for DeviceStateChange {
 }
 
 #[derive(Debug)]
-pub struct WireguardTunnel {
+pub struct NMDevice {
     config_path: dbus::Path<'static>,
     connection_path: dbus::Path<'static>,
     device_path: dbus::Path<'static>,
 }
 
-impl WireguardTunnel {
+impl NMDevice {
     fn device_proxy<'a>(&'a self, connection: &'a SyncConnection) -> Proxy<'a, &'a SyncConnection> {
         Proxy::new(NM_BUS, &self.device_path, RPC_TIMEOUT, connection)
     }
@@ -724,16 +669,4 @@ fn verify_etc_resolv_conf_contents() -> bool {
     };
 
     actual_resolv_conf == expected_resolv_conf
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_valid_versions() {
-        NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 16).unwrap();
-        NetworkManager::ensure_nm_is_old_enough_for_dns(1, 26).unwrap();
-        assert!(NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 14).is_err());
-    }
 }
