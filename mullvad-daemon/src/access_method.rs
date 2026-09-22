@@ -200,9 +200,7 @@ impl Daemon {
     /// Create an [`ApiProxy`] which will perform all REST requests against one
     /// specific endpoint `connection_mode`.
     pub fn create_limited_api_proxy(&mut self, connection_mode: ApiConnectionMode) -> ApiProxy {
-        let rest_handle = self
-            .api_runtime
-            .mullvad_rest_handle(connection_mode.into_provider());
+        let rest_handle = self.api_runtime.mullvad_rest_handle(connection_mode);
         ApiProxy::new(rest_handle)
     }
 
