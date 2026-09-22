@@ -41,8 +41,6 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
     }
 }
 
-const SESSION_HEADER: &str = "X-Mullvad-Session";
-
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     encrypted_dns_domain: String,
