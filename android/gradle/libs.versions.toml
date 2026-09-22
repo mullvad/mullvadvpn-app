@@ -42,6 +42,7 @@ baselineprofile = "1.5.0"
 benchmark-macro-junit4 = "1.5.0"
 commonsvalidator = "1.11.0"
 compose = "1.12.1"
+compose-a11y-scanner = "3.0.0"
 compose-constraintlayout = "1.1.2"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
@@ -122,6 +123,7 @@ arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
 arrow-optics-ksp = { module = "io.arrow-kt:arrow-optics-ksp-plugin", version.ref = "arrow" }
 arrow-resilience = { module = "io.arrow-kt:arrow-resilience", version.ref = "arrow" }
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsvalidator" }
+compose-a11y-scanner = { module = "com.github.mohdaquib.ComposeA11yScanner:scanner-ui", version.ref = "compose-a11y-scanner" }
 compose-constrainlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "compose-constraintlayout" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended" }

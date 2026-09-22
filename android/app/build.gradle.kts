@@ -39,6 +39,7 @@ val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
 val changelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
+val noOptionalToolsDir = "src/noOptionalTools/kotlin"
 
 val appVersion = appVersionProvider.get()
 
@@ -218,6 +219,10 @@ androidComponents {
         val mainSources = variant.sources.getByName("main")
         mainSources.addStaticSourceDirectory(relayListDirectory)
         mainSources.addStaticSourceDirectory(changelogAssetsDirectory)
+
+        if (variant.buildType != BuildTypes.DEBUG) {
+            variant.sources.kotlin?.addStaticSourceDirectory(noOptionalToolsDir)
+        }
     }
 
     onVariants {
@@ -549,6 +554,8 @@ dependencies {
     // UI tooling
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    debugImplementation(libs.compose.a11y.scanner)
 
     // Leak canary
     leakCanaryImplementation(libs.leakCanary)

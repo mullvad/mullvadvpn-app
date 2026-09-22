@@ -71,7 +71,12 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp() } }
+        setContent {
+            AppTheme {
+                MullvadApp()
+                OptionalTools()
+            }
+        }
 
         // This is to protect against tapjacking attacks
         // This is applied at an OS level since Android 12 so it is only required on older versions

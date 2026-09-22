@@ -15,5 +15,8 @@
                  android:allowBackup="false"
                  android:banner="@mipmap/ic_banner"
                  android:name=".app.MullvadApplication"
-                 tools:ignore="DataExtractionRules,GoogleAppIndexingWarning"/>
+                 tools:ignore="DataExtractionRules,GoogleAppIndexingWarning">
+        <meta-data android:name="a11y_scanner_auto_scan"
+                   android:value="false" />
+    </application>
 </manifest>
