@@ -105,7 +105,7 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                         .front
                         .parse()
                         .inspect_err(|e| {
-                            log::error!("{:?} is not a valid URI: {e}", self.domain_fronting_front)
+                            log::error!("{:?} is not a valid URI: {e}", self.domain_fronting.front)
                         })
                         .ok()?,
                     self.domain_fronting.proxy_host.clone(),
