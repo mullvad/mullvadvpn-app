@@ -740,8 +740,16 @@ impl WireguardMonitor {
             Ok(tunnel)
         } else {
             let res = if will_nm_manage_dns() {
-                log::debug!("Using kernel WireGuard implementation through NetworkManager");
-                wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config)
+                log::debug!("Using GotaTun through NetworkManager");
+                let tunnel = runtime.block_on(gotatun::open_gotatun_tunnel(
+                    config,
+                    daita.as_ref(),
+                    obfuscation.clone(),
+                    Arc::clone(&tun_provider),
+                    Arc::clone(&bypass),
+                ))?;
+
+                wireguard_kernel::NetworkManagerTunnel::new(tunnel, config)
                     .map(|tunnel| Box::new(tunnel) as TunnelType)
             } else {
                 log::debug!("Using kernel WireGuard implementation through netlink");
