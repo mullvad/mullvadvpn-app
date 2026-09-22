@@ -6,7 +6,7 @@
 
 #[cfg(feature = "api-override")]
 use crate::ApiEndpoint;
-use crate::proxy::{ApiConnectionMode, ConnectionModeProvider};
+use crate::proxy::{ApiConnectionMode, ConnectionModeSource};
 use async_trait::async_trait;
 use futures::{
     StreamExt,
@@ -180,43 +180,6 @@ impl AccessModeSelectorHandle {
     }
 }
 
-pub struct AccessModeConnectionModeProvider {
-    initial: ApiConnectionMode,
-    handle: AccessModeSelectorHandle,
-    change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
-}
-
-impl AccessModeConnectionModeProvider {
-    pub fn new(
-        handle: AccessModeSelectorHandle,
-        initial_connection_mode: ApiConnectionMode,
-        change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
-    ) -> Result<Self> {
-        Ok(Self {
-            initial: initial_connection_mode,
-            handle,
-            change_rx,
-        })
-    }
-}
-
-impl ConnectionModeProvider for AccessModeConnectionModeProvider {
-    fn initial(&self) -> ApiConnectionMode {
-        self.initial.clone()
-    }
-
-    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send {
-        self.change_rx.next()
-    }
-
-    fn rotate(&self) -> impl Future<Output = ()> + Send {
-        let handle = self.handle.clone();
-        async move {
-            handle.rotate().await.ok();
-        }
-    }
-}
-
 /// A small actor which takes care of handling the logic around rotating
 /// connection modes to be used for Mullvad API request.
 ///
@@ -245,7 +208,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
-    ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
+    ) -> Result<(AccessModeSelectorHandle, ConnectionModeSource)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
         #[cfg(feature = "api-override")]
@@ -280,10 +243,13 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
 
         let handle = AccessModeSelectorHandle { cmd_tx };
 
-        let connection_mode_provider =
-            AccessModeConnectionModeProvider::new(handle.clone(), api_connection_mode, change_rx)?;
+        let connection_mode_source = ConnectionModeSource::Dynamic {
+            initial: api_connection_mode,
+            handle: handle.clone(),
+            change_rx,
+        };
 
-        Ok((handle, connection_mode_provider))
+        Ok((handle, connection_mode_source))
     }
 
     async fn into_future(mut self) {
@@ -598,7 +564,7 @@ mod tests {
         };
 
         let (event_tx, _event_rx) = mpsc::unbounded();
-        let (handle, _provider) = AccessModeSelector::spawn(
+        let (handle, _source) = AccessModeSelector::spawn(
             resolver,
             Settings::default(),
             #[cfg(feature = "api-override")]
