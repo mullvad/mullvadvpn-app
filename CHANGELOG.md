@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
+- Update Electron from 42.5.1 to 42.11.1.
 
 #### Linux
 - Remove dependency on `iproute2` when using GotaTun with IPv6.
@@ -61,6 +62,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
+
+#### Windows
+- Fix webview content being horizontally offset by 1 pixel.
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
