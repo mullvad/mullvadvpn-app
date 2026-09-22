@@ -1,9 +1,13 @@
 #![cfg(target_os = "linux")]
 use anyhow::{Context as _, anyhow};
+use nix::{
+    sys::statfs::{FsType, statfs},
+    unistd::{getegid, geteuid, getgid, getuid},
+};
 use std::ffi::OsStr;
 use std::fs;
 use std::os::unix::ffi::OsStrExt;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub mod v1;
 pub mod v2;
@@ -20,6 +24,34 @@ pub const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
 #[derive(thiserror::Error, Debug)]
 #[error("CGroup error")]
 pub struct Error(#[from] anyhow::Error);
+
+/// Whether this process gained privileges from a setuid or setgid bit.
+fn is_setuid() -> bool {
+    // setuid binary if real and effective UIDs do not match
+    geteuid() != getuid() || getegid() != getgid()
+}
+
+/// Read a filesystem path from the environment variable `var`, if and only if the binary
+/// is not elevated.
+fn path_override_from_env(var: &str) -> Option<PathBuf> {
+    if is_setuid() {
+        log::debug!("Ignoring {var}: the environment is untrusted when running setuid");
+        return None;
+    }
+
+    std::env::var_os(var).map(PathBuf::from)
+}
+
+/// Fail unless `path` is on a filesystem of type `fs_type`.
+fn assert_filesystem_type(path: &Path, fs_type: FsType, name: &str) -> Result<(), Error> {
+    let stat = statfs(path).with_context(|| anyhow!("Failed to statfs {path:?}"))?;
+
+    if stat.filesystem_type() != fs_type {
+        return Err(anyhow!("{path:?} is not a directory on a {name} filesystem").into());
+    }
+
+    Ok(())
+}
 
 /// Find the path of the cgroup v1 net_cls controller mount if it exists.
 ///

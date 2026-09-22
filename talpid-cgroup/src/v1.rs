@@ -1,8 +1,7 @@
 use crate::find_net_cls_mount;
 use anyhow::{Context as _, anyhow};
-use nix::{errno::Errno, libc::pid_t, unistd::Pid};
+use nix::{errno::Errno, libc::pid_t, sys::statfs::CGROUP_SUPER_MAGIC, unistd::Pid};
 use std::{
-    env,
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
@@ -37,9 +36,8 @@ impl CGroup1 {
 
         // mkdir and mount the net_cls dir if it doesn't exist
         // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
-        let net_cls_dir = env::var(NET_CLS_DIR_OVERRIDE_ENV_VAR)
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| PathBuf::from(DEFAULT_NET_CLS_DIR));
+        let net_cls_dir = crate::path_override_from_env(NET_CLS_DIR_OVERRIDE_ENV_VAR)
+            .unwrap_or_else(|| PathBuf::from(DEFAULT_NET_CLS_DIR));
         if !net_cls_dir.exists() {
             fs::create_dir(&net_cls_dir).with_context(|| {
                 anyhow!("Unable to create cgroup {net_cls_dir:?} for excluded processes")
@@ -62,6 +60,8 @@ impl CGroup1 {
     /// `path` must be a directory in the `net_cls` filesystem.
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, super::Error> {
         let path = path.into();
+
+        crate::assert_filesystem_type(&path, CGROUP_SUPER_MAGIC, "cgroup v1")?;
 
         let procs_path = path.join("cgroup.procs");
 
@@ -144,5 +144,20 @@ impl CGroup1 {
         fs::write(&classid_path, net_cls_classid.to_string().as_bytes())
             .with_context(|| anyhow!("Failed to write NET_CLS_CLASSID to {classid_path:?}"))?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Refuse paths that are not cgroup v1 fs
+    #[test]
+    fn test_refuse_path_outside_net_cls() {
+        let dir = std::env::temp_dir();
+        assert!(
+            CGroup1::open(&dir).is_err(),
+            "expected {dir:?} to be refused: it is not on a cgroup v1 filesystem"
+        );
     }
 }

@@ -9,7 +9,7 @@ license.workspace = true
 [target.'cfg(target_os = "linux")'.dependencies]
 anyhow.workspace = true
 log.workspace = true
-nix = { workspace = true, features = ["fs", "mount", "process"] }
+nix = { workspace = true, features = ["fs", "mount", "process", "user"] }
 thiserror.workspace = true
 
 [lints]
