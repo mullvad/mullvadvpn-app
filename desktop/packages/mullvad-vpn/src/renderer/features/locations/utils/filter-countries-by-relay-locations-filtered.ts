@@ -4,10 +4,10 @@ import type {
   RelayLocationsFilterContext,
   RelayLocationsFiltered,
 } from '../../../redux/settings/reducers';
-import { filterLocationsByFilters } from './filter-locations-by-filters';
+import { filterCountries } from './filter-countries';
 import { getRelayLocationsFilteredFilter } from './get-relay-locations-filtered-filter';
 
-export function filterLocationsByRelayLocationsFiltered(
+export function filterCountriesByRelayLocationsFiltered(
   locations: IRelayLocationCountryRedux[],
   relayLocationsFiltered: RelayLocationsFiltered,
   context: RelayLocationsFilterContext,
@@ -15,7 +15,5 @@ export function filterLocationsByRelayLocationsFiltered(
 ): IRelayLocationCountryRedux[] {
   const filters = [getRelayLocationsFilteredFilter(relayLocationsFiltered, context, multihop)];
 
-  return filterLocationsByFilters(locations, (relay) =>
-    filters.every((filter) => filter?.(relay) ?? true),
-  );
+  return filterCountries(locations, (relay) => filters.every((filter) => filter?.(relay) ?? true));
 }
