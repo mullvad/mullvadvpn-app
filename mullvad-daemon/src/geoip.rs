@@ -7,7 +7,6 @@ use mullvad_api::{
     availability::ApiAvailability,
     proxy::ApiConnectionMode,
     rest::{Error, RequestService, RequestServiceHandle},
-    DnsResolver,
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
 use std::sync::LazyLock;
