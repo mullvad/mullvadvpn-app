@@ -1,10 +1,11 @@
 //! A userspace IP networking stack built on smoltcp, providing TCP and ICMP
 //! sockets whose traffic is surfaced as gotatun [`IpSend`]/[`IpRecv`] streams.
 //!
-//! This is used on iOS where the tunnel process cannot bind sockets to the
-//! tunnel device directly. Instead, smoltcp generates raw IP packets that are
-//! fed into a GotaTun device via [`IpRecv`], and decrypted return traffic is
-//! fed back via [`IpSend`].
+//! This lets a process talk through a tunnel without binding sockets to the
+//! tunnel device, which is not possible on iOS, and without depending on the
+//! OS to route traffic into the tunnel. Instead, smoltcp generates raw IP
+//! packets that are fed into a GotaTun device via [`IpRecv`], and decrypted
+//! return traffic is fed back via [`IpSend`].
 
 mod device;
 mod icmp_socket;
@@ -23,6 +24,7 @@ use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Arc,
+    time::Duration,
 };
 use tokio::{
     sync::{Notify, mpsc, oneshot},
@@ -77,6 +79,8 @@ pub fn smoltcp_network(
     let handle = SmoltcpHandle {
         cmd_tx,
         notify: notify.clone(),
+        timeout: None,
+        log_stats_on_drop: false,
     };
 
     let poll_task = tokio::spawn(poll_loop(
@@ -106,6 +110,8 @@ impl Drop for SmoltcpNetworkGuard {
 pub struct SmoltcpHandle {
     cmd_tx: mpsc::Sender<SocketCmd>,
     notify: Arc<Notify>,
+    timeout: Option<Duration>,
+    log_stats_on_drop: bool,
 }
 
 impl SmoltcpHandle {
@@ -114,15 +120,37 @@ impl SmoltcpHandle {
     /// The returned stream may be used immediately. Reads will pend until the
     /// TCP handshake completes and data arrives. Writes are buffered and
     /// flushed once the connection is established.
-    pub async fn tcp_connect(&self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
+    pub async fn tcp_connect(self, addr: SocketAddr) -> io::Result<SmoltcpTcpStream> {
         let (tx, rx) = oneshot::channel();
+        let timeout = self.timeout;
         self.cmd_tx
-            .send(SocketCmd::TcpConnect { addr, response: tx })
+            .send(SocketCmd::TcpConnect {
+                addr,
+                response: tx,
+                timeout,
+            })
             .await
             .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop closed"))?;
         self.notify.notify_one();
-        rx.await
-            .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop dropped"))?
+        let mut stream = rx
+            .await
+            .map_err(|_| io::Error::new(io::ErrorKind::BrokenPipe, "poll loop dropped"))??;
+        if self.log_stats_on_drop {
+            stream = stream.log_stats_on_drop();
+        }
+        Ok(stream)
+    }
+
+    /// See [`smoltcp::socket::tcp::Socket::set_timeout`].
+    pub fn set_timeout(mut self, timeout: Option<Duration>) -> Self {
+        self.timeout = timeout;
+        self
+    }
+
+    /// Log stats (rx and tx bytes) when stream is dropped.
+    pub fn log_stats(mut self) -> Self {
+        self.log_stats_on_drop = true;
+        self
     }
 
     /// Create an ICMP socket bound to the given identifier.

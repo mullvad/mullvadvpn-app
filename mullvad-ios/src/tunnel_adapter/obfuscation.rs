@@ -1,128 +1,172 @@
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+use std::{
+    io,
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Arc,
+};
 
-use gotatun::x25519::PublicKey;
-use talpid_types::net::{obfuscation::LwoVersion, wireguard};
-use tunnel_obfuscation::{Settings, create_local_socket_obfuscator};
+use gotatun::{
+    udp::{UdpTransportFactory, UdpTransportFactoryParams, socket::UdpSocket},
+    x25519::StaticSecret,
+};
+use talpid_net::bypass::NoopBypass;
+use talpid_types::net::ObfuscationType;
+use tokio::sync::Mutex;
+use tunnel_obfuscation::{
+    create_transport,
+    gotatun_transport::{
+        MaybeObfuscatingRecv, MaybeObfuscatingSend, MaybeObfuscatingTransportFactory,
+        RunningObfuscation,
+    },
+};
 
-use crate::tunnel_adapter::ObfuscationProxyError;
-
+use super::BoundUdpTransports;
 use super::params::{ObfuscationParameters, TunnelParameters};
 
-/// A running obfuscation proxy. Aborted on drop.
-pub struct ObfuscationProxy {
-    endpoint: SocketAddr,
-    /// Client key the transport is bound to. Only set for LWO.
-    client_public_key: Option<PublicKey>,
-    task: tokio::task::JoinHandle<()>,
+/// The ingress device's UDP transport: the pre-bound socket, obfuscated in place.
+///
+/// The obfuscation is held the way [`BoundUdpTransports`] holds the socket beneath it: a device
+/// reads either only when it binds, so both are replaced by suspending the device, swapping, and
+/// waking it.
+#[derive(Clone)]
+pub struct ObfuscatingTransports {
+    udp: BoundUdpTransports,
+    obfuscation: Arc<Mutex<Option<RunningObfuscation>>>,
+    /// The relay this addresses. See [`MaybeObfuscatingTransportFactory`].
+    peer_endpoint: SocketAddr,
 }
 
-impl ObfuscationProxy {
-    /// `None` when obfuscation is off.
-    async fn start(
-        params: &TunnelParameters,
-        client_public_key: PublicKey,
-    ) -> Result<Option<Self>, ObfuscationProxyError> {
-        let Some(settings) = settings(params, client_public_key)? else {
-            return Ok(None);
-        };
-
-        let obfuscator = create_local_socket_obfuscator(&settings)
-            .await
-            .map_err(ObfuscationProxyError::LocalSocketError)?;
-        let endpoint = obfuscator.endpoint();
-        log::info!(
-            "Obfuscation proxy towards {} started at {endpoint}",
-            params.ingress_peer().endpoint
-        );
-        let task = tokio::spawn(async move {
-            let _ = obfuscator.run().await;
-        });
-        Ok(Some(Self {
-            endpoint,
-            client_public_key: matches!(settings, Settings::Lwo(_)).then_some(client_public_key),
-            task,
-        }))
-    }
-
-    pub fn endpoint(&self) -> SocketAddr {
-        self.endpoint
-    }
-
-    fn serves(&self, client_public_key: PublicKey) -> bool {
-        self.client_public_key
-            .is_none_or(|bound| bound == client_public_key)
-    }
-}
-
-impl Drop for ObfuscationProxy {
-    fn drop(&mut self) {
-        self.task.abort();
-    }
-}
-
-/// Holds one obfuscation proxy, replacing it only when a device key it cannot serve is
-/// requested.
-#[derive(Default)]
-pub struct ObfuscationSlot {
-    proxy: Option<ObfuscationProxy>,
-}
-
-impl ObfuscationSlot {
-    /// `None` when obfuscation is off.
-    pub async fn for_key(
-        &mut self,
-        params: &TunnelParameters,
-        client_public_key: PublicKey,
-    ) -> Result<Option<&ObfuscationProxy>, ObfuscationProxyError> {
-        let reusable = self
-            .proxy
-            .as_ref()
-            .is_some_and(|proxy| proxy.serves(client_public_key));
-        if !reusable {
-            self.proxy = ObfuscationProxy::start(params, client_public_key).await?;
+impl ObfuscatingTransports {
+    pub fn new(
+        udp: BoundUdpTransports,
+        obfuscation: Option<RunningObfuscation>,
+        peer_endpoint: SocketAddr,
+    ) -> Self {
+        Self {
+            udp,
+            obfuscation: Arc::new(Mutex::new(obfuscation)),
+            peer_endpoint,
         }
-        Ok(self.proxy.as_ref())
     }
 
-    pub fn reset(&mut self) {
-        self.proxy = None;
+    /// Replace the obfuscation. The device uses it from its next bind on.
+    pub async fn replace(&self, obfuscation: Option<RunningObfuscation>) {
+        *self.obfuscation.lock().await = obfuscation;
     }
 }
 
-/// Obfuscator settings for the ingress relay, or `None` when obfuscation is off.
-fn settings(
+impl UdpTransportFactory for ObfuscatingTransports {
+    type Send = MaybeObfuscatingSend<UdpSocket>;
+    type Recv = MaybeObfuscatingRecv<UdpSocket>;
+
+    async fn bind(
+        &mut self,
+        params: &UdpTransportFactoryParams,
+    ) -> io::Result<(Self::Send, Self::Recv)> {
+        let obfuscation = self.obfuscation.lock().await.clone();
+        MaybeObfuscatingTransportFactory::new(self.udp.clone(), obfuscation, self.peer_endpoint)
+            .bind(params)
+            .await
+    }
+}
+
+pub enum ObfuscationProxyError {
+    InvalidQuicToken(String),
+    LocalSocketError(tunnel_obfuscation::Error),
+}
+
+impl std::fmt::Display for ObfuscationProxyError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ObfuscationProxyError::InvalidQuicToken(msg) => write!(f, "Invalid QUIC token: {msg}"),
+            ObfuscationProxyError::LocalSocketError(msg) => write!(f, "Local socket error: {msg}"),
+        }
+    }
+}
+
+/// Create the obfuscation that reaches the ingress relay. It is used by the temporary devices
+/// that negotiate ephemeral peers, and then reused by the tunnel devices.
+/// Returns `None` if obfuscation is off.
+pub async fn create_obfuscation(
     params: &TunnelParameters,
-    client_public_key: PublicKey,
-) -> Result<Option<Settings>, ObfuscationProxyError> {
-    let ingress = params.ingress_peer().endpoint;
+) -> Result<Option<RunningObfuscation>, ObfuscationProxyError> {
+    let Some(settings) = obfuscation_settings(params)? else {
+        log::info!("Obfuscation is off");
+        return Ok(None);
+    };
+    log::info!(
+        "Obfuscating the traffic towards {} with {}",
+        params.ingress_peer().endpoint,
+        obfuscation_type(&settings)
+    );
+
+    let obfuscation = match settings {
+        // LWO obfuscates each datagram in place, over the socket of the device.
+        tunnel_obfuscation::Settings::Lwo(settings) => RunningObfuscation::Lwo(settings),
+        settings => RunningObfuscation::Transport(
+            create_transport(Arc::new(NoopBypass), &settings)
+                .await
+                .map_err(ObfuscationProxyError::LocalSocketError)?,
+        ),
+    };
+    Ok(Some(obfuscation))
+}
+
+fn obfuscation_type(settings: &tunnel_obfuscation::Settings) -> ObfuscationType {
+    match settings {
+        tunnel_obfuscation::Settings::Udp2Tcp(_) => ObfuscationType::Udp2Tcp,
+        tunnel_obfuscation::Settings::Shadowsocks(_) => ObfuscationType::Shadowsocks,
+        tunnel_obfuscation::Settings::Quic(_) => ObfuscationType::Quic,
+        tunnel_obfuscation::Settings::Lwo(_) => ObfuscationType::Lwo,
+    }
+}
+
+/// The settings of the obfuscator that reaches the ingress relay.
+/// Returns `None` if obfuscation is off.
+fn obfuscation_settings(
+    params: &TunnelParameters,
+) -> Result<Option<tunnel_obfuscation::Settings>, ObfuscationProxyError> {
+    let ingress_endpoint = params.ingress_peer().endpoint;
+
     let settings = match &params.obfuscation {
         ObfuscationParameters::Off => return Ok(None),
         ObfuscationParameters::UdpOverTcp => {
-            Settings::Udp2Tcp(tunnel_obfuscation::udp2tcp::Settings { peer: ingress })
+            tunnel_obfuscation::Settings::Udp2Tcp(tunnel_obfuscation::udp2tcp::Settings {
+                peer: ingress_endpoint,
+            })
         }
         ObfuscationParameters::Shadowsocks => {
-            Settings::Shadowsocks(tunnel_obfuscation::shadowsocks::Settings {
-                shadowsocks_endpoint: ingress,
-                wireguard_endpoint: localhost_wg_endpoint(ingress),
+            let wg_ep = localhost_wg_endpoint(ingress_endpoint);
+            tunnel_obfuscation::Settings::Shadowsocks(tunnel_obfuscation::shadowsocks::Settings {
+                shadowsocks_endpoint: ingress_endpoint,
+                wireguard_endpoint: wg_ep,
             })
         }
         ObfuscationParameters::Quic { hostname, token } => {
+            let wg_ep = localhost_wg_endpoint(ingress_endpoint);
             let token = token
                 .parse::<tunnel_obfuscation::quic::AuthToken>()
                 .map_err(ObfuscationProxyError::InvalidQuicToken)?;
-            Settings::Quic(tunnel_obfuscation::quic::Settings::new(
-                ingress,
+            tunnel_obfuscation::Settings::Quic(tunnel_obfuscation::quic::Settings::new(
+                ingress_endpoint,
                 hostname.clone(),
                 token,
-                localhost_wg_endpoint(ingress),
+                wg_ep,
             ))
         }
         ObfuscationParameters::Lwo { server_public_key } => {
-            Settings::Lwo(tunnel_obfuscation::lwo::Settings {
-                server_addr: ingress,
-                client_public_key: wireguard::PublicKey::from(client_public_key.to_bytes()),
-                server_public_key: wireguard::PublicKey::from(*server_public_key),
-                version: LwoVersion::V1,
+            // Placeholder client key: every user of these settings overrides it with the key
+            // of the device the obfuscation is for, via `with_client_public_key`.
+            let device_public_key =
+                gotatun::x25519::PublicKey::from(&StaticSecret::from(params.private_key));
+            tunnel_obfuscation::Settings::Lwo(tunnel_obfuscation::lwo::Settings {
+                server_addr: ingress_endpoint,
+                client_public_key: talpid_types::net::wireguard::PublicKey::from(
+                    device_public_key.to_bytes(),
+                ),
+                server_public_key: talpid_types::net::wireguard::PublicKey::from(
+                    *server_public_key,
+                ),
+                version: talpid_types::net::obfuscation::LwoVersion::V1,
             })
         }
     };
@@ -139,7 +183,6 @@ fn localhost_wg_endpoint(peer: SocketAddr) -> SocketAddr {
 
 #[cfg(test)]
 mod tests {
-    use super::super::params::tests::{params, peer};
     use super::*;
 
     #[test]
@@ -152,52 +195,5 @@ mod tests {
             localhost_wg_endpoint("[2001:db8::1]:51820".parse().unwrap()),
             SocketAddr::from((Ipv6Addr::LOCALHOST, 51820))
         );
-    }
-
-    #[tokio::test]
-    async fn key_bound_proxy_serves_only_its_key() {
-        let proxy = |key| ObfuscationProxy {
-            endpoint: "127.0.0.1:1".parse().unwrap(),
-            client_public_key: key,
-            task: tokio::spawn(async {}),
-        };
-        let a = PublicKey::from([1u8; 32]);
-        let b = PublicKey::from([2u8; 32]);
-
-        assert!(proxy(None).serves(a));
-        assert!(proxy(None).serves(b));
-        assert!(proxy(Some(a)).serves(a));
-        assert!(!proxy(Some(a)).serves(b));
-    }
-
-    #[tokio::test]
-    async fn slot_off_yields_no_proxy_and_stays_empty() {
-        let mut slot = ObfuscationSlot::default();
-        let key = PublicKey::from([1u8; 32]);
-        assert!(slot.for_key(&params(), key).await.unwrap().is_none());
-        assert!(slot.proxy.is_none());
-    }
-
-    #[test]
-    fn off_yields_no_settings() {
-        let key = PublicKey::from([1u8; 32]);
-        assert!(settings(&params(), key).unwrap().is_none());
-    }
-
-    #[test]
-    fn lwo_targets_ingress_relay_with_given_client_key() {
-        let mut p = params();
-        p.entry_peer = Some(peer("9.9.9.9:51820"));
-        p.obfuscation = ObfuscationParameters::Lwo {
-            server_public_key: [9u8; 32],
-        };
-        let client = PublicKey::from([1u8; 32]);
-
-        let Some(Settings::Lwo(lwo)) = settings(&p, client).unwrap() else {
-            panic!("expected LWO settings");
-        };
-        assert_eq!(lwo.server_addr, "9.9.9.9:51820".parse().unwrap());
-        assert_eq!(lwo.client_public_key.as_bytes(), &[1u8; 32]);
-        assert_eq!(lwo.server_public_key.as_bytes(), &[9u8; 32]);
     }
 }

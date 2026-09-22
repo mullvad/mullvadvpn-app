@@ -3,7 +3,6 @@
 // running unit tests.
 #![cfg_attr(target_os = "macos", allow(dead_code))]
 
-mod gotatun;
 #[cfg(any(target_os = "ios", target_os = "tvos"))]
 mod ios;
 mod tunnel_adapter;

@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix a rare crash that could occur if a touch event was received just as the map view was created.
+- Blocking DNS queries related to connchecks during the ephemeral peer handshake caused tunnel setup
+  to fail on some devices.
 
 ## [android/2026.10] - 2026-09-17
 ### Fixed

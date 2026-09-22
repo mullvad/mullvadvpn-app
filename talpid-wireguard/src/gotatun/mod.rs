@@ -1,9 +1,6 @@
-#[cfg(target_os = "android")]
-use crate::config::patch_allowed_ips;
 use crate::{
     Tunnel, TunnelError,
     config::Config,
-    gotatun::obfuscation::MaybeObfuscatingTransportFactory,
     obfuscation::RunningObfuscation,
     stats::{Stats, StatsMap},
 };
@@ -23,7 +20,6 @@ use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
 use std::os::fd::IntoRawFd;
 use std::{
-    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::Deref,
     sync::{Arc, Mutex},
@@ -45,9 +41,8 @@ mod obfuscation;
 mod source_filter;
 
 use conversions::to_gotatun_peer;
+pub use obfuscation::{TransportFactory, lwo_timer_params, lwo_version, transport_factory};
 use source_filter::SourceFilter;
-
-type TransportFactory = MaybeObfuscatingTransportFactory;
 
 /// Everything read from the TUN device passes the source filter before it enters the tunnel.
 type TunRx = SourceFilter<GotaTunDevice>;
@@ -72,18 +67,8 @@ pub struct GotaTun {
     // TODO: Can we not store this in an option?
     devices: Option<Devices>,
 
-    tun_dev: GotaTunDevice,
-
-    bypass: Arc<dyn SocketBypass>,
-
-    /// Tunnel config
-    config: Config,
-
     /// Name of the tun interface.
     interface_name: String,
-
-    /// Optional obfuscation transport.
-    obfuscation: Option<RunningObfuscation>,
 }
 
 impl GotaTun {
@@ -91,28 +76,22 @@ impl GotaTun {
         tun_dev: AsyncDevice,
         bypass: Arc<dyn SocketBypass>,
         obfuscation: Option<RunningObfuscation>,
-        config: Config,
+        config: &Config,
+        daita: Option<&DaitaSettings>,
         interface_name: String,
     ) -> Result<Self, TunnelError> {
         let tun_dev = GotaTunDevice::from_tun_device(tun_dev)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
-        let devices = create_devices(
-            &config,
-            None,
-            tun_dev.clone(),
-            Arc::clone(&bypass),
-            obfuscation.clone(),
-        )
-        .await
-        .map_err(TunnelError::GotaTunDevice)?;
+        let obfuscation = obfuscation.map(|obfuscation| {
+            obfuscation.with_client_public_key(config.tunnel.private_key.public_key())
+        });
+        let devices = create_devices(config, daita, tun_dev, bypass, obfuscation)
+            .await
+            .map_err(TunnelError::GotaTunDevice)?;
 
         Ok(Self {
-            config,
             interface_name,
-            tun_dev,
-            bypass,
-            obfuscation,
             devices: Some(devices),
         })
     }
@@ -128,7 +107,7 @@ struct Singlehop {
 }
 
 impl Singlehop {
-    /// (Re)Configure the gotatun device.
+    /// Configure the gotatun device.
     async fn configure(
         &mut self,
         config: &Config,
@@ -152,7 +131,7 @@ struct Multihop {
 }
 
 impl Multihop {
-    /// (Re)Configure gotatun devices.
+    /// Configure gotatun devices.
     ///
     /// Take precaution to ensure that `exit_peer` is linked to `config`.
     async fn configure(
@@ -195,54 +174,48 @@ impl Devices {
     }
 }
 
-/// Configure and start a gotatun tunnel.
-pub async fn open_gotatun_tunnel(
+/// A tunnel device that is opened for a GotaTun tunnel, see [`start_gotatun`].
+pub struct OpenedTun {
+    device: AsyncDevice,
+    interface_name: String,
+    #[cfg(target_os = "android")]
+    is_new: bool,
+}
+
+impl OpenedTun {
+    /// Whether the tunnel device was created, rather than reused. Android applies the routes of a
+    /// new tunnel device asynchronously.
+    #[cfg(target_os = "android")]
+    pub fn is_new(&self) -> bool {
+        self.is_new
+    }
+}
+
+/// Open the tunnel device for a GotaTun tunnel.
+pub fn open_tun(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
-    bypass: Arc<dyn SocketBypass>,
-    obfuscation: Option<RunningObfuscation>,
-    #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
-    #[cfg(target_os = "android")] gateway_only: bool,
-) -> super::Result<GotaTun> {
-    log::info!("GotaTun::start_tunnel");
-    let routes = config.get_tunnel_destinations();
-
+) -> super::Result<OpenedTun> {
     log::trace!("calling get_tunnel_for_userspace");
-    #[cfg(not(target_os = "android"))]
-    let async_tun = {
-        let tun = get_tunnel_for_userspace(tun_provider.clone(), config, routes)?;
 
+    #[cfg(not(target_os = "android"))]
+    {
+        let tun = get_tunnel_for_userspace(tun_provider, config, config.get_tunnel_destinations())?;
         #[cfg(unix)]
-        {
-            tun.into_inner().into_inner()
-        }
+        let device = tun.into_inner().into_inner();
         #[cfg(windows)]
-        {
-            tun.into_inner()
-        }
-    };
+        let device = tun.into_inner();
+
+        let interface_name = device.deref().tun_name().unwrap();
+        Ok(OpenedTun {
+            device,
+            interface_name,
+        })
+    }
 
     #[cfg(target_os = "android")]
-    let async_tun = {
-        let _ = routes; // TODO: do we need this?
-        let (tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
-        let is_new_tunnel = tun.is_new;
-
-        // TODO We should also wait for routes before sending any ping / connectivity check
-
-        // There is a brief period of time between setting up a Wireguard tunnel and the tunnel
-        // being ready to serve traffic. This function blocks until the tunnel starts to
-        // serve traffic or until [connectivity::Check] times out.
-        if is_new_tunnel {
-            let expected_routes = tun_provider.lock().unwrap().real_routes();
-
-            route_manager_handle
-                .clone()
-                .wait_for_routes(expected_routes)
-                .await
-                .map_err(crate::Error::SetupRoutingError)
-                .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
-        }
+    {
+        let (tun, fd) = get_tunnel_for_userspace(tun_provider, config)?;
 
         let mut tun_config = tun::Configuration::default();
         tun_config.raw_fd(fd);
@@ -255,23 +228,37 @@ pub async fn open_gotatun_tunnel(
         // GotaTun will try to read the MTU from this, so call set_mtu here with the correct value.
         device.set_mtu(config.mtu).unwrap();
 
-        tun::AsyncDevice::new(device).unwrap()
-    };
+        let device = tun::AsyncDevice::new(device).unwrap();
+        let interface_name = device.deref().tun_name().unwrap();
+        Ok(OpenedTun {
+            device,
+            interface_name,
+            is_new: tun.is_new,
+        })
+    }
+}
 
-    let interface_name = async_tun.deref().tun_name().unwrap();
-
-    let config = config.clone();
-    #[cfg(target_os = "android")]
-    let config = match gateway_only {
-        // See `wireguard_go` module for why this is needed.
-        true => patch_allowed_ips(config),
-        false => config,
-    };
+/// Start a GotaTun tunnel on `tun`.
+pub async fn start_gotatun(
+    tun: OpenedTun,
+    config: &Config,
+    daita: Option<&DaitaSettings>,
+    obfuscation: Option<RunningObfuscation>,
+    bypass: Arc<dyn SocketBypass>,
+) -> super::Result<GotaTun> {
+    log::info!("GotaTun::start_tunnel");
 
     log::trace!("passing tunnel dev to gotatun");
-    let gotatun = GotaTun::new(async_tun, bypass, obfuscation, config, interface_name)
-        .await
-        .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
+    let gotatun = GotaTun::new(
+        tun.device,
+        bypass,
+        obfuscation,
+        config,
+        daita,
+        tun.interface_name,
+    )
+    .await
+    .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
 
     log::info!(
         r#"This tunnel was brought to you by...
@@ -283,6 +270,19 @@ pub async fn open_gotatun_tunnel(
     );
 
     Ok(gotatun)
+}
+
+/// Open a tunnel device and start a GotaTun tunnel on it.
+#[cfg(not(target_os = "android"))]
+pub async fn open_gotatun_tunnel(
+    config: &Config,
+    daita: Option<&DaitaSettings>,
+    obfuscation: Option<RunningObfuscation>,
+    tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
+    bypass: Arc<dyn SocketBypass>,
+) -> super::Result<GotaTun> {
+    let tun = open_tun(config, tun_provider)?;
+    start_gotatun(tun, config, daita, obfuscation, bypass).await
 }
 
 /// Configure a gotatun entry or singlehop device
@@ -382,123 +382,6 @@ impl Tunnel for GotaTun {
 
         Ok(stats)
     }
-
-    fn set_config<'a>(
-        &'a mut self,
-        config: Config,
-        daita: Option<DaitaSettings>,
-    ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
-        Box::pin(async move {
-            let old_public_key = self.config.tunnel.private_key.public_key();
-            self.config = config;
-
-            // The UDP transport needs to be recreated if the client pubkey changes.
-            let stale_transport = obfuscation::lwo_version(&self.config) == Some(LwoVersion::V1)
-                && self.config.tunnel.private_key.public_key().as_bytes()
-                    != old_public_key.as_bytes();
-
-            // LWO keys off the client public key, which changes when an ephemeral peer is set up
-            if let Some(RunningObfuscation::Lwo(settings)) = &mut self.obfuscation {
-                settings.client_public_key = self.config.tunnel.private_key.public_key();
-            }
-
-            // If we're switching to/from multihop, we'll need to tear down the old device(s)
-            // and set them up with the new DeviceTransports
-            let devices = match self.devices.take() {
-                // Recreate the device(s) with a transport that uses the new key
-                Some(devices) if stale_transport => {
-                    devices.stop().await;
-                    create_devices(
-                        &self.config,
-                        daita.as_ref(),
-                        self.tun_dev.clone(),
-                        Arc::clone(&self.bypass),
-                        self.obfuscation.clone(),
-                    )
-                    .await
-                    .map_err(TunnelError::GotaTunDevice)?
-                }
-                // Switching from singlehop to multihop
-                Some(Devices::Singlehop(device))
-                    if let Some(_exit_peer) = self.config.exit_peer.as_ref() =>
-                {
-                    // Tear down old device and recreate new multihop devices.
-                    device.stop().await;
-                    create_devices(
-                        &self.config,
-                        daita.as_ref(),
-                        self.tun_dev.clone(),
-                        Arc::clone(&self.bypass),
-                        self.obfuscation.clone(),
-                    )
-                    .await
-                    .map_err(TunnelError::GotaTunDevice)?
-                }
-                // FIXME: When re-configuring a device with a new `psk`, `gotatun` seemingly
-                // borks out. A known workaround is to tear down the old device and set up a new
-                // one.
-                Some(Devices::Singlehop(device))
-                    if let Some(_psk) = self.config.entry_peer.psk.as_ref() =>
-                {
-                    // Tear down old device and recreate new multihop devices.
-                    device.stop().await;
-                    create_devices(
-                        &self.config,
-                        daita.as_ref(),
-                        self.tun_dev.clone(),
-                        Arc::clone(&self.bypass),
-                        self.obfuscation.clone(),
-                    )
-                    .await
-                    .map_err(TunnelError::GotaTunDevice)?
-                }
-                // Simply reconfigure the singlehop device.
-                Some(Devices::Singlehop(mut device)) => {
-                    device
-                        .configure(&self.config, daita.as_ref())
-                        .await
-                        .map_err(TunnelError::GotaTunDevice)?;
-                    Devices::Singlehop(device)
-                }
-                // Simply reconfigure the multihop devices.
-                Some(Devices::Multihop(mut devices))
-                    if let Some(exit_peer) = self.config.exit_peer.as_ref() =>
-                {
-                    devices
-                        .configure(&self.config, exit_peer, daita.as_ref())
-                        .await
-                        .map_err(TunnelError::GotaTunDevice)?;
-                    Devices::Multihop(devices)
-                }
-                // Switching from multihop to singlehop
-                Some(Devices::Multihop(devices)) => {
-                    // Tear down old devices and recreate new singlehop device.
-                    devices.stop().await;
-                    create_devices(
-                        &self.config,
-                        daita.as_ref(),
-                        self.tun_dev.clone(),
-                        Arc::clone(&self.bypass),
-                        self.obfuscation.clone(),
-                    )
-                    .await
-                    .map_err(TunnelError::GotaTunDevice)?
-                }
-                None => create_devices(
-                    &self.config,
-                    daita.as_ref(),
-                    self.tun_dev.clone(),
-                    Arc::clone(&self.bypass),
-                    self.obfuscation.clone(),
-                )
-                .await
-                .map_err(TunnelError::GotaTunDevice)?,
-            };
-
-            self.devices = Some(devices);
-            Ok(())
-        })
-    }
 }
 
 /// Create and configure gotatun devices.
@@ -520,7 +403,7 @@ async fn create_devices(
         obfuscation: Option<RunningObfuscation>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory = MaybeObfuscatingTransportFactory::new(
+        let factory = transport_factory(
             optimize_buffer_size,
             obfuscation,
             config.entry_peer.endpoint,
@@ -528,14 +411,8 @@ async fn create_devices(
         );
         // The addresses assigned to the tun device, i.e. the only source addresses we accept
         // packets from. See [SourceFilter].
-        let source_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
-            &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-            IpAddr::V6(..) => None,
-        });
-        let source_v6 = config.tunnel.addresses.iter().find_map(|ip| match ip {
-            &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-            IpAddr::V4(..) => None,
-        });
+        let source_v4 = config.tunnel_ipv4();
+        let source_v6 = config.tunnel_ipv6();
 
         let devices = if let Some(exit_peer) = &config.exit_peer {
             // Multihop setup
