@@ -180,9 +180,10 @@
             case .privateKeyRotation:
                 completionHandler?(try? TunnelProviderReply(TunnelReply.ok).encode())
 
-            case .getInAppLogs:
-                completionHandler?(nil)
-            }
+            #if NEVER_IN_PRODUCTION
+                case .getInAppLogs:
+                    completionHandler?(nil)
+            #endif
 
             onHandleProviderMessage?(message)
         }

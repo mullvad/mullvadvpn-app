@@ -1,15 +1,17 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  LogView.swift
-//  MullvadVPN
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Jon Petersson on 2026-04-23.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 import MullvadLogging
 import UIKit
 
-class LogView: UIView {
+class InAppLogView: UIView {
     private let minPanelHeight: CGFloat = 120
     private var maxPanelHeight: CGFloat = 500
     private var panelHeight: CGFloat = 350
@@ -18,7 +20,7 @@ class LogView: UIView {
     private var dragStartY: CGFloat = 0
     private var resizeStartHeight: CGFloat = 0
 
-    private let interactor: LogViewInteractor
+    private let interactor: InAppLogViewInteractor
     private let topHandleView = UIView()
     private let topHandleBar = UIView()
     private let bottomHandleView = UIView()
@@ -45,7 +47,7 @@ class LogView: UIView {
 
     var onExportLogs: ((String) -> Void)?
 
-    init(interactor: LogViewInteractor) {
+    init(interactor: InAppLogViewInteractor) {
         self.interactor = interactor
 
         super.init(frame: .zero)
@@ -561,7 +563,7 @@ class LogView: UIView {
     }
 }
 
-extension LogView: UITableViewDataSource {
+extension InAppLogView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         filteredEntries.count
     }
@@ -602,7 +604,7 @@ extension LogView: UITableViewDataSource {
     }
 }
 
-extension LogView: UITableViewDelegate {
+extension InAppLogView: UITableViewDelegate {
     func tableView(
         _ tableView: UITableView,
         contextMenuConfigurationForRowAt indexPath: IndexPath,
@@ -656,7 +658,7 @@ extension LogView: UITableViewDelegate {
     }
 }
 
-extension LogView: UITextFieldDelegate {
+extension InAppLogView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true

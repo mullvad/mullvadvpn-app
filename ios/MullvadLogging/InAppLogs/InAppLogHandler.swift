@@ -1,10 +1,12 @@
+// This Source Code Form is subject to the terms of the GPLv3 License.
+// You can obtain a copy of the license at https://www.gnu.org/licenses/gpl-3.0.en.html.
 //
-//  InAppLogHandler.swift
-//  MullvadVPN
+// This file incorporates work covered by the following copyright and
+// permission notice:
 //
-//  Created by Jon Petersson on 2026-04-23.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+//   Copyright (c) Mullvad VPN AB. All rights reserved.
 //
+// SPDX-License-Identifier: GPL-3.0-only
 
 import MullvadTypes
 
@@ -42,7 +44,7 @@ public struct InAppLogHandler: LogHandler {
     init(process: InAppLogEntry.Process, label: String, observer: InAppLogBlockObserver) {
         self.process = process
         self.label = label
-        self.observerList.append(observer)
+        observerList.append(observer)
     }
 
     public func log(
@@ -54,15 +56,15 @@ public struct InAppLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
+        let logEntry = InAppLogEntry(
+            process: process,
+            timestamp: Date().logFormatted,
+            label: label,
+            message: message.description
+        )
+
         observerList.notify {
-            $0.didAddLogEntry(
-                InAppLogEntry(
-                    process: process,
-                    timestamp: Date().logFormatted,
-                    label: label,
-                    message: message.description
-                )
-            )
+            $0.didAddLogEntry(logEntry)
         }
     }
 }

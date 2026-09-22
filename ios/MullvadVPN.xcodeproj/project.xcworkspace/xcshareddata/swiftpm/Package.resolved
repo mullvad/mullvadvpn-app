@@ -1,0 +1,15 @@
+{
+  "originHash" : "004c7b9e036775265a3ba321f2643b2be8953ebef355de33e8f9ba4a40a4d960",
+  "pins" : [
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "bc386b95f2a16ccd0150a8235e7c69eab2b866ca",
+        "version" : "1.8.0"
+      }
+    }
+  ],
+  "version" : 3
+}

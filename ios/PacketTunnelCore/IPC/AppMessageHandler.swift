@@ -76,7 +76,7 @@ public final class AppMessageHandler {
             }
             
         case .getInAppLogs:
-            let entries = inAppLogBuffer?.drain() ?? []
+            let entries = inAppLogBuffer?.flush() ?? []
             return encodeReply(entries)
         }
     }
