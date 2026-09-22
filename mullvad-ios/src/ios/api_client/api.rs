@@ -52,7 +52,7 @@ impl ApiContext {
             {
                 Ok(Some(resolved_connection_mode)) => {
                     let oneshot_client = api_context.api_client.mullvad_rest_handle(
-                        resolved_connection_mode.connection_mode.into_provider(),
+                        resolved_connection_mode.connection_mode,
                     );
 
                     match api_addrs_available_inner(oneshot_client, retry_strategy).await {

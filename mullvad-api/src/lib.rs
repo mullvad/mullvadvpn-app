@@ -6,7 +6,7 @@ use hyper::body::Incoming;
 use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
-use proxy::{ApiConnectionMode, ConnectionModeProvider};
+use proxy::{ApiConnectionMode, ConnectionModeSource};
 use std::sync::LazyLock;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
@@ -480,7 +480,7 @@ impl Runtime {
     /// Returns a new request service handle
     pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
         self.new_request_service(
-            ApiConnectionMode::Direct.into_provider(),
+            ApiConnectionMode::Direct,
             Arc::new(dns_resolver),
             #[cfg(target_os = "android")]
             None,
@@ -519,12 +519,12 @@ impl<B: AddressCacheBacking> Runtime<B> {
 
     /// Returns a request factory initialized to create requests for the master API.
     /// Assumes an API endpoint that is constructed from env vars, or uses default values.
-    pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
+    pub fn mullvad_rest_handle(
         &self,
-        connection_mode_provider: T,
+        connection_mode_source: impl Into<ConnectionModeSource>,
     ) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
-            connection_mode_provider,
+            connection_mode_source,
             Arc::clone(&self.address_cache),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
@@ -543,9 +543,9 @@ impl<B: AddressCacheBacking> Runtime<B> {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service<T: ConnectionModeProvider + 'static>(
+    fn new_request_service(
         &self,
-        connection_mode_provider: T,
+        connection_mode_source: impl Into<ConnectionModeSource>,
         dns_resolver: Arc<impl DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
@@ -553,7 +553,7 @@ impl<B: AddressCacheBacking> Runtime<B> {
         rest::RequestService::spawn(
             self.endpoint.host(),
             self.api_availability.clone(),
-            connection_mode_provider,
+            connection_mode_source,
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
