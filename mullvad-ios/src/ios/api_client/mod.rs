@@ -80,6 +80,7 @@ impl ApiContext {
     }
 }
 impl ApiContext {
+    #[cfg_attr(feature = "api-override", expect(clippy::too_many_arguments))]
     fn new_inner(
         host: String,
         address: String,
