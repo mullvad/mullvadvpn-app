@@ -41,7 +41,7 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         }
     }
 
-    /// Shorthand to get the file header in a `Data` writeable format
+    /// Shorthand to get the file header in a `Data` writable format
     private var headerData: Data { "\(fileHeader)\n".data(using: encoding, allowLossyConversion: true)! }
 
     private var timer: DispatchSourceTimer?

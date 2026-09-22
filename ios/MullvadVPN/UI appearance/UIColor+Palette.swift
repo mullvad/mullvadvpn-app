@@ -163,6 +163,6 @@ extension UIColor {
 
 extension CGColor {
     enum ReduceAnonymityWarningView {
-        static let backroundColor = CGColor(red: 0.06, green: 0.09, blue: 0.14, alpha: 0.4)
+        static let backgroundColor = CGColor(red: 0.06, green: 0.09, blue: 0.14, alpha: 0.4)
     }
 }

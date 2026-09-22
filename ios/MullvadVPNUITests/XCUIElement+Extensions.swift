@@ -151,7 +151,7 @@ extension XCUIElement {
         static let maxPollInterval: TimeInterval = 2
 
         static let pollMultiplier: Double = 1.5
-        // To accomodate the `extremelyLong` timeout, we allow for an upper bound of
+        // To accommodate the `extremelyLong` timeout, we allow for an upper bound of
         // 100 iterations * 2 seconds.
         // In practice the timeout gets precedence over the `maxPollInterval * maxIterations`,
         // so it won't actually take 200s.
@@ -159,7 +159,7 @@ extension XCUIElement {
     }
 
     // This function actively polls the hierarchy on a set interval. This speeds up the waiting process
-    // siginificantly by returning much sooner than the default system `waitForExistence()` function.
+    // significantly by returning much sooner than the default system `waitForExistence()` function.
     @discardableResult
     private static func wait(
         for condition: @escaping () -> Bool,

@@ -275,11 +275,11 @@ class LocationCell: UITableViewCell {
     }
 
     private func updateBackgroundColor() {
-        backgroundView?.backgroundColor = backgroundColorForIdentationLevel()
+        backgroundView?.backgroundColor = backgroundColorForIndentationLevel()
         selectedBackgroundView?.backgroundColor = selectedBackgroundColorForIndentationLevel()
     }
 
-    private func backgroundColorForIdentationLevel() -> UIColor {
+    private func backgroundColorForIndentationLevel() -> UIColor {
         switch indentationLevel {
         case 1:
             return UIColor.Cell.Background.indentationLevelOne

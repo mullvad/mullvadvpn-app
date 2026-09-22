@@ -15,7 +15,7 @@ public struct ShadowsocksCipherService {
     public init() {}
 
     public func getCiphers() -> [String] {
-        guard let pointer = get_shadowsocks_chipers() else {
+        guard let pointer = get_shadowsocks_ciphers() else {
             Logger(label: "ShadowsocksCipherService").error("Failed to get Shadowsocks ciphers")
             return []
         }

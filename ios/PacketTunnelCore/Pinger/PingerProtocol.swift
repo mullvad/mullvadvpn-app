@@ -30,7 +30,7 @@ public struct PingerSendResult {
     }
 }
 
-/// A type capable of sending and receving ICMP traffic.
+/// A type capable of sending and receiving ICMP traffic.
 public protocol PingerProtocol: Sendable {
     var onReply: ((PingerReply) -> Void)? { get set }
 

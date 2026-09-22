@@ -121,8 +121,8 @@ public enum SelectedDNSServers: Equatable, Sendable {
 
     public static func == (lhs: SelectedDNSServers, rhs: SelectedDNSServers) -> Bool {
         return switch (lhs, rhs) {
-        case let (.custom(lhsAddresss), .custom(rhsAddresses)):
-            lhsAddresss.map { $0.rawValue } == rhsAddresses.map { $0.rawValue }
+        case let (.custom(lhsAddresses), .custom(rhsAddresses)):
+            lhsAddresses.map { $0.rawValue } == rhsAddresses.map { $0.rawValue }
         case let (.blocking(lhsAddress), .blocking(rhsAddress)):
             lhsAddress.rawValue == rhsAddress.rawValue
         case (.gateway, .gateway):

@@ -653,8 +653,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             // Default access methods need to be repopulated again after settings wipe.
             self.accessMethodRepository.addDefaultsMethods()
-            // At app startup, the relay cache tracker will get populated with a list of overriden IPs.
-            // The overriden IPs will get wiped, therefore, the cache needs to be pruned as well.
+            // At app startup, the relay cache tracker will get populated with a list of overridden IPs.
+            // The overridden IPs will get wiped, therefore, the cache needs to be pruned as well.
             try? self.relayCacheTracker.refreshCachedRelays()
         }
     }

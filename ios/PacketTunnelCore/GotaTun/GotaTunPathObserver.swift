@@ -17,7 +17,7 @@ public protocol GotaTunPathObserverProtocol: Sendable {
     /// to `body` in the order they occurred. Must be called once; further calls return the same
     /// status without restarting observation.
     ///
-    /// A path update will be delivered even if reachability does not change - going from WiFi to modem or otherwise should still result in notifiying the user.
+    /// A path update will be delivered even if reachability does not change - going from WiFi to modem or otherwise should still result in notifying the user.
     @discardableResult
     func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) async -> Network.NWPath.Status
 

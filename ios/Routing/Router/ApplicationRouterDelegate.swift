@@ -38,7 +38,7 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject, Sendable {
     /**
      Delegate may reconsider if route presentation is still needed.
 
-     Return `true` to proceed with presenation, otherwise `false` to prevent it.
+     Return `true` to proceed with presentation, otherwise `false` to prevent it.
      */
     func applicationRouter(_ router: ApplicationRouter<RouteType>, shouldPresent route: RouteType) -> Bool
 
