@@ -1,3 +1,4 @@
+use futures::channel::mpsc;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -16,42 +17,47 @@ use tokio::{
 };
 use tracing::{Level, instrument};
 
-use crate::domain_fronting::DfConfigResolved;
+use crate::{access_mode::AccessModeSelectorHandle, domain_fronting::DfConfigResolved};
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-pub trait ConnectionModeProvider: Send + Sync {
+/// Source of [`ApiConnectionMode`]s for a `RequestService`.
+///
+/// A static source provides a single, fixed connection mode. A dynamic source
+/// is connected to a running `AccessModeSelector`, which announces new
+/// connection modes over a channel and which may be asked to rotate the
+/// current mode when API requests fail.
+pub enum ConnectionModeSource {
+    Static(ApiConnectionMode),
+    Dynamic {
+        initial: ApiConnectionMode,
+        handle: AccessModeSelectorHandle,
+        change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
+    },
+}
+
+impl From<ApiConnectionMode> for ConnectionModeSource {
+    fn from(mode: ApiConnectionMode) -> Self {
+        Self::Static(mode)
+    }
+}
+
+impl ConnectionModeSource {
     /// Initial connection mode
-    fn initial(&self) -> ApiConnectionMode;
-
-    /// Request a new connection mode from the provider
-    fn rotate(&self) -> impl Future<Output = ()> + Send;
-
-    /// Receive changes to the connection mode, announced by the provider
-    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send;
-}
-
-pub struct StaticConnectionModeProvider {
-    mode: ApiConnectionMode,
-}
-
-impl StaticConnectionModeProvider {
-    pub fn new(mode: ApiConnectionMode) -> Self {
-        Self { mode }
-    }
-}
-
-impl ConnectionModeProvider for StaticConnectionModeProvider {
-    fn initial(&self) -> ApiConnectionMode {
-        self.mode.clone()
+    pub fn initial(&self) -> ApiConnectionMode {
+        match self {
+            Self::Static(mode) | Self::Dynamic { initial: mode, .. } => mode.clone(),
+        }
     }
 
-    fn rotate(&self) -> impl Future<Output = ()> + Send {
-        futures::future::ready(())
-    }
-
-    fn receive(&mut self) -> impl Future<Output = Option<ApiConnectionMode>> + Send {
-        futures::future::pending()
+    /// Ask the source to rotate to a new connection mode. No-op for static sources.
+    pub async fn rotate(&self) {
+        match self {
+            Self::Static(_) => {}
+            Self::Dynamic { handle, .. } => {
+                let _ = handle.rotate().await;
+            }
+        }
     }
 }
 
@@ -193,10 +199,6 @@ impl ApiConnectionMode {
 
     pub fn is_proxy(&self) -> bool {
         *self != ApiConnectionMode::Direct
-    }
-
-    pub fn into_provider(self) -> StaticConnectionModeProvider {
-        StaticConnectionModeProvider::new(self)
     }
 }
 
