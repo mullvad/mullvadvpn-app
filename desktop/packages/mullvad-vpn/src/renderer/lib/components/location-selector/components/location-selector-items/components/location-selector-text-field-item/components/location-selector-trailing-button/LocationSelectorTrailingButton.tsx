@@ -5,6 +5,7 @@ import { spacings } from '../../../../../../../../foundations';
 import { IconButton, type IconButtonProps } from '../../../../../../../icon-button';
 
 export type LocationSelectorTrailingButtonProps = IconButtonProps & {
+  disabled?: boolean;
   visible?: boolean;
 };
 
@@ -15,6 +16,7 @@ export const StyledLocationSelectorTrailingButton = styled(IconButton)`
 `;
 
 function LocationSelectorTrailingButton({
+  disabled,
   visible,
   ...props
 }: LocationSelectorTrailingButtonProps) {
@@ -26,7 +28,7 @@ function LocationSelectorTrailingButton({
         initial={{ opacity: 0 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.1, ease: 'linear' }}>
-        <StyledLocationSelectorTrailingButton {...props} />
+        <StyledLocationSelectorTrailingButton disabled={disabled} {...props} />
       </motion.div>
     </AnimatePresence>
   ) : null;

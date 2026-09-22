@@ -1,27 +1,27 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
+import { useOwnership, useProviders } from '../../../../../features/locations/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
-import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useFilteredProviders } from '../../../filter/hooks';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export type ProvidersFilterChip = FilterChipProps;
 
 export function ProvidersFilterChip(props: ProvidersFilterChip) {
-  const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useNormalRelaySettings();
-  const ownership = relaySettings?.ownership ?? Ownership.any;
-  const providers = relaySettings?.providers ?? [];
-  const filteredProviders = useFilteredProviders(providers, ownership);
+  const { locationType } = useSelectLocationViewContext();
+  const { ownership } = useOwnership(locationType);
+  const { activeProviders, providers, setProviders } = useProviders(locationType);
+  const filteredProviders = useFilteredProviders(activeProviders, ownership);
 
   const onClearProviders = React.useCallback(async () => {
     if (relaySettings) {
-      await relaySettingsUpdater((settings) => ({ ...settings, providers: [] }));
+      await setProviders(providers);
     }
-  }, [relaySettingsUpdater, relaySettings]);
+  }, [relaySettings, setProviders, providers]);
 
   return (
     <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearProviders} {...props}>

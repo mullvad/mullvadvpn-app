@@ -35,7 +35,15 @@ export type ScrollToAnchorOption = {
   id: ScrollToAnchorId;
 };
 
-export type LocationStateOptions = SuppressOutdatedVersionOption | ScrollToAnchorOption;
+export type FilterViewLocationTypeOption = {
+  type: 'filter-view-location-type';
+  locationType: 'entry' | 'exit';
+};
+
+export type LocationStateOptions =
+  | SuppressOutdatedVersionOption
+  | ScrollToAnchorOption
+  | FilterViewLocationTypeOption;
 
 export type IChangelog = Array<string>;
 

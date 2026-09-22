@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../../../shared/gettext';
 import { LocationSelector } from '../../../../../../../lib/components/location-selector';
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
+import { FilterTrailingButton } from './components';
 import {
   useHandleClearButtonClick,
   useHandleFocusExit,
@@ -64,6 +65,7 @@ function TextFieldItemImpl({
           />
         )}
       </LocationSelector.Items.TextFieldItem.TextField>
+      <FilterTrailingButton />
     </LocationSelector.Items.TextFieldItem>
   );
 }

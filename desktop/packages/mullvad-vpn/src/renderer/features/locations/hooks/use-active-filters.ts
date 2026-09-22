@@ -7,14 +7,14 @@ import { useOwnership } from './use-ownership';
 import { useProviders } from './use-providers';
 
 export function useActiveFilters(locationType: LocationType) {
-  const { activeOwnership } = useOwnership();
-  const { providers, activeProviders } = useProviders();
+  const { ownership } = useOwnership(locationType);
+  const { providers, activeProviders } = useProviders(locationType);
 
   const isQuicFilterActive = useIsQuicFilterActive(locationType);
   const isLwoFilterActive = useIsLwoFilterActive(locationType);
   const isDaitaFilterActive = useIsDaitaFilterActive(locationType);
 
-  const isOwnershipFilterActive = activeOwnership !== Ownership.any;
+  const isOwnershipFilterActive = ownership !== Ownership.any;
   const isProvidersFilterActive = activeProviders.length !== providers.length;
   const isAnyFilterActive =
     isOwnershipFilterActive ||

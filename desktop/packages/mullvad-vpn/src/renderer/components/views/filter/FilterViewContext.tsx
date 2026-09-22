@@ -2,11 +2,14 @@ import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
 import { useOwnership, useProviders } from '../../../features/locations/hooks';
+import { LocationType } from '../../../features/locations/types';
+import { useHistory } from '../../../lib/history';
 import { useFilteredProviders } from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
 
 type FilterViewContext = {
+  locationType: LocationType;
   selectedProviders: string[];
   availableProviders: string[];
   toggleProviders: (providers: string[]) => void;
@@ -25,10 +28,21 @@ export const useFilterViewContext = (): FilterViewContext => {
 };
 
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
-  const { providers, activeProviders } = useProviders();
-  const { activeOwnership } = useOwnership();
+  const history = useHistory();
+
+  const { location } = history;
+  const { state } = location;
+
+  const filterViewOption = state.options?.find(
+    (option) => option.type === 'filter-view-location-type',
+  );
+  const locationType =
+    filterViewOption?.locationType === 'entry' ? LocationType.entry : LocationType.exit;
+
+  const { providers, activeProviders } = useProviders(locationType);
+  const { ownership } = useOwnership(locationType);
   const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
-  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(ownership);
 
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
@@ -53,6 +67,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
 
   const value = useMemo(
     () => ({
+      locationType,
       selectedProviders,
       toggleProviders,
       availableProviders,
@@ -60,7 +75,7 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
       setOwnership: setSelectedOwnership,
     }),
 
-    [availableProviders, selectedOwnership, selectedProviders, toggleProviders],
+    [availableProviders, locationType, selectedOwnership, selectedProviders, toggleProviders],
   );
 
   return <FilterViewContext.Provider value={value}>{children}</FilterViewContext.Provider>;

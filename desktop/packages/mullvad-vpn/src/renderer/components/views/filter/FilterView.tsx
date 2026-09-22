@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { LocationType } from '../../../features/locations/types';
 import { Button } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
@@ -18,12 +19,13 @@ const StyledViewContent = styled(View.Content)`
 
 function FilterViewImpl() {
   const history = useHistory();
-  const { availableProviders, selectedProviders } = useFilterViewContext();
+  const { availableProviders, locationType, selectedProviders } = useFilterViewContext();
   const handleApply = useHandleApplyFilter();
 
   const noSelectedProviders = availableProviders.every(
     (provider) => !selectedProviders.includes(provider),
   );
+  const isLocationTypeEntry = locationType === LocationType.entry;
 
   return (
     <View backgroundColor="darkBlue">
@@ -32,8 +34,13 @@ function FilterViewImpl() {
           <StyledViewContent>
             <AppNavigationHeader
               title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('filter-nav', 'Filter')
+                isLocationTypeEntry
+                  ? // This line is here to prevent the following one to be moved up here by prettier
+                    // TRANSLATORS: Title label in navigation bar for entry location filters
+                    messages.pgettext('filter-nav', 'Entry filter')
+                  : // This line is here to prevent the following one to be moved up here by prettier
+                    // TRANSLATORS: Title label in navigation bar for exit location filters
+                    messages.pgettext('filter-nav', 'Exit filter')
               }
               titleVisible
             />

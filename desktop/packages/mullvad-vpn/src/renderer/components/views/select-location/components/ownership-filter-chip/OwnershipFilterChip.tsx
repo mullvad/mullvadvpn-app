@@ -5,13 +5,15 @@ import { messages } from '../../../../../../shared/gettext';
 import { useOwnership } from '../../../../../features/locations/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { useOwnershipFilterLabel } from './hooks';
 
 export type OwnershipFilterChipProps = FilterChipProps;
 
 export function OwnershipFilterChip(props: OwnershipFilterChipProps) {
   const relaySettings = useNormalRelaySettings();
-  const { setOwnership } = useOwnership();
+  const { locationType } = useSelectLocationViewContext();
+  const { setOwnership } = useOwnership(locationType);
   const ownershipFilterLabel = useOwnershipFilterLabel();
 
   const onClearOwnership = React.useCallback(async () => {
