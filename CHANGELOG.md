@@ -63,12 +63,15 @@ Line wrap the file at 100 chars.                                              Th
   when detecting if NetworkManager manages DNS.
 
 ### Security
+- Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+
 #### macOS
 - Fix local privilege escalation attack in the uninstall script. This could be used by admin users
   to obtain root privileges during uninstall.
 
-### Security
-- Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+#### Windows
+- Apply gRPC pipe ownership check correctly on Windows. This fixes the advisory
+  `GHSA-wchj-r66m-4m48`.
 
 
 ## [2026.5] - 2026-09-11
