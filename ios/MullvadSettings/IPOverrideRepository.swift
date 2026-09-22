@@ -26,7 +26,6 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     }
 
     private let logger = Logger(label: "IPOverrideRepository")
-    private let readWriteLock = NSLock()
 
     private let settingsStore: SettingsStore
 
@@ -68,10 +67,8 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
 
     public func deleteAll() {
         do {
-            try readWriteLock.withLock {
-                try settingsStore.delete(key: .ipOverrides)
-                overridesSubject.send([])
-            }
+            try settingsStore.delete(key: .ipOverrides)
+            overridesSubject.send([])
         } catch {
             logger.error("Could not delete all overrides. \nError: \(error)")
         }
@@ -85,21 +82,17 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     }
 
     private func readIpOverrides() throws -> [IPOverride] {
-        try readWriteLock.withLock {
-            let parser = makeParser()
-            let data = try settingsStore.read(key: .ipOverrides)
-            return try parser.parseUnversionedPayload(as: [IPOverride].self, from: data)
-        }
+        let parser = makeParser()
+        let data = try settingsStore.read(key: .ipOverrides)
+        return try parser.parseUnversionedPayload(as: [IPOverride].self, from: data)
     }
 
     private func writeIpOverrides(_ overrides: [IPOverride]) throws {
         let parser = makeParser()
         let data = try parser.produceUnversionedPayload(overrides)
 
-        try readWriteLock.withLock {
-            try settingsStore.write(data, for: .ipOverrides)
-            overridesSubject.send(overrides)
-        }
+        try settingsStore.write(data, for: .ipOverrides)
+        overridesSubject.send(overrides)
     }
 
     private func makeParser() -> SettingsParser {
