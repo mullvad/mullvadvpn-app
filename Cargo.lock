@@ -417,6 +417,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base16ct"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b59d472eab27ade8d770dcb11da7201c11234bef9f82ce7aa517be028d462b"
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -686,9 +692,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.61"
+version = "1.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d16d90359e986641506914ba71350897565610e87ce0ad9e6f28569db3dd5c6d"
+checksum = "005ec2760ca554fae18df7a11195552ec576cd665632a881bc011d5bb2fd4d80"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -1743,9 +1749,9 @@ checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.9"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
+checksum = "3e0f1c7c3a72c66fd80abe965175f7523475c0489a87d3ff9d6e8c87d87a9d2d"
 
 [[package]]
 name = "fixedbitset"
@@ -3330,6 +3336,7 @@ dependencies = [
  "chrono",
  "domain-fronting",
  "futures",
+ "hex",
  "http",
  "http-body-util",
  "hyper",
@@ -3347,7 +3354,9 @@ dependencies = [
  "mullvad-version",
  "serde",
  "serde_json",
+ "sha2",
  "shadowsocks",
+ "sigsum",
  "talpid-time",
  "talpid-types",
  "thiserror 2.0.19",
@@ -3401,6 +3410,7 @@ dependencies = [
  "futures",
  "hickory-resolver",
  "insta",
+ "ipnetwork",
  "libc",
  "log",
  "log-panics",
@@ -3501,6 +3511,7 @@ version = "0.0.0"
 dependencies = [
  "bytes",
  "cbindgen",
+ "chrono",
  "either",
  "futures",
  "gotatun",
@@ -3520,6 +3531,7 @@ dependencies = [
  "shadowsocks",
  "smoltcp",
  "talpid-future",
+ "talpid-time",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
@@ -3634,7 +3646,6 @@ dependencies = [
  "widestring",
  "windows-registry",
  "windows-sys 0.61.2",
- "zerocopy",
 ]
 
 [[package]]
@@ -5353,9 +5364,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.40"
+version = "0.23.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef86cd5876211988985292b91c96a8f2d298df24e75989a43a3c73f2d4d8168b"
+checksum = "0d41d731c7d2f962d1ccc364cec258de3c0e93b38c2fb3ba97ac74513048d634"
 dependencies = [
  "aws-lc-rs",
  "log",
@@ -5378,9 +5389,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.13"
+version = "0.103.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
+checksum = "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2"
 dependencies = [
  "aws-lc-rs",
  "ring",
@@ -5706,9 +5717,9 @@ dependencies = [
 
 [[package]]
 name = "shlex"
-version = "1.3.0"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "signal-hook-registry"
@@ -5727,6 +5738,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "rand_core 0.6.4",
+]
+
+[[package]]
+name = "sigsum"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85cf5c271ac017559bedd2519f22ae055614d07e4bce0621bb714ea4acf65192"
+dependencies = [
+ "base16ct",
+ "base64ct",
+ "ed25519-dalek",
+ "sha2",
+ "thiserror 2.0.19",
 ]
 
 [[package]]

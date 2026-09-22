@@ -51,6 +51,7 @@ set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "/$REPO_DIR:$REPO_MOUNT_TARGET:Z" \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
+    -e CARGO_TARGET_DIR=/cargo-target/target \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_play_credentials_file[@]}" \

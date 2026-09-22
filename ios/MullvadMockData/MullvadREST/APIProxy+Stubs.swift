@@ -10,13 +10,14 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 
 struct APIProxyStubError: Error {}
 
 struct APIProxyStub: APIQuerying {
     var getAddressListResult: Result<[AnyIPEndpoint], Error> = .failure(APIProxyStubError())
-    var getRelaysResult: Result<REST.ServerRelaysCacheResponse, Error> = .failure(APIProxyStubError())
+    var getRelaysResult: Result<REST.ServerRelaysCacheResponse?, Error> = .failure(APIProxyStubError())
     var sendProblemReportResult: Result<Void, Error> = .failure(APIProxyStubError())
     var initStorekitPaymentResult: Result<UUID, Error> = .failure(APIProxyStubError())
     var checkStorekitPaymentResult: Result<Void, Error> = .failure(APIProxyStubError())
@@ -31,9 +32,9 @@ struct APIProxyStub: APIQuerying {
     }
 
     func getRelays(
-        etag: String?,
+        sigsum: (String, Int64)?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
     ) -> Cancellable {
         completionHandler(getRelaysResult)
         return AnyCancellable()

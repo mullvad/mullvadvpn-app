@@ -30,7 +30,6 @@ Line wrap the file at 100 chars.                                              Th
 - Update LWO to improved v2 protocol.
 - Remove `mullvad tunnel set daita-direct-only` command. Superseded by automatic multihop setting.
 - Improve obfuscation performance by using GotaTun. This mainly affects Shadowsocks.
-- Do not show dialog when rendering the map fails due to disabled GPU acceleration.
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
 - Remove old log files, such as OpenVPN and wireguard-go logs.
@@ -50,25 +49,18 @@ Line wrap the file at 100 chars.                                              Th
   Required for reproducible builds.
 - Stop embedding absolute build machine PDB paths in the Rust Windows binaries + winfw.dll.
   Required for reproducible builds.
-- Add timeout to device cleanup tasks during installs.
-- Increase timeout on flushing DNS cache.
 
 ### Removed
 #### Windows
 - Remove `netsh`-based DNS configuration. All Windows build older than 22H2 support configuring DNS
   via the `iphlpapi` IP helper API.
-- Stop removing leftover Wintun adapters during installation. Wintun dropped support for adapter
-  pools, so this has not been necessary since 2022.5-beta1.
 
 ### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
+
 #### Linux
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
-
-#### Windows
-- Wait for the tunnel routes to become usable, and retry the connection to the tunnel config
-  service if the tunnel is not ready yet. This may help with connection failures that occur
-  immediately after the tunnel is set up, when using quantum-resistant tunnels or DAITA.
 
 ### Security
 #### macOS
@@ -77,6 +69,30 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
+
+
+## [2026.5] - 2026-09-11
+This release is identical to 2026.5-beta2.
+
+
+## [2026.5-beta2] - 2026-09-08
+### Changed
+- Do not show dialog when rendering the map fails due to disabled GPU acceleration.
+
+#### Windows
+- Add timeout to device cleanup tasks during installs.
+- Increase timeout on flushing DNS cache.
+
+### Removed
+#### Windows
+- Stop removing leftover Wintun adapters during installation. Wintun dropped support for adapter
+  pools, so this has not been necessary since 2022.5-beta1.
+
+### Fixed
+#### Windows
+- Wait for the tunnel routes to become usable, and retry the connection to the tunnel config
+  service if the tunnel is not ready yet. This may help with connection failures that occur
+  immediately after the tunnel is set up, when using quantum-resistant tunnels or DAITA.
 
 
 ## [2026.5-beta1] - 2026-08-31

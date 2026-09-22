@@ -138,11 +138,6 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
   // then we want to update the value.
   useEffect(() => {
     handleInitialValueChange(props.initialValue);
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.initialValue]);
 
   const valid = validateValue?.(value);
@@ -222,7 +217,11 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
 
   const blur = useCallback(() => inputRef.current?.blur(), [inputRef]);
 
-  const value = inputRef.current?.value;
+  const [value, setValue] = React.useState<string | undefined>('');
+
+  React.useEffect(() => {
+    setValue(inputRef.current?.value);
+  }, [inputRef]);
 
   return (
     <BackAction disabled={!focused} action={blur}>
@@ -368,11 +367,6 @@ export function RowInput(props: IRowInputProps) {
 
   useEffect(() => {
     focusOnMount();
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

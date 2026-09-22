@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">개인 정보 보호 정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
     <string name="providers">제공업체</string>
-    <string name="quantum_resistant_info_first_paragaph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
-    <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
+    <string name="quantum_resistant_info_first_paragraph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
+    <string name="quantum_resistant_info_second_paragraph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
     <string name="quantum_resistant_title">양자 저항 터널</string>
     <string name="read_more">자세히 알아보기</string>
     <string name="read_more_here">여기서 더 읽기</string>
@@ -566,7 +566,7 @@
     <string name="warning">경고</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
     <string name="when_needed">필요 시</string>
-    <string name="wireguard_custon_port_title">사용자 지정</string>
+    <string name="wireguard_custom_port_title">사용자 지정</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d.</string>
     <string name="wireguard_port_is_not_supported">선택한 %1$s 포트는 지원되지 않습니다. 다음에서 변경하세요:</string>
     <string name="wireguard_port_title">WireGuard 포트</string>

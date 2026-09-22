@@ -285,11 +285,6 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
   );
 
   // Report back to form component with the proxy values when all required values are set.
-  // These lint rules are disabled for now because the react plugin for eslint does
-  // not understand that useEffectEvent should not be added to the dependency array.
-  // Enable these rules again when eslint can lint useEffectEvent properly.
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onUpdate(ip, port, password, cipher), [ip, port, password, cipher]);
 
   return (
@@ -369,11 +364,6 @@ function EditSocks5Remote(props: EditProxyProps<Socks5RemoteCustomProxy>) {
   );
 
   // Report back to form component with the proxy values when all required values are set.
-  // These lint rules are disabled for now because the react plugin for eslint does
-  // not understand that useEffectEvent should not be added to the dependency array.
-  // Enable these rules again when eslint can lint useEffectEvent properly.
-  // eslint-disable-next-line react-compiler/react-compiler
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => onUpdate(ip, port, username, password), [ip, port, username, password]);
 
   return (
@@ -472,11 +462,6 @@ function EditSocks5Local(props: EditProxyProps<Socks5LocalCustomProxy>) {
 
   useEffect(
     () => onUpdate(remoteIp, remotePort, localPort, remoteTransportProtocol),
-    // These lint rules are disabled for now because the react plugin for eslint does
-    // not understand that useEffectEvent should not be added to the dependency array.
-    // Enable these rules again when eslint can lint useEffectEvent properly.
-    // eslint-disable-next-line react-compiler/react-compiler
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [remoteIp, remotePort, localPort, remoteTransportProtocol],
   );
 

@@ -610,7 +610,7 @@ mod tests {
         WireguardEndpoints {
             ipv4,
             ipv6: None,
-            port_ranges: Vec1::try_from_vec(vec![1..=u16::MAX]).unwrap(),
+            port_ranges: Vec1::new(1..=u16::MAX),
         }
     }
 

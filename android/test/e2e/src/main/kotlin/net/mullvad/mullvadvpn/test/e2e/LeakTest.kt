@@ -52,6 +52,7 @@ class LeakTest : EndToEndTest() {
     @BeforeEach
     fun setupVPNSettings() {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         runBlocking {
             app.applySettings(

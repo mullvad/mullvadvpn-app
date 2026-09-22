@@ -229,7 +229,7 @@ private fun LazyListScope.appList(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
             enabled = state.enabled,
-            exludedAppsCount = state.excludedApps.size,
+            excludedAppsCount = state.excludedApps.size,
             includedAppsCount = state.includedApps.size,
         )
         appItems(
@@ -334,7 +334,7 @@ internal fun LazyListScope.excludedAppsHeaderItem(
     key: String,
     textId: Int,
     enabled: Boolean,
-    exludedAppsCount: Int,
+    excludedAppsCount: Int,
     includedAppsCount: Int,
 ) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
@@ -344,8 +344,8 @@ internal fun LazyListScope.excludedAppsHeaderItem(
             trailingText =
                 stringResource(
                     R.string.x_out_of_y,
-                    exludedAppsCount,
-                    exludedAppsCount + includedAppsCount,
+                    excludedAppsCount,
+                    excludedAppsCount + includedAppsCount,
                 ),
         )
     }

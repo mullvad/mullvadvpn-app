@@ -1,4 +1,4 @@
-/// Implements conversions for the auxilliary
+/// Implements conversions for the auxiliary
 /// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
 /// [`mullvad_types::access_method::Settings`] data type.
 mod settings {

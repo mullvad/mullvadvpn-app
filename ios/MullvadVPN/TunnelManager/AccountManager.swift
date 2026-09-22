@@ -107,30 +107,59 @@ struct AccountManager: Sendable {
         return operation
     }
 
-    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        Task {
-            guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
-                completionHandler?(InvalidDeviceStateError())
-                return
-            }
-            do {
-                let device = try await devicesProxy.getDevice(
-                    accountNumber: accountData.number,
-                    identifier: deviceData.identifier,
-                    retryStrategy: .default
-                )
-                switch interactor.deviceState {
-                case .loggedIn(let storedAccount, var storedDevice):
-                    storedDevice.update(from: device)
-                    let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+    func updateAccountData() async throws {
+        guard case let .loggedIn(accountData, _) = interactor.deviceState else {
+            throw InvalidDeviceStateError()
+        }
+
+        let result = await accountsProxy.getAccountData(
+            accountNumber: accountData.number,
+            retryStrategy: .default
+        )
+
+        do {
+            let accountData = try result.get()
+            switch interactor.deviceState {
+            case .loggedIn(var storedAccountData, let storedDeviceData):
+                storedAccountData.expiry = accountData.expiry
+                let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
+
+                // Make sure we don't update any data if cancellation happened in-flight.
+                if Task.isCancelled {
+                    throw CancellationError()
+                } else {
                     interactor.setDeviceState(newDeviceState, persist: true)
-                default:
-                    throw InvalidDeviceStateError()
                 }
-            } catch {
-                interactor.handleRestError(error)
-                completionHandler?(error)
+            default:
+                throw InvalidDeviceStateError()
             }
+        } catch {
+            interactor.handleRestError(error)
+            throw error
+        }
+    }
+
+    func updateDeviceData() async throws {
+        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+            throw InvalidDeviceStateError()
+        }
+        do {
+            let device = try await devicesProxy.getDevice(
+                accountNumber: accountData.number,
+                identifier: deviceData.identifier,
+                retryStrategy: .default
+            )
+            switch interactor.deviceState {
+            case .loggedIn(let storedAccount, var storedDevice):
+                storedDevice.update(from: device)
+                let newDeviceState = DeviceState.loggedIn(storedAccount, storedDevice)
+                interactor.setDeviceState(newDeviceState, persist: true)
+            default:
+                throw InvalidDeviceStateError()
+            }
+        } catch {
+            interactor.handleRestError(error)
+            throw error
         }
     }
 }

@@ -19,7 +19,6 @@ rand = { workspace = true }
 serde_json = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 surge-ping = { workspace = true }
-talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
 tarpc = { workspace = true }
 test-rpc = { path = "../test-rpc" }
 thiserror = { workspace = true }
@@ -40,6 +39,9 @@ tokio-serial = { workspace = true }
 version = "0.7"
 default-features = false
 features = ["codec"]
+
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"

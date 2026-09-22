@@ -43,13 +43,12 @@ class MullvadApiTests: XCTestCase {
 
         let accessMethodsRepository = AccessMethodRepositoryStub.stub
 
-        let context = try MullvadApiContext(
+        let context = ApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: "",
-            domainFrontingProxyHost: "",
-            disableTls: true,
+            domain: REST.encryptedDNSHostname,
+            domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
+             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
             accessMethodChangeListeners: []

@@ -34,6 +34,7 @@ class PaymentTest : EndToEndTest() {
 
         device.buyGooglePlayTime()
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         // Assert we reach the Connect page after purchase
         device.findObjectWithTimeout(
             By.res(CONNECT_CARD_HEADER_TEST_TAG),

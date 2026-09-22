@@ -333,7 +333,7 @@ mod relay_selection {
         // general_location candidates: [se-09-wireguard, se-10-wireguard]
         // specific_location candidates: [se-10-wireguard]
         for _ in 0..100 {
-            // Because the entry location constraint is more specific than the exit loation constraint,
+            // Because the entry location constraint is more specific than the exit location constraint,
             // the entry location should always become `specific_location`
             let query = RelayQueryBuilder::new()
                 .location(general_location.clone())
@@ -356,7 +356,7 @@ mod relay_selection {
         // general_location candidates: [se-09-wireguard, se-10-wireguard]
         // specific_location candidates: [se-10-wireguard]
         for _ in 0..100 {
-            // Because the exit location constraint is more specific than the entry loation constraint,
+            // Because the exit location constraint is more specific than the entry location constraint,
             // the exit location should always become `specific_location`
             let query = RelayQueryBuilder::new()
                 .location(specific_location.clone())
@@ -1034,8 +1034,9 @@ mod relay_selection {
                 latitude: 59.3289,
                 longitude: 18.0649,
             };
+            let wireguard_port_range = 443..=443;
             let wireguard = EndpointData {
-                port_ranges: vec![443..=443],
+                port_ranges: vec![wireguard_port_range],
                 shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
                 ..Default::default()
             };
@@ -1364,7 +1365,8 @@ mod partition_relays {
             String::new(),
         ));
 
-        relay_list.inner.wireguard.shadowsocks_port_ranges = vec![100..=200];
+        let shadowsocks_port_range = 100..=200;
+        relay_list.inner.wireguard.shadowsocks_port_ranges = vec![shadowsocks_port_range];
         relay_list
             .add_relay("shadowsocks_extra_ipv6")
             .endpoint_data
@@ -1796,7 +1798,7 @@ mod partition_relays {
 
     /// Test some multihop scenarios:
     /// - First scenario:
-    ///     - Selecting one entry city with exactly one mathcing relay will remove it from the list of exit relays.
+    ///     - Selecting one entry city with exactly one matching relay will remove it from the list of exit relays.
     ///     - Selecting one exit city with exactly one matching relay will remove it from the list of entry relays.
     /// - Second scenario:
     ///     - Selecting one entry country with exactly one matching relay will remove it from the list of exit relays.

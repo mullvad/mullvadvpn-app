@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
     alias(libs.plugins.rust.android) apply false
+    alias(libs.plugins.wire) apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
@@ -70,6 +71,17 @@ buildscript {
             classpath("$prebuilt:macos-x86_64@tar.gz")
         }
     }
+
+    // These dependencies are added by the Wire plugin, but they are not needed for our build so we
+    // exclude them.
+    // Unfortunately, this is not possible to do using libs.version.toml
+    // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
+    configurations.classpath {
+        exclude(group = "it.krzeminski", module = "snakeyaml-engine-kmp-jvm")
+        exclude(group = "it.krzeminski", module = "snakeyaml-engine-kmp")
+        exclude(group = "io.outfoxx", module = "swiftpoet")
+        exclude(group = "com.squareup.wire", module = "wire-swift-generator")
+    }
 }
 
 allprojects {
@@ -88,7 +100,7 @@ tasks.withType<DependencyUpdatesTask> {
     rejectVersionIf { candidate.version.isNonStableVersion() }
 }
 
-tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
+tasks.register("cleanAll") { dependsOn("clean", subprojects.map { "${it.path}:clean" }) }
 
 // The preflight configuration is done at the project root level to ensure
 // it runs before any other build tasks. This is a known limitation:
@@ -101,11 +113,14 @@ val preflightSkipDirtyCheck =
 val releasePreflight =
     tasks.register<PreBuildTask>("releasePreflight") {
         this.skipDirtyCheck.set(preflightSkipDirtyCheck)
-        this.versionName.set(appVersionProvider.map { it.name })
+        this.versionName.set(appVersionProvider.map { it.name.value })
     }
 
 if (isReleaseBuild()) {
     allprojects {
-        tasks.configureEach { if (name != "releasePreflight") dependsOn(releasePreflight) }
+        tasks.configureEach {
+            if (name != "releasePreflight" && !name.contains("clean", ignoreCase = true))
+                dependsOn(releasePreflight)
+        }
     }
 }

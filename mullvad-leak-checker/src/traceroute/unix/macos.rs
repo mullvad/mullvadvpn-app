@@ -179,7 +179,7 @@ async fn recv_ttl_responses(
 
 /// Try to parse the bytes as an IPv4 packet.
 ///
-/// This only valdiates the IP header, not the payload.
+/// This only validates the IP header, not the payload.
 fn parse_ipv4(packet: &[u8]) -> anyhow::Result<Ipv4Packet<'_>> {
     let packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
     let version = packet.get_version();
@@ -191,7 +191,7 @@ fn parse_ipv4(packet: &[u8]) -> anyhow::Result<Ipv4Packet<'_>> {
 
 /// Try to parse the bytes as an IPv4 or IPv6 packet.
 ///
-/// This only valdiates the IP header, not the payload.
+/// This only validates the IP header, not the payload.
 fn parse_ip(packet: &[u8]) -> anyhow::Result<Ip<Ipv4Packet<'_>, Ipv6Packet<'_>>> {
     let ipv4_packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
 

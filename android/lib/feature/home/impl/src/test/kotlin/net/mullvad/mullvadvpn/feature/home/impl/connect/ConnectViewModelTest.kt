@@ -146,6 +146,7 @@ class ConnectViewModelTest {
                 relayListRepository = mockRelayListRepository,
                 connectionPath = mockConnectionPathUseCase,
                 multihopGuideMigrationHintUseCase = mockMultihopGuideMigrationHintUseCase,
+                hasShownNotificationPromptRepository = mockk(relaxed = true),
             )
     }
 
@@ -274,7 +275,7 @@ class ConnectViewModelTest {
         // Act
         viewModel.onConnectClick()
 
-        // Asser
+        // Assert
         coVerify { mockConnectionProxy.connect() }
     }
 

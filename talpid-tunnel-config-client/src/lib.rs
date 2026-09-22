@@ -5,6 +5,7 @@ use std::fmt;
 use std::net::SocketAddr;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 use std::net::{IpAddr, Ipv4Addr};
+use std::num::NonZeroUsize;
 use std::time::Instant;
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
 use tonic::transport::Channel;
@@ -119,6 +120,19 @@ pub struct DaitaSettings {
     pub client_machines: Vec<daita::Machine>,
     pub max_decoy_frac: f64,
     pub max_delay_frac: f64,
+}
+
+impl From<&DaitaSettings> for daita::DaitaSettings {
+    fn from(settings: &DaitaSettings) -> Self {
+        Self {
+            maybenot_machines: settings.client_machines.clone(),
+            max_decoy_frac: settings.max_decoy_frac,
+            max_delay_frac: settings.max_delay_frac,
+            // TODO: tweak to sane values
+            max_delayed_packets: const { NonZeroUsize::new(1024).unwrap() },
+            min_delay_capacity: 50,
+        }
+    }
 }
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.

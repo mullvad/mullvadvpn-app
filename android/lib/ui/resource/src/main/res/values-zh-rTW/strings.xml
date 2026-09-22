@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
     <string name="providers">供應商</string>
-    <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
-    <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
+    <string name="quantum_resistant_info_first_paragraph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
+    <string name="quantum_resistant_info_second_paragraph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
     <string name="quantum_resistant_title">抗量子通道</string>
     <string name="read_more">閱讀更多內容</string>
     <string name="read_more_here">在此處了解詳情</string>
@@ -566,7 +566,7 @@
     <string name="warning">警告</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="when_needed">必要時</string>
-    <string name="wireguard_custon_port_title">自訂</string>
+    <string name="wireguard_custom_port_title">自訂</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_is_not_supported">不支援所選的 %1$s 連接埠，請至下列位置變更：</string>
     <string name="wireguard_port_title">WireGuard 連接埠</string>

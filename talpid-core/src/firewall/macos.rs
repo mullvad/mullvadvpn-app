@@ -147,7 +147,7 @@ impl Firewall {
         // Socket addresses for Multicast DNS.
         const MDNS_PORT: u16 = 5353;
         if remote_address.port() == MDNS_PORT {
-            // Blocking mDNS sometimes causes the tunnel to fail. Seemingly by interferring with
+            // Blocking mDNS sometimes causes the tunnel to fail. Seemingly by interfering with
             // configd, mDNSResponder, or another macOS service.
             return Ok(false);
         }
@@ -279,7 +279,7 @@ impl Firewall {
     /// observed perpetrators are various Apple services, e.g. iMessage.
     ///
     /// This workaround is supposedly only needed for clients running macOS [14.6, 15.1).
-    /// Apple has acknowleged the issue and released a patch in macOS 15.1:
+    /// Apple has acknowledged the issue and released a patch in macOS 15.1:
     /// <https://developer.apple.com/documentation/macos-release-notes/macos-15_1-release-notes#Resolved-Issues>
     ///
     /// If this naughty behavior does not make a comeback, it should be safe to drop these redirect

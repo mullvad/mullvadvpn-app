@@ -148,7 +148,7 @@ pub struct TestOutput {
 }
 
 // Convert this unwieldy return type to a workable `TestResult`.
-// What we are converting from is the acutal return type of the test execution.
+// What we are converting from is the actual return type of the test execution.
 impl From<Result<Result<(), Error>, Panic>> for TestResult {
     fn from(value: Result<Result<(), Error>, Panic>) -> Self {
         match value {

@@ -1,8 +1,8 @@
 //! The great multihop migration of 2026.
 //!
-//! In this migration the new Multihop tri-state is introduced (Auto, Never & Always) superceeding
+//! In this migration the new Multihop tri-state is introduced (Auto, Never & Always) superseding
 //! the previous boolean value. It also deprecates the old "direct only" setting from DAITA, and
-//! it's inverse ('automatic multihop') has been superceeded by the new Auto option for Multihop.
+//! it's inverse ('automatic multihop') has been superseded by the new Auto option for Multihop.
 
 mod migration;
 pub mod scenario;

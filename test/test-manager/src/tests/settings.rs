@@ -225,7 +225,7 @@ pub async fn test_reset_settings(
         .await
         .context("Failed to get settings")?;
     let default = Settings::default();
-    // Santiy-check that data that shouldn't have been touched have indeed been kept intact.
+    // Sanity-check that data that shouldn't have been touched have indeed been kept intact.
     // Are we still logged in?
     // Are the custom lists intact?
     ensure!(

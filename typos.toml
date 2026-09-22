@@ -1,0 +1,58 @@
+# Config for the `typos` crate. Used to catch common spelling errors in CI.
+# See also: https://github.com/crate-ci/typos/blob/v1.50.1/docs/reference.md
+
+[files]
+extend-exclude = [
+  # exclude git (sub)modules and generated content
+  "dist-assets/**",
+  "windows/libwfp",
+  "windows/windows-libraries",
+  # TODO(Enable spell checking for iOS source files)
+  "ios/**",
+  "ci/ios/**",
+  # Ignore android resource files
+  "android/lib/ui/resource/**/*.xml",
+  # Ignore baseline profiles as they may refer to files we don't control
+  "android/app/src/main/baseline-prof.txt",
+  # TODO(Enable spell checking for desktop app source files)
+  "desktop/**",
+]
+
+[default]
+extend-ignore-words-re = [
+  # words with length <= 4 chars is likely noise
+  "^[a-zA-Z]{1,4}$",
+]
+
+extend-ignore-re = []
+
+[default.extend-words]
+# Allowlist for words that look like typos but are not, or aren't worth fixing
+# right now. Entries should look like `mullvad = "mullvad"`.
+daita = "daita"  # Defense Against AI-guided Traffic Analysis.
+maybenot = "maybenot"  # a framework for traffic analysis defenses.
+emitable = "emitable"  # https://docs.rs/netlink-packet-core/0.9.0/netlink_packet_core/trait.Emitable.html
+neighbr = "neighbr"  # https://docs.rs/pfctl/0.7.0/pfctl/enum.Icmp6Type.html#variant.NeighbrSol
+excpt = "excpt"  # https://docs.rs/winapi/0.3.9/winapi/vc/excpt/index.html
+
+# Denylist to forbid misspelled words that aren't detected by the built-in
+# dictionary. Entries should look like `protonvpn = ""` or `mulvlad = "mullvad"`;
+# the non-empty form can be automatically fixed by `--bless`.
+atomicaly = "atomically"
+dependy = ""
+
+[default.extend-identifiers]
+# Allowlist for specific identifiers that should be permitted even though they
+# appear to contain typos that would be forbidden in other identifiers.
+#
+# For example, you might want to allow a specific constant like
+# `DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME`, but still want to forbid
+# the typo `INVAILD` in other places.
+#
+# FIXME(Rename get_shadowsocks_chipers)
+get_shadowsocks_chipers = "get_shadowsocks_chipers"  # Proper typo, but part of FFI.
+
+[type.po]
+# Never spell check translations.
+extend-glob = ["*.po"]
+check-file = false

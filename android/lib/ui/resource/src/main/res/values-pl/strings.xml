@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="providers">Dostawcy</string>
-    <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
-    <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
+    <string name="quantum_resistant_info_first_paragraph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
+    <string name="quantum_resistant_info_second_paragraph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
     <string name="read_more">Dowiedz się więcej</string>
     <string name="read_more_here">przeczytaj więcej tutaj</string>
@@ -566,7 +566,7 @@
     <string name="warning">Ostrzeżenie</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="when_needed">W razie potrzeby</string>
-    <string name="wireguard_custon_port_title">Niestandardowy</string>
+    <string name="wireguard_custom_port_title">Niestandardowy</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Wybrany port %1$s nie jest obsługiwany, zmień go w obszarze</string>
     <string name="wireguard_port_title">Port WireGuard</string>

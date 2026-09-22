@@ -67,6 +67,7 @@ class ConnectionTest : EndToEndTest() {
     fun testConnect() {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         on<ConnectPage> { clickConnect() }
 
@@ -79,6 +80,7 @@ class ConnectionTest : EndToEndTest() {
     fun testConnectAndVerifyWithConnectionCheck() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         on<ConnectPage> { clickConnect() }
 
@@ -101,6 +103,7 @@ class ConnectionTest : EndToEndTest() {
     fun testConnectingWithoutPostQuantum() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         on<ConnectPage> { disablePostQuantumStory() }
 
@@ -128,6 +131,7 @@ class ConnectionTest : EndToEndTest() {
     fun testWireGuardObfuscationAutomatic() =
         runTest(timeout = 2.minutes) {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
             on<ConnectPage> { enableLocalNetworkSharingStory() }
 
             on<ConnectPage> { clickSelectLocation() }
@@ -165,6 +169,7 @@ class ConnectionTest : EndToEndTest() {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
             app.applySettings(localNetworkSharing = true, multihop = MultihopMode.NEVER)
 
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
@@ -204,6 +209,7 @@ class ConnectionTest : EndToEndTest() {
             app.launchAndLogIn(accountTestRule.validAccountNumber)
             app.applySettings(daita = true, multihop = MultihopMode.WHEN_NEEDED)
 
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> {
@@ -235,6 +241,7 @@ class ConnectionTest : EndToEndTest() {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         app.applySettings(localNetworkSharing = true)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
@@ -269,6 +276,7 @@ class ConnectionTest : EndToEndTest() {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
         app.applySettings(localNetworkSharing = true)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
@@ -307,6 +315,7 @@ class ConnectionTest : EndToEndTest() {
 
         app.applySettings(localNetworkSharing = true)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickSelectLocation() }
 
         on<SelectLocationPage> {
@@ -352,6 +361,7 @@ class ConnectionTest : EndToEndTest() {
             // Block all WireGuard traffic
             createFirewallRules { DropRule.blockWireGuardTrafficRule(ANY_IPV4_ADDRESS) }
 
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
             on<ConnectPage> { clickConnect() }
 
             device.acceptVpnPermissionDialog()
@@ -380,6 +390,7 @@ class ConnectionTest : EndToEndTest() {
         val testRelayIp = relayClient.getDefaultRelayIpAddress()
 
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
 
         // Block everything except the default relay IP. After this the API is no longer reachable.
@@ -408,6 +419,8 @@ class ConnectionTest : EndToEndTest() {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
         // Set wireguard custom port
         on<ConnectPage> { enableWireGuardCustomPortStory(53) }
 
@@ -435,6 +448,7 @@ class ConnectionTest : EndToEndTest() {
         // tunnel.
         app.applySettings(localNetworkSharing = true)
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { toggleInTunnelIpv6Story() }
         on<ConnectPage> { clickConnect() }
         device.acceptVpnPermissionDialog()
@@ -460,6 +474,7 @@ class ConnectionTest : EndToEndTest() {
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
             // Enable multihop
             on<ConnectPage> { enableMultihopStory() }
@@ -500,6 +515,7 @@ class ConnectionTest : EndToEndTest() {
         runTest(timeout = 2.minutes) {
             // Given
             app.launchAndLogIn(accountTestRule.validAccountNumber)
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
             app.applySettings(multihop = MultihopMode.ALWAYS)
 
@@ -540,6 +556,7 @@ class ConnectionTest : EndToEndTest() {
     fun testConnectUsingIpv6() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Set Device IP version
         on<ConnectPage> { enableDeviceIpv6Story() }

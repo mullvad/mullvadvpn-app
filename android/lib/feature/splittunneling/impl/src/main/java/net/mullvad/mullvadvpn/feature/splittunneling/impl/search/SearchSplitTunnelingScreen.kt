@@ -179,7 +179,7 @@ private fun LazyListScope.appList(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
             enabled = true,
-            exludedAppsCount = state.excludedApps.size,
+            excludedAppsCount = state.excludedApps.size,
             includedAppsCount = state.includedApps.size,
         )
         searchAppItems(

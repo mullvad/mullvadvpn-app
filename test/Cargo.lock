@@ -202,9 +202,9 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "aws-lc-rs"
-version = "1.16.3"
+version = "1.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ec6fb3fe69024a75fa7e1bfb48aa6cf59706a101658ea01bfd33b2b248a038f"
+checksum = "b281d307588d634de920874890732659e2e7672f72b5e10e81badc1a8a83621e"
 dependencies = [
  "aws-lc-sys",
  "untrusted 0.7.1",
@@ -213,14 +213,15 @@ dependencies = [
 
 [[package]]
 name = "aws-lc-sys"
-version = "0.40.0"
+version = "0.45.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f50037ee5e1e41e7b8f9d161680a725bd1626cb6f8c7e901f91f942850852fe7"
+checksum = "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27"
 dependencies = [
  "cc",
  "cmake",
  "dunce",
  "fs_extra",
+ "pkg-config",
 ]
 
 [[package]]
@@ -265,6 +266,12 @@ dependencies = [
  "tower-layer",
  "tower-service",
 ]
+
+[[package]]
+name = "base16ct"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b59d472eab27ade8d770dcb11da7201c11234bef9f82ce7aa517be028d462b"
 
 [[package]]
 name = "base64"
@@ -1346,7 +1353,7 @@ dependencies = [
  "nix 0.31.3",
  "parking_lot",
  "rand 0.9.4",
- "rand_chacha 0.9.0",
+ "rand_chacha",
  "rand_core 0.6.4",
  "socket2 0.6.5",
  "thiserror 1.0.69",
@@ -1431,7 +1438,7 @@ dependencies = [
  "idna",
  "ipnet",
  "jni 0.22.4",
- "rand 0.10.1",
+ "rand 0.10.2",
  "rustls",
  "thiserror 2.0.18",
  "tinyvec",
@@ -1453,7 +1460,7 @@ dependencies = [
  "jni 0.22.4",
  "once_cell",
  "prefix-trie",
- "rand 0.10.1",
+ "rand 0.10.2",
  "ring",
  "thiserror 2.0.18",
  "tinyvec",
@@ -1475,7 +1482,7 @@ dependencies = [
  "moka",
  "once_cell",
  "parking_lot",
- "rand 0.10.1",
+ "rand 0.10.2",
  "rustls",
  "smallvec",
  "thiserror 2.0.18",
@@ -1558,9 +1565,9 @@ checksum = "df3b46402a9d5adb4c86a0cf463f42e19994e3ee891101b1841f30a545cb49a9"
 
 [[package]]
 name = "humantime"
-version = "2.3.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "135b12329e5e3ce057a9f972339ea52bc954fe1e9358ef27f95e89716fbc5424"
+checksum = "15cdd26707701c53297e2fa6afb323d55fbc1d0810c3aec078ae3ef0424c3c15"
 
 [[package]]
 name = "hybrid-array"
@@ -2267,6 +2274,7 @@ dependencies = [
  "chrono",
  "domain-fronting",
  "futures",
+ "hex",
  "http",
  "http-body-util",
  "hyper",
@@ -2283,7 +2291,9 @@ dependencies = [
  "mullvad-version",
  "serde",
  "serde_json",
+ "sha2",
  "shadowsocks",
+ "sigsum",
  "talpid-time",
  "talpid-types",
  "thiserror 2.0.18",
@@ -2584,22 +2594,22 @@ dependencies = [
 
 [[package]]
 name = "opentelemetry"
-version = "0.17.0"
+version = "0.32.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6105e89802af13fdf48c49d7646d3b533a70e536d818aae7e78ba0433d01acb8"
+checksum = "b0142c63252a9e054e68a4c61a5778f7b14f576274d593f8ce883d191a099682"
 dependencies = [
- "async-trait",
- "crossbeam-channel",
- "futures-channel",
- "futures-executor",
- "futures-util",
+ "futures-core",
+ "futures-sink",
  "js-sys",
- "lazy_static",
- "percent-encoding",
- "pin-project",
- "rand 0.8.6",
- "thiserror 1.0.69",
+ "pin-project-lite",
+ "thiserror 2.0.18",
 ]
+
+[[package]]
+name = "opentelemetry-semantic-conventions"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c913ac17a6c451661ee255f4625d143e51647ae78ebd969b75e41c4442f4fe47"
 
 [[package]]
 name = "option-ext"
@@ -3015,44 +3025,23 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 
 [[package]]
 name = "rand"
-version = "0.8.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ca0ecfa931c29007047d1bc58e623ab12e5590e8c7cc53200d5202b69266d8a"
-dependencies = [
- "libc",
- "rand_chacha 0.3.1",
- "rand_core 0.6.4",
-]
-
-[[package]]
-name = "rand"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c5af06bb1b7d3216d91932aed5265164bf384dc89cd6ba05cf59a35f5f76ea"
 dependencies = [
- "rand_chacha 0.9.0",
+ "rand_chacha",
  "rand_core 0.9.5",
 ]
 
 [[package]]
 name = "rand"
-version = "0.10.1"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2e8e8bcc7961af1fdac401278c6a831614941f6164ee3bf4ce61b7edb162207"
+checksum = "c7f5fa3a058cd35567ef9bfa5e75732bee0f9e4c55fa90477bef2dfcdbc4be80"
 dependencies = [
  "chacha20 0.10.2",
  "getrandom 0.4.2",
  "rand_core 0.10.1",
-]
-
-[[package]]
-name = "rand_chacha"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
-dependencies = [
- "ppv-lite86",
- "rand_core 0.6.4",
 ]
 
 [[package]]
@@ -3188,9 +3177,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.40"
+version = "0.23.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef86cd5876211988985292b91c96a8f2d298df24e75989a43a3c73f2d4d8168b"
+checksum = "0d41d731c7d2f962d1ccc364cec258de3c0e93b38c2fb3ba97ac74513048d634"
 dependencies = [
  "aws-lc-rs",
  "log",
@@ -3212,9 +3201,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.13"
+version = "0.103.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
+checksum = "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2"
 dependencies = [
  "aws-lc-rs",
  "ring",
@@ -3450,7 +3439,7 @@ dependencies = [
  "ctr",
  "hkdf",
  "md-5",
- "rand 0.10.1",
+ "rand 0.10.2",
  "sha1",
 ]
 
@@ -3486,6 +3475,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "rand_core 0.6.4",
+]
+
+[[package]]
+name = "sigsum"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85cf5c271ac017559bedd2519f22ae055614d07e4bce0621bb714ea4acf65192"
+dependencies = [
+ "base16ct",
+ "base64ct",
+ "ed25519-dalek",
+ "sha2",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -3740,21 +3742,21 @@ dependencies = [
 
 [[package]]
 name = "tarpc"
-version = "0.31.0"
+version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71a98cc1a0a9013e8df3900d09c597dd65cfc6ea4d42968629b1b9ea949acf8f"
+checksum = "4e074d21429aa2864540a8452209323841116b3a5ac1ee7b29b2bbe38c12655b"
 dependencies = [
- "anyhow",
  "fnv",
  "futures",
  "humantime",
  "opentelemetry",
+ "opentelemetry-semantic-conventions",
  "pin-project",
- "rand 0.8.6",
+ "rand 0.10.2",
  "serde",
  "static_assertions",
  "tarpc-plugins",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-serde",
  "tokio-util",
@@ -3764,13 +3766,13 @@ dependencies = [
 
 [[package]]
 name = "tarpc-plugins"
-version = "0.12.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ee42b4e559f17bce0385ebf511a7beb67d5cc33c12c96b7f4e9789919d9c10f"
+checksum = "57c1932595af3b23fc8635cc23c28c54fb658622e261ad7f8f026da70e69f350"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn 3.0.3",
 ]
 
 [[package]]
@@ -3871,7 +3873,7 @@ dependencies = [
  "mullvad-paths",
  "nix 0.30.1",
  "plist",
- "rand 0.9.4",
+ "rand 0.10.2",
  "rs-release",
  "serde_json",
  "socket2 0.5.10",
@@ -4060,9 +4062,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-serde"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "911a61637386b789af998ee23f50aa30d5fd7edcec8d6d3dedae5e5815205466"
+checksum = "caf600e7036b17782571dd44fa0a5cea3c82f60db5137f774a325a76a0d6852b"
 dependencies = [
  "bytes",
  "futures-core",
@@ -4272,15 +4274,16 @@ dependencies = [
 
 [[package]]
 name = "tracing-opentelemetry"
-version = "0.17.4"
+version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbbe89715c1dbbb790059e2565353978564924ee85017b5fff365c872ff6721f"
+checksum = "adbc64cba7137545b8044cb1fe9814f7aacf3c6b5f9b45be8bb5db538befdb26"
 dependencies = [
- "once_cell",
+ "js-sys",
  "opentelemetry",
  "tracing",
  "tracing-core",
  "tracing-subscriber",
+ "web-time",
 ]
 
 [[package]]
@@ -4600,6 +4603,16 @@ dependencies = [
  "hashbrown 0.15.5",
  "indexmap",
  "semver",
+]
+
+[[package]]
+name = "web-time"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a6580f308b1fad9207618087a65c04e7a10bc77e02c8e84e9b00dd4b12fa0bb"
+dependencies = [
+ "js-sys",
+ "wasm-bindgen",
 ]
 
 [[package]]

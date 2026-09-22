@@ -8,23 +8,14 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-@_cdecl("mullvad_api_completion_finish")
-func mullvadApiCompletionFinish(
-    response: SwiftMullvadApiResponse,
-    completionCookie: UnsafeMutableRawPointer
-) {
-    let completionBridge = Unmanaged<MullvadApiCompletion>
-        .fromOpaque(completionCookie)
-        .takeRetainedValue()
-    let apiResponse = MullvadApiResponse(response: response)
+public final class MullvadApiCompletion: RequestCompletion {
+    public let completion: @Sendable (ApiResponse) -> Void
 
-    completionBridge.completion(apiResponse)
-}
-
-public class MullvadApiCompletion {
-    public var completion: (MullvadApiResponse) -> Void
-
-    public init(completion: @escaping ((MullvadApiResponse) -> Void)) {
+    public init(completion: @Sendable @escaping (ApiResponse) -> Void) {
         self.completion = completion
+    }
+
+    public func finish(result: ApiResponse) {
+        self.completion(result)
     }
 }

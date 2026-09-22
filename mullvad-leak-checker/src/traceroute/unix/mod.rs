@@ -4,7 +4,6 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     ops::RangeFrom,
-    os::fd::{FromRawFd, IntoRawFd},
 };
 
 use crate::{
@@ -159,9 +158,8 @@ async fn send_icmp_probes<Impl: Traceroute>(
         // construct ICMP/ICMP6 echo request packet
         let mut packet_v4;
         let mut packet_v6;
-        let packet_bytes;
         const ECHO_REQUEST_HEADER_LEN: usize = 8;
-        match opt.destination {
+        let packet_bytes = match opt.destination {
             IpAddr::V4(..) => {
                 let echo = icmp::echo_request::EchoRequest {
                     icmp_type: IcmpTypes::EchoRequest,
@@ -179,7 +177,7 @@ async fn send_icmp_probes<Impl: Traceroute>(
                 packet_v4.set_checksum(icmp::checksum(
                     &icmp::IcmpPacket::new(packet_v4.packet()).unwrap(),
                 ));
-                packet_bytes = packet_v4.packet();
+                packet_v4.packet()
             }
             IpAddr::V6(destination) => {
                 let IpAddr::V6(source) = get_interface_ip(&opt.interface, Ip::V6(()))? else {
@@ -204,9 +202,9 @@ async fn send_icmp_probes<Impl: Traceroute>(
                     &source,
                     &destination,
                 ));
-                packet_bytes = packet_v6.packet();
+                packet_v6.packet()
             }
-        }
+        };
 
         let result: io::Result<()> = stream::iter(0..number_of_sends)
             // call `send_to` `number_of_sends` times
@@ -235,11 +233,10 @@ async fn send_icmp_probes<Impl: Traceroute>(
 }
 
 impl AsyncUdpSocket {
+    /// Note: It is up to the caller to set `nonblocking mode` on `socket`.
     pub fn from_socket2(socket: socket2::Socket) -> Self {
         // HACK: Wrap the socket in a tokio::net::UdpSocket to be able to use it async
-        // SAFETY: `into_raw_fd()` consumes the socket and returns an owned & open file descriptor.
-        let udp_socket = unsafe { std::net::UdpSocket::from_raw_fd(socket.into_raw_fd()) };
-        let udp_socket = tokio::net::UdpSocket::from_std(udp_socket).unwrap();
+        let udp_socket = tokio::net::UdpSocket::from_std(socket.into()).unwrap();
         AsyncUdpSocket(udp_socket)
     }
 

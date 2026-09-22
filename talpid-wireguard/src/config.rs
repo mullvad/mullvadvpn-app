@@ -1,3 +1,4 @@
+use ipnetwork::IpNetwork;
 use std::net::{Ipv4Addr, Ipv6Addr};
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
@@ -35,6 +36,9 @@ pub struct Config {
     pub quantum_resistant: bool,
     /// Enable DAITA
     pub daita: bool,
+    /// Networks routed into the tunnel device. Typically matches the union of all peers' allowed
+    /// IPs.
+    pub routes: Vec<IpNetwork>,
 }
 
 /// Configuration errors
@@ -105,6 +109,7 @@ impl Config {
             obfuscation_mtu,
             quantum_resistant: wg_options.quantum_resistant,
             daita: wg_options.daita,
+            routes: Vec::new(),
         };
 
         for peer in config.peers_mut() {
@@ -114,6 +119,20 @@ impl Config {
                 return Err(Error::InvalidPeerIpError);
             }
         }
+
+        let routes: Vec<IpNetwork> = match &connection.routes {
+            Some(routes) => routes
+                .iter()
+                .copied()
+                .filter(|route| route.is_ipv4() || generic_options.enable_ipv6)
+                .collect(),
+            None => config
+                .peers()
+                .flat_map(|peer| peer.allowed_ips.iter())
+                .copied()
+                .collect(),
+        };
+        config.routes = routes;
 
         Ok(config)
     }
@@ -164,35 +183,22 @@ impl Config {
             .chain(std::iter::once(&mut self.entry_peer))
     }
 
-    /// Return routes for all allowed IPs.
-    pub fn get_tunnel_destinations(&self) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        self.peers()
-            .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
+    /// Return the networks routed into the tunnel device.
+    pub fn get_tunnel_destinations(&self) -> impl Iterator<Item = IpNetwork> + '_ {
+        self.routes.iter().copied()
     }
 }
 
-/// Replace `0.0.0.0/0`/`::/0` with the gateway IPs.
+/// Restrict the allowed IPs to the gateway IPs.
 /// Used to block traffic to other destinations while connecting on Android.
 #[cfg(target_os = "android")]
 pub(crate) fn patch_allowed_ips(mut config: Config) -> Config {
-    use ipnetwork::IpNetwork;
-    use std::net::IpAddr;
-
-    let gateway_net_v4 = IpNetwork::from(IpAddr::from(config.ipv4_gateway));
-    let gateway_net_v6 = config
-        .ipv6_gateway
-        .map(|net| IpNetwork::from(IpAddr::from(net)));
-    for peer in config.peers_mut() {
-        for allowed_ips in &mut peer.allowed_ips {
-            if allowed_ips.prefix() == 0 {
-                match (allowed_ips.is_ipv4(), gateway_net_v6) {
-                    (true, _) => *allowed_ips = gateway_net_v4,
-                    (_, Some(net)) => *allowed_ips = net,
-                    _ => continue,
-                }
-            }
-        }
+    let mut gateway_nets = vec![IpNetwork::from(std::net::IpAddr::from(config.ipv4_gateway))];
+    if let Some(gateway) = config.ipv6_gateway {
+        gateway_nets.push(IpNetwork::from(std::net::IpAddr::from(gateway)));
     }
+
+    config.exit_peer_mut().allowed_ips = gateway_nets;
+
     config
 }

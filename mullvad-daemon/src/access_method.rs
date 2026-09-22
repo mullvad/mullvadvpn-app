@@ -152,7 +152,7 @@ impl Daemon {
     /// Test if the API is reachable via `proxy`.
     ///
     /// This function tests if [`AccessMethod`] can be used to reach the API.
-    /// Its parameters are as low-level as possible to promot re-use between
+    /// Its parameters are as low-level as possible to promote re-use between
     /// different kinds of testing contexts, such as testing
     /// [`AccessMethodSetting`]s or on the fly testing of
     /// [`talpid_types::net::proxy::CustomProxy`]s.

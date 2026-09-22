@@ -1,158 +1,130 @@
-use std::ffi::{CStr, c_void};
-use std::os::raw::c_char;
-
+use super::{
+    cancellation::RequestCancelHandle, do_request, response::ApiResponse, retry_request,
+    retry_strategy::RetryStrategy,
+};
+use crate::api_client::{ApiContext, access_method_settings::AccessMethodSettingWrapper};
+use chrono::{DateTime, Utc};
 use mullvad_api::{
-    ApiProxy, ETag, RelayListProxy,
+    ApiProxy, RelayListProxy,
+    relay_list_transparency::{RelayListDigest, SigsumPayload},
     rest::{self, MullvadRestHandle},
 };
-use mullvad_types::access_method::AccessMethodSetting;
+use std::sync::Arc;
 
-use super::{
-    SwiftApiContext,
-    cancellation::{RequestCancelHandle, SwiftCancelHandle},
-    do_request,
-    response::SwiftMullvadApiResponse,
-    retry_request,
-    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
-};
-
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_addresses(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-) -> SwiftCancelHandle {
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
-                Ok(response) => completion_handler.finish(response),
-                Err(err) => {
-                    log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
-                }
-            }
-        },
-    )
-    .into_swift()
-}
-
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_api_addrs_available(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    access_method_setting: *const c_void,
-) -> SwiftCancelHandle {
-    // SAFETY: `access_method_setting` must be a raw pointer resulting from a call to `convert_builtin_access_method_setting`
-    let access_method_setting: AccessMethodSetting =
-        unsafe { *Box::from_raw(access_method_setting as *mut _) };
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| match api_context
-            .access_mode_handler
-            .resolve(access_method_setting.clone())
-            .await
-        {
-            Ok(Some(resolved_connection_mode)) => {
-                let oneshot_client = api_context
-                    .api_client
-                    .mullvad_rest_handle(resolved_connection_mode.connection_mode.into_provider());
-
-                match mullvad_ios_api_addrs_available_inner(oneshot_client, retry_strategy).await {
-                    Ok(_) => completion_handler.finish(SwiftMullvadApiResponse::ok()),
-                    Err(err) => {
-                        log::error!("{err:?}");
-                        completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
-                    }
-                }
-            }
-            Ok(None) => {
-                log::error!("Invalid access method configuration, {access_method_setting:?}");
-                completion_handler.finish(SwiftMullvadApiResponse::access_method_error(
-                    mullvad_api::access_mode::Error::Resolve {
-                        access_method: access_method_setting.access_method,
-                    },
-                ));
-            }
-            Err(err) => {
-                log::error!("{err:?}");
-                completion_handler.finish(SwiftMullvadApiResponse::access_method_error(err));
-            }
-        },
-    )
-    .into_swift()
-}
-
-/// # Safety
-///
-/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
-/// by calling `mullvad_api_init_new`.
-///
-/// `etag` must be a pointer to a null terminated string.
-///
-/// `retry_strategy` must have been created by a call to either of the following functions
-/// `mullvad_api_retry_strategy_never`, `mullvad_api_retry_strategy_constant` or `mullvad_api_retry_strategy_exponential`
-///
-/// This function is not safe to call multiple times with the same `CompletionCookie`.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_ios_get_relays(
-    api_context: SwiftApiContext,
-    retry_strategy: SwiftRetryStrategy,
-    etag: *const c_char,
-) -> SwiftCancelHandle {
-    let mut maybe_etag: Option<ETag> = None;
-    if !etag.is_null() {
-        // SAFETY: See param documentation for `etag`.
-        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-        maybe_etag = Some(ETag(String::from(unwrapped_tag)));
-    }
-
-    RequestCancelHandle::new(
-        api_context,
-        retry_strategy,
-        async move |api_context, retry_strategy, completion_handler| {
-            match mullvad_ios_get_relays_inner(
+#[uniffi::export]
+impl ApiContext {
+    pub fn get_addresses(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match get_addresses_inner(
                 api_context.rest_handle(),
                 retry_strategy,
-                maybe_etag,
             )
             .await
             {
                 Ok(response) => completion_handler.finish(response),
                 Err(err) => {
                     log::error!("{err:?}");
-                    completion_handler.finish(SwiftMullvadApiResponse::rest_error(err));
+                    completion_handler.finish(ApiResponse::rest_error(err));
                 }
-            }
-        },
-    )
-    .into_swift()
+            },
+        )
+    }
+
+    pub fn api_addrs_available(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        access_method_setting: Arc<AccessMethodSettingWrapper>,
+    ) -> Arc<RequestCancelHandle> {
+        let access_method_setting = access_method_setting.inner.clone();
+
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| match api_context
+                .access_mode_handler
+                .resolve(access_method_setting.clone())
+                .await
+            {
+                Ok(Some(resolved_connection_mode)) => {
+                    let oneshot_client = api_context.api_client.mullvad_rest_handle(
+                        resolved_connection_mode.connection_mode.into_provider(),
+                    );
+
+                    match api_addrs_available_inner(oneshot_client, retry_strategy).await {
+                        Ok(_) => completion_handler.finish(ApiResponse::ok()),
+                        Err(err) => {
+                            log::error!("{err:?}");
+                            completion_handler.finish(ApiResponse::rest_error(err));
+                        }
+                    }
+                }
+                Ok(None) => {
+                    log::error!("Invalid access method configuration, {access_method_setting:?}");
+                    completion_handler.finish(ApiResponse::access_method_error(
+                        mullvad_api::access_mode::Error::Resolve {
+                            access_method: access_method_setting.access_method,
+                        },
+                    ));
+                }
+                Err(err) => {
+                    log::error!("{err:?}");
+                    completion_handler.finish(ApiResponse::access_method_error(err));
+                }
+            },
+        )
+    }
+
+    pub fn get_relays(
+        self: Arc<Self>,
+        retry_strategy: Arc<RetryStrategy>,
+        digest: Option<String>,
+        digest_timestamp: Option<i64>,
+    ) -> Arc<RequestCancelHandle> {
+        RequestCancelHandle::new(
+            self,
+            retry_strategy,
+            async move |api_context, retry_strategy, completion_handler| {
+                let digest = if let Some(digest) = digest {
+                    match RelayListDigest::try_from(digest) {
+                        Ok(digest) => Some(digest),
+                        Err(err) => {
+                            log::error!("bad relay digest: {err:?}");
+                            completion_handler.finish(ApiResponse::cancelled());
+                            return;
+                        }
+                    }
+                } else {
+                    None
+                };
+
+                match get_relays_inner(
+                    api_context.rest_handle(),
+                    retry_strategy,
+                    digest,
+                    digest_timestamp.and_then(DateTime::from_timestamp_millis),
+                )
+                .await
+                {
+                    Ok(response) => completion_handler.finish(response),
+                    Err(err) => {
+                        log::error!("{err:?}");
+                        completion_handler.finish(ApiResponse::rest_error(err));
+                    }
+                }
+            },
+        )
+    }
 }
 
-async fn mullvad_ios_get_addresses_inner(
+async fn get_addresses_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+) -> Result<ApiResponse, rest::Error> {
     let api = ApiProxy::new(rest_client);
 
     let future_factory = || api.get_api_addrs_response();
@@ -160,19 +132,25 @@ async fn mullvad_ios_get_addresses_inner(
     do_request(retry_strategy, future_factory).await
 }
 
-async fn mullvad_ios_get_relays_inner(
+async fn get_relays_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
-    etag: Option<ETag>,
-) -> Result<SwiftMullvadApiResponse, rest::Error> {
+    digest: Option<RelayListDigest>,
+    digest_timestamp: Option<DateTime<Utc>>,
+) -> Result<ApiResponse, rest::Error> {
     let api = RelayListProxy::new(rest_client);
 
-    let future_factory = || api.relay_list_response(etag.clone());
+    let sigsum_payload = digest
+        .zip(digest_timestamp)
+        .map(|(digest, timestamp)| SigsumPayload::new(digest, timestamp));
 
-    do_request(retry_strategy, future_factory).await
+    let future_factory = || api.relay_list_response(sigsum_payload.clone());
+
+    let response = retry_request(retry_strategy, future_factory).await?;
+    ApiResponse::with_sigsum_verified_body(response)
 }
 
-async fn mullvad_ios_api_addrs_available_inner(
+async fn api_addrs_available_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
 ) -> Result<bool, rest::Error> {

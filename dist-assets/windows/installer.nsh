@@ -358,39 +358,6 @@ ManifestDPIAware true
 !define RemoveSplitTunnelDriver '!insertmacro "RemoveSplitTunnelDriver"'
 
 #
-# InstallTrayIcon
-#
-# Create or update registry entry for tray icon.
-#
-!macro InstallTrayIcon
-
-	mullvad_nsis::Log "InstallTrayIcon()"
-
-	Push $0
-	Push $1
-
-	mullvad_nsis::PromoteTrayIcon
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		mullvad_nsis::LogWithDetails "Failed to install Mullvad tray icon" $1
-		Goto InstallTrayIcon_return
-	${EndIf}
-
-	mullvad_nsis::Log "InstallTrayIcon() completed successfully"
-
-	InstallTrayIcon_return:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define InstallTrayIcon '!insertmacro "InstallTrayIcon"'
-
-#
 # RemoveLogsAndCache
 #
 # Call into helper DLL instructing it to remove all logs and cache
@@ -797,7 +764,6 @@ ManifestDPIAware true
 	${EndIf}
 
 	${AddCLIToEnvironPath}
-	${InstallTrayIcon}
 
 	Goto customInstall_skip_abort
 

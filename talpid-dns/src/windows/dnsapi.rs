@@ -47,7 +47,7 @@ impl DnsApi {
     fn flush_cache(&self) -> Result<(), Error> {
         let update_flush_count_result =
             self.in_flight_flush_count
-                .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |val| {
+                .try_update(Ordering::SeqCst, Ordering::SeqCst, |val| {
                     if val >= MAX_CONCURRENT_FLUSHES {
                         return None;
                     }

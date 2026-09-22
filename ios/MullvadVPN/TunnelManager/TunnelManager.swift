@@ -148,22 +148,18 @@ final class TunnelManager: @unchecked Sendable {
         }
     }
 
-    func updateAccountData(_ completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil) {
-        accountManager.updateDeviceData { [weak self] error in
-            guard let self else { return }
-            if let error {
-                self.handleRestError(error)
-                completionHandler?(.failure(error))
-            } else {
-                completionHandler?(.success(()))
-            }
-        }
+    func updateAccountData() async throws {
+        try await accountManager.updateAccountData()
     }
 
     func deleteAccount(accountNumber: String) async throws {
         _ = try await setAccount(action: .delete(accountNumber))
         removeLastUsedAccount()
         unsetTunnelConfiguration()
+    }
+
+    func updateDeviceData() async throws {
+        try await accountManager.updateDeviceData()
     }
 
     private func setAccount(
@@ -273,27 +269,22 @@ final class TunnelManager: @unchecked Sendable {
 
     // MARK: - Public methods
 
-    func loadConfiguration(completionHandler: @escaping @Sendable () -> Void) {
-        let loadTunnelOperation = LoadTunnelConfigurationOperation(
-            dispatchQueue: internalQueue,
+    func loadConfiguration() async {
+        let task = LoadTunnelConfigurationTask(
             interactor: TunnelInteractorProxy(self),
-            settingsManager: settingsManager
-        )
-        loadTunnelOperation.completionQueue = .main
-        loadTunnelOperation.completionHandler = { [weak self] completion in
-            guard let self else { return }
+            settingsManager: settingsManager)
 
-            if case let .failure(error) = completion {
-                self.logger.error(
-                    error: error,
-                    message: "Failed to load configuration."
-                )
+        /// Keep an `AsyncOperation` around to keep the same exclusivity behaviour until
+        /// `TunnelManager` is migrated away from `AsyncOperation` code
+        let loadTunnelOperation = AsyncBlockOperation(dispatchQueue: internalQueue) {
+            Task {
+                await task.start()
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { return }
+                    self.updatePrivateKeyRotationTimer()
+                }
             }
-
-            self.updatePrivateKeyRotationTimer()
-            completionHandler()
         }
-
         loadTunnelOperation.addObserver(
             BackgroundObserver(
                 backgroundTaskProvider: backgroundTaskProvider,
@@ -301,11 +292,7 @@ final class TunnelManager: @unchecked Sendable {
                 cancelUponExpiration: false
             )
         )
-
-        loadTunnelOperation.addCondition(
-            MutuallyExclusive(category: OperationCategory.manageTunnel.category)
-        )
-
+        loadTunnelOperation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
         operationQueue.addOperation(loadTunnelOperation)
     }
 
@@ -1284,12 +1271,12 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.backgroundTaskProvider
     }
 
-    func getPersistentTunnels() -> [any TunnelProtocol] {
-        tunnelManager.tunnelStore.getPersistentTunnels()
+    func getPersistentTunnel() async -> (any TunnelProtocol)? {
+        await tunnelManager.tunnelStore.getPersistentTunnel()
     }
 
-    func createNewTunnel() -> any TunnelProtocol {
-        tunnelManager.tunnelStore.createNewTunnel()
+    func createNewTunnel() async -> any TunnelProtocol {
+        await tunnelManager.tunnelStore.createNewTunnel()
     }
 
     func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {

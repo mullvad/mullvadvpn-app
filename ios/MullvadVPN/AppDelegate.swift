@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) lazy var ipOverrideRepository = IPOverrideRepository(settingsStore: settingsManager.store)
     private(set) var relaySelector: RelaySelectorWrapper!
     private(set) var launchArguments = LaunchArguments()
-    var apiContext: MullvadApiContext!
+    var apiContext: ApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
     let breadcrumbsProvider = BreadcrumbsProvider()
@@ -65,6 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     nonisolated(unsafe) private(set) var logRedactor: LogRedacting!
     private let containerURL = ApplicationConfiguration.containerURL
+    /// A checkpoint for the `UIWindowSceneDelegate` to safely run.
+    public var doneStarting = false
 
     // MARK: - Application lifecycle
 
@@ -72,6 +74,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        Task {
+            await finishLaunchingApplication(application, didFinishLaunchingWithOptions: launchOptions)
+            doneStarting = true
+        }
+        /// Poor man's spinlock that doesn't lock.
+        /// Drain the main run loop to drive the above Task until it ran to completion.
+        /// This method **must** run to completion before `UIWindowSceneDelegate.scene(_:willConnectTo:options:)` can execute.
+        repeat {
+            RunLoop.main.run(until: Date())
+        } while doneStarting == false
+
+        return true
+    }
+
+    private func finishLaunchingApplication(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) async {
         application.accessibilityLanguage = Locale.current.language.languageCode?.identifier
 
         if let overriddenLaunchArguments = try? ProcessInfo.processInfo.decode(LaunchArguments.self) {
@@ -124,13 +144,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             methods: accessMethodRepository.fetchAll()
         )
 
-        // swift-format-ignore: NeverUseForceTry
-        apiContext = try! MullvadApiContext(
+        apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: REST.domainFrontingFront,
-            domainFrontingProxyHost: REST.domainFrontingProxyHost,
+            domain: REST.encryptedDNSHostname,
+            domainFronting: REST.domainFronting,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
@@ -143,7 +161,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
 
-        setUpProxies(containerURL: containerURL)
+        await setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
             application: application
@@ -221,7 +239,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             _ = LocationNode(name: "", code: "")
         }
 
-        return true
     }
 
     private func createTunnelManager(
@@ -240,17 +257,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
     }
 
-    private func setUpProxies(containerURL: URL) {
+    @MainActor
+    private func setUpProxies(containerURL: URL) async {
         if launchArguments.target == .screenshots {
-            proxyFactory = MockProxyFactory.makeProxyFactory(
-                apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
-                    self?.apiTransportMonitor.makeTransport()
+            proxyFactory = await MockProxyFactory.makeProxyFactory(
+                apiTransportProvider: REST.AnyAPITransportProvider {
+                    await self.apiTransportMonitor.makeTransport()
                 }
             )
         } else {
-            proxyFactory = REST.ProxyFactory.makeProxyFactory(
-                apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
-                    self?.apiTransportMonitor.makeTransport()
+            proxyFactory = await REST.ProxyFactory.makeProxyFactory(
+                apiTransportProvider: REST.AnyAPITransportProvider {
+                    await self.apiTransportMonitor.makeTransport()
                 }
             )
         }
@@ -594,15 +612,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // This operation is always treated as successful no matter what the configuration load yields.
         // If the tunnel settings or device state can't be read, we simply pretend they are not there
         // and leave user in logged out state. VPN config will be removed as well.
-        await withCheckedContinuation { continuation in
-            self.tunnelManager.loadConfiguration {
-                self.logger.debug("Finished initialization.")
-
-                NotificationManager.shared.updateNotifications()
-
-                continuation.resume(returning: ())
-            }
-        }
+        await self.tunnelManager.loadConfiguration()
+        self.logger.debug("Finished initialization.")
+        NotificationManager.shared.updateNotifications()
     }
 
     /// 1. If the app has never been launched, preload with default settings.

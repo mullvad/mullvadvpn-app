@@ -52,6 +52,7 @@ class LoginMockApiTest : MockApiTest() {
 
         // Act
         app.launchAndLogIn(validAccountNumber)
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
 
         // Assert
         on<ConnectPage>()

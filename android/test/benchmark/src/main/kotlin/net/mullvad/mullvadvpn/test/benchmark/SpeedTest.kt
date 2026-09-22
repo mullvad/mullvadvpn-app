@@ -52,6 +52,7 @@ class SpeedTest : BenchmarkTest() {
             location = IPERF_RELAY_ID,
         )
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickConnect() }
 
         device.acceptVpnPermissionDialog()
@@ -86,6 +87,7 @@ class SpeedTest : BenchmarkTest() {
             location = IPERF_RELAY_ID,
         )
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickConnect() }
 
         device.acceptVpnPermissionDialog()
@@ -120,6 +122,7 @@ class SpeedTest : BenchmarkTest() {
             location = IPERF_RELAY_ID,
         )
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage> { clickConnect() }
 
         device.acceptVpnPermissionDialog()

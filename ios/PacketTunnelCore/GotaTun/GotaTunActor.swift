@@ -258,9 +258,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case .switchKey:
             await handleSwitchKey()
         case .sleep:
-            currentAdapter?.suspendTunnel()
+            await handleSleep()
         case .wake:
-            currentAdapter?.wakeTunnel()
+            await handleWake()
         #if NEVER_IN_PRODUCTION
             case let .barrier(resume):
                 resume()
@@ -308,6 +308,28 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         eventContinuation.finish()
     }
 
+    // MARK: - Sleep and Wake
+
+    private func handleSleep() async {
+        /// Special case when the device goes to sleep whilst still connecting or reconnecting,
+        /// simply cancel the connection and wait for the next wake to restart it
+        switch observedState {
+        case .connecting, .reconnecting:
+            stopCurrentAdapter()
+        default:
+            currentAdapter?.suspendTunnel()
+        }
+    }
+
+    private func handleWake() async {
+        switch observedState {
+        case .connecting, .reconnecting:
+            await restartConnection(nextRelays: .random)
+        default:
+            currentAdapter?.wakeTunnel()
+        }
+    }
+
     // MARK: - Adapter callbacks
 
     private func handleAdapterConnected() async {
@@ -315,7 +337,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         case var .connecting(info), var .reconnecting(info):
             info.connectionAttemptCount = 0
             observedState = .connected(info)
-            await providerDelegate.reassertTunnel()
+            providerDelegate.reassertTunnel()
             logger.debug("Connected")
         default:
             logger.debug("Ignoring onConnected in state \(observedState)")
@@ -332,6 +354,12 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     private func handleAdapterError(_ error: GotaTunError) {
+        if case .bindSockets = error,
+            currentReachability == .reachable
+        {
+            makeRecoveryTaskIfNeeded(reason: .socketBindError)
+            return
+        }
         let blockedReason = mapGotaTunError(error)
         logger.error("Adapter error: \(error) → blocked reason: \(blockedReason)")
         enterErrorState(reason: blockedReason)
@@ -488,6 +516,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         attemptCount: UInt = 0,
         isReconnect: Bool = false
     ) async {
+        cancelRecoveryTask()
         let settings: Settings
         do {
             settings = try settingsReader.read()
@@ -589,7 +618,11 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         } catch {
             logger.error("Failed to start tunnel: \(error)")
             currentAdapter = nil
-            enterErrorState(reason: .tunnelAdapter)
+            if let error = error as? GotaTunError {
+                handleAdapterError(error)
+            } else {
+                enterErrorState(reason: .tunnelAdapter)
+            }
         }
     }
 
@@ -683,13 +716,13 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private func makeRecoveryTaskIfNeeded(reason: BlockedStateReason) {
         guard reason.shouldRestartAutomatically else { return }
 
+        let recoveryDelay = timings.recoveryDelay(for: reason)
+
         recoveryTask?.cancel()
-        recoveryTask = Task { [weak self, timings, clock] in
-            while true {
-                try? await clock.sleep(for: timings.bootRecoveryPeriodicity)
-                guard !Task.isCancelled else { return }
-                self?.eventContinuation.yield(.reconnect(.random, .userInitiated))
-            }
+        recoveryTask = Task { [weak self, clock] in
+            try? await clock.sleep(for: recoveryDelay)
+            guard !Task.isCancelled else { return }
+            self?.eventContinuation.yield(.reconnect(.random, .userInitiated))
         }
     }
 
@@ -734,6 +767,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             return .tunnelAdapter
         case .internalError:
             return .unknown
+        case .bindSockets:
+            return .tunnelAdapter
         }
     }
 }

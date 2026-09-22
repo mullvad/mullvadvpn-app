@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <!--
+    Due to how OkHttp checks for cleartext traffic we need to allow cleartext traffic for localhost.
+    The traffic is not actually being sent to localhost, but rather to a UDS.
+    See ManagementService and buildClient.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

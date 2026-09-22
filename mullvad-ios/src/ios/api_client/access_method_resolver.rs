@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use mullvad_api::{
     AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
@@ -10,9 +12,7 @@ use talpid_types::net::{
 };
 use tonic::async_trait;
 
-use crate::api_client::swift_data::SwiftData;
-
-use super::shadowsocks_loader::SwiftShadowsocksLoaderWrapper;
+use crate::api_client::{access_method_settings::ShadowsocksBridgeProvider, swift_data::SwiftData};
 
 unsafe extern "C" {
     pub fn swift_store_address_cache(data: *const u8, data_size: u64);
@@ -43,14 +43,12 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
 
 const SESSION_HEADER: &str = "X-Mullvad-Session";
 
-#[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     encrypted_dns_domain: String,
-    domain_fronting_front: String,
-    domain_fronting_proxy_host: String,
     state: EncryptedDnsProxyState,
-    bridge_provider: SwiftShadowsocksLoaderWrapper,
+    domain_fronting: super::DomainFrontingConfig,
+    bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
     address_cache: AddressCache<IOSAddressCacheBacking>,
 }
 
@@ -58,18 +56,16 @@ impl SwiftAccessMethodResolver {
     pub fn new(
         endpoint: ApiEndpoint,
         encrypted_dns_domain: String,
-        domain_fronting_front: String,
-        domain_fronting_proxy_host: String,
         state: EncryptedDnsProxyState,
-        bridge_provider: SwiftShadowsocksLoaderWrapper,
+        domain_fronting: super::DomainFrontingConfig,
+        bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         address_cache: AddressCache<IOSAddressCacheBacking>,
     ) -> Self {
         Self {
             endpoint,
             encrypted_dns_domain,
-            domain_fronting_front,
-            domain_fronting_proxy_host,
             state,
+            domain_fronting,
             bridge_provider,
             address_cache,
         }
@@ -85,8 +81,8 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
         let connection_mode = match access_method {
             AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
             AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                let bridge = self.bridge_provider.get_bridges()?;
-                let proxy = CustomProxy::Shadowsocks(bridge);
+                let socket = self.bridge_provider.bridge()?.0.clone();
+                let proxy = CustomProxy::Shadowsocks(socket);
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
@@ -105,8 +101,8 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
                 match DomainFrontingConfig::resolve(
-                    self.domain_fronting_front.clone(),
-                    self.domain_fronting_proxy_host.clone(),
+                    self.domain_fronting.front.clone(),
+                    self.domain_fronting.proxy_host.clone(),
                     SESSION_HEADER.to_string(),
                 )
                 .await

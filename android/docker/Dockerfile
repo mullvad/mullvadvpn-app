@@ -4,6 +4,7 @@
 # To build using the image:
 # podman run --rm \
 #     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
+#     -e CARGO_TARGET_DIR=/cargo-target/target \
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
 #     -v /path/to/repository_root:/build:Z \
@@ -98,7 +99,9 @@ RUN apt-get update -y && apt-get install -y \
 
 # Install fdroid server using pip instead to get a version that is using a later versions of androguard
 # This and installing pip can be removed when updating to a newer version of debian
-RUN pip install fdroidserver
+# Uses a requirement file to pin hashes of fdroidserver and its dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --require-hashes -r /tmp/requirements.txt
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
 RUN curl -sfLo /tmp/openjdk-21.tar.gz https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz && \

@@ -9,18 +9,31 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 
 @testable import MullvadREST
 
-struct ShadowsocksLoaderStub: ShadowsocksLoaderProtocol, SwiftShadowsocksBridgeProviding {
-    func bridge() -> ShadowsocksConfiguration? {
-        try? load()
+final class ShadowsocksLoaderStub: ShadowsocksLoaderProtocol, ShadowsocksBridgeProvider {
+    func bridge() -> ShadowsocksWrapper? {
+        guard let shadowsocks = try? load() else {
+            return nil
+        }
+        return newShadowsocksAccessMethodSetting(
+            address: shadowsocks.address.rawValue,
+            port: shadowsocks.port,
+            password: shadowsocks.password,
+            cipher: shadowsocks.cipher)
     }
 
-    var configuration: ShadowsocksConfiguration
-    var error: Error?
+    let configuration: ShadowsocksConfiguration
+    let error: Error?
+
+    init(configuration: ShadowsocksConfiguration, error: Error? = nil) {
+        self.configuration = configuration
+        self.error = error
+    }
 
     func clear() throws {
         try load()

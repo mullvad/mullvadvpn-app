@@ -29,23 +29,37 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Require the post-quantum X25519MLKEM768 key exchange for TLS connections to the Mullvad API.
 - Disable TLS session tickets to reduce the ability to track clients over time.
+- Replace grpc-java with wire as grpc library.
 
 ### Removed
 - Remove the initial privacy consent screen. The app now shows the Login Screen on first start.
   The privacy policy can still be reached from Settings.
 
+### Fixed
+- Fix a rare crash that could occur if a touch event was received just as the map view was created.
+
+## [android/2026.10] - 2026-09-17
+### Fixed
+- Fix QUIC obfuscator hanging when being cancelled in connecting state. This would cause the entire
+tunnel state machine to hang, requiring restart of the app.
+
+
+## [android/2026.9] - 2026-09-15
+### Fixed
+- Fix LWO not working with with multihop, DAITA on, and PQ off.
+
 
 ## [android/2026.9-beta2] - 2026-09-09
 ### Fixed
 - Fix the sorting of the location list in English being incorrect.
-- Fix a rare crash that occured when interacting with the map.
+- Fix a rare crash that occurred when interacting with the map.
 - Fix anti-censorship filters showing in the location list when multihop is set to when needed.
 - Fix exit hop not being clickable in the select location list if a filter chip is showing.
 
 
 ## [android/2026.9-beta1] - 2026-08-20
 ### Added
-- Make the globe interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
+- Make the map interactive, with support for pan, pinch-to-zoom, and fling. This is to discover
   where servers are located as well as displaying your connection path.
 - Add a new multihop design with a new "when needed" option that will automatically multihop
   when it is needed given the currently active settings (e.g. DAITA is on).

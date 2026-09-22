@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">політика конфіденційності</string>
     <string name="problem_report_description">Щоб допомога була ефективнішою, до цього повідомлення буде прикріплено файл журналу застосунку. Ваші дані залишаться захищеними й конфіденційними, оскільки вони анонімізуються і надсилаються зашифрованим каналом.</string>
     <string name="providers">Провайдери</string>
-    <string name="quantum_resistant_info_first_paragaph">Ця функція робить тунель WireGuard стійким до потенційних атак із використанням квантових комп’ютерів.</string>
-    <string name="quantum_resistant_info_second_paragaph">Це досягається шляхом виконання додаткового обміну ключами з використанням квантово-стійкого алгоритму й інтеграції його результату в стандартне шифрування WireGuard. Цей додатковий крок використовує приблизно 500 КіБ трафіку щоразу, коли створюється новий тунель.</string>
+    <string name="quantum_resistant_info_first_paragraph">Ця функція робить тунель WireGuard стійким до потенційних атак із використанням квантових комп’ютерів.</string>
+    <string name="quantum_resistant_info_second_paragraph">Це досягається шляхом виконання додаткового обміну ключами з використанням квантово-стійкого алгоритму й інтеграції його результату в стандартне шифрування WireGuard. Цей додатковий крок використовує приблизно 500 КіБ трафіку щоразу, коли створюється новий тунель.</string>
     <string name="quantum_resistant_title">Квантово-стійкий тунель</string>
     <string name="read_more">Докладніше</string>
     <string name="read_more_here">докладніше тут</string>
@@ -566,7 +566,7 @@
     <string name="warning">Попередження</string>
     <string name="we_will_look_into_this">Ми розглянемо цю проблему.</string>
     <string name="when_needed">За потреби</string>
-    <string name="wireguard_custon_port_title">Користувацький</string>
+    <string name="wireguard_custom_port_title">Користувацький</string>
     <string name="wireguard_mtu_footer">Установіть значення MTU для WireGuard. Допустимий діапазон: %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Вибраний порт %1$s не підтримується, змініть його в</string>
     <string name="wireguard_port_title">Порт WireGuard</string>

@@ -14,6 +14,7 @@ struct SuggestionsDropdownView: View {
     let appearance: SuggestionsDropdownViewAppearance
     let onSelect: (String) -> Void
     let onRemove: ((String) -> Void)?
+    @State private var lineHeight: CGFloat = 0
 
     init(
         suggestions: [String],
@@ -29,10 +30,11 @@ struct SuggestionsDropdownView: View {
 
     private var suggestionsHeight: CGFloat {
         let dividerHeight = max(0, suggestions.count - 1)
+        let itemHeight = max(appearance.itemHeight, lineHeight)
         let totalHeight =
-            CGFloat(suggestions.count) * appearance.height + CGFloat(dividerHeight)
+            CGFloat(suggestions.count) * itemHeight + CGFloat(dividerHeight)
 
-        return min(totalHeight, 200)
+        return min(totalHeight, max(lineHeight, itemHeight * 4))
     }
 
     var body: some View {
@@ -64,12 +66,16 @@ struct SuggestionsDropdownView: View {
                             }
 
                         }
-                        .frame(minHeight: appearance.height)
+                        .frame(minHeight: appearance.itemHeight)
                         .contentShape(Rectangle())
 
                     }
                     .buttonStyle(.plain)
-
+                    .if(index == 0) {
+                        $0.sizeOfView { size in
+                            self.lineHeight = size.height
+                        }
+                    }
                     if index < suggestions.count - 1 {
                         Divider()
                             .background(appearance.dividerColor)
@@ -99,7 +105,7 @@ struct SuggestionsDropdownViewAppearance {
     var borderStyle: BorderStyle = .normal
     var cornerRadius: CGFloat = 4.0
     var backgroundColor: Color = .MullvadSuggestionsDropdown.background
-    var height: CGFloat = 44.0
+    var itemHeight: CGFloat = 44.0
 }
 
 #Preview {

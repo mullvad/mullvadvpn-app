@@ -6,7 +6,7 @@ on:
       - "**"
       - "!**/**.md"
       - "!.github/**"
-      - ".github/actions/mullvad-build-env"
+      - ".github/actions/mullvad-build-env/**"
       - ".github/workflows/daemon.yml"
       - "!.github/CODEOWNERS"
       - "!android/**"
@@ -128,6 +128,7 @@ jobs:
         run: ci/cargo-ci.sh test --workspace
 
   build-windows:
+    name: build-windows (${{ matrix.config.arch }})
     strategy:
       # Even if onw of the Windows jobs fail, the other should not be cancelled.
       fail-fast: false
@@ -148,21 +149,21 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - uses: ./.github/actions/mullvad-build-env
+        id: build-env
 
-      - name: Build Windows modules (x86_64)
-        if: ${{ matrix.config.arch == 'x64' }}
+      # The step is skipped when the libraries came from the cache, since that
+      # cache is keyed on the contents of every file under `windows/`. A build
+      # here would always trigger a full rebuild, since the mtimes from the
+      # cache is older than the checkout, so msbuild just rebuilds everything.
+      - name: Build Windows modules
+        if: ${{ steps.build-env.outputs.windows-modules-cache-hit != 'true' }}
         shell: bash
-        run: ./build-windows-modules.sh build winfw
-
-      - name: Build Windows modules (ARM64)
-        if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
-        # By default, ./build-windows-modules.sh will use 4 concurrent processes during compilation
-        # because the Windows 11 ARM runner has 4 cores:
-        # https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#standard-github-hosted-runners-for-public-repositories
-        #
-        # Cap the number of concurrent processes to something less than 4 to avoid OOM issues.
-        run: ./build-windows-modules.sh --max-concurrent-processes 2 build winfw
+        # `bin/temp` holds object files and other msbuild intermediates, which
+        # only an incremental rebuild would read. Deleting them keeps the cache
+        # saved at the end of the job down to the linked libraries.
+        run: |
+          ./build-windows-modules.sh build winfw
+          rm -rf windows/*/bin/temp
 
       # Excluding windows-installer because it builds an actual full installer
       # at the build step, which is not desired in a CI environment. Instead

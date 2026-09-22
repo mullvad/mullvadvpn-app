@@ -416,8 +416,8 @@
     <string name="privacy_policy_lower_case">retningslinjer for personvern</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
     <string name="providers">Leverandører</string>
-    <string name="quantum_resistant_info_first_paragaph">Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner.</string>
-    <string name="quantum_resistant_info_second_paragaph">Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel.</string>
+    <string name="quantum_resistant_info_first_paragraph">Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner.</string>
+    <string name="quantum_resistant_info_second_paragraph">Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel.</string>
     <string name="quantum_resistant_title">Kvantebestandig tunnel</string>
     <string name="read_more">Les mer</string>
     <string name="read_more_here">les mer her</string>
@@ -566,7 +566,7 @@
     <string name="warning">Advarsel</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="when_needed">Når nødvendig</string>
-    <string name="wireguard_custon_port_title">Egendefinert</string>
+    <string name="wireguard_custom_port_title">Egendefinert</string>
     <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_port_is_not_supported">Valgt %1$s-port støttes ikke. Du kan endre i</string>
     <string name="wireguard_port_title">WireGuard-port</string>

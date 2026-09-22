@@ -33,6 +33,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
             clickContinueWithLogin()
         }
 
+        app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         on<ConnectPage>()
     }
 }

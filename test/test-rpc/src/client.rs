@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     path::Path,
-    time::{Duration, SystemTime},
+    time::{Duration, Instant},
 };
 
 use crate::mullvad_daemon::ServiceStatus;
@@ -40,12 +40,12 @@ impl ServiceClient {
     /// Install app package.
     pub async fn install_app(&self, package_path: package::Package) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(INSTALL_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + INSTALL_TIMEOUT;
 
         self.client
             .install_app(ctx, package_path)
             .await
-            .map_err(Error::Tarpc)??;
+            .map_err(|err| Error::Tarpc(err.to_string()))??;
 
         self.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
             .await?;
@@ -56,7 +56,7 @@ impl ServiceClient {
     /// Remove app package.
     pub async fn uninstall_app(&self, env: HashMap<String, String>) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(INSTALL_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + INSTALL_TIMEOUT;
 
         self.client.uninstall_app(ctx, env).await?
     }
@@ -74,7 +74,7 @@ impl ServiceClient {
         env: M,
     ) -> Result<ExecResult, Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(INSTALL_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + INSTALL_TIMEOUT;
         self.client
             .exec(
                 ctx,
@@ -115,7 +115,7 @@ impl ServiceClient {
         self.client
             .get_mullvad_app_logs(tarpc::context::current())
             .await
-            .map_err(Error::Tarpc)
+            .map_err(|err| Error::Tarpc(err.to_string()))
     }
 
     /// Wait for the Mullvad service to enter a specified state. The state is inferred from the
@@ -143,7 +143,7 @@ impl ServiceClient {
         self.client
             .mullvad_daemon_get_status(tarpc::context::current())
             .await
-            .map_err(Error::Tarpc)
+            .map_err(|err| Error::Tarpc(err.to_string()))
     }
 
     /// Return the version string as reported by `mullvad --version`.
@@ -153,7 +153,7 @@ impl ServiceClient {
         self.client
             .mullvad_version(tarpc::context::current())
             .await
-            .map_err(Error::Tarpc)?
+            .map_err(|err| Error::Tarpc(err.to_string()))?
     }
 
     /// Returns all Mullvad app files, directories, and other data found on the system.
@@ -163,7 +163,7 @@ impl ServiceClient {
             .await?
     }
 
-    /// Returns path of Mullvad app cache directorie on the test runner.
+    /// Returns path of Mullvad app cache directory on the test runner.
     pub async fn find_mullvad_app_cache_dir(&self) -> Result<PathBuf, Error> {
         self.client
             .get_mullvad_app_cache_dir(tarpc::context::current())
@@ -283,9 +283,7 @@ impl ServiceClient {
     /// blocking execution until then.
     pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now()
-            .checked_add(DAEMON_RESTART_TIMEOUT)
-            .unwrap();
+        ctx.deadline = Instant::now() + DAEMON_RESTART_TIMEOUT;
         let _ = self.client.stop_mullvad_daemon(ctx).await?;
         Ok(())
     }
@@ -308,13 +306,11 @@ impl ServiceClient {
     /// Does *not* start a stopped app. See [start_mullvad_daemon].
     pub async fn enable_mullvad_daemon(&self) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now()
-            .checked_add(DAEMON_RESTART_TIMEOUT)
-            .unwrap();
+        ctx.deadline = Instant::now() + DAEMON_RESTART_TIMEOUT;
         self.client
             .enable_mullvad_daemon(ctx)
             .await
-            .map_err(Error::Tarpc)??;
+            .map_err(|err| Error::Tarpc(err.to_string()))??;
         Ok(())
     }
 
@@ -328,13 +324,11 @@ impl ServiceClient {
     /// [enable_mullvad_daemon].
     pub async fn disable_mullvad_daemon(&self) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now()
-            .checked_add(DAEMON_RESTART_TIMEOUT)
-            .unwrap();
+        ctx.deadline = Instant::now() + DAEMON_RESTART_TIMEOUT;
         self.client
             .disable_mullvad_daemon(ctx)
             .await
-            .map_err(Error::Tarpc)??;
+            .map_err(|err| Error::Tarpc(err.to_string()))??;
         Ok(())
     }
 
@@ -343,7 +337,7 @@ impl ServiceClient {
         verbosity_level: mullvad_daemon::Verbosity,
     ) -> Result<(), Error> {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + LOG_LEVEL_TIMEOUT;
         self.client
             .set_daemon_log_level(ctx, verbosity_level)
             .await??;
@@ -363,7 +357,7 @@ impl ServiceClient {
         V: Into<String>,
     {
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(LOG_LEVEL_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + LOG_LEVEL_TIMEOUT;
         let env = env.into_iter().map(|(k, v)| (k.into(), v.into())).collect();
         self.client.set_daemon_environment(ctx, env).await??;
 
@@ -415,7 +409,7 @@ impl ServiceClient {
         log::debug!("Rebooting server");
 
         let mut ctx = tarpc::context::current();
-        ctx.deadline = SystemTime::now().checked_add(REBOOT_TIMEOUT).unwrap();
+        ctx.deadline = Instant::now() + REBOOT_TIMEOUT;
 
         self.client.reboot(ctx).await??;
         self.connection_handle.reset_connected_state().await;

@@ -10,4 +10,13 @@ export CARGO_BUILD_WARNINGS=deny
 # and we're not publishing these crates on docs.rs anyway.
 export RUSTDOCFLAGS="--allow rustdoc::private-intra-doc-links"
 
-exec cargo --locked --color=always "$@"
+# Print a backtrace when a test panics. The `ci` profile keeps line tables, so
+# the frames carry file names and line numbers.
+export RUST_BACKTRACE=1
+
+# Build with the `ci` profile, defined in the `Cargo.toml` of both workspaces.
+# `--profile` is a subcommand flag, so it has to go after the subcommand.
+subcommand="$1"
+shift
+
+exec cargo --locked --color=always "$subcommand" --profile ci "$@"

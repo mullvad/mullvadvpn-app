@@ -81,7 +81,7 @@ impl CurrentApiCall {
         matches!(&self.current_call, Some(Call::ExpiryCheck(_)))
     }
 
-    pub fn is_running_timed_totation(&self) -> bool {
+    pub fn is_running_timed_rotation(&self) -> bool {
         matches!(&self.current_call, Some(Call::TimerKeyRotation(_)))
     }
 

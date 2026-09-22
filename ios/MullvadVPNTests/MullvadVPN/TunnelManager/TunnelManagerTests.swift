@@ -29,7 +29,7 @@ class TunnelManagerTests: XCTestCase {
         deviceResult: .success(Device.mock(publicKey: WireGuard.PrivateKey().publicKey))
     )
     var apiProxy = APIProxyStub()
-    var apiContext: MullvadApiContext!
+    var apiContext: ApiContext!
 
     override func setUp() async throws {
         let shadowsocksLoader = ShadowsocksLoader(
@@ -43,14 +43,14 @@ class TunnelManagerTests: XCTestCase {
             methods: AccessMethodRepositoryStub.stub.fetchAll()
         )
 
-        apiContext = try MullvadApiContext(
+        apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: REST.domainFrontingFront,
-            domainFrontingProxyHost: REST.domainFrontingProxyHost,
-            shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
+            domain: REST.encryptedDNSHostname,
+            domainFronting: REST.domainFronting,
+            disableTls: false,
+            bridgeProvider: shadowsocksLoader,
+            settingsProvider: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: []
         )
 

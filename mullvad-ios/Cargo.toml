@@ -20,22 +20,13 @@ path = "src/bin/uniffi-bindgen.rs"
 [target.'cfg(any(target_os = "ios", target_os = "macos", target_os = "tvos"))'.dependencies]
 bytes = { workspace = true }
 either = { workspace = true }
-futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
-hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
-mockito = { workspace = true }
-mullvad-api = { path = "../mullvad-api", default-features = false }
-mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
-mullvad-logging = { path = "../mullvad-logging" }
-mullvad-types = { path = "../mullvad-types" }
 nix = { workspace = true, features = ["uio"] }
 rand = { workspace = true }
-regex = "1"
-shadowsocks = { workspace = true }
 smoltcp = { version = "0.13", default-features = false, features = [
   "medium-ip",
   "proto-ipv4",
@@ -44,18 +35,32 @@ smoltcp = { version = "0.13", default-features = false, features = [
   "socket-tcp",
   "std",
 ] }
-talpid-future = { path = "../talpid-future" }
+talpid-time = { path = "../talpid-time" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
 tokio-util = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
-tracing = "0.1"
-tracing-subscriber = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 uniffi = { workspace = true }
 zerocopy = "0.8"
+
+# Only used by the FFI exports, which are not compiled for macOS.
+[target.'cfg(any(target_os = "ios", target_os = "tvos"))'.dependencies]
+chrono = { workspace = true }
+futures = { workspace = true }
+hyper = { version = "1.4.1", features = ["client", "http1"] }
+mockito = { workspace = true }
+mullvad-api = { path = "../mullvad-api", default-features = false }
+mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
+mullvad-logging = { path = "../mullvad-logging" }
+mullvad-types = { path = "../mullvad-types" }
+regex = "1"
+shadowsocks = { workspace = true }
+talpid-future = { path = "../talpid-future" }
+tracing = "0.1"
+tracing-subscriber = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }

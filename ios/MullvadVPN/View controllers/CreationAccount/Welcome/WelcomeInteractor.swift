@@ -16,25 +16,29 @@ final class WelcomeInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
 
     /// Interval used for periodic polling account updates.
-    private let accountUpdateTimerInterval: Duration = .minutes(1)
+    private let accountUpdateTimerInterval: Duration = .seconds(15)
     private var accountUpdateTimer: DispatchSourceTimer?
 
     private let logger = Logger(label: "\(WelcomeInteractor.self)")
     private var tunnelObserver: TunnelObserver?
+
+    private lazy var accountDataPoller: AccountDataPoller = {
+        AccountDataPoller(logger: logger, tunnelManager: tunnelManager)
+    }()
 
     var didAddMoreCredit: (() -> Void)?
 
     var viewWillAppear = false {
         didSet {
             guard viewWillAppear else { return }
-            startAccountUpdateTimer()
+            accountDataPoller.startAccountUpdateTimer()
         }
     }
 
     var viewDidDisappear = false {
         didSet {
             guard viewDidDisappear else { return }
-            stopAccountUpdateTimer()
+            accountDataPoller.stopAccountUpdateTimer()
         }
     }
 
@@ -64,34 +68,5 @@ final class WelcomeInteractor: @unchecked Sendable {
 
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
-    }
-
-    private func startAccountUpdateTimer() {
-        logger.debug(
-            "Start polling account updates every \(accountUpdateTimerInterval) second(s)."
-        )
-
-        let timer = DispatchSource.makeTimerSource(queue: .main)
-        timer.setEventHandler { [weak self] in
-            self?.tunnelManager.updateAccountData()
-        }
-
-        accountUpdateTimer?.cancel()
-        accountUpdateTimer = timer
-
-        timer.schedule(
-            wallDeadline: .now() + accountUpdateTimerInterval,
-            repeating: accountUpdateTimerInterval.timeInterval
-        )
-        timer.activate()
-    }
-
-    private func stopAccountUpdateTimer() {
-        logger.debug(
-            "Stop polling account updates."
-        )
-
-        accountUpdateTimer?.cancel()
-        accountUpdateTimer = nil
     }
 }

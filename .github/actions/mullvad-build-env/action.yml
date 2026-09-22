@@ -26,6 +26,14 @@ inputs:
       workspace at the repository root.
     default: ""
     required: false
+outputs:
+  windows-modules-cache-hit:
+    description: >-
+      Whether the prebuilt Windows libraries were restored from the cache. When
+      this is `true`, the cached binaries were built from exactly the sources
+      that are checked out, so `build-windows-modules.sh` has nothing to do.
+      Empty on every platform but Windows.
+    value: ${{ steps.windows-modules-cache.outputs.cache-hit }}
 runs:
   using: "composite"
   steps:
@@ -124,16 +132,20 @@ runs:
 
     - name: Cache Windows libraries
       if: runner.os == 'Windows'
+      id: windows-modules-cache
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
       with:
         path: ./windows/*/bin/
-        key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
+        key: windows-modules-${{ runner.arch }}-${{ steps.windows-modules-hash.outputs.hash }}
 
     - name: Install msbuild
       if: runner.os == 'Windows'
       uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce  # v2.0.0
       with:
         vs-version: latest
+        # Defaults to the x86 msbuild, which runs emulated on ARM64 and
+        # selects the x86 compiler.
+        msbuild-architecture: ${{ runner.arch == 'ARM64' && 'arm64' || 'x64' }}
 
     - name: Install build dependencies
       if: runner.os == 'Linux'

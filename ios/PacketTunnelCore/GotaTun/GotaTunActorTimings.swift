@@ -13,16 +13,29 @@ import Foundation
 /// Timing configuration for the GotaTun actor.
 public struct GotaTunActorTimings: Sendable {
     /// How often the recovery task retries when in a recoverable error state.
-    public let bootRecoveryPeriodicity: Duration
+    let bootRecoveryPeriodicity: Duration
 
     /// How long to wait after a key rotation before switching to the new key.
-    public let wgKeyPropagationDelay: Duration
+    let wgKeyPropagationDelay: Duration
+
+    /// How often the recovery task retries on a socket bind error.
+    let socketBindErrorRecoveryPeriodicity: Duration
 
     public init(
         bootRecoveryPeriodicity: Duration = .seconds(5),
-        wgKeyPropagationDelay: Duration = .seconds(120)
+        wgKeyPropagationDelay: Duration = .seconds(120),
+        socketBindErrorRecoveryPeriodicity: Duration = .milliseconds(100)
     ) {
         self.bootRecoveryPeriodicity = bootRecoveryPeriodicity
         self.wgKeyPropagationDelay = wgKeyPropagationDelay
+        self.socketBindErrorRecoveryPeriodicity = socketBindErrorRecoveryPeriodicity
+    }
+
+    public func recoveryDelay(for reason: BlockedStateReason) -> Duration {
+        switch reason {
+        case .socketBindError: socketBindErrorRecoveryPeriodicity
+        case .deviceLocked: bootRecoveryPeriodicity
+        default: .zero
+        }
     }
 }

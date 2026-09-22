@@ -41,7 +41,10 @@ export function LocationSelectorTrigger({ children, ...props }: LocationSelector
     inputRef.current?.focus();
   }, [inputRef]);
 
-  const tabIndex = inputRef.current === document.activeElement ? -1 : 0;
+  const [tabIndex, setTabIndex] = React.useState(-1);
+  React.useEffect(() => {
+    setTabIndex(inputRef.current === document.activeElement ? -1 : 0);
+  }, [inputRef]);
 
   return (
     <StyledLocationTextFieldTrigger

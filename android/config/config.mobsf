@@ -8,7 +8,7 @@
   # the keyword "key" is used throughout the app to for arguments, bundles and preferences.
   - android_kotlin_hardcoded
 
-  # Intentially not prevented due to a technical user base. We might however want to inform users,
+  # Intentionally not prevented due to a technical user base. We might however want to inform users,
   # which is something we'll review in an externally tracked issue (DROID-528).
   - android_root_detection
   - android_safetynet

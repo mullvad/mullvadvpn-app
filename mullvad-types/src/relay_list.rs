@@ -485,7 +485,7 @@ impl WireguardRelayEndpointData {
         }
     }
 
-    /// Add `in_addrs` to the existing shadowsocks extra in addressess.
+    /// Add `in_addrs` to the existing shadowsocks extra in addresses.
     pub fn add_shadowsocks_extra_in_addrs(self, in_addrs: impl Iterator<Item = IpAddr>) -> Self {
         let in_addrs = self.shadowsocks_extra_in_addrs().copied().chain(in_addrs);
         Self {

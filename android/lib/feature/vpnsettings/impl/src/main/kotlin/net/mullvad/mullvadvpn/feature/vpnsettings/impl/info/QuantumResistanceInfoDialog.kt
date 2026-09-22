@@ -19,8 +19,8 @@ private fun PreviewQuantumResistanceInfoDialog() {
 @Composable
 fun QuantumResistanceInfo(navigator: Navigator) {
     InfoDialog(
-        message = stringResource(id = R.string.quantum_resistant_info_first_paragaph),
-        additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragaph),
+        message = stringResource(id = R.string.quantum_resistant_info_first_paragraph),
+        additionalInfo = stringResource(id = R.string.quantum_resistant_info_second_paragraph),
         onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }

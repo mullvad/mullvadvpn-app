@@ -4,6 +4,7 @@ use crate::{
     Tunnel, TunnelError,
     config::Config,
     gotatun::obfuscation::MaybeObfuscatingTransportFactory,
+    obfuscation::RunningObfuscation,
     stats::{Stats, StatsMap},
 };
 use gotatun::{
@@ -40,18 +41,16 @@ use gotatun::tun::{
 };
 
 mod conversions;
-mod lan_filter;
 mod obfuscation;
 mod source_filter;
 
 use conversions::to_gotatun_peer;
-use lan_filter::LanFilter;
 use source_filter::SourceFilter;
 
 type TransportFactory = MaybeObfuscatingTransportFactory;
 
-/// Everything read from the TUN device passes both filters before it enters the tunnel.
-type TunRx = LanFilter<SourceFilter<GotaTunDevice>>;
+/// Everything read from the TUN device passes the source filter before it enters the tunnel.
+type TunRx = SourceFilter<GotaTunDevice>;
 
 type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, TunRx)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, TunRx)>;
@@ -82,27 +81,38 @@ pub struct GotaTun {
 
     /// Name of the tun interface.
     interface_name: String,
+
+    /// Optional obfuscation transport.
+    obfuscation: Option<RunningObfuscation>,
 }
 
 impl GotaTun {
     async fn new(
         tun_dev: AsyncDevice,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         config: Config,
         interface_name: String,
     ) -> Result<Self, TunnelError> {
         let tun_dev = GotaTunDevice::from_tun_device(tun_dev)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
-        let devices = create_devices(&config, None, tun_dev.clone(), Arc::clone(&bypass))
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
+        let devices = create_devices(
+            &config,
+            None,
+            tun_dev.clone(),
+            Arc::clone(&bypass),
+            obfuscation.clone(),
+        )
+        .await
+        .map_err(TunnelError::GotaTunDevice)?;
 
         Ok(Self {
             config,
             interface_name,
             tun_dev,
             bypass,
+            obfuscation,
             devices: Some(devices),
         })
     }
@@ -190,6 +200,7 @@ pub async fn open_gotatun_tunnel(
     config: &Config,
     tun_provider: Arc<Mutex<tun_provider::TunProvider>>,
     bypass: Arc<dyn SocketBypass>,
+    obfuscation: Option<RunningObfuscation>,
     #[cfg(target_os = "android")] route_manager_handle: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
 ) -> super::Result<GotaTun> {
@@ -258,7 +269,7 @@ pub async fn open_gotatun_tunnel(
     };
 
     log::trace!("passing tunnel dev to gotatun");
-    let gotatun = GotaTun::new(async_tun, bypass, config, interface_name)
+    let gotatun = GotaTun::new(async_tun, bypass, obfuscation, config, interface_name)
         .await
         .inspect_err(|e| log::error!("Failed to open GotaTun: {e:?}"))?;
 
@@ -378,10 +389,35 @@ impl Tunnel for GotaTun {
         daita: Option<DaitaSettings>,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
+            let old_public_key = self.config.tunnel.private_key.public_key();
             self.config = config;
+
+            // The UDP transport needs to be recreated if the client pubkey changes.
+            let stale_transport = obfuscation::lwo_version(&self.config) == Some(LwoVersion::V1)
+                && self.config.tunnel.private_key.public_key().as_bytes()
+                    != old_public_key.as_bytes();
+
+            // LWO keys off the client public key, which changes when an ephemeral peer is set up
+            if let Some(RunningObfuscation::Lwo(settings)) = &mut self.obfuscation {
+                settings.client_public_key = self.config.tunnel.private_key.public_key();
+            }
+
             // If we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
             let devices = match self.devices.take() {
+                // Recreate the device(s) with a transport that uses the new key
+                Some(devices) if stale_transport => {
+                    devices.stop().await;
+                    create_devices(
+                        &self.config,
+                        daita.as_ref(),
+                        self.tun_dev.clone(),
+                        Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
+                    )
+                    .await
+                    .map_err(TunnelError::GotaTunDevice)?
+                }
                 // Switching from singlehop to multihop
                 Some(Devices::Singlehop(device))
                     if let Some(_exit_peer) = self.config.exit_peer.as_ref() =>
@@ -393,6 +429,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -410,6 +447,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -441,6 +479,7 @@ impl Tunnel for GotaTun {
                         daita.as_ref(),
                         self.tun_dev.clone(),
                         Arc::clone(&self.bypass),
+                        self.obfuscation.clone(),
                     )
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
@@ -450,6 +489,7 @@ impl Tunnel for GotaTun {
                     daita.as_ref(),
                     self.tun_dev.clone(),
                     Arc::clone(&self.bypass),
+                    self.obfuscation.clone(),
                 )
                 .await
                 .map_err(TunnelError::GotaTunDevice)?,
@@ -470,20 +510,20 @@ async fn create_devices(
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
     bypass: Arc<dyn SocketBypass>,
+    obfuscation: Option<RunningObfuscation>,
 ) -> Result<Devices, gotatun::device::Error> {
     async fn create_devices_inner(
         config: &Config, // TODO: do not include config to reduce confusion
         daita: Option<&DaitaSettings>,
         tun_dev: GotaTunDevice,
         bypass: Arc<dyn SocketBypass>,
+        obfuscation: Option<RunningObfuscation>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, gotatun::device::Error> {
-        let factory = MaybeObfuscatingTransportFactory::from_settings(
+        let factory = MaybeObfuscatingTransportFactory::new(
             optimize_buffer_size,
-            config
-                .obfuscation_settings()
-                .as_ref()
-                .and_then(|settings| settings.single()),
+            obfuscation,
+            config.entry_peer.endpoint,
             bypass,
         );
         // The addresses assigned to the tun device, i.e. the only source addresses we accept
@@ -517,7 +557,7 @@ async fn create_devices(
                 entry_mtu,
             );
 
-            let tun_rx = LanFilter::new(SourceFilter::new(tun_dev.clone(), source_v4, source_v6));
+            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
             let exit_device = DeviceBuilder::new()
                 .with_udp(udp_channels)
                 .with_ip_pair(tun_dev, tun_rx)
@@ -544,7 +584,7 @@ async fn create_devices(
         } else {
             // Singlehop setup
 
-            let tun_rx = LanFilter::new(SourceFilter::new(tun_dev.clone(), source_v4, source_v6));
+            let tun_rx = SourceFilter::new(tun_dev.clone(), source_v4, source_v6);
             let device = DeviceBuilder::new()
                 .with_udp(factory)
                 .with_ip_pair(tun_dev, tun_rx)
@@ -558,7 +598,16 @@ async fn create_devices(
         Ok(devices)
     }
 
-    match create_devices_inner(config, daita, tun_dev.clone(), bypass.clone(), true).await {
+    match create_devices_inner(
+        config,
+        daita,
+        tun_dev.clone(),
+        bypass.clone(),
+        obfuscation.clone(),
+        true,
+    )
+    .await
+    {
         Ok(devices) => Ok(devices),
         // Empirically, creating devices may fail when binding the UDP socket due to
         // us wanting to tweak the UDP socket buffer sizes to a larger value than
@@ -572,7 +621,7 @@ async fn create_devices(
                 && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
         {
             log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
-            create_devices_inner(config, daita, tun_dev, bypass, false).await
+            create_devices_inner(config, daita, tun_dev, bypass, obfuscation, false).await
         }
         Err(err) => Err(err),
     }

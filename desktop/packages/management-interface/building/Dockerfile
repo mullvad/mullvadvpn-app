@@ -58,6 +58,21 @@ COPY packages/management-interface/package.json /node-grpc-bindings/bindings-dep
 
 # === Install build dependencies ===
 
+# Install packages from a fixed point in time on snapshot.debian.org, so that every build of
+# this image installs the exact same package versions. This helps make the image reproducible.
+# Bump the timestamp to pick up newer packages. snapshot.debian.org resolves it to the latest
+# snapshot taken at or before that time, separately for each archive.
+# The current timestamp is after the final Debian 11 LTS security update.
+# check-valid-until=no is required since the Release files in old snapshots have expired.
+ARG DEBIAN_SNAPSHOT=20260901T000000Z
+RUN . /etc/os-release && \
+    rm -f /etc/apt/sources.list.d/debian.sources && \
+    printf '%s\n' \
+    "deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/$DEBIAN_SNAPSHOT $VERSION_CODENAME main" \
+    "deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/$DEBIAN_SNAPSHOT $VERSION_CODENAME-updates main" \
+    "deb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/$DEBIAN_SNAPSHOT $VERSION_CODENAME-security main" \
+    > /etc/apt/sources.list
+
 RUN apt-get update -y && \
     apt-get install -y --mark-auto build-essential cmake curl file g++ git jq && \
     rm -rf /var/lib/apt/lists/*

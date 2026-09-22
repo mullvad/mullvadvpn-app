@@ -53,12 +53,14 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
                 deviceIpVersion = Constraint.Only(IpVersion.IPV4),
             )
 
+            app.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+
             // Enable server ip override
             val mockServerIp = "12.12.12.12"
             val relay = relayProvider.getOverrideRelay()
             on<ConnectPage> { enableServerIpOverrideStory(relay.relay, mockServerIp) }
 
-            // Select the relay which has an overriden ip
+            // Select the relay which has an overridden ip
             on<ConnectPage> { clickSelectLocation() }
 
             on<SelectLocationPage> { selectRelayUsingSearch(relay) }
