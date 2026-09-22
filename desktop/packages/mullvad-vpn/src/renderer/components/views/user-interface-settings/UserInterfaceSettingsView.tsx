@@ -30,7 +30,7 @@ export function UserInterfaceSettingsView() {
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   const showUnpinnedWindowSetting = isPlatform('win32') || isPlatform('darwin');
-  const showStartMinimizedSetting = showUnpinnedWindowSetting && unpinnedWindow;
+  const showStartMinimizedSetting = unpinnedWindow;
 
   return (
     <View backgroundColor="darkBlue">
