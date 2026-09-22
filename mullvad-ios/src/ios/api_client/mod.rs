@@ -16,7 +16,7 @@ use mullvad_types::access_method::Id;
 use response::ApiResponse;
 use retry_strategy::RetryStrategy;
 use std::{future::Future, sync::Arc};
-use talpid_future::retry::retry_future;
+use talpid_future::retry::retry_future2;
 
 mod access_method_resolver;
 mod access_method_settings;
@@ -269,5 +269,5 @@ where
         Ok(_) => false,
     };
 
-    retry_future(future_factory, should_retry, retry_strategy.delays()).await
+    retry_future2(future_factory, should_retry, retry_strategy.delays()).await
 }
