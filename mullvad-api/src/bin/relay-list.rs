@@ -17,9 +17,7 @@ mod imp {
         let api_endpoint = ApiEndpoint::from_env_vars();
         let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &api_endpoint);
 
-        let proxy = RelayListProxy::new(
-            runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
-        );
+        let proxy = RelayListProxy::new(runtime.mullvad_rest_handle(ApiConnectionMode::Direct));
 
         let response = proxy.relay_list(None).await;
 
