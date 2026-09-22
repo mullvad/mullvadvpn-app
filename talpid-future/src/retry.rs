@@ -28,6 +28,32 @@ pub async fn retry_future<
     }
 }
 
+/// Retries a future until it should stop as determined by the retry function, or when
+/// the iterator returns `None`. Unlike [`retry_future`], the future may not reference the function.
+pub async fn retry_future2<
+    F: FnMut() -> O,
+    R: FnMut(&T) -> bool,
+    D: Iterator<Item = Duration>,
+    O: Future<Output = T>,
+    T,
+>(
+    mut factory: F,
+    mut should_retry: R,
+    mut delays: D,
+) -> T {
+    loop {
+        let current_result = factory().await;
+        if should_retry(&current_result)
+            && let Some(delay) = delays.next()
+        {
+            sleep(delay).await;
+            continue;
+        }
+
+        return current_result;
+    }
+}
+
 /// Iterator that repeats the same interval, with an optional maximum no. of attempts.
 pub struct ConstantInterval {
     interval: Duration,
