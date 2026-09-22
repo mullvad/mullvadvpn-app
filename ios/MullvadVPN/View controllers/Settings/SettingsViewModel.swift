@@ -13,7 +13,7 @@ import MullvadSettings
 struct SettingsViewModel {
     private(set) var daitaSettings: DAITASettings
     private(set) var multihopState: MultihopState
-    private(set) var includeAllNetworksState: InclueAllNetworksState
+    private(set) var includeAllNetworksState: IncludeAllNetworksState
 
     var currentLanguage: String {
         let currentLanguage = ApplicationLanguage.currentLanguage

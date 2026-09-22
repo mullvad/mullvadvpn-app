@@ -108,7 +108,7 @@ class ReduceAnonymityWarningView: UIView {
         verticalStackView.axis = .vertical
         verticalStackView.spacing = 8
         verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-        verticalStackView.layer.backgroundColor = CGColor.ReduceAnonymityWarningView.backroundColor
+        verticalStackView.layer.backgroundColor = CGColor.ReduceAnonymityWarningView.backgroundColor
         verticalStackView.layer.cornerRadius = 4
 
         verticalStackView.addConstrainedSubviews([horizontalStackView, warningTextContainer]) {

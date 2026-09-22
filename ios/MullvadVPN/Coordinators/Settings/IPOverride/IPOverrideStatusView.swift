@@ -49,15 +49,15 @@ class IPOverrideStatusView: UIView {
         titleContainerView.spacing = 6
         titleContainerView.distribution = .fill
 
-        let contentContainterView = UIStackView(arrangedSubviews: [
+        let contentContainerView = UIStackView(arrangedSubviews: [
             titleContainerView,
             descriptionLabel,
         ])
-        contentContainterView.axis = .vertical
-        contentContainterView.spacing = 4
+        contentContainerView.axis = .vertical
+        contentContainerView.spacing = 4
 
-        addConstrainedSubviews([contentContainterView]) {
-            contentContainterView.pinEdgesToSuperview()
+        addConstrainedSubviews([contentContainerView]) {
+            contentContainerView.pinEdgesToSuperview()
         }
     }
 

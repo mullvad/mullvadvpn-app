@@ -74,7 +74,7 @@ final class NewAppVersionSystemNotificationHandler {
         let identifier = request.identifier
         UNUserNotificationCenter.current().add(request) { error in
             if let error {
-                Logger(label: "NewAppVersionSystemNoticationHandler").error(
+                Logger(label: "NewAppVersionSystemNotificationHandler").error(
                     "Failed to add notification request with identifier \(identifier). Error: \(error.description)"
                 )
             }

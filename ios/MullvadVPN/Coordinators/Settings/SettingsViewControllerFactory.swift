@@ -22,7 +22,7 @@ final class SettingsViewControllerFactory {
         case viewController(UIViewController)
 
         /// Child coordinator that should be added to the children hierarchy.
-        /// The child is responsile for presenting itself.
+        /// The child is responsive for presenting itself.
         case childCoordinator(SettingsChildCoordinator)
 
         /// Failure to produce a child.

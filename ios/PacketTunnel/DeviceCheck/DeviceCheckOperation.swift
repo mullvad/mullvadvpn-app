@@ -39,12 +39,12 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Senda
 
     init(
         dispatchQueue: DispatchQueue,
-        remoteSevice: DeviceCheckRemoteServiceProtocol,
+        remoteService: DeviceCheckRemoteServiceProtocol,
         deviceStateAccessor: DeviceStateAccessorProtocol,
         rotateImmediatelyOnKeyMismatch: Bool,
         completionHandler: CompletionHandler? = nil
     ) {
-        self.remoteService = remoteSevice
+        self.remoteService = remoteService
         self.deviceStateAccessor = deviceStateAccessor
         self.rotateImmediatelyOnKeyMismatch = rotateImmediatelyOnKeyMismatch
 

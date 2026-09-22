@@ -83,13 +83,13 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
                 .negotiator as? SuccessfulNegotiatorStub
         )
 
-        let negotationCancelledExpectation = expectation(description: "Negotiation cancelled")
+        let negotiationCancelledExpectation = expectation(description: "Negotiation cancelled")
         negotiationProvider.onCancelKeyNegotiation = {
-            negotationCancelledExpectation.fulfill()
+            negotiationCancelledExpectation.fulfill()
         }
 
         keyExchangeActor.reset()
 
-        wait(for: [negotationCancelledExpectation, unexpectedNegotiationFailure], timeout: .UnitTest.invertedTimeout)
+        wait(for: [negotiationCancelledExpectation, unexpectedNegotiationFailure], timeout: .UnitTest.invertedTimeout)
     }
 }

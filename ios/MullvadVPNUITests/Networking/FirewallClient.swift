@@ -33,7 +33,7 @@ class FirewallClient: TestRouterAPIClient {
         let dataDictionary: [String: Any] = [
             "label": sessionIdentifier,
             "from": firewallRule.fromIPAddress,  // Deprecated, replaced by "src"
-            "to": firewallRule.toIPAddress,  // Deprectated, replaced by "dst"
+            "to": firewallRule.toIPAddress,  // Deprecated, replaced by "dst"
             "src": firewallRule.fromIPAddress,
             "dst": firewallRule.toIPAddress,
             "block_all_except_dst": firewallRule.inverted,

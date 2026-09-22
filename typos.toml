@@ -7,9 +7,13 @@ extend-exclude = [
   "dist-assets/**",
   "windows/libwfp",
   "windows/windows-libraries",
-  # TODO(Enable spell checking for iOS source files)
-  "ios/**",
-  "ci/ios/**",
+  "ios/wireguard-apple",
+
+  # Ignore localization files
+  "ios/**/*.xcstrings",
+  "ios/**/*.xliff",
+  "ios/**/*.strings",
+
   # Ignore android resource files
   "android/lib/ui/resource/**/*.xml",
   # Ignore baseline profiles as they may refer to files we don't control
@@ -51,6 +55,8 @@ dependy = ""
 #
 # FIXME(Rename get_shadowsocks_chipers)
 get_shadowsocks_chipers = "get_shadowsocks_chipers"  # Proper typo, but part of FFI.
+
+superceded = "superceded"
 
 [type.po]
 # Never spell check translations.

@@ -25,7 +25,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private var implementation: TunnelImplementation!
     private var appMessageHandler: AppMessageHandler!
     private var deviceChecker: DeviceChecker!
-    private var newAppVersionSystemNoticationHandler: NewAppVersionSystemNotificationHandler!
+    private var newAppVersionSystemNotificationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
     private var migrationManager: MigrationManager
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
@@ -137,7 +137,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             apiRequestProxy: apiRequestProxy
         )
 
-        newAppVersionSystemNoticationHandler = NewAppVersionSystemNotificationHandler(
+        newAppVersionSystemNotificationHandler = NewAppVersionSystemNotificationHandler(
             appVersionService: AppVersionService(
                 urlSession: URLSession.shared,
                 appPreferences: AppPreferences(),

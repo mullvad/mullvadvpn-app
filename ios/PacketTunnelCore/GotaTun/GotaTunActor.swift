@@ -148,7 +148,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     }
 
     /// Starts path observation and consumes actor events.
-    /// The events are consumed in a detached task until the event stream is finished. This function **must** be called excatly once per the lifetime of an actor. Without this, the actor will never act on events, so no work will actually be done.
+    /// The events are consumed in a detached task until the event stream is finished. This function **must** be called exactly once per the lifetime of an actor. Without this, the actor will never act on events, so no work will actually be done.
     /// `self` is resolved weakly per iteration so the loop does not keep the actor alive.
     private nonisolated consuming func consumeEvents() {
         Task.detached { [weak self, eventStream] in

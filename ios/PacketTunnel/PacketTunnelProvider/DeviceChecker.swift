@@ -43,7 +43,7 @@ final class DeviceChecker {
     func start(rotateKeyOnMismatch: Bool) async -> Result<DeviceCheck, Error> {
         let checkOperation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,
-            remoteSevice: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
+            remoteService: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
             deviceStateAccessor: DeviceStateAccessor(settingsManager: settingsManager),
             rotateImmediatelyOnKeyMismatch: rotateKeyOnMismatch
         )

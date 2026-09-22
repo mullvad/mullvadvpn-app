@@ -52,7 +52,7 @@ class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
     }
 
     /**
-     This method tells notification manager to re-evalute the notification content.
+     This method tells notification manager to re-evaluate the notification content.
      Call this method when notification provider wants to change the content it presents.
      */
     func invalidate() {

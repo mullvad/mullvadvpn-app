@@ -46,7 +46,7 @@ class Stream: Codable, Equatable {
     /// Date interval from first to last tx(sent from test device) packet of this stream
     var txInterval: DateInterval?
 
-    /// Date interval from frist to last rx(sent to test device) packet of this stream
+    /// Date interval from first to last rx(sent to test device) packet of this stream
     var rxInterval: DateInterval?
 
     enum CodingKeys: String, CodingKey {
