@@ -76,7 +76,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
                         'If you can’t connect you can try using the IP address instead of the host name. If you want to connect to a subnet or a private network address range, you can follow our guide to add a static route.',
                       )}
                     </Info.Dialog.Text>
-                    <Info.Dialog.Button onClick={openGuide}>
+                    <Info.Dialog.Button variant="secondary" onClick={openGuide}>
                       <Info.Dialog.Button.Text>{messages.gettext('Guide')}</Info.Dialog.Button.Text>
                       <Info.Dialog.Button.Icon icon="external" />
                     </Info.Dialog.Button>
