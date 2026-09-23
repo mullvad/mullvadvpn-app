@@ -686,6 +686,9 @@ internal fun ApiAccessMethodSettings.toDomain(): List<ModelApiAccessMethodSettin
     if (encrypted_dns_proxy != null) {
         add(encrypted_dns_proxy.toDomain())
     }
+    if (domain_fronting != null) {
+        add(domain_fronting.toDomain())
+    }
     addAll(custom.map { it.toDomain() })
 }
 
@@ -704,6 +707,7 @@ internal fun AccessMethod.toDomain(): ModelApiAccessMethod =
         is AccessMethod.AccessMethod.Custom -> access_method.value.toDomain()
         is AccessMethod.AccessMethod.Direct -> ModelApiAccessMethod.Direct
         is AccessMethod.AccessMethod.EncryptedDnsProxy -> ModelApiAccessMethod.EncryptedDns
+        is AccessMethod.AccessMethod.DomainFronting -> ModelApiAccessMethod.DomainFronting
         null -> error("Type not found")
     }
 
