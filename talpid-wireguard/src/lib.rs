@@ -733,40 +733,14 @@ impl WireguardMonitor {
             ))
         };
         let metadata = |tunnel: &TunnelType| tunnel_metadata(tunnel.get_interface_name(), config);
-        let nm_will_manage_dns = will_nm_manage_dns().then(|| {
-            nm_tunnel::NetworkManagerDevice::dns(config, "mullvad-dns".to_string()).inspect_err(
-                |err| {
-                    log::warn!(
-                        "{}",
-                        err.display_chain_with_msg("Failed to start a tunnel with NetworkManager")
-                    )
-                },
-            )
-        });
-
-        match (userspace_wireguard, nm_will_manage_dns) {
-            // NetworkManager should manage a device (where routes + DNS may be configured).
-            (_, Some(Ok(nm))) => {
-                let dummy_dns = nm.interface_name().to_string();
-                let tunnel = (nm, gotatun()?);
-                let tunnel: TunnelType = Box::new(tunnel);
-                let mut metadata = metadata(&tunnel);
-                metadata.dummy_dns = Some(dummy_dns);
-                Ok((tunnel, metadata))
-            }
+        let tunnel: TunnelType = match userspace_wireguard {
             // GotaTun is the WireGuard implementation.
-            (true, _) => {
-                let tunnel: TunnelType = gotatun().map(Box::new)?;
-                let metadata = metadata(&tunnel);
-                Ok((tunnel, metadata))
-            }
-            // Use kernel WireGuard via the Netlink API.
-            (false, _) => {
+            true => gotatun().map(Box::new)?,
+            // Try to use kernel WireGuard via the Netlink API. Fall back on userspace
+            // implementation.
+            false => {
                 log::debug!("Using kernel WireGuard implementation through netlink");
-                let tunnel: TunnelType = match wireguard_kernel::NetlinkTunnel::new(
-                    runtime.clone(),
-                    config,
-                ) {
+                match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
                     Ok(tunnel) => Box::new(tunnel),
                     Err(err) => {
                         log::warn!(
@@ -775,10 +749,27 @@ impl WireguardMonitor {
                         );
                         gotatun().map(Box::new)?
                     }
-                };
-                let metadata = metadata(&tunnel);
+                }
+            }
+        };
+        let mut metadata = metadata(&tunnel);
+        match will_nm_manage_dns()
+            .then(|| nm_tunnel::NetworkManagerDevice::dns(config, "mullvad-dns".to_string()))
+        {
+            // NetworkManager should manage a device (where routes + DNS may be configured).
+            Some(Ok(device)) => {
+                metadata.dummy_dns = Some(device.interface_name().to_string());
+                let tunnel = Box::new((device, tunnel));
                 Ok((tunnel, metadata))
             }
+            Some(Err(err)) => {
+                log::warn!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to start a tunnel with NetworkManager")
+                );
+                Ok((tunnel, metadata))
+            }
+            None => Ok((tunnel, metadata)),
         }
     }
 

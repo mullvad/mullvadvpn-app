@@ -1,4 +1,4 @@
-use crate::{gotatun::GotaTun, wireguard_kernel::nm_tunnel};
+use crate::{TunnelType, wireguard_kernel::nm_tunnel};
 
 use super::{super::stats::StatsMap, Config, Tunnel, TunnelError};
 use std::collections::HashMap;
@@ -22,7 +22,7 @@ pub enum Error {
 /// on systems which use NetworkManager to configure their network(s). The [`NetworkManagerTunnel`]
 /// type ties the lifetime of this generic network device to an instance of another WireGuard
 /// implementation.
-pub type NetworkManagerTunnel = (NetworkManagerDevice, GotaTun);
+pub type NetworkManagerTunnel = (NetworkManagerDevice, TunnelType);
 
 pub struct NetworkManagerDevice {
     network_manager: NetworkManager,
