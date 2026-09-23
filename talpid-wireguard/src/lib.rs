@@ -574,7 +574,7 @@ impl WireguardMonitor {
                 }?;
             }
 
-            let metadata = Self::tunnel_metadata(&iface_name, &config);
+            let metadata = tunnel_metadata(iface_name, &config);
             let selected_obfuscation = Obfuscator::multiplexer_committed_to(obfuscator)
                 .await
                 .map_err(CloseMsg::SetupError)?;
