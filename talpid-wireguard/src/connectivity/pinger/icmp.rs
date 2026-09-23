@@ -149,7 +149,7 @@ fn should_retry_send(_err: &io::Error) -> bool {
 
 #[async_trait::async_trait]
 impl super::Pinger for Pinger {
-    async fn send_icmp(&mut self) -> Result<()> {
+    async fn send_ping(&mut self) -> Result<()> {
         let mut message = [0u8; 50];
         self.construct_icmpv4_packet(&mut message)?;
         let tcp_ping = send_tcp_ping(SocketAddr::new(self.addr.ip(), TCP_PING_PORT));

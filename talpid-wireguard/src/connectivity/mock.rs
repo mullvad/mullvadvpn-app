@@ -94,7 +94,7 @@ impl Tunnel for MockTunnel {
 
 #[async_trait::async_trait]
 impl Pinger for MockPinger {
-    async fn send_icmp(&mut self) -> Result<(), pinger::Error> {
+    async fn send_ping(&mut self) -> Result<(), pinger::Error> {
         if let Some(callback) = self.on_send_ping.as_mut() {
             (callback)();
         }

@@ -330,7 +330,7 @@ impl PingState {
 
     /// Send a ping.
     pub(super) async fn ping(&mut self) -> Result<(), Error> {
-        self.pinger.send_icmp().await.map_err(Error::PingError)
+        self.pinger.send_ping().await.map_err(Error::PingError)
     }
 
     fn ping_timed_out(&self, timeout: Duration) -> bool {
