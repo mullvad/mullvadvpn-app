@@ -37,7 +37,9 @@ final actor StorePaymentManagerInteractor {
         storedAccountData.expiry = account.expiry
         let newDeviceState = DeviceState.loggedIn(storedAccountData, deviceData)
 
-        tunnelManager.setDeviceState(newDeviceState, persist: true)
+        Task {
+            await tunnelManager.setDeviceState(newDeviceState, persist: true)
+        }
     }
 
     // MARK: API proxy

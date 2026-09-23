@@ -13,7 +13,7 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-final class IPOverrideInteractor {
+final class IPOverrideInteractor: @unchecked Sendable {
     private let logger = Logger(label: "IPOverrideInteractor")
     private let repository: IPOverrideRepositoryProtocol
     private let tunnelManager: TunnelManager
@@ -75,17 +75,19 @@ final class IPOverrideInteractor {
     }
 
     private func updateTunnel() {
-        do {
-            try tunnelManager.refreshRelayCacheTracker()
-        } catch {
-            logger.error(error: error, message: "Could not refresh relay cache tracker.")
-        }
+        Task {
+            do {
+                try await tunnelManager.refreshRelayCacheTracker()
+            } catch {
+                logger.error(error: error, message: "Could not refresh relay cache tracker.")
+            }
 
-        switch tunnelManager.tunnelStatus.observedState {
-        case .connecting, .connected, .reconnecting:
-            tunnelManager.reconnectTunnel(selectNewRelay: true)
-        default:
-            break
+            switch tunnelManager.tunnelStatus.observedState {
+            case .connecting, .connected, .reconnecting:
+                await tunnelManager.reconnectTunnel(selectNewRelay: true)
+            default:
+                break
+            }
         }
     }
 
