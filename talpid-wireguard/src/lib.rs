@@ -694,11 +694,9 @@ impl WireguardMonitor {
         bypass: Arc<dyn SocketBypass>,
         _userspace_wireguard: bool,
         _log_path: Option<&Path>,
-    ) -> Result<TunnelType> {
+    ) -> Result<(TunnelType, TunnelMetadata)> {
         log::debug!("Tunnel MTU: {}", config.mtu);
-
         log::debug!("Using userspace WireGuard implementation");
-
         let tunnel = runtime
             .block_on(gotatun::open_gotatun_tunnel(
                 config,
@@ -708,7 +706,8 @@ impl WireguardMonitor {
                 bypass,
             ))
             .map(Box::new)?;
-        Ok(tunnel)
+        let metadata = tunnel_metadata(tunnel.get_interface_name(), config);
+        Ok((tunnel, metadata))
     }
 
     #[cfg(target_os = "linux")]
