@@ -15,27 +15,48 @@ struct ProblemReportView: View {
     @State private var text = ""
     @State private var message: MessageView.Message?
     @State private var borderStyle: BorderStyle = .normal
-        
-    @State var viewModel: ProblemReportViewModelNew
 
-    let subheadLabelText: LocalizedStringKey = "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
-    
+    @State var viewModel: ProblemReportViewModelNew
+    @State var showLogs: Bool = false
+
+    let subheadLabelText: LocalizedStringKey = """
+        To help you more effectively, your app’s log file will be attached \
+        to this message. Your data will remain secure and private, as it \
+        is anonymised before being sent over an encrypted channel.
+        """
+
     let accountTokenInclusionPrompt: LocalizedStringKey =
-        "Include my account token for faster help with payment or account related issues"
-    
+        """
+        Include my account token for faster help with \
+        payment or account related issues
+        """
+
     let emailPlaceholderText: LocalizedStringKey = "Your email (optional)"
 
-    let messageTextViewPlaceholder: LocalizedStringKey = "To assist you better, please write in English or Swedish and include which country you are connecting from."
-    
-    let emptyEmailAlertWarning : LocalizedStringKey = "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
-    
+    let messageTextViewPlaceholder: LocalizedStringKey = """
+        To assist you better, please write in English or Swedish \
+        and include which country you are connecting from.
+        """
+
     var body: some View {
+        Group {
+            if let modalState = viewModel.modalState {
+                ModalOverlay(state: modalState)
+            } else {
+                mainForm
+            }
+        }.popover(isPresented: viewModel.showLogs) {
+            ProblemReportView.LogView(viewModel: viewModel)
+        }.mullvadAlert(item: $viewModel.alert)
+    }
+
+    var mainForm: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Report a problem")
                 .font(.mullvadLarge)
                 .foregroundStyle(.white)
             Text(subheadLabelText)
-            .font(.mullvadTiny)
+                .font(.mullvadTiny)
                 .foregroundStyle(.white)
             ConfigurableTextField(
                 title: "Email (optional)",
@@ -54,22 +75,49 @@ struct ProblemReportView: View {
                 additionalInfo: .init(
                     warningTitle: "This impacts your anonymity",
                     warningMessage:
-                        "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our _privacy policy_"
+                        "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our **privacy policy**"
                 )
             )
             MullvadButton(text: "View app logs", style: .primary) {
+                viewModel.doShowLog()
             }
             MullvadButton(text: "Send", style: .success) {
+                viewModel.submitForm()
             }
-                .disabled(!viewModel.canSend)
+            .disabled(!viewModel.canSend)
         }
         .padding(UIMetrics.padding16)
         .scrollable(fill: .vertical)
         .background(Color.mullvadBackground)
     }
+
+}
+
+// MARK: previews
+struct MockInteractor: ProblemReportInteractorProtocol {
+    var reportError: (any Error)?
+    
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
+        completion("""
+        The log file will go here
+        =========================
+        
+        Something something something...
+        """)
+    }
+    
+    func sendReport(email: String, message: String, includeAccountTokenInLogs: Bool, completion: @escaping (Result<Void, any Error>) -> Void) {
+        //  try await Task.sleep(nanoseconds: 1_000_000_000)
+        if let reportError {
+            completion(.failure(reportError))
+        } else {
+            completion(.success(()))
+        }
+    }
 }
 
 #Preview {
     let viewModel = ProblemReportViewModelNew()
-    ProblemReportView(viewModel: viewModel)
+    viewModel.interactor = MockInteractor()
+    return ProblemReportView(viewModel: viewModel)
 }
