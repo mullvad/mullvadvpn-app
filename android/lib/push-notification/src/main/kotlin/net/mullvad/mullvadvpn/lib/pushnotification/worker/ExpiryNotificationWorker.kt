@@ -2,11 +2,6 @@ package net.mullvad.mullvadvpn.lib.pushnotification.worker
 
 import android.app.Notification
 import android.content.Context
-import android.content.Context.BIND_AUTO_CREATE
-import android.content.Intent
-import android.content.ServiceConnection
-import android.content.pm.ServiceInfo
-import android.os.Build
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
@@ -15,8 +10,7 @@ import java.time.Duration
 import java.time.ZonedDateTime
 import kotlin.getValue
 import kotlinx.coroutines.withTimeoutOrNull
-import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
-import net.mullvad.mullvadvpn.lib.common.serviceconnection.EmptyServiceConnection
+import net.mullvad.mullvadvpn.lib.common.serviceconnection.bindVpnService
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
@@ -36,7 +30,7 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
 
     override suspend fun doWork(): Result {
         // Bind to the VPN service to make sure the daemon is started
-        val serviceConnection = bindVpnService(appContext)
+        val serviceConnection = appContext.bindVpnService()
 
         val expiry =
             withTimeoutOrNull(ACCOUNT_WAIT_TIMEOUT_MS) {
@@ -80,22 +74,6 @@ class ExpiryNotificationWorker(private val appContext: Context, workerParams: Wo
                 .setSmallIcon(R.drawable.small_logo_white)
                 .build(),
         )
-    }
-
-    private fun bindVpnService(context: Context): ServiceConnection {
-        val serviceConnection = EmptyServiceConnection()
-        val intent = Intent().apply { setClassName(context.packageName, VPN_SERVICE_CLASS) }
-        // We set BIND_AUTO_CREATE so that the service is started if it is not already running
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            context.bindService(
-                intent,
-                serviceConnection,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED or BIND_AUTO_CREATE,
-            )
-        } else {
-            context.bindService(intent, serviceConnection, BIND_AUTO_CREATE)
-        }
-        return serviceConnection
     }
 
     companion object {
