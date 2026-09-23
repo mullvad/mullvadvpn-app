@@ -42,6 +42,7 @@ struct ProblemReportView: View {
         Group {
             if let modalState = viewModel.modalState {
                 ModalOverlay(state: modalState)
+                    .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
                 mainForm
             }
@@ -78,10 +79,18 @@ struct ProblemReportView: View {
                         "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time. For details, please see our **privacy policy**"
                 )
             )
-            MullvadButton(text: "View app logs", style: .primary) {
+            MullvadButton(
+                text: "View app logs",
+                style: .primary,
+                mainAccessibilityIdentifier: .problemReportAppLogsButton
+            ) {
                 viewModel.doShowLog()
             }
-            MullvadButton(text: "Send", style: .success) {
+            MullvadButton(
+                text: "Send",
+                style: .success,
+                mainAccessibilityIdentifier: .problemReportSendButton
+            ) {
                 viewModel.submitForm()
             }
             .disabled(!viewModel.canSend)
