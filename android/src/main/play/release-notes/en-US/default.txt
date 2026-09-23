@@ -1,1 +1,1 @@
-- Fixed an issue that could hang the tunnel when canceling a connection attempt using QUIC.
+- Fixed a crash that could occur when interacting with the map just as it was created.
