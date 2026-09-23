@@ -2,6 +2,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import {
+  type Constraint,
   type CustomLists,
   IRelayList,
   IRelayListCity,
@@ -11,6 +12,7 @@ import {
   MultihopMode,
   Ownership,
   type Recents,
+  type RelayLocation,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -38,8 +40,8 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
 
   const expandLocatedRelays = async (locatedRelays: RelaySelectionPath[]) => {
     for (const locatedRelay of locatedRelays) {
-      await routes.selectLocation.toggleAccordion(locatedRelay.country.name);
-      await routes.selectLocation.toggleAccordion(locatedRelay.city.name);
+      await routes.selectLocation.expandAccordion(locatedRelay.country.name);
+      await routes.selectLocation.expandAccordion(locatedRelay.city.name);
     }
   };
 
@@ -161,9 +163,11 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     {
       daita,
       multihop,
+      entryLocation,
     }: {
       multihop?: MultihopMode;
       daita?: boolean;
+      entryLocation?: Constraint<RelayLocation>;
     },
     settings?: ISettings,
   ) => {
@@ -175,7 +179,12 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
         settings.relaySettings.normal.wireguardConstraints.multihop = multihop;
       }
       if (settings.tunnelOptions.daita) {
-        if (daita !== undefined) settings.tunnelOptions.daita = daita;
+        if (daita !== undefined) {
+          settings.tunnelOptions.daita = daita;
+        }
+      }
+      if (entryLocation) {
+        settings.relaySettings.normal.wireguardConstraints.entryLocation = entryLocation;
       }
     }
 

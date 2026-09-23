@@ -6,9 +6,13 @@ export const createSelectors = (page: Page) => ({
   selectLocationMenuButton: () => page.getByRole('button', { name: 'Open select location menu' }),
   filterMenuOption: () => page.getByRole('button', { name: 'Filter' }),
   filterChip: (label: string) => {
-    return page.locator('button', { hasText: label });
+    return page.locator('button', { hasText: label }).filter({ visible: true });
   },
-  expandAccordionButton: (label: string) => page.getByLabel(`Expand ${label}`),
+  accordionButton: (label: string) => {
+    const possiblePrefix = ['Expand', 'Collapse'];
+    return page.getByLabel(new RegExp(`${possiblePrefix.join('|')} ${label}`));
+  },
+  automaticLocation: () => page.getByLabel('Use automatic entry location'),
   locationsMatching: (relayNames: string[]) => {
     const possiblePrefix = ['Connect to', 'Use', 'Connect and use'];
     const possibleNames = possiblePrefix.flatMap((prefix) =>
