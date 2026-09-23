@@ -4,35 +4,44 @@ import android.app.Application
 import android.os.StrictMode
 import android.os.strictmode.UntaggedSocketViolation
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import java.io.IOException
+import kotlin.getValue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.app.util.FileLogWriter
 import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
+import net.mullvad.mullvadvpn.lib.common.serviceconnection.bindVpnService
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.NotificationAction
 import org.koin.android.ext.android.getKoin
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
 
 private const val LOG_TAG = "mullvad"
 
-@OptIn(ExperimentalComposeRuntimeApi::class)
 class MullvadApplication : Application() {
+    private val connectionProxy by inject<ConnectionProxy>()
+    private val applicationScope by inject<ApplicationScope>()
+
     override fun onCreate() {
         super.onCreate()
         Logger.setTag(LOG_TAG)
@@ -58,6 +67,17 @@ class MullvadApplication : Application() {
                 scheduleNotificationAlarmUseCase = get<ScheduleNotificationAlarmUseCase>(),
                 accountExpiryNotificationProvider = get<AccountExpiryNotificationProvider>(),
             )
+        }
+    }
+
+    // Restores the tunnel state by binding to the VPN service and waiting for the tunnel state to
+    // be emitted. If the tunnel state is secured the system will bind to the service after it has
+    // been established.
+    fun restoreTunnel() {
+        applicationScope.launch {
+            val serviceConnection = this@MullvadApplication.bindVpnService()
+            withTimeout(TUNNEL_STATE_TIMEOUT) { connectionProxy.tunnelState.take(1).first() }
+            unbindService(serviceConnection)
         }
     }
 
@@ -135,4 +155,9 @@ class MullvadApplication : Application() {
                 .build()
         )
     }
+
+    // Timeout for waiting for the tunnel state to be emitted when restoring the tunnel on app
+    // upgrade. Since broadcast receivers have time limit at around 10 seconds we set this to 5
+    // seconds to be extra safe.
+    private val TUNNEL_STATE_TIMEOUT = 5.seconds
 }
