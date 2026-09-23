@@ -11,7 +11,6 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.core.view.WindowCompat
-import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import de.mannodermaus.junit5.compose.ComposeContext
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.junit.jupiter.api.extension.Extension
@@ -30,7 +29,7 @@ class ScreenTestExtension : Extension {
                 WindowCompat.setDecorFitsSystemWindows(checkNotNull(activity).window, false)
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                enableAccessibilityChecks(AccessibilityValidator().setThrowExceptionFor(null))
+                enableAccessibilityChecks()
             }
             ComposeContextDelegate(this).block()
         }
