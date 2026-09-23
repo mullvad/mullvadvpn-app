@@ -28,7 +28,7 @@ extension ExitLocationView {
                                     type: .destructivePrimary,
                                     title: "Delete list",
                                     handler: {
-                                        viewModel.delete(customList: location.customList)
+                                        await viewModel.delete(customList: location.customList)
                                         alert = nil
                                     }
                                 ),
@@ -53,11 +53,13 @@ extension ExitLocationView {
             default:
                 if let customListNode = location.parent?.asCustomListNode {
                     Button(role: .destructive) {
-                        viewModel
-                            .removeLocationFromCustomList(
-                                location: location,
-                                customListName: customListNode.name
-                            )
+                        Task {
+                            await viewModel
+                                .removeLocationFromCustomList(
+                                    location: location,
+                                    customListName: customListNode.name
+                                )
+                        }
                         UIImpactFeedbackGenerator(
                             style: .medium
                         )
@@ -94,11 +96,13 @@ extension ExitLocationView {
                     return isAlreadyInList
                 }
                 Button(customList.name) {
-                    viewModel
-                        .addLocationToCustomList(
-                            location: location,
-                            customListName: customList.name
-                        )
+                    Task {
+                        await viewModel
+                            .addLocationToCustomList(
+                                location: location,
+                                customListName: customList.name
+                            )
+                    }
                     UIImpactFeedbackGenerator(
                         style: .medium
                     )
@@ -115,7 +119,7 @@ extension ExitLocationView {
                         title: "Create",
                         identifier: nil,
                         handler: { listName in
-                            viewModel
+                            await viewModel
                                 .addLocationToCustomList(
                                     location: location,
                                     customListName: listName

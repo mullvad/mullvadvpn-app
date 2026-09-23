@@ -32,8 +32,11 @@ extension MigrationManagerTests {
         nonisolated(unsafe) var migrationHappenedInPacketTunnel = false
         nonisolated(unsafe) var migrationHappenedInHost = false
 
-        packetTunnelProcess.async { [unowned self] in
-            manager.migrateSettings(store: store) { backgroundMigrationResult in
+        packetTunnelProcess.async { [weak self] in
+            guard let self else { return }
+
+            Task {
+                let backgroundMigrationResult = await manager.migrateSettings(store: store)
                 if case .success = backgroundMigrationResult {
                     migrationHappenedInPacketTunnel = true
                 }
@@ -41,8 +44,11 @@ extension MigrationManagerTests {
             }
         }
 
-        hostProcess.async { [unowned self] in
-            manager.migrateSettings(store: store) { foregroundMigrationResult in
+        hostProcess.async { [weak self] in
+            guard let self else { return }
+
+            Task {
+                let foregroundMigrationResult = await manager.migrateSettings(store: store)
                 if case .success = foregroundMigrationResult {
                     migrationHappenedInHost = true
                 }

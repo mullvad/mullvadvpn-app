@@ -213,8 +213,12 @@ struct VPNSettingsView: View {
                             isSelected: settings.tunnelSettings.ipVersion == option.id))
                 },
                 onSelect: {
-                    settings.tunnelSettings.ipVersion = option.id
-                    settingsInteractor.tunnelManager.updateSettings([.ipVersion(settings.tunnelSettings.ipVersion)])
+                    Task {
+                        settings.tunnelSettings.ipVersion = option.id
+                        await settingsInteractor.tunnelManager.updateSettings(
+                            [.ipVersion(settings.tunnelSettings.ipVersion)]
+                        )
+                    }
                 }
             )
             .id(option.id)
