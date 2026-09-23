@@ -42,14 +42,11 @@ test.describe('Select location', () => {
   test.describe('Multihop', () => {
     let initialSettings: ISettings = getDefaultSettings();
 
-    test.beforeAll(async () => {
+    test.beforeEach(async () => {
       initialSettings = await helpers.mockSettings({
         multihop: 'always',
       });
-    });
-
-    test.beforeEach(async () => {
-      await routes.selectLocation.getEntryInput().click();
+      await routes.selectLocation.gotoEntryLocations();
     });
 
     test('App should show entry selection', async () => {
@@ -61,17 +58,17 @@ test.describe('Select location', () => {
     });
 
     test('App should show exit selection', async () => {
+      await routes.selectLocation.gotoExitLocations();
       const exitInput = routes.selectLocation.getExitInput();
-      await exitInput.click();
       await expect(exitInput).toBeFocused();
 
       const locations = routes.selectLocation.getLocationsInAllLocations();
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
-    test('Should show only wireguard servers in entry list', async () => {
-      const wireguardRelays = relayList.countries[0].cities[0].relays;
-      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+    test('Should show relays and automatic location in entry list', async () => {
+      const relays = relayList.countries[0].cities[0].relays;
+      const hostnames = relays.map((relay) => relay.hostname);
       const relaySelectionPaths = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, hostnames),
       );
@@ -79,15 +76,17 @@ test.describe('Select location', () => {
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
       const buttons = routes.selectLocation.getLocationsMatching(hostnames);
-      await expect(buttons).toHaveCount(wireguardRelays.length);
+      await expect(buttons).toHaveCount(relays.length);
+
+      const automaticLocation = routes.selectLocation.getAutomaticLocation();
+      await expect(automaticLocation).toBeVisible();
     });
 
-    test('Should show only wireguard servers in exit list', async () => {
-      const exitInput = routes.selectLocation.getExitInput();
-      await exitInput.click();
+    test('Should show relays in exit list', async () => {
+      await routes.selectLocation.gotoExitLocations();
 
-      const wireguardRelays = relayList.countries[0].cities[0].relays;
-      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const relays = relayList.countries[0].cities[0].relays;
+      const hostnames = relays.map((relay) => relay.hostname);
       const relaySelectionPaths = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, hostnames),
       );
@@ -95,13 +94,12 @@ test.describe('Select location', () => {
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
       const buttons = routes.selectLocation.getLocationsMatching(hostnames);
-      await expect(buttons).toHaveCount(wireguardRelays.length);
+      await expect(buttons).toHaveCount(relays.length);
     });
 
     test('Should disable entry server in exit list', async () => {
       // Go to exit selection
-      const exitInput = routes.selectLocation.getExitInput();
-      await exitInput.click();
+      await routes.selectLocation.gotoExitLocations();
 
       // Set entry location to first relay in relay list
       const firstHostname = relayList.countries[0].cities[0].relays[0].hostname;
@@ -133,8 +131,76 @@ test.describe('Select location', () => {
     });
   });
 
+  test.describe('Location selector', () => {
+    test.beforeEach(async () => {
+      await helpers.mockSettings({
+        multihop: 'always',
+      });
+      await routes.selectLocation.gotoExitLocations();
+    });
+
+    test('Should display entry and exit when multihop mode is "always"', async () => {
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
+
+      await expect(entryInput).toBeVisible();
+      await expect(exitInput).toBeVisible();
+    });
+
+    test('Should only display exit when multihop mode is "never"', async () => {
+      await helpers.mockSettings({
+        multihop: 'never',
+      });
+
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
+
+      await expect(entryInput).toBeHidden();
+      await expect(exitInput).toBeVisible();
+    });
+
+    test('Should display only exit when multihop mode is "when-needed" and has no automatic entry', async () => {
+      await helpers.mockSettings({
+        multihop: 'when-needed',
+      });
+
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
+
+      await expect(entryInput).toBeHidden();
+      await expect(exitInput).toBeVisible();
+    });
+
+    test('Should display entry and exit when multihop mode is "when-needed" and has automatic entry', async () => {
+      await helpers.mockSettings({
+        multihop: 'when-needed',
+        entryLocation: {
+          only: {
+            country: 'se',
+          },
+        },
+      });
+
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
+
+      await expect(entryInput).toBeVisible();
+      await expect(exitInput).toBeVisible();
+    });
+  });
+
   test.describe('Recents', () => {
     let initialSettings: ISettings = getDefaultSettings();
+
+    test.beforeAll(async () => {
+      initialSettings = await helpers.mockSettings({
+        multihop: 'always',
+      });
+    });
+
+    test.beforeEach(async () => {
+      await routes.selectLocation.gotoExitLocations();
+    });
 
     test.beforeEach(async () => {
       const settings = await helpers.mockRecents(recents);
@@ -201,7 +267,7 @@ test.describe('Select location', () => {
       const recentLocations = routes.selectLocation.getLocationsInRecents();
       await expect(recentLocations).toHaveCount(recents.exits.length);
 
-      await routes.selectLocation.getExitInput().click();
+      await routes.selectLocation.gotoEntryLocations();
       await expect(recentLocations).toHaveCount(recents.entries.length);
     });
 
