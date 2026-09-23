@@ -12,12 +12,88 @@
 
 import SwiftUI
 
-@Observable class ProblemReportViewModelNew {
+@MainActor
+@Observable final class ProblemReportViewModelNew {
+    enum ModalState {
+        case sending
+        case success
+        case failure
+    }
+
     var email: String = ""
     var message: String = ""
     var includeAccountTokenInLogs: Bool = false
 
+    var modalState: ModalState?
+    var logText: String?
+    var showLogs: Binding<Bool>!
+    var alert: MullvadAlert?
+
+    var interactor: ProblemReportInteractorProtocol?
+
+    init() {
+        showLogs = Binding<Bool>(
+            get: { self.logText != nil },
+            set: { if !$0 { self.logText = nil } }
+        )
+    }
+
+    func doShowLog() {
+        Task {
+            self.logText = await interactor?.fetchReportString()
+        }
+    }
+
     var canSend: Bool {
-        !email.isEmpty && !message.isEmpty
+        !message.isEmpty
+    }
+
+    func submitForm() {
+        if email.isEmpty {
+            alert = MullvadAlert(
+                type: .warning,
+                messages: [
+                    """
+                    You are about to send the problem report without a way \
+                    for us to get back to you. If you want an answer to your \
+                    report you will have to enter an email address.
+                    """
+                ],
+                actions: [
+                    .init(
+                        type: .destructivePrimary,
+                        title: "Send anyway"
+                    ) {
+                        [weak self] in
+                        self?.alert = nil
+                        self?.doSend()
+                    },
+                    .init(
+                        type: .primary,
+                        title: "Cancel"
+                    ) { [weak self] in
+                        self?.alert = nil
+                    },
+                ]
+            )
+        } else {
+            doSend()
+        }
+    }
+
+    private func doSend() {
+        modalState = .sending
+        Task { [self] in
+            do {
+                try await interactor?.sendReport(
+                    email: email,
+                    message: message,
+                    includeAccountTokenInLogs: includeAccountTokenInLogs
+                )
+                modalState = .success
+            } catch {
+                modalState = .failure
+            }
+        }
     }
 }
