@@ -63,8 +63,7 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
 
         controller.saveBarButton.title = NSLocalizedString("Add", comment: "")
 
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.mullvadCancelButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 self?.dismiss(animated: true)
             })

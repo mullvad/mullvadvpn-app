@@ -99,8 +99,7 @@ extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewContr
         )
         let aboutNavController = UINavigationController(rootViewController: aboutController)
 
-        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem.mullvadDoneButton(
             primaryAction: UIAction { [weak aboutNavController] _ in
                 aboutNavController?.dismiss(animated: true)
             }
