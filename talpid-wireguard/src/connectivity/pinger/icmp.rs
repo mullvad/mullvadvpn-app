@@ -1,7 +1,8 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
-use tokio::net::UdpSocket;
+use talpid_tunnel_config_client::CONFIG_SERVICE_PORT;
+use tokio::net::{TcpStream, UdpSocket};
 
 use std::{
     io::{self, Write},
@@ -10,6 +11,11 @@ use std::{
 };
 
 const SEND_RETRY_ATTEMPTS: u32 = 10;
+
+/// Port to connect to for TCP pings. The config service listens on the gateway.
+const TCP_PING_PORT: u16 = CONFIG_SERVICE_PORT;
+/// Maximum time to wait for a TCP ping to complete.
+const TCP_PING_TIMEOUT: Duration = Duration::from_secs(3);
 
 /// Pinger errors
 #[derive(thiserror::Error, Debug)]
@@ -146,7 +152,18 @@ impl super::Pinger for Pinger {
     async fn send_icmp(&mut self) -> Result<()> {
         let mut message = [0u8; 50];
         self.construct_icmpv4_packet(&mut message)?;
-        self.send_ping_request(&message, self.addr).await
+        let tcp_ping = send_tcp_ping(SocketAddr::new(self.addr.ip(), TCP_PING_PORT));
+        let (result, ()) = tokio::join!(self.send_ping_request(&message, self.addr), tcp_ping);
+        result
+    }
+}
+
+/// Connect to `addr`, and give up after `TCP_PING_TIMEOUT`.
+async fn send_tcp_ping(addr: SocketAddr) {
+    match tokio::time::timeout(TCP_PING_TIMEOUT, TcpStream::connect(addr)).await {
+        Ok(Ok(_stream)) => (),
+        Ok(Err(error)) => log::debug!("TCP ping to {addr} failed: {error}"),
+        Err(_) => log::debug!("TCP ping to {addr} timed out"),
     }
 }
 
