@@ -25,6 +25,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
     @Published var style: MullvadNoticeView.Style
     let title: MullvadNoticeView.TextItem
     let banner: Image?
+    let verticalAlignment: VerticalAlignment
     let details: [MullvadNoticeView.TextItem]
     let explanation: MullvadNoticeView.TextItem?
     let actions: [MullvadNoticeView.ActionItem]
@@ -33,6 +34,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
         style: MullvadNoticeView.Style,
         title: MullvadNoticeView.TextItem,
         banner: Image? = nil,
+        verticalAlignment: VerticalAlignment = .center,
         details: [MullvadNoticeView.TextItem] = [],
         explanation: MullvadNoticeView.TextItem? = nil,
         actions: [MullvadNoticeView.ActionItem] = []
@@ -40,6 +42,7 @@ final class NoticeViewModel: Identifiable, ObservableObject {
         self.style = style
         self.title = title
         self.banner = banner
+        self.verticalAlignment = verticalAlignment
         self.details = details
         self.explanation = explanation
         self.actions = actions
@@ -57,8 +60,10 @@ struct MullvadNoticeView: View {
                 ZStack {
                     Spacer().containerRelativeFrame([.horizontal, .vertical])
                     VStack(spacing: 0) {
-                        Spacer()
-                        StateView(state: viewModel.style)
+                        if viewModel.verticalAlignment == .center {
+                            Spacer()
+                        }
+                        EmblemView(state: viewModel.style)
                             .padding(.bottom, Layout.sectionSpacing)
 
                         StyledTextView(item: viewModel.title)
@@ -112,7 +117,13 @@ extension MullvadNoticeView {
         case loading
         case error
         case success
+        case fail
         case custom(CustomImage)
+    }
+
+    enum VerticalAlignment {
+        case top
+        case center
     }
 
     // MARK: - Text Item
@@ -418,7 +429,7 @@ extension TextAlignment {
 }
 
 // MARK: - State Icon View
-private struct StateView: View {
+private struct EmblemView: View {
     let state: MullvadNoticeView.Style
 
     private let size = 48.0
@@ -447,6 +458,12 @@ private struct StateView: View {
         case .error:
             ResizableImageView(
                 image: Image.mullvadIconError,
+                dimension: .width(size)
+            )
+            
+        case .fail:
+            ResizableImageView(
+                image: Image.mullvadIconFail,
                 dimension: .width(size)
             )
 
