@@ -7,6 +7,8 @@ import android.opengl.Matrix
 import androidx.collection.LruCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
+import androidx.compose.ui.geometry.isUnspecified
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.pow
@@ -169,10 +171,15 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     var markerVector = mapOf<Vector3, Marker>()
 
-    fun calculateIntersection(offset: Offset, width: Int, height: Int): Vector3? {
-        // If invalid view size return null
-        if (width <= 0 || height <= 0) return null
-        val viewPort = Size(width.toFloat(), height.toFloat())
+    fun calculateIntersection(
+        tapOffset: Offset,
+        viewPortWidth: Int,
+        viewPortHeight: Int,
+    ): Vector3? {
+        // If unspecified offset or if invalid viewport size return null
+        if (tapOffset.isUnspecified || viewPortWidth <= 0 || viewPortHeight <= 0) return null
+
+        val viewPort = Size(viewPortWidth.toFloat(), viewPortHeight.toFloat())
         val ratio: Float = viewPort.width / viewPort.height
 
         val directionVector =
@@ -181,8 +188,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
                 ratio,
                 viewPort.width,
                 viewPort.height,
-                offset.x,
-                offset.y,
+                tapOffset.x,
+                tapOffset.y,
                 nearPlaneDistance = PERSPECTIVE_Z_NEAR,
             )
 
