@@ -749,22 +749,25 @@ impl WireguardMonitor {
             (_, Some(Ok(nm))) => {
                 let dummy_dns = nm.interface_name().to_string();
                 let tunnel = (nm, gotatun()?);
-                let tunnel = Box::new(tunnel) as TunnelType;
+                let tunnel: TunnelType = Box::new(tunnel);
                 let mut metadata = metadata(&tunnel);
                 metadata.dummy_dns = Some(dummy_dns);
                 Ok((tunnel, metadata))
             }
             // GotaTun is the WireGuard implementation.
             (true, _) => {
-                let tunnel = Box::new(gotatun()?) as TunnelType;
+                let tunnel: TunnelType = gotatun().map(Box::new)?;
                 let metadata = metadata(&tunnel);
                 Ok((tunnel, metadata))
             }
             // Use kernel WireGuard via the Netlink API.
             (false, _) => {
                 log::debug!("Using kernel WireGuard implementation through netlink");
-                let tunnel = match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
-                    Ok(tunnel) => Box::new(tunnel) as TunnelType,
+                let tunnel: TunnelType = match wireguard_kernel::NetlinkTunnel::new(
+                    runtime.clone(),
+                    config,
+                ) {
+                    Ok(tunnel) => Box::new(tunnel),
                     Err(err) => {
                         log::warn!(
                             "Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",
