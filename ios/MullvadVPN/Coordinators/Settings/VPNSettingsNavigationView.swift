@@ -41,10 +41,12 @@ struct VPNSettingsNavigationView: View {
                 observableSettings.tunnelSettings.tunnelQuantumResistance.isEnabled
             },
             set: { enabled in
-                observableSettings.tunnelSettings.tunnelQuantumResistance = enabled ? .on : .off
-                settingsInteractor.tunnelManager.updateSettings([
-                    .quantumResistance(observableSettings.tunnelSettings.tunnelQuantumResistance)
-                ])
+                Task {
+                    observableSettings.tunnelSettings.tunnelQuantumResistance = enabled ? .on : .off
+                    await settingsInteractor.tunnelManager.updateSettings([
+                        .quantumResistance(observableSettings.tunnelSettings.tunnelQuantumResistance)
+                    ])
+                }
             }
         )
     }
@@ -58,11 +60,13 @@ struct VPNSettingsNavigationView: View {
                 )
             },
             set: { newPort in
-                let newPortConstraint = RelayConstraint<UInt16>(newPort)
-                observableSettings.tunnelSettings.relayConstraints.port = newPortConstraint
-                var relayConstraints = settingsInteractor.tunnelManager.settings.relayConstraints
-                relayConstraints.port = newPortConstraint
-                settingsInteractor.tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+                Task {
+                    let newPortConstraint = RelayConstraint<UInt16>(newPort)
+                    observableSettings.tunnelSettings.relayConstraints.port = newPortConstraint
+                    var relayConstraints = settingsInteractor.tunnelManager.settings.relayConstraints
+                    relayConstraints.port = newPortConstraint
+                    await settingsInteractor.tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+                }
             }
         )
     }
