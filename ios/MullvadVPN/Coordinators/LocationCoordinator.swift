@@ -135,9 +135,13 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
 
             switch action {
             case .didDelete(let list):
-                self.selectLocationViewModel.delete(customList: list)
+                Task {
+                    await self.selectLocationViewModel.delete(customList: list)
+                }
             case .didSave(let list):
-                try? self.selectLocationViewModel.save(list: list)
+                Task {
+                    try? await self.selectLocationViewModel.save(list: list)
+                }
             case .noAction:
                 self.selectLocationViewModel.customListsChanged()
             }
@@ -206,8 +210,9 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        Task {
+            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            await tunnelManager.startTunnel()
         }
     }
 
@@ -227,8 +232,9 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = constraint
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
-            self.tunnelManager.startTunnel()
+        Task {
+            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            await tunnelManager.startTunnel()
         }
     }
 }

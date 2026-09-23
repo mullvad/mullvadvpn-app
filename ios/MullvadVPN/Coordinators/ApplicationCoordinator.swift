@@ -956,6 +956,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     private func addTunnelObserver() {
+        updateDeviceInfo(deviceState: tunnelManager.deviceState)
+
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
@@ -970,12 +972,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                     self?.checkForMigratedSettings()
                 }
             )
-
-        tunnelManager.addObserver(tunnelObserver)
-
         self.tunnelObserver = tunnelObserver
 
-        updateDeviceInfo(deviceState: tunnelManager.deviceState)
+        tunnelManager.addObserver(tunnelObserver)
     }
 
     private func deviceStateDidChange(_ deviceState: DeviceState, previousDeviceState: DeviceState) {
@@ -1093,14 +1092,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                             alertViewController.onDismiss?()
                             navigateToAppStore()
                         }
-                        tunnelManager.addObserver(tunnelObserver)
 
                         // Turn off IAN and trigger a tunnel reconnection.
                         let newIncludeAllNetworksSettings = IncludeAllNetworksSettings(
                             includeAllNetworksState: .off,
                             localNetworkSharingState: tunnelManager.settings.includeAllNetworks.localNetworkSharingState
                         )
-                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
+
+                        tunnelManager.addObserver(tunnelObserver)
+                        Task {
+                            await tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
+                        }
                     }
                 ),
                 AlertAction(
@@ -1239,10 +1241,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
             .negotiatingEphemeralPeer:
-            tunnelManager.reconnectTunnel(selectNewRelay: true)
+            Task { await tunnelManager.reconnectTunnel(selectNewRelay: true) }
 
         case .disconnecting, .disconnected:
-            tunnelManager.startTunnel()
+            Task { await tunnelManager.startTunnel() }
 
         case .pendingReconnect, .waitingForConnectivity(.noNetwork):
             break
