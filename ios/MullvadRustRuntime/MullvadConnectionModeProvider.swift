@@ -17,9 +17,10 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!
     let encryptedDNSMethod = methods.first(where: { $0.proxyConfiguration == .encryptedDNS })!
+    let domainFrontingMethod = methods.first(where: { $0.proxyConfiguration == .domainFronting })!
 
     // 2. Get the custom access methods
-    let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS]
+    let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS, .domainFronting]
     let customMethods = methods.filter {
         // Make sure we only use access methods with valid ciphers.
         if case .shadowsocks(let config) = $0.proxyConfiguration {
@@ -35,6 +36,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
     let direct = convertAccessMethod(accessMethod: directMethod)!
     let bridges = convertAccessMethod(accessMethod: bridgesMethod)!
     let encryptedDNS = convertAccessMethod(accessMethod: encryptedDNSMethod)!
+    let domainFronting = convertAccessMethod(accessMethod: domainFrontingMethod)!
 
     // 4. Convert the custom access methods (all takes different parameters)
     let convertedCustomMethods = customMethods.compactMap { convertAccessMethod(accessMethod: $0) }
@@ -44,13 +46,14 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -
         direct: direct,
         bridges: bridges,
         encryptedDns: encryptedDNS,
+        domainFronting: domainFronting,
         custom: convertedCustomMethods,
     )
 }
 
 public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> AccessMethodSettingWrapper? {
     switch accessMethod.proxyConfiguration {
-    case .direct, .bridges, .encryptedDNS:
+    case .direct, .bridges, .encryptedDNS, .domainFronting:
         return convertBuiltinAccessMethodSetting(
             uniqueIdentifier: accessMethod.id.uuidString,
             name: accessMethod.name,
@@ -106,6 +109,7 @@ fileprivate
         case .direct: .kindDirect
         case .bridges: .kindBridge
         case .encryptedDNS: .kindEncryptedDnsProxy
+        case .domainFronting: .kindDomainFronting
         case _: fatalError()
         }
     }

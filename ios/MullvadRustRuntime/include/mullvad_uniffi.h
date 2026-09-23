@@ -355,7 +355,7 @@ void uniffi_mullvad_ios_fn_free_apicontext(uint64_t handle, RustCallStatus *_Non
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
-uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer domain, int8_t disable_tls, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer domain, RustBuffer domain_fronting, int8_t disable_tls, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UPDATE_ACCESS_METHODS
@@ -616,7 +616,7 @@ RustBuffer uniffi_mullvad_ios_fn_func_convert_builtin_access_method_setting(Rust
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_INIT_ACCESS_METHOD_SETTINGS_WRAPPER
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_INIT_ACCESS_METHOD_SETTINGS_WRAPPER
-uint64_t uniffi_mullvad_ios_fn_func_init_access_method_settings_wrapper(uint64_t direct, uint64_t bridges, uint64_t encrypted_dns, RustBuffer custom, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_func_init_access_method_settings_wrapper(uint64_t direct, uint64_t bridges, uint64_t encrypted_dns, uint64_t domain_fronting, RustBuffer custom, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FUNC_NEW_SHADOWSOCKS_ACCESS_METHOD_SETTING

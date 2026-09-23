@@ -263,6 +263,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
+            domainFronting: REST.domainFronting,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]

@@ -44,13 +44,22 @@ pub struct ApiContext {
     access_mode_handler: AccessModeSelectorHandle,
     access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
 }
+
+#[derive(uniffi::Record, Debug)]
+pub struct DomainFrontingConfig {
+    pub front: String,
+    pub proxy_host: String,
+}
+
 #[uniffi::export]
 impl ApiContext {
     #[uniffi::constructor]
+    #[expect(clippy::too_many_arguments)]
     pub fn new(
         host: String,
         address: String,
         domain: String,
+        domain_fronting: DomainFrontingConfig,
         disable_tls: bool,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
@@ -61,6 +70,7 @@ impl ApiContext {
             host,
             address,
             domain,
+            domain_fronting,
             #[cfg(feature = "api-override")]
             disable_tls,
             bridge_provider,
@@ -70,10 +80,12 @@ impl ApiContext {
     }
 }
 impl ApiContext {
+    #[cfg_attr(feature = "api-override", expect(clippy::too_many_arguments))]
     fn new_inner(
         host: String,
         address: String,
         domain: String,
+        domain_fronting: DomainFrontingConfig,
         #[cfg(feature = "api-override")] disable_tls: bool,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
@@ -113,6 +125,7 @@ impl ApiContext {
                 endpoint.clone(),
                 domain,
                 encrypted_dns_proxy_state,
+                domain_fronting,
                 bridge_provider,
                 api_client.address_cache().clone(),
             );

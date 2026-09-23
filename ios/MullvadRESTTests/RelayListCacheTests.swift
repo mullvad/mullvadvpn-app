@@ -121,6 +121,7 @@ class RelayListCacheTests: XCTestCase {
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
             domain: REST.encryptedDNSHostname,
+            domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
