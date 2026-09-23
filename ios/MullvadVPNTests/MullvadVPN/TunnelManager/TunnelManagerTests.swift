@@ -75,7 +75,8 @@ class TunnelManagerTests: XCTestCase {
         )
 
         _ = try await tunnelManager.setNewAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, true)
+        let isRotatingAfterLogin = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogin, true)
     }
 
     func testLogOutStopsKeyRotations() async throws {
@@ -93,7 +94,8 @@ class TunnelManagerTests: XCTestCase {
         )
         _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()
-        XCTAssertEqual(tunnelManager.isRunningPeriodicPrivateKeyRotation, false)
+        let isRotatingAfterLogout = await tunnelManager.isRunningPeriodicPrivateKeyRotation
+        XCTAssertEqual(isRotatingAfterLogout, false)
     }
 
     /// This test verifies tunnel gets out of `blockedState` after constraints are satisfied.
@@ -144,7 +146,7 @@ class TunnelManagerTests: XCTestCase {
                             connectionAttemptCount: connectionAttemptCount
                         )
                     }
-                    tunnelManager.reconnectTunnel(selectNewRelay: true)
+                    Task { await tunnelManager.reconnectTunnel(selectNewRelay: true) }
 
                 case .connected:
                     connectedExpectation.fulfill()
@@ -161,7 +163,7 @@ class TunnelManagerTests: XCTestCase {
 
         XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
 
-        tunnelManager.startTunnel()
+        await tunnelManager.startTunnel()
 
         await fulfillment(
             of: [blockedExpectation, connectedExpectation],
@@ -226,7 +228,7 @@ class TunnelManagerTests: XCTestCase {
 
         self.tunnelObserver = tunnelObserver
         tunnelManager.addObserver(tunnelObserver)
-        tunnelManager.startTunnel()
+        await tunnelManager.startTunnel()
 
         await fulfillment(of: [connectedExpectation])
 
@@ -239,7 +241,7 @@ class TunnelManagerTests: XCTestCase {
             }
         }
 
-        tunnelManager.reconnectTunnel(selectNewRelay: false)
+        await tunnelManager.reconnectTunnel(selectNewRelay: false)
         await fulfillment(
             of: [reconnectMessageExpectation, reconnectingExpectation], enforceOrder: true
         )
@@ -299,9 +301,9 @@ class TunnelManagerTests: XCTestCase {
 
         XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
 
-        tunnelManager.startTunnel()
+        await tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
-        tunnelManager.reapplyTunnelConfiguration()
+        await tunnelManager.reapplyTunnelConfiguration()
         connectedExpectation = expectation(description: "Connected!")
         await fulfillment(
             of: [disconnectedExpectation, connectedExpectation],
