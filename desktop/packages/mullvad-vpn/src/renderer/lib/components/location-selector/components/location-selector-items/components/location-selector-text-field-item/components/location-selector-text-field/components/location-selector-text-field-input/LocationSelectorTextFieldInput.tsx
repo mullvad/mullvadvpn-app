@@ -61,6 +61,11 @@ export function LocationSelectorTextFieldInput({
   const selected = useIsLocationSelected(id);
 
   const tabIndex = focusInsideTextField ? 0 : -1;
+  // Hide input from screen readers until focused. If not hidden, screen
+  // readers will automatically focus the input when navigating through the page,
+  // triggering the change from showing entry and exit locations.
+
+  const ariaHidden = !focusInsideTextField;
 
   return (
     <StyledLocationSelectorTextFieldInput>
@@ -71,6 +76,7 @@ export function LocationSelectorTextFieldInput({
           onFocus={handleFocus}
           tabIndex={tabIndex}
           $selected={selected}
+          aria-hidden={ariaHidden}
           {...props}
         />
       </StyledInputAnimationContainer>
