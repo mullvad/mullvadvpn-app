@@ -254,6 +254,8 @@ internal fun ApiAccessMethod.fromDomain(): AccessMethod =
         ApiAccessMethod.Direct -> AccessMethod(direct = AccessMethod.Direct())
         ApiAccessMethod.EncryptedDns ->
             AccessMethod(encrypted_dns_proxy = AccessMethod.EncryptedDnsProxy())
+        ApiAccessMethod.DomainFronting ->
+            AccessMethod(domain_fronting = AccessMethod.DomainFronting())
     }
 
 internal fun ModelShadowsocksObfuscationSettings.fromDomain(): ObfuscationSettings.Shadowsocks =

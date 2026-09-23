@@ -1,7 +1,7 @@
 use crate::api_client::helpers::{ShadowsocksWrapper, Socks5RemoteWrapper};
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting,
-    BuiltInAccessMethod::{Bridge, Direct, EncryptedDnsProxy},
+    BuiltInAccessMethod::{Bridge, Direct, DomainFronting, EncryptedDnsProxy},
     Id, Settings,
 };
 use std::sync::Arc;
@@ -42,6 +42,7 @@ fn convert_builtin_access_method_setting_inner(
             enabled,
             AccessMethod::BuiltIn(Direct),
         )),
+
         SwiftAccessMethodKind::KindBridge => Some(AccessMethodSetting::with_id(
             id,
             name,
@@ -56,6 +57,13 @@ fn convert_builtin_access_method_setting_inner(
             AccessMethod::BuiltIn(EncryptedDnsProxy),
         )),
 
+        SwiftAccessMethodKind::KindDomainFronting => Some(AccessMethodSetting::with_id(
+            id,
+            name,
+            enabled,
+            AccessMethod::BuiltIn(DomainFronting),
+        )),
+
         SwiftAccessMethodKind::KindShadowsocks(configuration) => Some({
             AccessMethodSetting::with_id(
                 id,
@@ -64,6 +72,7 @@ fn convert_builtin_access_method_setting_inner(
                 AccessMethod::Custom(proxy::CustomProxy::Shadowsocks(configuration.0.clone())),
             )
         }),
+
         SwiftAccessMethodKind::KindSocks5Local(configuration) => Some({
             AccessMethodSetting::with_id(
                 id,
@@ -81,12 +90,12 @@ pub trait ShadowsocksBridgeProvider: Sync + Send {
 }
 
 /// Used by Swift to instruct which access method kind it is trying to convert
-
 #[derive(uniffi::Enum)]
 pub enum SwiftAccessMethodKind {
     KindDirect,
     KindBridge,
     KindEncryptedDnsProxy,
+    KindDomainFronting,
     KindShadowsocks(Arc<ShadowsocksWrapper>),
     KindSocks5Local(Arc<Socks5RemoteWrapper>),
 }
@@ -102,12 +111,14 @@ pub fn init_access_method_settings_wrapper(
     direct: Arc<AccessMethodSettingWrapper>,
     bridges: Arc<AccessMethodSettingWrapper>,
     encrypted_dns: Arc<AccessMethodSettingWrapper>,
+    domain_fronting: Arc<AccessMethodSettingWrapper>,
     custom: Vec<Arc<AccessMethodSettingWrapper>>,
 ) -> SwiftAccessMethodSettingsContext {
     let settings = Settings::new(
         direct.inner.clone(),
         bridges.inner.clone(),
         encrypted_dns.inner.clone(),
+        domain_fronting.inner.clone(),
         custom.into_iter().map(|a| a.inner.clone()).collect(),
     );
     SwiftAccessMethodSettingsContext { settings }

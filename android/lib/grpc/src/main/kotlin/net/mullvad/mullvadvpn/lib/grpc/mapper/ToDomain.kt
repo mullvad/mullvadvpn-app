@@ -683,6 +683,9 @@ internal fun ApiAccessMethodSettings.toDomain(): List<ModelApiAccessMethodSettin
     if (encrypted_dns_proxy != null) {
         add(encrypted_dns_proxy.toDomain())
     }
+    if (domain_fronting != null) {
+        add(domain_fronting.toDomain())
+    }
     addAll(custom.map { it.toDomain() })
 }
 
@@ -702,6 +705,7 @@ internal fun AccessMethod?.toDomain(): ModelApiAccessMethod =
         bridges != null -> ModelApiAccessMethod.Bridges
         encrypted_dns_proxy != null -> ModelApiAccessMethod.EncryptedDns
         custom != null -> custom.toDomain()
+        domain_fronting != null -> ModelApiAccessMethod.DomainFronting
         else -> error("Type not found")
     }
 
