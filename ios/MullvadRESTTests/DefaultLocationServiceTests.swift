@@ -21,7 +21,7 @@ class DefaultLocationServiceTests: XCTestCase {
 
     func testFetchCurrentLocationIdentifier() async throws {
         let mockData = AmIMullvadResponse(
-            ip: IPv4Address.loopback.debugDescription,
+            ip: .ipv4(.loopback),
             country: "USA",
             city: "Dallas, TX",
             latitude: 32.89748,
