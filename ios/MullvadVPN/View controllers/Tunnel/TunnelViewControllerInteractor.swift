@@ -77,14 +77,14 @@ final class TunnelViewControllerInteractor: @unchecked Sendable {
     }
 
     func startTunnel() {
-        tunnelManager.startTunnel()
+        Task { await tunnelManager.startTunnel() }
     }
 
     func stopTunnel() {
-        tunnelManager.stopTunnel()
+        Task { await tunnelManager.stopTunnel() }
     }
 
     func reconnectTunnel(selectNewRelay: Bool) {
-        tunnelManager.reconnectTunnel(selectNewRelay: selectNewRelay)
+        Task { await tunnelManager.reconnectTunnel(selectNewRelay: selectNewRelay) }
     }
 }

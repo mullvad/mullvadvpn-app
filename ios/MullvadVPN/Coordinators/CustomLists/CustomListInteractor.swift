@@ -15,14 +15,13 @@ import MullvadTypes
 protocol CustomListInteractorProtocol {
     func fetch(by id: UUID) -> CustomList?
     func fetchAll() -> [CustomList]
-    func save(list: CustomList) throws
-    func delete(customList: CustomList)
-    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws
-    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) throws
+    func save(list: CustomList) async throws
+    func delete(customList: CustomList) async
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws
+    func removeLocationFromCustomList(relayLocations: [RelayLocation], customListName: String) async throws
 }
 
 struct CustomListInteractor: CustomListInteractorProtocol {
-
     private enum CustomListAction {
         case save, delete
     }
@@ -46,17 +45,17 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         repository.fetchAll()
     }
 
-    func save(list: CustomList) throws {
+    func save(list: CustomList) async throws {
         try repository.save(list: list)
-        updateCustomListRelayConstraints(list: list, action: .save)
+        await updateCustomListRelayConstraints(list: list, action: .save)
     }
 
-    func delete(customList: CustomList) {
+    func delete(customList: CustomList) async {
         repository.delete(id: customList.id)
-        updateCustomListRelayConstraints(list: customList, action: .delete)
+        await updateCustomListRelayConstraints(list: customList, action: .delete)
     }
 
-    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) throws {
+    func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws {
         let customList =
             fetchAll().first { $0.name == customListName }
             ?? CustomList(
@@ -82,13 +81,13 @@ struct CustomListInteractor: CustomListInteractorProtocol {
             name: customList.name,
             locations: locations
         )
-        try save(list: newCustomList)
+        try await save(list: newCustomList)
     }
 
     func removeLocationFromCustomList(
         relayLocations: [RelayLocation],
         customListName: String
-    ) throws {
+    ) async throws {
         let customList = fetchAll().first { $0.name == customListName }
         guard let customList else {
             return
@@ -101,10 +100,10 @@ struct CustomListInteractor: CustomListInteractorProtocol {
             name: customList.name,
             locations: allLocations
         )
-        try save(list: newCustomList)
+        try await save(list: newCustomList)
     }
 
-    private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) {
+    private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) async {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
         // only update relay constraints if custom list is currently selected
@@ -140,11 +139,8 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         {
             relayConstraints.exitLocations = newExitLocations
             relayConstraints.entryLocations = newEntryLocations
-            tunnelManager
-                .updateSettings(
-                    [.relayConstraints(relayConstraints)],
-                    completionHandler: nil
-                )
+
+            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         }
     }
 
@@ -202,8 +198,8 @@ struct CustomListInteractor: CustomListInteractorProtocol {
     }
 }
 
-protocol SettingsUpdating {
-    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)?)
+protocol SettingsUpdating: Sendable {
+    func updateSettings(_ updates: [TunnelSettingsUpdate]) async
     var settings: LatestTunnelSettings { get }
 }
 

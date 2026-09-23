@@ -11,6 +11,7 @@
 import MullvadREST
 import MullvadSettings
 
+@MainActor
 class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     typealias TunnelSetting = DAITASettings
 
@@ -24,7 +25,9 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     @Published var value: DAITASettings {
         willSet {
             guard newValue != value else { return }
-            tunnelManager.updateSettings([.daita(newValue)])
+            Task {
+                await tunnelManager.updateSettings([.daita(newValue)])
+            }
         }
     }
 
@@ -38,9 +41,11 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
         self.isAutomaticRoutingActive = isAutomaticRoutingActive
 
         let tunnelObserver = TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] _, _ in
-            if isAutomaticRoutingActive != self?.isAutomaticRoutingActive {
-                self?.isAutomaticRoutingActive = isAutomaticRoutingActive
-                self?.objectWillChange.send()
+            Task { @MainActor [weak self] in
+                if isAutomaticRoutingActive != self?.isAutomaticRoutingActive {
+                    self?.isAutomaticRoutingActive = isAutomaticRoutingActive
+                    self?.objectWillChange.send()
+                }
             }
         })
         self.tunnelObserver = tunnelObserver
@@ -49,23 +54,26 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     }
 
     func evaluate(setting: DAITASettings) {
-        guard evaluateDaitaSettingsCompatibility(setting) == nil else {
-            didFailDAITAValidation?()
-            return
-        }
+        Task {
+            guard await evaluateDaitaSettingsCompatibility(setting) == nil else {
+                didFailDAITAValidation?()
+                return
+            }
 
-        value = setting
+            value = setting
+        }
     }
 }
 
 extension DAITATunnelSettingsViewModel {
-    private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
+    private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) async -> DAITASettingsCompatibilityError?
+    {
         guard settings.isEnabled else { return nil }
 
         var tunnelSettings = tunnelManager.settings
         tunnelSettings.daita = settings
 
-        let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+        let relays = try? await tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
 
         return if relays == nil {
             tunnelSettings.tunnelMultihopState.isAlways ? .multihop : .singlehop
