@@ -41,3 +41,14 @@ extension View {
         }
     }
 }
+
+extension ToolbarContent {
+    /// Removes the iOS 26+ glass capsule behind the toolbar item.
+    @ToolbarContentBuilder func sharedBackgroundHidden() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            sharedBackgroundVisibility(.hidden)
+        } else {
+            self
+        }
+    }
+}

@@ -48,13 +48,13 @@ class CustomListViewController: UIViewController {
     }()
 
     lazy var saveBarButton: UIBarButtonItem = {
-        let barButtonItem = UIBarButtonItem(
+        let barButtonItem = UIBarButtonItem.mullvadTextButton(
             title: NSLocalizedString("Save", comment: ""),
+            textStyle: .headline,
             primaryAction: UIAction { [weak self] _ in
                 self?.onSave()
             }
         )
-        barButtonItem.style = .done
         barButtonItem.setAccessibilityIdentifier(.saveCreateCustomListButton)
 
         return barButtonItem

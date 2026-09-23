@@ -28,11 +28,10 @@ class SettingsInputCell: SelectableSettingsCell {
 
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        toolbarDoneButton = UIBarButtonItem(
-            title: NSLocalizedString("Done", comment: ""),
-            style: .done,
-            target: self,
-            action: #selector(confirmInput)
+        toolbarDoneButton = UIBarButtonItem.mullvadDoneButton(
+            primaryAction: UIAction { [weak self] _ in
+                self?.confirmInput()
+            }
         )
 
         accessoryView = textField

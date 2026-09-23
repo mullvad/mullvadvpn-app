@@ -84,7 +84,7 @@ struct RelayFilterView: View {
                     }
                     .foregroundStyle(Color.mullvadTextPrimary)
                 }
-            )
+            ).sharedBackgroundHidden()
         }
     }
 
