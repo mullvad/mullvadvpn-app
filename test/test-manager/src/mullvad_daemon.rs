@@ -57,6 +57,11 @@ impl RpcClientProvider {
         log::trace!("Mullvad daemon: connecting");
         let channel = tonic::transport::Endpoint::from_static("serial://placeholder")
             .timeout(GRPC_REQUEST_TIMEOUT)
+            // Default is 16kb.
+            // <https://docs.rs/hyper/latest/hyper/client/conn/http2/struct.Builder.html#method.max_frame_size>
+            //
+            // Increase to 32kb.
+            .max_frame_size(1024 * 32)
             .connect_with_connector(self.service.clone())
             .await
             .unwrap();
