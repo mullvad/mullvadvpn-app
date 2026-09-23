@@ -3,6 +3,7 @@
 #![deny(missing_docs)]
 
 use crate::obfuscation::Obfuscator;
+#[cfg(target_os = "linux")]
 use crate::wireguard_kernel::nm_tunnel;
 
 use self::config::Config;
@@ -653,13 +654,12 @@ impl WireguardMonitor {
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
-    ) -> Result<TunnelType> {
+    ) -> Result<(TunnelType, TunnelMetadata)> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        if userspace_wireguard {
+        let tunnel = if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
-
-            let tunnel = runtime
+            runtime
                 .block_on(gotatun::open_gotatun_tunnel(
                     config,
                     daita.as_ref(),
@@ -667,11 +667,9 @@ impl WireguardMonitor {
                     tun_provider,
                     bypass,
                 ))
-                .map(Box::new)?;
-            Ok(tunnel)
+                .map(Box::new)?
         } else {
             log::debug!("Using kernel WireGuard implementation");
-
             // The wintun adapter is kept alive between connections, and it holds the very
             // addresses that this tunnel is about to configure. A wireguard-nt adapter releases
             // them when it is parked, so there is nothing to do in the other direction.
@@ -679,8 +677,10 @@ impl WireguardMonitor {
 
             wireguard_nt::WgNtTunnel::start_tunnel(config, _log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-                .map_err(Error::TunnelError)
-        }
+                .map_err(Error::TunnelError)?
+        };
+        let metadata = tunnel_metadata(tunnel.get_interface_name(), config);
+        Ok((tunnel, metadata))
     }
 
     #[cfg(target_os = "macos")]
@@ -1018,6 +1018,7 @@ fn tunnel_metadata(interface_name: String, config: &Config) -> TunnelMetadata {
         ips: config.tunnel.addresses.clone(),
         ipv4_gateway: config.ipv4_gateway,
         ipv6_gateway: config.ipv6_gateway,
+        #[cfg(target_os = "linux")]
         dummy_dns: None,
     }
 }
@@ -1175,6 +1176,7 @@ pub enum TunnelError {
     GotaTunDevice(::gotatun::device::Error),
 
     /// NetworkManager error
+    #[cfg(target_os = "linux")]
     #[error("NetworkManager: {0:?}")]
     NetworkManager(#[from] nm_tunnel::Error),
 }
