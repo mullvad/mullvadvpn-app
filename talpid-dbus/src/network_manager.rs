@@ -271,17 +271,17 @@ impl NetworkManager {
         Ok(())
     }
 
-    pub fn remove_network_device(&self, tunnel: NMDevice) -> Result<()> {
+    pub fn remove_network_device(&self, device: NMDevice) -> Result<()> {
         let deactivation_result: Result<()> = self
             .nm_manager()
             .method_call(
                 NM_MANAGER,
                 "DeactivateConnection",
-                (&tunnel.connection_path,),
+                (&device.connection_path,),
             )
             .map_err(Error::Dbus);
 
-        let config_result: Result<()> = tunnel
+        let config_result: Result<()> = device
             .config_proxy(&self.connection)
             .method_call(NM_SETTINGS_CONNECTION_INTERFACE, "Delete", ())
             .map_err(Error::Dbus);
