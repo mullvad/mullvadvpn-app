@@ -102,6 +102,14 @@ extension AccessMethodViewModel {
                 ),
                 link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Encrypted DNS proxy")
             )
+        case AccessMethodRepository.domainFrontingId:
+            InfoHeaderConfig(
+                body: NSLocalizedString(
+                    "The app communicates with a Mullvad API server via domain fronting.",
+                    comment: ""
+                ),
+                link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Domain fronting")
+            )
         default:
             nil
         }
@@ -176,6 +184,35 @@ extension AccessMethodViewModel {
                             comment: ""
                         ),
                         "Encrypted DNS proxy"
+                    ),
+                ]
+            )
+        case AccessMethodRepository.domainFrontingId:
+            InfoModalConfig(
+                header: "Domain fronting",
+                preamble: String(
+                    NSLocalizedString(
+                        "The app communicates with a Mullvad API server via %@.",
+                        comment: ""), "domain fronting"),
+
+                body: [
+                    String(
+                        format: NSLocalizedString(
+                            "With the %@ access method, the app reaches the Mullvad API via a CDN, "
+                                + "mixing the traffic with a lot of other internet traffic, making it "
+                                + "more difficult to censor.",
+                            comment: ""
+                        ),
+                        "domain fronting"
+                    ),
+                    NSLocalizedString(
+                        "This can be useful when direct access and other methods are blocked by censorship.",
+                        comment: ""
+                    ),
+                    NSLocalizedString(
+                        "The CDN used is Datapacket’s CDN77. The CDN can only observe the "
+                            + "proxied TLS traffic, not the contents.",
+                        comment: ""
                     ),
                 ]
             )
