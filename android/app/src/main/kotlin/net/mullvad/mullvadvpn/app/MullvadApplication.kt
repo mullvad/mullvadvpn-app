@@ -70,11 +70,9 @@ class MullvadApplication : Application() {
         }
     }
 
-    /**
-     * Restores the tunnel state by binding to the VPN service and waiting for the tunnel state to
-     * be emitted. If the tunnel state is secured the system will bind to the service after it has
-     * been established.
-     */
+    // Restores the tunnel state by binding to the VPN service and waiting for the tunnel state to
+    // be emitted. If the tunnel state is secured the system will bind to the service after it has
+    // been established.
     fun restoreTunnel() {
         applicationScope.launch {
             val serviceConnection = this@MullvadApplication.bindVpnService()
@@ -158,5 +156,8 @@ class MullvadApplication : Application() {
         )
     }
 
+    // Timeout for waiting for the tunnel state to be emitted when restoring the tunnel on app
+    // upgrade. Since broadcast receivers have time limit at around 10 seconds we set this to 5
+    // seconds to be extra safe.
     private val TUNNEL_STATE_TIMEOUT = 5.seconds
 }
