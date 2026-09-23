@@ -270,7 +270,8 @@ private fun Content(
                 ApiAccessMethod.EncryptedDns -> onNavigateToEncryptedDnsInfoDialog
                 ApiAccessMethod.Bridges,
                 is ApiAccessMethod.CustomProxy,
-                ApiAccessMethod.Direct -> null
+                ApiAccessMethod.Direct,
+                ApiAccessMethod.DomainFronting -> null
             },
         position =
             if (state.isEditable) {

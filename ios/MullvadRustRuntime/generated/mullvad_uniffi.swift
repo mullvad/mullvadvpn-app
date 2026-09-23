@@ -1006,13 +1006,14 @@ open class ApiContext: ApiContextProtocol, @unchecked Sendable {
     public func uniffiCloneHandle() -> UInt64 {
         return try! rustCall { uniffi_mullvad_ios_fn_clone_apicontext(self.handle, $0) }
     }
-public convenience init(host: String, address: String, domain: String, disableTls: Bool, bridgeProvider: ShadowsocksBridgeProvider, settingsProvider: SwiftAccessMethodSettingsContext, accessMethodChangeListeners: [AccessMethodChangeCallback]) {
+public convenience init(host: String, address: String, domain: String, domainFronting: DomainFrontingConfig, disableTls: Bool, bridgeProvider: ShadowsocksBridgeProvider, settingsProvider: SwiftAccessMethodSettingsContext, accessMethodChangeListeners: [AccessMethodChangeCallback]) {
     let handle =
         try! rustCall() {
     uniffi_mullvad_ios_fn_constructor_apicontext_new(
         FfiConverterString.lower(host),
         FfiConverterString.lower(address),
         FfiConverterString.lower(domain),
+        FfiConverterTypeDomainFrontingConfig_lower(domainFronting),
         FfiConverterBool.lower(disableTls),
         FfiConverterTypeShadowsocksBridgeProvider_lower(bridgeProvider),
         FfiConverterTypeSwiftAccessMethodSettingsContext_lower(settingsProvider),
@@ -2466,6 +2467,60 @@ public func FfiConverterTypeSwiftAccessMethodSettingsContext_lower(_ value: Swif
 
 
 
+public struct DomainFrontingConfig: Equatable, Hashable, Codable {
+    public let front: String
+    public let proxyHost: String
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(front: String, proxyHost: String) {
+        self.front = front
+        self.proxyHost = proxyHost
+    }
+
+    
+
+    
+}
+
+#if compiler(>=6)
+extension DomainFrontingConfig: Sendable {}
+#endif
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public struct FfiConverterTypeDomainFrontingConfig: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> DomainFrontingConfig {
+        return
+            try DomainFrontingConfig(
+                front: FfiConverterString.read(from: &buf), 
+                proxyHost: FfiConverterString.read(from: &buf)
+        )
+    }
+
+    public static func write(_ value: DomainFrontingConfig, into buf: inout [UInt8]) {
+        FfiConverterString.write(value.front, into: &buf)
+        FfiConverterString.write(value.proxyHost, into: &buf)
+    }
+}
+
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeDomainFrontingConfig_lift(_ buf: RustBuffer) throws -> DomainFrontingConfig {
+    return try FfiConverterTypeDomainFrontingConfig.lift(buf)
+}
+
+#if swift(>=5.8)
+@_documentation(visibility: private)
+#endif
+public func FfiConverterTypeDomainFrontingConfig_lower(_ value: DomainFrontingConfig) -> RustBuffer {
+    return FfiConverterTypeDomainFrontingConfig.lower(value)
+}
+
+
 /**
  * Full tunnel configuration.
  */
@@ -3048,6 +3103,7 @@ public enum SwiftAccessMethodKind {
     case kindDirect
     case kindBridge
     case kindEncryptedDnsProxy
+    case kindDomainFronting
     case kindShadowsocks(ShadowsocksWrapper
     )
     case kindSocks5Local(Socks5RemoteWrapper
@@ -3079,10 +3135,12 @@ public struct FfiConverterTypeSwiftAccessMethodKind: FfiConverterRustBuffer {
         
         case 3: return .kindEncryptedDnsProxy
         
-        case 4: return .kindShadowsocks(try FfiConverterTypeShadowsocksWrapper.read(from: &buf)
+        case 4: return .kindDomainFronting
+        
+        case 5: return .kindShadowsocks(try FfiConverterTypeShadowsocksWrapper.read(from: &buf)
         )
         
-        case 5: return .kindSocks5Local(try FfiConverterTypeSocks5RemoteWrapper.read(from: &buf)
+        case 6: return .kindSocks5Local(try FfiConverterTypeSocks5RemoteWrapper.read(from: &buf)
         )
         
         default: throw UniffiInternalError.unexpectedEnumCase
@@ -3105,13 +3163,17 @@ public struct FfiConverterTypeSwiftAccessMethodKind: FfiConverterRustBuffer {
             writeInt(&buf, Int32(3))
         
         
-        case let .kindShadowsocks(v1):
+        case .kindDomainFronting:
             writeInt(&buf, Int32(4))
+        
+        
+        case let .kindShadowsocks(v1):
+            writeInt(&buf, Int32(5))
             FfiConverterTypeShadowsocksWrapper.write(v1, into: &buf)
             
         
         case let .kindSocks5Local(v1):
-            writeInt(&buf, Int32(5))
+            writeInt(&buf, Int32(6))
             FfiConverterTypeSocks5RemoteWrapper.write(v1, into: &buf)
             
         }
@@ -3567,12 +3629,13 @@ public func convertBuiltinAccessMethodSetting(uniqueIdentifier: String, name: St
 /**
  * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
  */
-public func initAccessMethodSettingsWrapper(direct: AccessMethodSettingWrapper, bridges: AccessMethodSettingWrapper, encryptedDns: AccessMethodSettingWrapper, custom: [AccessMethodSettingWrapper]) -> SwiftAccessMethodSettingsContext  {
+public func initAccessMethodSettingsWrapper(direct: AccessMethodSettingWrapper, bridges: AccessMethodSettingWrapper, encryptedDns: AccessMethodSettingWrapper, domainFronting: AccessMethodSettingWrapper, custom: [AccessMethodSettingWrapper]) -> SwiftAccessMethodSettingsContext  {
     return try!  FfiConverterTypeSwiftAccessMethodSettingsContext_lift(try! rustCall() {
     uniffi_mullvad_ios_fn_func_init_access_method_settings_wrapper(
         FfiConverterTypeAccessMethodSettingWrapper_lower(direct),
         FfiConverterTypeAccessMethodSettingWrapper_lower(bridges),
         FfiConverterTypeAccessMethodSettingWrapper_lower(encryptedDns),
+        FfiConverterTypeAccessMethodSettingWrapper_lower(domainFronting),
         FfiConverterSequenceTypeAccessMethodSettingWrapper.lower(custom),$0
     )
 })
@@ -3625,7 +3688,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_func_convert_builtin_access_method_setting() != 62383) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 52411) {
+    if (uniffi_mullvad_ios_checksum_func_init_access_method_settings_wrapper() != 32452) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_func_new_shadowsocks_access_method_setting() != 45376) {
@@ -3712,7 +3775,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_mullvad_ios_checksum_method_gotatuntunnel_wake() != 47696) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_mullvad_ios_checksum_constructor_apicontext_new() != 7540) {
+    if (uniffi_mullvad_ios_checksum_constructor_apicontext_new() != 44773) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_mullvad_ios_checksum_constructor_retrystrategy_constant() != 61653) {
