@@ -10,5 +10,9 @@
 	<string>$(API_ENDPOINT)</string>
 	<key>EncryptedDnsHostName</key>
 	<string>$(ENCRYPTED_DNS_HOST_NAME)</string>
+	<key>DomainFrontingFront</key>
+	<string>$(DOMAIN_FRONTING_FRONT)</string>
+	<key>DomainFrontingProxyHost</key>
+	<string>$(DOMAIN_FRONTING_PROXY_HOST)</string>
 </dict>
 </plist>
