@@ -7,6 +7,8 @@ android { namespace = "net.mullvad.mullvadvpn.screen.test" }
 
 dependencies {
     implementation(projects.lib.ui.theme)
-    implementation(libs.junit5.android.test.compose)
+    api(libs.androidx.ui.test.accessibility)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.junit.jupiter.api)
     implementation(libs.androidx.core)
 }

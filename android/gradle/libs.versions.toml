@@ -116,6 +116,7 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-uiautomator" }
 androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
 androidx-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
+androidx-ui-test-accessibility = { module = "androidx.compose.ui:ui-test-accessibility", version.ref = "compose" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "androidx-work" }
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-optics = { module = "io.arrow-kt:arrow-optics", version.ref = "arrow" }
