@@ -96,6 +96,7 @@ const recents: Recents = {
     {
       country: relayList.countries[0].code,
     },
+    'automatic',
   ],
   exits: [
     {

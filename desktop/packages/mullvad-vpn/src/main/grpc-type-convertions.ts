@@ -522,7 +522,13 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
 
   const entries = recents
     .getEntriesList()
-    .map((entry) => convertFromLocationConstraint(entry.getLocation()))
+    .map((entry) => {
+      const automatic = entry.getAutomatic();
+      if (automatic) {
+        return 'automatic';
+      }
+      return convertFromLocationConstraint(entry.getLocation());
+    })
     .filter((location) => location !== undefined);
   const exits = recents
     .getExitsList()
