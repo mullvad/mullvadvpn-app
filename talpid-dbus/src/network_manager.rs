@@ -508,12 +508,6 @@ impl NetworkManager {
             Self::update_dns_config(&mut settings, "ipv6", v6_dns);
         }
 
-        if let Some(wg_config) = settings.get_mut("wireguard")
-            && !wg_config.contains_key("fwmark")
-        {
-            log::error!("WireGuard config doesn't contain the firewall mark");
-        }
-
         self.reapply_settings(&device_path, settings, version_id)?;
         Ok(settings_backup)
     }
