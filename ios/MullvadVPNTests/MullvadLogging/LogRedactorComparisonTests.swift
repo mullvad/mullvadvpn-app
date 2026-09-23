@@ -44,31 +44,25 @@ final class LogRedactorComparisonTests: XCTestCase {
     // MARK: - IPv6 Tests
 
     func testIPv6Redaction() {
-        let cases: [(input: String, shouldRedact: Bool)] = [
-            ("Address: 2001:0db8:85a3:0000:0000:8a2e:0370:7334", true),
-            ("Address: 2001:db8:85a3::8a2e:370:7334", true),
-            ("Loopback: ::1", true),
-            ("Link-local: fe80::1%en0", true),
-            ("Mapped: ::ffff:192.168.1.1", true),
-            ("Full: 1:2:3:4:5:6:7:8", true),
-            ("Compressed: 1::8", true),
-            ("Empty: ::", true),
-            ("Address: 2001:db81", false),
+        let cases: [(input: String, expected: String)] = [
+            ("Address: 2001:0db8:85a3:0000:0000:8a2e:0370:7334", "Address: [REDACTED]"),
+            ("Address: 2001:db8:85a3::8a2e:370:7334", "Address: [REDACTED]"),
+            ("Compressed: 2001:db8::1", "Compressed: [REDACTED]"),
+            ("Loopback: ::1", "Loopback: [REDACTED]"),
+            ("Link-local: fe80::1%en0", "Link-local: [REDACTED]"),
+            ("Link-local: fe80::5e85:7eff:fe3e:f3f1%en0%en0.0]", "Link-local: [REDACTED]]"),
+            ("Mapped: ::ffff:192.168.1.1", "Mapped: [REDACTED]:[REDACTED]"),
+            ("Full: 1:2:3:4:5:6:7:8", "Full: [REDACTED]"),
+            ("Compressed: 1::8", "Compressed: [REDACTED]"),
+            ("Empty: ::", "Empty: [REDACTED]"),
+            ("Endpoint: [2001:db8::1]:51820", "Endpoint: [[REDACTED]]:51820"),
+            ("Peer fe80::1: timed out", "Peer [REDACTED]: timed out"),
+            ("Address: 2001:db81", "Address: 2001:db81"),
+            ("[23/09/2026 @ 07:09:21] 10:30:45", "[23/09/2026 @ 07:09:21] 10:30:45"),
         ]
 
-        for (input, shouldRedact) in cases {
-            let result = rustRedactor.redact(input)
-            if shouldRedact {
-                XCTAssertTrue(
-                    result.contains("[REDACTED]"),
-                    "Expected redaction for: \(input), got: \(result)"
-                )
-            } else {
-                XCTAssertEqual(
-                    input,
-                    result
-                )
-            }
+        for (input, expected) in cases {
+            XCTAssertEqual(rustRedactor.redact(input), expected)
         }
     }
 
