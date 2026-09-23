@@ -43,7 +43,6 @@ tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "ti
 tonic = { workspace = true }
 tower = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation", features = ["gotatun"] }
-uniffi = { workspace = true }
 zerocopy = "0.8"
 
 # Only used by the FFI exports, which are not compiled for macOS.
@@ -61,6 +60,12 @@ shadowsocks = { workspace = true }
 talpid-future = { path = "../talpid-future" }
 tracing = "0.1"
 tracing-subscriber = { workspace = true }
+uniffi = { workspace = true }
+
+# On macOS only the `uniffi-bindgen` binary uses uniffi, and only with the
+# `uniffi-cli` feature. The library's own uniffi use is iOS/tvOS only.
+[target.'cfg(target_os = "macos")'.dependencies]
+uniffi = { workspace = true, optional = true }
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
