@@ -1,7 +1,6 @@
 use anyhow::{Context as _, anyhow};
 use nix::{errno::Errno, libc::pid_t, unistd::Pid};
 use std::{
-    env,
     ffi::CStr,
     fs::{self, File},
     io::{self, Read, Seek, Write},
@@ -10,6 +9,7 @@ use std::{
 };
 
 use crate::Error;
+use nix::sys::statfs::CGROUP2_SUPER_MAGIC;
 
 /// Path where we should look for the cgroup2 filesystem. Overrides [`CGROUP2_DEFAULT_MOUNT_PATH`].
 pub const CGROUP2_OVERRIDE_ENV_VAR: &str = "TALPID_CGROUP2_FS";
@@ -32,9 +32,8 @@ pub struct CGroup2 {
 impl CGroup2 {
     /// Open the root cgroup2 at at [`CGROUP2_OVERRIDE_ENV_VAR`] (or [`CGROUP2_DEFAULT_MOUNT_PATH`] if env variable is unset).
     pub fn open_root() -> Result<Self, Error> {
-        let root = env::var(CGROUP2_OVERRIDE_ENV_VAR)
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| PathBuf::from(CGROUP2_DEFAULT_MOUNT_PATH));
+        let root = crate::path_override_from_env(CGROUP2_OVERRIDE_ENV_VAR)
+            .unwrap_or_else(|| PathBuf::from(CGROUP2_DEFAULT_MOUNT_PATH));
 
         let cgroup = Self::open(root).context("Failed to open root cgroup2")?;
 
@@ -46,6 +45,8 @@ impl CGroup2 {
     /// `path` must be a directory in the `cgroup2` filesystem.
     pub fn open(path: impl Into<PathBuf>) -> Result<Self, Error> {
         let path = path.into();
+
+        crate::assert_filesystem_type(&path, CGROUP2_SUPER_MAGIC, "cgroup2")?;
 
         let procs_path = path.join("cgroup.procs");
         let procs = fs::OpenOptions::new()
@@ -130,5 +131,20 @@ impl CGroup2 {
     /// Get the inode of the cgroup2
     pub const fn inode(&self) -> u64 {
         self.inode
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Refuse paths that are not cgroup2 fs
+    #[test]
+    fn test_refuse_path_outside_cgroup2() {
+        let dir = std::env::temp_dir();
+        assert!(
+            CGroup2::open(&dir).is_err(),
+            "expected {dir:?} to be refused: it is not on a cgroup2 filesystem"
+        );
     }
 }
