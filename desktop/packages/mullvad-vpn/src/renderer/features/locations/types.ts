@@ -52,7 +52,10 @@ export enum DisabledReason {
   inactive,
 }
 
+export type RecentEntryLocation = 'automatic' | AnyLocation;
+export type RecentExitLocation = AnyLocation;
+
 export type RecentLocations = {
-  entries: AnyLocation[];
-  exits: AnyLocation[];
+  entries: RecentEntryLocation[];
+  exits: RecentExitLocation[];
 };
