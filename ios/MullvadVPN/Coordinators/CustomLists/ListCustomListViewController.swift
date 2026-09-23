@@ -96,8 +96,7 @@ class ListCustomListViewController: UIViewController {
     private func configureNavigationItem() {
         navigationItem.title = NSLocalizedString("Edit custom list", comment: "")
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        navigationItem.rightBarButtonItem = UIBarButtonItem.doneButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 self?.didFinish?(.noAction)
             })

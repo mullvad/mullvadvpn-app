@@ -53,8 +53,7 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
             navigationController.navigationItem.largeTitleDisplayMode = .always
             navigationController.navigationBar.prefersLargeTitles = true
 
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
+            let doneButton = UIBarButtonItem.doneButton(
                 primaryAction: UIAction(handler: { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self)
@@ -102,8 +101,7 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
         let host = UIHostingController(rootView: aboutView)
         let customNavigationController = CustomNavigationController(rootViewController: host)
 
-        host.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        host.navigationItem.rightBarButtonItem = UIBarButtonItem.doneButton(
             primaryAction: UIAction(handler: { _ in
                 customNavigationController.dismiss(animated: true)
             })

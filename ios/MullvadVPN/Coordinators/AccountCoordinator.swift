@@ -110,8 +110,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             )
         )
         controller.title = NSLocalizedString("Manage devices", comment: "")
-        let doneButton = UIBarButtonItem(
-            systemItem: .done,
+        let doneButton = UIBarButtonItem.doneButton(
             primaryAction: UIAction(handler: { _ in
                 controller.dismiss(animated: true)
             })

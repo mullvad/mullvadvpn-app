@@ -49,8 +49,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
 
         controller.saveBarButton.title = NSLocalizedString("Create", comment: "")
 
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self else {
                     return

@@ -38,6 +38,9 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
 
         super.init(nibName: nil, bundle: nil)
 
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+
         Task {
             await storePaymentManager.addPaymentObserver(self)
         }
@@ -48,9 +51,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     override func viewDidLoad() {
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .crossDissolve
-
         view.backgroundColor = .black.withAlphaComponent(0.5)
         view.addConstrainedSubviews([spinnerView]) {
             spinnerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)

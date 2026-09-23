@@ -47,8 +47,7 @@ class IPOverrideCoordinator: Coordinator, Presentable, Presenting, SettingsChild
         controller.delegate = self
 
         if route == .ipOverrides {
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
+            let doneButton = UIBarButtonItem.doneButton(
                 primaryAction: UIAction(handler: { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self)

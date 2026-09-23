@@ -81,3 +81,34 @@ extension UINavigationBar {
         return navigationBarAppearance
     }
 }
+
+extension UIBarButtonItem {
+    /// Text "Done" button without the iOS 26+ glass capsule or prominent checkmark rendering.
+    static func doneButton(primaryAction: UIAction) -> UIBarButtonItem {
+        textButton(title: NSLocalizedString("Done", comment: ""), textStyle: .headline, primaryAction: primaryAction)
+    }
+
+    /// Text "Cancel" button without the iOS 26+ glass capsule or xmark rendering.
+    static func cancelButton(primaryAction: UIAction) -> UIBarButtonItem {
+        textButton(title: NSLocalizedString("Cancel", comment: ""), textStyle: .body, primaryAction: primaryAction)
+    }
+
+    static func textButton(
+        title: String,
+        textStyle: UIFont.TextStyle,
+        primaryAction: UIAction
+    ) -> UIBarButtonItem {
+        primaryAction.title = title
+
+        let item = UIBarButtonItem(primaryAction: primaryAction)
+        item.setTitleTextAttributes([.font: UIFont.preferredFont(forTextStyle: textStyle)], for: .normal)
+        item.hidesSharedBackgroundIfAvailable()
+        return item
+    }
+
+    func hidesSharedBackgroundIfAvailable() {
+        if #available(iOS 26.0, *) {
+            hidesSharedBackground = true
+        }
+    }
+}

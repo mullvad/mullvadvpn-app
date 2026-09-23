@@ -139,8 +139,7 @@ final class LoginCoordinator: Coordinator, Presenting {
                 }
             )
         )
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem.cancelButton(
             primaryAction: UIAction(handler: { _ in
                 controller.dismiss(animated: true)
             })

@@ -63,8 +63,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
             navigationController.navigationItem.largeTitleDisplayMode = .always
             navigationController.navigationBar.prefersLargeTitles = true
 
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
+            let doneButton = UIBarButtonItem.doneButton(
                 primaryAction: UIAction(handler: { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self)
@@ -158,8 +157,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
         let aboutController = AboutViewController(header: header, preamble: preamble, body: body)
         let aboutNavController = UINavigationController(rootViewController: aboutController)
 
-        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem.doneButton(
             primaryAction: UIAction { [weak aboutNavController] _ in
                 aboutNavController?.dismiss(animated: true)
             }

@@ -48,14 +48,13 @@ class MethodSettingsViewController: UITableViewController {
     }
 
     lazy var saveBarButton: UIBarButtonItem = {
-        let barButtonItem = UIBarButtonItem(
+        UIBarButtonItem.textButton(
             title: NSLocalizedString("Save", comment: ""),
+            textStyle: .headline,
             primaryAction: UIAction { [weak self] _ in
                 self?.onTest()
             }
         )
-        barButtonItem.style = .done
-        return barButtonItem
     }()
 
     weak var delegate: MethodSettingsViewControllerDelegate?

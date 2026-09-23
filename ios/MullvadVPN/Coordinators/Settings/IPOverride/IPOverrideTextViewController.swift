@@ -41,8 +41,7 @@ class IPOverrideTextViewController: UIViewController {
 
         navigationItem.title = NSLocalizedString("Import via text", comment: "")
 
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            systemItem: .cancel,
+        navigationItem.leftBarButtonItem = UIBarButtonItem.cancelButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 self?.dismiss(animated: true)
             })

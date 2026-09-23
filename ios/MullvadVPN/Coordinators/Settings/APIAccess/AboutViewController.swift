@@ -120,8 +120,7 @@ class AboutViewController: UIViewController {
         let aboutController = AboutViewController(header: header, preamble: nil, body: body)
         let aboutNavController = UINavigationController(rootViewController: aboutController)
 
-        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem.doneButton(
             primaryAction: UIAction { [weak aboutNavController] _ in
                 aboutNavController?.dismiss(animated: true)
             }
