@@ -36,6 +36,7 @@ final class GotaTunPathObserverTests: XCTestCase {
         addresses = AddressBook()
         deliveries = Deliveries()
         addresses.set(["10.0.0.2"], for: wifi.interface)
+        addresses.set(["10.1.0.2"], for: cellular.interface)
     }
 
     override func tearDown() async throws {
@@ -240,6 +241,70 @@ final class GotaTunPathObserverTests: XCTestCase {
         await observer.handle(lost)
         await clock.runToCompletion()
 
+        XCTAssertEqual(deliveries.all, [.unsatisfied])
+    }
+
+    // MARK: - Interface without addresses
+
+    func testPathWithoutAddressesIsDebouncedAsLoss() async {
+        await start(with: wifi)
+        addresses.set([], for: wifi.interface)
+
+        await observer.handle(wifi)
+        await clock.waitForSleepers(1)
+
+        XCTAssertEqual(deliveries.all, [])
+
+        await clock.advance(by: debounce)
+
+        await deliveries.wait(for: 1)
+        XCTAssertEqual(deliveries.all, [.unsatisfied])
+    }
+
+    func testRoamAfterAddressesAreLostIsDeliveredAsSatisfied() async {
+        await start(with: wifi)
+        addresses.set([], for: wifi.interface)
+
+        await observer.handle(wifi)
+        await clock.waitForSleepers(1)
+        await observer.handle(cellular)
+        await clock.runToCompletion()
+
+        XCTAssertEqual(deliveries.all, [.satisfied])
+    }
+
+    func testStartWithoutAddressesIsUnsatisfied() async {
+        addresses.set([], for: wifi.interface)
+
+        let status = await start(with: wifi)
+
+        XCTAssertEqual(status, .unsatisfied)
+    }
+
+    func testAddressesAppearingAfterLossAreDeliveredAsSatisfied() async {
+        addresses.set([], for: wifi.interface)
+        await start(with: wifi)
+        addresses.set(["10.0.0.2"], for: wifi.interface)
+
+        await observer.handle(wifi)
+
+        XCTAssertEqual(deliveries.all, [.satisfied])
+    }
+
+    func testAddressCheckFindingNoAddressesIsDebouncedAsLoss() async {
+        await start(with: wifi)
+
+        await observer.handle(wifi)
+        await clock.waitForSleepers(1)
+        addresses.set([], for: wifi.interface)
+        await clock.advance(by: addressCheck)
+        await clock.waitForSleepers(1)
+
+        XCTAssertEqual(deliveries.all, [])
+
+        await clock.advance(by: debounce)
+
+        await deliveries.wait(for: 1)
         XCTAssertEqual(deliveries.all, [.unsatisfied])
     }
 

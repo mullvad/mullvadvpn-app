@@ -67,7 +67,7 @@ public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
         if let startedStatus { return startedStatus }
 
         var iterator = makePathUpdates().makeAsyncIterator()
-        let currentPath = await iterator.next()
+        let currentPath = await iterator.next().map(resolved)
         let currentStatus = currentPath?.status ?? .unsatisfied
         startedStatus = currentStatus
         deliveredPath = currentPath
@@ -102,7 +102,9 @@ public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
         }
     }
 
-    func handle(_ path: Path) {
+    func handle(_ update: Path) {
+        let path = resolved(update)
+
         // Losing a path should be debounced - .satisfied updates need not be debounced. This swallows spurious losses in
         // connectivity. Further losses replace the pending path but keep its deadline, so churn cannot postpone it.
         if path.status == .unsatisfied, pendingLoss != nil {
@@ -143,11 +145,22 @@ public actor GotaTunPathObserver: GotaTunPathObserverProtocol {
             guard !Task.isCancelled else { return }
             addressCheck = nil
 
-            guard let path = deliveredPath, path.status == .satisfied, pendingLoss == nil,
-                localAddresses(path.interface) != deliveredAddresses
-            else { return }
-            deliver(path)
+            guard let path = deliveredPath, path.status == .satisfied, pendingLoss == nil else { return }
+            let addresses = localAddresses(path.interface)
+            guard addresses != deliveredAddresses else { return }
+            if addresses.isEmpty {
+                handle(path)
+            } else {
+                deliver(path)
+            }
         }
+    }
+
+    /// A satisfied path over an interface without addresses cannot carry traffic. This happens while an interface is
+    /// torn down, so it is treated as a loss.
+    private func resolved(_ path: Path) -> Path {
+        guard path.status == .satisfied, localAddresses(path.interface).isEmpty else { return path }
+        return Path(status: .unsatisfied, interface: path.interface, gateways: path.gateways)
     }
 
     private func cancelPendingLoss() {
