@@ -7,6 +7,7 @@
 use regex::Regex;
 use std::borrow::Cow;
 use std::ffi::{CStr, CString};
+use std::net::Ipv6Addr;
 
 const REDACTED: &str = "[REDACTED]";
 const REDACTED_ACCOUNT: &str = "[REDACTED ACCOUNT NUMBER]";
@@ -28,26 +29,10 @@ impl LogRedactor {
                 r"\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b",
             )
             .unwrap(),
+            // Candidates only; `redact_ipv6` keeps those that parse. A single alternation can't be
+            // used because the regex engine takes the first matching branch, not the longest.
             ipv6_regex: Regex::new(
-                r"(?x)
-                (
-                ([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|
-                ([0-9a-fA-F]{1,4}:){1,7}:|
-                ([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|
-                ([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|
-                ([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|
-                ([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|
-                ([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|
-                [0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|
-                :((:[0-9a-fA-F]{1,4}){1,7}|:)|
-                fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|
-                ::(ffff(:0{1,4}){0,1}:){0,1}
-                ((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}
-                (25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|
-                ([0-9a-fA-F]{1,4}:){1,4}:
-                ((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}
-                (25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])
-                )",
+                r"(?i)(?:[0-9a-f]{0,4}:){2,7}(?:[0-9a-f]{1,4}|(?:\d{1,3}\.){3}\d{1,3})?(?:%[0-9a-z_.]+)*",
             )
             .unwrap(),
             account_regex: Regex::new(r"\d{16}").unwrap(),
@@ -55,6 +40,24 @@ impl LogRedactor {
             container_paths,
             custom_strings,
         }
+    }
+
+    fn redact_ipv6<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        let mut out = String::new();
+        let mut copied = 0;
+        for candidate in self.ipv6_regex.find_iter(input) {
+            let Some(len) = ipv6_prefix_len(candidate.as_str()) else {
+                continue;
+            };
+            out.push_str(&input[copied..candidate.start()]);
+            out.push_str(REDACTED);
+            copied = candidate.start() + len;
+        }
+        if copied == 0 {
+            return Cow::Borrowed(input);
+        }
+        out.push_str(&input[copied..]);
+        Cow::Owned(out)
     }
 
     fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
@@ -104,10 +107,7 @@ impl LogRedactor {
         {
             owned = Some(s);
         }
-        if let Cow::Owned(s) = self
-            .ipv6_regex
-            .replace_all(current!(owned, input), REDACTED)
-        {
+        if let Cow::Owned(s) = self.redact_ipv6(current!(owned, input)) {
             owned = Some(s);
         }
         if let Cow::Owned(s) = self
@@ -125,6 +125,17 @@ impl LogRedactor {
 
         owned
     }
+}
+
+/// Length of the IPv6 address, including any zone suffix, that `candidate` starts with. A single
+/// trailing colon is not part of it, e.g. in "fe80::1: timed out".
+fn ipv6_prefix_len(candidate: &str) -> Option<usize> {
+    let address = candidate.split('%').next().unwrap_or(candidate);
+    if address.parse::<Ipv6Addr>().is_ok() {
+        return Some(candidate.len());
+    }
+    let trimmed = address.strip_suffix(':')?;
+    trimmed.parse::<Ipv6Addr>().is_ok().then_some(trimmed.len())
 }
 
 /// Create a new log redactor with the given container paths.
