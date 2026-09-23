@@ -1,9 +1,9 @@
-import type { AnyLocation, RecentLocations } from '../types';
+import type { RecentEntryLocation, RecentLocations } from '../types';
 import { getUniqueLocations } from './get-unique-locations';
 
 export const getRecentEntryLocations = (
   recentLocations?: RecentLocations,
-): AnyLocation[] | undefined => {
+): RecentEntryLocation[] | undefined => {
   if (!recentLocations) {
     return undefined;
   }

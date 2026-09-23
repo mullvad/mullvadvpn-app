@@ -3,10 +3,15 @@ import React from 'react';
 import { messages } from '../../../../../../shared/gettext';
 import { useSelectedLocations } from '../../../../../features/locations/hooks';
 import { Dialog } from '../../../../../lib/components/dialog';
+import type { ListItemProps } from '../../../../../lib/components/list-item';
 import { Location } from '../location-list-item';
 import { useHandleSelectEntryLocation } from '../location-lists/hooks';
 
-export function AutomaticLocation() {
+export type AutomaticLocationProps = {
+  position?: ListItemProps['position'];
+};
+
+export function AutomaticLocation({ position }: AutomaticLocationProps) {
   const handleSelectEntryLocation = useHandleSelectEntryLocation();
   const { entry } = useSelectedLocations();
 
@@ -25,7 +30,7 @@ export function AutomaticLocation() {
   return (
     <>
       <Location selected={entry === 'any'}>
-        <Location.ListItem>
+        <Location.ListItem position={position}>
           <Location.ListItem.Trigger
             onClick={handleClickAutomatic}
             aria-label={messages.pgettext('accessibility', 'Use automatic entry location')}>

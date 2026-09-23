@@ -192,19 +192,16 @@ test.describe('Select location', () => {
   test.describe('Recents', () => {
     let initialSettings: ISettings = getDefaultSettings();
 
-    test.beforeAll(async () => {
-      initialSettings = await helpers.mockSettings({
-        multihop: 'always',
-      });
-    });
-
     test.beforeEach(async () => {
+      let settings = await helpers.mockRecents(recents);
+      settings = await helpers.mockCustomLists(customLists, settings);
+      initialSettings = await helpers.mockSettings(
+        {
+          multihop: 'always',
+        },
+        settings,
+      );
       await routes.selectLocation.gotoExitLocations();
-    });
-
-    test.beforeEach(async () => {
-      const settings = await helpers.mockRecents(recents);
-      initialSettings = await helpers.mockCustomLists(customLists, settings);
     });
 
     test('Should show empty recent section when enabled and no recents', async () => {
@@ -269,6 +266,14 @@ test.describe('Select location', () => {
 
       await routes.selectLocation.gotoEntryLocations();
       await expect(recentLocations).toHaveCount(recents.entries.length);
+    });
+
+    test('Should display automatic location in recents', async () => {
+      await routes.selectLocation.gotoEntryLocations();
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      const automaticLocation = recentLocations.filter({ hasText: 'Automatic' });
+
+      await expect(automaticLocation).toHaveCount(1);
     });
 
     test('Should be able to add recent geographical location to custom list', async () => {
