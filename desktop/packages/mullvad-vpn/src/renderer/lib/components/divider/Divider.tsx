@@ -13,5 +13,5 @@ export const StyledDivider = styled.hr`
 `;
 
 export function Divider(props: DividerProps) {
-  return <StyledDivider {...props} />;
+  return <StyledDivider aria-hidden {...props} />;
 }
