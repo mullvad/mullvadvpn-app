@@ -23,8 +23,10 @@ protobuf {
     protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
     generateProtoTasks {
         all().forEach {
-            it.plugins { create("java") { option("lite") } }
-            it.builtins { create("kotlin") { option("lite") } }
+            it.builtins {
+                create("java") { option("lite") }
+                create("kotlin") { option("lite") }
+            }
         }
     }
 }
