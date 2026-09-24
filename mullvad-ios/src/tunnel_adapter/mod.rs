@@ -18,10 +18,10 @@ use std::{
 
 use gotatun::{
     device::{DeviceBuilder, Peer},
-    packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
+    packet::{Ipv4Header, Ipv6Header, Packet, PacketBufPool, UdpHeader, WgData},
     tun::MtuWatcher,
     udp::{
-        UdpTransportFactory, UdpTransportFactoryParams,
+        UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams,
         channel::new_udp_tun_channel,
         socket::{UdpSocket, UdpSocketFactory},
     },
@@ -38,7 +38,7 @@ use talpid_tunnel_config_client::negotiation::{
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::{
     Mutex,
-    mpsc::{UnboundedReceiver, UnboundedSender},
+    mpsc::{self, UnboundedReceiver, UnboundedSender},
 };
 use tunnel_obfuscation::gotatun_transport::{MaybeObfuscatingTransportFactory, RunningObfuscation};
 
@@ -48,6 +48,80 @@ use self::tun_device::IosTunDevice;
 
 pub use self::obfuscation::ObfuscationProxyError;
 pub use self::params::{PeerParameters, TunnelParameters};
+
+/// A variant of `BoundUdpTransports`` made for Multiplexing.
+/// Opens up several sockets and randomly picks one when sending messages.
+/// Listens to all sockets for messages.
+#[derive(Clone)]
+pub struct Multiplex {
+    sockets: Vec<UdpSocket>,
+    rx: Arc<Mutex<mpsc::UnboundedReceiver<(Packet, SocketAddr)>>>,
+}
+impl Multiplex {
+    pub async fn new(count: u64, udp: BoundUdpTransports) -> io::Result<Self> {
+        let mut sockets = vec![udp.socket.lock().await.clone()];
+        for _ in 0..count {
+            sockets.push(
+                BoundUdpTransports::bind()
+                    .await?
+                    .socket
+                    .lock()
+                    .await
+                    .clone(),
+            );
+        }
+        let (tx, rx) = mpsc::unbounded_channel();
+
+        for socket in &sockets {
+            let mut socket = socket.clone();
+            let tx = tx.clone();
+            tokio::spawn(async move {
+                let mut pool = PacketBufPool::new(4);
+                while let Ok(vr) = socket.recv_from(&mut pool).await {
+                    if tx.send(vr).is_err() {
+                        break;
+                    }
+                }
+            });
+        }
+        Ok(Self {
+            sockets,
+            rx: Arc::new(Mutex::new(rx)),
+        })
+    }
+}
+impl UdpTransportFactory for Multiplex {
+    type Send = Self;
+
+    type Recv = Self;
+
+    async fn bind(
+        &mut self,
+        _params: &UdpTransportFactoryParams,
+    ) -> io::Result<(Self::Send, Self::Recv)> {
+        Ok((self.clone(), self.clone()))
+    }
+}
+impl UdpSend for Multiplex {
+    type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
+
+    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+        let index = rand::random_range(0..self.sockets.len());
+        self.sockets[index].send_to(packet, destination).await
+    }
+}
+impl UdpRecv for Multiplex {
+    type RecvManyBuf = <UdpSocket as UdpRecv>::RecvManyBuf;
+
+    async fn recv_from(&mut self, _pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
+        self.rx
+            .lock()
+            .await
+            .recv()
+            .await
+            .ok_or(io::Error::new(io::ErrorKind::BrokenPipe, "task dead"))
+    }
+}
 
 /// A UDP transport bound ahead of the tunnel starting.
 /// Allowing them to bind ahead of time allows for reusing them and also lets the tunnel connection
@@ -363,10 +437,14 @@ impl IosTunnelAdapter {
             return Err(TunnelError::Timeout);
         }
 
+        let multiplex = Multiplex::new(params.multiplex_count, udp.clone())
+            .await
+            .map_err(TunnelError::TunnelDevice)?;
+
         // 3. After PQ the WireGuard handshake uses the ephemeral ingress key, so point LWO at it.
         let ingress_public_key = Self::ingress_public_key(&pq);
         let obfuscation = ObfuscatingTransports::new(
-            udp.clone(),
+            multiplex,
             obfuscation
                 .map(|obfuscation| obfuscation.with_client_public_key(ingress_public_key.clone())),
             params.ingress_peer().endpoint,
