@@ -105,17 +105,22 @@ struct ProblemReportView: View {
 // MARK: previews
 struct MockInteractor: ProblemReportInteractorProtocol {
     var reportError: (any Error)?
-    
+
     func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
-        completion("""
-        The log file will go here
-        =========================
-        
-        Something something something...
-        """)
+        completion(
+            """
+            The log file will go here
+            =========================
+
+            Something something something...
+            """
+        )
     }
-    
-    func sendReport(email: String, message: String, includeAccountTokenInLogs: Bool, completion: @escaping (Result<Void, any Error>) -> Void) {
+
+    func sendReport(
+        email: String, message: String, includeAccountTokenInLogs: Bool,
+        completion: @escaping (Result<Void, any Error>) -> Void
+    ) {
         //  try await Task.sleep(nanoseconds: 1_000_000_000)
         if let reportError {
             completion(.failure(reportError))
@@ -126,7 +131,6 @@ struct MockInteractor: ProblemReportInteractorProtocol {
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew()
-    viewModel.interactor = MockInteractor()
+    let viewModel = ProblemReportViewModelNew(interactor: MockInteractor())
     return ProblemReportView(viewModel: viewModel)
 }

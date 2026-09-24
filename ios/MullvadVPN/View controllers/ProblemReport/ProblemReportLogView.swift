@@ -12,7 +12,7 @@ import SwiftUI
 
 extension ProblemReportView {
     struct LogView: View {
-        
+
         @State var viewModel: ProblemReportViewModelNew
 
         var body: some View {
@@ -26,9 +26,11 @@ extension ProblemReportView {
                     }
                     HStack {
                         Spacer()
-                        Button("Done", action: {
-                            viewModel.showLogs.wrappedValue = false
-                        })
+                        Button(
+                            "Done",
+                            action: {
+                                viewModel.showLogs.wrappedValue = false
+                            })
                     }
                 }
                 .padding(16)
@@ -44,29 +46,32 @@ extension ProblemReportView {
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew()
-    viewModel.logText = """
-        xxxxxxxxxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxx
+    ProblemReportView.LogView(
+        viewModel: {
+            let viewModel = ProblemReportViewModelNew()
+            viewModel.logText = """
+                xxxxxxxxxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxx
 
-        xxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        xxxxxxxxxxxxxx
-        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        """
-    return ProblemReportView.LogView(viewModel: viewModel)
+                xxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                xxxxxxxxxxxxxx
+                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                """
+            return viewModel
+        }())
 }
