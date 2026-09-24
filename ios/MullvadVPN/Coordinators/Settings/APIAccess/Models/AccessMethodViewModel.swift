@@ -201,7 +201,7 @@ extension AccessMethodViewModel {
                             "With the %@ access method, the app reaches the Mullvad API via a CDN, "
                                 + "mixing the traffic with a lot of other internet traffic, making it "
                                 + "more difficult to censor.",
-                            comment: "'Domain fronting' should not be translated as it is a technical term"
+                            comment: ""
                         ),
                     ),
                     NSLocalizedString(
