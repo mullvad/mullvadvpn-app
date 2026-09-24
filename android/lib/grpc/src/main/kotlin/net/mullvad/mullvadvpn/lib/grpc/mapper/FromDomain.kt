@@ -260,6 +260,8 @@ internal fun ApiAccessMethod.fromDomain(): AccessMethod =
             ApiAccessMethod.Direct -> AccessMethod.AccessMethod.Direct(AccessMethod.Direct())
             ApiAccessMethod.EncryptedDns ->
                 AccessMethod.AccessMethod.EncryptedDnsProxy(AccessMethod.EncryptedDnsProxy())
+            ApiAccessMethod.DomainFronting ->
+                AccessMethod.AccessMethod.DomainFronting(AccessMethod.DomainFronting())
         }
     )
 

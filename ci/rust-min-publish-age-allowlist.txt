@@ -1,6 +1,7 @@
 # Crates exempt from the min-publish-age CI gate (ci/check-rust-min-publish-age.py).
 #
 # Only add crates we publish and control ourselves.
+domain-fronting
 gotatun
 mnl
 mnl-sys

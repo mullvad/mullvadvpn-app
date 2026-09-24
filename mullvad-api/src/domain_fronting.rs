@@ -1,29 +1,189 @@
 //! Built-in domain fronting access method configuration.
 
-use crate::proxy::{ApiConnectionMode, DomainFrontingConfig, ProxyConfig};
+use std::{
+    io,
+    net::SocketAddr,
+    str::FromStr,
+    sync::{Arc, LazyLock},
+    time::Duration,
+};
 
-const FRONT: &str = "www.phpmyadmin.net";
+use http::Uri;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use tokio::net::TcpStream;
+use tracing::{Level, instrument};
+
+use crate::proxy::{ApiConnectionMode, ProxyConfig};
+
+const FRONT_STR: &str = "https://www.phpmyadmin.net";
+static FRONT: LazyLock<Uri> = LazyLock::new(|| FRONT_STR.parse().expect("Valid URI"));
 const PROXY_HOST: &str = "1105015943.rsc.cdn77.org";
-const SESSION_HEADER: &str = "X-Mullvad-Session";
+pub const SESSION_KEY: &str = "X-Mullvad-Session";
+
+/// Whether we should use HTTP/2 (instead of HTTP/1.1) to talk to CDN77.
+pub const USE_HTTP2: bool = true;
+
+/// How long we may keep a domain fronting connection idle.
+///
+/// CDN77 has an idle timeout of 5 seconds, so we set our timeout just below that.
+pub const IDLE_TIMEOUT: Duration = Duration::from_millis(4_500);
+
+pub type DfConfig = domain_fronting::DomainFronting;
 
 /// Resolve the built-in domain fronting configuration.
 ///
 /// Performs DNS resolution of the front domain and returns the
 /// corresponding [`ApiConnectionMode`].
 pub async fn resolve() -> Option<ApiConnectionMode> {
-    match DomainFrontingConfig::resolve(
-        FRONT.to_string(),
-        PROXY_HOST.to_string(),
-        SESSION_HEADER.to_string(),
-    )
-    .await
-    {
-        Ok(config) => Some(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
-            config,
-        ))),
-        Err(error) => {
-            log::warn!("Failed to resolve domain fronting config: {error}");
-            None
+    let default =
+        DfConfig::new(FRONT.clone(), PROXY_HOST.to_string()).with_session_key(SESSION_KEY.into());
+    resolve_with(&default).await
+}
+
+/// Resolve a custom domain fronting configuration.
+///
+/// Performs DNS resolution of the front domain and returns the
+/// corresponding [`ApiConnectionMode`].
+#[instrument(level = Level::TRACE, ret)]
+pub async fn resolve_with(config: &DfConfig) -> Option<ApiConnectionMode> {
+    let proxy_config = config
+        .proxy_config()
+        .await
+        .inspect_err(|e| tracing::warn!("Failed to resolve domain fronting config: {e}"))
+        .ok()?;
+
+    let addr = DfConfigResolved {
+        addr: proxy_config.addr,
+        front: config.front().clone(),
+        proxy_host: config.proxy_host().to_string(),
+        session_key: config.session_key().to_string(),
+    };
+
+    Some(ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(
+        addr,
+    )))
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct DfConfigResolved {
+    /// Resolved address of the fronting domain.
+    pub addr: SocketAddr,
+
+    /// Domain that will be used to connect to a CDN.
+    #[serde(serialize_with = "ser_display", deserialize_with = "de_from_str")]
+    front: Uri,
+
+    /// HTTP `HOST` header.
+    proxy_host: String,
+
+    session_key: String,
+}
+
+impl DfConfigResolved {
+    pub fn config(&self) -> domain_fronting::DomainFronting {
+        domain_fronting::DomainFronting::new(self.front.clone(), self.proxy_host.clone())
+            .with_session_key(self.session_key.clone())
+    }
+}
+
+/// Establish a TLS connection to the fronting CDN without certificate verification.
+///
+/// Certificate verification is intentionally skipped because the security of domain fronting
+/// does not depend on the CDN TLS — the actual API connection is secured by the inner TLS
+/// layer to `api.mullvad.net`.
+#[instrument(level = Level::TRACE, skip(stream), ret)]
+pub(crate) async fn cdn_tls_connect(
+    stream: TcpStream,
+    front_domain: &str,
+    http2: bool,
+) -> io::Result<tokio_rustls::client::TlsStream<TcpStream>> {
+    use std::sync::LazyLock;
+    use tokio_rustls::rustls::{self, client::danger, pki_types};
+
+    #[derive(Debug)]
+    struct NoCertVerification;
+
+    impl danger::ServerCertVerifier for NoCertVerification {
+        fn verify_server_cert(
+            &self,
+            _: &pki_types::CertificateDer<'_>,
+            _: &[pki_types::CertificateDer<'_>],
+            _: &pki_types::ServerName<'_>,
+            _: &[u8],
+            _: pki_types::UnixTime,
+        ) -> Result<danger::ServerCertVerified, rustls::Error> {
+            Ok(danger::ServerCertVerified::assertion())
+        }
+
+        fn verify_tls12_signature(
+            &self,
+            _: &[u8],
+            _: &pki_types::CertificateDer<'_>,
+            _: &rustls::DigitallySignedStruct,
+        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
+            Ok(danger::HandshakeSignatureValid::assertion())
+        }
+
+        fn verify_tls13_signature(
+            &self,
+            _: &[u8],
+            _: &pki_types::CertificateDer<'_>,
+            _: &rustls::DigitallySignedStruct,
+        ) -> Result<danger::HandshakeSignatureValid, rustls::Error> {
+            Ok(danger::HandshakeSignatureValid::assertion())
+        }
+
+        fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+            rustls::crypto::aws_lc_rs::default_provider()
+                .signature_verification_algorithms
+                .supported_schemes()
         }
     }
+
+    fn new_cdn_tls_config() -> rustls::ClientConfig {
+        let mut config = rustls::ClientConfig::builder()
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(NoCertVerification))
+            .with_no_client_auth();
+        // Disable TLS tickets to reduce ability to track clients over time
+        config.resumption = rustls::client::Resumption::disabled();
+        config
+    }
+
+    static CDN_TLS_CONFIG: LazyLock<Arc<rustls::ClientConfig>> =
+        LazyLock::new(|| Arc::new(new_cdn_tls_config()));
+
+    static CDN_TLS_CONFIG_HTTP2: LazyLock<Arc<rustls::ClientConfig>> = LazyLock::new(|| {
+        let mut config = new_cdn_tls_config();
+        config.alpn_protocols.push("h2".as_bytes().to_vec());
+        Arc::new(config)
+    });
+
+    let config = if http2 {
+        &CDN_TLS_CONFIG_HTTP2
+    } else {
+        &CDN_TLS_CONFIG
+    };
+    let connector = tokio_rustls::TlsConnector::from(Arc::clone(config));
+    let server_name = pki_types::ServerName::try_from(front_domain.to_owned())
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid front domain"))?;
+    connector.connect(server_name, stream).await
+}
+
+fn ser_display<T, S>(value: &T, serializer: S) -> Result<S::Ok, S::Error>
+where
+    T: std::fmt::Display,
+    S: Serializer,
+{
+    serializer.collect_str(value)
+}
+
+fn de_from_str<'de, T, D>(deserializer: D) -> Result<T, D::Error>
+where
+    T: FromStr,
+    T::Err: std::fmt::Display,
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    s.parse().map_err(serde::de::Error::custom)
 }

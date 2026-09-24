@@ -352,9 +352,8 @@ async fn send_problem_report_inner(
     .map_err(Error::CreateRpcClientError)?;
 
     let connection_mode = ApiConnectionMode::try_from_cache(cache_dir).await;
-    let api_client = mullvad_api::ProblemReportProxy::new(
-        api_runtime.mullvad_rest_handle(connection_mode.into_provider()),
-    );
+    let api_client =
+        mullvad_api::ProblemReportProxy::new(api_runtime.mullvad_rest_handle(connection_mode));
 
     let message: String = match account_token {
         Some(account_token) => {

@@ -817,7 +817,7 @@ impl Daemon {
             api_runtime.address_cache().clone(),
         );
 
-        let (access_mode_handler, access_mode_provider) =
+        let (access_mode_handler, connection_mode_source) =
             mullvad_api::access_mode::AccessModeSelector::spawn(
                 method_resolver,
                 settings.api_access_methods.clone(),
@@ -828,7 +828,7 @@ impl Daemon {
             .await
             .map_err(Error::ApiConnectionModeError)?;
 
-        let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
+        let api_handle = api_runtime.mullvad_rest_handle(connection_mode_source);
 
         // Continually update the API IP
         tokio::spawn(api_address_updater::run_api_address_fetcher(
@@ -1050,13 +1050,12 @@ impl Daemon {
         relay_list_updater.update().await;
 
         let location_handler = GeoIpHandler::new(
-            api_runtime.rest_handle(
-                #[cfg(not(target_os = "android"))]
-                mullvad_api::DefaultDnsResolver,
-                #[cfg(target_os = "android")]
-                android_dns::AndroidDnsResolver::new(connectivity_listener),
-            ),
             internal_event_tx.clone().to_specialized_sender(),
+            api_handle.availability.clone(),
+            #[cfg(not(target_os = "android"))]
+            mullvad_api::DefaultDnsResolver,
+            #[cfg(target_os = "android")]
+            android_dns::AndroidDnsResolver::new(connectivity_listener),
         );
 
         let leak_checker = {

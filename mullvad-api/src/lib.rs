@@ -6,10 +6,11 @@ use hyper::body::Incoming;
 use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
-use proxy::{ApiConnectionMode, ConnectionModeProvider};
+use proxy::{ApiConnectionMode, ConnectionModeSource};
 use std::sync::LazyLock;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
+use tracing::{Instrument, Level, instrument, trace_span};
 
 pub mod availability;
 use availability::ApiAvailability;
@@ -17,7 +18,6 @@ pub mod rest;
 #[cfg(not(any(target_os = "ios", target_os = "tvos")))]
 pub mod version;
 
-mod abortable_stream;
 pub mod access_mode;
 pub mod domain_fronting;
 mod https_client;
@@ -133,6 +133,7 @@ impl ApiEndpoint {
     /// Panics if `MULLVAD_API_ADDR`, `MULLVAD_API_HOST` or
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(feature = "api-override")]
+    #[instrument(level = Level::DEBUG, ret)]
     pub fn from_env_vars() -> ApiEndpoint {
         let host_var = Self::read_env_var(env::API_HOST_VAR);
         let address_var = Self::read_env_var(env::API_ADDR_VAR);
@@ -158,7 +159,7 @@ impl ApiEndpoint {
             (None, None) => {}
             (Some(host), None) => {
                 use std::net::ToSocketAddrs;
-                log::debug!(
+                tracing::debug!(
                     "{api_addr} not found. Resolving API IP address from {api_host}={host}",
                     api_addr = env::API_ADDR_VAR,
                     api_host = env::API_HOST_VAR
@@ -187,7 +188,7 @@ impl ApiEndpoint {
 
         if api.host.is_none() && api.address.is_none() {
             if disable_tls_var.is_some() {
-                log::warn!(
+                tracing::warn!(
                     "{disable_tls} is ignored since {api_host} and {api_addr} are not set",
                     disable_tls = env::DISABLE_TLS_VAR,
                     api_host = env::API_HOST_VAR,
@@ -200,7 +201,7 @@ impl ApiEndpoint {
                 .map(|disable_tls| disable_tls != "0")
                 .unwrap_or(api.disable_tls);
 
-            log::debug!(
+            tracing::debug!(
                 "Overriding API. Using {host} at {scheme}{addr} (force direct={direct})",
                 host = api.host(),
                 addr = api.address(),
@@ -227,6 +228,7 @@ impl ApiEndpoint {
     /// Panics if `MULLVAD_API_ADDR`, `MULLVAD_API_HOST` or
     /// `MULLVAD_API_DISABLE_TLS` has invalid contents.
     #[cfg(not(feature = "api-override"))]
+    #[instrument(level = Level::TRACE, ret)]
     pub fn from_env_vars() -> ApiEndpoint {
         let env_vars = [
             env::API_HOST_VAR,
@@ -237,7 +239,7 @@ impl ApiEndpoint {
         ];
 
         if env_vars.map(Self::read_env_var).iter().any(Option::is_some) {
-            log::warn!(
+            tracing::warn!(
                 "These variables are ignored in production builds: {env_vars_pretty}",
                 env_vars_pretty = env_vars.join(", ")
             );
@@ -342,6 +344,7 @@ pub trait DnsResolver: 'static + Send + Sync {
 }
 
 /// DNS resolver that relies on `ToSocketAddrs` (`getaddrinfo`).
+#[derive(Clone)]
 pub struct DefaultDnsResolver;
 
 #[async_trait]
@@ -451,7 +454,7 @@ impl Runtime {
             Ok(cache) => cache,
             Err(error) => {
                 if cache_file.exists() {
-                    log::error!(
+                    tracing::error!(
                         "{}",
                         error.display_chain_with_msg(
                             "Failed to load cached API addresses. Falling back on bundled address"
@@ -477,7 +480,7 @@ impl Runtime {
     /// Returns a new request service handle
     pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
         self.new_request_service(
-            ApiConnectionMode::Direct.into_provider(),
+            ApiConnectionMode::Direct,
             Arc::new(dns_resolver),
             #[cfg(target_os = "android")]
             None,
@@ -514,24 +517,22 @@ impl<B: AddressCacheBacking> Runtime<B> {
         &self.address_cache
     }
 
-    /// Returns a request factory initialized to create requests for the master API Assumes an API
-    /// endpoint that is constructed from env vars, or uses default values.
-    pub fn mullvad_rest_handle<T: ConnectionModeProvider + 'static>(
+    /// Returns a request factory initialized to create requests for the master API.
+    /// Assumes an API endpoint that is constructed from env vars, or uses default values.
+    pub fn mullvad_rest_handle(
         &self,
-        connection_mode_provider: T,
+        connection_mode_source: impl Into<ConnectionModeSource>,
     ) -> rest::MullvadRestHandle {
         let service = self.new_request_service(
-            connection_mode_provider,
+            connection_mode_source,
             Arc::clone(&self.address_cache),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
             self.endpoint.disable_tls,
         );
-        let hostname = self.endpoint.host().to_owned();
         let sigsum_trusted_pubkeys = self.endpoint.sigsum_trusted_pubkeys();
-        let token_store = access::AccessTokenStore::new(service.clone(), hostname.clone());
-        let factory = rest::RequestFactory::new(hostname, Some(token_store));
+        let factory = service.request();
 
         rest::MullvadRestHandle::new(
             service,
@@ -542,16 +543,17 @@ impl<B: AddressCacheBacking> Runtime<B> {
     }
 
     /// Creates a new request service and returns a handle to it.
-    fn new_request_service<T: ConnectionModeProvider + 'static>(
+    fn new_request_service(
         &self,
-        connection_mode_provider: T,
+        connection_mode_source: impl Into<ConnectionModeSource>,
         dns_resolver: Arc<impl DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
+            self.endpoint.host(),
             self.api_availability.clone(),
-            connection_mode_provider,
+            connection_mode_source,
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -583,25 +585,27 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
+        let span = trace_span!("get_data");
         let request = self.get_data_response(account);
 
-        async move { request.await?.deserialize().await }
+        async move { request.await?.deserialize().await }.instrument(span)
     }
 
     pub fn get_data_response(
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let span = trace_span!("get_data_response");
+        let request = self
+            .handle
+            .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
         async move {
-            let request = factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
+            request?
                 .expected_status(&[StatusCode::OK])
-                .account(account)?;
-            service.request(request).await
+                .account(account)
+                .await
         }
+        .instrument(span)
     }
 
     pub fn create_account(
@@ -612,26 +616,22 @@ impl AccountsProxy {
             number: AccountNumber,
         }
 
+        let span = trace_span!("create_account");
         let request = self.create_account_response();
 
         async move {
             let account: AccountCreationResponse = request.await?.deserialize().await?;
             Ok(account.number)
         }
+        .instrument(span)
     }
 
     pub fn create_account_response(
         &self,
     ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
-        async move {
-            let request = factory
-                .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
-                .expected_status(&[StatusCode::CREATED]);
-            service.request(request).await
-        }
+        let span = trace_span!("create_account_response");
+        let request = self.handle.post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"));
+        async move { request?.expected_status(&[StatusCode::CREATED]).await }.instrument(span)
     }
 
     pub fn submit_voucher(
@@ -644,36 +644,39 @@ impl AccountsProxy {
             voucher_code: String,
         }
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
+        let span = trace_span!("submit_voucher");
         let submission = VoucherSubmission { voucher_code };
-
+        let request = self
+            .handle
+            .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission);
         async move {
-            let request = factory
-                .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission)?
-                .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            service.request(request).await?.deserialize().await
+            request?
+                .account(account)
+                .expected_status(&[StatusCode::OK])
+                .await?
+                .deserialize()
+                .await
         }
+        .instrument(span)
     }
 
     pub fn delete_account(
         &self,
         account: AccountNumber,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let span = trace_span!("delete_account");
+        let request = self
+            .handle
+            .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"));
         async move {
-            let request = factory
-                .delete(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
-                .account(account.clone())?
+            request?
+                .account(account.clone())
                 .header("Mullvad-Account-Number", &account)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
-
-            let _ = service.request(request).await?;
+                .expected_status(&[StatusCode::NO_CONTENT])
+                .await?;
             Ok(())
         }
+        .instrument(span)
     }
 
     #[cfg(any(target_os = "ios", target_os = "tvos"))]
@@ -681,13 +684,11 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
             .expected_status(&[StatusCode::OK])
-            .account(account)?;
-        self.handle.service.request(request).await
+            .account(account)
+            .await
     }
 
     #[cfg(any(target_os = "ios", target_os = "tvos"))]
@@ -695,12 +696,10 @@ impl AccountsProxy {
         &self,
         body: Vec<u8>,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
-            .expected_status(&[StatusCode::OK]);
-        self.handle.service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 
     #[cfg(target_os = "android")]
@@ -713,20 +712,21 @@ impl AccountsProxy {
             obfuscated_id: String,
         }
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let span = trace_span!("init_play_purchase");
+        let request = self
+            .handle
+            .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &());
         async move {
-            let request = factory
-                .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &())?
-                .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            let response = service.request(request).await?;
+            let response = request?
+                .account(account)
+                .expected_status(&[StatusCode::OK])
+                .await?;
 
             let PlayPurchaseInitResponse { obfuscated_id } = response.deserialize().await?;
 
             Ok(obfuscated_id)
         }
+        .instrument(span)
     }
 
     #[cfg(target_os = "android")]
@@ -735,27 +735,26 @@ impl AccountsProxy {
         account: AccountNumber,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let span = trace_span!("verify_play_purchase");
+        let request = self.handle.post_json(
+            &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+            &play_purchase,
+        );
         async move {
-            let request = factory
-                .post_json(
-                    &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
-                    &play_purchase,
-                )?
-                .account(account)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
+            let response = request?
+                .account(account)
+                .expected_status(&[StatusCode::NO_CONTENT])
+                .await;
 
-            let response = service.request(request).await;
             match response {
                 Err(e) => {
-                    log::error!("verify_play_purchase failed: #{:?}", e);
+                    tracing::error!("verify_play_purchase failed: #{:?}", e);
                     Err(e)
                 }
                 Ok(_) => Ok(()),
             }
         }
+        .instrument(span)
     }
 
     pub fn get_www_auth_token(
@@ -767,16 +766,16 @@ impl AccountsProxy {
             auth_token: String,
         }
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let request = self
+            .handle
+            .post(&format!("{APP_URL_PREFIX}/www-auth-token"));
         async move {
-            let request = factory
-                .post(&format!("{APP_URL_PREFIX}/www-auth-token"))?
-                .account(account)?
-                .expected_status(&[StatusCode::OK]);
-            let response = service.request(request).await?;
-            let response: AuthTokenResponse = response.deserialize().await?;
+            let response: AuthTokenResponse = request?
+                .account(account)
+                .expected_status(&[StatusCode::OK])
+                .await?
+                .deserialize()
+                .await?;
             Ok(response.auth_token)
         }
     }
@@ -813,16 +812,15 @@ impl ProblemReportProxy {
             metadata: metadata.clone(),
         };
 
-        let service = self.handle.service.clone();
-        let factory = self.handle.factory.clone();
-
+        let span = trace_span!("problem_report");
+        let request = self
+            .handle
+            .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report);
         async move {
-            let request = factory
-                .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report)?
-                .expected_status(&[StatusCode::NO_CONTENT]);
-            service.request(request).await?;
+            request?.expected_status(&[StatusCode::NO_CONTENT]).await?;
             Ok(())
         }
+        .instrument(span)
     }
 }
 
@@ -836,29 +834,28 @@ impl ApiProxy {
         Self { handle }
     }
 
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
         self.get_api_addrs_response().await?.deserialize().await
     }
 
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn get_api_addrs_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
-        let request = self
-            .handle
-            .factory
+        self.handle
             .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
-            .expected_status(&[StatusCode::OK]);
-
-        self.handle.service.request(request).await
+            .expected_status(&[StatusCode::OK])
+            .await
     }
 
     /// Check the availability of `{APP_URL_PREFIX}/api-addrs`.
+    #[instrument(level = Level::TRACE, skip(self), ret)]
     pub async fn api_addrs_available(&self) -> Result<bool, rest::Error> {
-        let request = self
+        let response = self
             .handle
-            .factory
             .head(&format!("{APP_URL_PREFIX}/api-addrs"))?
-            .expected_status(&[StatusCode::OK]);
+            .expected_status(&[StatusCode::OK])
+            .await?;
 
-        let response = self.handle.service.request(request).await?;
         Ok(response.status().is_success())
     }
 }

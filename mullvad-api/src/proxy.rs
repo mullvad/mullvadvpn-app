@@ -1,4 +1,4 @@
-use hyper_util::client::legacy::connect::{Connected, Connection};
+use futures::channel::mpsc;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -15,41 +15,49 @@ use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
 };
+use tracing::{Level, instrument};
+
+use crate::{access_mode::AccessModeSelectorHandle, domain_fronting::DfConfigResolved};
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-pub trait ConnectionModeProvider: Send {
+/// Source of [`ApiConnectionMode`]s for a `RequestService`.
+///
+/// A static source provides a single, fixed connection mode. A dynamic source
+/// is connected to a running `AccessModeSelector`, which announces new
+/// connection modes over a channel and which may be asked to rotate the
+/// current mode when API requests fail.
+pub enum ConnectionModeSource {
+    Static(ApiConnectionMode),
+    Dynamic {
+        initial: ApiConnectionMode,
+        handle: AccessModeSelectorHandle,
+        change_rx: mpsc::UnboundedReceiver<ApiConnectionMode>,
+    },
+}
+
+impl From<ApiConnectionMode> for ConnectionModeSource {
+    fn from(mode: ApiConnectionMode) -> Self {
+        Self::Static(mode)
+    }
+}
+
+impl ConnectionModeSource {
     /// Initial connection mode
-    fn initial(&self) -> ApiConnectionMode;
-
-    /// Request a new connection mode from the provider
-    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send;
-
-    /// Receive changes to the connection mode, announced by the provider
-    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send;
-}
-
-pub struct StaticConnectionModeProvider {
-    mode: ApiConnectionMode,
-}
-
-impl StaticConnectionModeProvider {
-    pub fn new(mode: ApiConnectionMode) -> Self {
-        Self { mode }
-    }
-}
-
-impl ConnectionModeProvider for StaticConnectionModeProvider {
-    fn initial(&self) -> ApiConnectionMode {
-        self.mode.clone()
+    pub fn initial(&self) -> ApiConnectionMode {
+        match self {
+            Self::Static(mode) | Self::Dynamic { initial: mode, .. } => mode.clone(),
+        }
     }
 
-    fn rotate(&self) -> impl std::future::Future<Output = ()> + Send {
-        futures::future::ready(())
-    }
-
-    fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
-        futures::future::pending()
+    /// Ask the source to rotate to a new connection mode. No-op for static sources.
+    pub async fn rotate(&self) {
+        match self {
+            Self::Static(_) => {}
+            Self::Dynamic { handle, .. } => {
+                let _ = handle.rotate().await;
+            }
+        }
     }
 }
 
@@ -76,29 +84,7 @@ pub enum ProxyConfig {
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
-    DomainFronting(DomainFrontingConfig),
-}
-
-#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct DomainFrontingConfig {
-    pub addr: SocketAddr,
-    pub domain_fronting: domain_fronting::DomainFronting,
-}
-
-impl DomainFrontingConfig {
-    /// Resolve a domain fronting configuration by performing DNS lookup on the front domain.
-    pub async fn resolve(
-        front: String,
-        proxy_host: String,
-        session_header_key: String,
-    ) -> Result<Self, domain_fronting::Error> {
-        let df = domain_fronting::DomainFronting::new(front, proxy_host, session_header_key);
-        let proxy_config = df.proxy_config().await?;
-        Ok(Self {
-            addr: proxy_config.addr,
-            domain_fronting: df,
-        })
-    }
+    DomainFronting(DfConfigResolved),
 }
 
 impl ProxyConfig {
@@ -144,7 +130,7 @@ impl ApiConnectionMode {
     /// This returns `ApiConnectionMode::Direct` if reading from disk fails for any reason.
     pub async fn try_from_cache(cache_dir: &Path) -> Self {
         Self::from_cache(cache_dir).await.unwrap_or_else(|error| {
-            log::error!(
+            tracing::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to read API endpoint cache")
             );
@@ -154,11 +140,12 @@ impl ApiConnectionMode {
 
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
     /// If the file does not exist, this returns `Ok(ApiConnectionMode::Direct)`.
+    #[instrument(level = Level::TRACE, ret)]
     async fn from_cache(cache_dir: &Path) -> io::Result<Self> {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         match fs::read_to_string(path).await {
             Ok(s) => serde_json::from_str(&s).map_err(|error| {
-                log::error!(
+                tracing::error!(
                     "{}",
                     error.display_chain_with_msg(&format!(
                         "Failed to deserialize \"{CURRENT_CONFIG_FILENAME}\""
@@ -177,6 +164,7 @@ impl ApiConnectionMode {
     }
 
     /// Stores this config to `CURRENT_CONFIG_FILENAME`.
+    #[instrument(level = Level::TRACE, ret)]
     pub async fn save(&self, cache_dir: &Path) -> io::Result<()> {
         let mut file = mullvad_fs::AtomicFile::new(cache_dir.join(CURRENT_CONFIG_FILENAME)).await?;
         let json = serde_json::to_string_pretty(self)
@@ -187,12 +175,13 @@ impl ApiConnectionMode {
     }
 
     /// Attempts to remove `CURRENT_CONFIG_FILENAME`, if it exists.
+    #[instrument(level = Level::TRACE)]
     pub async fn try_delete_cache(cache_dir: &Path) {
         let path = cache_dir.join(CURRENT_CONFIG_FILENAME);
         if let Err(err) = fs::remove_file(path).await
             && err.kind() != std::io::ErrorKind::NotFound
         {
-            log::error!(
+            tracing::error!(
                 "{}",
                 err.display_chain_with_msg("Failed to remove old API config")
             );
@@ -210,10 +199,6 @@ impl ApiConnectionMode {
 
     pub fn is_proxy(&self) -> bool {
         *self != ApiConnectionMode::Direct
-    }
-
-    pub fn into_provider(self) -> StaticConnectionModeProvider {
-        StaticConnectionModeProvider::new(self)
     }
 }
 
@@ -248,23 +233,15 @@ impl<T: AsyncRead + AsyncWrite + Unpin> AsyncWrite for ConnectionDecorator<T> {
     }
 }
 
-impl<T: AsyncRead + AsyncWrite> Connection for ConnectionDecorator<T> {
-    fn connected(&self) -> Connected {
-        Connected::new()
-    }
-}
+trait Connection: AsyncRead + AsyncWrite + Unpin + Send {}
 
-trait ConnectionMullvad: AsyncRead + AsyncWrite + Unpin + Connection + Send {}
-
-impl<T: AsyncRead + AsyncWrite + Unpin + Connection + Send> ConnectionMullvad for T {}
+impl<T: AsyncRead + AsyncWrite + Unpin + Send> Connection for T {}
 
 /// Stream that represents a Mullvad API connection
-pub struct ApiConnection(Box<dyn ConnectionMullvad>);
+pub struct ApiConnection(Box<dyn Connection>);
 
 impl ApiConnection {
-    pub fn new<T: AsyncRead + AsyncWrite + Unpin + Connection + Send + 'static>(
-        conn: Box<T>,
-    ) -> Self {
+    pub fn new<T: AsyncRead + AsyncWrite + Unpin + Send + 'static>(conn: Box<T>) -> Self {
         Self(conn)
     }
 }
@@ -275,7 +252,9 @@ impl AsyncRead for ApiConnection {
         cx: &mut task::Context<'_>,
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_read(cx, buf)
+        let poll = Pin::new(&mut self.0).poll_read(cx, buf);
+        tracing::trace!(name: "ApiConnection::poll_read", return = ?poll);
+        poll
     }
 }
 
@@ -285,20 +264,40 @@ impl AsyncWrite for ApiConnection {
         cx: &mut task::Context<'_>,
         buf: &[u8],
     ) -> Poll<io::Result<usize>> {
-        Pin::new(&mut self.0).poll_write(cx, buf)
+        let poll = Pin::new(&mut self.0).poll_write(cx, buf);
+        tracing::trace!(name: "ApiConnection::poll_write", buf_len = buf.len(), return = ?poll);
+        poll
     }
 
     fn poll_flush(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_flush(cx)
+        let poll = Pin::new(&mut self.0).poll_flush(cx);
+        tracing::trace!(name: "ApiConnection::poll_flush", return = ?poll);
+        poll
     }
 
     fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut task::Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.0).poll_shutdown(cx)
+        let poll = Pin::new(&mut self.0).poll_shutdown(cx);
+        tracing::trace!(name: "ApiConnection::poll_shutdown", return = ?poll);
+        poll
+    }
+
+    fn poll_write_vectored(
+        mut self: Pin<&mut Self>,
+        cx: &mut task::Context<'_>,
+        bufs: &[io::IoSlice<'_>],
+    ) -> Poll<io::Result<usize>> {
+        let poll = Pin::new(&mut self.0).poll_write_vectored(cx, bufs);
+        tracing::trace!(name: "ApiConnection::poll_write_vectored", return = ?poll);
+        poll
+    }
+
+    fn is_write_vectored(&self) -> bool {
+        self.0.is_write_vectored()
     }
 }
 
-impl Connection for ApiConnection {
-    fn connected(&self) -> Connected {
-        self.0.connected()
+impl fmt::Debug for ApiConnection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("ApiConnection").finish_non_exhaustive()
     }
 }

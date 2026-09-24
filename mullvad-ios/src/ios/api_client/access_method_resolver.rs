@@ -43,8 +43,9 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
 
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
-    domain: String,
+    encrypted_dns_domain: String,
     state: EncryptedDnsProxyState,
+    domain_fronting: super::DomainFrontingConfig,
     bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
     address_cache: AddressCache<IOSAddressCacheBacking>,
 }
@@ -52,15 +53,17 @@ pub struct SwiftAccessMethodResolver {
 impl SwiftAccessMethodResolver {
     pub fn new(
         endpoint: ApiEndpoint,
-        domain: String,
+        encrypted_dns_domain: String,
         state: EncryptedDnsProxyState,
+        domain_fronting: super::DomainFrontingConfig,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         address_cache: AddressCache<IOSAddressCacheBacking>,
     ) -> Self {
         Self {
             endpoint,
-            domain,
+            encrypted_dns_domain,
             state,
+            domain_fronting,
             bridge_provider,
             address_cache,
         }
@@ -81,7 +84,11 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                if let Err(error) = self.state.fetch_configs(self.domain.as_str()).await {
+                if let Err(error) = self
+                    .state
+                    .fetch_configs(self.encrypted_dns_domain.as_str())
+                    .await
+                {
                     log::error!("{error:#?}");
                 }
                 let Some(edp) = self.state.next_configuration() else {
@@ -90,9 +97,20 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 };
                 ApiConnectionMode::Proxied(ProxyConfig::from(edp))
             }
-            // AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
-            //     mullvad_api::domain_fronting::resolve().await?
-            // }
+            AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
+                let config = mullvad_api::domain_fronting::DfConfig::new(
+                    self.domain_fronting
+                        .front
+                        .parse()
+                        .inspect_err(|e| {
+                            log::error!("{:?} is not a valid URI: {e}", self.domain_fronting.front)
+                        })
+                        .ok()?,
+                    self.domain_fronting.proxy_host.clone(),
+                )
+                .with_session_key(mullvad_api::domain_fronting::SESSION_KEY.into());
+                mullvad_api::domain_fronting::resolve_with(&config).await?
+            }
             AccessMethod::Custom(config) => {
                 ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
             }

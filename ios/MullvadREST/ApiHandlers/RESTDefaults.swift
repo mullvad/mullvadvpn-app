@@ -25,6 +25,11 @@ extension REST {
 
     public static let encryptedDNSHostname = infoDictionary["EncryptedDnsHostName"] as! String
 
+    public static let domainFronting = DomainFrontingConfig(
+        front: infoDictionary["DomainFrontingFront"] as! String,
+        proxyHost: infoDictionary["DomainFrontingProxyHost"] as! String,
+    )
+
     /// Disables API IP address cache when in staging environment and sticks to using default API endpoint instead.
     public static let isStagingEnvironment = false
 

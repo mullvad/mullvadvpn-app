@@ -60,18 +60,24 @@ class MullvadApi {
             uniqueIdentifier: UUID().uuidString,
             name: "EncryptedDNS",
             isEnabled: false,
-            methodKind: .kindEncryptedDnsProxy
-        )
+            methodKind: .kindEncryptedDnsProxy)
+        let domainFrontingRaw = convertBuiltinAccessMethodSetting(
+            uniqueIdentifier: UUID().uuidString,
+            name: "Domain fronting",
+            isEnabled: false,
+            methodKind: .kindDomainFronting)
         let settingsWrapper = initAccessMethodSettingsWrapper(
             direct: direct!,
             bridges: bridges!,
             encryptedDns: encryptedDNSRaw!,
+            domainFronting: domainFrontingRaw!,
             custom: [])
         let bridgeProvider = ShadowsocksProviderNil()
         context = ApiContext(
             host: hostname,
             address: apiAddress,
             domain: hostname,
+            domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
             disableTls: false,
             bridgeProvider: bridgeProvider,
             settingsProvider: settingsWrapper,
