@@ -473,7 +473,9 @@ impl Runtime {
             socket_bypass_tx,
         })
     }
+}
 
+impl<B: AddressCacheBacking> Runtime<B> {
     /// Returns a new request service handle
     pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
         self.new_request_service(
@@ -485,9 +487,7 @@ impl Runtime {
             false,
         )
     }
-}
 
-impl<B: AddressCacheBacking> Runtime<B> {
     pub async fn with_cache_backing(
         handle: tokio::runtime::Handle,
         endpoint: &ApiEndpoint,

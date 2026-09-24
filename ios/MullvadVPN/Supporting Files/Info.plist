@@ -40,11 +40,6 @@
 	<true/>
 	<key>MainApplicationIdentifier</key>
 	<string>$(APPLICATION_IDENTIFIER)</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>StartVPNIntent</string>
