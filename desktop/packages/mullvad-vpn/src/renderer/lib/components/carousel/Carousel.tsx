@@ -1,9 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { spacings } from '../../foundations';
 import { Flex } from '../flex';
 import { CarouselProvider, useCarouselContext } from './CarouselContext';
-import { CarouselControls, CarouselSlides } from './components';
+import {
+  CarouselControls,
+  CarouselSlides,
+  StyledCarouselControls,
+  StyledCarouselSlides,
+} from './components';
 import { useEffectScrollToSlide, useFocusCarousel, useHandleKeyboardNavigation } from './hooks';
 
 export type CarouselProps = React.ComponentPropsWithRef<'section'> & {
@@ -17,6 +23,10 @@ export const StyledCarousel = styled.section`
 
 export const StyledFlex = styled(Flex)`
   width: 100%;
+
+  > ${StyledCarouselSlides} + ${StyledCarouselControls} {
+    margin-top: ${spacings.medium};
+  }
 `;
 
 function CarouselImpl({ children, ...props }: CarouselProps) {
