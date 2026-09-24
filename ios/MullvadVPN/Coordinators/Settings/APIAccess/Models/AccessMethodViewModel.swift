@@ -191,10 +191,13 @@ extension AccessMethodViewModel {
             InfoModalConfig(
                 header: "Domain fronting",
                 preamble: String(
-                    NSLocalizedString(
-                        "The app communicates with a Mullvad API server via %@.",
-                        comment: ""), "domain fronting"),
-
+                    format:
+                        NSLocalizedString(
+                            "The app communicates with a Mullvad API server via %@.",
+                            comment: ""
+                        ),
+                    "domain fronting"
+                ),
                 body: [
                     String(
                         format: NSLocalizedString(
