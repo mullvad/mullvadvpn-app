@@ -51,18 +51,6 @@ buildscript {
             classpath("$protoc:windows-x86_32@exe")
             classpath("$protoc:windows-x86_64@exe")
 
-            // ProtoC gen grpc java plugin
-            val protocJava = libs.plugins.grpc.protoc.gen.grpc.java.get().toString()
-            classpath("$protocJava:linux-aarch_64@exe")
-            classpath("$protocJava:linux-ppcle_64@exe")
-            classpath("$protocJava:linux-s390_64@exe")
-            classpath("$protocJava:linux-x86_32@exe")
-            classpath("$protocJava:linux-x86_64@exe")
-            classpath("$protocJava:osx-aarch_64@exe")
-            classpath("$protocJava:osx-x86_64@exe")
-            classpath("$protocJava:windows-x86_32@exe")
-            classpath("$protocJava:windows-x86_64@exe")
-
             // Kotlin Native Prebuilt
             val prebuilt = libs.kotlin.native.prebuilt.get().toString()
             classpath("$prebuilt:windows-x86_64@zip")
