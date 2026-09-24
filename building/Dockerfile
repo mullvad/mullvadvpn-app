@@ -48,10 +48,11 @@ RUN . /etc/os-release && \
     > /etc/apt/sources.list
 
 RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
-    git \
-    curl \
+    # Basic tools
+    git curl jq \
     make \
     gcc gcc-aarch64-linux-gnu \
+    # App dependencies
     libdbus-1-dev libdbus-1-dev:arm64 \
     rpm \
     # For cross-compiling/linting towards Windows
