@@ -12,7 +12,8 @@ use std::{
     net::IpAddr,
     sync::{Arc, Mutex},
 };
-use talpid_types::{ErrorExt, android::AndroidContext, net::Connectivity};
+use talpid_error::ErrorExt;
+use talpid_types::{android::AndroidContext, net::Connectivity};
 
 /// Error related to Android connectivity monitor
 #[derive(thiserror::Error, Debug)]

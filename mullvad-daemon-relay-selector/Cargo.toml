@@ -14,6 +14,7 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
 serde_json = { workspace = true, features = ["std"] }
+talpid-error.workspace = true
 talpid-future = { path = "../talpid-future/" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }

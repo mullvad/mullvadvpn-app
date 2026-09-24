@@ -27,6 +27,7 @@ use gotatun::{
     },
     x25519::StaticSecret,
 };
+use talpid_error::ErrorExt;
 use talpid_netstack::{
     ip_mux::ip_mux,
     smoltcp_network::{SmoltcpHandle, smoltcp_network},
@@ -34,10 +35,7 @@ use talpid_netstack::{
 use talpid_tunnel_config_client::negotiation::{
     Negotiables, NegotiationConfig, NegotiationError, Relay, Relays, negotiate_ephemeral_peers,
 };
-use talpid_types::{
-    ErrorExt,
-    net::wireguard::{PrivateKey, PublicKey},
-};
+use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::{
     Mutex,
     mpsc::{UnboundedReceiver, UnboundedSender},

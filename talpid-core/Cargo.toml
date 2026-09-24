@@ -15,6 +15,7 @@ libc = "0.2"
 log = { workspace = true }
 rand = { workspace = true }
 talpid-dns = { path = "../talpid-dns" }
+talpid-error.workspace = true
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }

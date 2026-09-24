@@ -9,10 +9,8 @@ use crate::resolver::LOCAL_DNS_RESOLVER;
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
 use talpid_dns::DnsConfig;
-use talpid_types::{
-    ErrorExt,
-    tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError},
-};
+use talpid_error::ErrorExt;
+use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError, ParameterGenerationError};
 
 /// No tunnel is running and all network connections are blocked.
 pub struct ErrorState {

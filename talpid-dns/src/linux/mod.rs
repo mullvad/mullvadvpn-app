@@ -7,6 +7,7 @@ mod systemd_resolved;
 use std::env;
 use std::fmt;
 use std::net::IpAddr;
+use talpid_error::ErrorExt;
 
 use self::network_manager::NetworkManager;
 use self::resolvconf::Resolvconf;
@@ -112,7 +113,6 @@ impl DnsMonitorHolder {
 
     fn with_detected_dns_manager() -> Result<Self> {
         fn log_err<E: std::error::Error>(method: &'static str) -> impl Fn(&E) {
-            use talpid_types::ErrorExt;
             move |err: &E| {
                 log::debug!(
                     "{}",

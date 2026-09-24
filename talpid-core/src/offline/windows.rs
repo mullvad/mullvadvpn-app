@@ -6,8 +6,9 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
+use talpid_error::ErrorExt;
 use talpid_routing::{CallbackHandle, EventType, RouteManagerHandle, get_best_default_route};
-use talpid_types::{ErrorExt, net::Connectivity};
+use talpid_types::net::Connectivity;
 use talpid_windows::net::AddressFamily;
 
 #[derive(thiserror::Error, Debug)]

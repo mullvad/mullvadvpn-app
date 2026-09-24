@@ -18,7 +18,7 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use windows_service::{
     service::{
         PowerEventParam, Service, ServiceAccess, ServiceAction, ServiceActionType, ServiceControl,

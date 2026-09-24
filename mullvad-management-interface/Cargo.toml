@@ -18,6 +18,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
 prost = { workspace = true }
 prost-types = { workspace = true }
+talpid-error.workspace = true
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tipsy = { workspace = true }

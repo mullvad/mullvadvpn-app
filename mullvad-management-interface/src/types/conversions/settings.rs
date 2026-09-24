@@ -1,6 +1,6 @@
 use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{constraints::Constraint, settings::CURRENT_SETTINGS_VERSION};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 impl From<&mullvad_types::settings::Settings> for proto::Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {

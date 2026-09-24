@@ -10,7 +10,7 @@ license.workspace = true
 futures = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-error.workspace = true
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["io-util", "net", "process", "rt-multi-thread", "time"] }
 
@@ -19,6 +19,7 @@ tokio = { workspace = true, features = ["test-util"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.2", features = ["derive"] }
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"

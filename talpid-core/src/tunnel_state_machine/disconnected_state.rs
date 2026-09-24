@@ -7,7 +7,7 @@ use crate::firewall::FirewallPolicy;
 #[cfg(target_os = "macos")]
 use crate::tunnel_state_machine::ErrorState;
 use futures::StreamExt;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 #[cfg(target_os = "macos")]
 use talpid_types::tunnel::ErrorStateCause;
 

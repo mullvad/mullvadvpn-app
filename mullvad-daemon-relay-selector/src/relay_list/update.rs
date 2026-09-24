@@ -17,8 +17,8 @@ use mullvad_api::{
     CachedRelayList, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
 use mullvad_types::relay_list::{BridgeList, RelayList};
+use talpid_error::ErrorExt;
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
-use talpid_types::ErrorExt;
 
 use crate::relay_selector::RelaySelectorIO;
 

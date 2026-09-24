@@ -2,7 +2,7 @@ use std::{
     ops::{Deref, DerefMut},
     path::{Path, PathBuf},
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::{fs, io};
 
 /// Stores content in a temporary file before moving it to the

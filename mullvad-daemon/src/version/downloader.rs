@@ -9,7 +9,7 @@ use rand::seq::IndexedRandom;
 use std::io;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::fs;
 use tokio::sync::broadcast;
 

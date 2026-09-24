@@ -1,6 +1,7 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
+use talpid_error::ErrorExt;
 
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
@@ -18,7 +19,7 @@ use talpid_types::net::{
     ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS, ipnetwork_sub::IpNetworkSub,
     obfuscation::Obfuscators, wireguard,
 };
-use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
+use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 

@@ -23,7 +23,7 @@ use std::{
     ptr,
     time::Duration,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use talpid_windows::{io::Overlapped, process::ProcessSnapshot, sync::Event};
 use windows_sys::Win32::{
     Foundation::{

@@ -3,7 +3,7 @@ use inotify::{Inotify, WatchMask};
 use parking_lot::Mutex;
 use resolv_conf::{Config, ScopedIp};
 use std::{fs, io, net::IpAddr, path::Path, sync::Arc};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use triggered::{Listener, Trigger, trigger};
 
 const RESOLV_CONF_BACKUP_PATH: &str = "/etc/resolv.conf.mullvadbackup";

@@ -10,7 +10,7 @@ use std::{
     os::windows::ffi::OsStrExt,
     ptr,
 };
-use talpid_types::win32_err;
+use talpid_error::win32_err;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
     Win32::NetworkManagement::IpHelper::{
