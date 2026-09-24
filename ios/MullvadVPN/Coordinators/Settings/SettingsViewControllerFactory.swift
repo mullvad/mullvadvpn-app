@@ -109,10 +109,12 @@ final class SettingsViewControllerFactory {
 
     private func makeProblemReportViewController() -> MakeChildResult {
         return .viewController(
-            ProblemReportViewController(
-                interactor: interactorFactory.makeProblemReportInteractor(),
-                alertPresenter: alertPresenter
-            ))
+            UIHostingController(
+                rootView: ProblemReportView(
+                    viewModel: ProblemReportViewModelNew()
+                )
+            )
+        )
     }
 
     private func makeAPIAccessCoordinator() -> MakeChildResult {
