@@ -33,7 +33,8 @@ struct ProblemReportView: View {
 
     let emailPlaceholderText: LocalizedStringKey = "Your email (optional)"
 
-    let messageTextViewPlaceholder: LocalizedStringKey = """
+    let messageTextViewTitle: LocalizedStringKey = "Problem description"
+    static let messageTextViewPlaceholder: LocalizedStringKey = """
         To assist you better, please write in English or Swedish \
         and include which country you are connecting from.
         """
@@ -44,7 +45,11 @@ struct ProblemReportView: View {
                 ModalOverlay(state: modalState)
                     .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
-                mainForm
+                if viewModel.isEditingMessage {
+                    ProblemReportView.MessageEditOverlay(viewModel: viewModel)
+                } else {
+                    mainForm
+                }
             }
         }.popover(isPresented: viewModel.showLogs) {
             ProblemReportView.LogView(viewModel: viewModel)
@@ -64,12 +69,7 @@ struct ProblemReportView: View {
                 placeholder: "Enter your email",
                 text: $viewModel.email,
                 borderStyle: .constant(.normal))
-            ConfigurableTextView(
-                title: "Problem description",
-                placeholder: messageTextViewPlaceholder,
-                text: $viewModel.message,
-                borderStyle: .constant(.normal)
-            )
+            messageEditInlinePlaceholder
             ActionBox(
                 isChecked: $viewModel.includeAccountTokenInLogs,
                 toggleTitle: accountTokenInclusionPrompt,
@@ -96,41 +96,47 @@ struct ProblemReportView: View {
             .disabled(!viewModel.canSend)
         }
         .padding(UIMetrics.padding16)
-        .scrollable(fill: .vertical)
+        .scrollable(fill: .vertical, alignment: .top)
         .background(Color.mullvadBackground)
     }
-
-}
-
-// MARK: previews
-struct MockInteractor: ProblemReportInteractorProtocol {
-    var reportError: (any Error)?
-
-    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
-        completion(
-            """
-            The log file will go here
-            =========================
-
-            Something something something...
-            """
-        )
-    }
-
-    func sendReport(
-        email: String, message: String, includeAccountTokenInLogs: Bool,
-        completion: @escaping (Result<Void, any Error>) -> Void
-    ) {
-        //  try await Task.sleep(nanoseconds: 1_000_000_000)
-        if let reportError {
-            completion(.failure(reportError))
-        } else {
-            completion(.success(()))
+    
+    // a mock text editor which expands and morphs into a real text editor
+    var messageEditInlinePlaceholder: some View {
+        VStack(alignment: .leading, spacing: 0.0) {
+            Text(messageTextViewTitle)
+                .foregroundStyle(Color.MullvadTextField.textInput)
+                .font(.mullvadTinySemiBold)
+                .padding(.bottom, 4.0)
+            ZStack(alignment: .topLeading) {
+                Text(ProblemReportView.messageTextViewPlaceholder)
+                    .foregroundStyle(Color.MullvadTextField.inputPlaceholder)
+                    .padding(.horizontal, 8.0)
+                    .padding(.vertical, 12.0)
+                    .font(.mullvadSmall)
+                    .opacity(viewModel.message.isEmpty ? 1.0 : 0.0)
+                Text(viewModel.message)
+                    .foregroundStyle(Color.MullvadTextField.textInput)
+                    .padding(.horizontal, 8.0)
+                    .padding(.vertical, 12.0)
+                    .font(.mullvadSmall)
+            }
+            .modifier(
+                RoundedCornerModifier(
+                    cornerRadius: 4.0,
+                    corners: .allCorners,
+                    insertBy: .zero,
+                    borderColor: Color.MullvadTextField.border,
+                    borderWidth: 1.0
+                )
+            )
+            .onTapGesture {
+                viewModel.isEditingMessage = true
+            }
         }
     }
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew(interactor: MockInteractor())
+    let viewModel = ProblemReportViewModelNew(interactor: MockProblemReportInteractor())
     return ProblemReportView(viewModel: viewModel)
 }

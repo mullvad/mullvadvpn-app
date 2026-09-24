@@ -150,6 +150,7 @@
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
 		44B12CC53062A7EE00B071C2 /* ProblemReportViewModalOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */; };
 		44B12CC73062F81500B071C2 /* ProblemReportLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC63062F80800B071C2 /* ProblemReportLogView.swift */; };
+		44B12CC93065B18500B071C2 /* ProblemReportMessageEditOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B12CC83065B17100B071C2 /* ProblemReportMessageEditOverlay.swift */; };
 		44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */; };
 		44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */; };
 		44C18DE32C74DF93009BE3E1 /* TunnelPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275432C3C3029000526DE /* TunnelPinger.swift */; };
@@ -1927,6 +1928,7 @@
 		44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoggingTests.swift; sourceTree = "<group>"; };
 		44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewModalOverlay.swift; sourceTree = "<group>"; };
 		44B12CC63062F80800B071C2 /* ProblemReportLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportLogView.swift; sourceTree = "<group>"; };
+		44B12CC83065B17100B071C2 /* ProblemReportMessageEditOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportMessageEditOverlay.swift; sourceTree = "<group>"; };
 		44B3C4392BFE2C800079782C /* PacketTunnelActorReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducer.swift; sourceTree = "<group>"; };
 		44B3C43C2C00CBBC0079782C /* PacketTunnelActorReducerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorReducerTests.swift; sourceTree = "<group>"; };
 		44CAEAA02D442F56004A8E65 /* LocationIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationIdentifier.swift; sourceTree = "<group>"; };
@@ -3630,6 +3632,7 @@
 				44297AAE305AD87B00552263 /* ProblemReportView.swift */,
 				58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */,
 				A99E5EE12B762ED30033F241 /* ProblemReportViewController+ViewManagement.swift */,
+				44B12CC83065B17100B071C2 /* ProblemReportMessageEditOverlay.swift */,
 				44B12CC43062A7E800B071C2 /* ProblemReportViewModalOverlay.swift */,
 				A99E5EDF2B7628150033F241 /* ProblemReportViewModel.swift */,
 				4441E491306121B700620048 /* ProblemReportViewModelNew.swift */,
@@ -7209,6 +7212,7 @@
 				7A6B968C2FEC0F3B00DBF9BD /* StaticButtonStyle.swift in Sources */,
 				7A5869AD2B5552E200640D27 /* IPOverrideViewController.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,
+				44B12CC93065B18500B071C2 /* ProblemReportMessageEditOverlay.swift in Sources */,
 				44AFC7BF3007E4D6001C905F /* MullvadButtonStyle.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
 				F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */,
