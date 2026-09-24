@@ -132,3 +132,32 @@ final class ProblemReportInteractor: ProblemReportInteractorProtocol, @unchecked
         }
     }
 }
+
+// MARK: A mock interactor for SwiftUI Previews
+
+struct MockProblemReportInteractor: ProblemReportInteractorProtocol {
+    var reportError: (any Error)?
+
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
+        completion(
+            """
+            The log file will go here
+            =========================
+
+            Something something something...
+            """
+        )
+    }
+
+    func sendReport(
+        email: String, message: String, includeAccountTokenInLogs: Bool,
+        completion: @escaping (Result<Void, any Error>) -> Void
+    ) {
+        //  try await Task.sleep(nanoseconds: 1_000_000_000)
+        if let reportError {
+            completion(.failure(reportError))
+        } else {
+            completion(.success(()))
+        }
+    }
+}
