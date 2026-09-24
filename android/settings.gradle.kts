@@ -2,12 +2,7 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal() {
-            content {
-                // Exclude gRPC artifacts - they're only available in Maven Central
-                excludeGroup("io.grpc")
-            }
-        }
+        gradlePluginPortal()
     }
 }
 
