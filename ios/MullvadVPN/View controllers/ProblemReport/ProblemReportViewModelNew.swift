@@ -25,6 +25,7 @@ import SwiftUI
     var includeAccountTokenInLogs: Bool = false
 
     var modalState: ModalState?
+    var isEditingMessage: Bool = false
     var logText: String?
     var showLogs: Binding<Bool>!
     var alert: MullvadAlert?
