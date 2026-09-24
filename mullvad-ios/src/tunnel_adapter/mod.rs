@@ -6,10 +6,12 @@ pub(crate) mod tun_device;
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    pin::{Pin, pin},
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
+    task::Poll,
     time::{Duration, Instant},
 };
 
@@ -17,14 +19,15 @@ use crate::gotatun::{
     ip_mux::ip_mux,
     smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
 };
+use futures::FutureExt;
 use gotatun::{
     device::{DeviceBuilder, Peer},
-    packet::{Ipv4Header, Ipv6Header, UdpHeader, WgData},
+    packet::{Ipv4Header, Ipv6Header, Packet, PacketBufPool, UdpHeader, WgData},
     tun::MtuWatcher,
     udp::{
-        UdpTransportFactory, UdpTransportFactoryParams,
+        UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams,
         channel::new_udp_tun_channel,
-        socket::{UdpSocket, UdpSocketFactory},
+        socket::{SockOpt, UdpSocket, UdpSocketFactory},
     },
     x25519::StaticSecret,
 };
@@ -33,7 +36,10 @@ use talpid_tunnel_config_client::{
     self, EphemeralPeer, RelayConfigService, request_ephemeral_peer_with,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::sync::Notify;
+use tokio::{
+    sync::{Mutex, Notify, mpsc},
+    task::JoinSet,
+};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 use tunnel_obfuscation::create_local_socket_obfuscator;
@@ -59,6 +65,73 @@ impl ObfuscationGuard {
 impl Drop for ObfuscationGuard {
     fn drop(&mut self) {
         self.task.abort();
+    }
+}
+
+/// A variant of `BoundUdpTransports`` made for Multiplexing.
+/// Opens up several sockets and randomly picks one when sending messages.
+/// Listens to all sockets for messages.
+#[derive(Clone)]
+pub struct Multiplex {
+    sockets: Vec<UdpSocket>,
+    rx: Arc<Mutex<mpsc::UnboundedReceiver<(Packet, SocketAddr)>>>,
+}
+impl Multiplex {
+    pub async fn new(count: usize, udp: BoundUdpTransports) -> io::Result<Self> {
+        let mut sockets = vec![udp.socket];
+        for _ in 0..count {
+            sockets.push(BoundUdpTransports::bind().await?.socket);
+        }
+        let (tx, rx) = mpsc::unbounded_channel();
+
+        for socket in &sockets {
+            let mut socket = socket.clone();
+            let tx = tx.clone();
+            tokio::spawn(async move {
+                let mut pool = PacketBufPool::new(4);
+                while let Ok(vr) = socket.recv_from(&mut pool).await {
+                    if tx.send(vr).is_err() {
+                        break;
+                    }
+                }
+            });
+        }
+        Ok(Self {
+            sockets,
+            rx: Arc::new(Mutex::new(rx)),
+        })
+    }
+}
+impl UdpTransportFactory for Multiplex {
+    type Send = Self;
+
+    type Recv = Self;
+
+    async fn bind(
+        &mut self,
+        _params: &UdpTransportFactoryParams,
+    ) -> io::Result<(Self::Send, Self::Recv)> {
+        Ok((self.clone(), self.clone()))
+    }
+}
+impl UdpSend for Multiplex {
+    type SendManyBuf = <UdpSocket as UdpSend>::SendManyBuf;
+
+    async fn send_to(&self, packet: Packet, destination: SocketAddr) -> io::Result<()> {
+        let index = rand::random_range(0..self.sockets.len());
+        self.sockets[index].send_to(packet, destination).await
+    }
+}
+impl UdpRecv for Multiplex {
+    type RecvManyBuf = <UdpSocket as UdpRecv>::RecvManyBuf;
+
+    async fn recv_from(&mut self, _pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
+        self.rx
+            .lock()
+            .await
+            .recv()
+            .await
+            .ok_or(io::Error::new(io::ErrorKind::BrokenPipe, "task dead"))
     }
 }
 
@@ -368,7 +441,7 @@ impl IosTunnelAdapter {
             });
         let (mux_recv, mux_send) = ip_mux(tun_dev.clone(), tun_dev, ip_recv, ip_send);
 
-        let devices = Self::build_devices(&config, &udp, pq, mux_recv, mux_send).await?;
+        let devices = Self::build_devices(&config, udp, pq, mux_recv, mux_send).await?;
         if stopped.load(Ordering::SeqCst) {
             devices.stop().await;
             return Err(TunnelError::Timeout);
@@ -560,12 +633,15 @@ impl IosTunnelAdapter {
     /// their peers.
     async fn build_devices(
         config: &TunnelConfig,
-        udp: &BoundUdpTransports,
+        udp: BoundUdpTransports,
         pq: PqResult,
         mux_recv: tun_device::IosTunIpRecv,
         mux_send: tun_device::IosTunIpSend,
     ) -> Result<Devices, TunnelError> {
         let (pq_entry, pq_exit_key, pq_exit_peer) = pq;
+        let udp = Multiplex::new(25, udp)
+            .await
+            .map_err(TunnelError::TunnelDevice)?;
 
         let Some(entry_peer_config) = config.entry_peer.as_ref() else {
             // Singlehop: one device, mux'd IP pair, real UDP.
@@ -995,14 +1071,14 @@ fn localhost_wg_endpoint(peer: SocketAddr) -> SocketAddr {
 enum Devices {
     Singlehop(
         gotatun::device::Device<(
-            BoundUdpTransports,
+            Multiplex,
             tun_device::IosTunIpSend,
             tun_device::IosTunIpRecv,
         )>,
     ),
     Multihop {
         entry: gotatun::device::Device<(
-            BoundUdpTransports,
+            Multiplex,
             gotatun::tun::channel::TunChannelTx,
             gotatun::tun::channel::TunChannelRx,
         )>,
