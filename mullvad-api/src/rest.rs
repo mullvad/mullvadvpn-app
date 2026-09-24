@@ -243,10 +243,19 @@ impl RequestService {
         handle
     }
 
-    async fn run(mut self) {
+    async fn run(mut self) -> Option<Infallible> {
         let reset = self.reset.clone();
 
         loop {
+            let new_mode = async {
+                match &mut self.connection_mode_source {
+                    ConnectionModeSource::Static(_) => {
+                        std::future::pending::<Option<ApiConnectionMode>>().await
+                    }
+                    ConnectionModeSource::Dynamic { change_rx, .. } => change_rx.next().await,
+                }
+            };
+
             let evict_connection = async {
                 match &self.connection {
                     None => pending().await,
@@ -265,35 +274,10 @@ impl RequestService {
                 _ = reset.notified() => self.close_connection(),
 
                 // Handle change API access method
-                new_mode = async {
-                    match &mut self.connection_mode_source {
-                        ConnectionModeSource::Static(_) =>
-                            std::future::pending::<Option<ApiConnectionMode>>().await,
-                        ConnectionModeSource::Dynamic { change_rx, .. } => change_rx.next().await,
-                    }
-                } => {
-                    let Some(new_mode) = new_mode else { break };
-                    self.soft_close_connection();
-                    self.connector.set_connection_mode(new_mode);
-                }
+                mode = new_mode => self.on_new_connection_mode(mode?),
 
                 // Handle request
-                request = self.requests_rx.next() => {
-                    let Some(SendRequest { request, response_tx }) = request else { break };
-
-                    let result = tokio::select! {
-                        biased;
-
-                        r = self.send_request(request) => r,
-
-                        // Handle reset-commands during request processing.
-                        _ = reset.notified() => {
-                            self.close_connection();
-                            Err(Error::Aborted)
-                        }
-                    };
-                    let _ = response_tx.send(result);
-                }
+                request = self.requests_rx.next() => self.on_send_request(request?).await,
 
                 // Evict idle connections
                 idle_for = evict_connection => {
@@ -302,6 +286,33 @@ impl RequestService {
                 }
             }
         }
+    }
+
+    fn on_new_connection_mode(&mut self, mode: ApiConnectionMode) {
+        self.soft_close_connection();
+        self.connector.set_connection_mode(mode);
+    }
+
+    async fn on_send_request(
+        &mut self,
+        SendRequest {
+            request,
+            response_tx,
+        }: SendRequest,
+    ) {
+        let reset = self.reset.clone();
+        let result = tokio::select! {
+            biased;
+
+            r = self.send_request(request) => r,
+
+            // Handle reset-commands during request processing.
+            _ = reset.notified() => {
+                self.close_connection();
+                Err(Error::Aborted)
+            }
+        };
+        let _ = response_tx.send(result);
     }
 
     /// Resolve `self.host` an IP and port. This uses the internal [`DnsResolver`].
