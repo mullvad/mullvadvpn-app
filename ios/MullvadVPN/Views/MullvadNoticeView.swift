@@ -460,7 +460,7 @@ private struct EmblemView: View {
                 image: Image.mullvadIconError,
                 dimension: .width(size)
             )
-            
+
         case .fail:
             ResizableImageView(
                 image: Image.mullvadIconFail,

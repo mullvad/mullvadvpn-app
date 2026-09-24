@@ -111,7 +111,9 @@ final class SettingsViewControllerFactory {
         return .viewController(
             UIHostingController(
                 rootView: ProblemReportView(
-                    viewModel: ProblemReportViewModelNew()
+                    viewModel: ProblemReportViewModelNew(
+                        interactor: interactorFactory.makeProblemReportInteractor()
+                    )
                 )
             )
         )
