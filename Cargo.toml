@@ -35,6 +35,7 @@ members = [
   "talpid-core",
   "talpid-dbus",
   "talpid-dns",
+  "talpid-error",
   "talpid-future",
   "talpid-macos",
   "talpid-net",

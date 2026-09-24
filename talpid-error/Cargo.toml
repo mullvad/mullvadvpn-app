@@ -1,0 +1,13 @@
+[package]
+name = "talpid-error"
+edition.workspace = true
+rust-version.workspace = true
+description = "Utilities for error handling and extensions for core:error::Error"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+log.workspace = true
+
+[lints]
+workspace = true
