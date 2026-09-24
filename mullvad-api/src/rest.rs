@@ -735,7 +735,7 @@ pub(crate) fn hyper_request<B>(
     method: Method,
     body: B,
 ) -> Result<http::Request<B>> {
-    let uri = format!("https://{host}/{path}");
+    let uri = Uri::builder().path_and_query(format!("/{path}")).build()?;
     let request = http::request::Builder::new()
         .method(method)
         .uri(uri)
