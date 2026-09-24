@@ -36,6 +36,8 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
     /// IP version preference for relay connections.
     public var ipVersion: IPVersion
 
+    public var multiplexCount: String
+
     public var automaticMultihopIsEnabled: Bool {
         (tunnelMultihopState == .whenNeeded)
             || (tunnelMultihopState == .always && relayConstraints.entryLocations == .any)
@@ -56,7 +58,8 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         tunnelMultihopState: MultihopStateV2 = .whenNeeded,
         daita: DAITASettings = DAITASettings(),
         includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings(),
-        ipVersion: IPVersion = .automatic
+        ipVersion: IPVersion = .automatic,
+        multiplexCount: UInt64 = 0
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -66,6 +69,7 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         self.daita = daita
         self.includeAllNetworks = includeAllNetworks
         self.ipVersion = ipVersion
+        self.multiplexCount = "\(multiplexCount)"
     }
 
     public init(from decoder: any Decoder) throws {
@@ -89,6 +93,9 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         self.ipVersion =
             (try? container.decode(IPVersion.self, forKey: .ipVersion))
             ?? .automatic
+        self.multiplexCount =
+            (try? container.decode(String.self, forKey: .multiplexCount))
+            ?? "0"
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
