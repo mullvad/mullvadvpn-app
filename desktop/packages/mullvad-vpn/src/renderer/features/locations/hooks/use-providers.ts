@@ -3,7 +3,6 @@ import React from 'react';
 import { providersFromRelays } from '../../../components/views/filter/utils';
 import { useRelaySettingsUpdater } from '../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
-import { useSettingsRelayLocationsFiltered } from '../../../redux/hooks';
 import { useSelector } from '../../../redux/store';
 import { getActiveProviders } from '../utils';
 
@@ -20,39 +19,10 @@ export function useProviders(): {
   const locations = useSelector((state) => state.settings.relayLocations);
   const providers = providersFromRelays(locations);
 
-  const relays = locations.flatMap((location) =>
-    location.cities.flatMap((city) => city.relays.map((relay) => relay)),
-  );
+  const entryProviderConstraint = relaySettings?.wireguard.entryProviders ?? [];
+  const entryProviders = getActiveProviders(providers, entryProviderConstraint);
 
-  const { relayLocationsFiltered } = useSettingsRelayLocationsFiltered();
-  // TODO: Map relay locations filtered to their corresponding location
-
-  const entryProviderConstraint = relayLocationsFiltered.entry.matches
-    .map((relayMatch) => relayMatch.relay.hostname)
-    .reduce((activeProviders, hostname) => {
-      const relay = relays.find((relay) => relay.hostname === hostname);
-      if (relay) {
-        if (!activeProviders.includes(relay.provider)) {
-          return [...activeProviders, relay.provider];
-        }
-      }
-
-      return activeProviders;
-    }, relaySettings?.wireguard.entryProviders ?? []);
-  const entryProviders = entryProviderConstraint;
-
-  const exitProviderConstraint = relayLocationsFiltered.exit.matches
-    .map((relayMatch) => relayMatch.relay.hostname)
-    .reduce((activeProviders, hostname) => {
-      const relay = relays.find((relay) => relay.hostname === hostname);
-      if (relay) {
-        if (!activeProviders.includes(relay.provider)) {
-          return [...activeProviders, relay.provider];
-        }
-      }
-
-      return activeProviders;
-    }, relaySettings?.providers ?? []);
+  const exitProviderConstraint = relaySettings?.providers ?? [];
   const exitProviders = getActiveProviders(providers, exitProviderConstraint);
 
   const setEntryProviders = React.useCallback(
