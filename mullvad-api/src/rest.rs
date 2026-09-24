@@ -259,6 +259,8 @@ impl RequestService {
             };
 
             tokio::select! {
+                biased;
+
                 // Handle reset-commands
                 _ = reset.notified() => self.close_connection(),
 
@@ -280,7 +282,10 @@ impl RequestService {
                     let Some(SendRequest { request, response_tx }) = request else { break };
 
                     let result = tokio::select! {
+                        biased;
+
                         r = self.send_request(request) => r,
+
                         // Handle reset-commands during request processing.
                         _ = reset.notified() => {
                             self.close_connection();
