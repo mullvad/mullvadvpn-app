@@ -6101,6 +6101,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "talpid-error"
+version = "0.0.0"
+dependencies = [
+ "log",
+]
+
+[[package]]
 name = "talpid-future"
 version = "0.0.0"
 dependencies = [
