@@ -4,7 +4,7 @@ import { useEffectEvent } from '../utility-hooks';
 
 export type UseQueryProps<T> = {
   enabled?: boolean;
-  queryFn: () => Promise<T>;
+  queryFn: () => Promise<T | undefined>;
   queryKey: string[];
 };
 

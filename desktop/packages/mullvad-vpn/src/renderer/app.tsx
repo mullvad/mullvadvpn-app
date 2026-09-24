@@ -67,6 +67,7 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 import { convertSettingsToRelaySelectorQueries } from './utils';
+import { RelaySelectorPredicate } from '../shared/relay-selector-rpc-types';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -670,6 +671,10 @@ export default class AppRenderer {
     await IpcRendererEventChannel.app.showFullDiskAccessSettings();
   };
 
+  public getRelayPartitions = async (predicate: RelaySelectorPredicate) => {
+    return IpcRendererEventChannel.relays.partitionRelays(predicate);
+  };
+
   public updateRelayLocationsFiltered = async (ignoreCache: boolean = false) => {
     const state = this.reduxStore.getState();
     const relaySelectorQueries = convertSettingsToRelaySelectorQueries(state.settings);
@@ -701,7 +706,7 @@ export default class AppRenderer {
       if (relaySelectorQueriesWithKey.length > 0) {
         const relaySelectorQueryResults = await Promise.all(
           relaySelectorQueriesWithKey.map(async ({ context, key, predicate }) => {
-            const relayPartitions = await IpcRendererEventChannel.relays.partitionRelays(predicate);
+            const relayPartitions = await this.getRelayPartitions(predicate);
 
             return {
               context,

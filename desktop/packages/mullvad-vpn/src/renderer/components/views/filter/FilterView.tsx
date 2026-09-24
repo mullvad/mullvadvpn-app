@@ -1,6 +1,8 @@
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
+import { useProviders } from '../../../features/locations/hooks';
 import { Button } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
@@ -10,7 +12,7 @@ import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { OwnershipFilter, ProviderFilter } from './components';
 import { FilterViewContextProvider, useFilterViewContext } from './FilterViewContext';
-import { useHandleApplyFilter } from './hooks';
+import { useFilteredLocationsMatchCount, useHandleApplyFilter } from './hooks';
 
 const StyledViewContent = styled(View.Content)`
   margin-bottom: 0;
@@ -18,12 +20,35 @@ const StyledViewContent = styled(View.Content)`
 
 function FilterViewImpl() {
   const history = useHistory();
-  const { availableProviders, locationType, selectedProviders } = useFilterViewContext();
+  const { locationType, selectedProviders } = useFilterViewContext();
   const handleApply = useHandleApplyFilter();
 
-  const noSelectedProviders = availableProviders.every(
+  const { exitProviders, entryProviders } = useProviders();
+  const activeProviders = locationType === 'entry' ? entryProviders : exitProviders;
+
+  const noSelectedProviders = activeProviders.every(
     (provider) => !selectedProviders.includes(provider),
   );
+
+  const { isLoading, isFetching, matchingServers } = useFilteredLocationsMatchCount();
+  const showNoMatchingServers = matchingServers === 0 || selectedProviders.length === 0;
+  const disabled = showNoMatchingServers || isLoading || isFetching;
+
+  const getLabel = () => {
+    if (isLoading || isFetching) {
+      return messages.gettext('...');
+    }
+
+    if (showNoMatchingServers) {
+      return messages.gettext('No matching servers found');
+    }
+
+    return sprintf(messages.gettext('Apply %(count)s'), {
+      count: matchingServers,
+    });
+  };
+
+  const label = getLabel();
 
   return (
     <View backgroundColor="darkBlue">
@@ -49,12 +74,8 @@ function FilterViewImpl() {
               </View.Container>
             </NavigationScrollbars>
             <View.Container horizontalMargin="medium" padding={{ vertical: 'large' }}>
-              <Button color="success" disabled={noSelectedProviders} onClick={handleApply}>
-                <Button.Text>
-                  {noSelectedProviders
-                    ? messages.gettext('No matching servers found')
-                    : messages.gettext('Apply')}
-                </Button.Text>
+              <Button color="success" disabled={disabled} onClick={handleApply}>
+                <Button.Text>{label}</Button.Text>
               </Button>
             </View.Container>
           </StyledViewContent>
