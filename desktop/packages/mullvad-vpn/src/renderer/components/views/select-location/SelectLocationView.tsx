@@ -16,8 +16,7 @@ import {
   SpacePreAllocationView,
   StyledSelectLocationHeader,
 } from './components';
-import { useMeasureExpandedLocationSelector, useMeasureIsolatedLocationSelector } from './hooks';
-import { useLocationSlides } from './hooks/use-location-slides';
+import { useLocationSlides, useMeasureLocationSelector } from './hooks';
 import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import {
   SelectLocationViewProvider,
@@ -76,8 +75,7 @@ const StyledNavigationScrollbars = styled(NavigationScrollbars)`
 export function SelectLocationViewImpl() {
   const history = useHistory();
   const { scrollViewRef, spacePreAllocationViewRef } = useScrollPositionContext();
-  const { isolatedItem, setIsLocationSelectorExpanded, transitionState } =
-    useSelectLocationViewContext();
+  const { setIsLocationSelectorExpanded, transitionState } = useSelectLocationViewContext();
 
   const onClose = React.useCallback(() => history.pop(), [history]);
 
@@ -89,24 +87,14 @@ export function SelectLocationViewImpl() {
     [setIsLocationSelectorExpanded],
   );
 
-  const {
-    singlehopElement,
-    multihopElement,
-    height: expandedElementHeight,
-  } = useMeasureExpandedLocationSelector();
-  const { element: isolatedElement, height: isolatedElementHeight } =
-    useMeasureIsolatedLocationSelector();
+  const { measureElement, height } = useMeasureLocationSelector();
 
-  const height = isolatedItem ? isolatedElementHeight : expandedElementHeight;
   const previousHeight = usePrevious(height);
-
   const locationSlide = useLocationSlides();
 
   return (
     <StyledView backgroundColor="darkBlue" $headerHeight={height}>
-      {singlehopElement}
-      {multihopElement}
-      {isolatedElement}
+      {measureElement}
       <BackAction action={onClose}>
         <NavigationContainer>
           <StyledNavigationScrollbars

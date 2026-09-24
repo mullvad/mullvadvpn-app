@@ -1,5 +1,5 @@
-import { useEntryType } from '../../../hooks';
-import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useEntryType } from './use-entry-type';
 
 export function useShowEntryItem() {
   const { isolatedItem } = useSelectLocationViewContext();

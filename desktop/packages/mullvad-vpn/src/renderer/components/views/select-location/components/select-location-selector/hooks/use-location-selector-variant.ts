@@ -1,12 +1,13 @@
 import { useMultihop } from '../../../../../../features/multihop/hooks';
 import { LocationSelectorVariant } from '../../../../../../lib/components/location-selector';
+import { useShowAutomaticEntryItem } from '../../../hooks';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
-export function useLocationSelectorVariant(
-  automaticEntryVisible: boolean,
-): LocationSelectorVariant {
+export function useLocationSelectorVariant(): LocationSelectorVariant {
   const { multihop } = useMultihop();
   const { isolatedItem } = useSelectLocationViewContext();
+
+  const showAutomaticEntryItem = useShowAutomaticEntryItem();
 
   if (isolatedItem) {
     return 'primary';
@@ -14,7 +15,7 @@ export function useLocationSelectorVariant(
 
   if (multihop === 'always') {
     return 'secondary';
-  } else if (multihop === 'when-needed' && automaticEntryVisible) {
+  } else if (multihop === 'when-needed' && showAutomaticEntryItem) {
     return 'secondary';
   }
 
