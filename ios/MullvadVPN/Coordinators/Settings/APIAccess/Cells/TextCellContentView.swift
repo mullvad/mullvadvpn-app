@@ -152,7 +152,7 @@ class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, S
         _ gestureRecognizer: UIGestureRecognizer,
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        // Simultaneous recogition is a prerequisite for enabling failure requirements.
+        // Simultaneous recognition is a prerequisite for enabling failure requirements.
         true
     }
 }

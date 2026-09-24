@@ -15,7 +15,7 @@ import Testing
 
 struct RustProblemReportRequestTests {
     @Test(
-        "Test vaild metadata insertion for SendProblemReport",
+        "Test valid metadata insertion for SendProblemReport",
         arguments: [
             ["key1": "value1"],
             ["key2": "value2"],

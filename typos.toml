@@ -7,9 +7,13 @@ extend-exclude = [
   "dist-assets/**",
   "windows/libwfp",
   "windows/windows-libraries",
-  # TODO(Enable spell checking for iOS source files)
-  "ios/**",
-  "ci/ios/**",
+  "ios/wireguard-apple",
+
+  # Ignore localization files
+  "ios/**/*.xcstrings",
+  "ios/**/*.xliff",
+  "ios/**/*.strings",
+
   # Ignore android resource files
   "android/lib/ui/resource/**/*.xml",
   # Ignore baseline profiles as they may refer to files we don't control
@@ -34,6 +38,7 @@ maybenot = "maybenot"  # a framework for traffic analysis defenses.
 emitable = "emitable"  # https://docs.rs/netlink-packet-core/0.9.0/netlink_packet_core/trait.Emitable.html
 neighbr = "neighbr"  # https://docs.rs/pfctl/0.7.0/pfctl/enum.Icmp6Type.html#variant.NeighbrSol
 excpt = "excpt"  # https://docs.rs/winapi/0.3.9/winapi/vc/excpt/index.html
+superceded = "superceded"  # https://developer.apple.com/documentation/networkextension/neproviderstopreason/superceded
 
 # Denylist to forbid misspelled words that aren't detected by the built-in
 # dictionary. Entries should look like `protonvpn = ""` or `mulvlad = "mullvad"`;
@@ -48,9 +53,6 @@ dependy = ""
 # For example, you might want to allow a specific constant like
 # `DNS_ERROR_INVAILD_VIRTUALIZATION_INSTANCE_NAME`, but still want to forbid
 # the typo `INVAILD` in other places.
-#
-# FIXME(Rename get_shadowsocks_chipers)
-get_shadowsocks_chipers = "get_shadowsocks_chipers"  # Proper typo, but part of FFI.
 
 [type.po]
 # Never spell check translations.

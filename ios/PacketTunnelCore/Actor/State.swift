@@ -83,7 +83,7 @@ enum State: Equatable {
 
     /// Error state.
     /// This state is normally entered when the tunnel is unable to start or reconnect.
-    /// In this state the tunnel blocks all nework connectivity by setting up a peerless WireGuard tunnel, and either awaits user action or, in certain
+    /// In this state the tunnel blocks all network connectivity by setting up a peerless WireGuard tunnel, and either awaits user action or, in certain
     /// circumstances, attempts to recover automatically using a repeating timer.
     case error(BlockingData)
 }
@@ -168,8 +168,8 @@ extension State {
         /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
         public var relayConstraints: RelayConstraints?
 
-        /// Last WG key read from setings.
-        /// Can be `nil` if moved to `keyPolicy` or when it's uknown.
+        /// Last WG key read from settings.
+        /// Can be `nil` if moved to `keyPolicy` or when it's unknown.
         public var currentKey: WireGuard.PrivateKey?
 
         /// Policy describing the current key that should be used by the tunnel.

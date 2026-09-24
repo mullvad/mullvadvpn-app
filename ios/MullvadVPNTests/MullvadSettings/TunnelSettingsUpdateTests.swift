@@ -157,7 +157,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
 
     func testApplyIncludeAllNetworks() {
         // Given:
-        let includeAllNetworksState = InclueAllNetworksState.on
+        let includeAllNetworksState = IncludeAllNetworksState.on
         let localNetworkSharingState = LocalNetworkSharingState.on
         var settings = LatestTunnelSettings()
 

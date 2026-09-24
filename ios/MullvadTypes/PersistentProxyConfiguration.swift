@@ -42,7 +42,7 @@ public enum PersistentProxyConfiguration: Codable, Equatable, Sendable, CustomDe
 }
 
 extension PersistentProxyConfiguration {
-    /// Socks autentication method.
+    /// Socks authentication method.
     public enum SocksAuthentication: Codable, Equatable, Sendable {
         case noAuthentication
         case authentication(UserCredential)

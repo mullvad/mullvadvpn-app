@@ -34,7 +34,7 @@ class AboutViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        navigationController?.navigationBar.configureCustomAppeareance()
+        navigationController?.navigationBar.configureCustomAppearance()
 
         setUpContentView()
 

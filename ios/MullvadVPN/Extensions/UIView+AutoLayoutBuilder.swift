@@ -175,7 +175,7 @@ extension UIView {
  */
 struct PinnableEdges {
     /**
-     Enum describing each inidividual edge with associated inset value.
+     Enum describing each individual edge with associated inset value.
      */
     enum Edge: Hashable {
         case top(CGFloat)
