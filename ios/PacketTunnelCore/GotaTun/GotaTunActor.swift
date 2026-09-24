@@ -27,6 +27,7 @@ private enum GotaTunEvent: Sendable {
     case setErrorState(BlockedStateReason)
     case notifyKeyRotation(Date?)
     case switchKey
+    case deviceCheckCompleted(DeviceCheckOutcome)
     case sleep
     case wake
     #if NEVER_IN_PRODUCTION
@@ -58,7 +59,11 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private let defaultPathObserver: GotaTunPathObserverProtocol
     private let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     private let adapterFactory: GotaTunAdapterFactory
+    private let deviceChecker: DeviceCheckerProtocol
     private var lastAppliedSettings: TunnelInterfaceSettings?
+
+    /// Number of consecutive failed connection attempts between device checks.
+    private static let failedAttemptsPerDeviceCheck: UInt = 2
 
     // MARK: - State (mutated only from the event loop)
 
@@ -81,6 +86,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     private var adapterGeneration: UInt64 = 0
     private var recoveryTask: Task<Void, Never>?
     private var keySwitchTask: Task<Void, Never>?
+    private var deviceCheckTask: Task<Void, Never>?
     private var keyPolicy = GotaTunKeyPolicy()
 
     // MARK: - Event channel
@@ -124,7 +130,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         relaySelector: RelaySelectorProtocol,
         defaultPathObserver: GotaTunPathObserverProtocol = GotaTunPathObserver(),
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
-        adapterFactory: GotaTunAdapterFactory
+        adapterFactory: GotaTunAdapterFactory,
+        deviceChecker: DeviceCheckerProtocol
     ) {
         self.timings = timings
         self.clock = clock
@@ -134,6 +141,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         self.defaultPathObserver = defaultPathObserver
         self.blockedStateErrorMapper = blockedStateErrorMapper
         self.adapterFactory = adapterFactory
+        self.deviceChecker = deviceChecker
 
         (eventStream, eventContinuation) = AsyncStream<GotaTunEvent>.makeStream()
 
@@ -143,6 +151,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
     deinit {
         recoveryTask?.cancel()
         keySwitchTask?.cancel()
+        deviceCheckTask?.cancel()
         Task { [defaultPathObserver] in await defaultPathObserver.stop() }
         eventContinuation.finish()
     }
@@ -257,6 +266,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             handleNotifyKeyRotation(date)
         case .switchKey:
             await handleSwitchKey()
+        case let .deviceCheckCompleted(outcome):
+            await handleDeviceCheckCompleted(outcome)
         case .sleep:
             await handleSleep()
         case .wake:
@@ -295,6 +306,7 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             stopCurrentAdapter()
             cancelRecoveryTask()
             cancelKeySwitchTask()
+            cancelDeviceCheckTask()
             keyPolicy.endRotation()
             await defaultPathObserver.stop()
             observedState = .disconnected
@@ -351,6 +363,9 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
         }
 
         await restartConnection(nextRelays: .random, incrementAttempt: true)
+
+        startDeviceCheckIfNeeded()
+
     }
 
     private func handleAdapterError(_ error: GotaTunError) {
@@ -488,6 +503,62 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
 
         logger.debug("Key propagation delay elapsed, reconnecting with new key")
         await restartConnection(nextRelays: .random)
+    }
+
+    // MARK: - Device check
+
+    /// Check with the API if current account and keys are valid.
+    private func startDeviceCheckIfNeeded() {
+        guard deviceCheckTask == nil else { return }
+        guard let attemptCount = observedState.connectionState?.connectionAttemptCount,
+            attemptCount.isMultiple(of: Self.failedAttemptsPerDeviceCheck)
+        else {
+            return
+        }
+
+        logger.debug("Starting device check after repeated connection failures")
+
+        deviceCheckTask = Task { [deviceChecker, eventContinuation] in
+            let outcome = await deviceChecker.checkDevice(rotateKeyOnMismatch: false)
+            guard !Task.isCancelled else { return }
+            eventContinuation.yield(.deviceCheckCompleted(outcome))
+        }
+    }
+
+    private func handleDeviceCheckCompleted(_ outcome: DeviceCheckOutcome) async {
+        deviceCheckTask = nil
+        logger.debug("Device check completed: \(outcome)")
+
+        switch outcome {
+        case .noAction:
+            break
+
+        case let .blocked(reason):
+            enterErrorState(reason: reason)
+
+        case let .keyRotation(date):
+            switch observedState {
+            case .connected:
+                handleNotifyKeyRotation(date)
+            case .connecting, .reconnecting:
+                //  Can assume that old key was invalid - use new one immediately.
+                keyPolicy.endRotation()
+                cancelKeySwitchTask()
+                observedState.mutateConnectionState {
+                    $0.lastKeyRotation = date
+                    // Can assume that previous connection attempts were made with an invalid key - can do a fresh start to not use an obfuscator.
+                    $0.connectionAttemptCount = 0
+                }
+                await restartConnection(nextRelays: .random)
+            default:
+                break
+            }
+        }
+    }
+
+    private func cancelDeviceCheckTask() {
+        deviceCheckTask?.cancel()
+        deviceCheckTask = nil
     }
 
     // MARK: - Connection management

@@ -111,7 +111,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                     blockedStateErrorMapper: BlockedStateErrorMapper(),
                     adapterFactory: RustGotaTunAdapterFactory(),
                     ipOverrideWrapper: ipOverrideWrapper,
-                    settingsReader: settingsReader
+                    settingsReader: settingsReader,
+                    deviceChecker: AsyncDeviceChecker(
+                        remoteService: DeviceCheckRemoteService(
+                            accountsProxy: accountsProxy,
+                            devicesProxy: devicesProxy
+                        ),
+                        deviceStateAccessor: DeviceStateAccessor(settingsManager: settingsManager)
+                    )
                 )
             } else {
                 implementation = makeWireGuardGoImplementation(
