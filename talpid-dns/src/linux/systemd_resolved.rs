@@ -1,6 +1,5 @@
 use std::net::IpAddr;
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
-use talpid_routing::RouteManagerHandle;
 use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
@@ -35,12 +34,7 @@ impl SystemdResolved {
         Ok(systemd_resolved)
     }
 
-    pub async fn set_dns(
-        &mut self,
-        _route_manager: RouteManagerHandle,
-        interface_name: &str,
-        servers: &[IpAddr],
-    ) -> Result<()> {
+    pub async fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
         let tunnel_index = iface_index(interface_name)?;
         self.tunnel_index = tunnel_index;
 

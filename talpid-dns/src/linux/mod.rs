@@ -7,7 +7,6 @@ mod systemd_resolved;
 use std::env;
 use std::fmt;
 use std::net::IpAddr;
-use talpid_routing::RouteManagerHandle;
 
 use self::network_manager::NetworkManager;
 use self::resolvconf::Resolvconf;
@@ -42,7 +41,6 @@ pub enum Error {
 }
 
 pub struct DnsMonitor {
-    route_manager: RouteManagerHandle,
     handle: tokio::runtime::Handle,
     inner: Option<DnsMonitorHolder>,
 }
@@ -50,9 +48,8 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(handle: tokio::runtime::Handle, route_manager: RouteManagerHandle) -> Result<Self> {
+    fn new(handle: tokio::runtime::Handle) -> Result<Self> {
         Ok(DnsMonitor {
-            route_manager,
             handle,
             inner: None,
         })
@@ -64,7 +61,7 @@ impl super::DnsMonitorT for DnsMonitor {
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
         if !servers.is_empty() {
-            inner.set(&self.handle, &self.route_manager, interface, servers)?;
+            inner.set(&self.handle, interface, servers)?;
             self.inner = Some(inner);
         }
         Ok(())
@@ -148,7 +145,6 @@ impl DnsMonitorHolder {
     fn set(
         &mut self,
         handle: &tokio::runtime::Handle,
-        route_manager: &RouteManagerHandle,
         interface: &str,
         servers: &[IpAddr],
     ) -> Result<()> {
@@ -156,11 +152,9 @@ impl DnsMonitorHolder {
         match self {
             Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers)?,
             StaticResolvConf(static_resolv_conf) => static_resolv_conf.set_dns(servers.to_vec())?,
-            SystemdResolved(systemd_resolved) => handle.block_on(systemd_resolved.set_dns(
-                route_manager.clone(),
-                interface,
-                servers,
-            ))?,
+            SystemdResolved(systemd_resolved) => {
+                handle.block_on(systemd_resolved.set_dns(interface, servers))?
+            }
             NetworkManager(network_manager) => network_manager.set_dns(interface, servers)?,
         }
         Ok(())

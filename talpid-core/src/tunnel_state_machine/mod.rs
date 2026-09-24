@@ -399,8 +399,6 @@ impl TunnelStateMachine {
         let dns_monitor = DnsMonitor::new(
             #[cfg(target_os = "linux")]
             runtime.clone(),
-            #[cfg(target_os = "linux")]
-            args.route_manager.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
 
