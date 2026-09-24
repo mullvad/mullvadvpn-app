@@ -10,6 +10,7 @@
 
 import MullvadSettings
 import SwiftUI
+import Combine
 
 struct VPNSettingsView: View {
     private let itemFactory = SegmentedListItemFactory()
@@ -46,6 +47,7 @@ struct VPNSettingsView: View {
     var body: some View {
         ScrollViewReader { proxy in
             SettingsInfoContainerView {
+                multiplexView()
                 DNSandIPSettingsView()
                 antiCensorshipView()
                 quantumResistanceView()
@@ -196,6 +198,15 @@ struct VPNSettingsView: View {
             actions: [
                 MullvadAlert.Action(type: .primary, title: "Got it!", handler: completion)
             ])
+    }
+
+    func multiplexView() -> some View {
+        TextField("Multiplex count", text: $settings.projectedValue.tunnelSettings.multiplexCount)
+            .submitLabel(.done)
+            .onSubmit {
+                settingsInteractor.tunnelManager.updateSettings(
+                    [.multiplexCount(settings.tunnelSettings.multiplexCount)])
+            }
     }
 
     // MARK: - Quantum Resistance

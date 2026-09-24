@@ -6,12 +6,10 @@ pub(crate) mod tun_device;
 use std::{
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
-    pin::{Pin, pin},
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
     },
-    task::Poll,
     time::{Duration, Instant},
 };
 
@@ -19,7 +17,6 @@ use crate::gotatun::{
     ip_mux::ip_mux,
     smoltcp_network::{SmoltcpHandle, SmoltcpNetworkConfig, smoltcp_network},
 };
-use futures::FutureExt;
 use gotatun::{
     device::{DeviceBuilder, Peer},
     packet::{Ipv4Header, Ipv6Header, Packet, PacketBufPool, UdpHeader, WgData},
@@ -27,7 +24,7 @@ use gotatun::{
     udp::{
         UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams,
         channel::new_udp_tun_channel,
-        socket::{SockOpt, UdpSocket, UdpSocketFactory},
+        socket::{UdpSocket, UdpSocketFactory},
     },
     x25519::StaticSecret,
 };
@@ -36,10 +33,7 @@ use talpid_tunnel_config_client::{
     self, EphemeralPeer, RelayConfigService, request_ephemeral_peer_with,
 };
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
-use tokio::{
-    sync::{Mutex, Notify, mpsc},
-    task::JoinSet,
-};
+use tokio::sync::{Mutex, Notify, mpsc};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 use tunnel_obfuscation::create_local_socket_obfuscator;
@@ -276,6 +270,7 @@ pub struct TunnelConfig {
     pub enable_pq: bool,
     pub enable_daita: bool,
     pub obfuscation: ObfuscationConfig,
+    pub multiplex_count: usize,
 }
 
 impl TunnelConfig {
@@ -639,7 +634,7 @@ impl IosTunnelAdapter {
         mux_send: tun_device::IosTunIpSend,
     ) -> Result<Devices, TunnelError> {
         let (pq_entry, pq_exit_key, pq_exit_peer) = pq;
-        let udp = Multiplex::new(25, udp)
+        let udp = Multiplex::new(config.multiplex_count, udp)
             .await
             .map_err(TunnelError::TunnelDevice)?;
 
@@ -1181,6 +1176,7 @@ mod tests {
             enable_pq: false,
             enable_daita: false,
             obfuscation: ObfuscationConfig::Off,
+            multiplex_count: 0,
         }
     }
 

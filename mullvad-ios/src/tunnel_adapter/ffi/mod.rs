@@ -50,6 +50,7 @@ pub struct GotaTunConfig {
     pub enable_daita: bool,
     /// Obfuscation method for the ingress relay.
     pub obfuscation: GotaTunObfuscation,
+    pub multiplex_count: u64,
 }
 
 /// Obfuscation method applied to the ingress relay connection.
@@ -262,6 +263,8 @@ fn build_tunnel_config(
         .map(|peer| build_peer(peer, vec![IpNetwork::from(exit_peer.endpoint.ip())]))
         .transpose()?;
 
+    log::error!("multiplex count: {}", config.multiplex_count);
+
     Ok(TunnelConfig {
         tun_fd,
         private_key: key32(&config.private_key, "private key")?,
@@ -275,5 +278,6 @@ fn build_tunnel_config(
         enable_pq: config.enable_pq,
         enable_daita: config.enable_daita,
         obfuscation: build_obfuscation(config.obfuscation)?,
+        multiplex_count: config.multiplex_count as usize,
     })
 }
