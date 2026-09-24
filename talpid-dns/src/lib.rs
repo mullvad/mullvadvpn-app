@@ -2,9 +2,6 @@
 use std::fmt;
 use std::net::IpAddr;
 
-#[cfg(target_os = "linux")]
-use talpid_routing::RouteManagerHandle;
-
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
@@ -172,16 +169,11 @@ pub struct DnsMonitor {
 
 impl DnsMonitor {
     /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
-    pub fn new(
-        #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
-    ) -> Result<Self, Error> {
+    pub fn new(#[cfg(target_os = "linux")] handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Ok(DnsMonitor {
             inner: imp::DnsMonitor::new(
                 #[cfg(target_os = "linux")]
                 handle,
-                #[cfg(target_os = "linux")]
-                route_manager,
             )?,
         })
     }
@@ -211,10 +203,8 @@ impl DnsMonitor {
 trait DnsMonitorT: Sized {
     type Error: std::error::Error;
 
-    fn new(
-        #[cfg(target_os = "linux")] handle: tokio::runtime::Handle,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
-    ) -> Result<Self, Self::Error>;
+    fn new(#[cfg(target_os = "linux")] handle: tokio::runtime::Handle)
+    -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: ResolvedDnsConfig) -> Result<(), Self::Error>;
 
