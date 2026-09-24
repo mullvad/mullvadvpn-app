@@ -11,7 +11,7 @@ use std::{
     pin::Pin,
 };
 use talpid_core::firewall::is_local_address;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::{
     fs,
     io::{self, AsyncWriteExt},

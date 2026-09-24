@@ -13,7 +13,7 @@ use mullvad_update::app::{AppDownloader, AppDownloaderParameters, HttpAppDownloa
 use mullvad_update::version::{VersionInfo, rollout::Rollout};
 use talpid_core::mpsc::Sender;
 #[cfg(in_app_upgrade)]
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 use crate::DaemonEventSender;
 use crate::management_interface::AppUpgradeBroadcast;

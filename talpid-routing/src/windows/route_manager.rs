@@ -11,7 +11,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, Mutex},
 };
-use talpid_types::win32_err;
+use talpid_error::win32_err;
 use talpid_windows::net::{
     AddressFamily, inet_sockaddr_from_socketaddr, try_socketaddr_from_inet_sockaddr,
 };

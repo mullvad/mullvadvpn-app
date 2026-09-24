@@ -7,10 +7,8 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::{
-    ErrorExt,
-    net::{Endpoint, TransportProtocol, proxy},
-};
+use talpid_error::ErrorExt;
+use talpid_types::net::{Endpoint, TransportProtocol, proxy};
 use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},

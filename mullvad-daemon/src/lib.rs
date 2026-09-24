@@ -105,13 +105,13 @@ use talpid_core::{
     split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
+use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    ErrorExt,
     net::{IpVersion, proxy::ShadowsocksCipher},
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };

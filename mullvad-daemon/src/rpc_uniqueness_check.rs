@@ -1,5 +1,5 @@
 use mullvad_management_interface::MullvadProxyClient;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 /// Checks if there is another instance of the daemon running.
 ///

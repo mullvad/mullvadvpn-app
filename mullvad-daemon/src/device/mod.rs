@@ -27,7 +27,8 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_types::{ErrorExt, tunnel::TunnelStateTransition};
+use talpid_error::ErrorExt;
+use talpid_types::tunnel::TunnelStateTransition;
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},

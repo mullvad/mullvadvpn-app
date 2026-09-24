@@ -28,10 +28,11 @@ use talpid_tunnel::{
     WIREGUARD_HEADER_SIZE, tun_provider,
 };
 
+use talpid_error::{BoxedError, ErrorExt};
 use talpid_net::bypass::SocketBypass;
 #[cfg(all(not(target_os = "android"), not(target_os = "linux")))]
 use talpid_types::net::obfuscation::Obfuscators;
-use talpid_types::{BoxedError, ErrorExt, net::wireguard::TunnelParameters};
+use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex as AsyncMutex;
 
 mod gotatun;

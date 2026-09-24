@@ -20,8 +20,8 @@ mullvad-api = { path = "../mullvad-api" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
 regex = "1.0"
+talpid-error.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
 uuid = { version = "1.4.1", features = ["v4"] }

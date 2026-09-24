@@ -4,7 +4,7 @@ use std::{
     ops::Deref,
     path::{Path, PathBuf},
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::{fs, io};
 
 /// State to use by default if there is no cache.

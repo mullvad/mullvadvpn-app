@@ -13,7 +13,7 @@ use netlink_packet_core::{
 };
 use netlink_packet_route::route::RouteFlags;
 use rtnetlink::sys::AsyncSocket;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 use futures::{
     StreamExt, TryStreamExt,

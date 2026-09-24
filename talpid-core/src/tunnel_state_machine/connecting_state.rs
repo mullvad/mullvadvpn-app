@@ -6,10 +6,10 @@ use std::time::{Duration, Instant};
 use futures::channel::{mpsc, oneshot};
 use futures::future::Fuse;
 use futures::{FutureExt, StreamExt};
+use talpid_error::ErrorExt;
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, SelectedObfuscation, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::ErrorExt;
 use talpid_types::net::obfuscation::Obfuscators;
 use talpid_types::net::{
     AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, wireguard::TunnelParameters,

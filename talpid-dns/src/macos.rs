@@ -88,7 +88,7 @@ impl State {
         servers: &[IpAddr],
         port: u16,
     ) -> Result<()> {
-        talpid_types::detect_flood!();
+        talpid_error::detect_flood!();
 
         let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
         let new_settings =

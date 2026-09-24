@@ -27,7 +27,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 pub use hyper::StatusCode;
 

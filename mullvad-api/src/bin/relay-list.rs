@@ -11,7 +11,7 @@ mod imp {
         ApiEndpoint, RelayListProxy, proxy::ApiConnectionMode, rest::Error as RestError,
     };
     use std::process;
-    use talpid_types::ErrorExt;
+    use talpid_error::ErrorExt;
 
     pub async fn main() {
         let api_endpoint = ApiEndpoint::from_env_vars();

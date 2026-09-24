@@ -1,8 +1,8 @@
 use std::{net::IpAddr, sync::LazyLock};
 
+use talpid_error::ErrorExt;
 use talpid_tunnel::TunnelMetadata;
 use talpid_types::{
-    ErrorExt,
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
 };

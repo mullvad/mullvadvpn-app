@@ -22,9 +22,10 @@ use std::{
     },
     time::Duration,
 };
+use talpid_error::ErrorExt;
 use talpid_routing::{CallbackHandle, EventType, RouteManagerHandle, get_best_default_route};
 use talpid_tunnel::TunnelMetadata;
-use talpid_types::{ErrorExt, split_tunnel::ExcludedProcess, tunnel::ErrorStateCause};
+use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause};
 use talpid_windows::{
     io::Overlapped,
     net::{AddressFamily, get_ip_address_for_interface},

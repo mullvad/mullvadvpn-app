@@ -16,6 +16,7 @@ log-panics = "2"
 mullvad-api = { path = "../mullvad-api" }
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-problem-report = { path = "../mullvad-problem-report" }
+talpid-error.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }

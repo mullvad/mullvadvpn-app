@@ -9,7 +9,7 @@ use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::sync::LazyLock;
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 pub mod availability;
 use availability::ApiAvailability;

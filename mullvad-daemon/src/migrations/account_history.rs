@@ -2,7 +2,7 @@ use super::{Error, Result};
 use mullvad_types::account::AccountNumber;
 use serde::Deserialize;
 use std::path::Path;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::{
     fs::{self, File},
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
