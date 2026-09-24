@@ -203,6 +203,7 @@ extension AccessMethodViewModel {
                                 + "more difficult to censor.",
                             comment: ""
                         ),
+                        "domain fronting"
                     ),
                     NSLocalizedString(
                         "This can be useful when direct access and other methods are blocked by censorship.",
