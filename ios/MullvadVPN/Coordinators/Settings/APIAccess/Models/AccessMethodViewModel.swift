@@ -190,10 +190,11 @@ extension AccessMethodViewModel {
         case AccessMethodRepository.domainFrontingId:
             InfoModalConfig(
                 header: "Domain fronting",
-                preamble: NSLocalizedString(
-                    "The app communicates with a Mullvad API server via domain fronting.",
-                    comment: ""
-                ),
+                preamble: String(
+                    NSLocalizedString(
+                        "The app communicates with a Mullvad API server via %@.",
+                        comment: ""), "domain fronting"),
+
                 body: [
                     String(
                         format: NSLocalizedString(
