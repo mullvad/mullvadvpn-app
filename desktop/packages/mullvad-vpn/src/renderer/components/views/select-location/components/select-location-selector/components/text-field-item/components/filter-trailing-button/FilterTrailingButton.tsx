@@ -12,12 +12,12 @@ export function FilterTrailingButton() {
   const handleFilterButtonClick = useHandleFilterButtonClick();
 
   return (
-    <LocationSelector.Items.TextFieldItem.TextField.TrailingButton
+    <LocationSelector.Items.TextFieldItem.TrailingButton
       disabled={disabled}
       aria-label={filterButtonLabel}
       visible={true}
       onClick={handleFilterButtonClick}>
-      <LocationSelector.Items.TextFieldItem.TextField.TrailingButton.Icon icon={icon} />
-    </LocationSelector.Items.TextFieldItem.TextField.TrailingButton>
+      <LocationSelector.Items.TextFieldItem.TrailingButton.Icon icon={icon} />
+    </LocationSelector.Items.TextFieldItem.TrailingButton>
   );
 }

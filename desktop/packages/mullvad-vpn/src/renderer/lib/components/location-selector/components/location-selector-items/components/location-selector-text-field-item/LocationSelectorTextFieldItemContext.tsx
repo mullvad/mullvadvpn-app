@@ -10,6 +10,7 @@ type LocationSelectorItemContextProps = Omit<
   textFieldRef: React.RefObject<HTMLDivElement | null>;
   triggerRef: React.RefObject<HTMLDivElement | null>;
   focusInsideTextField: boolean;
+  invalid: boolean;
   setFocusInsideTextField: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
@@ -32,10 +33,12 @@ type LocationSelectorTextFieldItemProviderProps = React.PropsWithChildren<{
   type: LocationSelectorTextFieldItemProps['type'];
   inputRef?: LocationSelectorTextFieldItemProps['inputRef'];
   triggerRef?: LocationSelectorTextFieldItemProps['triggerRef'];
+  invalid?: LocationSelectorTextFieldItemProps['invalid'];
 }>;
 
 export function LocationSelectorTextFieldItemProvider({
   children,
+  invalid: invalidProp,
   inputRef: inputRefProp,
   triggerRef: triggerRefProp,
   ...props
@@ -49,12 +52,13 @@ export function LocationSelectorTextFieldItemProvider({
     () => ({
       inputRef: inputRefProp ?? inputRef,
       triggerRef: triggerRefProp ?? triggerRef,
+      invalid: invalidProp ?? false,
       textFieldRef,
       focusInsideTextField,
       setFocusInsideTextField,
       ...props,
     }),
-    [inputRefProp, triggerRefProp, focusInsideTextField, props],
+    [inputRefProp, triggerRefProp, invalidProp, focusInsideTextField, props],
   );
 
   return (

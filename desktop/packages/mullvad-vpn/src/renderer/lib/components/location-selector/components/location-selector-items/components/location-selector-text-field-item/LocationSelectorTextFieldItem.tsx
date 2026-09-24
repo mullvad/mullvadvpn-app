@@ -2,7 +2,6 @@ import type { HTMLMotionProps } from 'motion/react';
 import React from 'react';
 import styled from 'styled-components';
 
-import { spacings } from '../../../../../../foundations';
 import { type LocationSelectorSelectedItem } from '../../../../LocationSelector';
 import type { LocationSelectorItemType } from '../../types';
 import { LocationSelectorItem } from '../location-selector-item';
@@ -10,17 +9,11 @@ import {
   LocationSelectorTextField,
   LocationSelectorTrailingButton,
   LocationSelectorTrigger,
-  StyledLocationSelectorTextField,
-  StyledLocationSelectorTrailingButton,
 } from './components';
 import { LocationSelectorTextFieldItemProvider } from './LocationSelectorTextFieldItemContext';
 
 export const StyledLocationSelectorTrigger = styled(LocationSelectorTrigger)`
   width: 100%;
-  // Add space between text field and trailing button
-  ${StyledLocationSelectorTextField} + ${StyledLocationSelectorTrailingButton} {
-    margin-left: ${spacings.tiny};
-  }
 `;
 
 export type LocationSelectorTextFieldItemProps = Omit<HTMLMotionProps<'div'>, 'children'> & {
@@ -28,6 +21,7 @@ export type LocationSelectorTextFieldItemProps = Omit<HTMLMotionProps<'div'>, 'c
   type: LocationSelectorItemType;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   triggerRef?: React.RefObject<HTMLDivElement | null>;
+  invalid?: boolean;
 } & React.PropsWithChildren;
 
 function LocationSelectorTextFieldItemImpl({
@@ -44,6 +38,7 @@ function LocationSelectorTextFieldItemImpl({
 function LocationSelectorTextFieldItem({
   id,
   type,
+  invalid,
   inputRef,
   triggerRef,
   ...props
@@ -52,6 +47,7 @@ function LocationSelectorTextFieldItem({
     <LocationSelectorTextFieldItemProvider
       id={id}
       type={type}
+      invalid={invalid}
       inputRef={inputRef}
       triggerRef={triggerRef}>
       <LocationSelectorTextFieldItemImpl {...props} />

@@ -5,8 +5,6 @@ export function useEntryType() {
   const { multihop } = useMultihop();
   const { entryHostname } = useConnection();
 
-  console.log('entryHostname', entryHostname);
-
   if (multihop === 'always') {
     return 'entry';
   }

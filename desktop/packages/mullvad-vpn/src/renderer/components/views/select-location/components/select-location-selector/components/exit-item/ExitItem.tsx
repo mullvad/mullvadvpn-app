@@ -2,6 +2,7 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { useSelectedLocations } from '../../../../../../../features/locations/hooks';
 import { useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
+import { useIsValidExitLocation } from './hooks';
 
 export type ExitItemProps = Omit<
   SelectLocationSelectorItemProps,
@@ -12,8 +13,7 @@ export function ExitItem(props: ExitItemProps) {
   const { exit } = useSelectedLocations();
   const defaultValue = useLocationName(exit);
 
-  // TODO: Look up selected entry hostname and check if it is in the filteredRelays list.
-  const invalid = false;
+  const isValidExitLocation = useIsValidExitLocation();
 
   return (
     <TextFieldItem
@@ -22,7 +22,7 @@ export function ExitItem(props: ExitItemProps) {
       aria-label={messages.gettext('Search exit location or server, press enter to search')}
       placeholder={messages.gettext('Search exit location or server')}
       defaultValue={defaultValue}
-      invalid={invalid}
+      invalid={!isValidExitLocation}
       {...props}
     />
   );

@@ -2,6 +2,7 @@ import { messages } from '../../../../../../../../shared/gettext';
 import { useSelectedLocations } from '../../../../../../../features/locations/hooks';
 import { useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
+import { useIsValidEntryLocation } from './hooks';
 
 export type EntryItemProps = Omit<
   SelectLocationSelectorItemProps,
@@ -12,8 +13,7 @@ export function EntryItem(props: EntryItemProps) {
   const { entry } = useSelectedLocations();
   const defaultValue = useLocationName(entry);
 
-  // TODO: Look up selected entry hostname and check if it is in the filteredRelays list.
-  const invalid = true;
+  const isValidEntryLocation = useIsValidEntryLocation();
 
   return (
     <TextFieldItem
@@ -22,7 +22,7 @@ export function EntryItem(props: EntryItemProps) {
       aria-label={messages.gettext('Search entry location or server, press enter to search')}
       placeholder={messages.gettext('Search entry location or server')}
       defaultValue={defaultValue}
-      invalid={invalid}
+      invalid={!isValidEntryLocation}
       {...props}
     />
   );

@@ -15,9 +15,7 @@ import {
 export function SelectLocationSelector() {
   const handleSelectedItemChange = useHandleSelectedItemChange();
   const isExpanded = useIsExpanded();
-
   const selectedItem = useSelectedItem();
-
   const showAutomaticEntryItem = useShowAutomaticEntryItem();
   const showEntryItem = useShowEntryItem();
   const showExitItem = useShowExitItem();

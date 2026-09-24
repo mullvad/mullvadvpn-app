@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { spacings } from '../../../../../../../../foundations';
 import { TextField, type TextFieldProps } from '../../../../../../../text-field';
+import { TextFieldTextArea } from '../../../../../../../text-field/components';
 import { type LocationSelectorSelectedItem } from '../../../../../../LocationSelector';
 import { useLocationSelectorTextFieldItemContext } from '../../LocationSelectorTextFieldItemContext';
 import {
@@ -76,6 +77,7 @@ const LocationSelectorTextFieldNamespace = Object.assign(LocationSelectorTextFie
   Input: LocationSelectorTextFieldInput,
   SupportingText: LocationSelectorTextFieldSupportingText,
   ClearButton: LocationSelectorClearButton,
+  TextArea: TextFieldTextArea,
 });
 
 export { LocationSelectorTextFieldNamespace as LocationSelectorTextField };

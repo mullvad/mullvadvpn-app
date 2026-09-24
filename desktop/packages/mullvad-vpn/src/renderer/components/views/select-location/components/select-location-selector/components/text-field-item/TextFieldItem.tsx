@@ -42,7 +42,7 @@ function TextFieldItemImpl({
   const handleFocusExit = useHandleFocusExit();
   const handleValueChange = useHandleValueChange();
 
-  const showClearButton = true; // focused && value.length > 0;
+  const showClearButton = focused && value.length > 0;
   const showSupportingText = invalid;
 
   return (
@@ -69,11 +69,15 @@ function TextFieldItemImpl({
               aria-label={messages.gettext('Clear')}
             />
           )}
-          <FilterTrailingButton />
         </LocationSelector.Items.TextFieldItem.TextField.TextArea>
-        {!showSupportingText && (
+        <FilterTrailingButton />
+        {showSupportingText && (
           <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
-            test
+            {
+              // TRANSLATORS: Error label informing the user that their currently selected server
+              // TRANSLATORS: does not match their current filter settings
+              messages.pgettext('select-location-view', 'Selection does not match filter settings')
+            }
           </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
         )}
       </LocationSelector.Items.TextFieldItem.TextField>
