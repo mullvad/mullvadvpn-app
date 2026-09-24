@@ -23,10 +23,6 @@ in
     value = "${jdk}";
   }
   {
-    name = "PROTOC_GEN_GRPC_JAVA_PLUGIN";
-    prefix = "${pkgs.protoc-gen-grpc-java}/bin/protoc-gen-grpc-java";
-  }
-  {
     name = "GRADLE_OPTS";
     value = builtins.concatStringsSep " " [
       "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android-sdk}/share/android-sdk/build-tools/${buildToolsVersion}/aapt2"
