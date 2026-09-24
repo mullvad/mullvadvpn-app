@@ -2,14 +2,13 @@ import React from 'react';
 
 import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 import { useTextFieldItemContext } from '../TextFieldItemContext';
-import { useFocusFirstFocusableHeading } from './use-focus-first-focusable-heading';
+import { focusFirstFocusableHeading } from '../utils';
 import { useHandleReset } from './use-handle-reset';
 
 export function useHandleInputKeyDown() {
   const { id } = useTextFieldItemContext();
   const { setIsolatedItem, searchTerm } = useSelectLocationViewContext();
   const handleReset = useHandleReset();
-  const focusFirstFocusableHeading = useFocusFirstFocusableHeading();
 
   return React.useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -26,6 +25,6 @@ export function useHandleInputKeyDown() {
         handleReset();
       }
     },
-    [searchTerm, focusFirstFocusableHeading, setIsolatedItem, id, handleReset],
+    [searchTerm, setIsolatedItem, id, handleReset],
   );
 }

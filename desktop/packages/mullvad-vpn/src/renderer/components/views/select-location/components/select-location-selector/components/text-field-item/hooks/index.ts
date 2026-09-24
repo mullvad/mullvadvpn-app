@@ -1,4 +1,3 @@
-export * from './use-focus-first-focusable-heading';
 export * from './use-handle-clear-button-click';
 export * from './use-handle-clear-button-click';
 export * from './use-handle-focus-exit';
