@@ -66,7 +66,6 @@ in
     ++ [
       android-sdk
       rust-toolchain
-      pkgs.protoc-gen-grpc-java
       jdk
       pkgs.python314
     ]
