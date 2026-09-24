@@ -757,7 +757,8 @@ public actor GotaTunActor: PacketTunnelActorProtocol {
             isPostQuantum: settings.tunnelSettings.tunnelQuantumResistance.isEnabled,
             isDaitaEnabled: settings.tunnelSettings.daita.isEnabled,
             establishTimeout: establishTimeout,
-            obfuscationMethod: selectedRelays.ingress.endpoint.obfuscation
+            obfuscationMethod: selectedRelays.ingress.endpoint.obfuscation,
+            multiplexCount: UInt64(settings.tunnelSettings.multiplexCount) ?? 0
         )
     }
 

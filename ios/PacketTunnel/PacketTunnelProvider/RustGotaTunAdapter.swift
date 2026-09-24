@@ -85,7 +85,8 @@ final class RustGotaTunAdapter: GotaTunAdapterProtocol, @unchecked Sendable {
             establishTimeoutSecs: config.establishTimeout,
             enablePq: config.isPostQuantum,
             enableDaita: config.isDaitaEnabled,
-            obfuscation: makeObfuscation(config)
+            obfuscation: makeObfuscation(config),
+            multiplexCount: config.multiplexCount
         )
     }
 
