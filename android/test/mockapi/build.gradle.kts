@@ -55,6 +55,7 @@ android {
                     "META-INF/INDEX.LIST",
                     "META-INF/io.netty.versions.properties",
                     "META-INF/license/LICENSE.jbzip2.txt",
+                    "META-INF/license/LICENSE.webbit.txt",
                 )
         }
     }
