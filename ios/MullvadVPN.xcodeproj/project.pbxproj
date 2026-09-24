@@ -30,6 +30,7 @@
 		01335D442F89B711008AB806 /* GotaTunActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D3E2F89B711008AB806 /* GotaTunActor.swift */; };
 		01335D4A2F89B88E008AB806 /* GotaTunAdapterStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */; };
 		01335D4C2F89B8F8008AB806 /* GotaTunActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */; };
+		01335D6A2F89F000008AB806 /* GotaTunPathObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D6B2F89F000008AB806 /* GotaTunPathObserverTests.swift */; };
 		01335D4F2F89C396008AB806 /* RustGotaTunAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */; };
 		01335D502F89C396008AB806 /* RustGotaTunAdapterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */; };
 		01335D552F89C645008AB806 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
@@ -1822,6 +1823,7 @@
 		01335D402F89B711008AB806 /* GotaTunActorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTimings.swift; sourceTree = "<group>"; };
 		01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunAdapterStub.swift; sourceTree = "<group>"; };
 		01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActorTests.swift; sourceTree = "<group>"; };
+		01335D6B2F89F000008AB806 /* GotaTunPathObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunPathObserverTests.swift; sourceTree = "<group>"; };
 		01335D4D2F89C396008AB806 /* RustGotaTunAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapter.swift; sourceTree = "<group>"; };
 		01335D4E2F89C396008AB806 /* RustGotaTunAdapterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustGotaTunAdapterFactory.swift; sourceTree = "<group>"; };
 		01335D5F2F89D000008AB806 /* GotaTunProviderProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunProviderProxy.swift; sourceTree = "<group>"; };
@@ -4189,6 +4191,7 @@
 			isa = PBXGroup;
 			children = (
 				01335D4B2F89B8F8008AB806 /* GotaTunActorTests.swift */,
+				01335D6B2F89F000008AB806 /* GotaTunPathObserverTests.swift */,
 				01335D482F89B88E008AB806 /* GotaTunAdapterStub.swift */,
 				7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */,
 				F053F4B92C4A94D300FBD937 /* EphemeralPeerExchangingPipelineTests.swift */,
@@ -6779,6 +6782,7 @@
 				A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */,
 				F0077EEE2C52844800DAB2AA /* KeyExchangingResultStub.swift in Sources */,
 				01335D4C2F89B8F8008AB806 /* GotaTunActorTests.swift in Sources */,
+				01335D6A2F89F000008AB806 /* GotaTunPathObserverTests.swift in Sources */,
 				A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */,
 				58FE25F22AA77674003D1918 /* SettingsReaderStub.swift in Sources */,
 				F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */,
