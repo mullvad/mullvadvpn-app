@@ -1,5 +1,4 @@
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
@@ -7,17 +6,12 @@ import { DaitaSetting } from '../../../features/daita/components';
 import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
-import { spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { HeaderTitle } from '../../SettingsHeader';
-
-const StyledCarouselControls = styled(Carousel.Controls)`
-  margin-top: ${spacings.medium};
-`;
 
 export function DaitaSettingsView() {
   const { pop } = useHistory();
@@ -131,13 +125,13 @@ export function DaitaSettingsView() {
                         </Carousel.Slides.Slide.TextGroup>
                       </Carousel.Slides.Slide>
                     </Carousel.Slides>
-                    <StyledCarouselControls>
+                    <Carousel.Controls>
                       <Carousel.Controls.Indicators />
                       <Carousel.Controls.ControlGroup>
                         <Carousel.Controls.PrevButton />
                         <Carousel.Controls.NextButton />
                       </Carousel.Controls.ControlGroup>
-                    </StyledCarouselControls>
+                    </Carousel.Controls>
                   </Carousel>
                   <FlexColumn>
                     <DaitaSetting />
