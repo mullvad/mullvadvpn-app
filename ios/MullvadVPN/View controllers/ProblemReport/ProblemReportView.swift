@@ -19,6 +19,9 @@ struct ProblemReportView: View {
     @State var viewModel: ProblemReportViewModelNew
     @State var showLogs: Bool = false
 
+    @Namespace private var transitionNamespace
+    private let messageEditTransitionId = "editFrame"
+
     let subheadLabelText: LocalizedStringKey = """
         To help you more effectively, your app’s log file will be attached \
         to this message. Your data will remain secure and private, as it \
@@ -33,7 +36,8 @@ struct ProblemReportView: View {
 
     let emailPlaceholderText: LocalizedStringKey = "Your email (optional)"
 
-    let messageTextViewPlaceholder: LocalizedStringKey = """
+    let messageTextViewTitle: LocalizedStringKey = "Problem description"
+    static let messageTextViewPlaceholder: LocalizedStringKey = """
         To assist you better, please write in English or Swedish \
         and include which country you are connecting from.
         """
@@ -46,9 +50,23 @@ struct ProblemReportView: View {
             } else {
                 mainForm
             }
-        }.popover(isPresented: viewModel.showLogs) {
-            ProblemReportView.LogView(viewModel: viewModel)
-        }.mullvadAlert(item: $viewModel.alert)
+        }
+        .mullvadAlert(item: $viewModel.alert)
+        .fullScreenCover(isPresented: $viewModel.isEditingMessage) {
+            MessageEditOverlay(
+                viewModel: viewModel
+            )
+            .apply {
+                if #available(iOS 18.0, *) {
+                    $0.navigationTransition(.zoom(sourceID: messageEditTransitionId, in: transitionNamespace))
+                } else {
+                    $0
+                }
+            }
+        }
+        .popover(isPresented: viewModel.showLogs) {
+            LogView(viewModel: viewModel)
+        }
     }
 
     var mainForm: some View {
@@ -64,12 +82,7 @@ struct ProblemReportView: View {
                 placeholder: "Enter your email",
                 text: $viewModel.email,
                 borderStyle: .constant(.normal))
-            ConfigurableTextView(
-                title: "Problem description",
-                placeholder: messageTextViewPlaceholder,
-                text: $viewModel.message,
-                borderStyle: .constant(.normal)
-            )
+            messageEditInlinePlaceholder
             ActionBox(
                 isChecked: $viewModel.includeAccountTokenInLogs,
                 toggleTitle: accountTokenInclusionPrompt,
@@ -96,37 +109,62 @@ struct ProblemReportView: View {
             .disabled(!viewModel.canSend)
         }
         .padding(UIMetrics.padding16)
-        .scrollable(fill: .vertical)
+        .scrollable(fill: .vertical, alignment: .top)
         .background(Color.mullvadBackground)
     }
 
-}
-
-// MARK: previews
-struct MockInteractor: ProblemReportInteractorProtocol {
-    var reportError: (any Error)?
-    
-    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
-        completion("""
-        The log file will go here
-        =========================
-        
-        Something something something...
-        """)
-    }
-    
-    func sendReport(email: String, message: String, includeAccountTokenInLogs: Bool, completion: @escaping (Result<Void, any Error>) -> Void) {
-        //  try await Task.sleep(nanoseconds: 1_000_000_000)
-        if let reportError {
-            completion(.failure(reportError))
-        } else {
-            completion(.success(()))
+    // a mock text editing field which expands and morphs into a real text editor
+    var messageEditInlinePlaceholder: some View {
+        VStack(alignment: .leading, spacing: 0.0) {
+            Text(messageTextViewTitle)
+                .foregroundStyle(Color.MullvadTextField.textInput)
+                .font(.mullvadTinySemiBold)
+                .padding(.bottom, 4.0)
+            Button {
+                viewModel.isEditingMessage = true
+            } label: {
+                ZStack(alignment: .topLeading) {
+                    HStack {
+                        Text(ProblemReportView.messageTextViewPlaceholder)
+                            .foregroundStyle(Color.MullvadTextField.inputPlaceholder)
+                            .opacity(viewModel.message.isEmpty ? 1.0 : 0.0)
+                        Spacer()
+                    }
+                    Text(viewModel.message)
+                        .foregroundStyle(Color.MullvadTextField.textInput)
+                }
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal, 8.0)
+                .padding(.vertical, 12.0)
+                .background { Color.MullvadTextField.background }
+                .font(.mullvadSmall)
+                .apply {
+                    if #available(iOS 18.0, *) {
+                        $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) {
+                            $0.background(Color.MullvadTextField.background)
+                        }
+                    } else {
+                        $0
+                    }
+                }
+                .modifier(
+                    RoundedCornerModifier(
+                        cornerRadius: 4.0,
+                        corners: .allCorners,
+                        insertBy: .zero,
+                        borderColor: Color.MullvadTextField.border,
+                        borderWidth: 1.0
+                    )
+                )
+            }
         }
     }
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew()
-    viewModel.interactor = MockInteractor()
-    return ProblemReportView(viewModel: viewModel)
+    ProblemReportView(
+        viewModel: ProblemReportViewModelNew(
+            interactor: MockProblemReportInteractor()
+        )
+    )
 }

@@ -7242,6 +7242,9 @@
         }
       }
     },
+    "App Logs" : {
+
+    },
     "Are you sure you want to delete the account %@?" : {
       "localizations" : {
         "da" : {
