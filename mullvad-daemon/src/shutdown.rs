@@ -1,4 +1,6 @@
 use ctrlc;
+#[cfg(target_os = "linux")]
+use talpid_error::ErrorExt;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -15,7 +17,6 @@ pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), 
 /// be assumed that the machine is shutting down.
 #[cfg(target_os = "linux")]
 pub fn is_shutdown_user_initiated() -> bool {
-    use talpid_types::ErrorExt;
     talpid_dbus::systemd::is_host_running()
         .map_err(|err| {
             err.display_chain_with_msg(

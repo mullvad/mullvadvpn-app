@@ -27,7 +27,8 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Once},
 };
-use talpid_types::{ErrorExt, android::AndroidContext};
+use talpid_error::ErrorExt;
+use talpid_types::android::AndroidContext;
 
 /// Mullvad daemon instance. It must be initialized and destroyed by `MullvadDaemon.initialize` and
 /// `MullvadDaemon.shutdown`, respectively.

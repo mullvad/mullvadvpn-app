@@ -100,7 +100,7 @@ impl BurstGuard {
 
     /// Asynchronously trigger burst
     pub fn trigger(&self) {
-        talpid_types::detect_flood!();
+        talpid_error::detect_flood!();
         self.trigger_with_period(self.buffer_period)
     }
 

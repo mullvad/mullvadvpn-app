@@ -4,8 +4,8 @@ use std::{
     path::PathBuf,
     sync::{Arc, Weak},
 };
+use talpid_error::{ErrorExt, tunnel::ErrorStateCause};
 use talpid_routing::RouteManagerHandle;
-use talpid_types::{ErrorExt, tunnel::ErrorStateCause};
 use tokio::sync::{mpsc, oneshot};
 
 use self::process::ExclusionStatus;

@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
     sync::LazyLock,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 pub mod metadata;
 

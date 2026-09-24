@@ -1,6 +1,6 @@
 use super::{Error, Result};
 use std::{net::SocketAddr, slice};
-use talpid_types::win32_err;
+use talpid_error::win32_err;
 use talpid_windows::net::{
     AddressFamily, get_ip_interface_entry, try_socketaddr_from_inet_sockaddr,
 };

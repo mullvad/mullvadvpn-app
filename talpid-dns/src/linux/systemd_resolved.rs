@@ -1,6 +1,6 @@
 use std::net::IpAddr;
 use talpid_dbus::systemd_resolved::{AsyncHandle, SystemdResolved as DbusInterface};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
 

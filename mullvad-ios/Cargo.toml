@@ -34,6 +34,7 @@ smoltcp = { version = "0.13", default-features = false, features = [
   "socket-tcp",
   "std",
 ] }
+talpid-error.workspace = true
 talpid-net = { path = "../talpid-net" }
 talpid-netstack = { path = "../talpid-netstack" }
 talpid-time = { path = "../talpid-time" }

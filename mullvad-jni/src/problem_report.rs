@@ -9,7 +9,7 @@ use jnix::{
 use mullvad_api::ApiEndpoint;
 use std::path::Path;
 use std::path::PathBuf;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 #[unsafe(no_mangle)]
 #[expect(non_snake_case)]

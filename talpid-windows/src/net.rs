@@ -12,7 +12,7 @@ use std::{
     sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
-use talpid_types::win32_err;
+use talpid_error::win32_err;
 use windows_sys::{
     Win32::{
         Foundation::{ERROR_NOT_FOUND, HANDLE, WIN32_ERROR},

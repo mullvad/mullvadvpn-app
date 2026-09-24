@@ -10,7 +10,7 @@ use nix::errno::Errno;
 use nix::libc::ifreq;
 use nix::net::if_::if_nametoindex;
 use socket2::{Domain, Protocol, Socket, Type};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 #[derive(Debug, thiserror::Error)]
 #[error("Failed to get index for interface {interface_name}: {error}")]

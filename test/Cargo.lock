@@ -2339,6 +2339,7 @@ dependencies = [
  "sha2",
  "shadowsocks",
  "sigsum",
+ "talpid-error",
  "talpid-time",
  "talpid-types",
  "thiserror 2.0.18",
@@ -2364,6 +2365,7 @@ dependencies = [
  "mullvad-relay-selector",
  "mullvad-types",
  "serde_json",
+ "talpid-error",
  "talpid-future",
  "talpid-types",
  "thiserror 2.0.18",
@@ -2387,7 +2389,7 @@ name = "mullvad-fs"
 version = "0.0.0"
 dependencies = [
  "log",
- "talpid-types",
+ "talpid-error",
  "tokio",
  "uuid",
 ]
@@ -2405,6 +2407,7 @@ dependencies = [
  "nix 0.31.3",
  "prost",
  "prost-types",
+ "talpid-error",
  "talpid-types",
  "thiserror 2.0.18",
  "tipsy",
@@ -3714,6 +3717,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b2093cf4c8eb1e67749a6762251bc9cd836b6fc171623bd0a9d324d37af2417"
 
 [[package]]
+name = "talpid-error"
+version = "0.0.0"
+dependencies = [
+ "log",
+]
+
+[[package]]
 name = "talpid-future"
 version = "0.0.0"
 dependencies = [
@@ -3756,7 +3766,6 @@ dependencies = [
  "ipnetwork 0.21.1",
  "itertools 0.14.0",
  "jnix",
- "log",
  "safelog",
  "serde",
  "shadowsocks-crypto",
@@ -3772,7 +3781,7 @@ dependencies = [
  "futures",
  "log",
  "socket2 0.6.5",
- "talpid-types",
+ "talpid-error",
  "thiserror 2.0.18",
  "windows-sys 0.61.2",
 ]

@@ -4,8 +4,8 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_version::Version;
 use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 use talpid_core::firewall::{self, Firewall};
+use talpid_error::ErrorExt;
 use talpid_future::retry::{ConstantInterval, retry_future};
-use talpid_types::ErrorExt;
 use tracing_subscriber::EnvFilter;
 
 #[cfg(target_os = "windows")]

@@ -24,7 +24,7 @@ use std::{
     },
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
-use talpid_types::{BoxedError, ErrorExt};
+use talpid_error::{BoxedError, ErrorExt};
 use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
 use windows_sys::{

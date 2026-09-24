@@ -11,7 +11,7 @@ use std::{
     ptr,
     sync::atomic::{AtomicBool, Ordering},
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use talpid_windows::process::{ModuleEntry, ProcessSnapshot};
 use winapi::vc::excpt::EXCEPTION_EXECUTE_HANDLER;
 use windows_sys::Win32::{
