@@ -77,7 +77,10 @@ dependencies {
     implementation(libs.junit5.android.test.runner)
     implementation(libs.kotlin.stdlib)
     implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.engine.netty)
+    implementation(libs.ktor.server.engine.netty) {
+        // Exclude due to license packaging issues
+        exclude(group = "io.netty", module = "netty-codec-http3")
+    }
 
     androidTestUtil(libs.androidx.test.orchestrator)
 
