@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.core.scene
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavMetadataKey
@@ -10,11 +9,9 @@ import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
-import net.mullvad.mullvadvpn.core.scene.SingleOverlaySceneStrategy.Companion.overlay
 
 /** An [OverlayScene] that renders an [entry] as an overlay. */
-@OptIn(ExperimentalMaterial3Api::class)
-internal class SingleOverlayScene<T : Any>(
+internal data class SingleOverlayScene<T : Any>(
     override val key: T,
     override val previousEntries: List<NavEntry<T>>,
     override val overlaidEntries: List<NavEntry<T>>,
@@ -32,7 +29,6 @@ internal class SingleOverlayScene<T : Any>(
  *
  * This strategy should always be added before any non-overlay scene strategies.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 class SingleOverlaySceneStrategy<T : Any> : SceneStrategy<T> {
 
     override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {

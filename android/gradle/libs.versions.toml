@@ -17,18 +17,18 @@ ndk = "27.3.13750724"
 # or here:
 # https://maven.google.com/web/index.html#com.android.tools.build:aapt2
 android-gradle-aapt = "15978811"
-android-gradle-plugin = "9.4.0"
+android-gradle-plugin = "9.4.1"
 # Other
 android-billingclient = "9.1.0"
 androidx-activitycompose = "1.13.0"
 androidx-appcompat = "1.8.0"
-androidx-core = "1.19.0"
+androidx-core = "1.19.1"
 androidx-coresplashscreen = "1.2.0"
 androidx-credentials = "1.6.0"
 androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.11.0"
-androidx-nav3 = "1.1.7"
+androidx-nav3 = "1.2.0"
 androidx-adaptive = "1.3.0"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
@@ -36,7 +36,7 @@ androidx-testorchestrator = "1.6.1"
 androidx-testrunner = "1.7.0"
 androidx-tv = "1.1.0"
 androidx-uiautomator = "2.4.0"
-androidx-work = "2.11.2"
+androidx-work = "2.12.0"
 arrow = "2.2.3"
 baselineprofile = "1.5.0"
 benchmark-macro-junit4 = "1.5.0"
@@ -45,12 +45,9 @@ compose = "1.12.1"
 compose-constraintlayout = "1.1.2"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
-dependency-versions = "0.61.0"
+dependency-versions = "0.64.0"
 detekt = "2.0.0-alpha.6"
 accompanist = "0.37.3"
-# Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.84.0"
-grpc-kotlin = "1.5.0"
 junit = "5.14.4"
 junit4 = "1.3.0"
 junit5-android = "2.0.1"
@@ -64,17 +61,17 @@ kotlin-ksp = "2.3.12"
 kotlinx = "1.11.0"
 kotlinx-serialization-json = "1.11.0"
 ktfmt = "0.27.0"
-ktor = "3.5.2"
+ktor = "3.6.0"
 leakcanary = "2.14"
 mockk = "1.14.11"
-okttp = "5.4.0"
+okhttp = "5.5.0"
 play-publisher = "4.1.1"
 play-services-location = "21.4.0"
 profileinstaller = "1.4.1"
-protobuf = "4.36.1"
+protobuf = "4.36.2"
 protobuf-gradle-plugin = "0.10.0"
 turbine = "1.2.1"
-annotation-jvm = "1.10.0"
+annotation-jvm = "1.11.0"
 junit-version = "4.13.2"
 material = "1.14.0"
 rust-android = "0.10.1"
@@ -136,11 +133,6 @@ compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compo
 detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 detekt-gradle-plugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
-grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
-grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
-grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
-grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
-grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
@@ -183,7 +175,7 @@ protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", ve
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okttp" }
+okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 wire-runtime = { group = "com.squareup.wire", name = "wire-runtime", version.ref = "wire" }
 wire-grpc = { group = "com.squareup.wire", name = "wire-grpc-client", version.ref = "wire" }
 
@@ -196,10 +188,6 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-versions = { id = "io.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
-# noinspection SimilarGradleDependency
-grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
-# noinspection SimilarGradleDependency
-grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 junit5-android = { id = "de.mannodermaus.android-junit5", version.ref = "junit5-android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }

@@ -21,13 +21,12 @@ android {
 
 protobuf {
     protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
-    plugins {
-        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
-    }
     generateProtoTasks {
         all().forEach {
-            it.plugins { create("java") { option("lite") } }
-            it.builtins { create("kotlin") { option("lite") } }
+            it.builtins {
+                create("java") { option("lite") }
+                create("kotlin") { option("lite") }
+            }
         }
     }
 }
