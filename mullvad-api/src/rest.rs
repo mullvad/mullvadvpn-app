@@ -292,7 +292,7 @@ impl RequestService {
 
                 // Evict idle connections
                 idle_for = evict_connection => {
-                    tracing::trace!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
+                    tracing::info!("Connection idle for {:.02}s. Evicting.", idle_for.as_secs_f32());
                     self.soft_close_connection();
                 }
             }
@@ -304,7 +304,7 @@ impl RequestService {
     async fn resolve(&self) -> Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
 
-        tracing::trace!("resolving {:?}", self.host);
+        tracing::info!("resolving {:?}", self.host);
         self.dns_resolver
             .resolve(self.host.to_string())
             .await
@@ -322,7 +322,7 @@ impl RequestService {
 
     async fn connect(&mut self) -> Result<Connection> {
         let addr = self.resolve().await?;
-        tracing::trace!("connecting to {addr} ({:?})", self.host);
+        tracing::info!("connecting to {addr} ({:?})", self.host);
         let idle_timeout = self.connector.idle_timeout();
         let connection = self
             .connector
@@ -357,7 +357,7 @@ impl RequestService {
             result = self.send_request_timeout(request).await;
         }
 
-        tracing::trace!("{method} {uri:?}");
+        tracing::info!("{method} {uri:?}");
 
         if let Err(err) = &result
             && err.is_network_error()
@@ -417,7 +417,7 @@ impl RequestService {
                     Ok(connection) => return Ok(connection),
                     Err(e) if attempt > max_attempts => return Err(e),
                     Err(e) => {
-                        tracing::trace!("Connection error (attempt {attempt}/{max_attempts}): {e}");
+                        tracing::info!("Connection error (attempt {attempt}/{max_attempts}): {e}");
                         continue;
                     }
                 }
