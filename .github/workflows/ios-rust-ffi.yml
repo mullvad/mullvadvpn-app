@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/ios-rust-ffi.yml
       - 'ci/cargo-ci.sh'
+      - 'ci/cargo-ci-clippy.sh'
       - clippy.toml
       - Cargo.lock
       - Cargo.toml
@@ -62,6 +63,7 @@ jobs:
           force_triggers: |
             .github/workflows/ios-rust-ffi.yml
             ci/cargo-ci.sh
+            ci/cargo-ci-clippy.sh
             clippy.toml
             Cargo.lock
             Cargo.toml
@@ -109,11 +111,8 @@ jobs:
       - name: Build crates
         run: time ci/cargo-ci.sh build --verbose --lib $PACKAGES --target "$TARGET"
 
-      - name: Clippy check (no features)
-        run: time ci/cargo-ci.sh clippy --all-targets --no-default-features $PACKAGES --target "$TARGET"
-
-      - name: Clippy check (all features)
-        run: time ci/cargo-ci.sh clippy --all-targets --all-features $PACKAGES --target "$TARGET"
+      - name: Clippy check
+        run: ci/cargo-ci-clippy.sh "$TARGET"
 
   # NOTE: Tests actually target macOS here. This is because we do not have an iOS runner
   #       handy, so this takes no --target.

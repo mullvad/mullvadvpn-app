@@ -9,6 +9,7 @@
     "ci/buildserver-build.sh",
     "ci/buildserver-config.sh",
     "ci/cargo-ci.sh",
+    "ci/cargo-ci-clippy.sh",
     "ci/check-rust-min-publish-age.py",
     "ci/linux-repository-builder/**",
     "ci/publish-app-to-repositories.sh",
