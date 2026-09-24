@@ -12,6 +12,9 @@ export function ExitItem(props: ExitItemProps) {
   const { exit } = useSelectedLocations();
   const defaultValue = useLocationName(exit);
 
+  // TODO: Look up selected entry hostname and check if it is in the filteredRelays list.
+  const invalid = false;
+
   return (
     <TextFieldItem
       id="exit"
@@ -19,6 +22,7 @@ export function ExitItem(props: ExitItemProps) {
       aria-label={messages.gettext('Search exit location or server, press enter to search')}
       placeholder={messages.gettext('Search exit location or server')}
       defaultValue={defaultValue}
+      invalid={invalid}
       {...props}
     />
   );

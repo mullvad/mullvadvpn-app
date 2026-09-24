@@ -14,6 +14,7 @@ import { TextFieldItemProvider, useTextFieldItemContext } from './TextFieldItemC
 
 export type SelectLocationSelectorItemProps = LocationSelectorTextFieldItemProps & {
   defaultValue?: string;
+  invalid?: boolean;
   placeholder?: string;
 };
 
@@ -25,6 +26,7 @@ const StyledInput = styled(LocationSelector.Items.TextFieldItem.TextField.Input)
 
 function TextFieldItemImpl({
   id,
+  invalid,
   placeholder,
   ...props
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
@@ -40,7 +42,8 @@ function TextFieldItemImpl({
   const handleFocusExit = useHandleFocusExit();
   const handleValueChange = useHandleValueChange();
 
-  const showClearButton = focused && value.length > 0;
+  const showClearButton = true; // focused && value.length > 0;
+  const showSupportingText = invalid;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -49,23 +52,31 @@ function TextFieldItemImpl({
       triggerRef={triggerRef}
       {...props}>
       <LocationSelector.Items.TextFieldItem.TextField
+        invalid={invalid}
         value={value}
         onFocusExit={handleFocusExit}
         onValueChange={handleValueChange}>
-        <StyledInput
-          placeholder={placeholder}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          type="search"
-        />
-        {showClearButton && (
-          <LocationSelector.Items.TextFieldItem.TextField.ClearButton
-            onClick={handleClearButtonClick}
-            aria-label={messages.gettext('Clear')}
+        <LocationSelector.Items.TextFieldItem.TextField.TextArea>
+          <StyledInput
+            placeholder={placeholder}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            type="search"
           />
+          {showClearButton && (
+            <LocationSelector.Items.TextFieldItem.TextField.ClearButton
+              onClick={handleClearButtonClick}
+              aria-label={messages.gettext('Clear')}
+            />
+          )}
+          <FilterTrailingButton />
+        </LocationSelector.Items.TextFieldItem.TextField.TextArea>
+        {!showSupportingText && (
+          <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+            test
+          </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
         )}
       </LocationSelector.Items.TextFieldItem.TextField>
-      <FilterTrailingButton />
     </LocationSelector.Items.TextFieldItem>
   );
 }
