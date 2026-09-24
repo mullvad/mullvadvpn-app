@@ -1,6 +1,6 @@
-import { useConnection } from '../../../../../../features/tunnel/hooks';
-import { useEntryType } from '../../../hooks';
-import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { useConnection } from '../../../../features/tunnel/hooks';
+import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useEntryType } from './use-entry-type';
 
 export function useShowAutomaticEntryItem() {
   const {
