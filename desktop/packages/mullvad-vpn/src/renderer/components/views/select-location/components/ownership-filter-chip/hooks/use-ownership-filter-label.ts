@@ -7,7 +7,6 @@ export const useOwnershipFilterLabel = () => {
   const { locationType } = useSelectLocationViewContext();
   const { ownership } = useOwnership(locationType);
 
-  console.log('ownership', ownership);
   if (ownership === Ownership.mullvadOwned) {
     return messages.pgettext('filter-view', 'Owned');
   } else if (ownership === Ownership.rented) {

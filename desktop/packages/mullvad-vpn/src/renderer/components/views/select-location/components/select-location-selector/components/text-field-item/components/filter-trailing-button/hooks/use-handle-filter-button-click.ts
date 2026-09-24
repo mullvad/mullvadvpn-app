@@ -9,13 +9,13 @@ export function useHandleFilterButtonClick() {
   const history = useHistory();
 
   const handleFilterButtonClick = React.useCallback(() => {
-    const variant = id === 'entryAutomatic' ? 'entry' : id;
+    const locationType = id === 'entryAutomatic' ? 'entry' : id;
 
     history.push(RoutePath.filter, {
       options: [
         {
           type: 'filter-view-location-type',
-          variant,
+          locationType,
         },
       ],
     });

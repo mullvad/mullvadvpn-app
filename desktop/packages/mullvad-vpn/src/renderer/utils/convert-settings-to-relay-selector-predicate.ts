@@ -53,15 +53,17 @@ function convertLocationToRelaySelectorLocation(
   return wrapConstraint(convertLocationToRelayLocationGeographical(location));
 }
 
-function convertNormalRelaySettingsToRelaySelectorGeneralConstraints(
+function convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
   normalRelaySettings: NormalRelaySettingsRedux,
   ignoreConstraint?: IgnoreConstraints,
 ): RelaySelectorPredicateGeneralConstraints {
   const location = convertLocationToRelaySelectorLocation(
     normalRelaySettings.wireguard.entryLocation,
   );
-  const providers = convertProvidersToRelaySelectorProviders(normalRelaySettings.providers);
-  const ownership = normalRelaySettings.ownership;
+  const providers = convertProvidersToRelaySelectorProviders(
+    normalRelaySettings.wireguard.entryProviders,
+  );
+  const ownership = normalRelaySettings.wireguard.entryOwnership;
 
   return {
     location: ignoreConstraint?.location ? 'any' : location,
@@ -87,7 +89,7 @@ function convertSettingsToRelaySelectorEntryConstraints({
   normalRelaySettings,
   ignoreConstraint: ignoreConstraint,
 }: ConvertSettingsToRelaySelectorEntryConstraints): RelaySelectorPredicateEntryConstraints {
-  const generalConstraints = convertNormalRelaySettingsToRelaySelectorGeneralConstraints(
+  const generalConstraints = convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
     normalRelaySettings,
     ignoreConstraint,
   );

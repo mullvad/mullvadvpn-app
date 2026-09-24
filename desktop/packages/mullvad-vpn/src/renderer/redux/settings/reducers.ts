@@ -137,6 +137,8 @@ const initialState: ISettingsReduxState = {
         ipVersion: 'any',
         multihop: 'when-needed',
         entryLocation: 'any',
+        entryOwnership: Ownership.any,
+        entryProviders: [],
       },
     },
   },

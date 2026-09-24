@@ -18,3 +18,4 @@ export * from './use-map-custom-lists-to-locations';
 export * from './use-search-custom-list-locations';
 export * from './use-recents';
 export * from './use-map-recents-to-locations';
+export * from './use-is-providers-filter-active';

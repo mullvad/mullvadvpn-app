@@ -10,7 +10,7 @@ export function useFilterCountryLocations(locationType: LocationType) {
   const { relayLocationsFiltered } = useSettingsRelayLocationsFiltered();
   const { multihop } = useMultihop();
   const context: RelayLocationsFilterContext =
-    locationType === LocationType.entry ? 'entry' : 'exit';
+    locationType === LocationType.exit ? 'exit' : 'entry';
 
   return filterCountriesByRelayLocationsFiltered(
     locations,
