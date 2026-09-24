@@ -6,7 +6,7 @@ import { CarouselSlide } from './components';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
-const StyledSlides = styled.div`
+export const StyledCarouselSlides = styled.div`
   white-space: nowrap;
   overflow: scroll hidden;
   scroll-snap-type: x mandatory;
@@ -21,9 +21,14 @@ function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const { slidesRef } = useCarouselContext();
 
   return (
-    <StyledSlides ref={slidesRef} aria-live="polite" aria-atomic="true" tabIndex={-1} {...props}>
+    <StyledCarouselSlides
+      ref={slidesRef}
+      aria-live="polite"
+      aria-atomic="true"
+      tabIndex={-1}
+      {...props}>
       {children}
-    </StyledSlides>
+    </StyledCarouselSlides>
   );
 }
 
