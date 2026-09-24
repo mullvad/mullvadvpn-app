@@ -415,7 +415,7 @@ impl RequestService {
 
                 match self.get_connection_inner().await {
                     Ok(connection) => return Ok(connection),
-                    Err(e) if attempt > max_attempts => return Err(e),
+                    Err(e) if attempt >= max_attempts => return Err(e),
                     Err(e) => {
                         tracing::trace!("Connection error (attempt {attempt}/{max_attempts}): {e}");
                         continue;
