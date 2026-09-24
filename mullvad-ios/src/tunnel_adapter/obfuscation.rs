@@ -5,7 +5,7 @@ use std::{
 };
 
 use gotatun::{
-    udp::{UdpTransportFactory, UdpTransportFactoryParams, socket::UdpSocket},
+    udp::{UdpTransportFactory, UdpTransportFactoryParams},
     x25519::StaticSecret,
 };
 use talpid_net::bypass::NoopBypass;
@@ -19,8 +19,10 @@ use tunnel_obfuscation::{
     },
 };
 
-use super::BoundUdpTransports;
-use super::params::{ObfuscationParameters, TunnelParameters};
+use super::{
+    Multiplex,
+    params::{ObfuscationParameters, TunnelParameters},
+};
 
 /// The ingress device's UDP transport: the pre-bound socket, obfuscated in place.
 ///
@@ -29,7 +31,7 @@ use super::params::{ObfuscationParameters, TunnelParameters};
 /// waking it.
 #[derive(Clone)]
 pub struct ObfuscatingTransports {
-    udp: BoundUdpTransports,
+    udp: Multiplex,
     obfuscation: Arc<Mutex<Option<RunningObfuscation>>>,
     /// The relay this addresses. See [`MaybeObfuscatingTransportFactory`].
     peer_endpoint: SocketAddr,
@@ -37,7 +39,7 @@ pub struct ObfuscatingTransports {
 
 impl ObfuscatingTransports {
     pub fn new(
-        udp: BoundUdpTransports,
+        udp: Multiplex,
         obfuscation: Option<RunningObfuscation>,
         peer_endpoint: SocketAddr,
     ) -> Self {
@@ -55,8 +57,8 @@ impl ObfuscatingTransports {
 }
 
 impl UdpTransportFactory for ObfuscatingTransports {
-    type Send = MaybeObfuscatingSend<UdpSocket>;
-    type Recv = MaybeObfuscatingRecv<UdpSocket>;
+    type Send = MaybeObfuscatingSend<Multiplex>;
+    type Recv = MaybeObfuscatingRecv<Multiplex>;
 
     async fn bind(
         &mut self,
