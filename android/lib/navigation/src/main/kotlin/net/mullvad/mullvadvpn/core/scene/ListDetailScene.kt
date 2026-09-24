@@ -25,7 +25,7 @@ import net.mullvad.mullvadvpn.core.animation.ENTER_TRANSITION_SLIDE_FACTOR
 import net.mullvad.mullvadvpn.core.animation.TRANSITION_DEFAULT_DURATION_MS
 
 /** A [Scene] that displays a list and a detail [NavEntry] side-by-side in a 40/60 split. */
-class ListDetailScene<T : Any>(
+data class ListDetailScene<T : Any>(
     override val key: Any,
     override val previousEntries: List<NavEntry<T>>,
     val listEntry: NavEntry<T>,
