@@ -118,7 +118,7 @@ extension Color {
         static let separator: Color = .MullvadOpacities.chalk40
         static let background: Color = .MullvadBlue._80
     }
-    
+
     enum MullvadLogView {
         static let backgroundColor = Color(red: 0.12, green: 0.12, blue: 0.12, opacity: 1)
         static let foregroundColor = Color.white
