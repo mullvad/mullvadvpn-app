@@ -5,7 +5,7 @@ expression: request
 Request {
     inner: Request {
         method: POST,
-        uri: https://api.mullvad.net/auth/v1/token,
+        uri: /auth/v1/token,
         version: HTTP/1.1,
         headers: {
             "user-agent": "mullvad-app",
