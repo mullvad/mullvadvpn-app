@@ -29,9 +29,10 @@ import SwiftUI
     var showLogs: Binding<Bool>!
     var alert: MullvadAlert?
 
-    var interactor: ProblemReportInteractorProtocol?
+    let interactor: ProblemReportInteractorProtocol?
 
-    init() {
+    init(interactor: ProblemReportInteractorProtocol? = nil) {
+        self.interactor = interactor
         showLogs = Binding<Bool>(
             get: { self.logText != nil },
             set: { if !$0 { self.logText = nil } }

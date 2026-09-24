@@ -17,7 +17,7 @@ import Operations
 
 protocol ProblemReportInteractorProtocol: Sendable {
     func fetchReportString(completion: @escaping @Sendable (String) -> Void)
-    
+
     func sendReport(
         email: String,
         message: String,
@@ -32,13 +32,14 @@ extension ProblemReportInteractorProtocol {
             self.fetchReportString { continuation.resume(returning: $0) }
         }
     }
-    
+
     func sendReport(email: String, message: String, includeAccountTokenInLogs: Bool) async throws {
         try await withCheckedThrowingContinuation { continuation in
             self.sendReport(
                 email: email,
                 message: message,
-                includeAccountTokenInLogs: includeAccountTokenInLogs) { continuation.resume(with: $0) }
+                includeAccountTokenInLogs: includeAccountTokenInLogs
+            ) { continuation.resume(with: $0) }
         }
     }
 }

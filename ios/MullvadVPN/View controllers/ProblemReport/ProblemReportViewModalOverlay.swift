@@ -49,11 +49,13 @@ extension ProblemReportView {
                             title: .init(text: "Failed to send", style: .headline(.bold, alignment: .leading)),
                             details: [
                                 .init(
-                                    text: "If you exit the form and try again later, the information you already entered will still be here.",
+                                    text:
+                                        "If you exit the form and try again later, the information you already entered will still be here.",
                                     style: .primary(.none, alignment: .leading)
                                 ),
                                 .init(
-                                    text: "If you still experience issues you can email our support directly at **\(supportEmail)**. Please attach your app log to your email.",
+                                    text:
+                                        "If you still experience issues you can email our support directly at **\(supportEmail)**. Please attach your app log to your email.",
                                     style: .primary(.none, alignment: .leading)
                                 ),
                             ],
