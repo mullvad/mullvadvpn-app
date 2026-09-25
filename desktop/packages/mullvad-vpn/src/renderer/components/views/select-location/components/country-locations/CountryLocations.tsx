@@ -1,3 +1,4 @@
+import { useIsPresent } from 'motion/react';
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
@@ -18,12 +19,13 @@ export function CountryLocations() {
   const titleId = React.useId();
   const descriptionId = React.useId();
 
-  const showFilterText = visibleRelays !== totalRelays;
+  const showAutomaticLocation = useShowAutomaticLocation();
+
+  const isPresent = useIsPresent();
+  const showFilterText = visibleRelays !== totalRelays && isPresent;
 
   const { searchTerm } = useSelectLocationViewContext();
   const countryLocationsKey = searchTerm ? `country-locations-${searchTerm}` : 'country-locations';
-
-  const showAutomaticLocation = useShowAutomaticLocation();
 
   return (
     <FlexColumn
