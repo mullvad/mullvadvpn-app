@@ -61,9 +61,7 @@ final class OutOfTimeInteractor: Sendable {
     }
 
     func stopTunnel() {
-        Task {
-            await tunnelManager.stopTunnel()
-        }
+        tunnelManager.stopTunnel()
     }
 
     func startAccountUpdateTimer() {
