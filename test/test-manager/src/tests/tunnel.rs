@@ -17,6 +17,7 @@ use std::{
     assert_matches,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     str::FromStr,
+    time::Duration,
 };
 use talpid_types::net::IpVersion;
 use test_macro::test_function;
@@ -450,11 +451,31 @@ async fn check_tunnel_psk(
             let name = helpers::get_tunnel_interface(&mut mullvad_client.clone())
                 .await
                 .expect("failed to get tun name");
-            let output = rpc
-                .exec("wg", vec!["show", &name])
-                .await
-                .expect("failed to run wg");
-            let parsed_output = std::str::from_utf8(&output.stdout).expect("non-utf8 output");
+
+            // The kernel interface may briefly hold the previous tunnel's configuration while
+            // the new one is being applied, so re-read it a few times if it disagrees.
+            const MAX_READS: usize = 3;
+            let mut parsed_output = String::new();
+            for attempt in 1..=MAX_READS {
+                let output = rpc
+                    .exec("wg", vec!["show", &name])
+                    .await
+                    .expect("failed to run wg");
+                parsed_output = std::str::from_utf8(&output.stdout)
+                    .expect("non-utf8 output")
+                    .to_owned();
+
+                let has_psk = parsed_output.contains("preshared key: ");
+                if has_psk == should_have_psk || attempt == MAX_READS {
+                    break;
+                }
+
+                log::debug!(
+                    "PSK check disagreed (attempt {attempt}, expected psk={should_have_psk}), retrying"
+                );
+                tokio::time::sleep(Duration::from_secs(1)).await;
+            }
+
             assert!(
                 parsed_output.contains("preshared key: ") == should_have_psk,
                 "expected to NOT find preshared key"
