@@ -47,14 +47,14 @@ class IncludeAllNetworksSettingsViewModelImpl: IncludeAllNetworksSettingsViewMod
             }
 
             settings.includeAllNetworksState = includeAllNetworksState
-            Task { await tunnelManager.updateSettings([.includeAllNetworks(settings)]) }
+            tunnelManager.updateSettings([.includeAllNetworks(settings)])
         }
     }
 
     @Published var localNetworkSharingState: LocalNetworkSharingState {
         didSet {
             settings.localNetworkSharingState = localNetworkSharingState
-            Task { await tunnelManager.updateSettings([.includeAllNetworks(settings)]) }
+            tunnelManager.updateSettings([.includeAllNetworks(settings)])
         }
     }
 

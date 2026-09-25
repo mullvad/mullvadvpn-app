@@ -116,9 +116,7 @@ class TunnelCoordinator: Coordinator, Presenting {
                     title: NSLocalizedString("Disconnect", comment: ""),
                     style: .destructive,
                     handler: { [weak self] in
-                        Task {
-                            await self?.tunnelManager.stopTunnel()
-                        }
+                        self?.tunnelManager.stopTunnel()
                     }
                 ),
                 AlertAction(

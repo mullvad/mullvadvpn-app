@@ -43,7 +43,7 @@ public struct MigrationManager: Sendable {
     /// This file is accessed by `NSFileCoordinator` in order to prevent multiple processes accessing at the same time.
     /// - Parameters:
     ///   - store: The store to from which settings are read and written to.
-    public func migrateSettings(store: SettingsStore) async -> SettingsMigrationResult {
+    public func migrateSettings(store: SettingsStore, completion: (SettingsMigrationResult) -> Void) {
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
         var error: NSError?
 
@@ -52,21 +52,19 @@ public struct MigrationManager: Sendable {
         // in a half written state.
         // The resulting effect is that only one process at a time can do settings migrations.
         // The other process will be blocked, and will have nothing to do as long as settings were successfully upgraded.
-        return await withCheckedContinuation { continuation in
-            fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
-                do {
-                    let result = try upgradeSettingsToLatestVersion(store: store)
-                    continuation.resume(returning: result)
-                } catch .itemNotFound as KeychainError {
-                    continuation.resume(returning: .nothing)
-                } catch let couldNotReadKeychainError as KeychainError
-                    where couldNotReadKeychainError == .interactionNotAllowed
-                {
-                    continuation.resume(returning: .failure(couldNotReadKeychainError))
-                } catch {
-                    settingsManager.resetStore()
-                    continuation.resume(returning: .failure(error))
-                }
+        fileCoordinator.coordinate(writingItemAt: cacheDirectory, error: &error) { _ in
+            do {
+                let result = try upgradeSettingsToLatestVersion(store: store)
+                completion(result)
+            } catch .itemNotFound as KeychainError {
+                completion(.nothing)
+            } catch let couldNotReadKeychainError as KeychainError
+                where couldNotReadKeychainError == .interactionNotAllowed
+            {
+                completion(.failure(couldNotReadKeychainError))
+            } catch {
+                settingsManager.resetStore()
+                completion(.failure(error))
             }
         }
     }
