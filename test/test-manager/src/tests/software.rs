@@ -30,7 +30,19 @@ pub async fn test_containers(
 }
 
 /// This function executes curl inside podman or docker in the guest/test runner.
+///
+/// The probe is retried once, since the container runtime occasionally fails to start a
+/// container, e.g. when its daemon is still settling after boot.
 async fn probe_container_connectivity(rpc: &ServiceClient) -> Result<ExecResult, Error> {
+    let mut result = exec_container_probe(rpc).await?;
+    if !result.success() {
+        log::debug!("Container probe failed, retrying once");
+        result = exec_container_probe(rpc).await?;
+    }
+    Ok(result)
+}
+
+async fn exec_container_probe(rpc: &ServiceClient) -> Result<ExecResult, Error> {
     let has_podman = rpc.exec("bash", ["-c", "which podman"]).await?.success();
 
     let result = if has_podman {
