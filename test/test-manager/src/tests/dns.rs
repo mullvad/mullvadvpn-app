@@ -29,7 +29,9 @@ use crate::{
 };
 
 /// How long to wait for expected "DNS queries" to appear
-const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
+/// A packet capture on a loaded host may not see the probe packets right away, so give the
+/// monitors a generous window.
+const MONITOR_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Test whether DNS leaks can be produced when using the default resolver. It does this by
 /// connecting to a custom WireGuard relay on localhost and monitoring outbound DNS traffic in (and
