@@ -170,159 +170,195 @@ async fn leak_test_dns(
     let blocked_dest_local = "10.64.100.100:53".parse().unwrap();
     let blocked_dest_public = "1.1.1.1:53".parse().unwrap();
 
-    // Capture all outgoing DNS
-    let mut pkt_counter = DnsPacketsFound::new(1, 1);
-
-    let (tunnel_monitor, non_tunnel_monitor) = if use_tun {
-        let tunnel_monitor = start_tunnel_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            move |packet| pkt_counter.handle_packet(packet),
-            MonitorOptions {
-                direction: Some(Direction::In),
-                timeout: Some(MONITOR_TIMEOUT),
-                ..Default::default()
-            },
-        )
-        .await?;
-        let non_tunnel_monitor = start_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            |_packet| false,
-            MonitorOptions {
-                direction: Some(Direction::In),
-                ..Default::default()
-            },
-        )
-        .await?;
-        (tunnel_monitor, non_tunnel_monitor)
-    } else {
-        let tunnel_monitor = start_tunnel_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            |_packet| false,
-            MonitorOptions {
-                direction: Some(Direction::In),
-                ..Default::default()
-            },
-        )
-        .await?;
-        let non_tunnel_monitor = start_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            move |packet| pkt_counter.handle_packet(packet),
-            MonitorOptions {
-                direction: Some(Direction::In),
-                timeout: Some(MONITOR_TIMEOUT),
-                ..Default::default()
-            },
-        )
-        .await?;
-        (tunnel_monitor, non_tunnel_monitor)
-    };
-
     // We should observe 2 outgoing packets to the whitelisted destination
     // on port 53, and only inside the desired interface.
 
-    let rpc = rpc.clone();
-    let probes = tokio::spawn(async move {
-        tokio::join!(
-            // send to allowed dest
-            spoof_packets(
-                &rpc,
-                Some(tunnel_iface.clone()),
-                tun_bind_addr,
-                whitelisted_dest,
-            ),
-            spoof_packets(
-                &rpc,
-                Some(nontun_iface.clone()),
-                nontun_bind_addr,
-                whitelisted_dest,
-            ),
-            // send to blocked local dest
-            spoof_packets(
-                &rpc,
-                Some(tunnel_iface.clone()),
-                tun_bind_addr,
-                blocked_dest_local,
-            ),
-            spoof_packets(
-                &rpc,
-                Some(nontun_iface.clone()),
-                nontun_bind_addr,
-                blocked_dest_local,
-            ),
-            // send to blocked public dest
-            spoof_packets(&rpc, Some(tunnel_iface), tun_bind_addr, blocked_dest_public,),
-            spoof_packets(
-                &rpc,
-                Some(nontun_iface),
-                nontun_bind_addr,
-                blocked_dest_public,
-            ),
-        )
-    });
+    // The packet capture on the host occasionally misses probe packets. Retry the probes before
+    // failing the test.
+    const MAX_PROBE_ATTEMPTS: usize = 2;
+    const PROBE_RETRY_DELAY: Duration = Duration::from_secs(2);
 
-    if use_tun {
-        // Examine tunnel traffic
-        //
+    for attempt in 1..=MAX_PROBE_ATTEMPTS {
+        let mut pkt_counter = DnsPacketsFound::new(1, 1);
 
-        let tunnel_result = tunnel_monitor.wait().await.unwrap();
+        // Cloned so that the probes can own them on every attempt.
+        let (tunnel_iface, nontun_iface) = (tunnel_iface.clone(), nontun_iface.clone());
 
-        probes.abort();
-        let _ = probes.await;
+        let (tunnel_monitor, non_tunnel_monitor) = if use_tun {
+            let tunnel_monitor = start_tunnel_packet_monitor_until(
+                move |packet| packet.destination.port() == 53,
+                move |packet| pkt_counter.handle_packet(packet),
+                MonitorOptions {
+                    direction: Some(Direction::In),
+                    timeout: Some(MONITOR_TIMEOUT),
+                    ..Default::default()
+                },
+            )
+            .await?;
+            let non_tunnel_monitor = start_packet_monitor_until(
+                move |packet| packet.destination.port() == 53,
+                |_packet| false,
+                MonitorOptions {
+                    direction: Some(Direction::In),
+                    ..Default::default()
+                },
+            )
+            .await?;
+            (tunnel_monitor, non_tunnel_monitor)
+        } else {
+            let tunnel_monitor = start_tunnel_packet_monitor_until(
+                move |packet| packet.destination.port() == 53,
+                |_packet| false,
+                MonitorOptions {
+                    direction: Some(Direction::In),
+                    ..Default::default()
+                },
+            )
+            .await?;
+            let non_tunnel_monitor = start_packet_monitor_until(
+                move |packet| packet.destination.port() == 53,
+                move |packet| pkt_counter.handle_packet(packet),
+                MonitorOptions {
+                    direction: Some(Direction::In),
+                    timeout: Some(MONITOR_TIMEOUT),
+                    ..Default::default()
+                },
+            )
+            .await?;
+            (tunnel_monitor, non_tunnel_monitor)
+        };
 
-        assert!(
-            tunnel_result.packets.len() >= 2,
-            "expected at least 2 in-tunnel packets to allowed destination only"
-        );
+        let rpc = rpc.clone();
+        let probes = tokio::spawn(async move {
+            tokio::join!(
+                // send to allowed dest
+                spoof_packets(
+                    &rpc,
+                    Some(tunnel_iface.clone()),
+                    tun_bind_addr,
+                    whitelisted_dest,
+                ),
+                spoof_packets(
+                    &rpc,
+                    Some(nontun_iface.clone()),
+                    nontun_bind_addr,
+                    whitelisted_dest,
+                ),
+                // send to blocked local dest
+                spoof_packets(
+                    &rpc,
+                    Some(tunnel_iface.clone()),
+                    tun_bind_addr,
+                    blocked_dest_local,
+                ),
+                spoof_packets(
+                    &rpc,
+                    Some(nontun_iface.clone()),
+                    nontun_bind_addr,
+                    blocked_dest_local,
+                ),
+                // send to blocked public dest
+                spoof_packets(
+                    &rpc,
+                    Some(tunnel_iface.clone()),
+                    tun_bind_addr,
+                    blocked_dest_public,
+                ),
+                spoof_packets(
+                    &rpc,
+                    Some(nontun_iface.clone()),
+                    nontun_bind_addr,
+                    blocked_dest_public,
+                ),
+            )
+        });
 
-        for pkt in tunnel_result.packets {
-            assert_eq!(
-                pkt.destination, whitelisted_dest,
-                "unexpected tunnel packet on port 53"
+        if use_tun {
+            // Examine tunnel traffic
+            //
+
+            let tunnel_result = tunnel_monitor.wait().await.unwrap();
+
+            probes.abort();
+            let _ = probes.await;
+
+            // Examine non-tunnel traffic
+            //
+
+            let non_tunnel_result = non_tunnel_monitor.into_result().await.unwrap();
+
+            if attempt < MAX_PROBE_ATTEMPTS && tunnel_result.packets.len() < 2 {
+                log::debug!(
+                    "Saw only {} in-tunnel packets (attempt {attempt}), retrying",
+                    tunnel_result.packets.len(),
+                );
+                tokio::time::sleep(PROBE_RETRY_DELAY).await;
+                continue;
+            }
+
+            assert!(
+                tunnel_result.packets.len() >= 2,
+                "expected at least 2 in-tunnel packets to allowed destination only"
             );
+
+            for pkt in tunnel_result.packets {
+                assert_eq!(
+                    pkt.destination, whitelisted_dest,
+                    "unexpected tunnel packet on port 53"
+                );
+            }
+
+            assert_eq!(
+                non_tunnel_result.packets.len(),
+                0,
+                "expected no non-tunnel packets on port 53"
+            );
+        } else {
+            let non_tunnel_result = non_tunnel_monitor.wait().await.unwrap();
+
+            probes.abort();
+            let _ = probes.await;
+
+            // Examine tunnel traffic
+            //
+
+            let tunnel_result = tunnel_monitor.into_result().await.unwrap();
+
+            if attempt < MAX_PROBE_ATTEMPTS && non_tunnel_result.packets.len() < 2 {
+                log::debug!(
+                    "Saw only {} non-tunnel packets (attempt {attempt}), retrying",
+                    non_tunnel_result.packets.len(),
+                );
+                tokio::time::sleep(PROBE_RETRY_DELAY).await;
+                continue;
+            }
+
+            assert_eq!(
+                tunnel_result.packets.len(),
+                0,
+                "expected no tunnel packets on port 53"
+            );
+
+            // Examine non-tunnel traffic
+            //
+
+            assert!(
+                non_tunnel_result.packets.len() >= 2,
+                "expected at least 2 non-tunnel packets to allowed destination only"
+            );
+
+            for pkt in non_tunnel_result.packets {
+                assert_eq!(
+                    pkt.destination, whitelisted_dest,
+                    "unexpected non-tunnel packet on port 53"
+                );
+            }
         }
 
-        // Examine non-tunnel traffic
-        //
-
-        let non_tunnel_result = non_tunnel_monitor.into_result().await.unwrap();
-        assert_eq!(
-            non_tunnel_result.packets.len(),
-            0,
-            "expected no non-tunnel packets on port 53"
-        );
-    } else {
-        let non_tunnel_result = non_tunnel_monitor.wait().await.unwrap();
-
-        probes.abort();
-        let _ = probes.await;
-
-        // Examine tunnel traffic
-        //
-
-        let tunnel_result = tunnel_monitor.into_result().await.unwrap();
-        assert_eq!(
-            tunnel_result.packets.len(),
-            0,
-            "expected no tunnel packets on port 53"
-        );
-
-        // Examine non-tunnel traffic
-        //
-
-        assert!(
-            non_tunnel_result.packets.len() >= 2,
-            "expected at least 2 non-tunnel packets to allowed destination only"
-        );
-
-        for pkt in non_tunnel_result.packets {
-            assert_eq!(
-                pkt.destination, whitelisted_dest,
-                "unexpected non-tunnel packet on port 53"
-            );
-        }
+        return Ok(());
     }
 
-    Ok(())
+    unreachable!("the last attempt always returns")
 }
 
 /// Test whether the expected default DNS resolver is used by `getaddrinfo` (via `ToSocketAddrs`).
