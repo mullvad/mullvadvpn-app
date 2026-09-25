@@ -63,7 +63,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
       <Menu onOpenChange={onOpenChange} {...props}>
         <Menu.Popup>
           <Menu.Option>
-            <Menu.Option.Trigger onClick={navigateToFilter}>
+            <Menu.Option.Trigger as="a" onClick={navigateToFilter}>
               <Menu.Option.Item>
                 <Menu.Option.Item.Icon icon="filter" />
                 <Menu.Option.Item.Label>{messages.gettext('Filters')}</Menu.Option.Item.Label>
