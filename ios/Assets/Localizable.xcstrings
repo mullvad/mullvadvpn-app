@@ -19690,6 +19690,7 @@
       }
     },
     "Debug options" : {
+      "extractionState" : "stale",
       "localizations" : {
         "da" : {
           "stringUnit" : {

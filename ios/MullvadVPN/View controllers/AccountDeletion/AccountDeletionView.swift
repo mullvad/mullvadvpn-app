@@ -14,64 +14,78 @@ struct AccountDeletionView: View {
     @ObservedObject var viewModel: AccountDeletionViewModel
     @State private var borderStyle: BorderStyle = .normal
     @State private var message: MessageView.Message? = nil
+    @FocusState private var isTextFieldFocused: Bool
+
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading) {
-                Text("Account deletion")
-                    .font(.mullvadLarge)
-                    .foregroundStyle(Color.white)
-                    .padding(.bottom, 8)
-
-                Text(viewModel.messageText)
-                    .foregroundStyle(Color.white)
-                    .padding(.bottom, 8)
-
-                Text(
-                    """
-                    This logs out all devices using this account and all \
-                    VPN access will be denied even if there is time left on the account. \
-                    Enter the last 4 digits of the account number and hit "Delete account" \
-                    if you really want to delete the account:
-                    """
-                )
-                .font(.mullvadSmallSemiBold)
+        VStack(alignment: .leading) {
+            Text(viewModel.messageText)
                 .foregroundStyle(Color.white)
                 .padding(.bottom, 8)
 
-                // accountTextField
-                let placeholder = "XXXX"
-                ConfigurableTextField(
-                    title: "Last 4 digits",
-                    placeholder: LocalizedStringKey(placeholder),
-                    text: $viewModel.enteredAccountNumberSuffix,
-                    message: $message,
-                    accessibilityIdentifier: .deleteAccountTextField,
-                    borderStyle: $borderStyle,
-                    configuration: TextFieldNamespace.Configuration(
-                        formatter: GroupedTextFormatter(
-                            configuration: .init(
-                                allowedInput: .numeric,
-                                groupSeparator: "-",
-                                groupSize: 4, maxGroups: 1)),
-                        keyboardType: .numberPad)
-                )
-                .padding(.bottom, 4.0)
+            Text(
+                """
+                This logs out all devices using this account and all \
+                VPN access will be denied even if there is time left on the account. \
+                Enter the last 4 digits of the account number and hit "Delete account" \
+                if you really want to delete the account:
+                """
+            )
+            .font(.mullvadSmallSemiBold)
+            .foregroundStyle(Color.white)
+            .padding(.bottom, 8)
 
-                Spacer()
+            // accountTextField
+            let placeholder = "XXXX"
+            ConfigurableTextField(
+                title: "Last 4 digits",
+                placeholder: LocalizedStringKey(placeholder),
+                text: $viewModel.enteredAccountNumberSuffix,
+                message: $message,
+                accessibilityIdentifier: .deleteAccountTextField,
+                borderStyle: $borderStyle,
+                configuration: TextFieldNamespace.Configuration(
+                    formatter: GroupedTextFormatter(
+                        configuration: .init(
+                            allowedInput: .numeric,
+                            groupSeparator: "-",
+                            groupSize: 4, maxGroups: 1)),
+                    keyboardType: .numberPad)
+            )
+            .focused($isTextFieldFocused)
+            .padding(.bottom, 4.0)
 
-                MullvadButton(text: "Delete account", style: .destructive) {
-                    viewModel.deleteButtonTapped()
-                }
-                .accessibilityIdentifier(.deleteButton)
-                .disabled(!viewModel.canDelete)
+            Spacer()
 
-                MullvadButton(text: "Cancel", style: .primary) {
-                    viewModel.cancelButtonTapped()
+            MullvadButton(text: "Delete account", style: .destructive) {
+                Task {
+                    if await viewModel.deleteButtonTapped() {
+                        dismiss()
+                    }
                 }
             }
+            .accessibilityIdentifier(.deleteButton)
+            .disabled(!viewModel.canDelete)
         }
-        .padding(16)
-        .background(Color.mullvadBackground)
+        .padding()
+        .scrollable(fill: [.horizontal, .vertical])
+        .scrollBounceBehavior(.basedOnSize)
+        .contentMargins(.bottom, 16, for: .scrollContent)
+        .navigationTitle("Account deletion")
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    viewModel.cancelButtonTapped()
+                }
+                .foregroundStyle(Color.mullvadTextPrimary)
+            }
+            .hideLiquidGlassEffect()
+        }
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
+        .accessibilityIdentifier(.deleteAccountView)
+        .background(Color.mullvadBackground.ignoresSafeArea())
         .onReceive(viewModel.$state) { state in
             switch state {
             case .failure(let error):
@@ -89,5 +103,15 @@ struct AccountDeletionView: View {
 }
 
 #Preview {
-    AccountDeletionView(viewModel: AccountDeletionViewModel(mockAccountNumber: "1234567890123456"))
+    Text("")
+        .sheet(isPresented: .constant(true)) {
+            NavigationStack {
+                AccountDeletionView(
+                    viewModel: AccountDeletionViewModel(
+                        accountNumber: "1234567890123456",
+                        onDeleteAccount: {}
+                    )
+                )
+            }
+        }
 }

@@ -61,6 +61,7 @@ class AccountTests: LoggedOutUITestCase {
             .tapAccountButton()
 
         AccountPage(app)
+            .tapToolbarMenuButton()
             .tapDeleteAccountButton()
 
         AccountDeletionPage(app)
@@ -210,6 +211,24 @@ class AccountTests: LoggedOutUITestCase {
 
         AccountPage(app)
             .verifyPaidUntil(accountExpiry)
+    }
+
+    func testOutOfTime() async throws {
+        let newAccountNumber = await createTemporaryAccountWithoutTime()
+
+        addTeardownBlock {
+            await self.deleteTemporaryAccountWithoutTime(
+                accountNumber: newAccountNumber
+            )
+        }
+
+        login(accountNumber: newAccountNumber)
+
+        HeaderBar(app)
+            .tapAccountButton()
+
+        AccountPage(app)
+            .verifyOutOfTime()
     }
 
     func testAddTimeInWelcomeViewProceeds() async throws {
