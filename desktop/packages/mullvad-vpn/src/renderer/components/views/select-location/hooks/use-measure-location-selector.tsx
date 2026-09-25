@@ -1,13 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { useActiveFilters } from '../../../../features/locations/hooks';
 import { LocationSelector } from '../../../../lib/components/location-selector';
 import {
+  FilterChips,
   SelectLocationHeader,
   SelectLocationSelectorDeviceRow,
   SelectLocationSelectorInternetRow,
 } from '../components';
 import { useSelectLocationViewContext } from '../SelectLocationViewContext';
+import { useEntryType } from './use-entry-type';
 import { useLocationSelectorItems } from './use-location-selector-items';
 
 const StyledMeasureElement = styled.div`
@@ -18,9 +21,12 @@ const StyledMeasureElement = styled.div`
 export function useMeasureLocationSelector() {
   const ref = React.useRef<HTMLDivElement>(null);
   const [height, setHeight] = React.useState(0);
-  const { isolatedItem } = useSelectLocationViewContext();
+  const { isolatedItem, locationType } = useSelectLocationViewContext();
   const items = useLocationSelectorItems('measure');
   const expanded = isolatedItem === undefined;
+  const { isAnyFilterActive } = useActiveFilters(locationType);
+  const entryType = useEntryType();
+  const showFilterChips = isAnyFilterActive && entryType !== 'entryAutomatic';
 
   const measure = React.useCallback(() => {
     if (ref.current) {
@@ -53,6 +59,7 @@ export function useMeasureLocationSelector() {
           <SelectLocationSelectorDeviceRow />
           <LocationSelector.Items>{Object.values(items)}</LocationSelector.Items>
           <SelectLocationSelectorInternetRow />
+          {showFilterChips && <FilterChips key="location-selector-filter-chips" />}
         </LocationSelector>
       </SelectLocationHeader>
     </StyledMeasureElement>

@@ -1,5 +1,5 @@
 import { AnimatePresence, type AnimatePresenceProps, motion } from 'motion/react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
 import type { LocationSelectorVariant } from '../../LocationSelector';
@@ -12,25 +12,26 @@ export type LocationSelectorItemsProps = AnimatePresenceProps & React.PropsWithC
 export const StyledLocationSelectorItems = styled(motion.div)<{
   $variant?: LocationSelectorVariant;
 }>`
-  ${({ $variant }) => {
-    return css`
-      position: relative;
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-      background-color: ${$variant === 'primary' ? colors.darkBlue : colors.darkerBlue10};
-      padding-top: ${spacings.tiny};
-      border-radius: ${Radius.radius16};
-      transition: background-color 0.15s ease-in-out;
-    `;
-  }}
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: ${spacings.tiny};
+  border-radius: ${Radius.radius16};
 `;
 
 function LocationSelectorItems({ children }: LocationSelectorItemsProps) {
   const { expanded, variant } = useLocationSelectorContext();
 
   return (
-    <StyledLocationSelectorItems $variant={variant}>
+    <StyledLocationSelectorItems
+      layout="preserve-aspect"
+      $variant={variant}
+      initial={false}
+      animate={{
+        backgroundColor: variant === 'primary' ? colors.darkBlue : colors.darkerBlue10,
+      }}
+      transition={{ duration: 0.15, ease: 'easeInOut' }}>
       <AnimatePresence mode="popLayout">
         <LocationSelectorLine $visible={expanded} />
         {children}

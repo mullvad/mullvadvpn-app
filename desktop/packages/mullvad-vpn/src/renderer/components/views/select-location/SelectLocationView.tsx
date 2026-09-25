@@ -1,4 +1,4 @@
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
@@ -30,29 +30,14 @@ const StyledView = styled(View)<{ $headerHeight: number }>`
   `}
 `;
 
-const StyledHeaderMaxHeightContainer = styled.div<{ $previousHeight: number }>`
-  ${({ $previousHeight }) => css`
-    --transition-duration: 0.25s;
-
-    pointer-events: none;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    width: 100%;
-    height: var(--header-height);
-    background-color: transparent;
-
-    transition: height var(--transition-duration) ease-in-out;
-
-    ${() => {
-      if ($previousHeight === 0) {
-        return css`
-          --transition-duration: 0;
-        `;
-      }
-      return null;
-    }}
-  `}
+const StyledHeaderMaxHeightContainer = styled(motion.div)`
+  pointer-events: none;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  height: var(--header-height);
+  background-color: transparent;
 `;
 
 const StyledHeaderContainer = styled.div`
@@ -101,8 +86,17 @@ export function SelectLocationViewImpl() {
             ref={scrollViewRef}
             onScroll={handleScroll}
             trackPadding={{ x: 0, y: height }}
-            showScrollIndicators={transitionState === 'transitioningOut' ? false : undefined}>
-            <StyledHeaderMaxHeightContainer $previousHeight={previousHeight}>
+            showScrollIndicators={
+              transitionState === 'transitioningOut' || transitionState === 'transitioningIn'
+                ? false
+                : undefined
+            }>
+            <StyledHeaderMaxHeightContainer
+              initial={false}
+              animate={{ height }}
+              transition={{
+                height: { duration: previousHeight === 0 ? 0 : 0.15 },
+              }}>
               <StyledHeaderContainer>
                 <SelectLocationHeader>
                   <SelectLocationSelector />
