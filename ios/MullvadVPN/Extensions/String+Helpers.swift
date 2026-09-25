@@ -25,6 +25,14 @@ extension String {
         let fontAttributes = [NSAttributedString.Key.font: font]
         return self.size(withAttributes: fontAttributes).width
     }
+
+    /// This prevents hardcoded strings from being treated as `LocalizedStringKey`.
+    /// It is useful for e.g. Previews or debugging views where translations are not wanted.
+    /// # Example #
+    /// ```
+    /// Button("Do not translate".verbatim) {}
+    /// ```
+    var verbatim: String { self }
 }
 
 extension Array where Element == String {
