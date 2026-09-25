@@ -149,14 +149,24 @@ pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
 
 /// Get VPN tunnel interface name
 pub async fn get_tunnel_interface(client: &mut MullvadProxyClient) -> anyhow::Result<String> {
-    match client.get_tunnel_state().await? {
-        TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
-            let Some(tunnel_interface) = endpoint.tunnel_interface else {
-                bail!("Unknown tunnel interface");
-            };
-            Ok(tunnel_interface)
+    /// Changing tunnel settings can restart the tunnel, so the state may transiently be neither
+    /// connecting nor connected. Wait for it to settle before giving up.
+    const SETTLE_TIMEOUT: Duration = Duration::from_secs(15);
+    const SETTLE_RETRY_DELAY: Duration = Duration::from_secs(1);
+
+    let initial_time = Instant::now();
+
+    loop {
+        match client.get_tunnel_state().await? {
+            TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
+                let Some(tunnel_interface) = endpoint.tunnel_interface else {
+                    bail!("Unknown tunnel interface");
+                };
+                return Ok(tunnel_interface);
+            }
+            _ if initial_time.elapsed() < SETTLE_TIMEOUT => sleep(SETTLE_RETRY_DELAY).await,
+            _ => bail!("Tunnel is not up"),
         }
-        _ => bail!("Tunnel is not up"),
     }
 }
 
