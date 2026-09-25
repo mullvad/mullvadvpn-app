@@ -5,6 +5,7 @@ import { TunnelState } from '../../src/shared/daemon-rpc-types';
 import { ErrorStateCause } from '../../src/shared/daemon-rpc-types';
 import { FirewallPolicyErrorType } from '../../src/shared/daemon-rpc-types';
 import {
+  InconsistentVersionNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../src/shared/notifications';
@@ -37,6 +38,34 @@ function createController() {
     showNotificationIcon: vi.fn(),
   });
 }
+
+describe('Inconsistent version notifications', () => {
+  it('should mention the daemon in inconsistent version notifications on Linux', () => {
+    const notification = new InconsistentVersionNotificationProvider({
+      consistent: false,
+      platform: 'linux',
+    });
+
+    expect(notification.getSystemNotification().message).toBe(
+      'App is out of sync. Please quit and restart the app or daemon.',
+    );
+    expect(notification.getInAppNotification().subtitle).toBe(
+      'Please quit and restart the app or daemon.',
+    );
+  });
+
+  it('should keep the existing inconsistent version notifications on other platforms', () => {
+    const notification = new InconsistentVersionNotificationProvider({
+      consistent: false,
+      platform: 'darwin',
+    });
+
+    expect(notification.getSystemNotification().message).toBe(
+      'App is out of sync. Please quit and restart.',
+    );
+    expect(notification.getInAppNotification().subtitle).toBe('Please quit and restart the app.');
+  });
+});
 
 describe('System notifications', () => {
   it('should evaluate unspupported version notification to show', () => {

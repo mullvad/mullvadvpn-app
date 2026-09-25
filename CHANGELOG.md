@@ -68,6 +68,7 @@ Line wrap the file at 100 chars.                                              Th
 - Parse the `resolv.conf` format using `resolv-conf` crate. This will lead to fewer false negatives
   when detecting if NetworkManager manages DNS.
 - Fix DNS breaking after some indeterminate amount of time when using NetworkManager.
+- Clarify that restarting the daemon can resolve an app and daemon version mismatch.
 
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
