@@ -22,6 +22,8 @@ name = "multiplexer_throughput"
 async-trait = { workspace = true }
 blake2 = { workspace = true }
 bytes = { workspace = true }
+fearless_simd = "1.0.0"
+fearless_simd_macros = "0.1.0"
 futures = { workspace = true }
 gotatun = { workspace = true, optional = true }
 log = { workspace = true }
