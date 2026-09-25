@@ -210,10 +210,8 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = constraint
 
-        Task {
-            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-            await tunnelManager.startTunnel()
-        }
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        tunnelManager.startTunnel()
     }
 
     func navigateToDaitaSettings() {
@@ -232,9 +230,7 @@ extension LocationCoordinator {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = constraint
 
-        Task {
-            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-            await tunnelManager.startTunnel()
-        }
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        tunnelManager.startTunnel()
     }
 }

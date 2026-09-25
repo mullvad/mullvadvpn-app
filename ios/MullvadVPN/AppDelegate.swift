@@ -579,27 +579,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func doMigrateSettings(application: UIApplication) async {
         // Uses NSFileCoordinator to maintain a lock shared between the app and extension
         // it consumes any error states produced in the process
-        let result = await self.migrationManager.migrateSettings(store: self.settingsManager.store)
-        switch result {
-        case .success:
-            // Tell the tunnel to re-read tunnel configuration after migration.
-            logger.debug("Successful settings migration")
-            await tunnelManager.reconnectTunnel(selectNewRelay: true)
-            fallthrough
+        await withCheckedContinuation { continuation in
+            migrationManager.migrateSettings(store: self.settingsManager.store) { [weak self] result in
+                guard let self else { return }
 
-        case .nothing:
-            logger.debug("Attempted settings migration, but found nothing to do")
+                switch result {
+                case .success:
+                    // Tell the tunnel to re-read tunnel configuration after migration.
+                    logger.debug("Successful settings migration")
+                    tunnelManager.reconnectTunnel(selectNewRelay: true)
+                    fallthrough
 
-        case let .failure(error):
-            logger.error("Failed settings migration: \(error)")
+                case .nothing:
+                    logger.debug("Attempted settings migration, but found nothing to do")
+                    continuation.resume()
 
-            Task { @MainActor in
-                let migrationUIHandler =
-                    application.connectedScenes
-                    .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                case let .failure(error):
+                    logger.error("Failed settings migration: \(error)")
 
-                if let migrationUIHandler {
-                    migrationUIHandler.showMigrationError(error)
+                    Task { @MainActor in
+                        let migrationUIHandler =
+                            application.connectedScenes
+                            .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+
+                        if let migrationUIHandler {
+                            migrationUIHandler.showMigrationError(error)
+                        }
+
+                        continuation.resume()
+                    }
                 }
             }
         }

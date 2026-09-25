@@ -132,7 +132,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         #expect(
             tunnelManager.settings.relayConstraints.exitLocations == .only(selection)
         )
@@ -173,7 +173,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        await tunnelManager.updateSettings(
+        tunnelManager.updateSettings(
             [.relayConstraints(relayConstraints)]
         )
         #expect(
@@ -212,7 +212,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        await tunnelManager.updateSettings(
+        tunnelManager.updateSettings(
             [.relayConstraints(relayConstraints)]
         )
         #expect(
@@ -250,7 +250,7 @@ struct CustomListInteractorTests {
         relayConstraints.exitLocations = .only(
             selection
         )
-        await tunnelManager.updateSettings(
+        tunnelManager.updateSettings(
             [.relayConstraints(relayConstraints)]
         )
         #expect(
@@ -272,7 +272,7 @@ struct CustomListInteractorTests {
 
 private final class SettingsUpdatingMock: SettingsUpdating, @unchecked Sendable {
     var updateCalled = false
-    func updateSettings(_ updates: [MullvadSettings.TunnelSettingsUpdate]) async {
+    func updateSettings(_ updates: [MullvadSettings.TunnelSettingsUpdate], completion: (@Sendable () -> Void)? = nil) {
         for update in updates {
             update.apply(to: &settings)
         }
