@@ -75,17 +75,15 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
                 actionItem.onTap = { [weak self] in
                     guard let self else { return }
 
-                    Task {
-                        await tunnelManager.updateSettings([
-                            .multihop(settings.tunnelMultihopState),
-                            .relayConstraints(settings.relayConstraints),
-                        ])
-                        guard isVpnConnectionActive else {
-                            actionItem.state = descriptor.makeState(for: .success)
-                            return
-                        }
-                        actionItem.state = descriptor.makeState(for: .loading)
+                    tunnelManager.updateSettings([
+                        .multihop(settings.tunnelMultihopState),
+                        .relayConstraints(settings.relayConstraints),
+                    ])
+                    guard isVpnConnectionActive else {
+                        actionItem.state = descriptor.makeState(for: .success)
+                        return
                     }
+                    actionItem.state = descriptor.makeState(for: .loading)
                 }
 
                 return [

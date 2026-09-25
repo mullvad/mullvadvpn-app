@@ -1100,9 +1100,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                         )
 
                         tunnelManager.addObserver(tunnelObserver)
-                        Task {
-                            await tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
-                        }
+                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
                     }
                 ),
                 AlertAction(
@@ -1241,10 +1239,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         switch tunnelManager.tunnelStatus.state {
         case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error,
             .negotiatingEphemeralPeer:
-            Task { await tunnelManager.reconnectTunnel(selectNewRelay: true) }
+            tunnelManager.reconnectTunnel(selectNewRelay: true)
 
         case .disconnecting, .disconnected:
-            Task { await tunnelManager.startTunnel() }
+            tunnelManager.startTunnel()
 
         case .pendingReconnect, .waitingForConnectivity(.noNetwork):
             break

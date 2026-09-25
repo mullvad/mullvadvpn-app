@@ -29,7 +29,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private let tunnelSettingsUpdater: SettingsUpdater
     private var migrationManager: MigrationManager
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
-    private var migrationTask: Task<Void, Never>?
 
     private let tunnelSettingsListener = TunnelSettingsListener()
 
@@ -60,7 +59,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         super.init()
 
-        migrationTask = Task { await self.performSettingsMigration() }
+        performSettingsMigration()
 
         let settingsReader = TunnelSettingsManager(settingsReader: SettingsReader(settingsManager: settingsManager)) {
             [weak self] settings in
@@ -176,10 +175,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                         )
                 } else {
                     self.providerLogger.debug("Starting tunnel implementation after initial configuration is applied")
-                    Task {
-                        await self.migrationTask?.value
-                        await self.implementation.startTunnel(options: startOptions)
-                    }
+                    Task { await self.implementation.startTunnel(options: startOptions) }
                 }
                 self.internalQueue.async {
                     completionHandler(error)
@@ -205,27 +201,28 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         implementation.wake()
     }
 
-    private func performSettingsMigration() async {
+    private func performSettingsMigration() {
         while true {
-            let result = await migrationManager.migrateSettings(store: settingsManager.store)
-            switch result {
-            case .success:
-                providerLogger.debug("Successful migration from PacketTunnel")
-                return
-            case .nothing:
-                providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
-                return
-            case let .failure(error):
-                providerLogger.error("Failed migration from PacketTunnel: \(error)")
+            migrationManager.migrateSettings(store: settingsManager.store) { result in
+                switch result {
+                case .success:
+                    providerLogger.debug("Successful migration from PacketTunnel")
+                    return
+                case .nothing:
+                    providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
+                    return
+                case let .failure(error):
+                    providerLogger.error("Failed migration from PacketTunnel: \(error)")
 
-                // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
-                guard let delay = migrationFailureIterator.next() else { return }
+                    // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
+                    guard let delay = migrationFailureIterator.next() else { return }
 
-                providerLogger.error("Retrying migration in \(delay.timeInterval) seconds")
+                    providerLogger.error("Retrying migration in \(delay.timeInterval) seconds")
 
-                // Block the launch of the Packet Tunnel for as long as the settings migration fail.
-                // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
-                try? await Task.sleep(for: .seconds(delay.timeInterval))
+                    // Block the launch of the Packet Tunnel for as long as the settings migration fail.
+                    // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
+                    Thread.sleep(forTimeInterval: delay.timeInterval)
+                }
             }
         }
     }

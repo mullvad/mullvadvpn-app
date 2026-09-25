@@ -290,7 +290,9 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     title: "Invalidate WireGuard key",
                     style: .default,
                     handler: { [weak self] _ in
-                        self?.tunnelManager.invalidateWireGuardKey()
+                        Task {
+                            await self?.tunnelManager.invalidateWireGuardKey()
+                        }
                     }
                 )
             )
@@ -301,12 +303,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             UIAlertAction(
                 title: "Factory Reset", style: .destructive,
                 handler: { [weak self] _ in
-                    Task {
-                        guard let self else { return }
-                        await self.tunnelManager.updateSettings([.reset])
-                        UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
-                        self.logOut()
-                    }
+                    guard let self else { return }
+                    tunnelManager.updateSettings([.reset])
+                    UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+                    logOut()
                 }))
 
         sheetController.addAction(

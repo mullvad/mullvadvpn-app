@@ -73,8 +73,8 @@ final class EventChannelTests: XCTestCase {
 
         // Tell channel to finish() after a small delay. This should resume execution in the task above and exit the
         // for-await loop.
-        Task {
-            try? await Task.sleep(nanoseconds: 1_000_000)
+        _ = Task {
+            try await Task.sleep(nanoseconds: 1_000_000)
 
             expectFinish.fulfill()
             channel.finish()

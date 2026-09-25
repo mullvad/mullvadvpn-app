@@ -25,9 +25,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     @Published var value: DAITASettings {
         willSet {
             guard newValue != value else { return }
-            Task {
-                await tunnelManager.updateSettings([.daita(newValue)])
-            }
+            tunnelManager.updateSettings([.daita(newValue)])
         }
     }
 
@@ -54,26 +52,23 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     }
 
     func evaluate(setting: DAITASettings) {
-        Task {
-            guard await evaluateDaitaSettingsCompatibility(setting) == nil else {
-                didFailDAITAValidation?()
-                return
-            }
-
-            value = setting
+        guard evaluateDaitaSettingsCompatibility(setting) == nil else {
+            didFailDAITAValidation?()
+            return
         }
+
+        value = setting
     }
 }
 
 extension DAITATunnelSettingsViewModel {
-    private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) async -> DAITASettingsCompatibilityError?
-    {
+    private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
         guard settings.isEnabled else { return nil }
 
         var tunnelSettings = tunnelManager.settings
         tunnelSettings.daita = settings
 
-        let relays = try? await tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+        let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
 
         return if relays == nil {
             tunnelSettings.tunnelMultihopState.isAlways ? .multihop : .singlehop

@@ -27,7 +27,7 @@ class MultihopTunnelSettingsViewModel: ObservableObject {
     @Published var multihopState: MultihopState {
         willSet(newValue) {
             guard newValue != multihopState else { return }
-            Task { await tunnelManager.updateSettings([.multihop(newValue)]) }
+            tunnelManager.updateSettings([.multihop(newValue)])
         }
     }
 

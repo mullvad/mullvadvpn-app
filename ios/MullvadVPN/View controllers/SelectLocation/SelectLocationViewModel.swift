@@ -57,7 +57,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     @Published var multihopState: MultihopState {
         didSet {
-            Task { await tunnelManager.updateSettings([.multihop(multihopState)]) }
+            tunnelManager.updateSettings([.multihop(multihopState)])
         }
     }
 
@@ -262,12 +262,12 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.ownership = .any
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
-            Task { await tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) }
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         case .provider:
             guard var filter = relayConstraints.filterConstraint(for: multihopContext).value else { return }
             filter.providers = .any
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
-            Task { await tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) }
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
         default:
             break
         }
