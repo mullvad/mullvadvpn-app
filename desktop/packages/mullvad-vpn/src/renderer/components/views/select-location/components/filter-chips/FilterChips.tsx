@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import styled from 'styled-components';
 
+import { messages } from '../../../../../../shared/gettext';
 import { useActiveFilters } from '../../../../../features/locations/hooks/use-active-filters';
 import { spacings } from '../../../../../lib/foundations';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
@@ -10,7 +11,7 @@ import { OwnershipFilterChip } from '../ownership-filter-chip';
 import { ProvidersFilterChip } from '../providers-filter-chip';
 import { QuicFilterChip } from '../quic-filter-chip';
 
-export const StyledFilterChips = styled(motion.div)`
+export const StyledFilterChips = styled(motion.ul)`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -31,15 +32,39 @@ export function FilterChips() {
   return (
     <StyledFilterChips
       layout="preserve-aspect"
+      aria-label={
+        // TRANSLATORS: Accessibility description for the list of active filters.
+        messages.pgettext('accessibility', 'Active filters')
+      }
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}>
-      {isOwnershipFilterActive && <OwnershipFilterChip />}
-      {isProvidersFilterActive && <ProvidersFilterChip />}
-      {isDaitaFilterActive && <DaitaFilterChip />}
-      {isQuicFilterActive && <QuicFilterChip />}
-      {isLwoFilterActive && <LwoFilterChip />}
+      {isOwnershipFilterActive && (
+        <li>
+          <OwnershipFilterChip />
+        </li>
+      )}
+      {isProvidersFilterActive && (
+        <li>
+          <ProvidersFilterChip />
+        </li>
+      )}
+      {isDaitaFilterActive && (
+        <li>
+          <DaitaFilterChip />
+        </li>
+      )}
+      {isQuicFilterActive && (
+        <li>
+          <QuicFilterChip />
+        </li>
+      )}
+      {isLwoFilterActive && (
+        <li>
+          <LwoFilterChip />
+        </li>
+      )}
     </StyledFilterChips>
   );
 }

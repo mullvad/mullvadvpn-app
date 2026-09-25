@@ -8,9 +8,9 @@ import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useFilteredProviders } from '../../../filter/hooks';
 
-export type ProvidersFilterChip = FilterChipProps;
+export type ProvidersFilterChipProps = FilterChipProps;
 
-export function ProvidersFilterChip(props: ProvidersFilterChip) {
+export function ProvidersFilterChip(props: ProvidersFilterChipProps) {
   const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
@@ -24,7 +24,13 @@ export function ProvidersFilterChip(props: ProvidersFilterChip) {
   }, [relaySettingsUpdater, relaySettings]);
 
   return (
-    <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearProviders} {...props}>
+    <FilterChip
+      aria-label={
+        // TRANSLATORS: Accessibility description for button removing the providers filter.
+        messages.pgettext('accessibility', 'Remove providers filter')
+      }
+      onClick={onClearProviders}
+      {...props}>
       <FilterChip.Text>
         {sprintf(messages.pgettext('select-location-view', 'Providers: %(numberOfProviders)d'), {
           numberOfProviders: filteredProviders.length,

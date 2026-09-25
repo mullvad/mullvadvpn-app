@@ -23,8 +23,8 @@ export function OwnershipFilterChip(props: OwnershipFilterChipProps) {
   return (
     <FilterChip
       aria-description={
-        // TRANSLATORS: Accessibility description for button clearing the ownership filter.
-        messages.pgettext('accessibility', 'Clear ownership filter')
+        // TRANSLATORS: Accessibility description for button removing the ownership filter.
+        messages.pgettext('accessibility', 'Remove ownership filter')
       }
       onClick={onClearOwnership}
       {...props}>
