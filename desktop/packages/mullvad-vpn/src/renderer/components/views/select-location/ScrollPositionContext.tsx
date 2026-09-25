@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 
 import { useRecents } from '../../../features/locations/hooks';
-import { LocationType } from '../../../features/locations/types';
 import { useStyledRef } from '../../../lib/utility-hooks';
 import { CustomScrollbarsRef } from '../../CustomScrollbars';
 import { SpacePreAllocationView } from './components';
@@ -19,8 +18,6 @@ interface ScrollPositionContext {
   resetScroll: () => void;
 }
 
-type ScrollPosition = [number, number];
-
 const scrollPositionContext = React.createContext<ScrollPositionContext | undefined>(undefined);
 
 export function useScrollPositionContext() {
@@ -34,7 +31,6 @@ interface ScrollPositionContextProps {
 export function ScrollPositionContextProvider(props: ScrollPositionContextProps) {
   const { hasRecents } = useRecents();
 
-  const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
   const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
   const selectedLocationRef = useRef<HTMLDivElement>(null);
@@ -65,7 +61,6 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
 
   const value = useMemo(
     () => ({
-      scrollPositions,
       selectedLocationRef,
       scrollViewRef,
       spacePreAllocationViewRef,
