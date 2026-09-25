@@ -41,4 +41,7 @@ extension Image {
     static let mullvadAutomaticMultihopBanner = Image("AutomaticMultihopBanner")
     static let mullvadUniqueFilterBanner = Image("UniqueFilterBanner")
     static let mullvadIconWarning = Image("IconWarning")
+    static let mullvadIconObscure = Image("IconObscure")
+    static let mullvadIconUnobscure = Image("IconUnobscure")
+    static let mullvadIconCopy = Image("IconCopy")
 }
