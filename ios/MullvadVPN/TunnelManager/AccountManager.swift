@@ -88,8 +88,13 @@ struct AccountManager: Sendable {
 
         let operation = RotateKeyOperation(dispatchQueue: internalQueue, devicesProxy: devicesProxy) {
             deviceState
-        } onUpdateAccount: { deviceState in
-            Task { await interactor.setDeviceState(deviceState, persist: true) }
+        } onUpdateAccount: { deviceState, completion in
+            Task {
+                if let deviceState {
+                    await interactor.setDeviceState(deviceState, persist: true)
+                }
+                completion?()
+            }
         }
 
         operation.completionQueue = .main

@@ -441,6 +441,26 @@ actor TunnelManager {
         }
     }
 
+    nonisolated func updateSettings(_ updates: [TunnelSettingsUpdate], completion: (@Sendable () -> Void)? = nil) {
+        let taskName = "Set " + updates.map(\.subjectName).joined(separator: ", ")
+
+        internalQueue.async { [weak self] in
+            self?.assumeIsolated { actor in
+                actor.scheduleSettingsUpdate(
+                    taskName: taskName,
+                    modificationBlock: { settings in
+                        for update in updates {
+                            update.apply(to: &settings)
+                        }
+                    },
+                    completionHandler: {
+                        completion?()
+                    }
+                )
+            }
+        }
+    }
+
     func updateSettings(_ updates: [TunnelSettingsUpdate]) async {
         let taskName = "Set " + updates.map(\.subjectName).joined(separator: ", ")
 
@@ -459,8 +479,30 @@ actor TunnelManager {
         }
     }
 
-    func refreshRelayCacheTracker() throws {
-        try relayCacheTracker.refreshCachedRelays()
+    /// Refreshes the relay cache and, if the tunnel is currently active, reconnects it to pick
+    /// up the fresh relay list.
+    nonisolated func refreshRelayCacheAndReconnectIfNeeded(
+        completionHandler: (@Sendable (Error?) -> Void)? = nil
+    ) {
+        internalQueue.async {
+            self.assumeIsolated { actor in
+                do {
+                    try actor.relayCacheTracker.refreshCachedRelays()
+                } catch {
+                    completionHandler?(error)
+                    return
+                }
+
+                switch actor._tunnelStatus.observedState {
+                case .connecting, .connected, .reconnecting:
+                    actor.reconnectTunnel(selectNewRelay: true)
+                default:
+                    break
+                }
+
+                completionHandler?(nil)
+            }
+        }
     }
 
     func selectRelays(tunnelSettings: LatestTunnelSettings) throws -> SelectedRelays {

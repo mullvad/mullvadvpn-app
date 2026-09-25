@@ -25,9 +25,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     @Published var value: DAITASettings {
         willSet {
             guard newValue != value else { return }
-            Task {
-                await tunnelManager.updateSettings([.daita(newValue)])
-            }
+            tunnelManager.updateSettings([.daita(newValue)])
         }
     }
 
@@ -51,6 +49,10 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
         self.tunnelObserver = tunnelObserver
 
         tunnelManager.addObserver(tunnelObserver)
+    }
+
+    func persistSettings() async {
+        await tunnelManager.updateSettings([.daita(value)])
     }
 
     func evaluate(setting: DAITASettings) {

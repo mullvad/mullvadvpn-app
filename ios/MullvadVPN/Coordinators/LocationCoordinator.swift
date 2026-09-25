@@ -83,11 +83,16 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 },
                 didSelectExitRelayLocations: { [weak self] constraint in
                     guard let self else { return }
-                    self.didSelectExitRelays(constraint)
-                    self.didFinish?(self)
+
+                    Task {
+                        await self.didSelectExitRelays(constraint)
+                        self.didFinish?(self)
+                    }
                 },
                 didSelectEntryRelayLocations: { [weak self] constraint in
-                    self?.didSelectEntryRelays(constraint)
+                    Task {
+                        await self?.didSelectEntryRelays(constraint)
+                    }
                 },
                 didFinish: { [weak self] in
                     guard let self else { return }
@@ -206,14 +211,12 @@ extension LocationCoordinator {
         presentChild(relayFilterCoordinator, animated: true)
     }
 
-    func didSelectEntryRelays(_ constraint: RelayConstraint<UserSelectedRelays>) {
+    func didSelectEntryRelays(_ constraint: RelayConstraint<UserSelectedRelays>) async {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = constraint
 
-        Task {
-            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-            await tunnelManager.startTunnel()
-        }
+        await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        await tunnelManager.startTunnel()
     }
 
     func navigateToDaitaSettings() {
@@ -228,13 +231,11 @@ extension LocationCoordinator {
         applicationRouter?.present(.vpnSettings(.ipVersion))
     }
 
-    func didSelectExitRelays(_ constraint: RelayConstraint<UserSelectedRelays>) {
+    func didSelectExitRelays(_ constraint: RelayConstraint<UserSelectedRelays>) async {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.exitLocations = constraint
 
-        Task {
-            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-            await tunnelManager.startTunnel()
-        }
+        await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+        await tunnelManager.startTunnel()
     }
 }

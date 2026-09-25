@@ -1100,9 +1100,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                         )
 
                         tunnelManager.addObserver(tunnelObserver)
-                        Task {
-                            await tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
-                        }
+                        tunnelManager.updateSettings([.includeAllNetworks(newIncludeAllNetworksSettings)])
                     }
                 ),
                 AlertAction(
