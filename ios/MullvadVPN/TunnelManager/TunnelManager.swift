@@ -152,7 +152,10 @@ final class TunnelManager: @unchecked Sendable {
         try await accountManager.updateAccountData()
     }
 
-    func deleteAccount(accountNumber: String) async throws {
+    func deleteLoggedInAccount() async throws {
+        guard let accountNumber = deviceState.accountData?.number else {
+            return
+        }
         _ = try await setAccount(action: .delete(accountNumber))
         removeLastUsedAccount()
         unsetTunnelConfiguration()

@@ -142,31 +142,35 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
 
     @ViewBuilder
     func customListSection(isShowingHeader: Bool) -> some View {
-        if isShowingHeader {
-            HStack(spacing: 0) {
-                MullvadListSectionHeader(title: "Custom lists")
-                Button {
-                    viewModel.showAddCustomListView(
-                        locations: context.customListAvailableLocations)
-                } label: {
-                    Image.mullvadIconAdd
-                        .padding(.horizontal, 10)
-                }
-                .accessibilityLabel(Text("Create new custom list"))
-                .accessibilityIdentifier(.addNewCustomListButton)
-                if !context.customLists.isEmpty {
-                    Button {
-                        viewModel.showEditCustomListView(
-                            locations: context.customListAvailableLocations
-                        )
-                    } label: {
-                        Image.mullvadIconEdit
-                            .padding(.horizontal, 10)
-                    }
-                    .accessibilityLabel(Text("Edit custom lists"))
-                    .accessibilityIdentifier(.editCustomListButton)
-                }
+        let accessories: [MullvadListSectionHeader.Accessory] = {
+            var accessories: [MullvadListSectionHeader.Accessory] = [
+                .init(
+                    face: .icon(.iconAdd), accessibilityId: .addNewCustomListButton,
+                    accessibilityLabel: "Create new custom list", accessibilityHint: nil,
+                    action: {
+                        viewModel.showAddCustomListView(
+                            locations: context.customListAvailableLocations)
+                    })
+            ]
+            if !context.customLists.isEmpty {
+                accessories.append(
+                    .init(
+                        face: .icon(.iconEdit), accessibilityId: .editCustomListButton,
+                        accessibilityLabel: "Edit custom lists", accessibilityHint: nil,
+                        action: {
+                            viewModel.showEditCustomListView(
+                                locations: context.customListAvailableLocations
+                            )
+                        })
+                )
             }
+            return accessories.reversed()
+        }()
+        if isShowingHeader {
+            MullvadListSectionHeader(
+                title: "Custom lists",
+                accessories: accessories
+            )
         }
         LocationsListView(
             locations: $context.customLists,

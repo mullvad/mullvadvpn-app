@@ -14,6 +14,8 @@ struct AccountDeletionView: View {
     @ObservedObject var viewModel: AccountDeletionViewModel
     @State private var borderStyle: BorderStyle = .normal
     @State private var message: MessageView.Message? = nil
+
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -60,7 +62,10 @@ struct AccountDeletionView: View {
                 Spacer()
 
                 MullvadButton(text: "Delete account", style: .destructive) {
-                    viewModel.deleteButtonTapped()
+                    Task {
+                        await viewModel.deleteButtonTapped()
+                        dismiss()
+                    }
                 }
                 .accessibilityIdentifier(.deleteButton)
                 .disabled(!viewModel.canDelete)
@@ -69,7 +74,9 @@ struct AccountDeletionView: View {
                     viewModel.cancelButtonTapped()
                 }
             }
+            .padding()
         }
+        .accessibilityIdentifier(.deleteAccountView)
         .padding(16)
         .background(Color.mullvadBackground)
         .onReceive(viewModel.$state) { state in
@@ -89,5 +96,13 @@ struct AccountDeletionView: View {
 }
 
 #Preview {
-    AccountDeletionView(viewModel: AccountDeletionViewModel(mockAccountNumber: "1234567890123456"))
+    Text("")
+        .sheet(isPresented: .constant(true)) {
+            AccountDeletionView(
+                viewModel: AccountDeletionViewModel(
+                    accountNumber: "1234567890123456",
+                    onDeleteAccount: {}
+                )
+            )
+        }
 }

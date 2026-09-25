@@ -2,6 +2,15 @@ import MullvadTypes
 import SwiftUI
 
 struct DeviceManagementView: View {
+    init(
+        deviceManaging: any DeviceManaging,
+        style: Style,
+        onError: @escaping (String, Error) -> Void
+    ) {
+        self.deviceManaging = deviceManaging
+        self.style = style
+        self.onError = onError
+    }
     enum Style {
         case tooManyDevices((Bool) -> Void)
         case deviceManagement
@@ -205,6 +214,7 @@ struct DeviceManagementView: View {
         .accessibilityIdentifier(
             .deviceManagementView
         )
+        .navigationTitle("Manage devices")
     }
 }
 
@@ -235,7 +245,7 @@ struct DeviceManagementView: View {
 #Preview("Device Management") {
     Text("")
         .sheet(isPresented: .constant(true)) {
-            NavigationView {
+            NavigationStack {
                 DeviceManagementView(
                     deviceManaging: MockDeviceManaging(),
                     style: .deviceManagement,
