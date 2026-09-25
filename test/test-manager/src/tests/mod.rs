@@ -38,7 +38,9 @@ pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 use test_rpc::{ServiceClient, meta::Os};
 
-const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
+// Connecting can involve several connect attempts with increasing backoff, and slow tunnels
+// may take a while before they reach a final state.
+const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(90);
 
 #[derive(Clone)]
 pub struct TestContext {

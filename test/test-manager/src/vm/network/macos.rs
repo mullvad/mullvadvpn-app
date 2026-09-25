@@ -7,7 +7,9 @@ use tokio::process::Command;
 use crate::vm::network::wireguard;
 
 /// Set up WireGuard relay and dummy hosts.
-pub async fn setup_test_network() -> Result<Device<DefaultDeviceTransports>> {
+///
+/// Returns the WireGuard device along with the name of its interface.
+pub async fn setup_test_network() -> Result<(Device<DefaultDeviceTransports>, String)> {
     log::debug!("Setting up test network");
 
     enable_forwarding().await?;

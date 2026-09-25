@@ -121,9 +121,10 @@ table inet mullvad_test_nat {{
 
     log::debug!("Create WireGuard peer");
 
-    let wg = create_interface()
+    let (wg, interface_name) = create_interface()
         .await
         .context("Failed to create WireGuard interface")?;
+    debug_assert_eq!(interface_name, CUSTOM_TUN_INTERFACE_NAME);
 
     log::debug!("Start DHCP server for {BRIDGE_NAME}");
 

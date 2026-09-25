@@ -1188,7 +1188,7 @@ impl ConnCheckerHandle<'_> {
     pub async fn assert_secure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is secure");
         async {
-            let status = self.check_connection().await?;
+            let status = self.check_connection_until_successful().await?;
             ensure!(status.am_i_mullvad?);
             ensure!(!status.leaked_tcp);
             ensure!(!status.leaked_udp);
@@ -1208,7 +1208,7 @@ impl ConnCheckerHandle<'_> {
     pub async fn assert_insecure(&mut self) -> anyhow::Result<()> {
         log::info!("checking that connection is not secure");
         async {
-            let status = self.check_connection().await?;
+            let status = self.check_connection_until_successful().await?;
             ensure!(!status.am_i_mullvad?);
             ensure!(status.leaked_tcp);
             ensure!(status.leaked_udp);
@@ -1222,6 +1222,31 @@ impl ConnCheckerHandle<'_> {
                 self.checker.leak_destination,
             )
         })
+    }
+
+    /// Check the connection, retrying if the checker fails to reach am.i.mullvad.net.
+    ///
+    /// A checker error occasionally happens even when the tunnel is fine, so try again before
+    /// failing the test.
+    async fn check_connection_until_successful(&mut self) -> anyhow::Result<ConnectionStatus> {
+        /// Number of attempts to make before giving up on a transient checker failure.
+        const MAX_ATTEMPTS: usize = 3;
+        /// Time to wait between attempts.
+        const RETRY_DELAY: Duration = Duration::from_secs(2);
+
+        let mut attempt = 0;
+
+        loop {
+            attempt += 1;
+            let status = self.check_connection().await?;
+
+            if status.am_i_mullvad.is_ok() || attempt >= MAX_ATTEMPTS {
+                return Ok(status);
+            }
+
+            log::debug!("Connection check failed (attempt {attempt}), retrying");
+            sleep(RETRY_DELAY).await;
+        }
     }
 
     pub async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {

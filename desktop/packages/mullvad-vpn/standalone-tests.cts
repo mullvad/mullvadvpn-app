@@ -11,9 +11,10 @@ const { spawn } = child_process;
 // version of the app. This file is the entrypoint in the executable and extracts the required
 // assets and performs the tests. More info in /desktop/packages/mullvad-vpn/README.md.
 
-const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
+let tmpDir: string = path.join(os.tmpdir(), 'mullvad-standalone-tests');
 
 async function main() {
+  prepareTmpDir();
   extract();
 
   const code = await runTests();
@@ -34,10 +35,6 @@ function getTarBin() {
 }
 
 function extract() {
-  // Remove old directory if already existing and create new clean one
-  removeTmpDir();
-  fs.mkdirSync(tmpDir);
-
   // Copy assets archive to temp dir
   const tarAssets = getRawAsset('assets.tar.gz') as ArrayBuffer;
   fs.writeFileSync(path.join(tmpDir, 'assets.tar.gz'), Buffer.from(tarAssets));
@@ -117,10 +114,29 @@ function runTests(): Promise<number> {
   });
 }
 
+/// Ensure a clean temporary directory exists.
+///
+/// Removal of a previous directory can fail, e.g. because another process still holds files in
+/// it. In that case, fall back to a uniquely named directory instead of failing with `EEXIST`.
+function prepareTmpDir() {
+  removeTmpDir();
+
+  if (fs.existsSync(tmpDir)) {
+    const fallbackDir = `${tmpDir}-${process.pid}`;
+    console.warn(
+      `Failed to remove old test directory '${tmpDir}', using '${fallbackDir}' instead`,
+    );
+    tmpDir = fallbackDir;
+  }
+
+  fs.mkdirSync(tmpDir);
+}
+
 function removeTmpDir() {
   if (fs.existsSync(tmpDir)) {
     try {
-      fs.rmSync(tmpDir, { recursive: true });
+      // Retries are needed since busy files can cause the removal to fail transiently.
+      fs.rmSync(tmpDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 1000 });
     } catch (e) {
       const error = e as Error;
       console.error('Failed to remove tmp dir:', error.message);

@@ -15,7 +15,7 @@ use pnet_packet::{
 
 pub use pnet_packet::ip::IpNextHeaderProtocols as IpHeaderProtocols;
 
-use crate::{tests::config::TEST_CONFIG, vm::network::wireguard::CUSTOM_TUN_INTERFACE_NAME};
+use crate::{tests::config::TEST_CONFIG, vm::network::wireguard::tun_interface_name};
 
 struct Codec {
     no_frame: bool,
@@ -215,7 +215,7 @@ pub async fn start_tunnel_packet_monitor_until(
 ) -> Result<PacketMonitor> {
     monitor_options.no_frame = true;
     start_packet_monitor_for_interface(
-        CUSTOM_TUN_INTERFACE_NAME,
+        &tun_interface_name(),
         filter_fn,
         should_continue_fn,
         monitor_options,

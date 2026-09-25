@@ -42,7 +42,7 @@ impl VmInstance for TartInstance {
 }
 
 pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> {
-    let wg = super::network::macos::setup_test_network()
+    let (wg, wg_interface_name) = super::network::macos::setup_test_network()
         .await
         .context("Failed to set up networking")?;
 
@@ -127,7 +127,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
 
     // The tunnel must be configured after the virtual machine is up, or macOS refuses to assign an
     // IP. The reasons for this are poorly understood.
-    crate::vm::network::wireguard::configure_tunnel().await?;
+    crate::vm::network::wireguard::configure_tunnel(&wg_interface_name).await?;
 
     Ok(TartInstance {
         child,

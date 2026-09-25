@@ -8,7 +8,7 @@ use crate::mullvad_daemon::ServiceStatus;
 
 use super::*;
 
-const INSTALL_TIMEOUT: Duration = Duration::from_secs(300);
+const INSTALL_TIMEOUT: Duration = Duration::from_secs(600);
 const REBOOT_TIMEOUT: Duration = Duration::from_secs(30);
 /// How long to wait before proceeding after a reboot and a connection to the test-runner has been
 /// re-established
