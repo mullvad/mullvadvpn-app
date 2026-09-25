@@ -1,8 +1,10 @@
 import { type Locator, Page } from 'playwright';
 
 export const createSelectors = (page: Page) => ({
-  entryInput: () => page.getByPlaceholder('Search entry location or server'),
-  exitInput: () => page.getByPlaceholder('Search exit location or server'),
+  entryInput: () =>
+    page.getByPlaceholder('Search entry location or server').filter({ visible: true }),
+  exitInput: () =>
+    page.getByPlaceholder('Search exit location or server').filter({ visible: true }),
   selectLocationMenuButton: () => page.getByRole('button', { name: 'Open select location menu' }),
   filterMenuOption: () => page.getByRole('button', { name: 'Filter' }),
   filterChip: (label: string) => {
