@@ -82,6 +82,11 @@ rm -f "$TEST_REPORT"
 
 set -o pipefail
 
+# Kill any leftover test-manager from a previous aborted run. A stale instance holds the
+# WireGuard relay port and the tun interface, making every subsequent run on this host fail
+# with "Resource busy"/"Address already in use".
+sudo pkill -x test-manager || true
+
 APP_PACKAGE=$(get_app_filename "$CURRENT_VERSION" "$TEST_OS")
 export APP_PACKAGE
 APP_PACKAGE_TO_UPGRADE_FROM=$(get_app_filename "$LATEST_STABLE_RELEASE" "$TEST_OS")
