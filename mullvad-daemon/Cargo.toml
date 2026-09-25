@@ -96,6 +96,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true, features = ["std"] }
 talpid-core = { path = "../talpid-core" }
 talpid-dns = { path = "../talpid-dns" }
+talpid-error.workspace = true
 talpid-future = { path = "../talpid-future" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-routing = { path = "../talpid-routing" }

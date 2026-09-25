@@ -25,7 +25,7 @@ features = ["Win32_Storage", "Win32_Storage_FileSystem"]
 futures = { workspace = true }
 log = { workspace = true }
 socket2 = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-error.workspace = true
 thiserror = { workspace = true }
 
 [target."cfg(windows)".dependencies.windows-sys]

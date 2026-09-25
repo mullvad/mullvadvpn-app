@@ -17,10 +17,11 @@ use std::{
     },
     sync::Arc,
 };
+use talpid_error::ErrorExt;
 use talpid_routing::Route;
 use talpid_types::net::ipnetwork_sub::IpNetworkSub;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
-use talpid_types::{ErrorExt, android::AndroidContext, android::InetNetwork};
+use talpid_types::{android::AndroidContext, android::InetNetwork};
 
 /// Socks5 proxies on Mullvad relays can be connected on the range 10.124.0.0/23 if already
 /// connected to another Mullvad relay.

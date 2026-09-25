@@ -2,9 +2,10 @@
 use crate::connectivity_listener::ConnectivityListener;
 use futures::channel::mpsc::UnboundedSender;
 use std::sync::LazyLock;
+use talpid_error::ErrorExt;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
-use talpid_types::{ErrorExt, net::Connectivity};
+use talpid_types::net::Connectivity;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]

@@ -34,7 +34,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::time::timeout;
 use tokio_stream::wrappers::UnboundedReceiverStream;
 

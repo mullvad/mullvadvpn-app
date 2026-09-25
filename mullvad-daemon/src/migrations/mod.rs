@@ -276,7 +276,7 @@ mod windows {
         path::Path,
         ptr::{self, NonNull},
     };
-    use talpid_types::ErrorExt;
+    use talpid_error::ErrorExt;
     use tokio::fs;
     use windows_sys::Win32::{
         Foundation::{ERROR_SUCCESS, LocalFree},

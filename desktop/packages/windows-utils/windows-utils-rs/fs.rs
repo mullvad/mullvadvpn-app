@@ -5,7 +5,7 @@ use neon::prelude::{Context, FunctionContext};
 use neon::result::JsResult;
 use neon::types::{JsString, JsValue, Value};
 
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 #[derive(thiserror::Error, Debug)]
 enum Error {

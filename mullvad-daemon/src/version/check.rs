@@ -21,8 +21,8 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
+use talpid_error::ErrorExt;
 use talpid_future::retry::{ConstantInterval, retry_future};
-use talpid_types::ErrorExt;
 
 use super::Error;
 

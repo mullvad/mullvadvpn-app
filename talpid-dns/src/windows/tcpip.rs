@@ -1,6 +1,6 @@
 use super::{DnsMonitorT, ResolvedDnsConfig};
 use std::{io, net::IpAddr};
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
 use windows_registry::{LOCAL_MACHINE, Transaction};
 use windows_sys::{Win32::System::Com::StringFromGUID2, core::GUID};

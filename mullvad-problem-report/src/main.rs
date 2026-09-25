@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
     process,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 fn main() {
     process::exit(match run() {

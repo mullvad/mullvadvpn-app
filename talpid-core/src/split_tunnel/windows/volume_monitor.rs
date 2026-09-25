@@ -9,7 +9,7 @@ use std::{
     path::{self, Path},
     sync::{Arc, Mutex, MutexGuard, mpsc as sync_mpsc},
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use windows_sys::Win32::{
     Storage::FileSystem::GetLogicalDrives,
     UI::WindowsAndMessaging::{

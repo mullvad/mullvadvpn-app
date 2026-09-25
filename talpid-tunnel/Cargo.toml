@@ -21,6 +21,7 @@ tun = { workspace = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
+talpid-error.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 netlink-packet-core.workspace = true

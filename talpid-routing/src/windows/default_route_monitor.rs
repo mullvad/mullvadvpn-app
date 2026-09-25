@@ -11,7 +11,7 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
-use talpid_types::win32_err;
+use talpid_error::win32_err;
 use windows_sys::Win32::NetworkManagement::{
     IpHelper::{
         CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, MIB_IPFORWARD_ROW2,

@@ -7,7 +7,7 @@ use mullvad_daemon::{
     logging::{self, LogLocation},
     rpc_uniqueness_check, runtime, version,
 };
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 
 #[cfg(all(feature = "default-allocator", target_os = "linux"))]
 #[global_allocator]

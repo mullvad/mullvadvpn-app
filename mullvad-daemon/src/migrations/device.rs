@@ -15,7 +15,7 @@ use crate::{
 use mullvad_types::{account::AccountNumber, wireguard::WireguardData};
 use std::time::Duration;
 use talpid_core::mpsc::Sender;
-use talpid_types::ErrorExt;
+use talpid_error::ErrorExt;
 use tokio::time::timeout;
 
 const TIMEOUT: Duration = Duration::from_secs(30);

@@ -1,4 +1,6 @@
-use std::{error::Error, fmt, fmt::Write};
+use core::error::Error;
+use core::fmt;
+use core::fmt::Write;
 
 /// Used to generate string representations of error chains.
 pub trait ErrorExt {

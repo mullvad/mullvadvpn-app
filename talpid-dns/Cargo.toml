@@ -8,7 +8,7 @@ license.workspace = true
 
 [dependencies]
 log = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-error.workspace = true
 thiserror = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
