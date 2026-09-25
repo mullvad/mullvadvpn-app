@@ -2,7 +2,6 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
-import { colorTokens } from '../../../../src/renderer/lib/foundations';
 import {
   type ISettings,
   ObfuscationType,
@@ -40,110 +39,153 @@ test.describe('Select location', () => {
     await util?.closePage();
   });
 
-  test('Should focus search input on load', async () => {
-    const input = routes.selectLocation.getSearchInput();
-    await expect(input).toBeFocused();
-  });
-
   test.describe('Multihop', () => {
-    test.beforeAll(async () => {
-      await helpers.updateMockSettings({
-        multihop: 'always',
-      });
-    });
+    let initialSettings: ISettings = getDefaultSettings();
 
     test.beforeEach(async () => {
-      await routes.selectLocation.getEntryButton().click();
+      initialSettings = await helpers.mockSettings({
+        multihop: 'always',
+      });
+      await routes.selectLocation.gotoEntryLocations();
     });
 
     test('App should show entry selection', async () => {
-      const entryButton = routes.selectLocation.getEntryButton();
-      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
+      const entryInput = routes.selectLocation.getEntryInput();
+      await expect(entryInput).toBeFocused();
 
       const locations = routes.selectLocation.getLocationsInAllLocations();
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
     test('App should show exit selection', async () => {
-      const exitButton = routes.selectLocation.getExitButton();
-      await exitButton.click();
-      await expect(exitButton).toHaveCSS('background-color', colorTokens.green);
+      await routes.selectLocation.gotoExitLocations();
+      const exitInput = routes.selectLocation.getExitInput();
+      await expect(exitInput).toBeFocused();
 
       const locations = routes.selectLocation.getLocationsInAllLocations();
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
-    test('Should show only wireguard servers in entry list', async () => {
-      const entryButton = routes.selectLocation.getEntryButton();
-      await entryButton.click();
-
-      const wireguardRelays = relayList.countries[0].cities[0].relays;
-      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+    test('Should show relays and automatic location in entry list', async () => {
+      const relays = relayList.countries[0].cities[0].relays;
+      const hostnames = relays.map((relay) => relay.hostname);
       const relaySelectionPaths = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, hostnames),
       );
 
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
-      await expect(buttons).toHaveCount(wireguardRelays.length);
+      const buttons = routes.selectLocation.getLocationsMatching(hostnames);
+      await expect(buttons).toHaveCount(relays.length);
+
+      const automaticLocation = routes.selectLocation.getAutomaticLocation();
+      await expect(automaticLocation).toBeVisible();
     });
 
-    test('Should show only wireguard servers in exit list', async () => {
-      const exitButton = routes.selectLocation.getExitButton();
-      await exitButton.click();
+    test('Should show relays in exit list', async () => {
+      await routes.selectLocation.gotoExitLocations();
 
-      const wireguardRelays = relayList.countries[0].cities[0].relays;
-      const hostnames = wireguardRelays.map((relay) => relay.hostname);
+      const relays = relayList.countries[0].cities[0].relays;
+      const hostnames = relays.map((relay) => relay.hostname);
       const relaySelectionPaths = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, hostnames),
       );
 
       await helpers.expandLocatedRelays(relaySelectionPaths);
 
-      const buttons = routes.selectLocation.getRelaysMatching(hostnames);
-      await expect(buttons).toHaveCount(wireguardRelays.length);
+      const buttons = routes.selectLocation.getLocationsMatching(hostnames);
+      await expect(buttons).toHaveCount(relays.length);
     });
 
     test('Should disable entry server in exit list', async () => {
-      await util.ipc.tunnel.connect.ignore();
-      await util.ipc.settings.setRelaySettings.ignore();
+      // Go to exit selection
+      await routes.selectLocation.gotoExitLocations();
 
-      const settings = await helpers.updateMockSettings({
+      // Set entry location to first relay in relay list
+      const firstHostname = relayList.countries[0].cities[0].relays[0].hostname;
+      const firstRelaySelectionPath = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [firstHostname]),
+      )[0];
+      await helpers.mockEntryLocation(firstRelaySelectionPath, initialSettings);
+
+      // Find same location in exit list and check that it is disabled
+      await helpers.expandLocatedRelays([firstRelaySelectionPath]);
+      const exitRelay = routes.selectLocation.getLocationsMatching([firstHostname]).first();
+
+      await expect(exitRelay).toBeDisabled();
+    });
+
+    test('Should disable exit server in entry list', async () => {
+      // Set exit location to first relay in relay list
+      const firstHostname = relayList.countries[0].cities[0].relays[0].hostname;
+      const firstRelaySelectionPath = helpers.toSelectionPaths(
+        helpers.getRelaysByHostnames(relayList, [firstHostname]),
+      )[0];
+      await helpers.mockExitLocation(firstRelaySelectionPath, initialSettings);
+
+      // Find same location in entry list and check that it is disabled
+      await helpers.expandLocatedRelays([firstRelaySelectionPath]);
+      const entryRelay = routes.selectLocation.getLocationsMatching([firstHostname]).first();
+
+      await expect(entryRelay).toBeDisabled();
+    });
+  });
+
+  test.describe('Location selector', () => {
+    test.beforeEach(async () => {
+      await helpers.mockSettings({
         multihop: 'always',
-        daita: true,
+      });
+      await routes.selectLocation.gotoExitLocations();
+    });
+
+    test('Should display entry and exit when multihop mode is "always"', async () => {
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
+
+      await expect(entryInput).toBeVisible();
+      await expect(exitInput).toBeVisible();
+    });
+
+    test('Should only display exit when multihop mode is "never"', async () => {
+      await helpers.mockSettings({
+        multihop: 'never',
       });
 
-      const entryButton = routes.selectLocation.getEntryButton();
-      await entryButton.click();
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
 
-      // Get first wireguard relay
-      const [entryRelay, exitRelay] = relayList.countries[0].cities[0].relays;
+      await expect(entryInput).toBeHidden();
+      await expect(exitInput).toBeVisible();
+    });
 
-      if (!entryRelay) {
-        throw new Error('No wireguard relay found in mocked data');
-      }
+    test('Should display only exit when multihop mode is "when-needed" and has no automatic entry', async () => {
+      await helpers.mockSettings({
+        multihop: 'when-needed',
+      });
 
-      const relaySelectionPaths = helpers.toSelectionPaths(
-        helpers.getRelaysByHostnames(relayList, [entryRelay.hostname]),
-      );
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
 
-      await helpers.expandLocatedRelays(relaySelectionPaths);
+      await expect(entryInput).toBeHidden();
+      await expect(exitInput).toBeVisible();
+    });
 
-      await routes.selectLocation.getRelaysMatching([entryRelay.hostname]).first().click();
+    test('Should display entry and exit when multihop mode is "when-needed" and has automatic entry', async () => {
+      await helpers.mockSettings({
+        multihop: 'when-needed',
+        entryLocation: {
+          only: {
+            country: 'se',
+          },
+        },
+      });
 
-      await helpers.updateEntryLocation(relaySelectionPaths[0], settings);
-      await helpers.expandLocatedRelays(relaySelectionPaths);
+      const entryInput = routes.selectLocation.getEntryInput();
+      const exitInput = routes.selectLocation.getExitInput();
 
-      const relaySelectionPathsExit = helpers.toSelectionPaths(
-        helpers.getRelaysByHostnames(relayList, [exitRelay.hostname]),
-      );
-      await helpers.expandLocatedRelays(relaySelectionPathsExit);
-
-      // Clicking exit relay should navigate to main route
-      const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
-      await exitRelayButton.click();
-      await util.expectRoute(RoutePath.main);
+      await expect(entryInput).toBeVisible();
+      await expect(exitInput).toBeVisible();
     });
   });
 
@@ -151,8 +193,15 @@ test.describe('Select location', () => {
     let initialSettings: ISettings = getDefaultSettings();
 
     test.beforeEach(async () => {
-      const settings = await helpers.mockRecents(recents);
-      initialSettings = await helpers.mockCustomLists(customLists, settings);
+      let settings = await helpers.mockRecents(recents);
+      settings = await helpers.mockCustomLists(customLists, settings);
+      initialSettings = await helpers.mockSettings(
+        {
+          multihop: 'always',
+        },
+        settings,
+      );
+      await routes.selectLocation.gotoExitLocations();
     });
 
     test('Should show empty recent section when enabled and no recents', async () => {
@@ -193,7 +242,7 @@ test.describe('Select location', () => {
     });
 
     test('Should show recents section for exits when recents is enabled', async () => {
-      await helpers.updateMockSettings(
+      await helpers.mockSettings(
         {
           multihop: 'never',
         },
@@ -205,7 +254,7 @@ test.describe('Select location', () => {
     });
 
     test('Should show recents section for entries when recents is enabled', async () => {
-      await helpers.updateMockSettings(
+      await helpers.mockSettings(
         {
           multihop: 'always',
         },
@@ -215,14 +264,22 @@ test.describe('Select location', () => {
       const recentLocations = routes.selectLocation.getLocationsInRecents();
       await expect(recentLocations).toHaveCount(recents.exits.length);
 
-      await routes.selectLocation.getEntryButton().click();
+      await routes.selectLocation.gotoEntryLocations();
       await expect(recentLocations).toHaveCount(recents.entries.length);
+    });
+
+    test('Should display automatic location in recents', async () => {
+      await routes.selectLocation.gotoEntryLocations();
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      const automaticLocation = recentLocations.filter({ hasText: 'Automatic' });
+
+      await expect(automaticLocation).toHaveCount(1);
     });
 
     test('Should be able to add recent geographical location to custom list', async () => {
       const settings = await helpers.mockCustomLists(customLists, initialSettings);
 
-      await helpers.updateMockSettings(
+      await helpers.mockSettings(
         {
           multihop: 'never',
         },
@@ -255,7 +312,7 @@ test.describe('Select location', () => {
     test('Should be able to edit or delete recent custom list', async () => {
       const settings = await helpers.mockCustomLists(customLists, initialSettings);
 
-      await helpers.updateMockSettings(
+      await helpers.mockSettings(
         {
           multihop: 'never',
         },
@@ -333,7 +390,7 @@ test.describe('Select location', () => {
           // Expand all accordions
           await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -374,7 +431,7 @@ test.describe('Select location', () => {
           // Expand all accordions
           await helpers.expandLocatedRelays(relaySelectionPaths);
 
-          const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+          const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
           // Expect all filtered relays to have a button
           await expect(buttons).toHaveCount(relays.length);
@@ -407,7 +464,7 @@ test.describe('Select location', () => {
 
         await helpers.expandLocatedRelays(relaySelectionPaths);
 
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);
@@ -427,7 +484,7 @@ test.describe('Select location', () => {
         const relayNames = relays.map((relay) => relay.hostname);
 
         await helpers.expandLocatedRelays(relaySelectionPaths);
-        const buttons = routes.selectLocation.getRelaysMatching(relayNames);
+        const buttons = routes.selectLocation.getLocationsMatching(relayNames);
 
         // Expect all filtered relays to have a button
         await expect(buttons).toHaveCount(relays.length);

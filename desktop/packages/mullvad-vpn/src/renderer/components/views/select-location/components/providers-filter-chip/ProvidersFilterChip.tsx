@@ -7,27 +7,30 @@ import { FilterChip, type FilterChipProps } from '../../../../../lib/components'
 import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useFilteredProviders } from '../../../filter/hooks';
-import { useScrollPositionContext } from '../../ScrollPositionContext';
 
-export type ProvidersFilterChip = FilterChipProps;
+export type ProvidersFilterChipProps = FilterChipProps;
 
-export function ProvidersFilterChip(props: ProvidersFilterChip) {
+export function ProvidersFilterChip(props: ProvidersFilterChipProps) {
   const relaySettingsUpdater = useRelaySettingsUpdater();
-  const { resetScrollPositions } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const filteredProviders = useFilteredProviders(providers, ownership);
 
   const onClearProviders = React.useCallback(async () => {
-    resetScrollPositions();
     if (relaySettings) {
       await relaySettingsUpdater((settings) => ({ ...settings, providers: [] }));
     }
-  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
+  }, [relaySettingsUpdater, relaySettings]);
 
   return (
-    <FilterChip aria-label={messages.gettext('Clear')} onClick={onClearProviders} {...props}>
+    <FilterChip
+      aria-label={
+        // TRANSLATORS: Accessibility description for button removing the providers filter.
+        messages.pgettext('accessibility', 'Remove providers filter')
+      }
+      onClick={onClearProviders}
+      {...props}>
       <FilterChip.Text>
         {sprintf(messages.pgettext('select-location-view', 'Providers: %(numberOfProviders)d'), {
           numberOfProviders: filteredProviders.length,

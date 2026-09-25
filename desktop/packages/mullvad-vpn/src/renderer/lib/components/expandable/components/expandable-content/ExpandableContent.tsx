@@ -16,6 +16,7 @@ const variants = {
 export function ExpandableContent({ children, ...props }: ExpandableContentProps) {
   return (
     <StyledExpandableContent
+      layout="preserve-aspect"
       initial="collapsed"
       animate="expanded"
       exit="collapsed"

@@ -1,3 +1,4 @@
+import { ListItem } from '../../../../../lib/components/list-item';
 import { LocationAccordion, LocationListItem } from './components';
 import { LocationProvider } from './LocationContext';
 
@@ -17,6 +18,7 @@ function Location({ root, selected, children, ...props }: LocationProps) {
 const LocationNamespace = Object.assign(Location, {
   Accordion: LocationAccordion,
   ListItem: LocationListItem,
+  Trigger: ListItem.Trigger,
 });
 
 export { LocationNamespace as Location };

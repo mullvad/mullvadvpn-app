@@ -11,6 +11,12 @@ export function useRelayLocationsFilteredByLocationType() {
       return relayLocationsFiltered.entry;
     case LocationType.exit:
       return relayLocationsFiltered.exit;
+    case LocationType.entryAutomatic:
+      return {
+        key: 'entryAutomatic',
+        matches: [],
+        discards: [],
+      };
     default:
       return locationType satisfies never;
   }

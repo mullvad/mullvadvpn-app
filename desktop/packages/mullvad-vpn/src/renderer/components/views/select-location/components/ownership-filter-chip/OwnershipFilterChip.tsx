@@ -5,29 +5,26 @@ import { messages } from '../../../../../../shared/gettext';
 import { useOwnership } from '../../../../../features/locations/hooks';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
-import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { useOwnershipFilterLabel } from './hooks';
 
 export type OwnershipFilterChipProps = FilterChipProps;
 
 export function OwnershipFilterChip(props: OwnershipFilterChipProps) {
   const relaySettings = useNormalRelaySettings();
-  const { resetScrollPositions } = useScrollPositionContext();
   const { setOwnership } = useOwnership();
   const ownershipFilterLabel = useOwnershipFilterLabel();
 
   const onClearOwnership = React.useCallback(async () => {
-    resetScrollPositions();
     if (relaySettings) {
       await setOwnership(Ownership.any);
     }
-  }, [setOwnership, resetScrollPositions, relaySettings]);
+  }, [setOwnership, relaySettings]);
 
   return (
     <FilterChip
       aria-description={
-        // TRANSLATORS: Accessibility description for button clearing the ownership filter.
-        messages.pgettext('accessibility', 'Clear ownership filter')
+        // TRANSLATORS: Accessibility description for button removing the ownership filter.
+        messages.pgettext('accessibility', 'Remove ownership filter')
       }
       onClick={onClearOwnership}
       {...props}>

@@ -1,3 +1,4 @@
+import { useIsPresent } from 'motion/react';
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
@@ -6,25 +7,41 @@ import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
+import { AutomaticLocation } from '../automatic-location';
 import { CountryLocation } from '../country-location';
-import { useRelayCount } from './hooks';
+import { useLocationListsContext } from '../location-lists/LocationListsContext';
+import { useRelayCount, useShowAutomaticLocation } from './hooks';
 
 export function CountryLocations() {
-  const { countryLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useLocationListsContext();
   const { visibleRelays, totalRelays } = useRelayCount();
-  const titleId = React.useId();
 
-  const showFilterText = visibleRelays !== totalRelays;
+  const titleId = React.useId();
+  const descriptionId = React.useId();
+
+  const showAutomaticLocation = useShowAutomaticLocation();
+
+  const isPresent = useIsPresent();
+  const showFilterText = visibleRelays !== totalRelays && isPresent;
+
+  const { searchTerm } = useSelectLocationViewContext();
+  const countryLocationsKey = searchTerm ? `country-locations-${searchTerm}` : 'country-locations';
 
   return (
-    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+    <FlexColumn
+      as="section"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      gap="tiny"
+      tabIndex={-1}
+      data-focusable-heading>
       <SectionTitle>
-        <SectionTitle.Title as="h3" id={titleId}>
+        <SectionTitle.Title as="h3" id={titleId} tabIndex={-1}>
           {messages.pgettext('select-location-view', 'All locations')}
         </SectionTitle.Title>
         <SectionTitle.Divider />
         {showFilterText && (
-          <SectionTitle.Text>
+          <SectionTitle.Text id={descriptionId}>
             {sprintf(
               // TRANSLATORS: Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
               // TRANSLATORS: Available placeholders:
@@ -42,7 +59,8 @@ export function CountryLocations() {
           </SectionTitle.Text>
         )}
       </SectionTitle>
-      <FlexColumn>
+      <FlexColumn key={countryLocationsKey} gap="tiny">
+        {showAutomaticLocation && <AutomaticLocation />}
         {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;

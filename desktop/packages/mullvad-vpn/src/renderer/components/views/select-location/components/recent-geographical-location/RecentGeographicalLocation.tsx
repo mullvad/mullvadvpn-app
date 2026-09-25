@@ -1,12 +1,10 @@
 import { useCallback } from 'react';
-import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
-import { messages } from '../../../../../../shared/gettext';
 import type { GeographicalLocation } from '../../../../../features/locations/types';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { spacings } from '../../../../../lib/foundations';
+import type { ListItemProps } from '../../../../../lib/components/list-item';
+import { useLocationAriaLabel } from '../../hooks';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { RecentGeographicalLocationTrailingActions } from './components';
@@ -16,17 +14,17 @@ import { RecentGeographicalLocationProvider } from './RecentGeographicalLocation
 export type RecentGeographicalLocationProps = {
   location: GeographicalLocation;
   disabled?: boolean;
+  position?: ListItemProps['position'];
 };
-
-const StyledLocationContainer = styled.div`
-  margin-bottom: ${spacings.tiny};
-`;
 
 function RecentGeographicalLocationImpl({
   location,
   disabled: disabledProp,
+  position,
 }: RecentGeographicalLocationProps) {
   const { handleSelect } = useLocationListsContext();
+
+  const ariaLabel = useLocationAriaLabel(location.label);
 
   const locationBreadcrumbs = useLocationBreadcrumbs(location);
   const breadcrumbsSubLabel = locationBreadcrumbs.join(', ');
@@ -40,39 +38,27 @@ function RecentGeographicalLocationImpl({
   }, [location, handleSelect]);
 
   return (
-    <StyledLocationContainer>
-      <Location root selected={location.selected}>
-        <Location.Accordion expanded disabled={disabled}>
-          <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.ItemTrigger
-              onClick={handleClick}
-              aria-label={sprintf(
-                // TRANSLATORS: Accessibility label for a button that connects to a location.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-                messages.pgettext('accessibility', 'Connect to %(location)s'),
-                {
-                  location: location.label,
-                },
-              )}>
-              <Location.Accordion.Header.Item>
-                <FlexColumn>
-                  <Location.Accordion.Header.Item.Title>
-                    {location.label}
-                  </Location.Accordion.Header.Item.Title>
-                  {showParents && (
-                    <FootnoteMiniSemiBold color="whiteAlpha60">
-                      {breadcrumbsSubLabel}
-                    </FootnoteMiniSemiBold>
-                  )}
-                </FlexColumn>
-              </Location.Accordion.Header.Item>
-            </Location.Accordion.Header.ItemTrigger>
-            <RecentGeographicalLocationTrailingActions location={location} />
-          </Location.Accordion.Header>
-        </Location.Accordion>
-      </Location>
-    </StyledLocationContainer>
+    <Location root selected={location.selected}>
+      <Location.Accordion expanded disabled={disabled}>
+        <Location.Accordion.Header level={0} position={position}>
+          <Location.Accordion.Header.ItemTrigger onClick={handleClick} aria-label={ariaLabel}>
+            <Location.Accordion.Header.Item>
+              <FlexColumn>
+                <Location.Accordion.Header.Item.Title>
+                  {location.label}
+                </Location.Accordion.Header.Item.Title>
+                {showParents && (
+                  <FootnoteMiniSemiBold color="whiteAlpha60">
+                    {breadcrumbsSubLabel}
+                  </FootnoteMiniSemiBold>
+                )}
+              </FlexColumn>
+            </Location.Accordion.Header.Item>
+          </Location.Accordion.Header.ItemTrigger>
+          <RecentGeographicalLocationTrailingActions location={location} />
+        </Location.Accordion.Header>
+      </Location.Accordion>
+    </Location>
   );
 }
 
