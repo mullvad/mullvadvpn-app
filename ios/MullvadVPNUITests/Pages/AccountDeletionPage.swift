@@ -15,7 +15,7 @@ class AccountDeletionPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.deleteAccountView]
+        self.pageElement = app.scrollViews[.deleteAccountView]
         waitForPageToBeShown()
     }
 
@@ -25,7 +25,10 @@ class AccountDeletionPage: Page {
     }
 
     @discardableResult func tapDeleteAccountButton() -> Self {
-        app.otherElements[.deleteAccountView].buttons[AccessibilityIdentifier.deleteButton].tap()
+        app
+            .scrollViews[.deleteAccountView]
+            .buttons[AccessibilityIdentifier.deleteButton]
+            .tap()
         return self
     }
 

@@ -8,18 +8,15 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-enum PaymentState: Equatable {
-    case none
-    case makingPurchase
-    case makingRefund
-    case restoringPurchases
+import SwiftUI
 
-    var allowsViewInteraction: Bool {
-        switch self {
-        case .none:
-            return true
-        case .restoringPurchases, .makingPurchase, .makingRefund:
-            return false
+extension ToolbarContent {
+    @ToolbarContentBuilder
+    func hideLiquidGlassEffect() -> some ToolbarContent {
+        if #available(iOS 26.0, *) {
+            self.sharedBackgroundVisibility(.hidden)
+        } else {
+            self
         }
     }
 }
