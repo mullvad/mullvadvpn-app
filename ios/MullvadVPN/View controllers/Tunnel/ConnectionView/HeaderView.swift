@@ -25,6 +25,7 @@ extension ConnectionView {
                     .accessibilityRemoveTraits(.isButton)
 
                 Spacer()
+                SpeedConnectionView(viewModel: SpeedConnectionViewModel(networkSpeedMonitor: NetworkSpeedMonitor()))
 
                 Image(.iconChevronUp)
                     .renderingMode(.template)
