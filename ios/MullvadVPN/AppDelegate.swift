@@ -581,7 +581,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         case .success:
             // Tell the tunnel to re-read tunnel configuration after migration.
             logger.debug("Successful settings migration")
-            await tunnelManager.reconnectTunnel(selectNewRelay: true)
+            tunnelManager.reconnectTunnel(selectNewRelay: true)
             fallthrough
 
         case .nothing:
