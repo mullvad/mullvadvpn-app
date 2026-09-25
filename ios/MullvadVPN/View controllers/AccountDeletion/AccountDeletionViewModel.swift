@@ -11,30 +11,6 @@
 import Foundation
 import SwiftUI
 
-protocol AccountDeletionBackEnd: Sendable {
-    var accountNumber: String? { get }
-
-    func deleteAccount(accountNumber: String) async throws
-}
-
-struct TunnelManagerAccountDeletionBackEnd: AccountDeletionBackEnd {
-    let tunnelManager: TunnelManager
-
-    var accountNumber: String? {
-        tunnelManager.deviceState.accountData?.number
-    }
-
-    func deleteAccount(accountNumber: String) async throws {
-        try await tunnelManager.deleteAccount(accountNumber: accountNumber)
-    }
-}
-
-struct MockAccountDeletionBackEnd: AccountDeletionBackEnd {
-    let accountNumber: String?
-
-    func deleteAccount(accountNumber: String) async throws {}
-}
-
 class AccountDeletionViewModel: ObservableObject {
     enum State {
         case initial
@@ -57,36 +33,29 @@ class AccountDeletionViewModel: ObservableObject {
     @Published var enteredAccountNumberSuffix = ""
     @Published var state: State = .initial
 
-    private let backEnd: AccountDeletionBackEnd
+    let onDeleteAccount: () async throws -> Void
 
     var onConclusion: ((Bool) -> Void)?
-
-    var tunnelManagerAccountNumber: String {
-        backEnd.accountNumber ?? ""
-    }
 
     var accountNumberSuffix: Substring {
         accountNumber.suffix(4)
     }
 
-    init(tunnelManager: TunnelManager, onConclusion: ((Bool) -> Void)? = nil) {
-        self.backEnd = TunnelManagerAccountDeletionBackEnd(tunnelManager: tunnelManager)
-        self.accountNumber = tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
+    init(
+        accountNumber: String,
+        onDeleteAccount: @escaping () async throws -> Void,
+        onConclusion: ((Bool) -> Void)? = nil
+    ) {
+        self.onDeleteAccount = onDeleteAccount
+        self.accountNumber = accountNumber
         self.onConclusion = onConclusion
-    }
-
-    // for SwiftUI previews
-    init(mockAccountNumber: String?) {
-        self.backEnd = MockAccountDeletionBackEnd(accountNumber: mockAccountNumber)
-        self.accountNumber = mockAccountNumber ?? ""
-        self.onConclusion = nil
     }
 
     var messageText: LocalizedStringKey {
         var attributedAccountNumber: AttributedString {
             return
                 (try? AttributedString(
-                    markdown: "**\(accountNumber)**",
+                    markdown: "**\(accountNumber.formattedAccountNumber)**",
                     options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
                 )) ?? AttributedString(accountNumber)
         }
@@ -105,22 +74,22 @@ class AccountDeletionViewModel: ObservableObject {
     }
 
     func validate(input: String) -> Result<String, Error> {
-        if let deviceAccountNumber = backEnd.accountNumber,
-            let fourLastDigits = deviceAccountNumber.split(every: 4).last,
+        if let fourLastDigits = accountNumber.split(every: 4).last,
             fourLastDigits == input
         {
-            return .success(deviceAccountNumber)
+            return .success(accountNumber)
         } else {
             return .failure(Error.invalidInput)
         }
     }
 
-    @MainActor func deleteButtonTapped() {
+    @MainActor func deleteButtonTapped() async -> Bool {
         switch validate(input: enteredAccountNumberSuffix) {
         case let .success(accountNumber):
-            doDelete(accountNumber: accountNumber)
+            return await doDelete(accountNumber: accountNumber)
         case let .failure(error):
             state = .failure(error)
+            return false
         }
     }
 
@@ -128,17 +97,16 @@ class AccountDeletionViewModel: ObservableObject {
         self.onConclusion?(false)
     }
 
-    @MainActor func doDelete(accountNumber: String) {
+    @MainActor func doDelete(accountNumber: String) async -> Bool {
         state = .working
-        Task { [weak self] in
-            guard let self else { return }
-            do {
-                try await backEnd.deleteAccount(accountNumber: accountNumber)
-                self.state = State.initial
-                self.onConclusion?(true)
-            } catch {
-                self.state = State.failure(error)
-            }
+        do {
+            try await onDeleteAccount()
+            self.state = State.initial
+            self.onConclusion?(true)
+            return true
+        } catch {
+            self.state = State.failure(error)
+            return false
         }
     }
 }
