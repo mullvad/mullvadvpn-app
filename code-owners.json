@@ -24,6 +24,7 @@
     "rustfmt.toml",
     "rust-toolchain.toml",
     "scripts/commit-relay-list",
+    "scripts/hooks/reference-transaction.verify-commit-signatures-on-main",
     "talpid-*/**",
     "test/**",
     "tunnel-obfuscation/**",
