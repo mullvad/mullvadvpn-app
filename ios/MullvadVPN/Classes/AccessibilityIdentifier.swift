@@ -82,6 +82,7 @@ public enum AccessibilityIdentifier: Equatable {
     case recentConnectionsToggleButton
     case disableRecentConnectionsButton
     case recentListItem(String)
+    case accountToolbarMenuButton
 
     // Cells
     case deviceCell
