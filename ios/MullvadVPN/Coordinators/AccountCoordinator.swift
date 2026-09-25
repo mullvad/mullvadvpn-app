@@ -16,14 +16,12 @@ import UIKit
 enum AccountDismissReason: Equatable, Sendable {
     case none
     case userLoggedOut
-    case accountDeletion
 }
 
 final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let storePaymentManager: StorePaymentManager
     private let deviceManagementInteractor: DeviceManagementInteractor
-    private var accountController: AccountViewController?
 
     let navigationController: UINavigationController
     var presentedViewController: UIViewController {
@@ -45,38 +43,25 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     }
 
     func start(animated: Bool) {
-        navigationController.navigationBar.prefersLargeTitles = true
-
-        let accountController = AccountViewController(
+        let viewModel = AccountViewModel(
             tunnelManager: tunnelManager,
-            errorPresenter: PaymentAlertPresenter(alertContext: self)
+            onFinish: { [weak self] in
+                guard let self else { return }
+                self.didFinish?(self, $0)
+            },
+            onPaymentAction: { [weak self] in
+                self?.didRequestShowInAppPurchase(paymentAction: $0)
+            }
         )
-
-        accountController.actionHandler = handleViewControllerAction
-
-        navigationController.pushViewController(accountController, animated: animated)
-        self.accountController = accountController
-    }
-
-    private func handleViewControllerAction(_ action: AccountViewControllerAction) {
-        switch action {
-        case .deviceManagement:
-            navigateToDeviceManagement()
-        case .finish:
-            didFinish?(self, .none)
-        case .logOut:
-            logOut()
-        case .navigateToDeleteAccount:
-            navigateToDeleteAccount()
-        case .restorePurchasesInfo:
-            showRestorePurchasesInfo()
-        case .showFailedToLoadProducts:
-            showFailToFetchProducts()
-        case .showRestorePurchases:
-            didRequestShowInAppPurchase(paymentAction: .restorePurchase)
-        case .showPurchaseOptions:
-            didRequestShowInAppPurchase(paymentAction: .purchase)
-        }
+        let hostingController = UIHostingRootController(
+            rootView: AccountView(
+                viewModel: viewModel,
+                deviceManaging: deviceManagementInteractor
+            )
+        )
+        navigationController.navigationBar.prefersLargeTitles = true
+        hostingController.navigationItem.largeTitleDisplayMode = .always
+        navigationController.pushViewController(hostingController, animated: false)
     }
 
     private func didRequestShowInAppPurchase(
@@ -93,158 +78,5 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         }
         coordinator.start()
         presentChild(coordinator, animated: true)
-    }
-
-    private func navigateToDeviceManagement() {
-        let controller = UIHostingController(
-            rootView: DeviceManagementView(
-                deviceManaging: deviceManagementInteractor,
-                style: .deviceManagement,
-                onError: { [weak self] title, error in
-                    self?.presentError(
-                        "device-management-error-alert",
-                        title: title,
-                        message: error.localizedDescription
-                    )
-                }
-            )
-        )
-        controller.title = NSLocalizedString("Manage devices", comment: "")
-        let doneButton = UIBarButtonItem.mullvadDoneButton(
-            primaryAction: UIAction(handler: { _ in
-                controller.dismiss(animated: true)
-            })
-        )
-        controller.navigationItem.rightBarButtonItem = doneButton
-        let subNavigationController = CustomNavigationController(rootViewController: controller)
-        subNavigationController.navigationItem.largeTitleDisplayMode = .always
-        subNavigationController.navigationBar.prefersLargeTitles = true
-        navigationController.present(subNavigationController, animated: true)
-    }
-
-    private func presentError(_ id: String, title: String, message: String) {
-        let presentation = AlertPresentation(
-            id: id,
-            title: title,
-            message: message,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default
-                )
-            ]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    @MainActor
-    private func navigateToDeleteAccount() {
-        let coordinator = AccountDeletionCoordinator(
-            navigationController: CustomNavigationController(),
-            tunnelManager: tunnelManager
-        )
-
-        coordinator.start()
-        coordinator.didConclude = { accountDeletionCoordinator, success in
-            Task { @MainActor in
-                accountDeletionCoordinator.dismiss(
-                    animated: true,
-                    completion: {
-                        if success { self.didFinish?(self, .userLoggedOut) }
-                    }
-                )
-            }
-        }
-
-        presentChild(
-            coordinator,
-            animated: true,
-            configuration: ModalPresentationConfiguration(
-                preferredContentSize: UIMetrics.AccountDeletion.preferredContentSize,
-                modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate(
-                    options: FormSheetPresentationOptions(
-                        useFullScreenPresentationInCompactWidth: true,
-                        adjustViewWhenKeyboardAppears: false
-                    ))
-            )
-        )
-    }
-
-    // MARK: - Alerts
-
-    private func logOut() {
-        let presentation = AlertPresentation(
-            id: "account-logout-alert",
-            accessibilityIdentifier: .logOutSpinnerAlertView,
-            icon: .spinner,
-            message: nil,
-            buttons: []
-        )
-
-        let alertPresenter = AlertPresenter(context: self)
-
-        Task {
-            await tunnelManager.unsetAccount()
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
-                guard let self else { return }
-
-                alertPresenter.dismissAlert(presentation: presentation, animated: true)
-                self.didFinish?(self, .userLoggedOut)
-            }
-        }
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    private func showRestorePurchasesInfo() {
-        let message = NSLocalizedString(
-            """
-            You can use the "restore purchases" function to check for any in-app payments \
-            made via Apple services. If there is a payment that has not been credited, it will \
-            add the time to the currently logged in Mullvad account.
-            """,
-            comment: ""
-        )
-
-        let presentation = AlertPresentation(
-            id: "account-device-info-alert",
-            icon: .info,
-            title: NSLocalizedString("If you haven’t received additional VPN time after purchasing", comment: ""),
-            message: message,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default
-                )
-            ]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
-    }
-
-    func showFailToFetchProducts() {
-        let message = NSLocalizedString(
-            "Failed to load products, please try again",
-            comment: ""
-        )
-
-        let presentation = AlertPresentation(
-            id: "welcome-failed-to-fetch-products-alert",
-            icon: .info,
-            message: message,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString("Got it!", comment: ""),
-                    style: .default
-                )
-            ]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
     }
 }
