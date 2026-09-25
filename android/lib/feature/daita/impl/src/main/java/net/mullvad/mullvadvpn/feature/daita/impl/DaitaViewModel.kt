@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.lib.common.util.daitaSettings
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class DaitaViewModel(
@@ -24,7 +25,7 @@ class DaitaViewModel(
             .filterNotNull()
             .map { settings ->
                 DaitaUiState(
-                        daitaEnabled = settings.isDaitaEnabled(),
+                        daitaMode = settings.daitaSettings().toDaitaMode(),
                         isModal,
                     )
                     .toLc<Boolean, DaitaUiState>()
@@ -35,7 +36,23 @@ class DaitaViewModel(
                 initialValue = Lc.Loading(isModal),
             )
 
-    fun setDaita(enable: Boolean) {
-        viewModelScope.launch { settingsRepository.setDaitaEnabled(enable) }
+    fun setDaita(daitaMode: DaitaMode) {
+        viewModelScope.launch {
+            settingsRepository.setDaitaSettings(
+                when (daitaMode) {
+                    DaitaMode.Always -> DaitaSettings(enabled = true, metered = true)
+                    DaitaMode.UnMetered -> DaitaSettings(enabled = true, metered = false)
+                    DaitaMode.Off -> DaitaSettings(enabled = false, metered = false)
+                }
+            )
+        }
+    }
+
+    private fun DaitaSettings.toDaitaMode(): DaitaMode {
+        return when {
+            enabled && metered -> DaitaMode.Always
+            enabled -> DaitaMode.UnMetered
+            else -> DaitaMode.Off
+        }
     }
 }

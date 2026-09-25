@@ -8,7 +8,8 @@ class DaitaUiStatePreviewParameterProvider : PreviewParameterProvider<Lc<Boolean
     override val values: Sequence<Lc<Boolean, DaitaUiState>> =
         sequenceOf(
             Lc.Loading(true),
-            DaitaUiState(daitaEnabled = true, isModal = false).toLc(),
-            DaitaUiState(daitaEnabled = true, isModal = true).toLc(),
+            DaitaUiState(daitaMode = DaitaMode.Off, isModal = false).toLc(),
+            DaitaUiState(daitaMode = DaitaMode.UnMetered, isModal = true).toLc(),
+            DaitaUiState(daitaMode = DaitaMode.Always, isModal = true).toLc(),
         )
 }

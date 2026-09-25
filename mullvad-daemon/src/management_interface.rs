@@ -349,22 +349,19 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn set_enable_daita(&self, request: Request<bool>) -> ServiceResult<()> {
-        let daita_enabled = request.into_inner();
-        log::debug!("set_enable_daita({daita_enabled})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetEnableDaita(tx, daita_enabled))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
-    }
-
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
     ) -> ServiceResult<()> {
         log::trace!("set_daita_settings");
-        let request = request.map(|request| request.enabled);
-        self.set_enable_daita(request).await
+        let daita_settings =
+            mullvad_types::wireguard::DaitaSettings::try_from(request.into_inner())
+                .map_err(map_protobuf_type_err)?;
+        log::debug!("set_daita_settings({daita_settings})");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetDaitaSettings(tx, daita_settings))?;
+        self.wait_for_result(rx).await?.map(Response::new)?;
+        Ok(Response::new(()))
     }
 
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {

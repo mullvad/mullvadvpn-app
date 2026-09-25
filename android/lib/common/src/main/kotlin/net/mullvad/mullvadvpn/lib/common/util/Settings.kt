@@ -40,4 +40,4 @@ fun Settings.multihopMode() = relaySettings.relayConstraints.wireguardConstraint
 
 fun Settings.location() = relaySettings.relayConstraints.location
 
-private fun Settings.daitaSettings() = tunnelOptions.daitaSettings
+fun Settings.daitaSettings() = tunnelOptions.daitaSettings

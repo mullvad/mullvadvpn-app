@@ -69,6 +69,9 @@ impl TryFrom<proto::QuantumResistantState> for mullvad_types::wireguard::Quantum
 
 impl From<bool> for proto::DaitaSettings {
     fn from(enabled: bool) -> Self {
-        proto::DaitaSettings { enabled }
+        proto::DaitaSettings {
+            enabled,
+            metered: false,
+        }
     }
 }

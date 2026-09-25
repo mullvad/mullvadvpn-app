@@ -138,6 +138,44 @@ impl RelayQuery {
         entry_specific.ip_version = merged;
         Ok(())
     }
+
+    pub fn apply_metered_connection(&mut self, metered_connection: bool) -> Result<(), Error> {
+        // If we do not have a metered connection we should just apply the daita setting as is
+        if !metered_connection {
+            return Ok(());
+        }
+
+        log::error!("We have a metered connection");
+
+        let metered_connection = Constraint::Only(metered_connection);
+
+        let entry_specific = self.entry_specific_mut();
+
+        log::error!(
+            "We allow daita overed metered connection {}",
+            metered_connection
+        );
+
+        let daita = entry_specific
+            .daita_metered
+            .intersection(metered_connection)
+            .unwrap_or(Constraint::Only(false));
+
+        log::error!("New daita after metered connection value {}", daita);
+
+        entry_specific.daita = daita;
+
+        let exit_specific = self.entry_specific_mut();
+
+        let daita = exit_specific
+            .daita_metered
+            .intersection(metered_connection)
+            .unwrap_or(Constraint::Only(false));
+
+        exit_specific.daita = daita;
+
+        Ok(())
+    }
 }
 
 impl From<Settings> for RelayQuery {
@@ -155,7 +193,8 @@ impl From<Settings> for RelayQuery {
             obfuscation: obfuscation_constraint_from_settings(
                 settings.obfuscation_settings.clone(),
             ),
-            daita: Constraint::Only(settings.tunnel_options.wireguard.daita),
+            daita: Constraint::Only(settings.tunnel_options.wireguard.daita.enabled),
+            daita_metered: Constraint::Only(settings.tunnel_options.wireguard.daita.metered),
             ip_version: wg.ip_version,
         };
         let exit = ExitConstraints {

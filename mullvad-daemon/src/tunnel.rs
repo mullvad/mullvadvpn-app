@@ -172,12 +172,13 @@ impl InnerParametersGenerator {
         &mut self,
         retry_attempt: u32,
         ip_availability: IpAvailability,
+        metered_connection: bool,
     ) -> Result<TunnelParameters, Error> {
         // Custom tunnel endpoints bypass relay selection entirely.
         if let RelaySettings::CustomTunnelEndpoint(ref endpoint) = self.relay_settings {
             self.last_generated_relays = None;
             return endpoint
-                .to_tunnel_parameters(self.tunnel_options.clone())
+                .to_tunnel_parameters(self.tunnel_options.clone(), metered_connection)
                 .map_err(|e| {
                     log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
                     Error::ResolveCustomHostname
@@ -185,9 +186,11 @@ impl InnerParametersGenerator {
         }
 
         let data = self.device().await?;
-        let selected_relay = self
-            .relay_selector
-            .get_relay(retry_attempt as usize, ip_availability)?;
+        let selected_relay = self.relay_selector.get_relay(
+            retry_attempt as usize,
+            ip_availability,
+            metered_connection,
+        )?;
 
         let GetRelay {
             endpoint,
@@ -211,7 +214,7 @@ impl InnerParametersGenerator {
             server_override,
         });
 
-        Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator))
+        Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator, metered_connection))
     }
 
     fn create_wireguard_tunnel_parameters(
@@ -219,6 +222,7 @@ impl InnerParametersGenerator {
         mut endpoint: MullvadEndpoint,
         data: PrivateAccountAndDevice,
         obfuscator_config: Option<Obfuscators>,
+        metered_connection: bool,
     ) -> TunnelParameters {
         let tunnel_ipv4 = data.device.wg_data.addresses.ipv4_address.ip();
         let tunnel_ipv6 = data.device.wg_data.addresses.ipv6_address.ip();
@@ -262,7 +266,7 @@ impl InnerParametersGenerator {
                 .tunnel_options
                 .wireguard
                 .clone()
-                .into_talpid_tunnel_options(),
+                .into_talpid_tunnel_options(metered_connection),
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
         }
@@ -279,12 +283,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
         &mut self,
         retry_attempt: u32,
         ip_availability: IpAvailability,
+        metered_connection: bool,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt, ip_availability)
+                .generate(retry_attempt, ip_availability, metered_connection)
                 .await
                 .inspect_err(|error| {
                     log::error!(

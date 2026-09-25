@@ -90,11 +90,21 @@ impl ConnectingState {
             }
         };
 
-        match shared_values.runtime.block_on(
-            shared_values
-                .tunnel_parameters_generator
-                .generate(retry_attempt, ip_availability),
-        ) {
+        let metered_connection = match shared_values.connectivity.metered() {
+            Some(metered) => metered,
+            // If we're offline, enter the offline state
+            None => {
+                return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
+            }
+        };
+
+        match shared_values
+            .runtime
+            .block_on(shared_values.tunnel_parameters_generator.generate(
+                retry_attempt,
+                ip_availability,
+                metered_connection,
+            )) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
@@ -110,6 +120,11 @@ impl ConnectingState {
 
                     return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
                 }
+
+                log::error!(
+                    "metered set firewall policy daita {}",
+                    tunnel_parameters.options.daita
+                );
 
                 if let Err(error) = Self::set_firewall_policy(
                     shared_values,
@@ -474,12 +489,15 @@ impl ConnectingState {
                 SameState(self)
             }
             Some(TunnelCommand::Connectivity(connectivity)) => {
+                let old_connectivity = shared_values.connectivity.clone();
                 shared_values.connectivity = connectivity;
                 if connectivity.is_offline() {
                     self.disconnect(
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
+                } else if shared_values. connectivity.should_reconnect(old_connectivity) {
+                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                 } else {
                     SameState(self)
                 }

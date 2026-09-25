@@ -196,7 +196,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
-    pub daita: bool,
+    pub daita: DaitaSettings,
     /// Use userspace WireGuard.
     pub userspace: bool,
     /// Interval used for automatic key rotation
@@ -209,7 +209,10 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::default(),
-            daita: false,
+            daita: DaitaSettings {
+                enabled: false,
+                metered: false,
+            },
             userspace: false,
             rotation_interval: None,
         }
@@ -217,13 +220,34 @@ impl Default for TunnelOptions {
 }
 
 impl TunnelOptions {
-    pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
+    pub fn into_talpid_tunnel_options(self, metered_connection: bool) -> wireguard::TunnelOptions {
         wireguard::TunnelOptions {
             mtu: self.mtu,
             quantum_resistant: self.quantum_resistant.enabled(),
-            daita: self.daita,
+            daita: if metered_connection && !self.daita.metered {
+                false
+            } else {
+                self.daita.enabled
+            },
             userspace: self.userspace,
         }
+    }
+}
+
+/// Represents a published public key
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
+pub struct DaitaSettings {
+    pub enabled: bool,
+    pub metered: bool,
+}
+
+impl fmt::Display for DaitaSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "DaitaSettings [enabled: {}, metered: {}]",
+            self.enabled, self.metered
+        )
     }
 }
 

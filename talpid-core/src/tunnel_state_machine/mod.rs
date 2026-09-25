@@ -539,6 +539,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
         &mut self,
         retry_attempt: u32,
         ip_availability: IpAvailability,
+        metered_connection: bool,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>>;
 }
 

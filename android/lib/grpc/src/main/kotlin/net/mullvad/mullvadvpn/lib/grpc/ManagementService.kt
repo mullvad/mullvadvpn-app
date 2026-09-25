@@ -72,6 +72,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
@@ -630,8 +631,8 @@ class ManagementService(
             .onLeft { Logger.e("Set allow lan error") }
             .mapLeft(SetAllowLanError::Unknown)
 
-    suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch { grpc.SetEnableDaita().execute(enabled.toBoolValue()) }
+    suspend fun setDaitaSettings(daitaSettings: DaitaSettings): Either<SetDaitaSettingsError, Unit> =
+        Either.catch { grpc.SetDaitaSettings().execute(daitaSettings.fromDomain()) }
             .mapLeft(SetDaitaSettingsError::Unknown)
 
     suspend fun setRelayLocation(location: ModelRelayItemId): Either<SetRelayLocationError, Unit> =

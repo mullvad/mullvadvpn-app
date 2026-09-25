@@ -132,8 +132,14 @@ impl RelaySelectorIO {
         &self,
         retry_attempt: usize,
         runtime_ip_availability: IpAvailability,
+        metered_connection: bool,
     ) -> Result<GetRelay, Error> {
-        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_ip_availability)
+        self.get_relay_with_custom_params(
+            retry_attempt,
+            &RETRY_ORDER,
+            runtime_ip_availability,
+            metered_connection,
+        )
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints defined by
@@ -143,6 +149,7 @@ impl RelaySelectorIO {
         retry_attempt: usize,
         retry_order: &[EntrySpecificConstraints],
         runtime_ip_availability: IpAvailability,
+        metered_connection: bool,
     ) -> Result<GetRelay, Error> {
         let mut user_query = self.config.query.lock().unwrap().clone();
         // Runtime parameters may shrink the set of usable IP versions — apply that *before*
@@ -150,6 +157,14 @@ impl RelaySelectorIO {
         // IPv4 is available.
         user_query.apply_ip_availability(runtime_ip_availability)?;
         log::trace!("Merging user preferences {user_query:?} with default retry strategy");
+
+        // If the user has disallowed a DAITA server connection when a metered connection is used
+        // we should disable DAITA if we have a metered connection
+        user_query.apply_metered_connection(metered_connection)?;
+
+        log::error!("New metered preferences {user_query:?} with default retry strategy");
+
+        log::error!("metered Retry {retry_order:?}");
 
         // Select a relay using the user's preferences merged with the nth compatible retry entry,
         // looping back to the start if necessary.
@@ -159,6 +174,8 @@ impl RelaySelectorIO {
             .filter_map(|query| self.get_relay_by_query(query).ok())
             .cycle()
             .nth(retry_attempt);
+
+        log::error!("metered maybe relay {:?}", maybe_relay);
 
         match maybe_relay {
             Some(v) => Ok(v),

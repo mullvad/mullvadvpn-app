@@ -33,13 +33,16 @@ impl CustomTunnelEndpoint {
     pub fn to_tunnel_parameters(
         &self,
         tunnel_options: TunnelOptions,
+        metered_connection: bool,
     ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
         let mut connection = self.config.clone();
         connection.set_ip(ip);
 
         let parameters = {
-            let mut options = tunnel_options.wireguard.into_talpid_tunnel_options();
+            let mut options = tunnel_options
+                .wireguard
+                .into_talpid_tunnel_options(metered_connection);
             if options.quantum_resistant {
                 options.quantum_resistant = false;
                 log::info!("Ignoring quantum resistant option for custom tunnel");

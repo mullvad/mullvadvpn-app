@@ -522,7 +522,8 @@ internal fun TunnelOptions.toDomain(): ModelTunnelOptions =
         enableIpv6 = enable_ipv6,
     )
 
-internal fun DaitaSettings.toDomain(): ModelDaitaSettings = ModelDaitaSettings(enabled = enabled)
+internal fun DaitaSettings.toDomain(): ModelDaitaSettings =
+    ModelDaitaSettings(enabled = enabled, metered = metered)
 
 internal fun QuantumResistantState.toDomain(): ModelQuantumResistantState =
     when (state) {

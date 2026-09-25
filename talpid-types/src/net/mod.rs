@@ -21,6 +21,8 @@ mod allowed_nets;
 
 pub use allowed_nets::*;
 
+type Metered = bool;
+
 /// A tunnel endpoint is broadcast during the connecting and connected states of the tunnel state
 /// machine.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -456,7 +458,7 @@ pub enum Connectivity {
     /// The connectivity status is unknown, but presumed to be online
     PresumeOnline,
     /// Host is online with the given IP versions available
-    Online(IpAvailability),
+    Online(IpAvailability, Metered),
 }
 
 impl Connectivity {
@@ -476,9 +478,29 @@ impl Connectivity {
     /// If connectivity is unknown, return the default value of `IpAvailability` (IPv4).
     pub fn availability(&self) -> Option<IpAvailability> {
         match *self {
-            Connectivity::Online(availability) => Some(availability),
+            Connectivity::Online(availability, _) => Some(availability),
             Connectivity::PresumeOnline => Some(IpAvailability::default()),
             Connectivity::Offline => None,
+        }
+    }
+
+    pub fn metered(&self) -> Option<bool> {
+        match *self {
+            Connectivity::Online(_, metered) => Some(metered),
+            Connectivity::PresumeOnline => Some(false),
+            Connectivity::Offline => None,
+        }
+    }
+
+    pub fn should_reconnect(&self, other: Connectivity) -> bool {
+        match *self {
+            Connectivity::Online(_, metered) => match other {
+                Connectivity::Online(_, other_metered) => metered != other_metered,
+                Connectivity::PresumeOnline => false,
+                Connectivity::Offline => false,
+            },
+            Connectivity::PresumeOnline => false,
+            Connectivity::Offline => false,
         }
     }
 
@@ -510,11 +532,11 @@ impl Connectivity {
         }
     }
 
-    pub fn new(ipv4: bool, ipv6: bool) -> Connectivity {
+    pub fn new(ipv4: bool, ipv6: bool, metered: Metered) -> Connectivity {
         match (ipv4, ipv6) {
-            (true, true) => Connectivity::Online(IpAvailability::Ipv4AndIpv6),
-            (true, false) => Connectivity::Online(IpAvailability::Ipv4),
-            (false, true) => Connectivity::Online(IpAvailability::Ipv6),
+            (true, true) => Connectivity::Online(IpAvailability::Ipv4AndIpv6, metered),
+            (true, false) => Connectivity::Online(IpAvailability::Ipv4, metered),
+            (false, true) => Connectivity::Online(IpAvailability::Ipv6, metered),
             (false, false) => Connectivity::Offline,
         }
     }
@@ -523,9 +545,9 @@ impl Connectivity {
 impl fmt::Display for Connectivity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
-            Connectivity::Online(IpAvailability::Ipv4AndIpv6) => "Connected (IPv4 and IPv6)",
-            Connectivity::Online(IpAvailability::Ipv4) => "Connected (IPv4)",
-            Connectivity::Online(IpAvailability::Ipv6) => "Connected (IPv6)",
+            Connectivity::Online(IpAvailability::Ipv4AndIpv6, _) => "Connected (IPv4 and IPv6)",
+            Connectivity::Online(IpAvailability::Ipv4, _) => "Connected (IPv4)",
+            Connectivity::Online(IpAvailability::Ipv6, _) => "Connected (IPv6)",
             Connectivity::PresumeOnline => "Online (assume IPv4)",
             Connectivity::Offline => "Offline",
         })

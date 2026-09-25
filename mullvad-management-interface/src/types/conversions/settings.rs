@@ -97,10 +97,19 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                     .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.rotation_interval")
             }),
             quantum_resistant: Some(proto::QuantumResistantState::from(options.wireguard.quantum_resistant)),
-            daita: Some(proto::DaitaSettings::from(options.wireguard.daita)),
+            daita: Some(proto::DaitaSettings::from(&options.wireguard.daita)),
             enable_ipv6: options.generic.enable_ipv6,
             dns_options: Some(proto::DnsOptions::from(&options.dns_options)),
             userspace: options.wireguard.userspace,
+        }
+    }
+}
+
+impl From<&mullvad_types::wireguard::DaitaSettings> for proto::DaitaSettings {
+    fn from(settings: &mullvad_types::wireguard::DaitaSettings) -> Self {
+        proto::DaitaSettings {
+            enabled: settings.enabled,
+            metered: settings.metered,
         }
     }
 }
@@ -210,6 +219,12 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                 "missing tunnel DNS options",
             ))?;
 
+        let daita_options = options
+            .daita
+            .ok_or(FromProtobufTypeError::invalid_argument(
+                "missing tunnel DNS options",
+            ))?;
+
         Ok(Self {
             wireguard: mullvad_types::wireguard::TunnelOptions {
                 mtu: options.mtu.map(|mtu| mtu as u16),
@@ -233,9 +248,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing quantum resistant state",
                     ))??,
-                daita: options.daita.map(|setting| setting.enabled).ok_or(
-                    FromProtobufTypeError::invalid_argument("missing daita settings"),
-                )?,
+                daita: mullvad_types::wireguard::DaitaSettings::try_from(daita_options)?,
                 userspace: options.userspace,
             },
             generic: net::GenericTunnelOptions {
@@ -300,6 +313,17 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
                     })
                     .collect::<Result<Vec<_>, _>>()?,
             },
+        })
+    }
+}
+
+impl TryFrom<proto::DaitaSettings> for mullvad_types::wireguard::DaitaSettings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(options: proto::DaitaSettings) -> Result<Self, Self::Error> {
+        Ok(mullvad_types::wireguard::DaitaSettings {
+            enabled: options.enabled,
+            metered: options.metered,
         })
     }
 }

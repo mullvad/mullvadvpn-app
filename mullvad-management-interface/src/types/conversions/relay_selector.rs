@@ -90,12 +90,14 @@ impl proto::EntryConstraints {
         );
 
         let daita: Constraint<_> = daita_settings.map(|ds| ds.enabled).into();
+        let daita_metered: Constraint<_> = daita_settings.map(|ds| ds.metered).into();
 
         Ok(EntryConstraints {
             general,
             entry_specific: EntrySpecificConstraints {
                 obfuscation,
                 daita,
+                daita_metered,
                 ip_version,
             },
         })

@@ -332,7 +332,7 @@ internal fun ModelExitConstraints.fromDomain(): ExitConstraints =
         ownership = ownership.getOrNull()?.fromDomain() ?: Ownership.ANY,
     )
 
-internal fun ModelDaitaSettings.fromDomain(): DaitaSettings = DaitaSettings(enabled = enabled)
+internal fun ModelDaitaSettings.fromDomain(): DaitaSettings = DaitaSettings(enabled = enabled, metered = metered)
 
 internal fun RelayItemId.fromDomain(): LocationConstraint =
     when (this) {

@@ -235,7 +235,12 @@ internal fun resolveConnectivityStatus(
     if (currentRawNetworkState.isVpn()) {
         // If the default network is a VPN we need to use a socket to check
         // the underlying network
-        resolver.currentStatus()
+        val (ipv4, ipv6) = resolver.currentStatus()
+        Connectivity.fromIpAvailability(
+            ipv4 = ipv4,
+            ipv6 = ipv6,
+            metered = currentRawNetworkState?.networkCapabilities.isMetered(),
+        )
     } else {
         // If the default network is not a VPN we can check the addresses
         // directly
@@ -243,7 +248,13 @@ internal fun resolveConnectivityStatus(
     }
 
 private fun RawNetworkState?.toConnectivityStatus() =
-    Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses.orEmpty())
+    Connectivity.fromLinkAddresses(
+        linkAddresses = this?.linkProperties?.linkAddresses.orEmpty(),
+        metered = this?.networkCapabilities.isMetered(),
+    )
 
 private fun RawNetworkState?.isVpn(): Boolean =
     this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) == false
+
+private fun NetworkCapabilities?.isMetered(): Boolean =
+    this?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED) == false

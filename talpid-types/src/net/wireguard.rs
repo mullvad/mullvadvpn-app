@@ -77,6 +77,8 @@ pub struct ConnectionConfig {
     pub routes: Option<Vec<IpNetwork>>,
     #[cfg(target_os = "linux")]
     pub fwmark: Option<u32>,
+    // #[cfg(target_os = "android")]
+    // pub
 }
 
 impl ConnectionConfig {
@@ -133,6 +135,8 @@ pub struct TunnelOptions {
     pub quantum_resistant: bool,
     /// Enable DAITA during tunnel config
     pub daita: bool,
+    /// DAITA over metered connection
+    /// pub daita_metered: bool,
     /// Use userspace WireGuard.
     pub userspace: bool,
 }

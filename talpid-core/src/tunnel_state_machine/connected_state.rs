@@ -335,12 +335,15 @@ impl ConnectedState {
                 SameState(self)
             }
             Some(TunnelCommand::Connectivity(connectivity)) => {
+                let old_connectivity = shared_values.connectivity.clone();
                 shared_values.connectivity = connectivity;
                 if connectivity.is_offline() {
                     self.disconnect(
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
+                } else if connectivity.should_reconnect(old_connectivity) {
+                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                 } else {
                     SameState(self)
                 }

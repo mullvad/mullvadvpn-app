@@ -90,6 +90,7 @@ pub struct EntryConstraints {
 pub struct EntrySpecificConstraints {
     pub obfuscation: Constraint<ObfuscationMode>,
     pub daita: Constraint<bool>,
+    pub daita_metered: Constraint<bool>,
     pub ip_version: Constraint<IpVersion>,
 }
 

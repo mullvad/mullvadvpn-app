@@ -19,6 +19,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,9 +42,12 @@ import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -59,7 +63,7 @@ private fun PreviewDaitaScreen(
     AppTheme {
         DaitaScreen(
             state = state,
-            onDaitaEnabled = { _ -> },
+            onDaitaModeSelected = { _ -> },
             onBackClick = {},
         )
     }
@@ -82,7 +86,7 @@ fun SharedTransitionScope.Daita(
                     rememberSharedContentState(key = FeatureIndicator.DAITA),
                     animatedVisibilityScope = animatedVisibilityScope,
                 ),
-        onDaitaEnabled = viewModel::setDaita,
+        onDaitaModeSelected = viewModel::setDaita,
         onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -90,7 +94,7 @@ fun SharedTransitionScope.Daita(
 @Composable
 fun DaitaScreen(
     state: Lc<Boolean, DaitaUiState>,
-    onDaitaEnabled: (enable: Boolean) -> Unit,
+    onDaitaModeSelected: (mode: DaitaMode) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -123,7 +127,7 @@ fun DaitaScreen(
                 is Lc.Content -> {
                     DaitaContent(
                         state = state.value,
-                        onDaitaEnabled = onDaitaEnabled,
+                        onDaitaModeSelected = onDaitaModeSelected,
                     )
                 }
             }
@@ -134,17 +138,12 @@ fun DaitaScreen(
 @Composable
 private fun DaitaContent(
     state: DaitaUiState,
-    onDaitaEnabled: (enable: Boolean) -> Unit,
+    onDaitaModeSelected: (mode: DaitaMode) -> Unit,
 ) {
     val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
     DescriptionPager(pagerState = pagerState)
     PageIndicator(pagerState = pagerState)
-    SwitchListItem(
-        title = stringResource(R.string.enable),
-        isToggled = state.daitaEnabled,
-        onCellClicked = onDaitaEnabled,
-        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
-    )
+    DaitaOptionsList(state = state, onDaitaModeSelected = onDaitaModeSelected)
 }
 
 @Composable
@@ -218,6 +217,46 @@ private fun PageIndicator(pagerState: PagerState) {
             )
         }
     }
+}
+
+@Composable
+private fun DaitaOptionsList(
+    state: DaitaUiState,
+    onDaitaModeSelected: (mode: DaitaMode) -> Unit,
+) {
+    InfoListItem(
+        hierarchy = Hierarchy.Parent,
+        position = Position.Top,
+        title = stringResource(R.string.mode),
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
+    )
+    HorizontalDivider()
+    SelectableListItem(
+        hierarchy = Hierarchy.Child1,
+        position = Position.Middle,
+        isSelected = state.daitaMode == DaitaMode.UnMetered,
+        onClick = { onDaitaModeSelected(DaitaMode.UnMetered) },
+        title = stringResource(R.string.unmetered_only),
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
+    )
+    HorizontalDivider()
+    SelectableListItem(
+        hierarchy = Hierarchy.Child1,
+        position = Position.Middle,
+        title = stringResource(net.mullvad.mullvadvpn.lib.ui.resource.R.string.always),
+        isSelected = state.daitaMode == DaitaMode.Always,
+        onClick = { onDaitaModeSelected(DaitaMode.Always) },
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
+    )
+    HorizontalDivider()
+    SelectableListItem(
+        hierarchy = Hierarchy.Child1,
+        position = Position.Bottom,
+        title = stringResource(net.mullvad.mullvadvpn.lib.ui.resource.R.string.never),
+        isSelected = state.daitaMode == DaitaMode.Off,
+        onClick = { onDaitaModeSelected(DaitaMode.Off) },
+        modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
+    )
 }
 
 @Composable

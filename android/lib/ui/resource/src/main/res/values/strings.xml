@@ -589,4 +589,5 @@
     <string name="dns_settings_issues_first_paragraph">DNS settings might not go into effect immediately.</string>
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
+    <string name="unmetered_only">Unmetered only</string>
 </resources>

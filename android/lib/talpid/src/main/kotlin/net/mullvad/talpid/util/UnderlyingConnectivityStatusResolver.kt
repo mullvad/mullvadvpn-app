@@ -8,14 +8,12 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
-import net.mullvad.talpid.model.Connectivity
 
 /** This class is used to check the ip version of the underlying network when a VPN is active. */
 class UnderlyingConnectivityStatusResolver(
     private val protect: (socket: DatagramSocket) -> Boolean
 ) {
-    fun currentStatus(): Connectivity =
-        Connectivity.fromIpAvailability(ipv4 = hasIpv4(), ipv6 = hasIpv6())
+    fun currentStatus(): Pair<Boolean, Boolean> = hasIpv4() to hasIpv6()
 
     private fun hasIpv4(): Boolean =
         hasIpVersion(Inet4Address.getByName(PUBLIC_IPV4_ADDRESS), protect)

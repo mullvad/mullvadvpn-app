@@ -5,7 +5,7 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 
 sealed interface Connectivity {
-    data class Online(val ipAvailability: IpAvailability) : Connectivity
+    data class Online(val ipAvailability: IpAvailability, val metered: Boolean) : Connectivity
 
     data object Offline : Connectivity
 
@@ -13,18 +13,18 @@ sealed interface Connectivity {
     data object PresumeOnline : Connectivity
 
     companion object {
-        fun fromIpAvailability(ipv4: Boolean, ipv6: Boolean) =
+        fun fromIpAvailability(ipv4: Boolean, ipv6: Boolean, metered: Boolean) =
             when {
-                ipv4 && ipv6 -> Online(IpAvailability.Ipv4AndIpv6)
-                ipv4 -> Online(IpAvailability.Ipv4)
-                ipv6 -> Online(IpAvailability.Ipv6)
+                ipv4 && ipv6 -> Online(IpAvailability.Ipv4AndIpv6, metered)
+                ipv4 -> Online(IpAvailability.Ipv4, metered)
+                ipv6 -> Online(IpAvailability.Ipv6, metered)
                 else -> Offline
             }
 
-        fun fromLinkAddresses(linkAddresses: List<LinkAddress>): Connectivity {
+        fun fromLinkAddresses(linkAddresses: List<LinkAddress>, metered: Boolean): Connectivity {
             val ipv4 = linkAddresses.any { it.address is Inet4Address }
             val ipv6 = linkAddresses.any { it.address is Inet6Address }
-            return fromIpAvailability(ipv4, ipv6)
+            return fromIpAvailability(ipv4, ipv6, metered)
         }
     }
 }
