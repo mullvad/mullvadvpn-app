@@ -17,7 +17,7 @@ const StyledLocationSelectorItem = styled(motion.div)`
 export function LocationSelectorItem({ children, ...props }: LocationSelectorItemProps) {
   return (
     <StyledLocationSelectorItem
-      layout
+      layout="preserve-aspect"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
