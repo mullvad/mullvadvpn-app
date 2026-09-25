@@ -1,4 +1,5 @@
 use super::{Error, TestContext, config::TEST_CONFIG, helpers};
+use anyhow::Context;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -87,26 +88,60 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    /// Some relays are intermittently unreachable from the test runner network, in which case
+    /// the tunnels in the UI spec fail to come up. Try another relay before giving up.
+    const MAX_ATTEMPTS: usize = 2;
+
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
-    let entry =
-        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::new().build()).await?;
 
-    let ui_result = run_test_env(
-        &rpc,
-        &["state-dependent/tunnel-state.spec"],
-        [
-            ("HOSTNAME", entry.hostname.as_str()),
-            ("IN_IP", &entry.ipv4_addr_in.to_string()),
-            (
-                "CONNECTION_CHECK_URL",
-                &format!("https://am.i.{}", TEST_CONFIG.mullvad_host),
-            ),
-        ],
-    )
-    .await
-    .unwrap();
-    assert!(ui_result.success());
+    let mut disabled_relay: Option<String> = None;
+    let mut ui_result: Option<ExecResult> = None;
+
+    for attempt in 1..=MAX_ATTEMPTS {
+        let relay =
+            helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::new().build())
+                .await?;
+
+        let result = run_test_env(
+            &rpc,
+            &["state-dependent/tunnel-state.spec"],
+            [
+                ("HOSTNAME", relay.hostname.as_str()),
+                ("IN_IP", &relay.ipv4_addr_in.to_string()),
+                (
+                    "CONNECTION_CHECK_URL",
+                    &format!("https://am.i.{}", TEST_CONFIG.mullvad_host),
+                ),
+            ],
+        )
+        .await
+        .unwrap();
+
+        if result.success() || attempt == MAX_ATTEMPTS {
+            ui_result = Some(result);
+            break;
+        }
+
+        log::warn!(
+            "UI tests failed using {}, retrying with another relay",
+            relay.hostname
+        );
+        mullvad_client
+            .disable_relay(relay.hostname.clone())
+            .await
+            .context("Failed to disable relay")?;
+        disabled_relay = Some(relay.hostname.clone());
+    }
+
+    if let Some(relay) = disabled_relay {
+        mullvad_client
+            .enable_relay(relay)
+            .await
+            .context("Failed to re-enable relay")?;
+    }
+
+    assert!(ui_result.expect("at least one attempt ran").success());
 
     Ok(())
 }
