@@ -150,7 +150,7 @@ class TunnelManagerTests: XCTestCase {
                             connectionAttemptCount: connectionAttemptCount
                         )
                     }
-                    Task { await tunnelManager.reconnectTunnel(selectNewRelay: true) }
+                    tunnelManager.reconnectTunnel(selectNewRelay: true)
 
                 case .connected:
                     connectedExpectation.fulfill()
@@ -167,7 +167,7 @@ class TunnelManagerTests: XCTestCase {
 
         XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
 
-        await tunnelManager.startTunnel()
+        tunnelManager.startTunnel()
 
         await fulfillment(
             of: [blockedExpectation, connectedExpectation],
@@ -232,7 +232,7 @@ class TunnelManagerTests: XCTestCase {
 
         self.tunnelObserver = tunnelObserver
         tunnelManager.addObserver(tunnelObserver)
-        await tunnelManager.startTunnel()
+        tunnelManager.startTunnel()
 
         await fulfillment(of: [connectedExpectation])
 
@@ -245,7 +245,7 @@ class TunnelManagerTests: XCTestCase {
             }
         }
 
-        await tunnelManager.reconnectTunnel(selectNewRelay: false)
+        tunnelManager.reconnectTunnel(selectNewRelay: false)
         await fulfillment(
             of: [reconnectMessageExpectation, reconnectingExpectation], enforceOrder: true
         )
@@ -305,7 +305,7 @@ class TunnelManagerTests: XCTestCase {
 
         XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
 
-        await tunnelManager.startTunnel()
+        tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
         await tunnelManager.reapplyTunnelConfiguration()
         connectedExpectation = expectation(description: "Connected!")

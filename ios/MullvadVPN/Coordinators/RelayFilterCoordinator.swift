@@ -53,10 +53,8 @@ class RelayFilterCoordinator: Coordinator, Presentable {
             var relayConstraints = tunnelManager.settings.relayConstraints
             relayConstraints.setFilterConstraint(.only(filter), for: multihopContext)
 
-            Task {
-                await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-                didFinish?()
-            }
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            didFinish?()
         }
 
         viewModel.onCancel = { [weak self] in

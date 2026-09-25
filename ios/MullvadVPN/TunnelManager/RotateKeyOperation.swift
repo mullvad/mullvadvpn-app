@@ -19,14 +19,14 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "RotateKeyOperation")
     private let devicesProxy: DeviceHandling
     private let deviceState: @Sendable () -> DeviceState
-    private let onUpdateAccount: @Sendable (DeviceState) -> Void
+    private let onUpdateAccount: @Sendable (DeviceState?, (@Sendable () -> Void)?) -> Void
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         devicesProxy: DeviceHandling,
         deviceState: @escaping @Sendable () -> DeviceState,
-        onUpdateAccount: @escaping @Sendable (DeviceState) -> Void
+        onUpdateAccount: @escaping @Sendable (DeviceState?, (@Sendable () -> Void)?) -> Void
     ) {
         self.devicesProxy = devicesProxy
         self.deviceState = deviceState
@@ -57,7 +57,7 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         let publicKey = keyRotation.beginAttempt()
 
         // Persist mutated device data.
-        onUpdateAccount(.loggedIn(accountData, keyRotation.data))
+        onUpdateAccount(.loggedIn(accountData, keyRotation.data), nil)
 
         // Send REST request to rotate the device key.
         logger.debug("Replacing old key with new key on server...")
@@ -93,15 +93,18 @@ class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
         _ = keyRotation.setCompleted(with: fetchedDevice)
 
         // Persist changes.
-        onUpdateAccount(.loggedIn(accountData, keyRotation.data))
-
-        finish(result: .success(()))
+        onUpdateAccount(.loggedIn(accountData, keyRotation.data)) { [weak self] in
+            self?.finish(result: .success(()))
+        }
     }
 
     private func handleError(_ error: Error) {
         if !error.isOperationCancellationError {
             logger.error(error: error, message: "Failed to rotate device key.")
         }
-        finish(result: .failure(error))
+
+        onUpdateAccount(nil) { [weak self] in
+            self?.finish(result: .failure(error))
+        }
     }
 }

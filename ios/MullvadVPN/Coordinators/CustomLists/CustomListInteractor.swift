@@ -47,12 +47,12 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 
     func save(list: CustomList) async throws {
         try repository.save(list: list)
-        await updateCustomListRelayConstraints(list: list, action: .save)
+        updateCustomListRelayConstraints(list: list, action: .save)
     }
 
     func delete(customList: CustomList) async {
         repository.delete(id: customList.id)
-        await updateCustomListRelayConstraints(list: customList, action: .delete)
+        updateCustomListRelayConstraints(list: customList, action: .delete)
     }
 
     func addLocationToCustomList(relayLocations: [RelayLocation], customListName: String) async throws {
@@ -103,7 +103,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
         try await save(list: newCustomList)
     }
 
-    private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) async {
+    private func updateCustomListRelayConstraints(list: CustomList, action: CustomListAction) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
         // only update relay constraints if custom list is currently selected
@@ -140,7 +140,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
             relayConstraints.exitLocations = newExitLocations
             relayConstraints.entryLocations = newEntryLocations
 
-            await tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
+            tunnelManager.updateSettings([.relayConstraints(relayConstraints)], completion: nil)
         }
     }
 
@@ -199,7 +199,7 @@ struct CustomListInteractor: CustomListInteractorProtocol {
 }
 
 protocol SettingsUpdating: Sendable {
-    func updateSettings(_ updates: [TunnelSettingsUpdate]) async
+    func updateSettings(_ updates: [TunnelSettingsUpdate], completion: (@Sendable () -> Void)?)
     var settings: LatestTunnelSettings { get }
 }
 

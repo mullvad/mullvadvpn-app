@@ -88,8 +88,13 @@ struct AccountManager: Sendable {
 
         let operation = RotateKeyOperation(dispatchQueue: internalQueue, devicesProxy: devicesProxy) {
             deviceState
-        } onUpdateAccount: { deviceState in
-            Task { await interactor.setDeviceState(deviceState, persist: true) }
+        } onUpdateAccount: { deviceState, completion in
+            Task {
+                if let deviceState {
+                    await interactor.setDeviceState(deviceState, persist: true)
+                }
+                completion?()
+            }
         }
 
         operation.completionQueue = .main
@@ -115,7 +120,7 @@ struct AccountManager: Sendable {
     }
 
     func updateAccountData() async throws {
-        let (accountData, _) = try ensureLoggedIn()
+        let (accountData, _) = try await ensureLoggedIn()
 
         let result = await accountsProxy.getAccountData(
             accountNumber: accountData.number,
@@ -145,7 +150,8 @@ struct AccountManager: Sendable {
     }
 
     func updateDeviceData() async throws {
-        let (accountData, deviceData) = try ensureLoggedIn()
+        let (accountData, deviceData) = try await ensureLoggedIn()
+
         do {
             let device = try await devicesProxy.getDevice(
                 accountNumber: accountData.number,
@@ -166,8 +172,8 @@ struct AccountManager: Sendable {
         }
     }
 
-    private func ensureLoggedIn() throws -> (StoredAccountData, StoredDeviceData) {
-        guard case let .loggedIn(accountData, deviceData) = interactor.deviceState else {
+    private func ensureLoggedIn() async throws -> (StoredAccountData, StoredDeviceData) {
+        guard case let .loggedIn(accountData, deviceData) = await interactor.getDeviceState() else {
             throw InvalidDeviceStateError()
         }
         return (accountData, deviceData)
@@ -176,15 +182,15 @@ struct AccountManager: Sendable {
     #if NEVER_IN_PRODUCTION
         /// Replaces the device key with one that was never published to the API, then reconnects the tunnel if it
         /// is up. This enables testing if the packet tunnel can recover a bad key.
-        func invalidateWireGuardKey() {
+        func invalidateWireGuardKey() async {
             // Debug menu is not accessible when user has logged out
             do {
-                var (accountData, deviceData) = try ensureLoggedIn()
+                var (accountData, deviceData) = try await ensureLoggedIn()
                 deviceData.wgKeyData = StoredWgKeyData(
                     creationDate: deviceData.wgKeyData.creationDate,
                     privateKey: WireGuard.PrivateKey()
                 )
-                interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
+                await interactor.setDeviceState(.loggedIn(accountData, deviceData), persist: true)
             } catch {}
 
         }
