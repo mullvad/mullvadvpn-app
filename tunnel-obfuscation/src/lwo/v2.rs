@@ -6,6 +6,8 @@
 //!
 //! Correct implementation requires using the WireGuard timers defined in [timers].
 
+use fearless_simd::*;
+use fearless_simd_macros::simd;
 use rand::{Rng, RngCore};
 
 use crate::wireguard::{
@@ -87,22 +89,39 @@ pub fn obfuscate(packet: &mut [u8], key: &[u8; 32]) {
     let Some(&message_type) = packet.first() else {
         return;
     };
-    let protected_len = match message_type {
-        HANDSHAKE_INITIATION => HANDSHAKE_INITIATION_SIZE,
-        HANDSHAKE_RESPONSE => HANDSHAKE_RESPONSE_SIZE,
-        DATA => DATA_PROTECTED_SIZE,
+    let len_mix = packet.len() as u8; // truncate
+    let missing_bytes = |expected_len| {
+        let missing_bytes = packet.len() < expected_len;
+        if missing_bytes && cfg!(debug_assertions) {
+            log::debug!("Missing header bytes for packet of type {message_type:x}");
+        }
+        missing_bytes
+    };
+    match message_type {
+        DATA => {
+            if missing_bytes(DATA_PROTECTED_SIZE) {
+                return;
+            }
+            let protected_area = packet.first_chunk_mut::<DATA_PROTECTED_SIZE>().unwrap();
+            let level = Level::new();
+            dispatch!(level, simd => xor_data_protected_area(simd, protected_area, key, len_mix));
+        }
+        HANDSHAKE_INITIATION => {
+            if missing_bytes(HANDSHAKE_INITIATION_SIZE) {
+                return;
+            }
+            xor_protected_area(&mut packet[..HANDSHAKE_INITIATION_SIZE], key, len_mix);
+        }
+        HANDSHAKE_RESPONSE => {
+            if missing_bytes(HANDSHAKE_RESPONSE_SIZE) {
+                return;
+            }
+            xor_protected_area(&mut packet[..HANDSHAKE_RESPONSE_SIZE], key, len_mix);
+        }
         // Cookie replies must not be obfuscated. Unknown types are left alone.
         _ => return,
     };
-    if packet.len() < protected_len {
-        if cfg!(debug_assertions) {
-            log::debug!("Missing header bytes for packet of type {message_type:x}");
-        }
-        return;
-    }
 
-    let len_mix = packet.len() as u8; // truncate
-    xor_protected_area(&mut packet[..protected_len], key, len_mix);
     packet[1] = marker_byte(key, len_mix);
 }
 
@@ -132,36 +151,40 @@ pub fn deobfuscate(packet: &mut [u8], key: &[u8; 32]) -> Verdict {
     }
 
     let message_type = packet[0] ^ key[0].wrapping_add(len_mix);
-    let (protected_len, valid_len, trim_to) = match message_type {
-        HANDSHAKE_INITIATION => (
-            HANDSHAKE_INITIATION_SIZE,
-            (HANDSHAKE_INITIATION_SIZE..=HANDSHAKE_INITIATION_SIZE + MAX_PADDING)
-                .contains(&packet.len()),
-            Some(HANDSHAKE_INITIATION_SIZE),
-        ),
-        HANDSHAKE_RESPONSE => (
-            HANDSHAKE_RESPONSE_SIZE,
-            (HANDSHAKE_RESPONSE_SIZE..=HANDSHAKE_RESPONSE_SIZE + MAX_PADDING)
-                .contains(&packet.len()),
-            Some(HANDSHAKE_RESPONSE_SIZE),
-        ),
-        DATA => (
-            DATA_PROTECTED_SIZE,
-            packet.len() >= DATA_OVERHEAD_SIZE,
-            None,
-        ),
+    let trim_to = match message_type {
+        DATA => {
+            let valid_len = packet.len() >= DATA_OVERHEAD_SIZE;
+            if !valid_len {
+                return Verdict::Invalid;
+            }
+            let level = Level::new();
+            dispatch!(level, simd => xor_data_protected_area(simd, packet.first_chunk_mut::<DATA_PROTECTED_SIZE>().unwrap(), key, len_mix));
+            None
+        }
+        HANDSHAKE_INITIATION => {
+            let valid_len = (HANDSHAKE_INITIATION_SIZE..=HANDSHAKE_INITIATION_SIZE + MAX_PADDING)
+                .contains(&packet.len());
+            if !valid_len {
+                return Verdict::Invalid;
+            }
+            xor_protected_area(&mut packet[..HANDSHAKE_INITIATION_SIZE], key, len_mix);
+            Some(HANDSHAKE_INITIATION_SIZE)
+        }
+        HANDSHAKE_RESPONSE => {
+            let valid_len = (HANDSHAKE_RESPONSE_SIZE..=HANDSHAKE_RESPONSE_SIZE + MAX_PADDING)
+                .contains(&packet.len());
+            if !valid_len {
+                return Verdict::Invalid;
+            }
+            xor_protected_area(&mut packet[..HANDSHAKE_RESPONSE_SIZE], key, len_mix);
+            Some(HANDSHAKE_RESPONSE_SIZE)
+        }
         // Cookie replies are never LWO v2 packets. They must be plain.
         COOKIE_REPLY => return Verdict::Invalid,
         // Unknown WireGuard type.
         _ => return Verdict::Invalid,
     };
-    if !valid_len {
-        return Verdict::Invalid;
-    }
-
-    xor_protected_area(&mut packet[..protected_len], key, len_mix);
     packet[1] = 0;
-
     Verdict::Lwo { trim_to }
 }
 
@@ -171,8 +194,16 @@ const fn claims_lwo(reserved_byte: u8) -> bool {
 }
 
 /// The finalized value of byte 1: the low bits of its obfuscation byte, plus the marker.
+#[inline(always)]
 const fn marker_byte(key: &[u8; 32], len_mix: u8) -> u8 {
     (key[0].wrapping_add(len_mix) & !MARKER_MASK) | MARKER
+}
+
+// protected_area = obfuscated chunk of bytes in a WireGuard packet.
+fn xor_protected_area(protected_area: &mut [u8], key: &[u8; 32], len_mix: u8) {
+    for (i, byte) in protected_area.iter_mut().enumerate() {
+        *byte ^= obfuscation_byte(key, len_mix, i);
+    }
 }
 
 /// The value XORed into the packet byte at `index` within the protected area.
@@ -182,10 +213,25 @@ const fn obfuscation_byte(key: &[u8; 32], len_mix: u8, index: usize) -> u8 {
         .wrapping_add(index as u8)
 }
 
-fn xor_protected_area(protected_area: &mut [u8], key: &[u8; 32], len_mix: u8) {
-    for (i, byte) in protected_area.iter_mut().enumerate() {
-        *byte ^= obfuscation_byte(key, len_mix, i);
-    }
+/// [`xor_protected_area`] specialized for data packets. Re-implemented using explicit SIMD
+/// instructions instead of relying on auto-vectorization.
+#[simd]
+#[inline(always)]
+fn xor_data_protected_area<S: Simd>(
+    simd: S,
+    protected_area: &mut [u8; DATA_PROTECTED_SIZE],
+    key: &[u8; 32],
+    len_mix: u8,
+) {
+    // DATA_PROTECTED_SIZE = 16 => u8 x 16 is a perfect SIMD vector size.
+    let mut header_bytes = u8x16::from_slice(simd, protected_area);
+    let mut obfuscation_bytes = u8x16::from_slice(simd, &key[..DATA_PROTECTED_SIZE]);
+    // ~ obfuscation_byte()
+    // Addition on SIMD vectors wrap on overflow.
+    obfuscation_bytes += u8x16::splat(simd, len_mix);
+    obfuscation_bytes += u8x16::from_fn(simd, |i| i as u8); // [0,1,2,..,15]
+    header_bytes ^= obfuscation_bytes;
+    header_bytes.store_slice(protected_area);
 }
 
 #[cfg(test)]
