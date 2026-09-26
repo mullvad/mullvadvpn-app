@@ -6,8 +6,6 @@
 //!
 //! Correct implementation requires using the WireGuard timers defined in [timers].
 
-use std::ops::{AddAssign, BitXorAssign};
-
 use fearless_simd::*;
 use fearless_simd_macros::simd;
 use rand::{Rng, RngCore};
@@ -226,12 +224,13 @@ fn xor_data_protected_area<S: Simd>(
     len_mix: u8,
 ) {
     // DATA_PROTECTED_SIZE = 16 => u8 x 16 is a perfect SIMD vector size.
-    let mut bytes_to_xor = u8x16::from_slice(simd, &key[..DATA_PROTECTED_SIZE]); // ~ obfuscation_byte()
-    bytes_to_xor.add_assign(u8x16::splat(simd, len_mix));
-    bytes_to_xor.add_assign(u8x16::from_fn(simd, |i| i as u8));
-
-    let mut header_bytes = u8x16::from_slice(simd, protected_area); // ~ *byte ^= obfuscation_byte()
-    header_bytes.bitxor_assign(bytes_to_xor);
+    let mut header_bytes = u8x16::from_slice(simd, protected_area);
+    let mut obfuscation_bytes = u8x16::from_slice(simd, &key[..DATA_PROTECTED_SIZE]);
+    // ~ obfuscation_byte()
+    // Addition on SIMD vectors wrap on overflow.
+    obfuscation_bytes += u8x16::splat(simd, len_mix);
+    obfuscation_bytes += u8x16::from_fn(simd, |i| i as u8); // [0,1,2,..,15]
+    header_bytes ^= obfuscation_bytes;
     header_bytes.store_slice(protected_area);
 }
 
