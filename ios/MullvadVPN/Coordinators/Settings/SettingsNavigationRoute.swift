@@ -45,4 +45,7 @@ enum SettingsNavigationRoute: Equatable {
 
     /// Migrated settings route
     case migratedSettings
+
+    /// Connection speed route
+    case connectionSpeed
 }

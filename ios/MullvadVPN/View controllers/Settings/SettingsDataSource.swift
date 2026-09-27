@@ -65,6 +65,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case notificationSettings
         case includeAllNetworks
         case migratedSettings
+        case connectionSpeed
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -90,6 +91,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .includeAllNetworksCell
             case .migratedSettings:
                 .migratedSettingsCell
+            case .connectionSpeed:
+                .connectionSpeedCell
             }
         }
 
@@ -274,7 +277,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         snapshot.appendSections([.misc])
-        snapshot.appendItems([.problemReport, .faq, .language], toSection: .misc)
+        snapshot.appendItems([.connectionSpeed, .problemReport, .faq, .language], toSection: .misc)
 
         apply(snapshot)
     }

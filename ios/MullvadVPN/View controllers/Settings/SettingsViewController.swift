@@ -127,6 +127,8 @@ private extension SettingsDataSource.Item {
             .includeAllNetworks
         case .migratedSettings:
             .migratedSettings
+        case .connectionSpeed:
+            .connectionSpeed
         }
     }
 }

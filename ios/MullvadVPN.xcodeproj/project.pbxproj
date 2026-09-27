@@ -1004,6 +1004,9 @@
 		F02AD0CC306679C60047BB34 /* SpeedConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0CA306679C60047BB34 /* SpeedConnectionViewModel.swift */; };
 		F02AD0CD306679C60047BB34 /* MockNetworkSpeedMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0C9306679C60047BB34 /* MockNetworkSpeedMonitor.swift */; };
 		F02AD0CE306679C60047BB34 /* SpeedConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0CA306679C60047BB34 /* SpeedConnectionViewModel.swift */; };
+		F02AD0D13066885F0047BB34 /* SpeedTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0CF3066885D0047BB34 /* SpeedTest.swift */; };
+		F02AD0D330668AAB0047BB34 /* SpeedTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0D230668AA30047BB34 /* SpeedTestView.swift */; };
+		F02AD0D430668AAB0047BB34 /* SpeedTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02AD0D230668AA30047BB34 /* SpeedTestView.swift */; };
 		F02BFFC92ED5BBF4007CEA69 /* RecentsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFC72ED5BBEB007CEA69 /* RecentsInteractor.swift */; };
 		F02BFFCB2ED5D3CB007CEA69 /* MullvadListSectionFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */; };
 		F02BFFCD2ED89886007CEA69 /* RecentLocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */; };
@@ -2684,6 +2687,8 @@
 		F029DF502E4A328B00143913 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F02AD0C9306679C60047BB34 /* MockNetworkSpeedMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkSpeedMonitor.swift; sourceTree = "<group>"; };
 		F02AD0CA306679C60047BB34 /* SpeedConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedConnectionViewModel.swift; sourceTree = "<group>"; };
+		F02AD0CF3066885D0047BB34 /* SpeedTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTest.swift; sourceTree = "<group>"; };
+		F02AD0D230668AA30047BB34 /* SpeedTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestView.swift; sourceTree = "<group>"; };
 		F02BFFC72ED5BBEB007CEA69 /* RecentsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentsInteractor.swift; sourceTree = "<group>"; };
 		F02BFFCA2ED5D3C9007CEA69 /* MullvadListSectionFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadListSectionFooter.swift; sourceTree = "<group>"; };
 		F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentLocationListItem.swift; sourceTree = "<group>"; };
@@ -5370,6 +5375,8 @@
 		F0F2666A2EB4AB9E00AAD7DA /* SpeedConnection */ = {
 			isa = PBXGroup;
 			children = (
+				F02AD0D230668AA30047BB34 /* SpeedTestView.swift */,
+				F02AD0CF3066885D0047BB34 /* SpeedTest.swift */,
 				F02AD0C9306679C60047BB34 /* MockNetworkSpeedMonitor.swift */,
 				F0F2666B2EB4ABB300AAD7DA /* NetworkSpeedMonitor.swift */,
 				F0F2666F2EB4BC3300AAD7DA /* SpeedConnectionView.swift */,
@@ -6563,6 +6570,7 @@
 				A9A5F9F12ACB05160083449F /* String+Helpers.swift in Sources */,
 				A9A5F9F22ACB05160083449F /* NotificationConfiguration.swift in Sources */,
 				44E1F75B2D3FEC81003A60FF /* DestinationDescriber.swift in Sources */,
+				F02AD0D330668AAB0047BB34 /* SpeedTestView.swift in Sources */,
 				A9A5F9F32ACB05160083449F /* AccountExpirySystemNotificationProvider.swift in Sources */,
 				A9A5F9F52ACB05160083449F /* NewDeviceNotificationProvider.swift in Sources */,
 				F0E560DC2F864F600027B900 /* MultihopMigrationTrackerTests.swift in Sources */,
@@ -7160,6 +7168,7 @@
 				7A4080A42F59897700C02173 /* AccessMethodInvalidView.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* NewDeviceNotificationProvider.swift in Sources */,
 				7A6389E12B7E3BD6008E77E1 /* CustomListSectionIdentifier.swift in Sources */,
+				F02AD0D13066885F0047BB34 /* SpeedTest.swift in Sources */,
 				7A6B968A2FEC01EC00DBF9BD /* View+TypeErase.swift in Sources */,
 				7A6D6BA62F7D477A001EA05C /* AutomaticLocationListItem.swift in Sources */,
 				F97C38CA2DE49869006DCB08 /* MultihopSettingsCoordinator.swift in Sources */,
@@ -7199,6 +7208,7 @@
 				F02AD0CB306679C60047BB34 /* MockNetworkSpeedMonitor.swift in Sources */,
 				F02AD0CC306679C60047BB34 /* SpeedConnectionViewModel.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
+				F02AD0D430668AAB0047BB34 /* SpeedTestView.swift in Sources */,
 				F095809C2FADEEC200A55BD4 /* SettingsMigrationWizardCoordinator.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */,

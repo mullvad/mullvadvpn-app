@@ -162,6 +162,16 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
             cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .migratedSettings }
+
+        case .connectionSpeed:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString("Connection speed", comment: "")
+            cell.detailTitleLabel.text = ""
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.disclosureType = .chevron
+
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .connectionSpeed }
         }
     }
 

@@ -94,6 +94,8 @@ final class SettingsViewControllerFactory {
             makeIncludeAllNetworksSettingsCoordinator()
         case .migratedSettings:
             makeMigratedSettingsCoordinator()
+        case .connectionSpeed:
+            makeConnectionSpeedViewcontroller()
         }
     }
 
@@ -134,6 +136,11 @@ final class SettingsViewControllerFactory {
                 viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
             )
         )
+    }
+
+    private func makeConnectionSpeedViewcontroller() -> MakeChildResult {
+        let viewController = UIHostingController(rootView: SpeedTestView())
+        return .viewController(viewController)
     }
 
     private func makeMultihopCoordinator() -> MakeChildResult {

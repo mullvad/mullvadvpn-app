@@ -134,6 +134,7 @@ public enum AccessibilityIdentifier: Equatable {
     case languageCell
     case notificationSettingsCell
     case selectedSingleOption
+    case connectionSpeedCell
 
     // Labels
     case accountPageDeviceNameLabel
