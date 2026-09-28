@@ -6306,6 +6306,7 @@ dependencies = [
  "thiserror 2.0.19",
  "tokio",
  "tokio-stream",
+ "tokio-util 0.7.18",
  "tun 0.8.14",
  "tunnel-obfuscation",
  "widestring",
