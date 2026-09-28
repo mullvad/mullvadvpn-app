@@ -23,4 +23,5 @@ dependencies {
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
     ksp(libs.arrow.optics.ksp)
+    testImplementation(libs.jazzer.junit)
 }
