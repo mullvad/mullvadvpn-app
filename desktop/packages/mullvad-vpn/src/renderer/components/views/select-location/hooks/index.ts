@@ -8,3 +8,4 @@ export * from './use-has-custom-lists';
 export * from './use-measure-location-selector';
 export * from './use-location-slides';
 export * from './use-active-ownership';
+export * from './use-active-providers';
