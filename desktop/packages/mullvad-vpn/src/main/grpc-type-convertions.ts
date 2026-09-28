@@ -448,6 +448,7 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   const relayOverrides = settingsObject.relayOverridesList;
   const recents = convertFromRecents(settings.getRecents());
+
   return {
     ...settings.toObject(),
     relaySettings,
@@ -894,6 +895,8 @@ function convertFromWireguardConstraints(
     multihop,
     ipVersion: 'any',
     entryLocation: 'any',
+    entryOwnership: Ownership.any,
+    entryProviders: [],
   };
 
   // `getIpVersion()` is not falsy if type is 'any'
@@ -912,6 +915,16 @@ function convertFromWireguardConstraints(
   if (entryLocation) {
     const location = convertFromLocationConstraint(entryLocation);
     result.entryLocation = wrapConstraint(location);
+  }
+
+  const entryProviders = constraints.getEntryProvidersList();
+  if (entryProviders) {
+    result.entryProviders = entryProviders;
+  }
+
+  const entryOwnership = constraints.getEntryOwnership();
+  if (entryOwnership) {
+    result.entryOwnership = convertFromOwnership(entryOwnership);
   }
 
   return result;
@@ -1079,6 +1092,14 @@ function convertToWireguardConstraints(
 
     if (constraint.multihop !== undefined) {
       wireguardConstraints.setMultihop(convertToMultihop(constraint.multihop));
+    }
+
+    if (constraint.entryProviders) {
+      wireguardConstraints.setEntryProvidersList(constraint.entryProviders);
+    }
+
+    if (constraint.entryOwnership) {
+      wireguardConstraints.setEntryOwnership(convertToOwnership(constraint.entryOwnership));
     }
 
     const entryLocation = unwrapConstraint(constraint.entryLocation);
