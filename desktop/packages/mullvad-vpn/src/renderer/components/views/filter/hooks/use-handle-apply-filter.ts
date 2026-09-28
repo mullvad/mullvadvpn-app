@@ -7,6 +7,7 @@ import { useFilterViewContext } from '../FilterViewContext';
 
 // Applies the changes by sending them to the daemon.
 export function useHandleApplyFilter() {
+  const { locationType } = useFilterViewContext();
   const { providers } = useProviders();
   const history = useHistory();
   const relaySettingsUpdater = useRelaySettingsUpdater();
@@ -19,8 +20,14 @@ export function useHandleApplyFilter() {
         : selectedProviders.filter((provider) => availableProviders.includes(provider));
 
     await relaySettingsUpdater((settings) => {
-      settings.providers = appliedProviders;
-      settings.ownership = selectedOwnership;
+      if (locationType === 'entry') {
+        settings.wireguardConstraints.entryProviders = appliedProviders;
+        settings.wireguardConstraints.entryOwnership = selectedOwnership;
+      } else if (locationType === 'exit') {
+        settings.providers = appliedProviders;
+        settings.ownership = selectedOwnership;
+      }
+
       return settings;
     });
     history.pop();
@@ -30,6 +37,7 @@ export function useHandleApplyFilter() {
     relaySettingsUpdater,
     history,
     availableProviders,
+    locationType,
     selectedOwnership,
   ]);
 }

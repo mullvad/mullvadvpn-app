@@ -28,10 +28,14 @@ export const useFilterViewContext = (): FilterViewContext => {
 export function FilterViewContextProvider({ children }: FilterViewContextProviderProps) {
   const locationType = useLocationType();
 
-  const { providers, exitProviders } = useProviders();
-  const { exitOwnership } = useOwnership();
-  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(exitProviders);
-  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(exitOwnership);
+  const { exitOwnership, entryOwnership } = useOwnership();
+  const activeOwnership = locationType === 'entry' ? entryOwnership : exitOwnership;
+  const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+
+  const { providers, exitProviders, entryProviders } = useProviders();
+  const activeProviders = locationType === 'entry' ? entryProviders : exitProviders;
+  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
+
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
   const toggleProviders = React.useCallback(
