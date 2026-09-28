@@ -16,7 +16,7 @@ struct ProblemReportView: View {
     @State private var message: MessageView.Message?
     @State private var borderStyle: BorderStyle = .normal
 
-    @State var viewModel: ProblemReportViewModelNew
+    @State var viewModel: ProblemReportViewModel
     @State var showLogs: Bool = false
 
     @Namespace private var transitionNamespace
@@ -163,7 +163,7 @@ struct ProblemReportView: View {
 
 #Preview {
     ProblemReportView(
-        viewModel: ProblemReportViewModelNew(
+        viewModel: ProblemReportViewModel(
             interactor: MockProblemReportInteractor()
         )
     )
