@@ -124,6 +124,7 @@ android {
             isDefault = true
             buildConfigField("String", "API_ENDPOINT", "\"\"")
             buildConfigField("String", "API_IP", "\"\"")
+            buildConfigField("String", "AM_I_URL", "\"\"")
             buildConfigField("String", "SIGSUM_TRUSTED_PUBKEYS", "\"\"")
         }
         create(Flavors.DEVMOLE) {
@@ -131,6 +132,7 @@ android {
             applicationId = "net.mullvad.mullvadvpn.devmole"
             buildConfigField("String", "API_ENDPOINT", "\"api-app.devmole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.4\"")
+            buildConfigField("String", "AM_I_URL", "\"am.i.devmole.eu\"")
             buildConfigField(
                 "String",
                 "SIGSUM_TRUSTED_PUBKEYS",
@@ -146,6 +148,7 @@ android {
             applicationId = "net.mullvad.mullvadvpn.stagemole"
             buildConfigField("String", "API_ENDPOINT", "\"api-app.stagemole.eu\"")
             buildConfigField("String", "API_IP", "\"185.217.116.132\"")
+            buildConfigField("String", "AM_I_URL", "\"am.i.stagemole.eu\"")
             buildConfigField(
                 "String",
                 "SIGSUM_TRUSTED_PUBKEYS",
