@@ -19,6 +19,9 @@ struct ProblemReportView: View {
     @State var viewModel: ProblemReportViewModelNew
     @State var showLogs: Bool = false
 
+    @Namespace private var transitionNamespace
+    private let messageEditTransitionId = "editFrame"
+
     let subheadLabelText: LocalizedStringKey = """
         To help you more effectively, your app’s log file will be attached \
         to this message. Your data will remain secure and private, as it \
@@ -45,15 +48,25 @@ struct ProblemReportView: View {
                 ModalOverlay(state: modalState)
                     .accessibilityIdentifier(.problemReportSubmittedView)
             } else {
-                if viewModel.isEditingMessage {
-                    ProblemReportView.MessageEditOverlay(viewModel: viewModel)
+                mainForm
+            }
+        }
+        .mullvadAlert(item: $viewModel.alert)
+        .fullScreenCover(isPresented: $viewModel.isEditingMessage) {
+            MessageEditOverlay(
+                viewModel: viewModel
+            )
+            .apply {
+                if #available(iOS 18.0, *) {
+                    $0.navigationTransition(.zoom(sourceID: messageEditTransitionId, in: transitionNamespace))
                 } else {
-                    mainForm
+                    $0
                 }
             }
-        }.popover(isPresented: viewModel.showLogs) {
-            ProblemReportView.LogView(viewModel: viewModel)
-        }.mullvadAlert(item: $viewModel.alert)
+        }
+        .popover(isPresented: viewModel.showLogs) {
+            LogView(viewModel: viewModel)
+        }
     }
 
     var mainForm: some View {
@@ -99,44 +112,57 @@ struct ProblemReportView: View {
         .scrollable(fill: .vertical, alignment: .top)
         .background(Color.mullvadBackground)
     }
-    
-    // a mock text editor which expands and morphs into a real text editor
+
+    // a mock text editing field which expands and morphs into a real text editor
     var messageEditInlinePlaceholder: some View {
         VStack(alignment: .leading, spacing: 0.0) {
             Text(messageTextViewTitle)
                 .foregroundStyle(Color.MullvadTextField.textInput)
                 .font(.mullvadTinySemiBold)
                 .padding(.bottom, 4.0)
-            ZStack(alignment: .topLeading) {
-                Text(ProblemReportView.messageTextViewPlaceholder)
-                    .foregroundStyle(Color.MullvadTextField.inputPlaceholder)
-                    .padding(.horizontal, 8.0)
-                    .padding(.vertical, 12.0)
-                    .font(.mullvadSmall)
-                    .opacity(viewModel.message.isEmpty ? 1.0 : 0.0)
-                Text(viewModel.message)
-                    .foregroundStyle(Color.MullvadTextField.textInput)
-                    .padding(.horizontal, 8.0)
-                    .padding(.vertical, 12.0)
-                    .font(.mullvadSmall)
-            }
-            .modifier(
-                RoundedCornerModifier(
-                    cornerRadius: 4.0,
-                    corners: .allCorners,
-                    insertBy: .zero,
-                    borderColor: Color.MullvadTextField.border,
-                    borderWidth: 1.0
-                )
-            )
-            .onTapGesture {
+            Button {
                 viewModel.isEditingMessage = true
+            } label: {
+                ZStack(alignment: .topLeading) {
+                    HStack {
+                        Text(ProblemReportView.messageTextViewPlaceholder)
+                            .foregroundStyle(Color.MullvadTextField.inputPlaceholder)
+                            .opacity(viewModel.message.isEmpty ? 1.0 : 0.0)
+                        Spacer()
+                    }
+                    Text(viewModel.message)
+                        .foregroundStyle(Color.MullvadTextField.textInput)
+                }
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal, 8.0)
+                .padding(.vertical, 12.0)
+                .background { Color.MullvadTextField.background }
+                .font(.mullvadSmall)
+                .apply {
+                    if #available(iOS 18.0, *) {
+                        $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) { $0.background(Color.MullvadTextField.background) }
+                    } else {
+                        $0
+                    }
+                }
+                .modifier(
+                    RoundedCornerModifier(
+                        cornerRadius: 4.0,
+                        corners: .allCorners,
+                        insertBy: .zero,
+                        borderColor: Color.MullvadTextField.border,
+                        borderWidth: 1.0
+                    )
+                )
             }
         }
     }
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew(interactor: MockProblemReportInteractor())
-    return ProblemReportView(viewModel: viewModel)
+    ProblemReportView(
+        viewModel: ProblemReportViewModelNew(
+            interactor: MockProblemReportInteractor()
+        )
+    )
 }
