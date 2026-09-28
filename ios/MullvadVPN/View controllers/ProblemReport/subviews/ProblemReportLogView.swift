@@ -37,6 +37,8 @@ extension ProblemReportView {
                 .foregroundStyle(.white)
                 .background(Color.mullvadBackground)
                 TextEditor(text: .constant(viewModel.logText ?? ""))
+                    .padding([.leading, .trailing], 16)
+                    .padding([.top, .bottom], 24)
                     .scrollContentBackground(.hidden)
                     .background(Color.MullvadLogView.backgroundColor)
                     .foregroundStyle(Color.MullvadLogView.foregroundColor)
