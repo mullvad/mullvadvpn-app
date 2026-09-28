@@ -18,7 +18,7 @@ const StyledViewContent = styled(View.Content)`
 
 function FilterViewImpl() {
   const history = useHistory();
-  const { availableProviders, selectedProviders } = useFilterViewContext();
+  const { availableProviders, locationType, selectedProviders } = useFilterViewContext();
   const handleApply = useHandleApplyFilter();
 
   const noSelectedProviders = availableProviders.every(
@@ -32,8 +32,13 @@ function FilterViewImpl() {
           <StyledViewContent>
             <AppNavigationHeader
               title={
-                // TRANSLATORS: Title label in navigation bar
-                messages.pgettext('filter-nav', 'Filter')
+                locationType === 'entry'
+                  ? // This line is here to prevent the following one to be moved up here by prettier
+                    // TRANSLATORS: Title label in navigation bar for entry location filters
+                    messages.pgettext('filter-nav', 'Entry filter')
+                  : // This line is here to prevent the following one to be moved up here by prettier
+                    // TRANSLATORS: Title label in navigation bar for exit location filters
+                    messages.pgettext('filter-nav', 'Exit filter')
               }
               titleVisible
             />
