@@ -28,6 +28,7 @@ export const StyledTextField = styled.div`
   position: relative;
   display: flex;
   flex-grow: 1;
+  flex-wrap: wrap;
 
   // If contains an Icon followed by an Input, add padding to the input
   &&:has(> ${StyledTextFieldIcon} + ${StyledTextFieldInput}) {
