@@ -1,5 +1,2 @@
-export * from './text-field-icon';
-export * from './text-field-icon-button';
-export * from './text-field-input';
-export * from './text-field-label';
 export * from './text-field-supporting-text';
+export * from './text-field-input-group';
