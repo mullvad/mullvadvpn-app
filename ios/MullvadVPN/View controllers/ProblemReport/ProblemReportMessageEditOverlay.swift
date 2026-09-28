@@ -41,7 +41,6 @@ extension ProblemReportView {
                 .padding(16)
                 .background(Color.black)
             }
-            .background(Color.mullvadBackground)
             .onAppear {
                 isFocused = true
             }
