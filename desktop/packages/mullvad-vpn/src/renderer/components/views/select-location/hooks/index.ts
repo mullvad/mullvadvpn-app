@@ -9,3 +9,4 @@ export * from './use-measure-location-selector';
 export * from './use-location-slides';
 export * from './use-show-filter-chips';
 export * from './use-is-location-selector-isolated';
+export * from './use-active-ownership';
