@@ -24,7 +24,9 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
         repository.accessMethodsPublisher
             .receive(on: RunLoop.main)
             .map { methods in
-                methods.map { $0.toListItem() }
+                methods
+                    .filter { $0.kind != .domainFronting }
+                    .map { $0.toListItem() }
             }
             .eraseToAnyPublisher()
     }
@@ -45,7 +47,10 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
     }
 
     func fetch() -> [ListAccessMethodItem] {
-        repository.fetchAll().map { $0.toListItem() }
+        repository
+            .fetchAll()
+            .filter { $0.kind != .domainFronting }
+            .map { $0.toListItem() }
     }
 
     func accessMethod(by id: UUID) -> PersistentAccessMethod? {

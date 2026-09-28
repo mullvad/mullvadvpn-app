@@ -57,7 +57,8 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     func deleteAccessMethod() {
         repository.delete(id: subject.value.id)
         // Enable direct access if all methods are disabled
-        if repository.fetchAll().count(where: { $0.isEnabled }) == 0 {
+        if repository
+            .fetchAll().filter { $0.kind != .domainFronting }.count(where: { $0.isEnabled }) == 0 {
             repository.save(repository.directAccess, notifyingAPI: true)
         }
     }
@@ -87,7 +88,9 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
 
     // The access method can only be disabled if at least one other method is enabled
     private func checkIfSwitchCanBeToggled() {
-        let enabledMethodsCount = repository.fetchAll().count { $0.isEnabled }
+        let enabledMethodsCount = repository.fetchAll().filter { $0.kind != .domainFronting }.count {
+            $0.isEnabled
+        }
         if enabledMethodsCount < 2 {
             subject.value.canBeToggled = !subject.value.isEnabled
         } else {

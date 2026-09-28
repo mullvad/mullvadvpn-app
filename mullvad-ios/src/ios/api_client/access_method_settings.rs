@@ -60,7 +60,7 @@ fn convert_builtin_access_method_setting_inner(
         SwiftAccessMethodKind::KindDomainFronting => Some(AccessMethodSetting::with_id(
             id,
             name,
-            enabled,
+            false, // disable domain fronting
             AccessMethod::BuiltIn(DomainFronting),
         )),
 

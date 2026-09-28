@@ -101,7 +101,9 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, Presentable, Setting
             popToList()
             coordinator.removeFromParent()
 
-            let methods = accessMethodRepository.fetchAll()
+            let methods = accessMethodRepository.fetchAll().filter {
+                $0.kind != .domainFronting
+            }
             let ciphers = accessMethodRepository.shadowsocksCiphers
 
             let methodsWithInvalidCiphers = methods.filter { method in
