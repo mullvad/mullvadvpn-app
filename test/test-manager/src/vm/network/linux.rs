@@ -1,5 +1,3 @@
-use anyhow::Context;
-use gotatun::device::{DefaultDeviceTransports, Device};
 use ipnetwork::{Ipv4Network, Ipv6Network};
 use std::{
     ffi::OsStr,
@@ -13,8 +11,6 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     process::{Child, Command},
 };
-
-use crate::vm::network::wireguard::*;
 
 /// (Contained) IPv4 subnet for the test runner: 172.29.1.1/24
 pub const TEST_SUBNET_IPV4: Ipv4Network =
@@ -66,8 +62,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 // TODO: probably provider dependent
 pub struct NetworkHandle {
     dhcp_proc: DhcpProcHandle,
-    /// WireGuard device. If this value is dropped, the device is shut down.
-    _wg: Device<DefaultDeviceTransports>,
 }
 
 struct DhcpProcHandle {
@@ -119,12 +113,6 @@ table inet mullvad_test_nat {{
     ))
     .await?;
 
-    log::debug!("Create WireGuard peer");
-
-    let wg = create_interface()
-        .await
-        .context("Failed to create WireGuard interface")?;
-
     log::debug!("Start DHCP server for {BRIDGE_NAME}");
 
     let dhcp_proc = start_dnsmasq().await?;
@@ -135,7 +123,7 @@ table inet mullvad_test_nat {{
     run_ip_cmd(["link", "set", TAP_NAME, "master", BRIDGE_NAME]).await?;
     run_ip_cmd(["link", "set", TAP_NAME, "up"]).await?;
 
-    Ok(NetworkHandle { dhcp_proc, _wg: wg })
+    Ok(NetworkHandle { dhcp_proc })
 }
 
 impl NetworkHandle {

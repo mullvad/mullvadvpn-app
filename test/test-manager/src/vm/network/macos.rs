@@ -1,20 +1,6 @@
-use anyhow::{Context, Result, anyhow};
-use gotatun::device::{DefaultDeviceTransports, Device};
+use anyhow::{Result, anyhow};
 use nix::sys::socket::SockaddrStorage;
 use std::net::{Ipv4Addr, SocketAddrV4};
-use tokio::process::Command;
-
-use crate::vm::network::wireguard;
-
-/// Set up WireGuard relay and dummy hosts.
-pub async fn setup_test_network() -> Result<Device<DefaultDeviceTransports>> {
-    log::debug!("Setting up test network");
-
-    enable_forwarding().await?;
-    wireguard::create_interface()
-        .await
-        .context("Failed to create WireGuard interface")
-}
 
 /// Returns the interface name and IP address of the bridge gateway, which is the (first) bridge
 /// network that the given `guest_ip` belongs to.
@@ -42,15 +28,4 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
                 .map(|_| (interface_name.clone(), address))
         })
         .ok_or_else(|| anyhow!("Failed to identify bridge used by tart -- not running?"))
-}
-
-async fn enable_forwarding() -> Result<()> {
-    // Enable forwarding
-    let mut cmd = Command::new("/usr/bin/sudo");
-    cmd.args(["/usr/sbin/sysctl", "net.inet.ip.forwarding=1"]);
-    let output = cmd.output().await.context("Run sysctl")?;
-    if !output.status.success() {
-        return Err(anyhow!("sysctl failed: {}", output.status.code().unwrap()));
-    }
-    Ok(())
 }

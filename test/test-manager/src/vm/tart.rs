@@ -1,6 +1,5 @@
 use crate::config::{self, Config, VmConfig};
 use anyhow::{Context, Result, anyhow};
-use gotatun::device::{DefaultDeviceTransports, Device};
 use regex::Regex;
 use std::{net::IpAddr, process::Stdio, time::Duration};
 use tokio::process::{Child, Command};
@@ -18,9 +17,6 @@ pub struct TartInstance {
     pub ip_addr: IpAddr,
     child: Child,
     machine_copy: Option<MachineCopy>,
-
-    /// WireGuard device. If this value is dropped, the device is shut down.
-    _wg: Device<DefaultDeviceTransports>,
 }
 
 #[async_trait::async_trait]
@@ -42,10 +38,6 @@ impl VmInstance for TartInstance {
 }
 
 pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> {
-    let wg = super::network::macos::setup_test_network()
-        .await
-        .context("Failed to set up networking")?;
-
     // Create a temporary clone of the machine
     let machine_copy = if config.runtime_opts.keep_changes {
         MachineCopy::borrow_vm(&vm_config.image_path)
@@ -125,16 +117,11 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
 
     log::debug!("Guest IP: {ip_addr}");
 
-    // The tunnel must be configured after the virtual machine is up, or macOS refuses to assign an
-    // IP. The reasons for this are poorly understood.
-    crate::vm::network::wireguard::configure_tunnel().await?;
-
     Ok(TartInstance {
         child,
         pty_path,
         ip_addr,
         machine_copy: Some(machine_copy),
-        _wg: wg,
     })
 }
 

@@ -100,17 +100,8 @@ pub fn get_package_desc(name: &str) -> Package {
 }
 
 /// Reboot the guest virtual machine.
-///
-/// # macOS
-/// The tunnel must be reconfigured after the virtual machine is up,
-/// or macOS refuses to assign an IP. The reasons for this are poorly understood.
 pub async fn reboot(rpc: &mut ServiceClient) -> Result<(), Error> {
     rpc.reboot().await?;
-
-    #[cfg(target_os = "macos")]
-    crate::vm::network::wireguard::configure_tunnel()
-        .await
-        .context("Failed to recreate custom wg tun: {error}")?;
 
     Ok(())
 }
@@ -171,7 +162,6 @@ pub async fn send_guest_probes(
         MonitorOptions {
             direction: Some(network_monitor::Direction::In),
             timeout: Some(MONITOR_DURATION),
-            ..Default::default()
         },
     )
     .await?;

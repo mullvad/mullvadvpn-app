@@ -7,8 +7,7 @@ use std::{
 
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{CustomTunnelEndpoint, settings, wireguard::QuantumResistantState};
-use talpid_types::net::wireguard;
+use mullvad_types::{settings, wireguard::QuantumResistantState};
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
@@ -20,13 +19,10 @@ use crate::{
     TEST_CONFIG,
     network_monitor::{
         Direction, IpHeaderProtocols, MonitorOptions, PacketMonitor, start_packet_monitor_until,
-        start_tunnel_packet_monitor_until,
-    },
-    vm::network::wireguard::{
-        CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
-        CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR,
     },
 };
+
+use super::local_relay::LocalRelay;
 
 /// How long to wait for expected "DNS queries" to appear
 const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
@@ -52,7 +48,7 @@ pub async fn test_dns_leak_default(
         &rpc,
         &mut mullvad_client,
         true,
-        IpAddr::V4(CUSTOM_TUN_REMOTE_TUN_ADDR),
+        IpAddr::V4(LocalRelay::GATEWAY),
     )
     .await
 }
@@ -134,7 +130,7 @@ async fn leak_test_dns(
     // Connect to local wireguard relay
     //
 
-    connect_local_wg_relay(mullvad_client)
+    let relay = connect_local_wg_relay(mullvad_client)
         .await
         .expect("failed to connect to custom wg relay");
 
@@ -172,16 +168,13 @@ async fn leak_test_dns(
     let mut pkt_counter = DnsPacketsFound::new(1, 1);
 
     let (tunnel_monitor, non_tunnel_monitor) = if use_tun {
-        let tunnel_monitor = start_tunnel_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            move |packet| pkt_counter.handle_packet(packet),
-            MonitorOptions {
-                direction: Some(Direction::In),
-                timeout: Some(MONITOR_TIMEOUT),
-                ..Default::default()
-            },
-        )
-        .await?;
+        let tunnel_monitor = relay
+            .monitor_until(
+                move |packet| packet.destination.port() == 53,
+                move |packet| pkt_counter.handle_packet(packet),
+                Some(MONITOR_TIMEOUT),
+            )
+            .await;
         let non_tunnel_monitor = start_packet_monitor_until(
             move |packet| packet.destination.port() == 53,
             |_packet| false,
@@ -193,22 +186,19 @@ async fn leak_test_dns(
         .await?;
         (tunnel_monitor, non_tunnel_monitor)
     } else {
-        let tunnel_monitor = start_tunnel_packet_monitor_until(
-            move |packet| packet.destination.port() == 53,
-            |_packet| false,
-            MonitorOptions {
-                direction: Some(Direction::In),
-                ..Default::default()
-            },
-        )
-        .await?;
+        let tunnel_monitor = relay
+            .monitor_until(
+                move |packet| packet.destination.port() == 53,
+                |_packet| false,
+                None,
+            )
+            .await;
         let non_tunnel_monitor = start_packet_monitor_until(
             move |packet| packet.destination.port() == 53,
             move |packet| pkt_counter.handle_packet(packet),
             MonitorOptions {
                 direction: Some(Direction::In),
                 timeout: Some(MONITOR_TIMEOUT),
-                ..Default::default()
             },
         )
         .await?;
@@ -334,10 +324,15 @@ pub async fn test_dns_config_default(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    let relay = connect_local_wg_relay(&mut mullvad_client)
+        .await
+        .context("failed to connect to custom wg relay")?;
+
     run_dns_config_tunnel_test(
         &rpc,
         &mut mullvad_client,
-        IpAddr::V4(CUSTOM_TUN_REMOTE_TUN_ADDR),
+        &relay,
+        IpAddr::V4(LocalRelay::GATEWAY),
     )
     .await
 }
@@ -368,6 +363,10 @@ pub async fn test_dns_config_custom_private(
         })
         .await
         .context("failed to configure DNS server")?;
+
+    let _relay = connect_local_wg_relay(&mut mullvad_client)
+        .await
+        .context("failed to connect to custom wg relay")?;
 
     run_dns_config_non_tunnel_test(
         &rpc,
@@ -403,7 +402,11 @@ pub async fn test_dns_config_custom_public(
         .await
         .context("failed to configure DNS server")?;
 
-    run_dns_config_tunnel_test(&rpc, &mut mullvad_client, custom_ip).await
+    let relay = connect_local_wg_relay(&mut mullvad_client)
+        .await
+        .context("failed to connect to custom wg relay")?;
+
+    run_dns_config_tunnel_test(&rpc, &mut mullvad_client, &relay, custom_ip).await
 }
 
 /// Test whether the correct IPs are configured as system resolver when
@@ -488,6 +491,10 @@ pub async fn test_content_blockers(
         )
     };
 
+    let relay = connect_local_wg_relay(&mut mullvad_client)
+        .await
+        .context("failed to connect to custom wg relay")?;
+
     // Test all combinations
 
     for case in content_blockers.iter().powerset() {
@@ -507,7 +514,7 @@ pub async fn test_content_blockers(
             .await
             .context("failed to configure DNS server")?;
 
-        run_dns_config_tunnel_test(&rpc, &mut mullvad_client, test_ip).await?;
+        run_dns_config_tunnel_test(&rpc, &mut mullvad_client, &relay, test_ip).await?;
     }
 
     Ok(())
@@ -516,20 +523,19 @@ pub async fn test_content_blockers(
 async fn run_dns_config_tunnel_test(
     rpc: &ServiceClient,
     mullvad_client: &mut MullvadProxyClient,
+    relay: &LocalRelay,
     expected_dns_resolver: IpAddr,
 ) -> anyhow::Result<()> {
     run_dns_config_test(
         rpc,
-        || {
-            start_tunnel_packet_monitor_until(
-                move |packet| packet.destination.port() == 53,
-                |packet| packet.destination.port() != 53,
-                MonitorOptions {
-                    direction: Some(Direction::In),
-                    timeout: Some(MONITOR_TIMEOUT),
-                    ..Default::default()
-                },
-            )
+        async || {
+            Ok(relay
+                .monitor_until(
+                    move |packet| packet.destination.port() == 53,
+                    |packet| packet.destination.port() != 53,
+                    Some(MONITOR_TIMEOUT),
+                )
+                .await)
         },
         mullvad_client,
         expected_dns_resolver,
@@ -551,7 +557,6 @@ async fn run_dns_config_non_tunnel_test(
                 MonitorOptions {
                     direction: Some(Direction::In),
                     timeout: Some(MONITOR_TIMEOUT),
-                    ..Default::default()
                 },
             )
         },
@@ -567,16 +572,6 @@ async fn run_dns_config_test(
     mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
 ) -> anyhow::Result<()> {
-    match mullvad_client.get_tunnel_state().await {
-        // prevent reconnect
-        Ok(mullvad_types::states::TunnelState::Connected { .. }) => (),
-        _ => {
-            connect_local_wg_relay(mullvad_client)
-                .await
-                .context("failed to connect to custom wg relay")?;
-        }
-    }
-
     let nontun_iface = rpc
         .get_default_interface()
         .await
@@ -634,9 +629,15 @@ async fn run_dns_config_test(
     Ok(())
 }
 
-/// Connect to the WireGuard relay that is set up in test-manager/src/vm/network
-/// See those files for details.
-async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
+/// Start a [`LocalRelay`] and connect to it. The relay is shut down when the returned value is
+/// dropped.
+async fn connect_local_wg_relay(
+    mullvad_client: &mut MullvadProxyClient,
+) -> Result<LocalRelay, Error> {
+    let relay = LocalRelay::start()
+        .await
+        .context("failed to start local relay")?;
+
     // the local wg relay doesn't support negotiating an ephemeral peer
     // which means we can't use PQ or daita.
     mullvad_client
@@ -644,40 +645,13 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
         .await?;
     mullvad_client.set_daita_settings(false).await?;
 
-    let peer_addr: SocketAddr = SocketAddr::new(
-        IpAddr::V4(TEST_CONFIG.host_bridge_ip),
-        CUSTOM_TUN_REMOTE_REAL_PORT,
-    );
-
-    let custom_tunnel_endpoint = CustomTunnelEndpoint {
-        host: peer_addr.ip().to_string(),
-        config: wireguard::ConnectionConfig {
-            tunnel: wireguard::TunnelConfig {
-                addresses: vec![IpAddr::V4(CUSTOM_TUN_LOCAL_TUN_ADDR)],
-                private_key: wireguard::PrivateKey::from(CUSTOM_TUN_LOCAL_PRIVKEY),
-            },
-            peer: wireguard::PeerConfig {
-                public_key: wireguard::PublicKey::from(CUSTOM_TUN_REMOTE_PUBKEY),
-                allowed_ips: vec!["0.0.0.0/0".parse().unwrap()],
-                endpoint: peer_addr,
-                psk: None,
-                constant_packet_size: false,
-            },
-            ipv4_gateway: CUSTOM_TUN_GATEWAY,
-            exit_peer: None,
-            routes: None,
-            #[cfg(target_os = "linux")]
-            fwmark: None,
-            ipv6_gateway: None,
-        },
-    };
-    set_custom_endpoint(mullvad_client, custom_tunnel_endpoint)
+    set_custom_endpoint(mullvad_client, relay.custom_tunnel_endpoint())
         .await
         .expect("failed to update relay settings");
 
     connect_and_wait(mullvad_client).await?;
 
-    Ok(())
+    Ok(relay)
 }
 
 async fn spoof_packets(
