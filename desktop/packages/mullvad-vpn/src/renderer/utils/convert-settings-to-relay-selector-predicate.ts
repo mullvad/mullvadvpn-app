@@ -88,7 +88,7 @@ type ConvertSettingsToRelaySelectorEntryConstraints = {
 function convertSettingsToRelaySelectorEntryConstraints({
   settings,
   normalRelaySettings,
-  ignoreConstraint: ignoreConstraint,
+  ignoreConstraint,
 }: ConvertSettingsToRelaySelectorEntryConstraints): RelaySelectorPredicateEntryConstraints {
   const generalConstraints = convertNormalRelaySettingsToRelaySelectorEntryGeneralConstraints(
     normalRelaySettings,
@@ -140,7 +140,7 @@ type ConvertSettingsToRelaySelectorExitConstraints = {
 
 function convertSettingsToRelaySelectorExitConstraints({
   normalRelaySettings,
-  ignoreConstraint: ignoreConstraint,
+  ignoreConstraint,
 }: ConvertSettingsToRelaySelectorExitConstraints): RelaySelectorPredicateGeneralConstraints {
   const providers = convertProvidersToRelaySelectorProviders(normalRelaySettings.providers);
   const location = convertLocationToRelaySelectorLocation(normalRelaySettings.location);
