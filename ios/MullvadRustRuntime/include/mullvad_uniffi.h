@@ -355,7 +355,7 @@ void uniffi_mullvad_ios_fn_free_apicontext(uint64_t handle, RustCallStatus *_Non
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
-uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer domain, RustBuffer domain_fronting, int8_t disable_tls, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer am_i_mullvad_host_ipv4, RustBuffer am_i_mullvad_host_ipv6, RustBuffer domain, RustBuffer domain_fronting, int8_t disable_tls, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UPDATE_ACCESS_METHODS
@@ -426,6 +426,11 @@ uint64_t uniffi_mullvad_ios_fn_method_apicontext_get_devices(uint64_t ptr, uint6
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_ROTATE_DEVICE_KEY
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_ROTATE_DEVICE_KEY
 uint64_t uniffi_mullvad_ios_fn_method_apicontext_rotate_device_key(uint64_t ptr, uint64_t retry_strategy, RustBuffer account_number, RustBuffer identifier, RustBuffer public_key, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_AM_I_MULLVAD
+uint64_t uniffi_mullvad_ios_fn_method_apicontext_am_i_mullvad(uint64_t ptr, int8_t ipv6, uint64_t retry_strategy
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
@@ -567,6 +572,31 @@ uint64_t uniffi_mullvad_ios_fn_constructor_retrystrategy_exponential(uint64_t ma
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_RETRYSTRATEGY_NEVER
 uint64_t uniffi_mullvad_ios_fn_constructor_retrystrategy_never(RustCallStatus *_Nonnull out_status
     
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_ANYERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_ANYERROR
+uint64_t uniffi_mullvad_ios_fn_clone_anyerror(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_ANYERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_FREE_ANYERROR
+void uniffi_mullvad_ios_fn_free_anyerror(uint64_t handle, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_ANYERROR_MESSAGE
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_ANYERROR_MESSAGE
+uint64_t uniffi_mullvad_ios_fn_constructor_anyerror_message(RustBuffer text, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ANYERROR_ERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ANYERROR_ERROR
+RustBuffer uniffi_mullvad_ios_fn_method_anyerror_error(uint64_t ptr, RustCallStatus *_Nonnull out_status
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ANYERROR_ERROR_DEBUG
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_ANYERROR_ERROR_DEBUG
+RustBuffer uniffi_mullvad_ios_fn_method_anyerror_error_debug(uint64_t ptr, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CLONE_GOTATUNTUNNEL
@@ -1003,6 +1033,12 @@ uint16_t uniffi_mullvad_ios_checksum_method_apicontext_rotate_device_key(void
     
 );
 #endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_AM_I_MULLVAD
+uint16_t uniffi_mullvad_ios_checksum_method_apicontext_am_i_mullvad(void
+    
+);
+#endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_APICONTEXT_SEND_PROBLEM_REPORT
 uint16_t uniffi_mullvad_ios_checksum_method_apicontext_send_problem_report(void
@@ -1042,6 +1078,18 @@ uint16_t uniffi_mullvad_ios_checksum_method_requestcancelhandle_start_task(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_REQUESTCOMPLETION_FINISH
 uint16_t uniffi_mullvad_ios_checksum_method_requestcompletion_finish(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR
+uint16_t uniffi_mullvad_ios_checksum_method_anyerror_error(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR_DEBUG
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_METHOD_ANYERROR_ERROR_DEBUG
+uint16_t uniffi_mullvad_ios_checksum_method_anyerror_error_debug(void
     
 );
 #endif
@@ -1090,6 +1138,12 @@ uint16_t uniffi_mullvad_ios_checksum_constructor_retrystrategy_exponential(void
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_RETRYSTRATEGY_NEVER
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_RETRYSTRATEGY_NEVER
 uint16_t uniffi_mullvad_ios_checksum_constructor_retrystrategy_never(void
+    
+);
+#endif
+#ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_ANYERROR_MESSAGE
+#define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_CHECKSUM_CONSTRUCTOR_ANYERROR_MESSAGE
+uint16_t uniffi_mullvad_ios_checksum_constructor_anyerror_message(void
     
 );
 #endif

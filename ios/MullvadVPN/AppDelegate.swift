@@ -147,6 +147,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
+            amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
+            amIMullvadHostIpv6: "ipv6.\(REST.amIMullvadHostname)",
             domain: REST.encryptedDNSHostname,
             domainFronting: REST.domainFronting,
             shadowsocksProvider: shadowsocksLoader,
@@ -668,7 +670,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ = try? await relayCacheTracker.updateRelays()
         guard let cachedRelays = try? relayCacheTracker.getCachedRelays() else { return }
         let locationService = DefaultLocationService(
-            urlSession: URLSession.shared, relayCache: cachedRelays)
+            relayCache: cachedRelays, apiContext: apiContext)
         let locationIdentifier = try? await locationService.fetchCurrentLocationIdentifier()
         let userSelectedRelays: UserSelectedRelays =
             if let country = locationIdentifier?.country {

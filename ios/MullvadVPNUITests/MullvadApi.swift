@@ -76,6 +76,8 @@ class MullvadApi {
         context = ApiContext(
             host: hostname,
             address: apiAddress,
+            amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
+            amIMullvadHostIpv6: "ipv4.\(REST.amIMullvadHostname)",
             domain: hostname,
             domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
             disableTls: false,
