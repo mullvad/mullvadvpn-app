@@ -13,6 +13,7 @@ import { TextFieldItemProvider, useTextFieldItemContext } from './TextFieldItemC
 
 export type SelectLocationSelectorItemProps = LocationSelectorTextFieldItemProps & {
   defaultValue?: string;
+  invalid?: boolean;
   placeholder?: string;
 };
 
@@ -24,6 +25,7 @@ const StyledInput = styled(LocationSelector.Items.TextFieldItem.TextField.Input)
 
 function TextFieldItemImpl({
   id,
+  invalid,
   placeholder,
   ...props
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
@@ -48,6 +50,7 @@ function TextFieldItemImpl({
       triggerRef={triggerRef}
       {...props}>
       <LocationSelector.Items.TextFieldItem.TextField
+        invalid={invalid}
         value={value}
         onFocusExit={handleFocusExit}
         onValueChange={handleValueChange}>
