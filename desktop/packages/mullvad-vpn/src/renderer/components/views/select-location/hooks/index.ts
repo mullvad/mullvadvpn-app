@@ -6,3 +6,4 @@ export * from './use-show-automatic-entry-item';
 export * from './use-location-selector-items';
 export * from './use-measure-location-selector';
 export * from './use-location-slides';
+export * from './use-active-ownership';
