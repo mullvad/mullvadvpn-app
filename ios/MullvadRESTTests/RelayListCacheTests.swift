@@ -103,6 +103,34 @@ class RelayListCacheTests: XCTestCase {
         XCTAssertNotNil(cachedRelays)
     }
 
+    func testUnchangedDigestIsNotModified() async throws {
+        let timestampJSON = String(data: ServerRelaysResponseStubs.sampleRelaysDigest, encoding: .utf8)!
+        let mock = MullvadApiMock.get([
+            (
+                path: "/trl/v1/timestamps/latest",
+                responseCode: 200,
+                responseData: timestampJSON
+            )
+        ])
+        let apiProxy = try makeApiProxy(port: mock.port)
+        let timestamp = try XCTUnwrap(ISO8601DateFormatter().date(from: "2026-09-09T11:44:11+00:00"))
+
+        let result: Result<REST.ServerRelaysCacheResponse?, Error> =
+            await withCheckedContinuation { continuation in
+                _ = apiProxy.getRelays(
+                    sigsum: (ServerRelaysResponseStubs.digest, Int64(timestamp.timeIntervalSince1970 * 1000)),
+                    retryStrategy: .noRetry
+                ) { result in
+                    continuation.resume(returning: result)
+                }
+            }
+
+        guard case .notModified = try result.get() else {
+            XCTFail("Expected .notModified response, got \(result)")
+            return
+        }
+    }
+
     // MARK: - Helpers
 
     private func makeApiProxy(port: UInt16) throws -> APIQuerying {

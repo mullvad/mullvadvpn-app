@@ -87,8 +87,11 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse?>
         ) -> Cancellable {
+            // An unchanged sigsum digest yields an empty body.
             let responseHandler = rustCustomResponseHandler { data, digest, timestamp in
-                REST.ServerRelaysCacheResponse.newContent(digest, timestamp, data)
+                data.isEmpty
+                    ? REST.ServerRelaysCacheResponse.notModified
+                    : REST.ServerRelaysCacheResponse.newContent(digest, timestamp, data)
             }
 
             var sigsumDigest: String? = nil
