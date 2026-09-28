@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>HostName</key>
-	<string>$(HOST_NAME)</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>The app needs this to connect and test a new method.</string>
 	<key>ApplicationSecurityGroupIdentifier</key>
 	<string>$(SECURITY_GROUP_IDENTIFIER)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
@@ -34,6 +30,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>HasTimeAccountNumber</key>
 	<string>$(HAS_TIME_ACCOUNT_NUMBER)</string>
+	<key>HostName</key>
+	<string>$(HOST_NAME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -45,6 +43,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>The app needs this to connect and test a new method.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>StartVPNIntent</string>
@@ -75,6 +75,8 @@
 		<string>fetch</string>
 		<string>processing</string>
 	</array>
+	<key>UIDesignRequiresCompatibility</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -94,7 +96,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIDesignRequiresCompatibility</key>
-	<true/>
 </dict>
 </plist>
