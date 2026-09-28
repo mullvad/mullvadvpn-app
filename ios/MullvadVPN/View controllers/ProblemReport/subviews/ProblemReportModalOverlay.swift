@@ -12,7 +12,7 @@ import SwiftUI
 
 extension ProblemReportView {
     struct ModalOverlay: View {
-        let state: ProblemReportViewModelNew.ModalState
+        let state: ProblemReportViewModel.ModalState
 
         let supportEmail = "support@mullvadvpn.net"
 
