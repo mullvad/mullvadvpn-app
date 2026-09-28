@@ -8,8 +8,9 @@ import {
   lineHeights,
   Radius,
   spacings,
-} from '../../../../foundations';
-import { TextFieldProps, useTextFieldContext } from '../../';
+} from '../../../../../../foundations';
+import { type TextFieldProps } from '../../../../TextField';
+import { useTextFieldContext } from '../../../../TextFieldContext';
 
 export type TextFieldInputProps = Omit<React.ComponentPropsWithRef<'input'>, 'children'>;
 
