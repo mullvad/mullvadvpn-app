@@ -342,8 +342,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, UINavigat
             return .changelog
         case is UIHostingController<ProblemReportView>:
             return .problemReport
-        case is ProblemReportViewController:
-            return .problemReport
         default:
             return nil
         }

@@ -12,7 +12,7 @@ import SwiftUI
 
 extension ProblemReportView {
     struct MessageEditOverlay: View {
-        @State var viewModel: ProblemReportViewModelNew
+        @State var viewModel: ProblemReportViewModel
         @FocusState var isFocused: Bool
 
         var body: some View {
@@ -49,6 +49,6 @@ extension ProblemReportView {
 }
 
 #Preview {
-    let viewModel = ProblemReportViewModelNew(interactor: MockProblemReportInteractor())
+    let viewModel = ProblemReportViewModel(interactor: MockProblemReportInteractor())
     return ProblemReportView.MessageEditOverlay(viewModel: viewModel)
 }
