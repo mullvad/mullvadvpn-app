@@ -1037,7 +1037,7 @@ final class GotaTunActorTests: XCTestCase {
         let states = await collectStates(from: actor) {
             $0.isConnected
         } while: {
-            Task { await actor.start(options: launchOptions) }
+            await actor.start(options: launchOptions)
             await clock.waitForSleepers()
             await clock.advance(by: timings.socketBindErrorRecoveryPeriodicity)
         }
