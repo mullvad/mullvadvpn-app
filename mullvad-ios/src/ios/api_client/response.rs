@@ -42,7 +42,12 @@ impl ApiResponse {
                 sigsum_digest: Some(payload.digest.to_string()),
                 sigsum_timestamp: Some(payload.timestamp.timestamp_millis()),
             }),
-            None => Ok(Self::ok()),
+            None => Ok(Self::Body {
+                status_code: StatusCode::NOT_MODIFIED.as_u16(),
+                body: Vec::new(),
+                sigsum_digest: None,
+                sigsum_timestamp: None,
+            }),
         }
     }
 
