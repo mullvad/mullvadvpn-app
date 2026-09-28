@@ -1,5 +1,8 @@
 use std::net::IpAddr;
 
+mod error;
+pub use error::AnyError;
+
 pub struct UniIpAddr(pub IpAddr);
 uniffi::custom_type!(UniIpAddr, String, {
     lower: |time_interval| time_interval.0.to_string(),
