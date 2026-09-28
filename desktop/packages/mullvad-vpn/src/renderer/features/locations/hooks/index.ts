@@ -5,6 +5,7 @@ export * from './use-is-quic-filter-active';
 export * from './use-ownership';
 export * from './use-providers';
 export * from './use-is-ownership-filter-active';
+export * from './use-is-providers-filter-active';
 export * from './use-relay-locations';
 export * from './use-is-lwo-filter-active';
 export * from './use-is-lwo-filter-active';
