@@ -7,9 +7,10 @@ use futures::{
     channel::{mpsc, oneshot},
 };
 use mullvad_api::{
-    ApiEndpoint, ApiProxy, Runtime,
+    ApiEndpoint, ApiProxy, DefaultDnsResolver, Runtime,
     access_mode::{AccessMethodEvent, AccessModeSelector, AccessModeSelectorHandle},
-    rest::{self, MullvadRestHandle},
+    proxy::ApiConnectionMode,
+    rest::{self, MullvadRestHandle, RequestService, RequestServiceHandle},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::Id;
@@ -43,6 +44,8 @@ pub struct ApiContext {
     rest_client: MullvadRestHandle,
     access_mode_handler: AccessModeSelectorHandle,
     access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
+    rest_service_ipv4: RequestServiceHandle,
+    rest_service_ipv6: RequestServiceHandle,
 }
 
 #[derive(uniffi::Record, Debug)]
@@ -58,6 +61,8 @@ impl ApiContext {
     pub fn new(
         host: String,
         address: String,
+        am_i_mullvad_host_ipv4: String,
+        am_i_mullvad_host_ipv6: String,
         domain: String,
         domain_fronting: DomainFrontingConfig,
         disable_tls: bool,
@@ -69,6 +74,8 @@ impl ApiContext {
         Self::new_inner(
             host,
             address,
+            am_i_mullvad_host_ipv4,
+            am_i_mullvad_host_ipv6,
             domain,
             domain_fronting,
             #[cfg(feature = "api-override")]
@@ -80,10 +87,12 @@ impl ApiContext {
     }
 }
 impl ApiContext {
-    #[cfg_attr(feature = "api-override", expect(clippy::too_many_arguments))]
+    #[expect(clippy::too_many_arguments)]
     fn new_inner(
         host: String,
         address: String,
+        am_i_mullvad_host_ipv4: String,
+        am_i_mullvad_host_ipv6: String,
         domain: String,
         domain_fronting: DomainFrontingConfig,
         #[cfg(feature = "api-override")] disable_tls: bool,
@@ -141,11 +150,30 @@ impl ApiContext {
             .expect("Could now spawn AccessModeSelector");
             let rest_client = api_client.mullvad_rest_handle(access_mode_provider);
 
+            let rest_service_ipv4 = RequestService::spawn(
+                am_i_mullvad_host_ipv4,
+                rest_client.availability.clone(),
+                ApiConnectionMode::Direct,
+                Arc::new(DefaultDnsResolver),
+                #[cfg(feature = "api-override")]
+                disable_tls,
+            );
+            let rest_service_ipv6 = RequestService::spawn(
+                am_i_mullvad_host_ipv6,
+                rest_client.availability.clone(),
+                ApiConnectionMode::Direct,
+                Arc::new(DefaultDnsResolver),
+                #[cfg(feature = "api-override")]
+                disable_tls,
+            );
+
             let context = Arc::new(ApiContext {
                 api_client,
                 rest_client,
                 access_mode_handler,
                 access_method_change_listeners,
+                rest_service_ipv4,
+                rest_service_ipv6,
             });
 
             tokio::spawn({
