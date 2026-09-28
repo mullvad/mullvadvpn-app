@@ -11,13 +11,9 @@
 import SwiftUI
 
 struct ProblemReportView: View {
-    // temporary variables, until the view model is in place
-    @State private var text = ""
-    @State private var message: MessageView.Message?
-    @State private var borderStyle: BorderStyle = .normal
-
     @State var viewModel: ProblemReportViewModel
     @State var showLogs: Bool = false
+    @FocusState var emailIsFocused: Bool
 
     @Namespace private var transitionNamespace
     private let messageEditTransitionId = "editFrame"
@@ -67,20 +63,19 @@ struct ProblemReportView: View {
         .popover(isPresented: viewModel.showLogs) {
             LogView(viewModel: viewModel)
         }
+        .navigationTitle("Report a problem")
     }
 
     var mainForm: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Report a problem")
-                .font(.mullvadLarge)
-                .foregroundStyle(.white)
             Text(subheadLabelText)
                 .font(.mullvadTiny)
-                .foregroundStyle(.white)
+                .foregroundStyle(Color.mullvadTextSecondary)
             ConfigurableTextField(
                 title: "Email (optional)",
                 placeholder: "Enter your email",
                 text: $viewModel.email,
+                isFocused: $emailIsFocused,
                 borderStyle: .constant(.normal))
             messageEditInlinePlaceholder
             ActionBox(
@@ -97,6 +92,7 @@ struct ProblemReportView: View {
                 style: .primary,
                 mainAccessibilityIdentifier: .problemReportAppLogsButton
             ) {
+                emailIsFocused = false
                 viewModel.doShowLog()
             }
             MullvadButton(
@@ -121,6 +117,7 @@ struct ProblemReportView: View {
                 .font(.mullvadTinySemiBold)
                 .padding(.bottom, 4.0)
             Button {
+                emailIsFocused = false
                 viewModel.isEditingMessage = true
             } label: {
                 ZStack(alignment: .topLeading) {

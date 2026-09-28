@@ -17,13 +17,24 @@ extension ProblemReportView {
 
         var body: some View {
             VStack(spacing: 0) {
-                HStack {
-                    Spacer()
-                    Text("Report a problem")
-                        .font(Font.system(.title2, design: .default))
-                    Spacer()
+                ZStack {
+                    HStack {
+                        Spacer()
+                        Text("Problem description")
+                            .font(.mullvadSmallSemiBold)
+                        Spacer()
+                    }
+                    HStack {
+                        Button {
+                            viewModel.isEditingMessage = false
+                        } label: {
+                            ResizableImageView(image: .mullvadIconBack, dimension: .width(24))
+                        }
+                        Spacer()
+                    }
                 }
-                .padding(16)
+                .padding(.horizontal, 8.0)
+                .padding(.vertical, 12.0)
                 .foregroundStyle(.white)
                 .background(Color.mullvadBackground)
                 ConfigurableTextView(
@@ -34,12 +45,6 @@ extension ProblemReportView {
                 )
                 .padding(12)
                 .background(Color.MullvadTextField.background)
-                HStack {
-                    Spacer()
-                    Button("Done") { viewModel.isEditingMessage = false }
-                }
-                .padding(16)
-                .background(Color.black)
             }
             .onAppear {
                 isFocused = true
