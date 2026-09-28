@@ -5,6 +5,25 @@ import type {
   IRelayLocationRelayRedux,
 } from '../../../redux/settings/reducers';
 
+export function findLocation(location: string, locations: IRelayLocationCountryRedux[]) {
+  const relay = findRelay(location, locations);
+  if (relay) {
+    return relay;
+  }
+
+  const city = findCity(location, locations);
+  if (city) {
+    return city;
+  }
+
+  const country = findCountry(location, locations);
+  if (country) {
+    return country;
+  }
+
+  return undefined;
+}
+
 export function findCountry(
   code: string,
   locations: IRelayLocationCountryRedux[],
