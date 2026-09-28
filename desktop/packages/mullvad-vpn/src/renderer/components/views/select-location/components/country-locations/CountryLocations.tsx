@@ -10,6 +10,7 @@ import { getLocationListItemMapProps } from '../../utils';
 import { AutomaticLocation } from '../automatic-location';
 import { CountryLocation } from '../country-location';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
+import { NoMatchingLocations } from '../no-matching-locations';
 import { useRelayCount, useShowAutomaticLocation } from './hooks';
 
 export function CountryLocations() {
@@ -26,6 +27,8 @@ export function CountryLocations() {
 
   const { searchTerm } = useSelectLocationViewContext();
   const countryLocationsKey = searchTerm ? `country-locations-${searchTerm}` : 'country-locations';
+
+  const showNoMatchingLocations = visibleRelays === 0;
 
   return (
     <FlexColumn
@@ -61,6 +64,7 @@ export function CountryLocations() {
       </SectionTitle>
       <FlexColumn key={countryLocationsKey} gap="tiny">
         {showAutomaticLocation && <AutomaticLocation />}
+        {showNoMatchingLocations && <NoMatchingLocations />}
         {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;
