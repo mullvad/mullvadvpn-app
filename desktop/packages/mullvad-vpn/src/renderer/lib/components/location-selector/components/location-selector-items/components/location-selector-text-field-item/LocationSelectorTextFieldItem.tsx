@@ -28,6 +28,7 @@ export type LocationSelectorTextFieldItemProps = Omit<HTMLMotionProps<'div'>, 'c
   type: LocationSelectorItemType;
   inputRef?: React.RefObject<HTMLInputElement | null>;
   triggerRef?: React.RefObject<HTMLDivElement | null>;
+  invalid?: boolean;
 } & React.PropsWithChildren;
 
 function LocationSelectorTextFieldItemImpl({
@@ -40,6 +41,7 @@ function LocationSelectorTextFieldItemImpl({
 function LocationSelectorTextFieldItem({
   id,
   type,
+  invalid,
   inputRef,
   triggerRef,
   ...props
@@ -48,6 +50,7 @@ function LocationSelectorTextFieldItem({
     <LocationSelectorTextFieldItemProvider
       id={id}
       type={type}
+      invalid={invalid}
       inputRef={inputRef}
       triggerRef={triggerRef}>
       <LocationSelectorTextFieldItemImpl {...props} />
