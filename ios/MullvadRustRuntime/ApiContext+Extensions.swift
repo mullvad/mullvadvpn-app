@@ -30,6 +30,8 @@ extension ApiContext {
     public convenience init(
         host: String,
         address: String,
+        amIMullvadHostIpv4: String,
+        amIMullvadHostIpv6: String,
         domain: String,
         domainFronting: DomainFrontingConfig,
         disableTls: Bool = false,
@@ -40,6 +42,8 @@ extension ApiContext {
         self.init(
             host: host,
             address: address,
+            amIMullvadHostIpv4: amIMullvadHostIpv4,
+            amIMullvadHostIpv6: amIMullvadHostIpv6,
             domain: domain,
             domainFronting: domainFronting,
             disableTls: disableTls,

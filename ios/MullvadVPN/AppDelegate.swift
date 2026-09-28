@@ -147,6 +147,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiContext = ApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
+            amIMullvadHostIpv4: "ipv4.\(REST.amIMullvadHostname)",
+            amIMullvadHostIpv6: "ipv6.\(REST.amIMullvadHostname)",
             domain: REST.encryptedDNSHostname,
             domainFronting: REST.domainFronting,
             shadowsocksProvider: shadowsocksLoader,
