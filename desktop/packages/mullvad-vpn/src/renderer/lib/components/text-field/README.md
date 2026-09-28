@@ -16,8 +16,15 @@ export function ExampleTextField() {
 
   return (
     <TextField value={value} onValueChange={handleOnValueChange} invalid={invalid}>
-      <TextField.Icon icon="search" />
-      <TextField.Input placeholder="Enter text" inputMode="text" maxLength={100} />
+      <TextField.Label>Some text</TextField.Label>
+      <TextField.InputGroup>
+        <TextField.InputGroup.Icon icon="search" />
+        <TextField.InputGroup.Input placeholder="Enter text" inputMode="text" maxLength={100} />
+        <TextField.InputGroup.IconButton>
+          <TextField.InputGroup.IconButton.Icon icon="cross" />
+        </TextField.InputGroup.IconButton>
+      </TextField.InputGroup>
+      <TextField.SupportingText>Enter some text above</TextField.SupportingText>
     </TextField>
   );
 }
