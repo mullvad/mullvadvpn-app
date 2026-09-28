@@ -14,10 +14,12 @@ import SwiftUI
 
 @MainActor
 @Observable final class ProblemReportViewModelNew {
-    enum ModalState {
+    enum ModalState: Identifiable {
         case sending
         case success
         case failure
+
+        var id: ModalState { self }
     }
 
     var email: String = ""
