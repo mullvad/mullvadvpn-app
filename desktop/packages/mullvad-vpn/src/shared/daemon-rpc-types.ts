@@ -295,6 +295,8 @@ export interface IWireguardConstraints {
   ipVersion: Constraint<IpVersion>;
   multihop: MultihopMode;
   entryLocation: Constraint<RelayLocation>;
+  entryProviders: string[];
+  entryOwnership: Ownership;
 }
 
 export type IpVersion = 'ipv4' | 'ipv6';
