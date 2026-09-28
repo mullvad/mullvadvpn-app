@@ -23,7 +23,7 @@ export type ButtonProps = React.ComponentPropsWithRef<'button'> & {
 };
 
 const styles = {
-  radius: Radius.radius4,
+  radius: Radius.radiusFull,
   variants: {
     neutral: {
       color: colors.blue,
