@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { usePrevious } from '../../../hooks';
 import { View } from '../../../lib/components/view';
 import { colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
@@ -74,7 +73,6 @@ export function SelectLocationViewImpl() {
 
   const { measureElement, height } = useMeasureLocationSelector();
 
-  const previousHeight = usePrevious(height);
   const locationSlide = useLocationSlides();
 
   return (
@@ -91,18 +89,22 @@ export function SelectLocationViewImpl() {
                 ? false
                 : undefined
             }>
-            <StyledHeaderMaxHeightContainer
-              initial={false}
-              animate={{ height }}
-              transition={{
-                height: { duration: previousHeight === 0 ? 0 : 0.15 },
-              }}>
-              <StyledHeaderContainer>
-                <SelectLocationHeader>
-                  <SelectLocationSelector />
-                </SelectLocationHeader>
-              </StyledHeaderContainer>
-            </StyledHeaderMaxHeightContainer>
+            {/* Height will be 0 on first render, and will then be measured.
+              Skip rendering when height is 0 to prevent transition. */}
+            {height !== 0 && (
+              <StyledHeaderMaxHeightContainer
+                initial={false}
+                animate={{ height }}
+                transition={{
+                  height: { duration: 0.15 },
+                }}>
+                <StyledHeaderContainer>
+                  <SelectLocationHeader>
+                    <SelectLocationSelector />
+                  </SelectLocationHeader>
+                </StyledHeaderContainer>
+              </StyledHeaderMaxHeightContainer>
+            )}
             <View.Content>
               <SpacePreAllocationView ref={spacePreAllocationViewRef}>
                 <View.Container
