@@ -1,27 +1,25 @@
 import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { Ownership } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
-import { useRelaySettingsUpdater } from '../../../../../lib/constraint-updater';
 import { useNormalRelaySettings } from '../../../../../lib/relay-settings-hooks';
 import { useFilteredProviders } from '../../../filter/hooks';
+import { useActiveOwnership, useActiveProviders } from '../../hooks';
 
 export type ProvidersFilterChipProps = FilterChipProps;
 
 export function ProvidersFilterChip(props: ProvidersFilterChipProps) {
-  const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useNormalRelaySettings();
-  const ownership = relaySettings?.ownership ?? Ownership.any;
-  const providers = relaySettings?.providers ?? [];
-  const filteredProviders = useFilteredProviders(providers, ownership);
+  const { activeProviders, setActiveProviders } = useActiveProviders();
+  const { activeOwnership } = useActiveOwnership();
+  const filteredProviders = useFilteredProviders(activeProviders, activeOwnership);
 
   const onClearProviders = React.useCallback(async () => {
     if (relaySettings) {
-      await relaySettingsUpdater((settings) => ({ ...settings, providers: [] }));
+      await setActiveProviders([]);
     }
-  }, [relaySettingsUpdater, relaySettings]);
+  }, [relaySettings, setActiveProviders]);
 
   return (
     <FilterChip
