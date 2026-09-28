@@ -153,7 +153,6 @@ struct MockProblemReportInteractor: ProblemReportInteractorProtocol {
         email: String, message: String, includeAccountTokenInLogs: Bool,
         completion: @escaping (Result<Void, any Error>) -> Void
     ) {
-        //  try await Task.sleep(nanoseconds: 1_000_000_000)
         if let reportError {
             completion(.failure(reportError))
         } else {
