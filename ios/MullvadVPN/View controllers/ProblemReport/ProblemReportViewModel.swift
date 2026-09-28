@@ -8,8 +8,6 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-// this will replace ProblemReportViewModel and be renamed to it, in the fullness of time
-
 import SwiftUI
 
 @MainActor
