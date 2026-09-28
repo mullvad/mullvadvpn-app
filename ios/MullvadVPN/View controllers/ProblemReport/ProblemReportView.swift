@@ -140,7 +140,9 @@ struct ProblemReportView: View {
                 .font(.mullvadSmall)
                 .apply {
                     if #available(iOS 18.0, *) {
-                        $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) { $0.background(Color.MullvadTextField.background) }
+                        $0.matchedTransitionSource(id: messageEditTransitionId, in: transitionNamespace) {
+                            $0.background(Color.MullvadTextField.background)
+                        }
                     } else {
                         $0
                     }
