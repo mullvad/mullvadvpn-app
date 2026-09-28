@@ -13,7 +13,7 @@ import SwiftUI
 extension ProblemReportView {
     struct LogView: View {
 
-        @State var viewModel: ProblemReportViewModelNew
+        @State var viewModel: ProblemReportViewModel
 
         var body: some View {
             VStack {
@@ -48,7 +48,7 @@ extension ProblemReportView {
 #Preview {
     ProblemReportView.LogView(
         viewModel: {
-            let viewModel = ProblemReportViewModelNew()
+            let viewModel = ProblemReportViewModel()
             viewModel.logText = """
                 xxxxxxxxxxxxxxxxxxxxx
                 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
