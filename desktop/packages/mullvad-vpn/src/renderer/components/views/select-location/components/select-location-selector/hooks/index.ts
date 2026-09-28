@@ -5,3 +5,6 @@ export * from './use-is-isolated';
 export * from './use-is-expanded';
 export * from './use-automatic-location-name';
 export * from './use-selected-item';
+export * from './use-is-location-in-hostname-locations';
+export * from './use-get-is-custom-list-in-hostname-locations';
+export * from './use-get-is-geographical-location-in-hostname-locations';
