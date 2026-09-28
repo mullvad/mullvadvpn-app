@@ -33,10 +33,13 @@ export function FilterViewContextProvider({ children }: FilterViewContextProvide
   );
   const locationType = filterViewOptions?.locationType ?? 'exit';
 
-  const { providers, activeProviders } = useProviders();
-  const { activeOwnership } = useOwnership();
-  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
+  const { exitOwnership, entryOwnership } = useOwnership();
+  const activeOwnership = locationType === 'entry' ? entryOwnership : exitOwnership;
   const [selectedOwnership, setSelectedOwnership] = React.useState<Ownership>(activeOwnership);
+
+  const { providers, exitProviders, entryProviders } = useProviders();
+  const activeProviders = locationType === 'entry' ? entryProviders : exitProviders;
+  const [selectedProviders, setSelectedProviders] = React.useState<string[]>(activeProviders);
 
   const availableProviders = useFilteredProviders(providers, selectedOwnership);
 
