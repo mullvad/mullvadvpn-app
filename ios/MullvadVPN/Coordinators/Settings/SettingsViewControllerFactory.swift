@@ -110,7 +110,7 @@ final class SettingsViewControllerFactory {
     private func makeProblemReportViewController() -> MakeChildResult {
         let viewController = UIHostingController(
             rootView: ProblemReportView(
-                viewModel: ProblemReportViewModelNew(
+                viewModel: ProblemReportViewModel(
                     interactor: interactorFactory.makeProblemReportInteractor()
                 )
             )

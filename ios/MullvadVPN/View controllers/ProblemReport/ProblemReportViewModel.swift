@@ -8,61 +8,96 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-import Foundation
+// this will replace ProblemReportViewModel and be renamed to it, in the fullness of time
 
-struct ProblemReportViewModel {
-    let email: String
-    let message: String
-    let includeAccountTokenInLogs: Bool
+import SwiftUI
 
-    static let navigationTitle = NSLocalizedString("Report a problem", comment: "")
+@MainActor
+@Observable final class ProblemReportViewModel {
+    enum ModalState: Identifiable {
+        case sending
+        case success
+        case failure
 
-    static let subheadLabelText = NSLocalizedString(
-        "To help you more effectively, your app’s log file will be attached to this message. "
-            + "Your data will remain secure and private, as it is anonymised before being "
-            + "sent over an encrypted channel.",
-        comment: ""
-    )
-
-    static let userPrivacyWarningText = NSLocalizedString(
-        "Include my account token for faster help with payment or account related issues",
-        comment: ""
-    )
-
-    static let emailPlaceholderText = NSLocalizedString("Your email (optional)", comment: "")
-
-    static let messageTextViewPlaceholder = NSLocalizedString(
-        "To assist you better, please write in English or Swedish and include which country you are connecting from.",
-        comment: ""
-    )
-
-    static let viewLogsButtonTitle = NSLocalizedString("View app logs", comment: "")
-
-    static let sendLogsButtonTitle = NSLocalizedString("Send", comment: "")
-
-    static let emptyEmailAlertWarning = NSLocalizedString(
-        "You are about to send the problem report without a way for us to get back to you. "
-            + "If you want an answer to your report you will have to enter an email address.",
-        comment: ""
-    )
-
-    static let confirmEmptyEmailTitle = NSLocalizedString("Send anyway", comment: "")
-
-    static let cancelEmptyEmailTitle = NSLocalizedString("Cancel", comment: "")
-
-    init() {
-        email = ""
-        message = ""
-        includeAccountTokenInLogs = false
+        var id: ModalState { self }
     }
 
-    init(email: String, message: String, includeAccountTokenInLogs: Bool) {
-        self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.message = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.includeAccountTokenInLogs = includeAccountTokenInLogs
+    var email: String = ""
+    var message: String = ""
+    var includeAccountTokenInLogs: Bool = false
+
+    var modalState: ModalState?
+    var isEditingMessage: Bool = false
+    var logText: String?
+    var showLogs: Binding<Bool>!
+    var alert: MullvadAlert?
+
+    let interactor: ProblemReportInteractorProtocol?
+
+    init(interactor: ProblemReportInteractorProtocol? = nil) {
+        self.interactor = interactor
+        showLogs = Binding<Bool>(
+            get: { self.logText != nil },
+            set: { if !$0 { self.logText = nil } }
+        )
     }
 
-    var isValid: Bool {
+    func doShowLog() {
+        Task {
+            self.logText = await interactor?.fetchReportString()
+        }
+    }
+
+    var canSend: Bool {
         !message.isEmpty
+    }
+
+    func submitForm() {
+        if email.isEmpty {
+            alert = MullvadAlert(
+                type: .warning,
+                messages: [
+                    """
+                    You are about to send the problem report without a way \
+                    for us to get back to you. If you want an answer to your \
+                    report you will have to enter an email address.
+                    """
+                ],
+                actions: [
+                    .init(
+                        type: .destructivePrimary,
+                        title: "Send anyway"
+                    ) {
+                        [weak self] in
+                        self?.alert = nil
+                        self?.doSend()
+                    },
+                    .init(
+                        type: .primary,
+                        title: "Cancel"
+                    ) { [weak self] in
+                        self?.alert = nil
+                    },
+                ]
+            )
+        } else {
+            doSend()
+        }
+    }
+
+    private func doSend() {
+        modalState = .sending
+        Task { [self] in
+            do {
+                try await interactor?.sendReport(
+                    email: email,
+                    message: message,
+                    includeAccountTokenInLogs: includeAccountTokenInLogs
+                )
+                modalState = .success
+            } catch {
+                modalState = .failure
+            }
+        }
     }
 }
