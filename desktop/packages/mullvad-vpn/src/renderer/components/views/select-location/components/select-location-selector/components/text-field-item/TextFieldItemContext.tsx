@@ -27,12 +27,15 @@ export const useTextFieldItemContext = (): TextFieldItemContextProps => {
 type TextFieldItemProviderProps = React.PropsWithChildren<{
   id: LocationSelectorSelectedItem;
   defaultValue?: string;
+  invalidReason?: string;
+  validate?: (value: string) => boolean | string;
   triggerRef?: React.RefObject<HTMLDivElement | null>;
 }>;
 
 export function TextFieldItemProvider({
   id,
   defaultValue,
+  validate,
   triggerRef: triggerRefProp,
   children,
 }: TextFieldItemProviderProps) {
@@ -51,6 +54,7 @@ export function TextFieldItemProvider({
   } = useTextField({
     defaultValue,
     inputRef,
+    validate,
   });
 
   const handleFocus = React.useCallback(() => {

@@ -1,6 +1,7 @@
 import { messages } from '../../../../../../../../shared/gettext';
 import { useSelectedLocations } from '../../../../../../../features/locations/hooks';
-import { useLocationName } from '../../hooks';
+import { LocationType } from '../../../../../../../features/locations/types';
+import { useGetIsLocationValid, useLocationName } from '../../hooks';
 import { type SelectLocationSelectorItemProps, TextFieldItem } from '../text-field-item';
 
 export type ExitItemProps = Omit<
@@ -11,6 +12,7 @@ export type ExitItemProps = Omit<
 export function ExitItem(props: ExitItemProps) {
   const { exit } = useSelectedLocations();
   const defaultValue = useLocationName(exit);
+  const validate = useGetIsLocationValid(LocationType.exit);
 
   return (
     <TextFieldItem
@@ -19,6 +21,7 @@ export function ExitItem(props: ExitItemProps) {
       aria-label={messages.gettext('Search exit location or server')}
       placeholder={messages.gettext('Search exit location or server')}
       defaultValue={defaultValue}
+      validate={validate}
       {...props}
     />
   );

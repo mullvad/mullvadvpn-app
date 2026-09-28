@@ -5,6 +5,7 @@ import { LocationSelector } from '../../../../../../../lib/components/location-s
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
 import { TextField } from '../../../../../../../lib/components/text-field';
 import { useSelectLocationViewContext } from '../../../../SelectLocationViewContext';
+import { FilterTrailingButton } from './components';
 import {
   useHandleClearButtonClick,
   useHandleFocusExit,
@@ -16,6 +17,7 @@ import { TextFieldItemProvider, useTextFieldItemContext } from './TextFieldItemC
 export type SelectLocationSelectorItemProps = LocationSelectorTextFieldItemProps & {
   defaultValue?: string;
   placeholder?: string;
+  validate?: (value: string) => string | boolean;
 };
 
 const StyledInput = styled(LocationSelector.Items.TextFieldItem.TextField.Input)`
@@ -32,7 +34,7 @@ function TextFieldItemImpl({
 }: Omit<SelectLocationSelectorItemProps, 'value' | 'inputRef' | 'delay'>) {
   const {
     triggerRef,
-    textField: { inputRef, value, handleFocus },
+    textField: { inputRef, value, handleFocus, invalid, invalidReason },
   } = useTextFieldItemContext();
   const { isolatedItem } = useSelectLocationViewContext();
 
@@ -43,6 +45,9 @@ function TextFieldItemImpl({
   const handleValueChange = useHandleValueChange();
 
   const showClearButton = id === isolatedItem;
+  const showFilterTrailingButton = !isolatedItem;
+
+  const textFieldInvalid = !isolatedItem && invalid;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -51,11 +56,12 @@ function TextFieldItemImpl({
       triggerRef={triggerRef}
       {...props}>
       <LocationSelector.Items.TextFieldItem.Trigger aria-label={ariaLabel}>
-        <TextField.InputGroup>
-          <LocationSelector.Items.TextFieldItem.TextField
-            value={value}
-            onFocusExit={handleFocusExit}
-            onValueChange={handleValueChange}>
+        <LocationSelector.Items.TextFieldItem.TextField
+          invalid={textFieldInvalid}
+          value={value}
+          onFocusExit={handleFocusExit}
+          onValueChange={handleValueChange}>
+          <TextField.InputGroup>
             <StyledInput
               placeholder={placeholder}
               onFocus={handleFocus}
@@ -68,16 +74,27 @@ function TextFieldItemImpl({
                 aria-label={messages.pgettext('accessibility', 'Clear search')}
               />
             )}
-          </LocationSelector.Items.TextFieldItem.TextField>
-        </TextField.InputGroup>
+            {showFilterTrailingButton && <FilterTrailingButton />}
+          </TextField.InputGroup>
+          {textFieldInvalid && (
+            <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+              {invalidReason}
+            </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+          )}
+        </LocationSelector.Items.TextFieldItem.TextField>
       </LocationSelector.Items.TextFieldItem.Trigger>
     </LocationSelector.Items.TextFieldItem>
   );
 }
 
-export function TextFieldItem({ defaultValue, id, ...props }: SelectLocationSelectorItemProps) {
+export function TextFieldItem({
+  defaultValue,
+  id,
+  validate,
+  ...props
+}: SelectLocationSelectorItemProps) {
   return (
-    <TextFieldItemProvider id={id} defaultValue={defaultValue}>
+    <TextFieldItemProvider id={id} defaultValue={defaultValue} validate={validate}>
       <TextFieldItemImpl id={id} {...props} />
     </TextFieldItemProvider>
   );
