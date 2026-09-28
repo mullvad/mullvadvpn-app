@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.di
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.system.Os
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -105,6 +106,12 @@ val appModule = module {
                 address = BuildConfig.API_IP,
                 sigsumTrustedPubkeys = BuildConfig.SIGSUM_TRUSTED_PUBKEYS,
             )
+        }
+
+        // If we override the endpoint we should also set the
+        // Override the MULLVAD_CONNCHECK_HOST used by the daemon.
+        if (BuildConfig.AM_I_URL.isNotEmpty()) {
+            Os.setenv("MULLVAD_CONNCHECK_HOST", BuildConfig.AM_I_URL, true)
         }
     }
 }
