@@ -123,13 +123,21 @@ final class TestClock: Clock {
     ///
     /// Code under test registers its next sleep asynchronously (a periodic timer only re-arms
     /// once the event it emitted has been handled), so `advance(by:)` needs the sleeper to exist
-    /// before it can wake it. Waiting for that is deterministic.
-    func waitForSleepers(_ count: Int = 1, file: StaticString = #filePath, line: UInt = #line) async {
-        for _ in 0..<10_000 {
-            if sleeperCount >= count { return }
+    /// before it can wake it. Bounded by wall-clock time, as a yield count can elapse in microseconds.
+    func waitForSleepers(
+        _ count: Int = 1,
+        timeout: Duration = .seconds(5),
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) async {
+        let deadline = ContinuousClock.now + timeout
+        while sleeperCount < count {
+            guard ContinuousClock.now < deadline else {
+                XCTFail("Timed out waiting for \(count) sleeper(s), found \(sleeperCount)", file: file, line: line)
+                return
+            }
             await Task.yield()
         }
-        XCTFail("Timed out waiting for \(count) sleeper(s), found \(sleeperCount)", file: file, line: line)
     }
 
     /// Wake every sleeper, however far in the future, until none are left.
