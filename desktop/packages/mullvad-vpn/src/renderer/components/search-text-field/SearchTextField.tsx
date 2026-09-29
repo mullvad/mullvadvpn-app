@@ -2,6 +2,7 @@ import React from 'react';
 
 import { TextField, TextFieldProps } from '../../lib/components/text-field';
 import { useDebounce } from '../../lib/hooks/use-debounce';
+import { createComponentNamespace } from '../../utils';
 import { SearchTextFieldClearButton } from './components';
 
 export type SearchTextFieldProps = TextFieldProps & {
@@ -23,11 +24,10 @@ function SearchTextField({ value, onValueChange, delay = 200, ...props }: Search
   return <TextField value={internalValue} onValueChange={setInternalValue} {...props} />;
 }
 
-const SearchTextFieldNamespace = Object.assign(SearchTextField, {
-  Input: TextField.Input,
-  Label: TextField.Label,
-  Icon: TextField.Icon,
-  ClearButton: SearchTextFieldClearButton,
+const SearchTextFieldNamespace = createComponentNamespace(SearchTextField, {
+  InputGroup: createComponentNamespace(TextField.InputGroup, {
+    ClearButton: SearchTextFieldClearButton,
+  }),
 });
 
 export { SearchTextFieldNamespace as SearchTextField };

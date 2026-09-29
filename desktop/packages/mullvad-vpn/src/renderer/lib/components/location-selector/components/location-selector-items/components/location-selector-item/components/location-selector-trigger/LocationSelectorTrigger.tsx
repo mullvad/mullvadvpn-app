@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../../../../../../foundations';
-import { StyledTextFieldInput } from '../../../../../../../text-field/components';
+import { StyledTextFieldInput } from '../../../../../../../text-field/components/text-field-input-group/components/text-field-input';
 import { useLocationSelectorItemContext } from '../../LocationSelectorItemContext';
 
 export type LocationSelectorTriggerProps = React.ComponentPropsWithoutRef<'div'>;
