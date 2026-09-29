@@ -68,6 +68,12 @@
               inherit pkgs android-toolchain;
             };
           };
+
+        packages = pkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          android-build-image = import ./nix/android-image.nix {
+            inherit pkgs android-toolchain;
+          };
+        };
       }
     );
 }
