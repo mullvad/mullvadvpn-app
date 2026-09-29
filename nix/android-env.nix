@@ -16,6 +16,7 @@ let
       "darwin-x86_64"
     else
       throw "Unsupported OS/architecture combination: ${pkgs.stdenv.hostPlatform.system}";
+  ndkToolchainDir = "${android-sdk}/share/android-sdk/ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostPlatform}/bin";
 in
 [
   {
@@ -43,55 +44,55 @@ in
   }
   {
     name = "NDK_TOOLCHAIN_DIR";
-    value = "${android-sdk}/share/android-sdk/ndk/${ndkVersion}/toolchains/llvm/prebuilt/${hostPlatform}/bin";
+    value = ndkToolchainDir;
   }
   {
     name = "AR_aarch64_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/llvm-ar";
+    value = "${ndkToolchainDir}/llvm-ar";
   }
   {
     name = "CC_aarch64_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/aarch64-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/aarch64-linux-android${minSdkVersion}-clang";
   }
   {
     name = "CARGO_TARGET_aarch64_LINUX_ANDROID_LINKER";
-    value = "$NDK_TOOLCHAIN_DIR/aarch64-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/aarch64-linux-android${minSdkVersion}-clang";
   }
   {
     name = "AR_armv7_linux_androideabi";
-    value = "$NDK_TOOLCHAIN_DIR/llvm-ar";
+    value = "${ndkToolchainDir}/llvm-ar";
   }
   {
     name = "CC_armv7_linux_androideabi";
-    value = "$NDK_TOOLCHAIN_DIR/armv7-linux-androideabi${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/armv7-linux-androideabi${minSdkVersion}-clang";
   }
   {
     name = "CARGO_TARGET_armv7_LINUX_ANDROID_LINKER";
-    value = "$NDK_TOOLCHAIN_DIR/armv7-linux-androideabi${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/armv7-linux-androideabi${minSdkVersion}-clang";
   }
   {
     name = "AR_x86_64_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/llvm-ar";
+    value = "${ndkToolchainDir}/llvm-ar";
   }
   {
     name = "CC_x86_64_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/x86_64-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/x86_64-linux-android${minSdkVersion}-clang";
   }
   {
     name = "CARGO_TARGET_x86_64_LINUX_ANDROID_LINKER";
-    value = "$NDK_TOOLCHAIN_DIR/x86_64-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/x86_64-linux-android${minSdkVersion}-clang";
   }
   {
     name = "AR_i686_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/llvm-ar";
+    value = "${ndkToolchainDir}/llvm-ar";
   }
   {
     name = "CC_i686_linux_android";
-    value = "$NDK_TOOLCHAIN_DIR/i686-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/i686-linux-android${minSdkVersion}-clang";
   }
   {
     name = "CARGO_TARGET_i686_LINUX_ANDROID_LINKER";
-    value = "$NDK_TOOLCHAIN_DIR/i686-linux-android${minSdkVersion}-clang";
+    value = "${ndkToolchainDir}/i686-linux-android${minSdkVersion}-clang";
   }
 ]
 ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
