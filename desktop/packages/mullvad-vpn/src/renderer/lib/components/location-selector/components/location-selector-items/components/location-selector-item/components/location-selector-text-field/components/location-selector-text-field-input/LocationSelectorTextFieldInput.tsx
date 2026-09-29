@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { colors } from '../../../../../../../../../../foundations';
 import { TextField } from '../../../../../../../../../text-field';
-import type { TextFieldInputProps } from '../../../../../../../../../text-field/components';
+import type { TextFieldInputProps } from '../../../../../../../../../text-field/components/text-field-input-group/components';
 import { useIsLocationSelected } from '../../../../hooks';
 import { useLocationSelectorItemContext } from '../../../../LocationSelectorItemContext';
 import { LocationSelectorInputIcon } from './components';
@@ -17,7 +17,7 @@ export const StyledLocationSelectorTextFieldInput = styled.div`
   flex: 1;
 `;
 
-export const StyledLocationSelectorTextFieldInputInput = styled(TextField.Input)<{
+export const StyledLocationSelectorTextFieldInputInput = styled(TextField.InputGroup.Input)<{
   $selected: boolean;
 }>`
   ${({ $selected }) => {
