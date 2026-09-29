@@ -36,8 +36,8 @@ android {
         }
     }
 
-    // We need to setup the dimensions and flavors in order for the baseline profile
-    // module to be able to to use :test:common.
+    // We need to set up the dimensions and flavors in order for the baseline profile
+    // module to be able to use :test:common.
     flavorDimensions += FlavorDimensions.BILLING
     flavorDimensions += FlavorDimensions.INFRASTRUCTURE
 

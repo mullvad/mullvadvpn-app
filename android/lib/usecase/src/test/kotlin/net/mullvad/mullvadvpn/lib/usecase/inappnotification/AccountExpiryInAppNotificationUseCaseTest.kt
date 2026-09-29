@@ -102,7 +102,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
         accountExpiryInAppNotificationUseCase().test {
             assertNull(awaitItem())
 
-            // Set expiry to to be in the final update interval.
+            // Set expiry to be in the final update interval.
             val inLastUpdate =
                 ZonedDateTime.now()
                     .plus(ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL)

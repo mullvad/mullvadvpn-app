@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private fun handleRequestVpnProfileIntent() {
         when (val prepareResult = prepareVpnSafe().merge()) {
             is PrepareError.NotPrepared -> launchVpnPermission.launch(prepareResult.prepareIntent)
-            // If legacy or other always on connect at let daemon generate a error state
+            // If legacy or other always on connect at let daemon generate an error state
             is PrepareError.OtherLegacyAlwaysOnVpn,
             is PrepareError.OtherAlwaysOnApp,
             Prepared -> mullvadAppViewModel.connect()

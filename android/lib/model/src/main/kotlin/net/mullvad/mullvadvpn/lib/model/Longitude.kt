@@ -38,7 +38,7 @@ value class Longitude(val value: Float) : Parcelable {
         /**
          * Create a [Longitude] from a float value.
          *
-         * This function will unwind a float to a valid longitude value. E.g 190 will be unwound to
+         * This function will unwind a float to a valid longitude value. E.g. 190 will be unwound to
          * -170 and 360 will be unwound to 0.
          */
         fun fromFloat(value: Float): Longitude {

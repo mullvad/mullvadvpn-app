@@ -197,7 +197,7 @@ class FileLogWriterTest {
         assertEquals(2, logFiles.size)
         assertTrue(logFiles.contains(log2))
         assertFalse(logFiles.contains(log1))
-        // Also check that the second oldest log was truncated.
+        // Also check that the second-oldest log was truncated.
         assertTrue(log2OrigSize > log2.fileSize())
     }
 

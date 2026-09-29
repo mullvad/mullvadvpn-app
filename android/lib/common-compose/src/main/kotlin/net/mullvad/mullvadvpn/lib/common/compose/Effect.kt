@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
-// This function will restart collection on Start/Stop events, e.g if the user navigates to home
+// This function will restart collection on Start/Stop events, e.g. if the user navigates to home
 // screen collection will stop, and then be restarted when the user opens the app again
 @Composable
 inline fun <T> CollectSideEffectWithLifecycle(

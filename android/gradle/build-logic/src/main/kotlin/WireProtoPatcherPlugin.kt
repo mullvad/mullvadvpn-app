@@ -35,7 +35,7 @@ class WireProtoPatcherPlugin : Plugin<Project> {
         // Wait for the Wire plugin to be applied in the consumer project
         project.pluginManager.withPlugin("com.squareup.wire") {
 
-            // Auto-configure Wire's Task dependency using class name reflection
+            // Autoconfigure Wire's Task dependency using class name reflection
             // (so we don't have to add Wire as a classpath dependency in buildLogic)
             project.tasks.configureEach {
                 if (this.javaClass.name.startsWith("com.squareup.wire.gradle.WireTask")) {

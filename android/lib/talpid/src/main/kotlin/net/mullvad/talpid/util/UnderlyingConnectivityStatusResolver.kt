@@ -25,12 +25,12 @@ class UnderlyingConnectivityStatusResolver(
 
     // Fake a connection to a public ip address using a UDP socket.
     // We don't care about the result of the connection, only that it is possible to create.
-    // This is done this way since otherwise there is not way to check the availability of an ip
+    // This is done this way since otherwise there is no way to check the availability of an ip
     // version on the underlying network if the VPN is turned on.
     // Since we are protecting the socket it will use the underlying network regardless
     // if the VPN is turned on or not.
     // If the ip version is not supported on the underlying network it will trigger a socket
-    // exception. Otherwise we assume it is available.
+    // exception, otherwise we assume it is available.
     private fun hasIpVersion(
         ip: InetAddress,
         protect: (socket: DatagramSocket) -> Boolean,

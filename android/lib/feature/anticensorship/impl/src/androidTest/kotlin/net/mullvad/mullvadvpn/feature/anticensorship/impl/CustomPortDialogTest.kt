@@ -66,7 +66,7 @@ class CustomPortDialogTest {
 
     @Test
     fun testShowWireguardCustomPortDialogInvalidInt() = composeExtension.use {
-        // Input a number to make sure that a too long number does not show and it does not
+        // Input a number to make sure that a too long number does not show, and it does not
         // crash the app
 
         // Arrange

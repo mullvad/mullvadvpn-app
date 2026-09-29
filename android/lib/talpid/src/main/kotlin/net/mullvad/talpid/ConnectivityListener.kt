@@ -84,7 +84,7 @@ class ConnectivityListener(
     }
 
     /**
-     * Invalidates the network state cache. E.g when the VPN is connected or disconnected, and we
+     * Invalidates the network state cache. E.g. when the VPN is connected or disconnected, and we
      * know the last known values not to be correct anymore.
      */
     fun invalidateNetworkStateCache() {
