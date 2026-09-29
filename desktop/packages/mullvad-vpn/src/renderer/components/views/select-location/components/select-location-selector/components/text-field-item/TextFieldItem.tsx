@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { messages } from '../../../../../../../../shared/gettext';
 import { LocationSelector } from '../../../../../../../lib/components/location-selector';
 import type { LocationSelectorTextFieldItemProps } from '../../../../../../../lib/components/location-selector/components/location-selector-items/components';
+import { TextField } from '../../../../../../../lib/components/text-field';
+import { FilterTrailingButton } from './components';
 import {
   useHandleClearButtonClick,
   useHandleFocusExit,
@@ -42,6 +44,7 @@ function TextFieldItemImpl({
   const handleValueChange = useHandleValueChange();
 
   const showClearButton = focused && value.length > 0;
+  const showSupportingText = invalid;
 
   return (
     <LocationSelector.Items.TextFieldItem
@@ -54,17 +57,29 @@ function TextFieldItemImpl({
         value={value}
         onFocusExit={handleFocusExit}
         onValueChange={handleValueChange}>
-        <StyledInput
-          placeholder={placeholder}
-          onFocus={handleFocus}
-          onKeyDown={handleKeyDown}
-          type="search"
-        />
-        {showClearButton && (
-          <LocationSelector.Items.TextFieldItem.TextField.ClearButton
-            onClick={handleClearButtonClick}
-            aria-label={messages.gettext('Clear')}
+        <TextField.InputGroup>
+          <StyledInput
+            placeholder={placeholder}
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            type="search"
           />
+          {showClearButton && (
+            <LocationSelector.Items.TextFieldItem.TextField.ClearButton
+              onClick={handleClearButtonClick}
+              aria-label={messages.gettext('Clear')}
+            />
+          )}
+        </TextField.InputGroup>
+        <FilterTrailingButton />
+        {showSupportingText && (
+          <LocationSelector.Items.TextFieldItem.TextField.SupportingText>
+            {
+              // TRANSLATORS: Error label informing the user that their currently selected server
+              // TRANSLATORS: does not match their current filter settings
+              messages.pgettext('select-location-view', 'Selection does not match filter settings')
+            }
+          </LocationSelector.Items.TextFieldItem.TextField.SupportingText>
         )}
       </LocationSelector.Items.TextFieldItem.TextField>
     </LocationSelector.Items.TextFieldItem>
