@@ -7,6 +7,13 @@ use neon::types::{JsString, JsValue, Value};
 
 use talpid_error::ErrorExt;
 
+use widestring::{U16CStr, U16CString};
+
+use windows_sys::Win32::Foundation::ERROR_PIPE_BUSY;
+use windows_sys::Win32::System::Pipes::WaitNamedPipeW;
+
+const PIPE_TIMEOUT_MSEC: u32 = 5000;
+
 #[derive(thiserror::Error, Debug)]
 enum Error {
     /// Failed to open the provided file
@@ -16,6 +23,10 @@ enum Error {
     /// Failed to check pipe ownership (GetSecurityInfo)
     #[error("Failed to check named pipe ownership (GetSecurityInfo failed)")]
     CheckPermissions(#[source] io::Error),
+
+    /// Failed to wait on named pipe
+    #[error("Timed out waiting on named pipe")]
+    PipeTimeout(#[source] io::Error),
 }
 
 pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
@@ -28,10 +39,35 @@ pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue>
 }
 
 fn pipe_is_admin_owned_inner<P: AsRef<Path>>(path: P) -> Result<bool, Error> {
-    let client = std::fs::File::options()
-        .read(true)
-        .open(path)
-        .map_err(Error::OpenPipe)?;
+    let path = path.as_ref();
+
+    let client = loop {
+        let result = std::fs::File::options().read(true).open(path);
+
+        match result {
+            Ok(client) => break client,
+            // If the pipe is busy, wait for it to become available
+            Err(err) if err.raw_os_error() == Some(ERROR_PIPE_BUSY as i32) => {
+                let pipe_name = U16CString::from_os_str_truncate(path);
+                wait_named_pipe(&pipe_name).map_err(Error::PipeTimeout)?;
+                // try again
+            }
+            Err(err) => return Err(Error::OpenPipe(err)),
+        }
+    };
 
     talpid_windows::fs::is_admin_owned(client).map_err(Error::CheckPermissions)
+}
+
+/// If an instance of the pipe is available before the [time-out interval](PIPE_TIMEOUT_MSEC)
+/// elapses, the return value is `Ok(())`, otherwise `Err(_)`.
+///
+/// <https://learn.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-waitnamedpipew>
+fn wait_named_pipe(pipe_name: &U16CStr) -> io::Result<()> {
+    // SAFETY: `pipe_name` is null-terminated.
+    let status = unsafe { WaitNamedPipeW(pipe_name.as_ptr(), PIPE_TIMEOUT_MSEC) };
+    if status == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(())
 }
