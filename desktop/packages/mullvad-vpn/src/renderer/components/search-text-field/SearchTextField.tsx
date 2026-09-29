@@ -24,9 +24,7 @@ function SearchTextField({ value, onValueChange, delay = 200, ...props }: Search
 }
 
 const SearchTextFieldNamespace = Object.assign(SearchTextField, {
-  Input: TextField.Input,
-  Label: TextField.Label,
-  Icon: TextField.Icon,
+  InputGroup: TextField.InputGroup,
   ClearButton: SearchTextFieldClearButton,
 });
 

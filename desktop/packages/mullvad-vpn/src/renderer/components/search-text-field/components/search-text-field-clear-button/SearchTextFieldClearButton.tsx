@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TextField, useTextFieldContext } from '../../../../lib/components/text-field';
-import { TextFieldIconButtonProps } from '../../../../lib/components/text-field/components';
+import { type TextFieldIconButtonProps } from '../../../../lib/components/text-field/components/text-field-input-group/components';
 
 export type SearchTextFieldClearButtonProps = TextFieldIconButtonProps;
 
@@ -13,8 +13,8 @@ export function SearchTextFieldClearButton(props: SearchTextFieldClearButtonProp
   }, [onValueChange]);
 
   return value ? (
-    <TextField.IconButton onClick={handleClick} {...props}>
-      <TextField.IconButton.Icon icon="cross" />
-    </TextField.IconButton>
+    <TextField.InputGroup.IconButton onClick={handleClick} {...props}>
+      <TextField.InputGroup.IconButton.Icon icon="cross" />
+    </TextField.InputGroup.IconButton>
   ) : null;
 }
