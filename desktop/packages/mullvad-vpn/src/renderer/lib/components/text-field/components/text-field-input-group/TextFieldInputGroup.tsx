@@ -7,7 +7,7 @@ import {
   StyledTextFieldInput,
   TextFieldIcon,
   TextFieldIconButton,
-  TextFieldLabel,
+  TextFieldInput,
 } from './components';
 
 export type TextFieldInputGroupProps = React.PropsWithChildren;
@@ -38,7 +38,7 @@ function TextFieldInputGroup({ children }: TextFieldInputGroupProps) {
 }
 
 const TextFieldInputGroupNamespace = Object.assign(TextFieldInputGroup, {
-  Label: TextFieldLabel,
+  Input: TextFieldInput,
   Icon: TextFieldIcon,
   IconButton: TextFieldIconButton,
 });
