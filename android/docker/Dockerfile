@@ -11,7 +11,7 @@
 #     mullvadvpn-app-build-android ./android/gradlew -p android debug
 
 # Base image: Debian trixie (13.7-slim)
-FROM debian@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
+FROM --platform=linux/amd64 debian@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
