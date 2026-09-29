@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 // https://developer.android.com/reference/androidx/core/content/FileProvider
 // From link: It is possible to use FileProvider directly instead of extending it. However, this is
-// not reliable and will causes crashes on some devices.
+// not reliable and will cause crashes on some devices.
 class MullvadFileProvider : FileProvider(R.xml.provider_paths) {
     companion object {
         fun uriForFile(context: Context, file: File): Uri {

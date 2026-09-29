@@ -62,7 +62,7 @@
             Launch mode should singleInstance to avoid this vulnerability;
             https://developer.android.com/privacy-and-security/risks/strandhogg
             This can be disregarded when the minimum supported version is 29 or higher
-            since after that it has been patched on a OS level.
+            since after that it has been patched on an OS level.
         -->
         <activity
             android:name="net.mullvad.mullvadvpn.app.MainActivity"

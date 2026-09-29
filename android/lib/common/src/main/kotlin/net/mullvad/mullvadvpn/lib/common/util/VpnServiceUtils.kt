@@ -23,12 +23,12 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
 /**
  * Prepare to establish a VPN connection safely.
  *
- * Invoking VpnService.prepare() can result in 3 out comes:
+ * Invoking VpnService.prepare() can result in 3 outcomes:
  * 1. IllegalStateException - There is a legacy VPN profile marked as always on
  * 2. Intent
  *     - A: Can-prepare - Create Vpn profile or Always-on-VPN is not detected in case of Android 11+
  *     - B: Always-on-VPN - Another Vpn Profile is marked as always on (Only available up to Android
- *       11 or where testOnly is set, e.g builds from Android Studio)
+ *       11 or where testOnly is set, e.g. builds from Android Studio)
  * 3. null - The app has the VPN permission
  *
  * In case 1 and 2b, you don't know if you have a VPN profile or not.
@@ -64,7 +64,7 @@ private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 // NOTE: This function will return the current Always-on VPN package's name. In case of either
 // Always-on VPN being disabled or not being able to read the state, null will be returned.
 //
-// Caveat: For Android 11+ it will always return null unless the app is a test build (e.g running
+// Caveat: For Android 11+ it will always return null unless the app is a test build (e.g. running
 // from Android Studio).
 @DeprecatedSinceApi(Build.VERSION_CODES.S)
 fun Context.getOtherAlwaysOnVpnAppName(): String? {

@@ -242,7 +242,7 @@ class AddTimeViewModelTest {
             awaitItem()
             purchaseResult.emit(
                 purchaseResultLoading
-            ) // Set up loading state so we get a new state when we emit cancelled
+            ) // Set up loading state so we get a new state when we emit canceled
             val loadingItem = awaitItem()
             assertIs<Lc.Content<AddTimeUiState>>(loadingItem)
             assertEquals(PurchaseState.Connecting, loadingItem.value.purchaseState)

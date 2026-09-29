@@ -76,7 +76,7 @@ class ConnectivityManagerUtilKtTest {
         }
     }
 
-    /** User starting offline and then turning on a online after a while */
+    /** User starting offline and then turning online after a while */
     @Test
     fun initiallyOfflineThenBecomingOnline() = runTest {
         val network = mockk<Network>()

@@ -122,7 +122,7 @@ internal class LocationMarker(val colors: LocationMarkerColors) {
         val positions = FloatArray(points * VERTEX_COMPONENT_SIZE)
         val positionsColor = FloatArray(points * COLOR_COMPONENT_SIZE)
 
-        // Start adding the center the center point
+        // Start adding the center point
         offset.forEachIndexed { index, value -> positions[index] = value }
         centerColor.toFloatArray().forEachIndexed { index, value -> positionsColor[index] = value }
 

@@ -19,7 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * This generates a baseline profile for the Mullvad VPN app. Run this from gradle with: ./gradlew
+ * This generates a baseline profile for the Mullvad VPN app. Run this from Gradle with: ./gradlew
  * generatePlayProdReleaseBaselineProfile
  *
  * This should be done from time to time to keep the profile up to date with the app.

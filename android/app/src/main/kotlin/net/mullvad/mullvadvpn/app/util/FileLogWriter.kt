@@ -99,7 +99,7 @@ class FileLogWriter(
 
                 val size = oldest.fileSize()
                 if (size <= needToTruncate) {
-                    // Size of the the oldest log is less than what we need to truncate so
+                    // Size of the oldest log is less than what we need to truncate so
                     // we can just delete the file. Note that this can never be the current log.
                     oldest.deleteExisting()
                     needToTruncate -= size

@@ -60,7 +60,7 @@ class CustomListsRepository(
     }
 
     /**
-     * There is no guarantee this will return a up to date custom list. E.g if you invoked
+     * There is no guarantee this will return an up-to-date custom list. E.g. if you invoked
      * updateCustomList just before this you might get an out of date value.
      */
     fun getCustomListById(id: CustomListId): Either<GetCustomListError, CustomList> = either {
