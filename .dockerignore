@@ -3,4 +3,5 @@
 !building/install-base-tools.sh
 !building/install-rust.sh
 !rust-toolchain.toml
+!android/docker/pkcs11_java.cfg
 !desktop/package.json

@@ -28,7 +28,7 @@ case ${1-:""} in
     android)
         container_name="mullvadvpn-app-build-android"
         containerfile_path="$REPO_DIR/android/docker/Dockerfile"
-        container_context_dir="$REPO_DIR/android/docker/"
+        container_context_dir="$REPO_DIR"
         image_reference_file="building/android-container-image.txt"
     ;;
     *)

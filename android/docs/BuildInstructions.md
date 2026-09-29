@@ -247,8 +247,9 @@ When building without the container on Linux systems, reproducibility depends on
 To maximize reproducibility when building without the container:
 
 - Build the app on a **Linux system or virtual machine**.
-- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../../building/Dockerfile)
-  and [Android Dockerfile](../docker/Dockerfile). This includes for example Android SDK and NDK versions.
+- Use the exact same versions of all build dependencies as specified in the [Android Dockerfile](../docker/Dockerfile)
+  and the setup scripts in [building](../../building) that it runs. This includes for example the Rust toolchain,
+  protobuf compiler, and Android SDK and NDK versions.
 
 ### How to verify reproducible builds across environments
 
