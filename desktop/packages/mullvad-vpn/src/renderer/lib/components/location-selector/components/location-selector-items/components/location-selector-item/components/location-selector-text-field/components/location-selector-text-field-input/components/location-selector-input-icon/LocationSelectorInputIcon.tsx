@@ -1,4 +1,4 @@
-import type { TextFieldIconProps } from '../../../../../../../../../../../text-field/components';
+import type { TextFieldIconProps } from '../../../../../../../../../../../text-field/components/text-field-input-group/components/text-field-icon';
 import { LocationSelectorIcon } from '../../../../../../../../../locations-selector-icon';
 import { useIsLocationSelected } from '../../../../../../hooks';
 import { useLocationSelectorItemContext } from '../../../../../../LocationSelectorItemContext';
