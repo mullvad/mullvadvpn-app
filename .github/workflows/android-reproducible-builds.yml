@@ -24,6 +24,7 @@ on:
       - 'nix/android-*.nix'
       - 'nix/common-toolchain.nix'
       - 'android/fdroid-build/**'
+      - 'building/install-rust.sh'
   push:
     tags:
       - 'android/**'

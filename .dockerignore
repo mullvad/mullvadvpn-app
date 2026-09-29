@@ -1,2 +1,6 @@
 **/*
+!building/setup-debian-snapshot.sh
+!building/install-base-tools.sh
+!building/install-rust.sh
+!rust-toolchain.toml
 !desktop/package.json
