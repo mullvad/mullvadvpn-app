@@ -1,1 +1,1 @@
-ghcr.io/mullvad/mullvadvpn-app-build@sha256:2a0b639bb7df9553eb50fe447c0567dc9323a652159c4a8bbfd3c356d635eb6d
+ghcr.io/albin-mullvad/mullvadvpn-app-build@sha256:a7f7bb8fba1b8321efe0fe5e82402e4e4512887578e9b4bfeae8ff4a11f53ed1
