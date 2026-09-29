@@ -37,7 +37,7 @@ COPY building/setup-debian-snapshot.sh /tmp/
 RUN /tmp/setup-debian-snapshot.sh && rm /tmp/setup-debian-snapshot.sh
 
 COPY building/install-base-tools.sh /tmp/
-RUN /tmp/install-base-tools.sh && rm /tmp/install-base-tools.sh
+RUN /tmp/install-base-tools.sh linux && rm /tmp/install-base-tools.sh
 
 COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
 RUN /tmp/rust/install-rust.sh linux && rm -r /tmp/rust
