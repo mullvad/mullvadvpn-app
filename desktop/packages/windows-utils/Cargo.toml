@@ -16,6 +16,7 @@ neon = "1"
 talpid-error.workspace = true
 talpid-windows = { path = "../../../talpid-windows" }
 thiserror = { workspace = true }
+widestring = { workspace = true }
 windows = { workspace = true, features = [
   "Win32",
   "Win32_Storage_FileSystem",

@@ -1,5 +1,4 @@
 use std::io;
-use std::os::windows::ffi::OsStrExt;
 use std::path::Path;
 
 use neon::prelude::{Context, FunctionContext};
@@ -7,6 +6,8 @@ use neon::result::JsResult;
 use neon::types::{JsString, JsValue, Value};
 
 use talpid_error::ErrorExt;
+
+use widestring::{U16CStr, U16CString};
 
 use windows_sys::Win32::Foundation::ERROR_PIPE_BUSY;
 use windows_sys::Win32::System::Pipes::WaitNamedPipeW;
@@ -47,12 +48,8 @@ fn pipe_is_admin_owned_inner<P: AsRef<Path>>(path: P) -> Result<bool, Error> {
             Ok(client) => break client,
             // If the pipe is busy, wait for it to become available
             Err(err) if err.raw_os_error() == Some(ERROR_PIPE_BUSY as i32) => {
-                let name_utf16: Vec<u16> = path.as_os_str().encode_wide().chain(Some(0)).collect();
-                // SAFETY: `name_utf16` is null-terminated.
-                let status = unsafe { WaitNamedPipeW(name_utf16.as_ptr(), PIPE_TIMEOUT_MSEC) };
-                if status == 0 {
-                    return Err(Error::PipeTimeout(err));
-                }
+                let pipe_name = U16CString::from_os_str_truncate(path);
+                wait_named_pipe(&pipe_name).map_err(Error::PipeTimeout)?;
                 // try again
             }
             Err(err) => return Err(Error::OpenPipe(err)),
@@ -60,4 +57,17 @@ fn pipe_is_admin_owned_inner<P: AsRef<Path>>(path: P) -> Result<bool, Error> {
     };
 
     talpid_windows::fs::is_admin_owned(client).map_err(Error::CheckPermissions)
+}
+
+/// If an instance of the pipe is available before the [time-out interval](PIPE_TIMEOUT_MSEC)
+/// elapses, the return value is `Ok(())`, otherwise `false`.
+///
+/// <https://learn.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-waitnamedpipew>
+fn wait_named_pipe(pipe_name: &U16CStr) -> io::Result<()> {
+    // SAFETY: `pipe_name` is null-terminated.
+    let status = unsafe { WaitNamedPipeW(pipe_name.as_ptr(), PIPE_TIMEOUT_MSEC) };
+    if status == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    Ok(())
 }
