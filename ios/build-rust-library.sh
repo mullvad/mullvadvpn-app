@@ -104,7 +104,9 @@ for arch in $ARCHS; do
             fi
 
             echo "Generating Swift bindings from $LIB..."
-            time xcrun --sdk macosx "$HOME"/.cargo/bin/cargo run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
+            # xcrun spawns xcodebuild, which writes its plugin cache relative to CACHE_ROOT.
+            # Point it at a temporary directory to keep it out of the source tree.
+            time CACHE_ROOT="${TMPDIR:-/tmp}/mullvad-xcrun-cache" xcrun --sdk macosx "$HOME"/.cargo/bin/cargo run -p mullvad-ios --features uniffi-cli --bin uniffi-bindgen -- \
                 generate \
                 --library "$LIB" \
                 --language swift \
