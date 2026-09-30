@@ -5,22 +5,30 @@ import { Trigger, type TriggerProps } from '../trigger';
 import { FilterChipIcon, FilterChipText, StyledFilterChipIcon } from './components';
 import { FilterChipProvider } from './FilterChipContext';
 
-export type FilterChipProps<T extends React.ElementType = 'button'> = TriggerProps<T>;
+export type FilterChipProps<T extends React.ElementType = 'button'> = TriggerProps<T> & {
+  inactive?: boolean;
+};
 
 const variables = {
   background: colors.blue,
   hover: colors.blue60,
   active: colors.blue40,
+  inactive: colors.blue20,
+  inactiveHover: colors.blue40,
+  inactiveActive: colors.blue60,
   disabled: colors.blue50,
 } as const;
 
-export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean }>`
-  ${({ $hasOnClick }) => {
+export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean; $inactive?: boolean }>`
+  ${({ $hasOnClick, $inactive }) => {
     return css`
       --background: ${variables.background};
       --hover: ${variables.hover};
       --active: ${variables.active};
       --disabled: ${variables.disabled};
+      --inactive: ${variables.inactive};
+      --inactive-hover: ${variables.inactiveHover};
+      --inactive-active: ${variables.inactiveActive};
 
       display: flex;
       align-items: center;
@@ -58,6 +66,31 @@ export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean }>`
         return null;
       }}
 
+      ${() => {
+        if ($inactive) {
+          return css`
+            background-color: var(--inactive);
+
+            &:not(:disabled) {
+              &:hover {
+                background-color: var(--inactive-hover);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.whiteAlpha80};
+                }
+              }
+              &:active {
+                background-color: var(--inactive-active);
+                > ${StyledFilterChipIcon} {
+                  background-color: ${colors.white};
+                }
+              }
+            }
+          `;
+        }
+
+        return null;
+      }}
+
       &:disabled {
         background: var(--disabled);
       }
@@ -72,15 +105,17 @@ function FilterChip<T extends React.ElementType = 'button'>({
   as,
   children,
   disabled,
+  inactive,
   onClick,
   ...props
 }: FilterChipProps<T>) {
   return (
-    <FilterChipProvider disabled={disabled}>
+    <FilterChipProvider inactive={inactive} disabled={disabled}>
       <StyledFilterChip
         forwardedAs={as}
         disabled={disabled}
         onClick={onClick}
+        $inactive={inactive}
         $hasOnClick={onClick !== undefined}
         {...props}>
         {children}
