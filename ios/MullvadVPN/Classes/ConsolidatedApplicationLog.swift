@@ -17,6 +17,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     typealias Metadata = KeyValuePairs<MetadataKey, String>
     private let bufferSize: UInt64
+    private let redactionPolicy = RedactionPolicy()
 
     enum MetadataKey: String {
         case id, os
@@ -96,21 +97,27 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
             logs.append(
                 LogAttachment(
                     label: fileURL.absoluteString,
-                    content: redact(string: "Invalid log file URL: \(fileURL.absoluteString).")
+                    content:
+                        "Invalid log file URL: \(redact(string: fileURL.absoluteString))."
                 ))
             return
         }
 
-        let path = fileURL.path
+        let path = fileURL.path()
         let redactedPath = redact(string: path)
 
         if let lossyString = readFileLossy(path: path, maxBytes: bufferSize) {
-            logs.append(LogAttachment(label: redactedPath, content: redact(string: lossyString)))
+            // The log entries are redacted at runtime with the new format, while legacy log entries are redacted here.
+            logs.append(
+                LogAttachment(
+                    label: redactedPath,
+                    content: redactionPolicy.shouldRedact(content: lossyString)
+                        ? redact(string: lossyString) : lossyString))
         } else {
             logs.append(
                 LogAttachment(
                     label: redactedPath,
-                    content: redact(string: "Log file does not exist: \(path).")
+                    content: "Log file does not exist: \(path)."
                 ))
         }
     }
