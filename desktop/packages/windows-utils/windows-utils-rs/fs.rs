@@ -7,11 +7,11 @@ use neon::types::{JsString, JsValue, Value};
 
 use talpid_error::ErrorExt;
 
-use widestring::{U16CStr, U16CString};
+use windows::Win32::Foundation::ERROR_PIPE_BUSY;
+use windows::Win32::System::Pipes::WaitNamedPipeW;
+use windows::core::HSTRING;
 
-use windows_sys::Win32::Foundation::ERROR_PIPE_BUSY;
-use windows_sys::Win32::System::Pipes::WaitNamedPipeW;
-
+/// Maximum time to wait for an instance of the pipe to become available.
 const PIPE_TIMEOUT_MSEC: u32 = 5000;
 
 #[derive(thiserror::Error, Debug)]
@@ -25,8 +25,8 @@ enum Error {
     CheckPermissions(#[source] io::Error),
 
     /// Failed to wait on named pipe
-    #[error("Timed out waiting on named pipe")]
-    PipeTimeout(#[source] io::Error),
+    #[error("Failed to wait on named pipe")]
+    WaitPipe(#[source] io::Error),
 }
 
 pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
@@ -38,35 +38,34 @@ pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue>
     }
 }
 
+/// If the pipe is busy, this blocks while waiting for it to become available, for at most
+/// [PIPE_TIMEOUT_MSEC] ms.
 fn pipe_is_admin_owned_inner<P: AsRef<Path>>(path: P) -> Result<bool, Error> {
     let path = path.as_ref();
+    let open_pipe = || std::fs::File::options().read(true).open(path);
 
-    let client = loop {
-        let result = std::fs::File::options().read(true).open(path);
-
-        match result {
-            Ok(client) => break client,
-            // If the pipe is busy, wait for it to become available
-            Err(err) if err.raw_os_error() == Some(ERROR_PIPE_BUSY as i32) => {
-                let pipe_name = U16CString::from_os_str_truncate(path);
-                wait_named_pipe(&pipe_name).map_err(Error::PipeTimeout)?;
-                // try again
-            }
-            Err(err) => return Err(Error::OpenPipe(err)),
+    let client = match open_pipe() {
+        // If the pipe is busy, wait for it to become available and try again
+        Err(err) if err.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
+            wait_named_pipe(path).map_err(Error::WaitPipe)?;
+            open_pipe()
         }
-    };
+        result => result,
+    }
+    .map_err(Error::OpenPipe)?;
 
     talpid_windows::fs::is_admin_owned(client).map_err(Error::CheckPermissions)
 }
 
-/// If an instance of the pipe is available before the [time-out interval](PIPE_TIMEOUT_MSEC)
-/// elapses, the return value is `Ok(())`, otherwise `Err(_)`.
+/// Wait for an instance of the pipe to become available. This blocks for at most
+/// [PIPE_TIMEOUT_MSEC] ms.
 ///
 /// <https://learn.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-waitnamedpipew>
-fn wait_named_pipe(pipe_name: &U16CStr) -> io::Result<()> {
-    // SAFETY: `pipe_name` is null-terminated.
-    let status = unsafe { WaitNamedPipeW(pipe_name.as_ptr(), PIPE_TIMEOUT_MSEC) };
-    if status == 0 {
+fn wait_named_pipe(pipe_name: &Path) -> io::Result<()> {
+    let pipe_name = HSTRING::from(pipe_name);
+    // SAFETY: `pipe_name` is a valid, null-terminated wide string.
+    let status = unsafe { WaitNamedPipeW(&pipe_name, PIPE_TIMEOUT_MSEC) };
+    if !status.as_bool() {
         return Err(io::Error::last_os_error());
     }
     Ok(())
