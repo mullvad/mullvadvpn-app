@@ -37,8 +37,13 @@ class TunnelViewController: UIViewController, RootContainment {
         activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return activityIndicator
     }()
+    var globeViewModel: GlobeViewModel {
+        globeViewHostingController.rootView.viewModel
+    }
 
-    private let mapViewController = MapViewController()
+    private let globeViewHostingController = UIHostingController(
+        rootView: GlobeViewContainer(viewModel: .init())
+    )
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -182,42 +187,41 @@ class TunnelViewController: UIViewController, RootContainment {
     private func updateMap(animated: Bool) {
         switch tunnelState {
         case let .connecting(tunnelRelays, _, _):
-            mapViewController.removeLocationMarker()
-            mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
+            globeViewModel.removeLocationMarker()
+            globeViewModel.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
             activityIndicator.startAnimating()
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             activityIndicator.startAnimating()
-            mapViewController.removeLocationMarker()
-            mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
+            globeViewModel.removeLocationMarker()
+            globeViewModel.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
-            mapViewController.setCenter(center, animated: animated)
+            globeViewModel.setCenter(center, animated: animated)
             activityIndicator.stopAnimating()
-            mapViewController.addLocationMarker(coordinate: center)
+            globeViewModel.addLocationMarker(coordinate: center)
 
         case .pendingReconnect:
             activityIndicator.startAnimating()
-            mapViewController.removeLocationMarker()
+            globeViewModel.removeLocationMarker()
 
         case .waitingForConnectivity, .error:
             activityIndicator.stopAnimating()
-            mapViewController.removeLocationMarker()
+            globeViewModel.removeLocationMarker()
 
         case .disconnected, .disconnecting:
             activityIndicator.stopAnimating()
-            mapViewController.removeLocationMarker()
-            mapViewController.setCenter(nil, animated: animated)
+            globeViewModel.removeLocationMarker()
+            globeViewModel.setCenter(nil, animated: animated)
         }
     }
 
     private func addMapController() {
-        let mapView = mapViewController.view!
+        let mapView = globeViewHostingController.view!
 
-        addChild(mapViewController)
-        mapViewController.alignmentView = activityIndicator
-        mapViewController.didMove(toParent: self)
+        addChild(globeViewHostingController)
+        globeViewHostingController.didMove(toParent: self)
 
         view.addConstrainedSubviews([mapView]) {
             mapView.pinEdgesToSuperview()

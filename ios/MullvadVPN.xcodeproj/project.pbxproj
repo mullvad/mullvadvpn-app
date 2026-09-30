@@ -1206,6 +1206,7 @@
 		F910A4312D4A1B41002FF3BB /* InAppPurchaseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */; };
 		F910A43A2D4A283D002FF3BB /* InAppPurchaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */; };
 		F910A8572D523812002FF3BB /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A8562D523812002FF3BB /* TunnelSettingsV7.swift */; };
+		F9141EAA30669B5B00096765 /* GlobeViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9141EA930669B5200096765 /* GlobeViewContainer.swift */; };
 		F91B94A72DC9EB5E00132C28 /* MullvadInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */; };
 		F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */; };
 		F91CCBFA2DFAC8ED007F1925 /* DeviceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */; };
@@ -1214,6 +1215,8 @@
 		F924C5A42DA65F28001F4660 /* Storekit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C5A32DA65F28001F4660 /* Storekit.swift */; };
 		F924C65F2DAE4554001F4660 /* ServerRelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */; };
 		F9276C622DBA2103006FE43D /* Font+Mullvad.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */; };
+		F927BB8830666A6700E2325D /* globe.reality in Resources */ = {isa = PBXBuildFile; fileRef = F927BB8730666A6700E2325D /* globe.reality */; };
+		F927BB8B30666B5E00E2325D /* GlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F927BB8A30666B5800E2325D /* GlobeView.swift */; };
 		F92C658A2E7A922F00B8E107 /* ActiveFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */; };
 		F92C658C2E7A924E00B8E107 /* MockSelectLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F92C658B2E7A924E00B8E107 /* MockSelectLocationViewModel.swift */; };
 		F938CE1B3049926900E568EE /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
@@ -2847,6 +2850,7 @@
 		F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseViewController.swift; sourceTree = "<group>"; };
 		F910A8562D523812002FF3BB /* TunnelSettingsV7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV7.swift; sourceTree = "<group>"; };
+		F9141EA930669B5200096765 /* GlobeViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeViewContainer.swift; sourceTree = "<group>"; };
 		F91B94A62DC9EB5E00132C28 /* MullvadInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadInfoView.swift; sourceTree = "<group>"; };
 		F91CCBF72DFABB70007F1925 /* DeviceManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagementView.swift; sourceTree = "<group>"; };
 		F91CCBF92DFAC8ED007F1925 /* DeviceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceListView.swift; sourceTree = "<group>"; };
@@ -2855,6 +2859,8 @@
 		F924C5A32DA65F28001F4660 /* Storekit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit.swift; sourceTree = "<group>"; };
 		F924C65E2DAE4554001F4660 /* ServerRelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerRelayTests.swift; sourceTree = "<group>"; };
 		F9276C612DBA20FC006FE43D /* Font+Mullvad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Mullvad.swift"; sourceTree = "<group>"; };
+		F927BB8730666A6700E2325D /* globe.reality */ = {isa = PBXFileReference; lastKnownFileType = file; path = globe.reality; sourceTree = "<group>"; };
+		F927BB8A30666B5800E2325D /* GlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeView.swift; sourceTree = "<group>"; };
 		F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveFilterView.swift; sourceTree = "<group>"; };
 		F92C658B2E7A924E00B8E107 /* MockSelectLocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSelectLocationViewModel.swift; sourceTree = "<group>"; };
 		F938CE0E3049920400E568EE /* MullvadVPNtvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MullvadVPNtvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3677,6 +3683,7 @@
 		583FE01E29C197D5006E85F9 /* Tunnel */ = {
 			isa = PBXGroup;
 			children = (
+				F927BB8930666B4C00E2325D /* GlobeView */,
 				4419AA862D28264D001B13C9 /* ConnectionView */,
 				5878A27A2909649A0096FC88 /* CustomOverlayRenderer.swift */,
 				58C3F4F82964B08300D72515 /* MapViewController.swift */,
@@ -4568,6 +4575,7 @@
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 				F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */,
 				F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */,
+				F927BB8730666A6700E2325D /* globe.reality */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -5375,6 +5383,15 @@
 			path = InAppPurchase;
 			sourceTree = "<group>";
 		};
+		F927BB8930666B4C00E2325D /* GlobeView */ = {
+			isa = PBXGroup;
+			children = (
+				F9141EA930669B5200096765 /* GlobeViewContainer.swift */,
+				F927BB8A30666B5800E2325D /* GlobeView.swift */,
+			);
+			path = GlobeView;
+			sourceTree = "<group>";
+		};
 		F9394EF12DC21D7B009595EA /* List */ = {
 			isa = PBXGroup;
 			children = (
@@ -6172,6 +6189,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
+				F927BB8830666A6700E2325D /* globe.reality in Resources */,
 				7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				5859A55529CD9DD900F66591 /* changes.txt in Resources */,
@@ -7059,6 +7077,7 @@
 				7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
+				F927BB8B30666B5E00E2325D /* GlobeView.swift in Sources */,
 				4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */,
 				7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */,
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
@@ -7124,6 +7143,7 @@
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
 				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
 				F90052562E6EEB290085C80E /* SelectLocationViewModel.swift in Sources */,
+				F9141EAA30669B5B00096765 /* GlobeViewContainer.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
