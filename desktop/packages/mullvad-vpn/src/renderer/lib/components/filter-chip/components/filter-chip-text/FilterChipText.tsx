@@ -1,11 +1,12 @@
 import { BodySmallSemiBoldProps, FootnoteMiniSemiBold } from '../../../text';
-import { useFilterChipContext } from '../../FilterChipContext';
+import { useColor } from './hooks';
 
 export type FilterChipTextProps<T extends React.ElementType = 'span'> = BodySmallSemiBoldProps<T>;
 
 export const FilterChipText = <T extends React.ElementType = 'span'>(
   props: FilterChipTextProps<T>,
 ) => {
-  const { disabled } = useFilterChipContext();
-  return <FootnoteMiniSemiBold color={disabled ? 'whiteAlpha40' : 'white'} {...props} />;
+  const color = useColor();
+
+  return <FootnoteMiniSemiBold color={color} {...props} />;
 };
