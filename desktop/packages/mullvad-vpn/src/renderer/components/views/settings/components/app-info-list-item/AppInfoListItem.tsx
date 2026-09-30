@@ -12,9 +12,9 @@ export type AppInfoListItemProps = Omit<ListItemProps, 'children'>;
 export function AppInfoListItem(props: AppInfoListItemProps) {
   const { current } = useVersionCurrent();
   const { suggestedUpgrade } = useVersionSuggestedUpgrade();
-  const { hasSettingsMigrations } = useSettingsMigrations();
+  const { hasIncompleteMigration } = useSettingsMigrations();
 
-  const showIndicator = hasSettingsMigrations || suggestedUpgrade;
+  const showIndicator = hasIncompleteMigration || suggestedUpgrade;
 
   return (
     <SettingsNavigationListItem to={RoutePath.appInfo} {...props}>

@@ -1,4 +1,4 @@
-import type { SplitFilterMigrationEvent } from '../../../../../shared/daemon-rpc-types';
+import type { SettingsMigration } from '../../../../../shared/daemon-rpc-types';
 import {
   DirectOnlyRemovedSlide,
   MultihopEntrySetToAutomaticSlide,
@@ -8,12 +8,11 @@ import {
   SuggestedMultihopModeSlide,
 } from '../components';
 
-export function useMigrationSlides(migrationEvents: SplitFilterMigrationEvent[]) {
-  if (migrationEvents.length === 0) {
+export function useMigrationSlides(migration?: SettingsMigration) {
+  if (!migration) {
     return null;
   }
-
-  const scenario = migrationEvents[0].scenario;
+  const scenario = migration.scenario;
 
   switch (scenario) {
     case 'one-b':
