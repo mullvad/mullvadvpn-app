@@ -21,8 +21,13 @@ struct QuantumResistanceView: View {
             userInteraction: .enabledWithoutHighlight,
             accessibilityIdentifier: .quantumResistantTunnelCell,
             leading: {
+                // an orphan-control hack from https://stackoverflow.com/questions/70552173/is-there-a-way-to-disable-swiftuis-text-automatic-orphaning-fix
+                // \u{200B} is a zero-width space, which prevents line breaking
+                // there is a SwiftUI API for "properly" avoiding orphans, but it is not yet public, though should be moved to when it is: https://fatbobman.com/en/posts/controlling-orphans-in-swiftui-text/
                 itemFactory.leading(
-                    for: .generic(title: NSLocalizedString("Quantum-resistant tunnel", comment: ""))
+                    for: .generic(
+                        title: NSLocalizedString("Quantum-resistant tunnel", comment: "")
+                            + "\u{200B}\u{200B}\u{200B}\u{200B}\u{200B}\u{200B}")
                 )
             },
             trailing: {
