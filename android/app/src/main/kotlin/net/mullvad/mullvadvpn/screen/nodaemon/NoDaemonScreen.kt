@@ -80,7 +80,7 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
                         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onPrimary),
                         modifier =
                             Modifier.padding(top = Dimens.mediumPadding)
-                                .height(Dimens.splashLogoTextHeight),
+                                .height(Dimens.smallishIconSize),
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),

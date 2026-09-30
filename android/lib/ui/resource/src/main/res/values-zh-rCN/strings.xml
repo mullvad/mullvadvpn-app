@@ -343,7 +343,6 @@
     <string name="mtu_x">值：%1$s</string>
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
     <string name="multihop">多跳</string>
-    <string name="multihop_description">多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。</string>
     <string name="multihop_entry_disabled_description">为确保连接正常工作，系统目前会按需自动选择入口服务器。要手动选择入口服务器，请将多跳模式切换为“始终”。</string>
     <string name="multihop_is_disabled">多跳已停用</string>
     <string name="multihop_is_enabled">多跳已启用</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">设置已迁移</string>
     <string name="multihop_mode">多跳模式</string>
     <string name="multihop_when_needed">按需多跳</string>
-    <string name="multihop_when_needed_info_first_paragraph">如果您的当前位置不支持您的偏好设置，例如反审查方法、筛选器和/或 DAITA，系统将自动使用多跳，以通过兼容的服务器连接到该位置。这将用 %1$s 符号表示。</string>
     <string name="name">名称</string>
     <string name="name_was_changed_to">名称已更改为“%1$s”</string>
     <string name="navigate">导航</string>

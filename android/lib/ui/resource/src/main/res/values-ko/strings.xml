@@ -343,7 +343,6 @@
     <string name="mtu_x">값: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="multihop">멀티홉</string>
-    <string name="multihop_description">멀티홉은 사용자의 트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 추적을 더 어렵게 만듭니다. 그로 인해 대기 시간은 증가하지만 온라인 익명성은 증대됩니다.</string>
     <string name="multihop_entry_disabled_description">필요한 경우 정상적인 연결을 위해 현재 진입 서버가 자동으로 선택됩니다. 진입 서버를 직접 선택하려면 멀티홉 모드를 ‘항상’으로 전환하세요.</string>
     <string name="multihop_is_disabled">멀티홉이 비활성화되었습니다</string>
     <string name="multihop_is_enabled">멀티홉이 활성화되었습니다</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">설정 마이그레이션 완료</string>
     <string name="multihop_mode">멀티홉 모드</string>
     <string name="multihop_when_needed">필요 시 멀티홉</string>
-    <string name="multihop_when_needed_info_first_paragraph">현재 위치에서 검열 방지 방법, 필터 및/또는 DAITA 등 원하는 설정을 지원하지 않는 경우, 자동으로 멀티홉을 사용해 호환 서버를 경유하여 해당 지역에 연결합니다. 이러한 경우 %1$s 기호로 표시됩니다.</string>
     <string name="name">이름</string>
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
     <string name="navigate">이동</string>

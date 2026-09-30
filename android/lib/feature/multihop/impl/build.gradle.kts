@@ -10,6 +10,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.multihop.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
+    implementation(projects.lib.usecase)
     implementation(projects.lib.ui.icon)
     implementation(projects.lib.ui.util)
 

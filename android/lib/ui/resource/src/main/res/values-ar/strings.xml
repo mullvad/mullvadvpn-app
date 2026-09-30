@@ -343,7 +343,6 @@
     <string name="mtu_x">القيمة: %1$s</string>
     <string name="mullvad_owned_only">مملوك لـ Mullvad فقط</string>
     <string name="multihop">القفز المتعدد</string>
-    <string name="multihop_description">يوجِّه القفز المتعدد حركة البيانات لديك من خادم WireGuard إلى آخر، مما يجعل من الصعب تتبُّعها. ويؤدي ذلك إلى زيادة زمن الوصول، لكنه يزيد من إخفاء الهوية على الإنترنت.</string>
     <string name="multihop_entry_disabled_description">يجري حاليًا تحديد خادم الدخول تلقائيًا عند الحاجة لضمان استقرار الاتصال. ولتحديد خادم الدخول يدويًا، يُرجى تغيير وضع القفزات المتعددة إلى \"دائمًا\".</string>
     <string name="multihop_is_disabled">تم تعطيل القفز المتعدد</string>
     <string name="multihop_is_enabled">تم تمكين القفز المتعدد</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">تم ترحيل الإعدادات</string>
     <string name="multihop_mode"></string>
     <string name="multihop_when_needed">القفزات المتعددة عند الحاجة</string>
-    <string name="multihop_when_needed_info_first_paragraph">إذا كان موقعك الحالي لا يدعم تفضيلاتك مثل طريقة مكافحة الرقابة، أو عوامل التصفية، أو تقنية DAITA، فسيتم استخدام القفزات المتعددة تلقائيًا للاتصال بهذا الموقع عبر خادم متوافق. وسيتم توضيح ذلك بالرمز %1$s.</string>
     <string name="name">الاسم</string>
     <string name="name_was_changed_to">تم تغيير الاسم إلى %1$s</string>
     <string name="navigate">تنقل</string>

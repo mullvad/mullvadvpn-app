@@ -343,7 +343,6 @@
     <string name="mtu_x">Değer: %1$s</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
-    <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
     <string name="multihop_entry_disabled_description">Şu anda, bağlantının çalışmasını sağlamak için gerektiğinde bir giriş sunucusu otomatik olarak seçiliyor. Giriş sunucusunu manuel olarak seçmek için lütfen çoklu geçiş modunu “Her zaman” olarak değiştirin.</string>
     <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
     <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Ayarlar Aktarıldı</string>
     <string name="multihop_mode">Çoklu geçiş modu</string>
     <string name="multihop_when_needed">Gerektiğinde çoklu geçiş</string>
-    <string name="multihop_when_needed_info_first_paragraph">Mevcut konumunuz sansürü aşma yöntemi, filtreler ve/veya DAITA gibi tercihlerinizi desteklemiyorsa bu konuma uyumlu bir sunucu üzerinden bağlanmak için çoklu geçiş otomatik olarak kullanılır. Bu durum %1$s simgesiyle gösterilir.</string>
     <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
     <string name="navigate">Git</string>

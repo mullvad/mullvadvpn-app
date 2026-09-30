@@ -343,7 +343,6 @@
     <string name="mtu_x">ค่า: %1$s</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
-    <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
     <string name="multihop_entry_disabled_description">ปัจจุบันเซิร์ฟเวอร์ขาเข้าจะถูกเลือกโดยอัตโนมัติเมื่อจำเป็น เพื่อให้แน่ใจว่าการเชื่อมต่อสามารถใช้งานได้ หากต้องการเลือกเซิร์ฟเวอร์ขาเข้าด้วยตนเอง โปรดเปลี่ยนโหมดมัลติฮอปเป็น \"ตลอดเวลา”</string>
     <string name="multihop_is_disabled">ปิดใช้งาน Multihop แล้ว</string>
     <string name="multihop_is_enabled">เปิดใช้งาน Multihop แล้ว</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">ย้ายข้อมูลการตั้งค่าแล้ว</string>
     <string name="multihop_mode">โหมดมัลติฮอป</string>
     <string name="multihop_when_needed">มัลติฮอป เมื่อจำเป็น</string>
-    <string name="multihop_when_needed_info_first_paragraph">หากตำแหน่งปัจจุบันของคุณไม่รองรับการตั้งค่าที่คุณต้องการ เช่น วิธีการป้องกันการเซ็นเซอร์ ตัวกรอง และ/หรือ DAITA ระบบจะใช้มัลติฮอปโดยอัตโนมัติเพื่อเชื่อมต่อไปยังตำแหน่งดังกล่าวผ่านเซิร์ฟเวอร์ที่รองรับ ซึ่งจะแสดงด้วยสัญลักษณ์ %1$s</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="navigate">นำทาง</string>

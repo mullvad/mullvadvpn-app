@@ -2,32 +2,18 @@ package net.mullvad.mullvadvpn.feature.daita.impl
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -37,12 +23,16 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.component.Carousel
+import net.mullvad.mullvadvpn.lib.ui.component.CarouselPage
+import net.mullvad.mullvadvpn.lib.ui.component.CarouselParagraph
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
-import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -136,88 +126,14 @@ private fun DaitaContent(
     state: DaitaUiState,
     onDaitaEnabled: (enable: Boolean) -> Unit,
 ) {
-    val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
-    DescriptionPager(pagerState = pagerState)
-    PageIndicator(pagerState = pagerState)
+    val pagerState = rememberPagerState(pageCount = { DaitaPages.size })
+    Carousel(pagerState = pagerState, pages = DaitaPages)
     SwitchListItem(
         title = stringResource(R.string.enable),
         isToggled = state.daitaEnabled,
         onCellClicked = onDaitaEnabled,
         modifier = Modifier.padding(horizontal = Dimens.sideMarginNew),
     )
-}
-
-@Composable
-private fun DescriptionPager(pagerState: PagerState) {
-    HorizontalPager(
-        state = pagerState,
-        verticalAlignment = Alignment.Top,
-        beyondViewportPageCount = DaitaPages.entries.size,
-    ) { pageIndex ->
-        Column(modifier = Modifier.fillMaxWidth()) {
-            val page = DaitaPages.entries[pageIndex]
-            // Scale image to fit width up to certain width
-            Image(
-                contentScale = ContentScale.FillWidth,
-                modifier =
-                    Modifier.widthIn(max = Dimens.settingsDetailsImageMaxWidth)
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMarginNew)
-                        .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = page.image),
-                contentDescription = stringResource(R.string.daita),
-            )
-            DescriptionText(
-                firstParagraph = page.textFirstParagraph(),
-                secondParagraph = page.textSecondParagraph(),
-                thirdParagraph = page.textThirdParagraph(),
-            )
-        }
-    }
-}
-
-@Composable
-private fun DescriptionText(
-    firstParagraph: String,
-    secondParagraph: String,
-    thirdParagraph: String?,
-) {
-    ScreenDescription(
-        modifier =
-            Modifier.padding(vertical = Dimens.smallPadding, horizontal = Dimens.sideMarginNew),
-        text =
-            buildString {
-                appendLine(firstParagraph)
-                appendLine()
-                appendLine(secondParagraph)
-                appendLine()
-                if (thirdParagraph != null) {
-                    append(thirdParagraph)
-                }
-            },
-    )
-}
-
-@Composable
-private fun PageIndicator(pagerState: PagerState) {
-    Row(
-        Modifier.wrapContentHeight().fillMaxWidth().padding(bottom = Dimens.mediumPadding),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom,
-    ) {
-        repeat(pagerState.pageCount) { iteration ->
-            val color =
-                if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.onPrimary
-                else MaterialTheme.colorScheme.primary
-            Box(
-                modifier =
-                    Modifier.padding(Dimens.indicatorPadding)
-                        .clip(CircleShape)
-                        .background(color)
-                        .size(Dimens.indicatorSize)
-            )
-        }
-    }
 }
 
 @Composable
@@ -231,42 +147,62 @@ private fun Lc<Boolean, DaitaUiState>.isModal() =
         is Lc.Content -> this.value.isModal
     }
 
-private enum class DaitaPages(
-    val image: Int,
-    val textFirstParagraph: @Composable () -> String,
-    val textSecondParagraph: @Composable () -> String,
-    val textThirdParagraph: @Composable () -> String? = { null },
-) {
-    FIRST(
-        image = R.drawable.daita_illustration_1,
-        textFirstParagraph =
-            @Composable { stringResource(R.string.daita_description_slide_1_first_paragraph) },
-        textSecondParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_1_second_paragraph,
-                    stringResource(id = R.string.daita),
-                    stringResource(id = R.string.daita_full),
-                )
-            },
-        textThirdParagraph =
-            @Composable { stringResource(R.string.daita_description_slide_1_third_paragraph) },
-    ),
-    SECOND(
-        image = R.drawable.daita_illustration_2,
-        textFirstParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_2_first_paragraph,
-                    stringResource(id = R.string.daita),
-                )
-            },
-        textSecondParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_2_second_paragraph,
-                    stringResource(id = R.string.daita),
-                )
-            },
-    ),
-}
+private val DaitaPages =
+    listOf(
+        CarouselPage(
+            headerImage = R.drawable.daita_illustration_1,
+            headerImageContentDescription = null,
+            paragraphs =
+                listOf(
+                    @Composable {
+                        CarouselParagraph(
+                            annotatedStringResource(
+                                R.string.daita_description_slide_1_first_paragraph
+                            )
+                        )
+                    },
+                    @Composable {
+                        CarouselParagraph(
+                            stringResource(
+                                    R.string.daita_description_slide_1_second_paragraph,
+                                    stringResource(id = R.string.daita),
+                                    stringResource(id = R.string.daita_full),
+                                )
+                                .toAnnotatedString()
+                        )
+                    },
+                    @Composable {
+                        CarouselParagraph(
+                            annotatedStringResource(
+                                R.string.daita_description_slide_1_third_paragraph
+                            )
+                        )
+                    },
+                ),
+        ),
+        CarouselPage(
+            headerImage = R.drawable.daita_illustration_2,
+            headerImageContentDescription = null,
+            paragraphs =
+                listOf(
+                    @Composable {
+                        CarouselParagraph(
+                            stringResource(
+                                    R.string.daita_description_slide_2_first_paragraph,
+                                    stringResource(id = R.string.daita),
+                                )
+                                .toAnnotatedString()
+                        )
+                    },
+                    @Composable {
+                        CarouselParagraph(
+                            stringResource(
+                                    R.string.daita_description_slide_2_second_paragraph,
+                                    stringResource(id = R.string.daita),
+                                )
+                                .toAnnotatedString()
+                        )
+                    },
+                ),
+        ),
+    )
