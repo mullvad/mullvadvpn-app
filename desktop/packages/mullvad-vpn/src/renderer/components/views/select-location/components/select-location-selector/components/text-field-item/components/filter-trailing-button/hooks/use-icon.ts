@@ -6,11 +6,11 @@ import { useTextFieldItemContext } from '../../../TextFieldItemContext';
 export function useIcon(): IconProps['icon'] {
   const { id } = useTextFieldItemContext();
   const locationType = id === 'exit' ? LocationType.exit : LocationType.entry;
-  const { isAnyFilterActive } = useActiveFilters(locationType);
+  const { isAnyListFilterActive } = useActiveFilters(locationType);
 
-  if (id === 'entryAutomatic') {
-    return isAnyFilterActive ? 'filter-overridden-active' : 'filter-overridden';
+  if (id == 'entryAutomatic') {
+    return isAnyListFilterActive ? 'filter-overridden-active' : 'filter-overridden';
   }
 
-  return isAnyFilterActive ? 'filter-active' : 'filter';
+  return isAnyListFilterActive ? 'filter-active' : 'filter';
 }
