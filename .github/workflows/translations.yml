@@ -5,8 +5,10 @@ on:
     paths:
       - .github/workflows/translations.yml
       - android/translations-converter/**
-      - android/lib/ui/resource/src/**/plurals.xml
-      - android/lib/ui/resource/src/**/strings.xml
+      - android/**/res/values*/plurals.xml
+      - android/**/res/values*/strings*.xml
+      - android/**/res/xml*/relay_locations.xml
+      - android/scripts/check-empty-strings.sh
       - desktop/packages/mullvad-vpn/**
       - ios/Assets/Localizable.xcstrings
       - scripts/check-apostrophe-style
@@ -37,6 +39,9 @@ jobs:
       - name: Check apostrophe style
         shell: bash
         run: scripts/check-apostrophe-style
+
+      - name: Check for empty Android strings
+        run: android/scripts/check-empty-strings.sh
 
       - name: Verify translations
         shell: bash
