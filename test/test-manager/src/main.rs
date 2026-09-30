@@ -14,7 +14,7 @@ use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
 
 use anyhow::{Context, Ok, Result};
-use clap::{Parser, builder::PossibleValuesParser};
+use clap::Parser;
 use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
@@ -62,18 +62,18 @@ enum Commands {
         #[arg(long, group = "display_args")]
         display: bool,
 
-        /// API and conncheck environment to use. The domain name will be prefixed with "api." and
-        /// "ipv4.am.i.".
-        #[arg(long, value_parser = PossibleValuesParser::new(&["mullvad.net", "stagemole.eu", "devmole.eu"]))]
-        mullvad_host: Option<String>,
+        /// Name of the environment in the config file to use, e.g. for the API, conncheck and
+        /// test locations. If not set, the default environment settings are used.
+        #[arg(long)]
+        env: Option<String>,
 
         /// Run VNC server on a specified port
         #[arg(long, group = "display_args")]
         vnc: Option<u16>,
 
-        /// Account number to use for testing
+        /// Account number to use for testing. Overrides the account of the environment.
         #[arg(long, short)]
-        account: String,
+        account: Option<String>,
 
         /// App package to test. Can be a path to the package, just the package file name, git hash
         /// or tag. If the direct path is not given, the package is assumed to be in the directory
@@ -151,6 +151,12 @@ enum ConfigArg {
     Get,
     /// Print the path to the current config file
     Which,
+    /// Print the account number of an environment
+    Account {
+        /// Name of the environment. If not set, the default environment settings are used.
+        #[arg(long)]
+        env: Option<String>,
+    },
     /// Manage VM-specific setting
     #[clap(subcommand)]
     Vm(VmConfig),
@@ -226,6 +232,11 @@ async fn inner_main() -> Result<()> {
                 );
                 Ok(())
             }
+            ConfigArg::Account { env } => {
+                let env_config = get_environment(&config, env.as_deref())?;
+                println!("{}", get_account(None, &env_config)?);
+                Ok(())
+            }
             ConfigArg::Vm(vm_config) => match vm_config {
                 VmConfig::Set {
                     vm,
@@ -299,7 +310,7 @@ async fn inner_main() -> Result<()> {
         Commands::RunTests {
             vm,
             display,
-            mullvad_host,
+            env,
             vnc,
             account,
             app_package,
@@ -326,17 +337,13 @@ async fn inner_main() -> Result<()> {
                 (true, true) => unreachable!("invalid combination"),
             };
 
-            if let Some(mullvad_host) = mullvad_host {
-                match config.mullvad_host {
-                    Some(old_host) => {
-                        log::info!("Overriding Mullvad host from {old_host} to {mullvad_host}",)
-                    }
-                    None => log::info!("Setting Mullvad host to {mullvad_host}",),
-                };
-                config.mullvad_host = Some(mullvad_host);
-            }
-            let mullvad_host = config.get_host();
-            log::debug!("Mullvad host: {mullvad_host}");
+            let env_config = get_environment(&config, env.as_deref())?;
+            let account = get_account(account, &env_config)?;
+            let mullvad_host = env_config.mullvad_host;
+            log::info!(
+                "Environment: {} ({mullvad_host})",
+                env.as_deref().unwrap_or("default")
+            );
 
             let vm_config = vm::get_vm_config(&config, &vm).context("Cannot get VM config")?;
             let runner_target = TargetInfo::try_from(vm_config)?;
@@ -388,7 +395,7 @@ async fn inner_main() -> Result<()> {
 
             let mut tests = get_filtered_tests(&test_filters, &skip)?;
             for test in tests.iter_mut() {
-                test.location = config.test_locations.lookup(test.name).cloned();
+                test.location = env_config.test_locations.lookup(test.name).cloned();
             }
 
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
@@ -440,4 +447,25 @@ async fn inner_main() -> Result<()> {
             Ok(())
         }
     }
+}
+
+/// Get the settings for the environment `env`, or the default settings if `env` is `None`.
+fn get_environment(
+    config: &config::Config,
+    env: Option<&str>,
+) -> Result<config::EnvironmentConfig> {
+    let Some(env) = env else {
+        return Ok(config::EnvironmentConfig::default());
+    };
+    config
+        .get_environment(env)
+        .cloned()
+        .with_context(|| format!("Environment '{env}' is not configured"))
+}
+
+/// Return `account` if set, otherwise the account of `env_config`.
+fn get_account(account: Option<String>, env_config: &config::EnvironmentConfig) -> Result<String> {
+    account
+        .or_else(|| env_config.account.clone())
+        .context("No account number given, and none is configured for the environment")
 }
