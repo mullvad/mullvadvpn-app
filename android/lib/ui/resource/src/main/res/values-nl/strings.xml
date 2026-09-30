@@ -343,7 +343,6 @@
     <string name="mtu_x">Waarde: %1$s</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
-    <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
     <string name="multihop_entry_disabled_description">Ere wordt momenteel automatisch een ingangsserver geselecteerd als dat nodig is om voor een werkende verbinding te zorgen. Als u handmatig een ingangsserver wilt selecteren, zet de multihopmodus dan op \"Altijd\".</string>
     <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
     <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Instellingen gemigreerd</string>
     <string name="multihop_mode">Multihopmodus</string>
     <string name="multihop_when_needed">Multihop wanneer nodig</string>
-    <string name="multihop_when_needed_info_first_paragraph">Als uw huidige locatie uw voorkeuren niet ondersteunt, zoals de anti-censuurmethode, filters en/of DAITA, wordt automatisch gebruikgemaakt van multihop om via een compatibele server verbinding te maken met die locatie. Dit wordt aangegeven met het symbool %1$s.</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
     <string name="navigate">Navigeren</string>

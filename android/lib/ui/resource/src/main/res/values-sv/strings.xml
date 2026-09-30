@@ -343,7 +343,6 @@
     <string name="mtu_x">Värde: %1$s</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
-    <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
     <string name="multihop_entry_disabled_description">En ingångsserver väljs för närvarande automatiskt om det behövs för att säkerställa en fungerande anslutning. Byt multihoppläget till \"Alltid\" om du vill välja en ingångsserver manuellt.</string>
     <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
     <string name="multihop_is_enabled">Multihopp är aktiverat</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Inställningarna har migrerats</string>
     <string name="multihop_mode">Multihoppläge</string>
     <string name="multihop_when_needed">Multihopp vid behov</string>
-    <string name="multihop_when_needed_info_first_paragraph">Om den nuvarande platsen inte stöder dina inställningar – till exempel anti-censurfunktion, filter och/eller DAITA – används multihopp automatiskt för att ansluta till den platsen via en kompatibel server. Detta anges av symbolen %1$s.</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="navigate">Navigera</string>

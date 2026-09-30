@@ -765,7 +765,7 @@ private fun LocationHint(
                     Modifier.padding(1.dp)
                         .onGloballyPositioned(onIconGloballyPositioned)
                         .padding(Dimens.locationHintInternalPadding)
-                        .size(Dimens.locationHintIconSize),
+                        .size(Dimens.smallishIconSize),
                 imageVector = imageVector,
                 contentDescription = null,
             )

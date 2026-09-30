@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -18,7 +18,7 @@ class WireguardConstraintsRepository(
 ) {
     val wireguardConstraints =
         managementService.settings
-            .mapNotNull { it.relaySettings.relayConstraints.wireguardConstraints }
+            .map { it.relaySettings.relayConstraints.wireguardConstraints }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     suspend fun setMultihop(multihopMode: MultihopMode) =

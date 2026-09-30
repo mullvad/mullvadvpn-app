@@ -92,7 +92,7 @@ fun SplashScreen() {
                         alpha = 0.6f,
                         modifier =
                             Modifier.padding(top = Dimens.mediumPadding)
-                                .height(Dimens.splashLogoTextHeight),
+                                .height(Dimens.smallishIconSize),
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),

@@ -4,7 +4,9 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -12,6 +14,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
+import java.util.UUID
 
 data class IconString(val text: AnnotatedString, val inlineContent: Map<String, InlineTextContent>)
 
@@ -24,10 +27,16 @@ data class DescribedIcon(val icon: ImageVector, val contentDescription: String)
  * on.
  */
 @Composable
-fun stringResourceWithIcons(@StringRes id: Int, vararg icons: DescribedIcon): IconString {
+fun stringResourceWithIcons(
+    @StringRes id: Int,
+    vararg icons: DescribedIcon,
+    iconTint: Color = LocalContentColor.current,
+): IconString {
     require(icons.isNotEmpty()) { "icons cannot be empty" }
 
-    val iconIds = icons.mapIndexed { index, _ -> "[[icon_id_${index + 1}]]" }
+    // UUID is used here to guarantee that the ID is unique, even if the inline content map
+    // is later merged with another inline content map.
+    val iconIds = List(icons.size) { UUID.randomUUID().toString() }
 
     // Replace all args in the string with the corresponding icon id.
     @Suppress("SpreadOperator") val text = stringResource(id, *iconIds.toTypedArray())
@@ -66,7 +75,11 @@ fun stringResourceWithIcons(@StringRes id: Int, vararg icons: DescribedIcon): Ic
                 placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
             )
         ) {
-            Icon(imageVector = icon.icon, contentDescription = icon.contentDescription)
+            Icon(
+                imageVector = icon.icon,
+                contentDescription = icon.contentDescription,
+                tint = iconTint,
+            )
         }
     }
 

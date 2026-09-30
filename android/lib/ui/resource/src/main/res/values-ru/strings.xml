@@ -343,7 +343,6 @@
     <string name="mtu_x">Значение: %1$s</string>
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="multihop">Многократный переход</string>
-    <string name="multihop_description">Функция «Многократный переход» перенаправляет трафик с одного сервера WireGuard на другой, что затрудняет отслеживание. Это увеличивает задержку, но зато повышает анонимность в сети.</string>
     <string name="multihop_entry_disabled_description">При необходимости сервер входа сейчас выбирается автоматически, чтобы обеспечить успешное подключение. Чтобы выбрать сервер входа вручную, переключите режим многократного перехода на «Всегда».</string>
     <string name="multihop_is_disabled">Многократный переход отключен</string>
     <string name="multihop_is_enabled">Многократный переход включен</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Настройки перенесены</string>
     <string name="multihop_mode">Режим многократного перехода</string>
     <string name="multihop_when_needed">Многократный переход при необходимости</string>
-    <string name="multihop_when_needed_info_first_paragraph">Если текущее местоположение не поддерживает выбранные вами настройки, например метод обхода цензуры, фильтры и (или) DAITA, для подключения к этому местоположению через совместимый сервер будет автоматически использоваться многократный переход. В этом случае отображается значок %1$s.</string>
     <string name="name">Имя</string>
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
     <string name="navigate">Перейти</string>

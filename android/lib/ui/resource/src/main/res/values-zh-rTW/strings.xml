@@ -343,7 +343,6 @@
     <string name="mtu_x">值：%1$s</string>
     <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="multihop">多點跳躍</string>
-    <string name="multihop_description">多點跳躍可將您的流量傳入一個 WireGuard 伺服器，再傳出至另一個伺服器，使其更難以追蹤。雖然這會導致延遲時間增加，卻能提高線上的匿名程度。</string>
     <string name="multihop_entry_disabled_description">為確保連線正常運作，目前會在必要時自動選擇入口伺服器。若要手動選擇入口伺服器，請將多點跳躍模式切換至「一律」。</string>
     <string name="multihop_is_disabled">已停用多點跳躍</string>
     <string name="multihop_is_enabled">已啟用多點跳躍</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">設定已遷移</string>
     <string name="multihop_mode">多點跳躍模式</string>
     <string name="multihop_when_needed">必要時多點跳躍</string>
-    <string name="multihop_when_needed_info_first_paragraph">若您目前的位置不支援您的喜好設定，例如反審查方法、篩選器設定和/或 DAITA，系統將自動使用多點跳躍，透過相容伺服器連線至該位置。這將以 %1$s 符號標示。</string>
     <string name="name">名稱</string>
     <string name="name_was_changed_to">名稱已變更為「%1$s」</string>
     <string name="navigate">導覽</string>

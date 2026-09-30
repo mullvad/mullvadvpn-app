@@ -12,6 +12,7 @@ android {
 
 dependencies {
     implementation(projects.lib.common)
+    implementation(projects.lib.commonCompose)
     implementation(projects.lib.model)
     implementation(projects.lib.ui.designsystem)
     implementation(projects.lib.ui.resource)

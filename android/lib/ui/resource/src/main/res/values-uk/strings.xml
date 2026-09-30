@@ -343,7 +343,6 @@
     <string name="mtu_x">Значення: %1$s</string>
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
-    <string name="multihop_description">Подвійний VPN спрямовує ваш трафік з одного сервера WireGuard на інший, що ускладнює відстеження. Це збільшує затримку, але підвищує анонімність в Інтернеті.</string>
     <string name="multihop_entry_disabled_description">Наразі сервер входу автоматично вибирається за потреби, щоб забезпечити стабільне з’єднання. Щоб вибрати сервер входу вручну, установіть для подвійного VPN значення «Завжди».</string>
     <string name="multihop_is_disabled">Подвійний VPN вимкнено</string>
     <string name="multihop_is_enabled">Подвійний VPN увімкнено</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Параметри перенесено</string>
     <string name="multihop_mode">Режим подвійного VPN</string>
     <string name="multihop_when_needed">Подвійний VPN за потреби</string>
-    <string name="multihop_when_needed_info_first_paragraph">Якщо ваше поточне розташування не підтримує ваших параметрів, як-от обхід цензури, фільтри та/або DAITA, подвійний VPN використовуватиметься автоматично для підключення до цього розташування через сумісний сервер. Це буде позначено символом %1$s.</string>
     <string name="name">Ім’я</string>
     <string name="name_was_changed_to">Ім’я змінено на %1$s</string>
     <string name="navigate">Перейти</string>
