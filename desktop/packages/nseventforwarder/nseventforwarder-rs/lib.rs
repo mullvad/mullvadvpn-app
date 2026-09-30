@@ -46,15 +46,12 @@ fn start(mut cx: FunctionContext<'_>) -> JsResult<'_, JsFunction> {
             });
         };
         // Start monitoring incoming NS events
-        // SAFETY: This function is trivially safe to call.
         // Note: Make sure to cancel this handler with [NSEvent::removeMonitor] to unregister the
         // listener.
-        let mut handler = unsafe {
-            NSEvent::addGlobalMonitorForEventsMatchingMask_handler(
-                NSEventMask::LeftMouseDown | NSEventMask::RightMouseDown,
-                &RcBlock::new(nsevent_callback),
-            )
-        };
+        let mut handler = NSEvent::addGlobalMonitorForEventsMatchingMask_handler(
+            NSEventMask::LeftMouseDown | NSEventMask::RightMouseDown,
+            &RcBlock::new(nsevent_callback),
+        );
         // Listen for stop signal
         let _ = stop_rx.recv();
         if let Some(handler) = handler.take() {
