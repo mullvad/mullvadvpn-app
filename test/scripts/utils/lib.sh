@@ -157,11 +157,6 @@ function build_test_runner {
 function run_tests_for_os {
     local vm=$1
 
-    if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
-        echo "'ACCOUNT_TOKEN' must be specified" 1>&2
-        exit 1
-    fi
-
     if [ -n "${TEST_DIST_DIR+x}" ] && [ -x "${TEST_DIST_DIR%/}/test-runner" ]; then
         echo "**********************************"
         echo "* Using test-runner in $TEST_DIST_DIR"
@@ -210,20 +205,25 @@ function run_tests_for_os {
         runner_dir_flag=()
     fi
 
-    if [ -n "${MULLVAD_HOST+x}" ]; then
-        mullvad_host_arg=("--mullvad-host" "$MULLVAD_HOST")
+    if [ -n "${TEST_ENV+x}" ]; then
+        env_arg=("--env" "$TEST_ENV")
     else
-        mullvad_host_arg=()
+        env_arg=()
+    fi
+
+    if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
+        # Needed to redact the account number from the output
+        ACCOUNT_TOKEN=$($test_manager config account "${env_arg[@]}") || exit 1
     fi
 
     if ! RUST_LOG_STYLE=always $test_manager run-tests \
-        --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
+        --account "$ACCOUNT_TOKEN" \
         --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
         "${upgrade_package_arg[@]}" \
         "${test_report_arg[@]}" \
         --package-dir "${package_dir}" \
         --vm "$vm" \
-        "${mullvad_host_arg[@]}" \
+        "${env_arg[@]}" \
         "${test_filters_arg[@]}" \
         "${runner_dir_flag[@]}" \
         2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then

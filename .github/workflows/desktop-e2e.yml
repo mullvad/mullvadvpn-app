@@ -32,6 +32,12 @@ on:
         default: ''
         required: false
         type: string
+      environment:
+        description: "Name of the environment in the test-manager config on the runners, e.g. `prod` \
+          or `staging`"
+        default: 'staging'
+        required: false
+        type: string
 
 permissions: {}
 
@@ -303,6 +309,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -409,6 +416,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -477,6 +485,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
         run: |
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}

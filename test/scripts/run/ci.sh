@@ -41,14 +41,13 @@ echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"
 echo "* Version to test: $CURRENT_VERSION"
 echo "**********************************"
 
-# TODO: Add support for either passing in --account-tokens or reading from env variable.
-if [[ -z "${ACCOUNT_TOKENS+x}" ]]; then
-    echo "'ACCOUNT_TOKENS' must be specified" 1>&2
-    exit 1
-fi
-if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
-    echo "Specify account numbers in 'ACCOUNT_TOKENS' file" 1>&2
-    exit 1
+# If 'ACCOUNT_TOKENS' is not set, the account of the environment in the test-manager config is used.
+if [[ -n "${ACCOUNT_TOKENS+x}" ]]; then
+    if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
+        echo "Specify account numbers in 'ACCOUNT_TOKENS' file" 1>&2
+        exit 1
+    fi
+    export ACCOUNT_TOKEN=${tokens[0]}
 fi
 
 # TODO: Can we get rid of this? Seemse excessive / leaves a trail
@@ -86,4 +85,4 @@ APP_PACKAGE=$(get_app_filename "$CURRENT_VERSION" "$TEST_OS")
 export APP_PACKAGE
 APP_PACKAGE_TO_UPGRADE_FROM=$(get_app_filename "$LATEST_STABLE_RELEASE" "$TEST_OS")
 export APP_PACKAGE_TO_UPGRADE_FROM
-ACCOUNT_TOKEN=${tokens[0]} RUST_LOG=debug nice_time run_tests_for_os "${TEST_OS}"
+RUST_LOG=debug nice_time run_tests_for_os "${TEST_OS}"

@@ -6,12 +6,12 @@ usage() {
     echo "This script downloads and tests the given app version from the build repositories."
     echo
     echo "Required environment variables:"
-    echo "  - ACCOUNT_TOKEN: Valid MullvadVPN account number"
     echo "  - TEST_OS: Name of the VM configuration to use. List available configurations with 'cargo run --bin test-manager config vm list'"
     echo "Optional environment variables:"
+    echo "  - ACCOUNT_TOKEN: Valid MullvadVPN account number (defaults to the account of TEST_ENV in the config file)"
     echo "  - APP_VERSION: The version of the app to test (defaults to the latest stable release)"
     echo "  - APP_PACKAGE_TO_UPGRADE_FROM: The package version to upgrade from (defaults to none)"
-    echo "  - MULLVAD_HOST: Conncheck and API environment to use, eg stagemole.eu (defaults to mullvad.net, or the config file if set)"
+    echo "  - TEST_ENV: Name of the environment in the test-manager config to use, eg staging (defaults to mullvad.net without test locations)"
     echo "  - TEST_DIST_DIR: Relative path to a directory with prebuilt binaries as produced by scripts/build.sh."
     echo "  - TEST_FILTERS: specifies which tests to run (defaults to all)"
     echo "  - TEST_REPORT : path to save the test results in a structured format"
@@ -26,13 +26,6 @@ source "scripts/utils/lib.sh"
 if [[ ("$*" == "--help") || "$*" == "-h" ]]; then
     usage
     exit 0
-fi
-
-if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
-    echo "'ACCOUNT_TOKEN' must be specified" 1>&2
-    echo
-    usage
-    exit 1
 fi
 
 if [[ -z "${TEST_OS+x}" ]]; then
