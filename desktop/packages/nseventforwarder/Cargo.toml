@@ -12,7 +12,7 @@ crate-type = ["cdylib"]
 path = "nseventforwarder-rs/lib.rs"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-block2 = "0.5.1"
+block2.workspace = true
 neon = "1"
 objc2-app-kit = { workspace = true, features = ["NSEvent", "block2"] }
 
