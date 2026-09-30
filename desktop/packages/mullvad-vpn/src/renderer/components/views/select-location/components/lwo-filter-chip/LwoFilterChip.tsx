@@ -4,13 +4,18 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../../../../shared/constants';
 import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
+import { LocationType } from '../../../../../features/locations/types';
 import { FilterChip, type FilterChipProps } from '../../../../../lib/components';
 import { TransitionType, useHistory } from '../../../../../lib/history';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 export type LwoFilterChipProps = FilterChipProps;
 
 export function LwoFilterChip(props: LwoFilterChipProps) {
   const history = useHistory();
+
+  const { locationType } = useSelectLocationViewContext();
+  const inactive = locationType === LocationType.entryAutomatic;
 
   const gotoAntiCensorship = React.useCallback(() => {
     history.push(RoutePath.antiCensorship, {
@@ -32,6 +37,7 @@ export function LwoFilterChip(props: LwoFilterChipProps) {
         // TRANSLATORS: Accessibility label for link to anti-censorship settings.
         messages.pgettext('accessibility', 'Anti-censorship settings')
       }
+      inactive={inactive}
       onClick={gotoAntiCensorship}
       {...props}>
       <FilterChip.Text>
