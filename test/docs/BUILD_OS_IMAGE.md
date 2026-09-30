@@ -151,6 +151,31 @@ do the following:
 
 ### Bootstrapping the test runner
 
+The test runner can either be deployed over SSH by `test-manager` (`--provisioner ssh`), or be
+started on boot from the test runner image mounted at `E:` (`--provisioner noop`).
+
+#### Deploying over SSH
+
+The SSH user must be an administrator and the same user that is logged on automatically (see
+autologon below), since the test runner runs as a scheduled task in that user's session.
+
+* In an admin PowerShell in the guest, install and enable OpenSSH Server:
+
+    ```powershell
+    Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+    Set-Service -Name sshd -StartupType Automatic
+    Start-Service sshd
+    ```
+
+  The installer also adds a firewall rule allowing inbound connections on port 22.
+
+`test-manager` installs the runner in `C:\testing`, registers the scheduled task, and adds a
+Windows Defender exclusion for it. The steps under
+[Starting from the runner image](#starting-from-the-runner-image) can be skipped, but the remaining
+steps (time service, Windows Update, SmartScreen, autologon, etc.) still apply.
+
+#### Starting from the runner image
+
 The test runner needs to be started on boot, with the test runner image mounted at `E:`.
 This can be achieved as follows:
 
