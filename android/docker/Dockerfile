@@ -24,9 +24,6 @@ ARG DEBIAN_SNAPSHOT=20260927T000000Z
 COPY building/setup-debian-snapshot.sh /tmp/
 RUN /tmp/setup-debian-snapshot.sh && rm /tmp/setup-debian-snapshot.sh
 
-COPY building/install-base-tools.sh /tmp/
-RUN /tmp/install-base-tools.sh android && rm /tmp/install-base-tools.sh
-
 COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
 RUN /tmp/rust/install-rust.sh android && rm -r /tmp/rust
 ENV PATH=/root/.cargo/bin:$PATH
@@ -92,6 +89,11 @@ ${JAVA_HOME}/bin\
 
 RUN apt-get update -y && apt-get install -y \
     file \
+    git \
+    curl \
+    jq \
+    make \
+    gcc \
     gpg \
     unzip \
     ca-certificates-java \
@@ -101,6 +103,8 @@ RUN apt-get update -y && apt-get install -y \
     rclone \
     yubico-piv-tool \
     ykcs11 \
+    protobuf-compiler \
+    libprotobuf-dev \
     && apt-get install -y --no-install-recommends fdroidserver \
     && rm -rf /var/lib/apt/lists/*
 

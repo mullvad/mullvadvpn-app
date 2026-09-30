@@ -2,7 +2,6 @@
   "appteam-desktop": [
     ".github/workflows/rust-min-publish-age.yml",
     "building/Dockerfile",
-    "building/install-base-tools.sh",
     "building/install-rust.sh",
     "building/linux-container-image.txt",
     "building/reproducible-build.sh",
