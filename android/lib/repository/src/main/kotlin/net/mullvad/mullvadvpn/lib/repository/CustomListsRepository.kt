@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.repository
 
+import android.icu.text.Collator
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
@@ -9,7 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -22,11 +23,13 @@ import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 
 class CustomListsRepository(
     private val managementService: ManagementService,
+    localeRepository: LocaleRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val customLists: StateFlow<List<CustomList>?> =
-        managementService.settings
-            .mapNotNull { it.customLists.sortedByName() }
+        combine(managementService.settings, localeRepository.currentLocale) { settings, _ ->
+                settings.customLists.sortedByName()
+            }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
     suspend fun createCustomList(
@@ -77,5 +80,5 @@ class CustomListsRepository(
     }
 
     private fun List<CustomList>.sortedByName() =
-        this.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name.value })
+        this.sortedWith(compareBy(Collator.getInstance()) { it.name.value })
 }
