@@ -70,8 +70,8 @@ jobs:
       - name: Generate matrix for Windows builds
         shell: bash
         run: |
-          all='["windows10","windows11"]'
-          default='["windows10","windows11"]'
+          all='["windows10","windows11","windows11-ssh"]'
+          default='["windows10","windows11","windows11-ssh"]'
           oses="${{ github.event.inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
             selected="$default"
