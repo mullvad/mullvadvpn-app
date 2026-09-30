@@ -4,7 +4,7 @@ import { useProviders } from './use-providers';
 
 export function useIsProvidersFilterActive(locationType: LocationType) {
   const { providers, entryProviders, exitProviders } = useProviders();
-  const activeProviders = locationType === LocationType.entry ? entryProviders : exitProviders;
+  const activeProviders = locationType === LocationType.exit ? exitProviders : entryProviders;
 
   return isProvidersFilterActive(providers, activeProviders);
 }
