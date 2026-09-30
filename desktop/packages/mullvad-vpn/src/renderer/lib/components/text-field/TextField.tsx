@@ -19,6 +19,7 @@ export const StyledTextField = styled.div`
   position: relative;
   display: flex;
   flex-grow: 1;
+  flex-wrap: wrap;
 `;
 
 function TextField({
