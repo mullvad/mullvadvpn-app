@@ -13,9 +13,14 @@ export const useFilterChipContext = (): FilterChipContextProps => {
 
 type FilterChipProviderProps = {
   disabled?: boolean;
+  inactive?: boolean;
   children: React.ReactNode;
 };
 
-export const FilterChipProvider = ({ disabled, children }: FilterChipProviderProps) => {
-  return <FilterChipContext.Provider value={{ disabled }}>{children}</FilterChipContext.Provider>;
+export const FilterChipProvider = ({ disabled, inactive, children }: FilterChipProviderProps) => {
+  return (
+    <FilterChipContext.Provider value={{ disabled, inactive }}>
+      {children}
+    </FilterChipContext.Provider>
+  );
 };
