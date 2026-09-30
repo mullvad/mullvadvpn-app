@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.12] - 2026-09-30
+### Fixed
+- Remove empty translations for Arabic and Persian and use English instead.
+
+
 ## [android/2026.11] - 2026-09-23
 ### Fixed
 - Fix a rare crash that could occur if a touch event was received just as the map view was created.
