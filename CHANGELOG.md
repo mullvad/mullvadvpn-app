@@ -69,6 +69,9 @@ Line wrap the file at 100 chars.                                              Th
   when detecting if NetworkManager manages DNS.
 - Fix DNS breaking after some indeterminate amount of time when using NetworkManager.
 
+#### Windows
+- Fix "Failed to open named pipe" error.
+
 ### Security
 - Prevent LAN traffic from leaking into the tunnel when "local network sharing" is enabled.
 
