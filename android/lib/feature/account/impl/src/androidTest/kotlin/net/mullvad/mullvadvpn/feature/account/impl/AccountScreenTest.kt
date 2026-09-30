@@ -6,13 +6,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeUiState
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
-import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -20,23 +15,15 @@ import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.koin.core.context.loadKoinModules
-import org.koin.core.module.dsl.viewModel
-import org.koin.dsl.module
 
 @ExperimentalTestApi
 @OptIn(ExperimentalMaterial3Api::class)
 class AccountScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
-    private val addTimeViewModel: AddTimeViewModel = mockk(relaxed = true)
-
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        loadKoinModules(module { viewModel { addTimeViewModel } })
-        every { addTimeViewModel.uiState } returns
-            MutableStateFlow<Lc<Unit, AddTimeUiState>>(Lc.Loading(Unit))
     }
 
     private fun ComposeContext.initScreen(
