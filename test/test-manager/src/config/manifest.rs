@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 use test_locations::TestLocationList;
 
 use super::VmConfig;
-use crate::tests::config::DEFAULT_MULLVAD_HOST;
 
 /// Global configuration for the `test-manager`.
 ///
@@ -15,13 +14,44 @@ use crate::tests::config::DEFAULT_MULLVAD_HOST;
 /// [`crate::config::io::ConfigFile::get_config_path`] or
 /// the `test-manager config` CLI subcommand.
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct Config {
     #[serde(skip)]
     pub runtime_opts: RuntimeOptions,
     pub vms: BTreeMap<String, VmConfig>,
-    pub mullvad_host: Option<String>,
+    /// Named API environments, e.g. prod or staging, with settings specific to each.
+    #[serde(default)]
+    pub environments: BTreeMap<String, EnvironmentConfig>,
+}
+
+/// Default `mullvad_host`. This should match the production env.
+const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(deny_unknown_fields)]
+pub struct EnvironmentConfig {
+    /// Domain name of the environment, e.g. `mullvad.net`. It is prefixed with e.g. "api." and
+    /// "ipv4.am.i.".
+    #[serde(default = "default_mullvad_host")]
+    pub mullvad_host: String,
+    /// Account number to use for testing.
+    pub account: Option<String>,
     #[serde(default)]
     pub test_locations: TestLocationList,
+}
+
+impl Default for EnvironmentConfig {
+    fn default() -> Self {
+        Self {
+            mullvad_host: default_mullvad_host(),
+            account: None,
+            test_locations: TestLocationList::default(),
+        }
+    }
+}
+
+fn default_mullvad_host() -> String {
+    DEFAULT_MULLVAD_HOST.to_owned()
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -43,14 +73,8 @@ impl Config {
         self.vms.get(name)
     }
 
-    /// Get the Mullvad host to use.
-    ///
-    /// Defaults to [`DEFAULT_MULLVAD_HOST`] if the host was not provided in the [`ConfigFile`].
-    pub fn get_host(&self) -> String {
-        self.mullvad_host.clone().unwrap_or_else(|| {
-            log::debug!("No Mullvad host has been set explicitly. Falling back to default host");
-            DEFAULT_MULLVAD_HOST.to_owned()
-        })
+    pub fn get_environment(&self, name: &str) -> Option<&EnvironmentConfig> {
+        self.environments.get(name)
     }
 }
 
@@ -59,15 +83,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_test_location_empty() {
+    fn parse_environment_defaults() {
         let config = r#"
             {
                 "vms": {},
-                "mullvad_host": "mullvad.net"
+                "environments": {
+                    "prod": {}
+                }
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        assert!(config.test_locations.0.is_empty());
+        let prod = config.get_environment("prod").unwrap();
+        assert_eq!(prod.mullvad_host, DEFAULT_MULLVAD_HOST);
+        assert!(prod.account.is_none());
+        assert!(prod.test_locations.0.is_empty());
+        assert!(config.get_environment("staging").is_none());
     }
 
     #[test]
@@ -75,22 +105,41 @@ mod tests {
         let config = r#"
             {
                 "vms": {},
-                "mullvad_host": "mullvad.net",
-                "test_locations": [
-                    { "*daita": [ "se-got-wg-001", "se-got-wg-002" ] },
-                    { "*": [ "se" ] }
-                ]
+                "environments": {
+                    "staging": {
+                        "mullvad_host": "stagemole.eu",
+                        "account": "1234123412341234",
+                        "test_locations": [
+                            { "*daita": [ "se-got-wg-001", "se-got-wg-002" ] },
+                            { "*": [ "se" ] }
+                        ]
+                    }
+                }
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
+        let staging = config.get_environment("staging").unwrap();
+        assert_eq!(staging.mullvad_host, "stagemole.eu");
+        assert_eq!(staging.account.as_deref(), Some("1234123412341234"));
         assert!(
-            config
+            staging
                 .test_locations
                 .lookup("test_daita")
                 .unwrap()
                 .contains(&"se-got-wg-002".to_string())
         );
-        assert!(!config.test_locations.0.is_empty());
+    }
+
+    #[test]
+    fn parse_legacy_top_level_fields_should_fail() {
+        let config = r#"
+            {
+                "vms": {},
+                "mullvad_host": "mullvad.net",
+                "test_locations": [ { "*": [ "se" ] } ]
+            }"#;
+
+        let _err = serde_json::from_str::<Config>(config).unwrap_err();
     }
 
     #[test]
@@ -98,13 +147,16 @@ mod tests {
         let config = r#"
             {
                 "vms": {},
-                "mullvad_host": "mullvad.net",
-                "test_locations": [
-                    {
-                        "*daita": [ "se-got-wg-001", "se-got-wg-002" ],
-                        "*test": ["se"]
-                    },
-                ]
+                "environments": {
+                    "prod": {
+                        "test_locations": [
+                            {
+                                "*daita": [ "se-got-wg-001", "se-got-wg-002" ],
+                                "*test": ["se"]
+                            },
+                        ]
+                    }
+                }
             }"#;
 
         let _err = serde_json::from_str::<Config>(config).unwrap_err();
