@@ -20,7 +20,9 @@ import { useShowUpdateAvailable } from './hooks';
 export function AppInfoView() {
   const { pop } = useHistory();
   const showUpdateAvailable = useShowUpdateAvailable();
-  const { hasSettingsMigrations } = useSettingsMigrations();
+  const { latestMigration } = useSettingsMigrations();
+
+  const showMigratedSettings = latestMigration !== undefined;
 
   return (
     <View backgroundColor="darkBlue">
@@ -42,7 +44,7 @@ export function AppInfoView() {
                   {showUpdateAvailable && <UpdateAvailableListItem />}
                   <FlexColumn>
                     <ChangelogListItem />
-                    {hasSettingsMigrations && <MigratedSettingsListItem />}
+                    {showMigratedSettings && <MigratedSettingsListItem />}
                     <VersionListItem />
                   </FlexColumn>
                   <BetaSetting />

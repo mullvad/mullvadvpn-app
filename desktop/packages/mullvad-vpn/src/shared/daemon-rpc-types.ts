@@ -449,23 +449,30 @@ export type CustomLists = Array<ICustomList>;
 // Extend with new event types as needed.
 export type SettingsMigration = SplitFilterMigrationEvent;
 
-export type SplitFilterMigrationScenario =
-  | 'one-a'
-  | 'one-b'
-  | 'two'
-  | 'three-a'
-  | 'three-b'
-  | 'four-a'
-  | 'four-b'
-  | 'five-a'
-  | 'five-b'
-  | 'six-a'
-  | 'six-b'
-  | 'seven-a'
-  | 'seven-b';
+export const settingsMigrationTypes = ['split-filter'] as const;
+
+export type SettingsMigrationType = (typeof settingsMigrationTypes)[number];
+
+export const splitFilterMigrationScenarios = [
+  'one-a',
+  'one-b',
+  'two',
+  'three-a',
+  'three-b',
+  'four-a',
+  'four-b',
+  'five-a',
+  'five-b',
+  'six-a',
+  'six-b',
+  'seven-a',
+  'seven-b',
+] as const;
+
+export type SplitFilterMigrationScenario = (typeof splitFilterMigrationScenarios)[number];
 
 export type SplitFilterMigrationEvent = {
-  type: 'split-filter';
+  type: Extract<SettingsMigrationType, 'split-filter'>;
   scenario: SplitFilterMigrationScenario;
 };
 

@@ -4,6 +4,7 @@ import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
 
+import { keyToSettingsMigration } from '../renderer/features/migration/utils';
 import { hasExpired } from '../shared/account-expiry';
 import {
   ISplitTunnelingApplication,
@@ -670,22 +671,42 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
-    // fetch settings migrations
-    try {
-      this.migrations = await this.daemonRpc.getSettingsMigrations();
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to fetch settings migrations: ${error.message}`);
-
-      return this.handleBootstrapError(error);
-    }
-
     // fetch the daemon's version
     try {
       this.version.setDaemonVersion(await this.daemonRpc.getCurrentVersion());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the daemon's version: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
+    // get completed migrations
+    try {
+      const completedMigrationKeys = this.settings.gui.state.completedSettingsMigrations;
+      const completedMigrations = completedMigrationKeys
+        .map(keyToSettingsMigration)
+        .filter((x) => x !== undefined);
+      const wasAnyMigrationsCompletedWithOtherVersion = completedMigrations.some(
+        (migration) => migration.version !== this.version.currentVersion.gui,
+      );
+
+      if (wasAnyMigrationsCompletedWithOtherVersion) {
+        this.settings.gui.clearCompletedSettingsMigrations();
+      }
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to clear completed settings migrations: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
+    // fetch settings migrations
+    try {
+      this.migrations = await this.daemonRpc.getSettingsMigrations();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch settings migrations: ${error.message}`);
 
       return this.handleBootstrapError(error);
     }

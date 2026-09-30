@@ -775,6 +775,14 @@ export default class AppRenderer {
     );
   };
 
+  public setDismissedSettingsMigrationNotification = (): void => {
+    IpcRendererEventChannel.guiSettings.dismissedSettingsMigrationNotification();
+  };
+
+  public completeSettingsMigration = (migrationKey: string): void => {
+    IpcRendererEventChannel.guiSettings.completedSettingsMigration(migrationKey);
+  };
+
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
   }
