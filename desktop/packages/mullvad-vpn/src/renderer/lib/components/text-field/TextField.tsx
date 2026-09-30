@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { spacings } from '../../foundations';
+import { FlexColumn } from '../flex-column';
 import { TextFieldInputGroup, TextFieldSupportingText } from './components';
 import { TextFieldLabel } from './components/text-field-label';
 import { TextFieldProvider } from './TextFieldContext';
@@ -15,10 +17,9 @@ export type TextFieldProps = React.ComponentPropsWithRef<'div'> & {
   variant?: TextFieldVariant;
 };
 
-export const StyledTextField = styled.div`
+export const StyledTextField = styled(FlexColumn)`
   position: relative;
-  display: flex;
-  flex-grow: 1;
+  gap: ${spacings.tiny};
 `;
 
 function TextField({
