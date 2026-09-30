@@ -48,4 +48,5 @@ extension Image {
     static let mullvadIconObscure = Image("IconObscure")
     static let mullvadIconUnobscure = Image("IconUnobscure")
     static let mullvadIconCopy = Image("IconCopy")
+    static let mullvadLocationMarkerSecure = Image("LocationMarkerSecure")
 }
