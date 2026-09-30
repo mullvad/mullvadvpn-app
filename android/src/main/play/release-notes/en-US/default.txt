@@ -1,1 +1,1 @@
-- Fixed a crash that could occur when interacting with the map just as it was created.
+- Fixed empty translations for Arabic and Persian. English texts are used instead until the next version when correct translations should be available.
