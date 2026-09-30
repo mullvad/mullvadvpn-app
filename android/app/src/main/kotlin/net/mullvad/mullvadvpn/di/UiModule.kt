@@ -170,7 +170,7 @@ val uiModule = module {
         )
     }
     single { RelayOverridesRepository(get()) }
-    single { CustomListsRepository(get()) }
+    single { CustomListsRepository(get(), get()) }
     single { RelayListRepository(get(), get()) }
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }

@@ -23,7 +23,7 @@ fun Translations.lookup(key: String): String = getOrDefault(key, key)
 
 class RelayLocationTranslationRepository(
     val context: Context,
-    val localeRepository: LocaleRepository,
+    localeRepository: LocaleRepository,
     externalScope: CoroutineScope = MainScope(),
     val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {

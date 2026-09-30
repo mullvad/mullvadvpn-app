@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Blocking DNS queries related to connchecks during the ephemeral peer handshake caused tunnel setup
   to fail on some devices.
 - Add workaround for Android failing to restart the VPN app after app upgrade.
+- Fix relay list and custom lists sorting by respecting locales.
 
 
 ## [android/2026.12] - 2026-09-30

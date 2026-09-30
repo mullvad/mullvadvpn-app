@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.common.util.relaylist
 
+import android.icu.text.Collator
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -123,4 +124,4 @@ fun List<RelayItem.Location.Country>.getRelayItemsByCodes(
         this.flatMap { it.descendants() }.filter { codes.contains(it.id) }
 
 fun <T : RelayItem> List<T>.sortedByName() =
-    this.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+    this.sortedWith(compareBy(Collator.getInstance()) { it.name })
