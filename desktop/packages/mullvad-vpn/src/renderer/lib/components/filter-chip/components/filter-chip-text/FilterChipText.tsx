@@ -1,5 +1,5 @@
-import { BodySmallSemiBoldProps, FootnoteMiniSemiBold } from '../../text';
-import { useFilterChipContext } from '../FilterChipContext';
+import { BodySmallSemiBoldProps, FootnoteMiniSemiBold } from '../../../text';
+import { useFilterChipContext } from '../../FilterChipContext';
 
 export type FilterChipTextProps<T extends React.ElementType = 'span'> = BodySmallSemiBoldProps<T>;
 
