@@ -67,5 +67,7 @@ jobs:
         shell: bash
         run: |
           # Exclude checking test-manager on Windows, since it is not a supported compilation target.
-          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --no-default-features
-          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --all-features
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace \
+              --exclude test-manager --exclude test_macro --no-default-features
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace \
+              --exclude test-manager --exclude test_macro --all-features
