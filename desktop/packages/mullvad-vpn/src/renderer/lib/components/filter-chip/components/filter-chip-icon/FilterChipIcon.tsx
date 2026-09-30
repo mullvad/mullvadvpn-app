@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { Icon, IconProps } from '../../icon';
-import { useFilterChipContext } from '../FilterChipContext';
+import { Icon, IconProps } from '../../../icon';
+import { useFilterChipContext } from '../../FilterChipContext';
 
 type FilterChipIconProps = Omit<IconProps, 'size'>;
 

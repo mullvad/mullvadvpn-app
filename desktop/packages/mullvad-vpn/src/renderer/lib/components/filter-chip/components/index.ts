@@ -1,2 +1,2 @@
-export * from './FilterChipIcon';
-export * from './FilterChipText';
+export * from './filter-chip-icon';
+export * from './filter-chip-text';
