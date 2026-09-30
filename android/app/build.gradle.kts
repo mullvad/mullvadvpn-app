@@ -326,6 +326,11 @@ junitPlatform {
     instrumentationTests {
         version.set(libs.versions.junit5.android.asProvider())
         includeExtensions.set(true)
+
+        // This is to avoid Gradle from putting an empty configurationParameters argument in the adb
+        // test command. The key and values can be anything, but it must be present.
+        // This causes the test to fail with Error: Invalid userId -2 due to argument shifting.
+        configurationParameters.put("fixme", "true")
     }
 }
 
