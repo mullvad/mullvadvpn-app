@@ -13,7 +13,8 @@ import SwiftUI
 struct ProblemReportView: View {
     @State var viewModel: ProblemReportViewModel
     @State var showLogs: Bool = false
-
+    @FocusState var emailIsFocused: Bool
+    
     @Namespace private var transitionNamespace
     private let messageEditTransitionId = "editFrame"
 
@@ -74,6 +75,7 @@ struct ProblemReportView: View {
                 title: "Email (optional)",
                 placeholder: "Enter your email",
                 text: $viewModel.email,
+                isFocused: $emailIsFocused,
                 borderStyle: .constant(.normal))
             messageEditInlinePlaceholder
             ActionBox(
@@ -90,6 +92,7 @@ struct ProblemReportView: View {
                 style: .primary,
                 mainAccessibilityIdentifier: .problemReportAppLogsButton
             ) {
+                emailIsFocused = false
                 viewModel.doShowLog()
             }
             MullvadButton(
@@ -114,6 +117,7 @@ struct ProblemReportView: View {
                 .font(.mullvadTinySemiBold)
                 .padding(.bottom, 4.0)
             Button {
+                emailIsFocused = false
                 viewModel.isEditingMessage = true
             } label: {
                 ZStack(alignment: .topLeading) {
