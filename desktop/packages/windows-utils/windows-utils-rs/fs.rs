@@ -14,6 +14,9 @@ use windows::core::HSTRING;
 /// Maximum time to wait for an instance of the pipe to become available.
 const PIPE_TIMEOUT_MSEC: u32 = 5000;
 
+/// Number of times to retry opening the pipe if it is busy.
+const PIPE_BUSY_RETRIES: u32 = 3;
+
 #[derive(thiserror::Error, Debug)]
 enum Error {
     /// Failed to open the provided file
@@ -38,21 +41,23 @@ pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue>
     }
 }
 
-/// If the pipe is busy, this blocks while waiting for it to become available, for at most
-/// [PIPE_TIMEOUT_MSEC] ms.
+/// If the pipe is busy, this blocks for at most [PIPE_BUSY_RETRIES] * [PIPE_TIMEOUT_MSEC] ms.
 fn pipe_is_admin_owned_inner<P: AsRef<Path>>(path: P) -> Result<bool, Error> {
     let path = path.as_ref();
-    let open_pipe = || std::fs::File::options().read(true).open(path);
 
-    let client = match open_pipe() {
-        // If the pipe is busy, wait for it to become available and try again
-        Err(err) if err.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) => {
-            wait_named_pipe(path).map_err(Error::WaitPipe)?;
-            open_pipe()
+    let mut retries_left = PIPE_BUSY_RETRIES;
+    let client = loop {
+        match std::fs::File::options().read(true).open(path) {
+            // If the pipe is busy, wait for it to become available and try again
+            Err(err)
+                if retries_left > 0 && err.raw_os_error() == Some(ERROR_PIPE_BUSY.0 as i32) =>
+            {
+                retries_left -= 1;
+                wait_named_pipe(path).map_err(Error::WaitPipe)?;
+            }
+            result => break result.map_err(Error::OpenPipe)?,
         }
-        result => result,
-    }
-    .map_err(Error::OpenPipe)?;
+    };
 
     talpid_windows::fs::is_admin_owned(client).map_err(Error::CheckPermissions)
 }
