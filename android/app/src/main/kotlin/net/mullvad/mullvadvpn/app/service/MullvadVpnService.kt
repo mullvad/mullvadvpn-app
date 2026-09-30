@@ -127,7 +127,8 @@ class MullvadVpnService : TalpidVpnService() {
 
             intent?.action == KEY_DISCONNECT_ACTION -> {
                 // MullvadTileService might have launched this service with the expectancy of it
-                // being in the foreground, thus it must go into foreground to please the android system
+                // being in the foreground, thus it must go into foreground to please the android
+                // system
                 // requirements.
                 foregroundNotificationHandler.startForeground()
                 lifecycleScope.launch {
