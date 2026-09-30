@@ -1,6 +1,7 @@
 import SwiftUI
 
 extension Image {
+    static let mullvadIconBack = Image("IconBack")
     static let mullvadIconClose = Image("IconClose")
     static let mullvadLogoImage = Image("LogoIcon")
     static let mullvadLogoText = Image("LogoText")
