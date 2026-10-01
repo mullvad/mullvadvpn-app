@@ -1,6 +1,6 @@
 sdk_path: $ANDROID_HOME
-repo_url: https://fdroid.devmole.eu/fdroid/repo
-repo_name: Mullvad VPN F-Droid repository (development)
+repo_url: https://fdroid.mullvad.net/fdroid/repo
+repo_name: Mullvad VPN F-Droid repository
 repo_description: >-
    This is the official Mullvad VPN F-Droid repository. It hosts
    reproducible binaries with faster updates than the main F-Droid
@@ -11,8 +11,8 @@ repo_description: >-
    repository, GitHub Releases and our website.
 archive_older: 0
 # awsbucket is used by rclone
-awsbucket: appteam-android-fdroid-development
-rclone_config: development
+awsbucket: appteam-android-fdroid-production
+rclone_config: production
 path_to_custom_rclone_config: /etc/rclone.conf
 keystore: NONE
 repo_keyalias: "X.509 Certificate for PIV Authentication"
