@@ -875,11 +875,11 @@ final class GotaTunActorTests: XCTestCase {
 
         await clock.waitForSleepers()
         await clock.advance(by: timings.bootRecoveryPeriodicity)
-        await actor.drainEvents()
+        // The next recovery timer only arms once the retry has been handled.
+        await clock.waitForSleepers()
         XCTAssertEqual(readAttempts, 2)
         XCTAssertEqual(factory.adaptersCreated.count, 0, "No adapter while settings are unreadable")
 
-        await clock.waitForSleepers()
         await waitFor(
             actor, until: { $0.isConnected },
             while: {
@@ -945,12 +945,12 @@ final class GotaTunActorTests: XCTestCase {
         await actor.drainEvents()
         XCTAssertEqual(readAttempts, 1)
 
-        // Each period wakes the recovery timer exactly once. The timer is replaced on every
-        // cycle, so wait for the new one to arm before advancing again.
+        // Each period wakes the recovery timer exactly once. The next timer only arms once the
+        // retry has been handled, so waiting for it both orders the assertion and the next advance.
+        await clock.waitForSleepers()
         for expectedAttempts in 2...4 {
-            await clock.waitForSleepers()
             await clock.advance(by: timings.bootRecoveryPeriodicity)
-            await actor.drainEvents()
+            await clock.waitForSleepers()
             XCTAssertEqual(readAttempts, expectedAttempts, "deviceLocked should be retried once per recovery period")
         }
 
@@ -1037,7 +1037,7 @@ final class GotaTunActorTests: XCTestCase {
         let states = await collectStates(from: actor) {
             $0.isConnected
         } while: {
-            Task { await actor.start(options: launchOptions) }
+            await actor.start(options: launchOptions)
             await clock.waitForSleepers()
             await clock.advance(by: timings.socketBindErrorRecoveryPeriodicity)
         }
