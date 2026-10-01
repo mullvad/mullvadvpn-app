@@ -42,21 +42,29 @@ export function CarouselProvider({ children }: CarouselProviderProps) {
     setSlides(getSlides(slidesRef.current));
   }, [slidesRef]);
 
-  return (
-    <CarouselContextext.Provider
-      value={{
-        slideIndex,
-        setSlideIndex,
-        numberOfSlides: slides.length,
-        carouselRef,
-        slidesRef,
-        nextButtonRef,
-        prevButtonRef,
-        firstIndicatorRef,
-        lastIndicatorRef,
-        slides,
-      }}>
-      {children}
-    </CarouselContextext.Provider>
-  );
+  const value = React.useMemo(() => {
+    return {
+      slideIndex,
+      setSlideIndex,
+      numberOfSlides: slides.length,
+      carouselRef,
+      slidesRef,
+      nextButtonRef,
+      prevButtonRef,
+      firstIndicatorRef,
+      lastIndicatorRef,
+      slides,
+    };
+  }, [
+    slideIndex,
+    carouselRef,
+    slidesRef,
+    nextButtonRef,
+    prevButtonRef,
+    firstIndicatorRef,
+    lastIndicatorRef,
+    slides,
+  ]);
+
+  return <CarouselContextext.Provider value={value}>{children}</CarouselContextext.Provider>;
 }
