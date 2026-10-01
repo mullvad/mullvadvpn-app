@@ -5,6 +5,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import co.touchlab.kermit.Logger
+import java.util.Locale
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,8 +28,8 @@ class CustomListsRepository(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val customLists: StateFlow<List<CustomList>?> =
-        combine(managementService.settings, localeRepository.currentLocale) { settings, _ ->
-                settings.customLists.sortedByName()
+        combine(managementService.settings, localeRepository.currentLocale) { settings, locale ->
+                settings.customLists.sortedByName(locale)
             }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
@@ -79,6 +80,6 @@ class CustomListsRepository(
         }
     }
 
-    private fun List<CustomList>.sortedByName() =
-        this.sortedWith(compareBy(Collator.getInstance()) { it.name.value })
+    private fun List<CustomList>.sortedByName(locale: Locale?) =
+        this.sortedWith(compareBy(Collator.getInstance(locale)) { it.name.value })
 }

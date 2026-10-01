@@ -6,7 +6,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import java.util.Locale
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,6 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.Settings
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,11 +33,8 @@ class CustomListsRepositoryTest {
     private val settingsFlow: MutableStateFlow<Settings> = MutableStateFlow(mockk(relaxed = true))
     private val localeFlow: MutableStateFlow<Locale> = MutableStateFlow(mockk(relaxed = true))
 
-    private lateinit var defaultLocale: Locale
-
     @BeforeEach
     fun setup() {
-        defaultLocale = Locale.getDefault()
         every { mockManagementService.settings } returns settingsFlow
         every { mockLocaleRepository.currentLocale } returns localeFlow
         customListsRepository =
@@ -48,11 +43,6 @@ class CustomListsRepositoryTest {
                 localeRepository = mockLocaleRepository,
                 dispatcher = UnconfinedTestDispatcher(),
             )
-    }
-
-    @AfterEach
-    fun tearDown() {
-        Locale.setDefault(defaultLocale)
     }
 
     @Test
@@ -284,7 +274,6 @@ class CustomListsRepositoryTest {
     @Test
     fun customListsShouldBeSortedUsingPtCollation() = runTest {
         // Arrange
-        Locale.setDefault(Locale.forLanguageTag("pt"))
         val customListId1 = CustomListId("1")
         val customListId2 = CustomListId("2")
         val customListId3 = CustomListId("3")
@@ -309,6 +298,8 @@ class CustomListsRepositoryTest {
         val mockSettings: Settings = mockk()
         every { mockSettings.customLists } returns listOf(customList1, customList2, customList3)
         settingsFlow.value = mockSettings
+        val locale = Locale.forLanguageTag("pt")
+        localeFlow.value = locale
 
         // Act
         val result = customListsRepository.customLists.value
