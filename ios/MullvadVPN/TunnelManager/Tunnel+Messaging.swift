@@ -29,35 +29,15 @@ extension TunnelProtocol {
         to nextRelays: NextRelays,
         completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .reconnectTunnel(nextRelays),
-            decoderHandler: mapObservedState(data:),
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .reconnectTunnel(nextRelays), completionHandler: completionHandler)
     }
-
     /// Request status from packet tunnel process.
     func getTunnelStatus(
         completionHandler: @escaping @Sendable (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
-        let operation = SendTunnelProviderMessageOperation(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: self,
-            message: .getTunnelStatus,
-            decoderHandler: mapObservedState(data:),
-            completionHandler: completionHandler
-        )
-
-        operationQueue.addOperation(operation)
-        return operation
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .getTunnelStatus, completionHandler: completionHandler)
     }
 
     /// Send API request via packet tunnel process bypassing VPN.
@@ -101,14 +81,6 @@ extension TunnelProtocol {
         operationQueue.addOperation(operation)
 
         return operation
-    }
-
-    func mapObservedState(data: Data?) throws -> ObservedState {
-        if let data {
-            return try TunnelProviderReply<ObservedState>(messageData: data).value
-        } else {
-            throw EmptyTunnelProviderResponseError()
-        }
     }
 
     /// Notify tunnel about private key rotation.
