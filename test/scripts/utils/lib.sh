@@ -211,7 +211,7 @@ function run_tests_for_os {
         env_arg=()
     fi
 
-    if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
+    if [[ -z "${ACCOUNT_TOKEN:-}" ]]; then
         # Needed to redact the account number from the output
         ACCOUNT_TOKEN=$($test_manager config account "${env_arg[@]}") || exit 1
     fi
