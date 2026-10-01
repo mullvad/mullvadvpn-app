@@ -21,6 +21,11 @@ public protocol ShadowsocksConfigurationCacheProtocol: Sendable {
 public actor ShadowsocksConfigurationCache: ShadowsocksConfigurationCacheProtocol {
     private var cachedConfiguration: ShadowsocksConfiguration?
     private nonisolated let fileCache: FileCache<ShadowsocksConfiguration>
+    private let queue = DispatchSerialQueue(label: "ShadowsocksConfigurationCache")
+
+    public nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
 
     public init(cacheDirectory: URL) {
         fileCache = FileCache(

@@ -14,6 +14,11 @@ import MullvadTypes
 /// File cache actor that simulates file state for use in tests.
 actor MockFileCache<Content: Codable & Equatable & Sendable>: FileCacheProtocol {
     private var state: State
+    private let queue = DispatchSerialQueue(label: "MockFileCache")
+
+    nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
 
     init(initialState: State = .fileNotFound) {
         state = initialState
