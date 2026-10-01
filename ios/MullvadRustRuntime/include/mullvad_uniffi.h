@@ -355,7 +355,7 @@ void uniffi_mullvad_ios_fn_free_apicontext(uint64_t handle, RustCallStatus *_Non
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
 #define UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_CONSTRUCTOR_APICONTEXT_NEW
-uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer am_i_mullvad_host_ipv4, RustBuffer am_i_mullvad_host_ipv6, RustBuffer domain, RustBuffer domain_fronting, int8_t disable_tls, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
+uint64_t uniffi_mullvad_ios_fn_constructor_apicontext_new(RustBuffer host, RustBuffer address, RustBuffer am_i_mullvad_host_ipv4, RustBuffer am_i_mullvad_host_ipv6, RustBuffer domain, RustBuffer domain_fronting, int8_t disable_tls, RustBuffer sigsum_trusted_keys, uint64_t bridge_provider, uint64_t settings_provider, RustBuffer access_method_change_listeners, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_MULLVAD_IOS_FN_METHOD_APICONTEXT_UPDATE_ACCESS_METHODS
