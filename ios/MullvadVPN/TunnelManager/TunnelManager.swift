@@ -299,7 +299,7 @@ actor TunnelManager {
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated func startTunnel(completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 let operation = StartTunnelOperation(
                     dispatchQueue: actor.internalQueue,
                     interactor: TunnelInteractorProxy(actor),
@@ -340,7 +340,7 @@ actor TunnelManager {
         completionHandler: (@Sendable (Error?) -> Void)? = nil
     ) {
         internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 let operation = StopTunnelOperation(
                     dispatchQueue: actor.internalQueue,
                     interactor: TunnelInteractorProxy(actor)
@@ -379,12 +379,12 @@ actor TunnelManager {
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 // Start polling the tunnel immediately when the user reconnects
                 actor.startPollingTunnelStatus(interval: tunnelStatusPollInterval)
 
                 let operation = AsyncBlockOperation(dispatchQueue: actor.internalQueue) { [weak self] finish in
-                    self?.assumeIsolated { actor in
+                    self?.assumeIsolatedHack { actor in
                         guard let tunnel = actor._tunnel else {
                             finish(UnsetTunnelError())
                             return
@@ -467,7 +467,7 @@ actor TunnelManager {
         let taskName = "Set " + updates.map(\.subjectName).joined(separator: ", ")
 
         internalQueue.async { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 actor.scheduleSettingsUpdate(
                     taskName: taskName,
                     modificationBlock: { settings in
@@ -507,7 +507,7 @@ actor TunnelManager {
         completionHandler: (@Sendable (Error?) -> Void)? = nil
     ) {
         internalQueue.async {
-            self.assumeIsolated { actor in
+            self.assumeIsolatedHack { actor in
                 do {
                     try actor.relayCacheTracker.refreshCachedRelays()
                 } catch {
@@ -530,7 +530,7 @@ actor TunnelManager {
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated func selectRelays(tunnelSettings: LatestTunnelSettings) throws -> SelectedRelays {
         try internalQueue.sync {
-            try assumeIsolated { actor in
+            try assumeIsolatedHack { actor in
                 let retryAttempts = actor._tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
 
                 return try actor.relaySelector.selectRelays(
@@ -569,22 +569,22 @@ actor TunnelManager {
 
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated var isConfigurationLoaded: Bool {
-        internalQueue.sync { assumeIsolated { $0._isConfigurationLoaded } }
+        internalQueue.sync { assumeIsolatedHack { $0._isConfigurationLoaded } }
     }
 
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated var tunnelStatus: TunnelStatus {
-        internalQueue.sync { assumeIsolated { $0._tunnelStatus } }
+        internalQueue.sync { assumeIsolatedHack { $0._tunnelStatus } }
     }
 
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated var settings: LatestTunnelSettings {
-        internalQueue.sync { assumeIsolated { $0._tunnelSettings } }
+        internalQueue.sync { assumeIsolatedHack { $0._tunnelSettings } }
     }
 
     /// Nonisolation is safe due to execution on internal queue.
     nonisolated var deviceState: DeviceState {
-        internalQueue.sync { assumeIsolated { $0._deviceState } }
+        internalQueue.sync { assumeIsolatedHack { $0._deviceState } }
     }
 
     fileprivate var tunnel: (any TunnelProtocol)? {
@@ -764,7 +764,7 @@ actor TunnelManager {
         unsubscribeVPNStatusObserver()
 
         statusObserver = tunnel.addBlockObserver(queue: internalQueue) { [weak self] _, status in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 // Save the NEVPNStatus so we can reject stale IPC updates
                 actor.setNEVPNStatus(status)
 
@@ -792,7 +792,7 @@ actor TunnelManager {
     private func startNetworkMonitor() {
         networkMonitor = NWPathMonitor()
         networkMonitor?.pathUpdateHandler = { [weak self] path in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 actor.scheduleNetworkPathUpdate(path)
             }
         }
@@ -805,7 +805,7 @@ actor TunnelManager {
         pendingNetworkPathUpdate?.cancel()
 
         let workItem = DispatchWorkItem { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 actor.didUpdateNetworkPath(path)
             }
         }
@@ -844,7 +844,7 @@ actor TunnelManager {
             do {
                 let newDeviceState = try settingsManager.readDeviceState()
 
-                self.assumeIsolated { actor in
+                self.assumeIsolatedHack { actor in
                     actor.setDeviceState(newDeviceState, persist: false)
                 }
             } catch {
@@ -1026,7 +1026,7 @@ actor TunnelManager {
         completionHandler: (@Sendable () -> Void)?
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 let currentSettings = actor._tunnelSettings
                 var updatedSettings = actor._tunnelSettings
                 let settingsStrategy = TunnelSettingsStrategy()
@@ -1076,7 +1076,7 @@ actor TunnelManager {
         completionHandler: (@Sendable () -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [weak self] in
-            self?.assumeIsolated { actor in
+            self?.assumeIsolatedHack { actor in
                 var deviceState = actor._deviceState
 
                 modificationBlock(&deviceState)
