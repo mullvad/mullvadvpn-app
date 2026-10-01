@@ -27,7 +27,7 @@ class AppVersionInfoRepository(
             .stateIn(
                 CoroutineScope(dispatcher),
                 SharingStarted.WhileSubscribed(),
-                // By default we assume we are supported
+                // By default, we assume we are supported
                 VersionInfo(currentVersion = buildVersion.name, isSupported = true),
             )
 }

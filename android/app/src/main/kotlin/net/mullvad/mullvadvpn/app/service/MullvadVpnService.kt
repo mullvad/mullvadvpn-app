@@ -76,7 +76,7 @@ class MullvadVpnService : TalpidVpnService() {
         prepareFiles()
         migrateSplitTunneling.migrate()
 
-        // If it is a debug build and we have an api override in the intent, use it
+        // If it is a debug build, and we have an api override in the intent, use it
         // This is for injecting hostname and port for our mock api tests
         val intentApiOverride = apiEndpointFromIntentHolder.apiEndpointOverride
         val updatedConfig =
@@ -127,7 +127,8 @@ class MullvadVpnService : TalpidVpnService() {
 
             intent?.action == KEY_DISCONNECT_ACTION -> {
                 // MullvadTileService might have launched this service with the expectancy of it
-                // being foreground, thus it must go into foreground to please the android system
+                // being in the foreground, thus it must go into foreground to please the android
+                // system
                 // requirements.
                 foregroundNotificationHandler.startForeground()
                 lifecycleScope.launch {

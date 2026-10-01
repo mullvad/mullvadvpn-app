@@ -81,7 +81,7 @@ android {
 baselineProfile { useConnectedDevices = true }
 
 // Force okio version to 3.9.1 to fix 2.10.0 appearing in the verification metadata file.
-// This is to avoid a osv-scanner complaining a about a vulnerability in okio 2.10.0.
+// This is to avoid osv-scanner complaining about a vulnerability in okio 2.10.0.
 // Gradle already upgrades okio 2.10.0 to 3.9.1, but it still ends up in the metadata file.
 // If we update androidx.benchmark:benchmark-macro-junit4 we might be able to remove this.
 configurations.all { resolutionStrategy { force("com.squareup.okio:okio:3.9.1") } }

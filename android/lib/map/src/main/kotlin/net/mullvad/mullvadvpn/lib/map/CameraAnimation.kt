@@ -52,7 +52,7 @@ fun animatedCameraPosition(
             // Unwind longitudeAnimation into a Longitude
             val currentLongitude = Longitude.fromFloat(longitudeAnimation.value)
 
-            // Resolve a vector showing us the shortest path to the target longitude, e.g going
+            // Resolve a vector showing us the shortest path to the target longitude, e.g. going
             // from 170 to -170 would result in 20 since we can wrap around the globe
             val shortestPathVector = currentLongitude.vectorTo(targetCameraLocation.longitude)
 

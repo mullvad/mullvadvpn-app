@@ -10,7 +10,7 @@ internal const val MATRIX_SIZE = 16
 internal const val DISTANCE_DURATION_SCALE_FACTOR = 0.4f
 internal const val MIN_ANIMATION_MILLIS = 1300
 internal const val MAX_ANIMATION_MILLIS = 2500
-// The cut off where we go from a short animation (camera pans) to a far animation (camera pans +
+// The cut-off where we go from a short animation (camera pans) to a far animation (camera pans +
 // zoom out)
 internal const val SHORT_ANIMATION_CUTOFF_MILLIS = 1700
 

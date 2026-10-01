@@ -236,7 +236,7 @@ private fun SelectLocationListContent(
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // When recents have been disabled and are enabled again and we are at the
+        // When recents have been disabled and are enabled again, and we are at the
         // top of the list we scroll up so that recents are visible again.
         val shouldScrollToTop =
             state.relayListItems.firstOrNull() is RelayListItem.RecentsListHeader &&

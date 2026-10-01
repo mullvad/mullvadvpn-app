@@ -91,7 +91,7 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
     private fun hasAnotherEmission(millisUntilExpiry: Long, updateIntervalMillis: Long) =
         calculateDelaysNeeded(millisUntilExpiry, updateIntervalMillis) > 0
 
-    // Calculate how many times we need to delay and and emit until the expiry time is reached.
+    // Calculate how many times we need to delay and emit until the expiry time is reached.
     // Note that the returned delays may add upp to less than the remaining time, for example if we
     // have 100ms remaining and currentUpdateIntervalMillis is 40ms this function will return 2.
     private fun calculateDelaysNeeded(

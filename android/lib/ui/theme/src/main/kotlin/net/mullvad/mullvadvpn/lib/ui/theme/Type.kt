@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.FontWeight
 /*
 The app currently uses the following text styles directly in the code:
 headlineLarge (32sp 700 weight) -> Used for title in Welcome and Login
-headlineSmall (24sp 600 weight) -> Used for title in OutOfTime, DeviceRevoked, ReportAProblem etc
+headlineSmall (24sp 600 weight) -> Used for title in OutOfTime, DeviceRevoked, ReportAProblem etc.
 titleLarge (22sp 600 weight) -> Used for Connection status and location
 titleMedium (16sp 600 weight) -> Used for cell header text and button text
 bodyLarge (16sp 400 weight) -> Used for title in two row cells and some other non-standard cells

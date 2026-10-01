@@ -43,7 +43,7 @@ class DetektConfigPlugin : Plugin<Project> {
             }
 
             tasks.withType<DetektCreateBaselineTask>().configureEach {
-                // Ignore generated files from the build directory, e.g files created by ksp.
+                // Ignore generated files from the build directory, e.g. files created by ksp.
                 exclude(detektExcludedPaths)
             }
         }

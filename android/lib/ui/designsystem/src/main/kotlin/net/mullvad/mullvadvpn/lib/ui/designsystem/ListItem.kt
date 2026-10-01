@@ -166,7 +166,7 @@ fun MullvadListItem(
                     .semantics { selected = isSelected },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // This row is needed to prevent the main click ripple from travelling over
+            // This row is needed to prevent the main click ripple from traveling over
             // the trailing content when that shouldn't happen.
             Row(
                 modifier =

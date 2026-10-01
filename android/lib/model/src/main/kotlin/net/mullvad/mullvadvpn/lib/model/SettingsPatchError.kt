@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
 sealed interface SettingsPatchError {
-    // E.g hostname is number instead of String
+    // E.g. hostname is number instead of String
     data class InvalidOrMissingValue(val value: String) : SettingsPatchError
 
     // E.g. Unexpected top-level key?
