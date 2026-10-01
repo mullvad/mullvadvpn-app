@@ -28,10 +28,11 @@ struct HopView: View {
                             automaticLocationCountry
                         )
                     } else {
-                        location.name
+                        location.asCustomListNode != nil
+                            ? "\(location.name)" : NSLocalizedString(location.name, comment: "")
                     }
                 } else {
-                    "Select location"
+                    NSLocalizedString("Select location", comment: "")
                 }
 
             hop.icon
@@ -44,7 +45,7 @@ struct HopView: View {
                 ) { position in
                     onIconPositionChange(position)
                 }
-            Text(LocalizedStringKey(name))
+            Text(name)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
