@@ -33,7 +33,8 @@ public final class AppMessageHandler {
      Handle app message received via packet tunnel IPC.
      - Message data is expected to be a serialized `TunnelProviderMessage`.
      - Reply is expected to be wrapped in `TunnelProviderReply`.
-     - Return `nil` in the event of error or when the call site does not expect any reply.
+     - Return `TunnelReply.ok` when the call site does not expect any reply.
+     - Return `nil` if there is an error.
      Calls to reconnect and notify actor when private key is changed are meant to run in parallel because those tasks are serialized in `TunnelManager` and await
      the acknowledgment from IPC before starting next operation, hence it's critical to return as soon as possible.
      (See `TunnelManager.reconnectTunnel()`, `SendTunnelProviderMessageOperation`)
@@ -53,20 +54,23 @@ public final class AppMessageHandler {
         case let .cancelAPIRequest(id):
             logMessageWithLastGetTunnelStatus(message)
             apiRequestProxy.cancelRequest(identifier: id)
-            return nil
+            return encodeReply(TunnelReply.ok)
 
         case .privateKeyRotation:
             logMessageWithLastGetTunnelStatus(message)
             await packetTunnelActor.notifyKeyRotation(date: Date())
-            return nil
+            return encodeReply(TunnelReply.ok)
 
         case let .reconnectTunnel(nextRelay):
             logMessageWithLastGetTunnelStatus(message)
             await packetTunnelActor.reconnect(to: nextRelay, reconnectReason: ActorReconnectReason.userInitiated)
             // Instead of waiting for the UI process to send another `getTunnelStatus` message, reply immediately that the PacketTunnel is reconnecting
-            guard let observedState = await packetTunnelActor.observedState.connectionState else { return nil }
-            let reconnectingState = ObservedState.reconnecting(observedState)
-            return encodeReply(reconnectingState)
+            if let observedState = await packetTunnelActor.observedState.connectionState {
+                let reconnectingState = ObservedState.reconnecting(observedState)
+                return encodeReply(reconnectingState)
+            } else {
+                return encodeReply(ObservedState.disconnected)
+            }
         }
     }
 
