@@ -8,6 +8,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+import Foundation
+
 /// Wraps asynchronous tasks and runs them synchronously. Used in synchronous shims
 /// in FileCache and related files. Can be removed once those shims are removed.
 
@@ -24,7 +26,7 @@ public actor BridgeExecutor {
 
     @available(*, noasync)
     public nonisolated func run<T: Sendable>(
-        _ closure: @escaping @Sendable () async throws -> T
+        _ closure: @escaping @BridgeExecutor @Sendable () async throws -> T
     ) throws -> T {
         let box = ResultBox<T>()
         let semaphore = DispatchSemaphore(value: 0)
