@@ -19,6 +19,20 @@ runs:
         git submodule update --init --depth=1 --recursive ios/wireguard-apple
       shell: bash
 
+    - name: Do not track changes to ${{ env.SOURCE_PACKAGES_PATH }}
+      run: |
+        # Record the pattern in .git/info/exclude (a local-only file).
+        exclude_file="$(git rev-parse --path-format=absolute --git-path info/exclude)"
+        exclude_pattern="ios/${SOURCE_PACKAGES_PATH}"
+
+        # Idempotency:
+        # Only add it if the exact line isn't already there, which is relevant for
+        # self-hosted runners which have a long-lived workspace.
+        if ! grep -qxF -- "$exclude_pattern" "$exclude_file"; then
+          printf '%s\n' "$exclude_pattern" >> "$exclude_file"
+        fi
+      shell: bash
+
     - name: Configure cache
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
       with:
