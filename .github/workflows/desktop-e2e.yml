@@ -41,6 +41,12 @@ on:
 
 permissions: {}
 
+env:
+  TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+  # Environment part of the `DESKTOP_<ENV>_TEST_ACCOUNT_<OS>` secret names
+  TEST_ACCOUNT_SECRET_ENV: ${{ (github.event.inputs.environment || 'staging') == 'prod' && 'PROD' ||
+    (github.event.inputs.environment || 'staging') == 'staging' && 'STAGING' || 'NONE' }}
+
 jobs:
   prepare-matrices:
     name: Prepare virtual machines
@@ -309,7 +315,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ACCOUNT_SECRET_ENV)] }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -416,7 +422,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_WINLINUX', env.TEST_ACCOUNT_SECRET_ENV)] }}
         run: |
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
@@ -485,7 +491,7 @@ jobs:
         shell: bash -leo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
-          TEST_ENV: ${{ github.event.inputs.environment || 'staging' }}
+          ACCOUNT_TOKEN: ${{ secrets[format('DESKTOP_{0}_TEST_ACCOUNT_MACOS', env.TEST_ACCOUNT_SECRET_ENV)] }}
         run: |
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
