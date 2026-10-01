@@ -1,11 +1,11 @@
 import styled, { css } from 'styled-components';
 
 import { colors, Radius, spacings } from '../../foundations';
-import type { PolymorphicProps } from '../../types';
+import { Trigger, type TriggerProps } from '../trigger';
 import { FilterChipIcon, FilterChipText, StyledFilterChipIcon } from './components';
 import { FilterChipProvider } from './FilterChipContext';
 
-export type FilterChipProps<T extends React.ElementType = 'button'> = PolymorphicProps<T>;
+export type FilterChipProps<T extends React.ElementType = 'button'> = TriggerProps<T>;
 
 const variables = {
   background: colors.blue,
@@ -14,7 +14,7 @@ const variables = {
   disabled: colors.blue50,
 } as const;
 
-export const StyledFilterChip = styled.button<{ $hasOnClick?: boolean }>`
+export const StyledFilterChip = styled(Trigger)<{ $hasOnClick?: boolean }>`
   ${({ $hasOnClick }) => {
     return css`
       --background: ${variables.background};
@@ -69,6 +69,7 @@ export const StyledFilterChip = styled.button<{ $hasOnClick?: boolean }>`
 `;
 
 function FilterChip<T extends React.ElementType = 'button'>({
+  as,
   children,
   disabled,
   onClick,
@@ -77,6 +78,7 @@ function FilterChip<T extends React.ElementType = 'button'>({
   return (
     <FilterChipProvider disabled={disabled}>
       <StyledFilterChip
+        forwardedAs={as}
         disabled={disabled}
         onClick={onClick}
         $hasOnClick={onClick !== undefined}
@@ -91,4 +93,5 @@ const FilterChipNamespace = Object.assign(FilterChip, {
   Text: FilterChipText,
   Icon: FilterChipIcon,
 });
+
 export { FilterChipNamespace as FilterChip };
