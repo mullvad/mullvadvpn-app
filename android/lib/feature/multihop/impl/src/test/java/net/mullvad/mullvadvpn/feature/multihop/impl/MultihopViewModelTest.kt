@@ -16,6 +16,8 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectStatus
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -27,6 +29,11 @@ class MultihopViewModelTest {
 
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
 
+    private val mockMultihopInEffectUseCase: MultihopInEffectUseCase = mockk()
+
+    private val multihopInEffectStatus =
+        MutableStateFlow<MultihopInEffectStatus>(mockk(relaxed = true))
+
     private lateinit var multihopViewModel: MultihopViewModel
 
     @BeforeEach
@@ -34,10 +41,13 @@ class MultihopViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
 
+        every { mockMultihopInEffectUseCase.invoke() } returns multihopInEffectStatus
+
         multihopViewModel =
             MultihopViewModel(
                 isModal = false,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                multihopInEffectUseCase = mockMultihopInEffectUseCase,
             )
     }
 
@@ -57,7 +67,35 @@ class MultihopViewModelTest {
         multihopViewModel.uiState.test {
             val item = awaitItem()
             assertIs<Lc.Content<MultihopUiState>>(item)
-            assertEquals(MultihopUiState(mode = MultihopMode.ALWAYS), item.value)
+            assertEquals(
+                MultihopUiState(mode = MultihopMode.ALWAYS, showExtraWhenNeededInfo = false),
+                item.value,
+            )
+        }
+    }
+
+    @Test
+    fun `when multihop when needed is in effect should show extra when needed info`() = runTest {
+        // Arrange
+        wireguardConstraints.value =
+            WireguardConstraints(
+                multihop = MultihopMode.WHEN_NEEDED,
+                entryLocation = Constraint.Any,
+                ipVersion = Constraint.Any,
+                entryOwnership = Constraint.Any,
+                entryProviders = Constraint.Any,
+            )
+
+        multihopInEffectStatus.value = MultihopInEffectStatus.WhenNeededInEffect
+
+        // Act, Assert
+        multihopViewModel.uiState.test {
+            val item = awaitItem()
+            assertIs<Lc.Content<MultihopUiState>>(item)
+            assertEquals(
+                MultihopUiState(mode = MultihopMode.WHEN_NEEDED, showExtraWhenNeededInfo = true),
+                item.value,
+            )
         }
     }
 
