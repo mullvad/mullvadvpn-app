@@ -29,8 +29,7 @@ class CustomDNSCoordinator: Coordinator, Presentable, Presenting {
         if route == .dnsSettings {
             navigationController.navigationItem.largeTitleDisplayMode = .always
             navigationController.navigationBar.prefersLargeTitles = true
-            let doneButton = UIBarButtonItem(
-                systemItem: .done,
+            let doneButton = UIBarButtonItem.mullvadDoneButton(
                 primaryAction: UIAction(handler: { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self)

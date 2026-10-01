@@ -52,8 +52,7 @@ class SettingsViewController: UITableViewController {
 
         navigationItem.title = NSLocalizedString("Settings", comment: "")
 
-        let doneButton = UIBarButtonItem(
-            systemItem: .done,
+        let doneButton = UIBarButtonItem.mullvadDoneButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 guard let self else { return }
 

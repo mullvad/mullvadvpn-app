@@ -36,8 +36,7 @@ class ProblemReportReviewViewController: UIViewController {
 
         navigationItem.title = NSLocalizedString("App logs", comment: "")
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .done,
+        navigationItem.rightBarButtonItem = UIBarButtonItem.mullvadDoneButton(
             primaryAction: UIAction(handler: { [weak self] _ in
                 self?.dismiss(animated: true)
             })

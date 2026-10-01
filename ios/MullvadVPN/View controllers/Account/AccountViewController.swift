@@ -64,10 +64,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         navigationItem.title = NSLocalizedString("Account", comment: "")
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(handleDismiss)
+        navigationItem.rightBarButtonItem = UIBarButtonItem.mullvadDoneButton(
+            primaryAction: UIAction { [weak self] _ in
+                self?.handleDismiss()
+            }
         )
 
         contentView.accountTokenRowView.copyAccountNumber = { [weak self] in

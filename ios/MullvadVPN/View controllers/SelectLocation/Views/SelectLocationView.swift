@@ -158,7 +158,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     .foregroundStyle(Color.mullvadTextPrimary)
                     .accessibilityIdentifier(.closeSelectLocationButton)
                 }
-            )
+            ).sharedBackgroundHidden()
             ToolbarItem(
                 placement: .topBarLeading,
                 content: {
@@ -228,7 +228,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             .accessibilityIdentifier(.selectLocationToolbarMenu)
                     }
                 }
-            )
+            ).sharedBackgroundHidden()
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
         .mullvadAlert(item: $multihopWarningAlert)

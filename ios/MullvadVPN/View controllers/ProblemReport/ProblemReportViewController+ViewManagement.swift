@@ -279,10 +279,10 @@ extension ProblemReportViewController {
 
         toolbarItems.append(contentsOf: [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(
-                barButtonSystemItem: .done,
-                target: self,
-                action: #selector(dismissKeyboard)
+            UIBarButtonItem.mullvadDoneButton(
+                primaryAction: UIAction { [weak self] _ in
+                    self?.dismissKeyboard()
+                }
             ),
         ])
 

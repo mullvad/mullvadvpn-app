@@ -40,14 +40,12 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
 
         switch route {
         case .changelog:
-            let barButtonItem = UIBarButtonItem(
-                title: NSLocalizedString("Done", comment: ""),
+            let barButtonItem = UIBarButtonItem.mullvadDoneButton(
                 primaryAction: UIAction { [weak self] _ in
                     guard let self else { return }
                     didFinish?(self)
                 }
             )
-            barButtonItem.style = .done
             changeLogViewController.navigationItem.rightBarButtonItem = barButtonItem
             fallthrough
         case .settings:
