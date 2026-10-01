@@ -157,10 +157,16 @@ function build_test_runner {
 function run_tests_for_os {
     local vm=$1
 
-    if [ -n "${TEST_DIST_DIR+x}" ] && [ -x "${TEST_DIST_DIR%/}/test-runner" ]; then
+    local runner_dir_flag=()
+    local exe_suffix=""
+    if [[ "${vm}" =~ "windows" ]]; then
+        exe_suffix=".exe"
+    fi
+    if [ -n "${TEST_DIST_DIR+x}" ] && [ -x "${TEST_DIST_DIR%/}/test-runner${exe_suffix}" ]; then
         echo "**********************************"
         echo "* Using test-runner in $TEST_DIST_DIR"
         echo "**********************************"
+        runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
     else
         echo "**********************************"
         echo "* Building test runner"
@@ -198,11 +204,9 @@ function run_tests_for_os {
             executable_not_found_in_dist_error test-manager
         fi
         test_manager="${TEST_DIST_DIR%/}/test-manager"
-        runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
     else
         # Build & run test-manager
         test_manager="cargo run --bin test-manager"
-        runner_dir_flag=()
     fi
 
     if [ -n "${TEST_ENV+x}" ]; then
