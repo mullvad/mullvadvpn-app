@@ -81,6 +81,7 @@ class MullvadApi {
             domain: hostname,
             domainFronting: DomainFrontingConfig(front: "", proxyHost: ""),
             disableTls: false,
+            sigsumTrustedKeys: nil,
             bridgeProvider: bridgeProvider,
             settingsProvider: settingsWrapper,
             accessMethodChangeListeners: [])

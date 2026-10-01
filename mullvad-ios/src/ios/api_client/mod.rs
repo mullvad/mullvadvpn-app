@@ -66,12 +66,14 @@ impl ApiContext {
         am_i_mullvad_host_ipv6: String,
         domain: String,
         domain_fronting: DomainFrontingConfig,
-        disable_tls: bool,
+        #[cfg_attr(not(feature = "api-override"), expect(unused))] disable_tls: bool,
+        #[cfg_attr(not(feature = "api-override"), expect(unused))] sigsum_trusted_keys: Option<
+            String,
+        >,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
         access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
     ) -> Arc<Self> {
-        _ = disable_tls;
         Self::new_inner(
             host,
             address,
@@ -81,6 +83,8 @@ impl ApiContext {
             domain_fronting,
             #[cfg(feature = "api-override")]
             disable_tls,
+            #[cfg(feature = "api-override")]
+            sigsum_trusted_keys,
             bridge_provider,
             settings_provider,
             access_method_change_listeners,
@@ -97,13 +101,23 @@ impl ApiContext {
         domain: String,
         domain_fronting: DomainFrontingConfig,
         #[cfg(feature = "api-override")] disable_tls: bool,
+        #[cfg(feature = "api-override")] sigsum_trusted_pubkeys: Option<String>,
         bridge_provider: Arc<dyn ShadowsocksBridgeProvider>,
         settings_provider: Arc<SwiftAccessMethodSettingsContext>,
         access_method_change_listeners: Vec<Arc<dyn AccessMethodChangeCallback>>,
     ) -> Arc<Self> {
         // The iOS client provides a different default endpoint based on its configuration
         // Debug and Release builds use the standard endpoints
-        // Staging builds will use the staging endpoint
+        // Staging builds will use the staging endpoint and staging signum keys
+
+        #[cfg(not(feature = "api-override"))]
+        let pubkeys = None::<Vec<mullvad_api::SigsumPublicKey>>;
+        #[cfg(feature = "api-override")]
+        let pubkeys = sigsum_trusted_pubkeys.and_then(|keys| {
+            ApiEndpoint::parse_sigsum_pubkeys(&keys)
+                .inspect_err(|e| log::error!("failed to parse override sigsum pubkeys: {e}"))
+                .ok()
+        });
         let endpoint = ApiEndpoint {
             host: Some(host),
             address: Some(address.parse().unwrap()),
@@ -111,7 +125,7 @@ impl ApiContext {
             disable_tls,
             #[cfg(feature = "api-override")]
             force_direct: false,
-            sigsum_trusted_pubkeys: None,
+            sigsum_trusted_pubkeys: pubkeys,
         };
 
         let tokio_handle = crate::mullvad_ios_runtime().unwrap();
