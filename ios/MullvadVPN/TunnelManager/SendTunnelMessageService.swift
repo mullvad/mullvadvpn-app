@@ -24,10 +24,8 @@ actor SendTunnelMessageService {
         let result: Output = try await withCheckedThrowingContinuation { continuation in
             do {
                 let messageData = try message.encode()
-                guard Task.isCancelled == false else {
-                    continuation.resume(throwing: CancellationError())
-                    return
-                }
+                /// No cancellation checks intentionally.
+                /// Otherwise there would be no easy way to send a cancellation message for a `ProxyAPIRequest`.
                 try tunnel.sendProviderMessage(messageData) { reply in
                     do {
                         guard let reply else {
@@ -49,15 +47,22 @@ actor SendTunnelMessageService {
     }
 
     nonisolated public func send<Output: SendableData>(
-        message: TunnelProviderMessage, completionHandler: @escaping @Sendable (Result<Output, Error>) -> Void
+        message: TunnelProviderMessage,
+        completionHandler: @escaping @Sendable (Result<Output, Error>) -> Void,
+        cancelHandler: (@Sendable () -> Void)? = nil
     ) -> Cancellable {
         let task = Task {
-            let reply: Output = try await send(message: message)
-            completionHandler(.success(reply))
+            do {
+                let reply: Output = try await send(message: message)
+                completionHandler(.success(reply))
+            } catch {
+                completionHandler(.failure(error))
+            }
         }
 
         return AnyCancellable {
             task.cancel()
+            cancelHandler?()
         }
     }
 }
