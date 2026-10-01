@@ -46,10 +46,10 @@ struct DestinationDescriber: DestinationDescribing {
         usingRelayWithLocation serverLocation: Location
     ) -> String {
         switch locationSpec {
-        case .country: serverLocation.country
-        case .city: serverLocation.city
+        case .country: NSLocalizedString(serverLocation.country, comment: "")
+        case .city: NSLocalizedString(serverLocation.city, comment: "")
         case let .hostname(_, _, hostname):
-            "\(serverLocation.city) (\(hostname))"
+            "\(NSLocalizedString(serverLocation.city,comment: "")) (\(hostname))"
         }
     }
 
