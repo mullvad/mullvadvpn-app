@@ -343,7 +343,6 @@
     <string name="mtu_x">値: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
-    <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
     <string name="multihop_entry_disabled_description">安定した接続を確保するため、必要に応じて入口サーバーが自動的に選択されます。入口サーバーを手動で選択するには、マルチホップモードを「常に有効」に切り替えてください。</string>
     <string name="multihop_is_disabled">マルチホップは無効です</string>
     <string name="multihop_is_enabled">マルチホップは有効です</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">設定が移行されました</string>
     <string name="multihop_mode">マルチホップモード</string>
     <string name="multihop_when_needed">必要時にマルチホップ</string>
-    <string name="multihop_when_needed_info_first_paragraph">現在の場所で検閲回避方法、フィルター、DAITAなどの設定がサポートされていない場合、互換性のあるサーバーを経由してその場所に接続するためにマルチホップが自動的に使用されます。この場合、%1$sマークが表示されます。</string>
     <string name="name">名前</string>
     <string name="name_was_changed_to">名前が %1$s に変更されました</string>
     <string name="navigate">移動</string>

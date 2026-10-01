@@ -343,7 +343,6 @@
     <string name="mtu_x">Valeur : %1$s</string>
     <string name="mullvad_owned_only">Propriété de Mullvad uniquement</string>
     <string name="multihop">Multihop</string>
-    <string name="multihop_description">Le multihop fait passer votre trafic par un serveur WireGuard et le fait sortir par un autre, ce qui le rend plus difficile à tracer. Cela se traduit par une latence accrue, mais plus d\'anonymat en ligne.</string>
     <string name="multihop_entry_disabled_description">Un serveur d\'entrée est actuellement sélectionné automatiquement lorsque cela est nécessaire pour assurer le fonctionnement de la connexion. Pour sélectionner manuellement un serveur d\'entrée, veuillez définir le mode multihop sur « Toujours ».</string>
     <string name="multihop_is_disabled">Le multihop est désactivé</string>
     <string name="multihop_is_enabled">Le multihop est activé</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Paramètres migrés</string>
     <string name="multihop_mode">Mode Multihop</string>
     <string name="multihop_when_needed">Multihop quand nécessaire</string>
-    <string name="multihop_when_needed_info_first_paragraph">Si votre emplacement actuel ne prend pas en charge vos préférences, telles que la méthode anti-censure, les filtres et/ou DAITA, le multihop sera automatiquement utilisé pour vous connecter à cet emplacement via un serveur compatible. Cela sera indiqué par le symbole %1$s.</string>
     <string name="name">Nom</string>
     <string name="name_was_changed_to">Le nom a été changé en %1$s</string>
     <string name="navigate">Navigation</string>

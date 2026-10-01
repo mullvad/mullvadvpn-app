@@ -3082,6 +3082,9 @@ msgstr ""
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr ""
 
+msgid "<b>Always</b>\\nMultihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr ""
+
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr ""
 
@@ -3097,6 +3100,9 @@ msgstr ""
 msgid "<b>DNS content blockers</b>"
 msgstr ""
 
+msgid "<b>Never</b>\\nMultihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr ""
+
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
@@ -3110,6 +3116,9 @@ msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or u
 msgstr ""
 
 msgid "<b>Warning:</b>"
+msgstr ""
+
+msgid "<b>When needed</b>\\nNot all our locations/servers support every feature in the app. If your selected location/server doesn’t support the features you’ve enabled, the app will automatically multihop via a compatible server."
 msgstr ""
 
 msgid "<b>You will lose access to this account on all devices.</b>"
@@ -3173,6 +3182,9 @@ msgid "Always-on VPN assigned to %s"
 msgstr ""
 
 msgid "Always-on VPN assigned to other VPN"
+msgstr ""
+
+msgid "An additional server is used to match your settings for your selected location"
 msgstr ""
 
 msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
@@ -3469,9 +3481,6 @@ msgstr ""
 msgid "If you have any issues"
 msgstr ""
 
-msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
-msgstr ""
-
 msgid "Import new overrides by"
 msgstr ""
 
@@ -3557,6 +3566,9 @@ msgid "Multihop is enabled. Your connection is routed through an entry server be
 msgstr ""
 
 msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
+msgstr ""
+
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online. Multihop has three different modes to choose between:\\nWhen needed, Always, and Never."
 msgstr ""
 
 msgid "Multihop when needed"
@@ -3835,6 +3847,9 @@ msgstr ""
 msgid "The app was unable to login due to not being able to reach the Mullvad API."
 msgstr ""
 
+msgid "The app will only multihop if it can’t connect to your selected location. This can happen if the server in that location doesn’t support the features you’ve enabled. In that case, the app will automatically route your traffic through a server that support those features before reaching your selected location."
+msgstr ""
+
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
 msgstr ""
 
@@ -3850,6 +3865,9 @@ msgstr ""
 msgid "This address has already been entered."
 msgstr ""
 
+msgid "This ensures your connection does not get blocked due to incompatible settings."
+msgstr ""
+
 msgid "This field is required"
 msgstr ""
 
@@ -3863,6 +3881,9 @@ msgid "This might be due to censorship or network issues. Please try to:"
 msgstr ""
 
 msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr ""
+
+msgid "This will be indicated by the %1$s symbol."
 msgstr ""
 
 msgid "Time added"

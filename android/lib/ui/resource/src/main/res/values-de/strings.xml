@@ -343,7 +343,6 @@
     <string name="mtu_x">Wert: %1$s</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
-    <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
     <string name="multihop_entry_disabled_description">Derzeit wird automatisch ein Eingangsserver ausgewählt, wenn es für eine funktionierende Verbindung erforderlich ist. Wenn Sie einen Eingangsserver manuell auswählen möchten, stellen Sie den Multihop-Modus auf „Immer“ ein.</string>
     <string name="multihop_is_disabled">Multihop ist deaktiviert</string>
     <string name="multihop_is_enabled">Multihop ist aktiviert</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Einstellungen migriert</string>
     <string name="multihop_mode">Multihop-Modus</string>
     <string name="multihop_when_needed">Multihop bei Bedarf</string>
-    <string name="multihop_when_needed_info_first_paragraph">Wenn Ihr aktueller Standort Ihre Einstellungen nicht unterstützt, wie beispielsweise die Anti-Zensur-Methode, Filter und/oder DAITA, wird automatisch Multihop verwendet, um über einen kompatiblen Server eine Verbindung zu diesem Standort herzustellen. Dies wird durch das Symbol %1$s angezeigt.</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
     <string name="navigate">Navigieren</string>

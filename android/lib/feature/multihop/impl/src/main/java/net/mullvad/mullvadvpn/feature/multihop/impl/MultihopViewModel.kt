@@ -5,24 +5,37 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectStatus
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 
 class MultihopViewModel(
     private val isModal: Boolean,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    multihopInEffectUseCase: MultihopInEffectUseCase,
 ) : ViewModel() {
 
     val uiState: StateFlow<Lc<Boolean, MultihopUiState>> =
-        wireguardConstraintsRepository.wireguardConstraints
-            .filterNotNull()
-            .map { Lc.Content(MultihopUiState(mode = it.multihop, isModal = isModal)) }
+        combine(
+                wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
+                multihopInEffectUseCase(),
+            ) { wireguardConstraints, multihopInEffect ->
+                Lc.Content(
+                    MultihopUiState(
+                        mode = wireguardConstraints.multihop,
+                        showExtraWhenNeededInfo =
+                            multihopInEffect == MultihopInEffectStatus.WhenNeededInEffect,
+                        isModal = isModal,
+                    )
+                )
+            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
@@ -34,4 +47,8 @@ class MultihopViewModel(
     }
 }
 
-data class MultihopUiState(val mode: MultihopMode, val isModal: Boolean = false)
+data class MultihopUiState(
+    val mode: MultihopMode,
+    val showExtraWhenNeededInfo: Boolean,
+    val isModal: Boolean = false,
+)

@@ -456,7 +456,13 @@ val uiModule = module {
         DeleteApiAccessMethodConfirmationViewModel(apiAccessMethodId = params.get(), get())
     }
     viewModel { params -> SelectPortViewModel(navArgs = params.get(), get(), get(), get()) }
-    viewModel { params -> MultihopViewModel(isModal = params.get(), get()) }
+    viewModel { params ->
+        MultihopViewModel(
+            isModal = params.get(),
+            wireguardConstraintsRepository = get(),
+            multihopInEffectUseCase = get(),
+        )
+    }
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel { params ->
         SearchLocationViewModel(

@@ -331,14 +331,12 @@
     <string name="mtu_x">مقدار: %1$s</string>
     <string name="mullvad_owned_only">فقط متعلق به Mullvad</string>
     <string name="multihop">مولتی‌هاپ</string>
-    <string name="multihop_description">مولتی‌هاپ ترافیک شما را وارد یک سرور WireGuard کرده و از سروری دیگر خارج می‌کند، که ردیابی آن را دشوارتر می‌سازد. این کار باعث افزایش تأخیر می‌شود، اما ناشناس‌بودن شما را در اینترنت بیشتر می‌کند.</string>
     <string name="multihop_entry_disabled_description">در حال حاضر، در صورت نیاز، یک سرور ورودی به‌طور خودکار انتخاب می‌شود تا از برقراری اتصال اطمینان حاصل شود. برای انتخاب دستی یک سرور ورودی، لطفاً حالت چندگامی را روی وضعیت «همیشه» قرار دهید.</string>
     <string name="multihop_is_disabled">قابلیت مولتی‌هاپ غیرفعال است</string>
     <string name="multihop_is_enabled">قابلیت مولتی‌هاپ فعال است</string>
     <string name="multihop_migration_blocked_in_app_message_title">حل مشکلات اتصال</string>
     <string name="multihop_migration_in_app_message_title">تنظیمات انتقال یافتند</string>
     <string name="multihop_when_needed">چندگامی در صورت نیاز</string>
-    <string name="multihop_when_needed_info_first_paragraph">اگر مکان فعلی شما از تنظیمات ترجیحی‌ شما، مانند روش ضد سانسور، فیلترها و/یا DAITA، پشتیبانی نکند، از چندگامی (Multihop) به طور خودکار برای اتصال به آن مکان از طریق یک سرور سازگار استفاده خواهد شد. این با نماد %1$s نشان داده می‌شود.</string>
     <string name="name">نام</string>
     <string name="name_was_changed_to">نام به %1$s تغییر یافت</string>
     <string name="navigate">پیمایش</string>

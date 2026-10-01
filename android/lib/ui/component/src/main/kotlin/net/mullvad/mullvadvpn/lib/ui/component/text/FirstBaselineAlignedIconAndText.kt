@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.text
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.util.applyIf
 
 @Preview(name = "100%", fontScale = 1.0f)
 @Preview(name = "130%", fontScale = 1.3f)
@@ -51,9 +53,11 @@ fun FirstBaselineAlignedIconAndText(
     text: String,
     icon: ImageVector,
     iconSize: Dp,
+    iconToTextPadding: Dp = Dimens.tinyPadding,
     iconTint: Color = MaterialTheme.colorScheme.onSurface,
     textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    shiftIconDown: Boolean = false,
 ) {
     val density = LocalDensity.current
 
@@ -66,15 +70,20 @@ fun FirstBaselineAlignedIconAndText(
     Row(modifier = modifier) {
         Icon(
             modifier =
-                Modifier.size(scalableIconSize).alignBy { measurable ->
-                    val iconCenter = measurable.measuredHeight / 2
-                    iconCenter + centerToBaselineOffsetPx
-                },
+                Modifier.size(scalableIconSize)
+                    .alignBy { measurable ->
+                        val iconCenter = measurable.measuredHeight / 2
+                        iconCenter + centerToBaselineOffsetPx
+                    }
+                    .applyIf(shiftIconDown) {
+                        val shift = with(density) { centerToBaselineOffsetPx.toDp() * 2 }
+                        offset(y = shift)
+                    },
             imageVector = icon,
             tint = iconTint,
             contentDescription = null,
         )
-        Spacer(modifier = Modifier.width(Dimens.tinyPadding))
+        Spacer(modifier = Modifier.width(iconToTextPadding))
         Text(
             modifier = Modifier.alignByBaseline(),
             style = textStyle,

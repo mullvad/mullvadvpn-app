@@ -343,7 +343,6 @@
     <string name="mtu_x">Wartość: %1$s</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
-    <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
     <string name="multihop_entry_disabled_description">Serwer wejściowy jest obecnie wybierany automatycznie tak, aby zapewnić sprawne połączenie. Aby ręcznie wybrać serwer wejściowy, przełącz tryb wielokrotnego przeskoku na „Zawsze”.</string>
     <string name="multihop_is_disabled">Funkcja Wielokrotny przeskok jest wyłączona</string>
     <string name="multihop_is_enabled">Funkcja Wielokrotny przeskok jest włączona</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">Ustawienia zostały przeniesione</string>
     <string name="multihop_mode">Tryb wielokrotnych przeskoków</string>
     <string name="multihop_when_needed">W razie potrzeby wielokrotny przeskok</string>
-    <string name="multihop_when_needed_info_first_paragraph">Jeśli bieżąca lokalizacja nie obsługuje Twoich preferencji, takich jak metoda przeciwdziałania cenzurze, filtry i/lub DAITA, automatycznie zostanie użyty wielokrotny przeskok w celu nawiązania połączenia z tą lokalizacją za pośrednictwem zgodnego serwera. Zostanie to wskazane symbolem %1$s.</string>
     <string name="name">Nazwa</string>
     <string name="name_was_changed_to">Nazwę zmieniono na %1$s</string>
     <string name="navigate">Nawiguj</string>

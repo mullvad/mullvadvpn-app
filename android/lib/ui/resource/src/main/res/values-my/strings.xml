@@ -343,7 +343,6 @@
     <string name="mtu_x">တန်ဖိုး- %1$s</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
-    <string name="multihop_description">မာလ်တီဟော့ပ်သည် သင်၏အသွားအလာကို WireGuard ဆာဗာတစ်ခုသို့ လမ်းကြောင်းပေးပြီး အခြားတစ်နေရာမှ ထွက်စေသောကြောင့် ခြေရာခံရန် ပိုမိုခက်ခဲစေသည်။ ၎င်းသည် အချိန်ကို ပိုမိုကြန့်ကြာစေသော်လည်း အွန်လိုင်းတွင် ပို၍ သိုသိုသိပ်သိပ်ဖြစ်စေသည်။</string>
     <string name="multihop_entry_disabled_description">အလုပ်ဖြစ်သော ချိတ်ဆက်မှု ဟုတ် မဟုတ် စစ်ဆေးရန် လိုအပ်ချိန်တွင် အဝင်ဆာဗာကို အလိုအလျောက် ရွေးချယ်ပါသည်။ အဝင်ဆာဗာတစ်ခုကို ကိုယ်တိုင်ရွေးချယ်ရန် Multihop မုဒ်ကို \"အမြဲတမ်း\" သို့ ပြောင်းပေးပါ။</string>
     <string name="multihop_is_disabled">Multihop ကို ပိတ်ထားသည်</string>
     <string name="multihop_is_enabled">Multihop ကို ဖွင့်ထားသည်</string>
@@ -353,7 +352,6 @@
     <string name="multihop_migration_in_app_message_title">ဆက်တင်များကို ပြောင်းရွှေ့ထားသည်</string>
     <string name="multihop_mode">Multihop မုဒ်</string>
     <string name="multihop_when_needed">လိုအပ်သည့်အခါ Multihop လုပ်ရန်</string>
-    <string name="multihop_when_needed_info_first_paragraph">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး နည်းလမ်း၊ စစ်ထုတ်မှုများ၊ DAITA စသည်တို့အနက်မှ တစ်ခုခုဖြစ်စေ၊ ၎င်းတို့အားလုံးဖြစ်စေ စသည့် သင်၏ ဦးစားပေးမှုများကို သင့်လက်ရှိတည်နေရာတွင် မလုပ်ဆောင်နိုင်ပါက ကိုက်ညီမှုရှိသောဆာဗာတစ်ခုမှတစ်ဆင့် ထိုတည်နေရာကို ချိတ်ဆက်ရန် Multihop ကို အလိုအလျောက် အသုံးပြုပါမည်။ ၎င်းကို %1$s သင်္ကေတဖြင့် ဖော်ပြပါမည်။</string>
     <string name="name">အမည်</string>
     <string name="name_was_changed_to">အမည်ကို %1$s သို့ ပြောင်းလိုက်ပါသည်</string>
     <string name="navigate">သွားရန်</string>

@@ -9,8 +9,26 @@ class MultihopUiStatePreviewParameterProvider :
     override val values: Sequence<Lc<Boolean, MultihopUiState>> =
         sequenceOf(
             Lc.Loading(false),
-            Lc.Content(MultihopUiState(mode = MultihopMode.ALWAYS, isModal = false)),
-            Lc.Content(MultihopUiState(mode = MultihopMode.WHEN_NEEDED, isModal = false)),
-            Lc.Content(MultihopUiState(mode = MultihopMode.NEVER, isModal = true)),
+            Lc.Content(
+                MultihopUiState(
+                    mode = MultihopMode.ALWAYS,
+                    isModal = false,
+                    showExtraWhenNeededInfo = false,
+                )
+            ),
+            Lc.Content(
+                MultihopUiState(
+                    mode = MultihopMode.WHEN_NEEDED,
+                    isModal = false,
+                    showExtraWhenNeededInfo = true,
+                )
+            ),
+            Lc.Content(
+                MultihopUiState(
+                    mode = MultihopMode.NEVER,
+                    isModal = true,
+                    showExtraWhenNeededInfo = false,
+                )
+            ),
         )
 }
