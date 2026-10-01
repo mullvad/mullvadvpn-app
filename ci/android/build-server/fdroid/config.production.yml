@@ -12,6 +12,7 @@ repo_description: >-
 archive_older: 0
 # awsbucket is used by rclone
 awsbucket: appteam-android-fdroid-production
+rclone: true
 rclone_config: production
 path_to_custom_rclone_config: /etc/rclone.conf
 keystore: NONE
