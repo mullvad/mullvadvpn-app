@@ -827,6 +827,8 @@
 		A9342D1B3018894400031D3A /* WireGuardPortSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
+		A9405573306E88D20003CAC7 /* TunnelManager+Isolation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9405572306E88D20003CAC7 /* TunnelManager+Isolation.swift */; };
+		A9405574306E88D20003CAC7 /* TunnelManager+Isolation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9405572306E88D20003CAC7 /* TunnelManager+Isolation.swift */; };
 		A95745D7301B510800382CE3 /* QuantumResistanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95745D6301B510800382CE3 /* QuantumResistanceView.swift */; };
 		A959E23E2D75F33300F95DDB /* PersistentAccessMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */; };
 		A959E2412D75F39A00F95DDB /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
@@ -2569,6 +2571,7 @@
 		A9342D1A3018894400031D3A /* WireGuardPortSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardPortSettingsViewModel.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
+		A9405572306E88D20003CAC7 /* TunnelManager+Isolation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TunnelManager+Isolation.swift"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
 		A95745D6301B510800382CE3 /* QuantumResistanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuantumResistanceView.swift; sourceTree = "<group>"; };
@@ -3471,6 +3474,7 @@
 				5803B4AF2940A47300C23744 /* TunnelConfiguration.swift */,
 				58968FAD28743E2000B799DC /* TunnelInteractor.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
+				A9405572306E88D20003CAC7 /* TunnelManager+Isolation.swift */,
 				5820676326E771DB00655B05 /* TunnelManagerErrors.swift */,
 				5823FA5326CE49F600283BF8 /* TunnelObserver.swift */,
 				58B93A1226C3F13600A55733 /* TunnelState.swift */,
@@ -6607,6 +6611,7 @@
 				F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */,
 				F09035B52FAB724C004635A3 /* LogRedactorComparisonTests.swift in Sources */,
 				F05296562FB1C10E00B1C5BE /* SettingsMigrationTracker.swift in Sources */,
+				A9405574306E88D20003CAC7 /* TunnelManager+Isolation.swift in Sources */,
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
@@ -6954,6 +6959,7 @@
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				7A460F9F2F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
+				A9405573306E88D20003CAC7 /* TunnelManager+Isolation.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
