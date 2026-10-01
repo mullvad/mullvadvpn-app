@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/clippy.yml
       - 'ci/cargo-ci.sh'
+      - 'ci/cargo-ci-clippy.sh'
       - clippy.toml
       - '**/Cargo.toml'  # Lint rules defined in toml files
       - '**/*.rs'
@@ -42,10 +43,22 @@ jobs:
       container_image_android: ${{ env.inner_container_image_android }}
 
   clippy-check-desktop:
-    name: Clippy linting, desktop
+    # Without an expression here the display name gets every matrix value
+    # appended to it, which is more than is useful at this level.
+    name: Clippy (${{ matrix.platform }})
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Each target is the host's own, so no extra standard library is needed.
+        include:
+          - platform: Linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - platform: Windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - platform: macOS
+            os: macos-latest
+            target: aarch64-apple-darwin
     runs-on: ${{ matrix.os }}
     steps:
       # By default, the longest path a filename can have in git on Windows is 260 character.
@@ -63,12 +76,10 @@ jobs:
 
       - name: Clippy check
         shell: bash
-        run: |
-          time ci/cargo-ci.sh clippy --workspace --all-targets --no-default-features
-          time ci/cargo-ci.sh clippy --workspace --all-targets --all-features
+        run: ci/cargo-ci-clippy.sh ${{ matrix.target }}
 
   clippy-check-android:
-    name: Clippy linting, Android
+    name: Clippy (Android)
     needs: prepare-android
     runs-on: ubuntu-latest
     container:
@@ -83,7 +94,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      # The script selects the Android packages from the target triple.
       - name: Clippy check
-        run: |
-          ci/cargo-ci.sh clippy --all-targets --target x86_64-linux-android --package mullvad-jni --no-default-features
-          ci/cargo-ci.sh clippy --all-targets --target x86_64-linux-android --package mullvad-jni --all-features
+        run: ci/cargo-ci-clippy.sh x86_64-linux-android
