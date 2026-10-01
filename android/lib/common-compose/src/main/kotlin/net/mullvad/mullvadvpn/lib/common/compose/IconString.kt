@@ -34,11 +34,9 @@ fun stringResourceWithIcons(
 ): IconString {
     require(icons.isNotEmpty()) { "icons cannot be empty" }
 
-    val iconIds = icons.map {
-        // UUID is used here to guarantee that the ID is unique, even if the inline content map
-        // is later merged with another inline content map.
-        UUID.randomUUID().toString()
-    }
+    // UUID is used here to guarantee that the ID is unique, even if the inline content map
+    // is later merged with another inline content map.
+    val iconIds = List(icons.size) { UUID.randomUUID().toString() }
 
     // Replace all args in the string with the corresponding icon id.
     @Suppress("SpreadOperator") val text = stringResource(id, *iconIds.toTypedArray())
