@@ -158,29 +158,33 @@ fn blocking_ssh(
     }
 
     let temp_dir = Path::new(remote_temp_dir);
+    let executable_opts = FileOpts {
+        // Windows has no executable bit
+        executable: os_type != OsType::Windows,
+    };
     // Transfer a test runner
     let source = local_runner_dir.join(format!("test-runner{exe_suffix}"));
-    ssh_send_file_with_opts(&session, &source, temp_dir, FileOpts { executable: true })
+    ssh_send_file_with_opts(&session, &source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer connection-checker
     let source = local_runner_dir.join(format!("connection-checker{exe_suffix}"));
-    ssh_send_file_with_opts(&session, &source, temp_dir, FileOpts { executable: true })
+    ssh_send_file_with_opts(&session, &source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     // Transfer app packages
     let source = &local_app_manifest.app_package_path;
-    ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+    ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
         .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
 
     if let Some(source) = &local_app_manifest.app_package_to_upgrade_from_path {
-        ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+        ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
             .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
         log::warn!("No previous app package to upgrade from to send to remote")
     }
     if let Some(source) = &local_app_manifest.gui_package_path {
-        ssh_send_file_with_opts(&session, source, temp_dir, FileOpts { executable: true })
+        ssh_send_file_with_opts(&session, source, temp_dir, executable_opts)
             .with_context(|| format!("Failed to send '{source:?}' to remote"))?;
     } else {
         log::warn!("No UI e2e test to send to remote")
@@ -293,12 +297,14 @@ fn ssh_write_with_opts<P: AsRef<Path>>(
     opts: FileOpts,
 ) -> Result<File> {
     let sftp = session.sftp()?;
-    let mut remote_file = sftp.create(dest.as_ref())?;
+    let mut remote_file = sftp
+        .create(dest.as_ref())
+        .context("failed to create file")?;
 
     io::copy(&mut source, &mut remote_file).context("failed to write file")?;
 
     if opts.executable {
-        make_executable(&mut remote_file)?;
+        make_executable(&mut remote_file).context("failed to make file executable")?;
     };
 
     Ok(remote_file)
