@@ -15,6 +15,8 @@ const settingsSchema: Record<keyof IGuiSettingsState, string> = {
   browsedForSplitTunnelingApplications: 'Array<string>',
   changelogDisplayedForVersion: 'string',
   updateDismissedForVersion: 'string',
+  settingsMigrationNotificationDismissedForVersion: 'string',
+  completedSettingsMigrations: 'Array<string>',
   animateMap: 'boolean',
 };
 
@@ -28,6 +30,8 @@ const defaultSettings: IGuiSettingsState = {
   browsedForSplitTunnelingApplications: [],
   changelogDisplayedForVersion: '',
   updateDismissedForVersion: '',
+  settingsMigrationNotificationDismissedForVersion: '',
+  completedSettingsMigrations: [],
   animateMap: true,
 };
 
@@ -126,6 +130,32 @@ export default class GuiSettings {
     return this.stateValue.updateDismissedForVersion === ''
       ? undefined
       : this.stateValue.updateDismissedForVersion;
+  }
+
+  get settingsMigrationNotificationDismissedForVersion(): string | undefined {
+    return this.stateValue.settingsMigrationNotificationDismissedForVersion === ''
+      ? undefined
+      : this.stateValue.settingsMigrationNotificationDismissedForVersion;
+  }
+
+  set settingsMigrationNotificationDismissedForVersion(newValue: string | undefined) {
+    this.changeStateAndNotify({
+      ...this.stateValue,
+      settingsMigrationNotificationDismissedForVersion: newValue ?? '',
+    });
+  }
+
+  get completedSettingsMigrations(): Array<string> {
+    return this.stateValue.completedSettingsMigrations;
+  }
+
+  public addCompletedSettingsMigration(migrationKey: string) {
+    this.changeStateAndNotify({
+      ...this.stateValue,
+      completedSettingsMigrations: [
+        ...new Set([...this.stateValue.completedSettingsMigrations, migrationKey]),
+      ],
+    });
   }
 
   set animateMap(newValue: boolean) {

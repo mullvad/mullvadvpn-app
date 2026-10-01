@@ -36,6 +36,15 @@ export interface IGuiSettingsState {
   // whether to show the update notification.
   updateDismissedForVersion: string;
 
+  // The last version that the setting the settings migration notification was dismissed for.
+  // This is used to determine whether to show the settings migrations notification.
+  settingsMigrationNotificationDismissedForVersion: string;
+
+  // Contains list of migrations that the user has completed.
+  // A migration is considered completed once the user has stepped through all
+  // the steps in the migration wizard.
+  completedSettingsMigrations: Array<string>;
+
   // Tells the app whether or not to show the map in the main view.
   animateMap: boolean;
 }

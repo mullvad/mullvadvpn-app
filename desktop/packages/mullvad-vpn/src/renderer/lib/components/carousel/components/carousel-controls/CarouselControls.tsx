@@ -9,7 +9,7 @@ import {
 
 export type CarouselControlsProps = React.ComponentPropsWithRef<'div'>;
 
-const StyledGrid = styled.div`
+export const StyledCarouselControls = styled.div`
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -25,10 +25,10 @@ const StyledGrid = styled.div`
 
 function CarouselControls({ children, ...props }: CarouselControlsProps) {
   return (
-    <StyledGrid {...props}>
+    <StyledCarouselControls {...props}>
       <div>{/* spacer to make slide indicators centered */}</div>
       {children}
-    </StyledGrid>
+    </StyledCarouselControls>
   );
 }
 

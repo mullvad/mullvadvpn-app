@@ -9,13 +9,12 @@ import {
   ErrorNotificationProvider,
   InAppNotificationAction,
   InAppNotificationProvider,
-  InconsistentVersionNotificationProvider,
   LockdownModeNotificationProvider,
   ReconnectingNotificationProvider,
-  UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
+import { useSettingsMigrations } from '../features/migration/hooks';
 import { useSplitTunnelingSupported } from '../features/split-tunneling/hooks';
 import {
   useAppUpgradeDownloadProgressValue,
@@ -31,6 +30,8 @@ import {
   AppUpgradeReadyNotificationProvider,
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
+  ResolveConnectionIssuesNotificationProvider,
+  SettingsMigratedNotificationProvider,
   UnsupportedWireGuardPortNotificationProvider,
 } from '../lib/notifications';
 import { AppUpgradeAvailableNotificationProvider } from '../lib/notifications/app-upgrade-available';
@@ -75,8 +76,13 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog, setDismissedUpgrade, appUpgrade, appUpgradeInstallerStart } =
-    useAppContext();
+  const {
+    setDisplayedChangelog,
+    setDismissedUpgrade,
+    setDismissedSettingsMigrationNotification,
+    appUpgrade,
+    appUpgradeInstallerStart,
+  } = useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -117,6 +123,11 @@ export default function NotificationArea(props: IProps) {
   const appUpgradeEventType = useAppUpgradeEventType();
   const appUpgradeStep = convertEventTypeToStep(appUpgradeEventType);
 
+  const { hasIncompleteMigration, dismissedMigrationNotification } = useSettingsMigrations();
+  const handleCloseSettingsMigratedNotification = useCallback(() => {
+    setDismissedSettingsMigrationNotification();
+  }, [setDismissedSettingsMigrationNotification]);
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -145,6 +156,10 @@ export default function NotificationArea(props: IProps) {
       obfuscationSettings,
       allowedPortRanges,
     }),
+    new ResolveConnectionIssuesNotificationProvider({
+      hasIncompleteMigration,
+      connectionBlocked: connection.isBlocked,
+    }),
     new ErrorNotificationProvider({
       tunnelState,
       hasExcludedApps,
@@ -152,8 +167,6 @@ export default function NotificationArea(props: IProps) {
       disableSplitTunneling,
       splitTunnelingSupported,
     }),
-    new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
-    new UnsupportedVersionNotificationProvider(version),
   ];
 
   if (account.expiry) {
@@ -168,6 +181,13 @@ export default function NotificationArea(props: IProps) {
       deviceName: account.deviceName ?? '',
       close: hideNewDeviceBanner,
     }),
+
+    new SettingsMigratedNotificationProvider({
+      hasIncompleteMigration,
+      dismissedMigrationNotification,
+      close: handleCloseSettingsMigratedNotification,
+    }),
+
     new NewVersionNotificationProvider({
       currentVersion,
       displayedForVersion,
