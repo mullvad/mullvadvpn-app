@@ -151,6 +151,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             amIMullvadHostIpv6: "ipv6.\(REST.amIMullvadHostname)",
             domain: REST.encryptedDNSHostname,
             domainFronting: REST.domainFronting,
+            sigsumTrustedKeys: REST.sigsumTrustedKeys,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
