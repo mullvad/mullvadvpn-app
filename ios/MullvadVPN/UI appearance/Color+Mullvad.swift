@@ -119,6 +119,15 @@ extension Color {
         static let background: Color = .MullvadBlue._80
     }
 
+    enum MullvadHeaderBar {
+        static let defaultBackgroundColor = mullvadSecondaryColor
+        static let unsecuredBackgroundColor = mullvadDangerColor
+        static let securedBackgroundColor = mullvadSuccessColor
+        static let dividerColor = mullvadSecondaryColor
+        static let brandNameColor = Color.MullvadWhite._80
+        static let buttonColor = Color.MullvadWhite._80
+    }
+
     enum MullvadOther {
         static let divider: Color = MullvadWhite._20
     }
