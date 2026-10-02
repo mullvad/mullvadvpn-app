@@ -4,15 +4,17 @@ import { sprintf } from 'sprintf-js';
 import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
+import { AutomaticLocation } from '../automatic-location';
 import { CountryLocation } from '../country-location';
-import { useRelayCount } from './hooks';
+import { useLocationListsContext } from '../location-lists/LocationListsContext';
+import { useRelayCount, useShowAutomaticLocation } from './hooks';
 
 export function CountryLocations() {
-  const { countryLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useLocationListsContext();
   const { visibleRelays, totalRelays } = useRelayCount();
   const titleId = React.useId();
+  const showAutomaticLocation = useShowAutomaticLocation();
 
   const showFilterText = visibleRelays !== totalRelays;
 
@@ -42,7 +44,8 @@ export function CountryLocations() {
           </SectionTitle.Text>
         )}
       </SectionTitle>
-      <FlexColumn>
+      <FlexColumn gap="tiny">
+        {showAutomaticLocation && <AutomaticLocation />}
         {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;
