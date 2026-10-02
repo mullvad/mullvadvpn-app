@@ -1,4 +1,4 @@
-import { useLocationListsContext } from '../components/location-lists/LocationListsContext';
+import { useLocationListsContext } from '../LocationListsContext';
 
 export function useHasCustomLists() {
   const { customListLocations } = useLocationListsContext();
