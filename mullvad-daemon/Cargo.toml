@@ -185,6 +185,12 @@ default = ["default-allocator"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
+custom-vpn = [
+  "mullvad-management-interface/custom-vpn",
+  "mullvad-types/custom-vpn",
+  "talpid-core/custom-vpn",
+  "talpid-types/custom-vpn"
+]
 # Use jemalloc as the global allocator. Only takes effect on Linux.
 default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
