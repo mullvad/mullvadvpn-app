@@ -79,6 +79,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.home.api.Android16UpgradeInfoNavKey
@@ -929,4 +930,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
 
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
+
+        FeatureIndicator.PERSONAL_VPN,
+        FeatureIndicator.PERSONAL_VPN_ACTIVE -> CustomTunnelsListNavKey(isModal = true)
     }

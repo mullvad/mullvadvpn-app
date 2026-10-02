@@ -70,6 +70,8 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunn
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
+import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.edit.CustomTunnelEditViewModel
+import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.list.CustomTunnelsListViewModel
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -79,6 +81,7 @@ import net.mullvad.mullvadvpn.lib.repository.AutoStartAndConnectOnBootRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogDataProvider
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
+import net.mullvad.mullvadvpn.lib.repository.CustomTunnelsRepository
 import net.mullvad.mullvadvpn.lib.repository.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
@@ -188,6 +191,7 @@ val uiModule = module {
     single { WireguardConstraintsRepository(get()) }
     single { MultihopMigrationRepository(managementService = get()) }
     single { HasShowNotificationPromptRepository() }
+    single { CustomTunnelsRepository(get()) }
 
     single { AccountExpiryInAppNotificationUseCase(get()) } bind InAppNotificationUseCase::class
     single { TunnelStateNotificationUseCase(get(), get(), get()) } bind
@@ -444,6 +448,7 @@ val uiModule = module {
     viewModel { params -> EditCustomListNameDialogViewModel(navArgs = params.get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { params -> DeleteCustomListConfirmationViewModel(navArgs = params.get(), get()) }
+    viewModel { CustomTunnelEditViewModel(get(), get()) }
     viewModel { params -> ServerIpOverridesViewModel(navArgs = params.get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }
@@ -548,6 +553,12 @@ val uiModule = module {
             navArgs = params.get(),
             wireguardConstraintsRepository = get(),
             userPreferencesRepository = get(),
+        )
+    }
+    viewModel {
+        CustomTunnelsListViewModel(
+            customTunnelsRepository = get(),
+            settingsRepository = get(),
         )
     }
 
