@@ -10,6 +10,35 @@ import * as google_protobuf_timestamp_pb from "google-protobuf/google/protobuf/t
 import * as google_protobuf_wrappers_pb from "google-protobuf/google/protobuf/wrappers_pb";
 import * as google_protobuf_duration_pb from "google-protobuf/google/protobuf/duration_pb";
 
+export class PersonalVpnStats extends jspb.Message { 
+    getTxBytes(): number;
+    setTxBytes(value: number): PersonalVpnStats;
+    getRxBytes(): number;
+    setRxBytes(value: number): PersonalVpnStats;
+
+    hasLastHandshakeTime(): boolean;
+    clearLastHandshakeTime(): void;
+    getLastHandshakeTime(): google_protobuf_timestamp_pb.Timestamp | undefined;
+    setLastHandshakeTime(value?: google_protobuf_timestamp_pb.Timestamp): PersonalVpnStats;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): PersonalVpnStats.AsObject;
+    static toObject(includeInstance: boolean, msg: PersonalVpnStats): PersonalVpnStats.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: PersonalVpnStats, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): PersonalVpnStats;
+    static deserializeBinaryFromReader(message: PersonalVpnStats, reader: jspb.BinaryReader): PersonalVpnStats;
+}
+
+export namespace PersonalVpnStats {
+    export type AsObject = {
+        txBytes: number,
+        rxBytes: number,
+        lastHandshakeTime?: google_protobuf_timestamp_pb.Timestamp.AsObject,
+    }
+}
+
 export class LogLevel extends jspb.Message { 
     getLevel(): LogLevelValue;
     setLevel(value: LogLevelValue): LogLevel;
@@ -1850,6 +1879,13 @@ export class Settings extends jspb.Message {
     getUpdateDefaultLocation(): boolean;
     setUpdateDefaultLocation(value: boolean): Settings;
 
+    hasPersonalVpnConfig(): boolean;
+    clearPersonalVpnConfig(): void;
+    getPersonalVpnConfig(): PersonalVpnConfig | undefined;
+    setPersonalVpnConfig(value?: PersonalVpnConfig): Settings;
+    getPersonalVpnEnabled(): boolean;
+    setPersonalVpnEnabled(value: boolean): Settings;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Settings.AsObject;
     static toObject(includeInstance: boolean, msg: Settings): Settings.AsObject;
@@ -1875,6 +1911,8 @@ export namespace Settings {
         relayOverridesList: Array<RelayOverride.AsObject>,
         recents?: Recents.AsObject,
         updateDefaultLocation: boolean,
+        personalVpnConfig?: PersonalVpnConfig.AsObject,
+        personalVpnEnabled: boolean,
     }
 }
 
@@ -2319,6 +2357,114 @@ export namespace WireguardConfig {
         }
     }
 
+}
+
+export class PersonalVpnConfig extends jspb.Message { 
+
+    hasTunnel(): boolean;
+    clearTunnel(): void;
+    getTunnel(): PersonalVpnConfig.TunnelConfig | undefined;
+    setTunnel(value?: PersonalVpnConfig.TunnelConfig): PersonalVpnConfig;
+
+    hasPeer(): boolean;
+    clearPeer(): void;
+    getPeer(): PersonalVpnConfig.PeerConfig | undefined;
+    setPeer(value?: PersonalVpnConfig.PeerConfig): PersonalVpnConfig;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): PersonalVpnConfig.AsObject;
+    static toObject(includeInstance: boolean, msg: PersonalVpnConfig): PersonalVpnConfig.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: PersonalVpnConfig, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): PersonalVpnConfig;
+    static deserializeBinaryFromReader(message: PersonalVpnConfig, reader: jspb.BinaryReader): PersonalVpnConfig;
+}
+
+export namespace PersonalVpnConfig {
+    export type AsObject = {
+        tunnel?: PersonalVpnConfig.TunnelConfig.AsObject,
+        peer?: PersonalVpnConfig.PeerConfig.AsObject,
+    }
+
+
+    export class TunnelConfig extends jspb.Message { 
+        getPrivateKey(): Uint8Array | string;
+        getPrivateKey_asU8(): Uint8Array;
+        getPrivateKey_asB64(): string;
+        setPrivateKey(value: Uint8Array | string): TunnelConfig;
+        clearIpsList(): void;
+        getIpsList(): Array<string>;
+        setIpsList(value: Array<string>): TunnelConfig;
+        addIps(value: string, index?: number): string;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): TunnelConfig.AsObject;
+        static toObject(includeInstance: boolean, msg: TunnelConfig): TunnelConfig.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: TunnelConfig, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): TunnelConfig;
+        static deserializeBinaryFromReader(message: TunnelConfig, reader: jspb.BinaryReader): TunnelConfig;
+    }
+
+    export namespace TunnelConfig {
+        export type AsObject = {
+            privateKey: Uint8Array | string,
+            ipsList: Array<string>,
+        }
+    }
+
+    export class PeerConfig extends jspb.Message { 
+        getPublicKey(): Uint8Array | string;
+        getPublicKey_asU8(): Uint8Array;
+        getPublicKey_asB64(): string;
+        setPublicKey(value: Uint8Array | string): PeerConfig;
+        clearAllowedIpList(): void;
+        getAllowedIpList(): Array<string>;
+        setAllowedIpList(value: Array<string>): PeerConfig;
+        addAllowedIp(value: string, index?: number): string;
+        getEndpoint(): string;
+        setEndpoint(value: string): PeerConfig;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): PeerConfig.AsObject;
+        static toObject(includeInstance: boolean, msg: PeerConfig): PeerConfig.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: PeerConfig, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): PeerConfig;
+        static deserializeBinaryFromReader(message: PeerConfig, reader: jspb.BinaryReader): PeerConfig;
+    }
+
+    export namespace PeerConfig {
+        export type AsObject = {
+            publicKey: Uint8Array | string,
+            allowedIpList: Array<string>,
+            endpoint: string,
+        }
+    }
+
+}
+
+export class PersonalVpnConfigError extends jspb.Message { 
+    getError(): string;
+    setError(value: string): PersonalVpnConfigError;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): PersonalVpnConfigError.AsObject;
+    static toObject(includeInstance: boolean, msg: PersonalVpnConfigError): PersonalVpnConfigError.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: PersonalVpnConfigError, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): PersonalVpnConfigError;
+    static deserializeBinaryFromReader(message: PersonalVpnConfigError, reader: jspb.BinaryReader): PersonalVpnConfigError;
+}
+
+export namespace PersonalVpnConfigError {
+    export type AsObject = {
+        error: string,
+    }
 }
 
 export class QuantumResistantState extends jspb.Message { 
@@ -3585,6 +3731,8 @@ export enum FeatureIndicator {
     CUSTOM_MTU = 13,
     DAITA = 14,
     MULTIHOP_AUTO = 15,
+    PERSONAL_VPN = 16,
+    PERSONAL_VPN_ACTIVE = 17,
 }
 
 export enum Ownership {
