@@ -35,6 +35,7 @@ extension ApiContext {
         domain: String,
         domainFronting: DomainFrontingConfig,
         disableTls: Bool = false,
+        sigsumTrustedKeys: String? = nil,
         shadowsocksProvider: ShadowsocksBridgeProvider,
         accessMethodWrapper: SwiftAccessMethodSettingsContext,
         accessMethodChangeListeners: [any MullvadAccessMethodChangeListening]
@@ -47,6 +48,7 @@ extension ApiContext {
             domain: domain,
             domainFronting: domainFronting,
             disableTls: disableTls,
+            sigsumTrustedKeys: sigsumTrustedKeys,
             bridgeProvider: shadowsocksProvider,
             settingsProvider: accessMethodWrapper,
             accessMethodChangeListeners: accessMethodChangeListeners.map(CallbackShim.init))
