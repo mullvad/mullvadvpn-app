@@ -6,6 +6,8 @@ import type { LocationSelectorSelectedItem } from '../../../lib/components/locat
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
+type TransitionState = 'idle' | 'transitioningOut' | 'transitioningIn';
+
 type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'children'> & {
   locationType: LocationType;
   setLocationType: (locationType: LocationType) => void;
@@ -15,6 +17,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setIsolatedItem: (value: LocationSelectorSelectedItem | undefined) => void;
   isLocationSelectorExpanded: boolean;
   setIsLocationSelectorExpanded: (value: boolean) => void;
+  transitionState: TransitionState;
+  setTransitionState: (value: TransitionState) => void;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -54,6 +58,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   }, []);
 
   const [isLocationSelectorExpanded, setIsLocationSelectorExpanded] = React.useState(true);
+  const [transitionState, setTransitionState] = React.useState<TransitionState>('idle');
 
   const setLocationType = React.useCallback(
     (value: LocationType) => {
@@ -74,6 +79,8 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setIsolatedItem,
       isLocationSelectorExpanded,
       setIsLocationSelectorExpanded,
+      transitionState,
+      setTransitionState,
     }),
     [
       locationTypeSelector,
@@ -83,6 +90,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       isolatedItem,
       setIsolatedItem,
       isLocationSelectorExpanded,
+      transitionState,
     ],
   );
 
