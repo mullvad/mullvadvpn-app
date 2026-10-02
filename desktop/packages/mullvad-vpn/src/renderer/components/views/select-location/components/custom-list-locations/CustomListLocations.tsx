@@ -4,6 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListLocation } from '../custom-list-location';
 import { useHasCustomLists } from '../location-lists/hooks';
@@ -23,11 +24,19 @@ function CustomListLocationsImpl() {
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
   const showAddLocationToCustomListText = hasCustomLists;
 
+  const { searchTerm } = useSelectLocationViewContext();
+  const customListsKey = searchTerm ? `custom-lists-${searchTerm}` : 'custom-lists';
+
   return (
-    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+    <FlexColumn
+      as="section"
+      aria-labelledby={titleId}
+      gap="tiny"
+      tabIndex={-1}
+      data-focusable-heading>
       <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
-        <AnimatedList>
+        <AnimatedList key={customListsKey}>
           {customListLocations.map((customList) => {
             const { key } = getLocationListItemMapProps(customList, undefined);
             return (
