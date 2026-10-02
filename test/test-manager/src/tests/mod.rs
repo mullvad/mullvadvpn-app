@@ -6,6 +6,7 @@ mod daita;
 mod dns;
 mod helpers;
 mod install;
+mod local_relay;
 mod macos;
 mod relay_ip_overrides;
 mod settings;
