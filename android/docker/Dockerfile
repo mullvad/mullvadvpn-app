@@ -1,5 +1,5 @@
-# To build the image (executed from this Dockerfile directory):
-# podman build . -t mullvadvpn-app-build-android
+# To build the image (executed from the repository root):
+# podman build -f android/docker/Dockerfile . -t mullvadvpn-app-build-android
 #
 # To build using the image:
 # podman run --rm \
@@ -9,20 +9,26 @@
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
 #     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build-android ./android/gradlew -p android debug
-#
-# See the base image Dockerfile in the repository root (../../Dockerfile)
-# for more information.
 
-# === Base image (built from: ../../Dockerfile) ===
-# By digest, not by tag, so this can never be repointed at a different image.
-FROM ghcr.io/mullvad/mullvadvpn-app-build@sha256:67adca4e557b697ecf5a8cd46a70015447514e9c2846da4573ed00df036ce6f9
+# Base image: Debian trixie (13.7-slim)
+FROM --platform=linux/amd64 debian@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app Android build container"
 LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
-# === Define toolchain versions and paths ===
+# === Common setup ===
+
+ARG DEBIAN_SNAPSHOT=20260927T000000Z
+COPY building/setup-debian-snapshot.sh /tmp/
+RUN /tmp/setup-debian-snapshot.sh && rm /tmp/setup-debian-snapshot.sh
+
+COPY building/install-rust.sh rust-toolchain.toml /tmp/rust/
+RUN /tmp/rust/install-rust.sh android && rm -r /tmp/rust
+ENV PATH=/root/.cargo/bin:$PATH
+
+# === Define toolchain versions ===
 
 ARG SDK_VERSION=android-37.0 \
     BUILD_TOOLS_VERSION=37.0.0
@@ -36,6 +42,8 @@ ARG NDK_VERSION_NAME=r27d \
     NDK_SHA1_CHECKSUM=22105e410cf29afcf163760cc95522b9fb981121 \
     MIN_SDK_VERSION=28 \
     NDK_VERSION=27.3.13750724
+
+# === Define paths and environment ===
 
 ENV ANDROID_SDK_ROOT=/opt/android
 # ANDROID_HOME is kept for backwards compatibility
@@ -67,10 +75,7 @@ ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
 # Set up python3 path for the rust gradle plugin
 ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
-# Set Java home for the downloaded JDK
-ENV JAVA_HOME=/opt/jdk-21
-
-ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 
 # Make adb, apk signer, apk analyzer and other tools accessible
 ENV PATH="\
@@ -84,31 +89,24 @@ ${JAVA_HOME}/bin\
 
 RUN apt-get update -y && apt-get install -y \
     file \
-    gpg \
+    git \
+    curl \
+    jq \
     make \
-    python \
-    software-properties-common \
+    gcc \
+    gpg \
     unzip \
     ca-certificates-java \
+    openjdk-21-jdk-headless \
     tidy \
     pcscd \
-    python3-pip \
     rclone \
-    python3-qrcode \
+    yubico-piv-tool \
+    ykcs11 \
+    protobuf-compiler \
+    libprotobuf-dev \
+    && apt-get install -y --no-install-recommends fdroidserver \
     && rm -rf /var/lib/apt/lists/*
-
-# Install fdroid server using pip instead to get a version that is using a later versions of androguard
-# This and installing pip can be removed when updating to a newer version of debian
-# Uses a requirement file to pin hashes of fdroidserver and its dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --require-hashes -r /tmp/requirements.txt
-
-# Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
-RUN curl -sfLo /tmp/openjdk-21.tar.gz https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz && \
-    echo "$JDK_SHA256_CHECKSUM /tmp/openjdk-21.tar.gz" | sha256sum -c && \
-    tar -xf /tmp/openjdk-21.tar.gz -C /tmp/ && \
-    mv /tmp/jdk-21.0.2 /opt/jdk-21 && \
-    rm /tmp/openjdk-21.tar.gz
 
 # Install Android command line tools
 RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip && \
@@ -132,67 +130,11 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
     mv /tmp/android-ndk-${NDK_VERSION_NAME} ${ANDROID_NDK_HOME} && \
     rm /tmp/ndk.zip
 
-# Add rust targets
-RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
+COPY android/docker/pkcs11_java.cfg /usr/local/etc/pkcs11_java.cfg
+# Keep ykcs11 at the path used by pkcs11_java.cfg and existing override configs
+RUN ln -s /usr/lib/x86_64-linux-gnu/libykcs11.so.2 /usr/local/lib/libykcs11.so.2
 
-# Install yubico-piv-tool (by building from source)
-#
-# NOTE: Yubico doesn't have a main signing key, instead individual devs
-# sign release. On version bumps, verify the new tarball .sig and update
-# the key file if a different developer signed the release.
-# https://developers.yubico.com/Software_Projects/Software_Signing.html
-ARG YUBICO_PIV_TOOL_VERSION=2.7.3
-ARG YUBICO_PIV_TOOL_SHA256=fcb25c42f54298ece8b20684fb3c581ed9195a162cbc55180a4161501be93181
-COPY yubico-piv-tool-signing-key.asc /tmp/yubico-piv-tool-signing-key.asc
-RUN set -eux; \
-    # Install build-only dependencies (some marked auto for later removal)
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-        check \
-        cmake \
-        g++ \
-        gengetopt \
-        help2man \
-        libpcsclite-dev \
-        libssl-dev \
-        pkg-config \
-        zlib1g-dev \
-    && \
-    apt-mark auto \
-        check \
-        cmake \
-        gengetopt \
-        help2man \
-        libpcsclite-dev \
-        libssl-dev \
-        pkg-config \
-        zlib1g-dev \
-    && \
-    # Download source tarball and detached signature
-    curl -sfLo /tmp/yubico-piv-tool.tar.gz \
-        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz" && \
-    curl -sfLo /tmp/yubico-piv-tool.tar.gz.sig \
-        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz.sig" && \
-    # Check checksum
-    echo "$YUBICO_PIV_TOOL_SHA256 /tmp/yubico-piv-tool.tar.gz" | sha256sum -c && \
-    # Verify signature
-    export GNUPGHOME="$(mktemp -d)" && \
-    gpg --batch --import /tmp/yubico-piv-tool-signing-key.asc && \
-    gpg --batch --verify /tmp/yubico-piv-tool.tar.gz.sig /tmp/yubico-piv-tool.tar.gz && \
-    rm -rf "$GNUPGHOME" && \
-    # Extract and build
-    tar -xzf /tmp/yubico-piv-tool.tar.gz -C /tmp && \
-    mkdir /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
-    cd /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
-    cmake .. && \
-    make -j"$(nproc)" && \
-    make install && \
-    ldconfig && \
-    # Cleanup
-    rm -rf /tmp/yubico-piv-tool* && \
-    apt-get autoremove --purge -y && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY pkcs11_java.cfg /usr/local/etc/pkcs11_java.cfg
+# There is no polkit daemon in the container to authorize pcscd clients
+RUN echo 'PCSCD_ARGS="--disable-polkit"' >> /etc/default/pcscd
 
 WORKDIR /build
