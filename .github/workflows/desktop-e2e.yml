@@ -33,11 +33,13 @@ on:
         required: false
         type: string
       environment:
-        description: "Name of the environment in the test-manager config on the runners, e.g. `prod` \
-          or `staging`"
+        description: "Environment to test against"
         default: 'staging'
         required: false
-        type: string
+        type: choice
+        options:
+          - prod
+          - staging
 
 permissions: {}
 
