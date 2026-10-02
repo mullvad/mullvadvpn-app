@@ -1,5 +1,5 @@
-export * from './filter-locations-by-ownership-and-providers';
-export * from './filter-locations-by-filters';
+export * from './filter-countries-by-ownership-and-providers';
+export * from './filter-countries';
 export * from './get-active-providers';
 export * from './get-location-children';
 export * from './is-daita-filter-active';
@@ -22,7 +22,7 @@ export * from './search-custom-list-and-locations';
 export * from './get-recent-exit-locations';
 export * from './get-recent-entry-locations';
 export * from './get-unique-locations';
-export * from './filter-locations-by-relay-locations-filtered';
+export * from './filter-countries-by-relay-locations-filtered';
 export * from './get-relay-locations-filtered-filter';
 export * from './get-relay-locations-filtered-discards-filter';
 export * from './get-relay-locations-filtered-matches-filter';
