@@ -36,8 +36,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         let tunnelState = interactor.tunnelStatus.state
 
         return HeaderBarPresentation(
-            style: tunnelState.isSecured ? .secured : .unsecured,
-            showsDivider: false
+            style: tunnelState.isSecured ? .secured : .unsecured
         )
     }
 

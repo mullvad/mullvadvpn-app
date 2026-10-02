@@ -18,8 +18,7 @@ public final class UIHostingRootController<Content: View>: UIHostingController<C
     let prefersDeviceInfoBarHidden: Bool
 
     init(
-        preferredHeaderBarPresentation: HeaderBarPresentation =
-            HeaderBarPresentation(style: .default, showsDivider: false),
+        preferredHeaderBarPresentation: HeaderBarPresentation = HeaderBarPresentation(style: .default),
         prefersHeaderBarHidden: Bool = false,
         prefersDeviceInfoBarHidden: Bool = true,
         rootView: Content

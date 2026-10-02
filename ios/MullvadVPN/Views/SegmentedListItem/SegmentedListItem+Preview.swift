@@ -74,7 +74,7 @@ import SwiftUI
                 )
             },
             trailing: {
-                itemFactory.trailing(for: .text(title: "Some text", breadcrumb: .info(.vpnSettings)))
+                itemFactory.trailing(for: .text(title: "Some text", breadcrumb: .warning(.vpnSettings)))
             }
         )
 
