@@ -160,10 +160,14 @@ extension ConnectionViewViewModel {
     var localizedTitleForSelectLocationButton: LocalizedStringKey {
         switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey(connectionName ?? "Select location")
+            if let connectionName {
+                return "\(connectionName)"
+            }
+
+            return "Select location"
         case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
             .negotiatingEphemeralPeer, .error:
-            LocalizedStringKey("Switch location")
+            return "Switch location"
         }
     }
 
