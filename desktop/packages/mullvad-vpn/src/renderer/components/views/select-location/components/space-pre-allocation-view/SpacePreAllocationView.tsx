@@ -1,8 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 
 interface ISpacePreAllocationView {
   children?: React.ReactNode;
 }
+
+const StyledSpaceAllocationView = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
 
 export class SpacePreAllocationView extends React.Component<ISpacePreAllocationView> {
   private ref = React.createRef<HTMLDivElement | null>();
@@ -18,7 +25,9 @@ export class SpacePreAllocationView extends React.Component<ISpacePreAllocationV
   };
 
   public render() {
-    return <div ref={this.ref}>{this.props.children}</div>;
+    return (
+      <StyledSpaceAllocationView ref={this.ref}>{this.props.children}</StyledSpaceAllocationView>
+    );
   }
 
   private set minHeight(value: string) {
