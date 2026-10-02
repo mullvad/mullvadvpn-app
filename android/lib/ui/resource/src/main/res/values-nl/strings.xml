@@ -173,11 +173,11 @@
     <string name="delete_account_third_item">Terugbetaling is niet mogelijk.</string>
     <string name="delete_account_unable_to_verify">Accountnummer kan niet worden geverifieerd, neem contact op met de ondersteuning</string>
     <string name="delete_account_warning"><b>Waarschuwing:</b></string>
-    <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
     <string name="delete_list">Lijst verwijderen</string>
     <string name="delete_method">Methode verwijderen</string>
     <string name="delete_method_question">Methode verwijderen?</string>
+    <string name="delete_x">\"%1$s\" verwijderen?</string>
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>

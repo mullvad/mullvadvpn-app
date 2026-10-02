@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.ui.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -15,8 +16,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 
 @Composable
@@ -93,7 +98,6 @@ fun ScaffoldWithTopBarAndDeviceName(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldWithSmallTopBar(
     appBarTitle: String,
@@ -128,7 +132,6 @@ fun ScaffoldWithSmallTopBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldWithSmallTopBar(
     appBarTitle: String,
@@ -178,4 +181,18 @@ fun ScaffoldWithNavigationButton(
         bottomBar = bottomBar,
         content = { content(Modifier.fillMaxSize().padding(it)) },
     )
+}
+
+@Composable
+fun LoadingScaffold(onBackClick: () -> Unit) {
+    ScaffoldWithSmallTopBar(
+        appBarTitle = "",
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            MullvadCircularProgressIndicatorLarge()
+        }
+    }
 }
