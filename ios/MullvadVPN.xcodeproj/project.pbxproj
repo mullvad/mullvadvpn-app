@@ -246,7 +246,6 @@
 		586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D982B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift */; };
 		586C14582AC463BB00245C01 /* EventChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14572AC463BB00245C01 /* EventChannelTests.swift */; };
 		586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */; };
-		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
 		5871167F2910035700D41AAC /* VPNSettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -898,7 +897,6 @@
 		A9A5FA112ACB05160083449F /* APITransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* APITransportMonitor.swift */; };
 		A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
-		A9A5FA172ACB05160083449F /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
 		A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E143276A13F300A79513 /* StartTunnelOperation.swift */; };
 		A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */; };
@@ -2069,7 +2067,6 @@
 		586C0D982B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessMethodViewModel+Persistent.swift"; sourceTree = "<group>"; };
 		586C14572AC463BB00245C01 /* EventChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventChannelTests.swift; sourceTree = "<group>"; };
 		586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Public.swift"; sourceTree = "<group>"; };
-		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
 		586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsReaderProtocol.swift; sourceTree = "<group>"; };
 		5871167E2910035700D41AAC /* VPNSettingsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsInteractor.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
@@ -3466,7 +3463,7 @@
 				A9E031762ACB08950095D843 /* BackgroundTaskProvider.swift */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
 				58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */,
-				586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */,
+				A9E3B6EE306E37E5001EDDEA /* SendTunnelMessageService.swift */,
 				588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */,
 				58F2E143276A13F300A79513 /* StartTunnelOperation.swift */,
 				58F2E145276A2C9900A79513 /* StopTunnelOperation.swift */,
@@ -3483,7 +3480,6 @@
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */,
 				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
-				A9E3B6EE306E37E5001EDDEA /* SendTunnelMessageService.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -6572,7 +6568,6 @@
 				7ACE19132C1C352100260BB6 /* RelayPickingTests.swift in Sources */,
 				F09D04B52AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift in Sources */,
 				58BE4B9D2B18A85B007EA1D3 /* NSAttributedString+Extensions.swift in Sources */,
-				A9A5FA172ACB05160083449F /* SendTunnelProviderMessageOperation.swift in Sources */,
 				7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */,
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
 				A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */,
@@ -7238,7 +7233,6 @@
 				F09E81EC301370DD00F6F2B8 /* BorderStyle.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
 				F95CDDA82EE07F7F000E9D97 /* PressedExposingButton.swift in Sources */,
-				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,
 				F92C658A2E7A922F00B8E107 /* ActiveFilterView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
