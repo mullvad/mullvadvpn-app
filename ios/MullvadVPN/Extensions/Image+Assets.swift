@@ -5,6 +5,7 @@ extension Image {
     static let mullvadLogoImage = Image("LogoIcon")
     static let mullvadLogoText = Image("LogoText")
     static let mullvadIconSettings = Image("IconSettings")
+    static let mullvadIconAccount = Image("IconAccount")
     static let mullvadIconAlert = Image("IconAlert")
     static let mullvadIconSpinner = Image("IconSpinner")
     static let mullvadIconSuccess = Image("IconSuccess")
