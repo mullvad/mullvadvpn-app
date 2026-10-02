@@ -89,7 +89,7 @@ final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
         XCTAssertTrue(output.contains("[REDACTED ACCOUNT NUMBER]"), "Should contain account redaction placeholder")
 
         // Non-sensitive content should survive
-        XCTAssertTrue(output.contains("MullvadVPN version 2024.5"), "Version header should be preserved")
+        XCTAssertTrue(output.contains("MullvadVPN version 2024.3"), "Version header should be preserved")
         XCTAssertTrue(output.contains("Refresh device state"), "Normal log text should be preserved")
     }
 
@@ -168,12 +168,12 @@ extension ConsolidatedApplicationLogTests {
         """
     }
 
-    /// Simulates a log file from a pre-2026.3 release that did NOT have on-the-fly redaction.
+    /// Simulates a log file from a pre-2026.4 release that did NOT have on-the-fly redaction.
     /// Contains raw IPs, account numbers, and other sensitive data that must be redacted
     /// at collection time.
     private var oldReleaseLogContent: String {
         """
-        MullvadVPN version 2024.5
+        MullvadVPN version 2024.3
         [15/03/2025 @ 10:30:01][AppDelegate][debug] Registered app refresh task.
         [15/03/2025 @ 10:30:01][TunnelManager][debug] Refresh device state and tunnel status.
         [15/03/2025 @ 10:30:02][REST.NetworkOperation][debug] name=get-access-token.2 \
